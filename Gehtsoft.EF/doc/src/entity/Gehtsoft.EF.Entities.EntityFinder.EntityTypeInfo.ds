@@ -1,0 +1,179 @@
+@class
+    @name=EntityFinder.EntityTypeInfo
+    @key=Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo
+    @brief=The information about the entity.
+    @type=class
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo
+    @parent=System.IComparable<[clink=Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo]EntityFinder.EntityTypeInfo[/clink]>
+
+    Use [clink=Gehtsoft.EF.Entities.EntityFinder]EntityFinder[/clink] to get the collection of the entity type.
+
+    @member
+        @name=DoesDependOn
+        @sig=M:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.DoesDependOn(Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo)
+        @key=DoesDependOn.0
+        @divisor=.
+        @brief=Checks whether the entity depends on another entity.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=DoesDependOn
+            @return=bool
+            @params=[clink=Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo]EntityFinder.EntityTypeInfo[/clink] info
+        @end
+
+        @param
+            @name=info
+
+        @end
+
+    @end
+
+    @member
+        @name=Scope
+        @sig=P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.Scope
+        @key=Scope.0
+        @divisor=.
+        @brief=The name of the entity scope
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Scope
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=EntityType
+        @sig=P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.EntityType
+        @key=EntityType.0
+        @divisor=.
+        @brief=The .NET type of the entity.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=EntityType
+            @return=System.Type
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Obsolete
+        @sig=P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.Obsolete
+        @key=Obsolete.0
+        @divisor=.
+        @brief=The flag indicating whether the entity is obsolete.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Obsolete
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Table
+        @sig=P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.Table
+        @key=Table.0
+        @divisor=.
+        @brief=The name of the table associated with the entity.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Table
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=NamingPolicy
+        @sig=P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.NamingPolicy
+        @key=NamingPolicy.0
+        @divisor=.
+        @brief=The naming policy associated with the entity
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=NamingPolicy
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]EntityNamingPolicy[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=DependsOn
+        @sig=P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.DependsOn
+        @key=DependsOn.0
+        @divisor=.
+        @brief=Returns the list of types that depends on this type.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=DependsOn
+            @return=System.Collections.Generic.List<System.Type>
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=DependsOnInfo
+        @sig=P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.DependsOnInfo
+        @key=DependsOnInfo.0
+        @divisor=.
+        @brief=Returns the list of entity type information of types that depends on this type.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=DependsOnInfo
+            @return=System.Collections.Generic.List<[clink=Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo]EntityFinder.EntityTypeInfo[/clink]>
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

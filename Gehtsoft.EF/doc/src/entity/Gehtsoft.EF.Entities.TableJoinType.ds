@@ -1,0 +1,117 @@
+@class
+    @name=TableJoinType
+    @key=Gehtsoft.EF.Entities.TableJoinType
+    @brief=Type of table joins
+    @type=enum
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.TableJoinType
+    @member
+        @name=None
+        @sig=F:Gehtsoft.EF.Entities.TableJoinType.None
+        @key=None.0
+        @divisor=.
+        @brief=No join.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=None
+            @return=[clink=Gehtsoft.EF.Entities.TableJoinType]TableJoinType[/clink]
+        @end
+
+        All possible combinations of rows from tables A and B will be added to the query output before where filtration.
+
+    @end
+
+    @member
+        @name=Inner
+        @sig=F:Gehtsoft.EF.Entities.TableJoinType.Inner
+        @key=Inner.0
+        @divisor=.
+        @brief=Inner join.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Inner
+            @return=[clink=Gehtsoft.EF.Entities.TableJoinType]TableJoinType[/clink]
+        @end
+
+        All only those combinations of rows from tables A and B that matches the condition specified will be added to the query output
+        before filtration.
+    @end
+
+    @member
+        @name=Left
+        @sig=F:Gehtsoft.EF.Entities.TableJoinType.Left
+        @key=Left.0
+        @divisor=.
+        @brief=Left outer join.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Left
+            @return=[clink=Gehtsoft.EF.Entities.TableJoinType]TableJoinType[/clink]
+        @end
+
+        All only those combinations of rows from tables A and B that matches the condition specified plus rows A that have no corresponding
+        rows from B will be added to the query output before filtration.
+
+    @end
+
+    @member
+        @name=Right
+        @sig=F:Gehtsoft.EF.Entities.TableJoinType.Right
+        @key=Right.0
+        @divisor=.
+        @brief=Right outer join.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Right
+            @return=[clink=Gehtsoft.EF.Entities.TableJoinType]TableJoinType[/clink]
+        @end
+
+        All only those combinations of rows from tables A and B that matches the condition specified plus rows B that have no corresponding
+        rows from A will be added to the query output before filtration.
+
+    @end
+
+    @member
+        @name=Outer
+        @sig=F:Gehtsoft.EF.Entities.TableJoinType.Outer
+        @key=Outer.0
+        @divisor=.
+        @brief=Full outer join.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Outer
+            @return=[clink=Gehtsoft.EF.Entities.TableJoinType]TableJoinType[/clink]
+        @end
+
+        A combination of left and right join.
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

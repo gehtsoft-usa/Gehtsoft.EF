@@ -1,0 +1,48 @@
+@class
+    @name=ConvertToJsExtension
+    @key=Gehtsoft.Validator.JSConvertor.ConvertToJsExtension
+    @brief=The extension of the validator for JS conversion.
+    @type=class
+    @ingroup=Gehtsoft.Validator.JSConvertor
+    @sig=T:Gehtsoft.Validator.JSConvertor.ConvertToJsExtension
+    @member
+        @name=GetJsRules
+        @sig=M:Gehtsoft.Validator.JSConvertor.ConvertToJsExtension.GetJsRules(Gehtsoft.Validator.IBaseValidator)
+        @key=GetJsRules.0
+        @divisor=.
+        @brief=Convert Validator to JS
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetJsRules
+            @return=[clink=Gehtsoft.Validator.JSConvertor.JsValidatorRule]JsValidatorRule[/clink][]
+            @params=this [clink=Gehtsoft.Validator.IBaseValidator]IBaseValidator[/clink] validator, System.Type compilerType = null
+        @end
+
+        @param
+            @name=validator
+
+        @end
+
+        @param
+            @name=compilerType
+            The type of the LINQ expression compiler to be used.
+
+            If [c]null[/c] value is specified, the [clink=Gehtsoft.Validator.JSConvertor.ValidationExpressionCompiler]ValidationExpressionCompiler[/clink]
+            class will be used.
+
+            You may want to provide your own compiler class in order to support additional or application-specific functions or operations
+            inside the LINQ expressions.
+        @end
+
+        The method returns an array of JS rule descriptor, one object per each rule successfully converted.
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator.JSConvertor]Gehtsoft.Validator.JSConvertor[/clink].
+@end

@@ -1,0 +1,151 @@
+@class
+    @name=IResiliencyPolicy
+    @key=Gehtsoft.EF.Db.SqlDb.IResiliencyPolicy
+    @brief=The interface to a resiliency policy provider.
+    @type=interface
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.IResiliencyPolicy
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.ResiliencyPolicyDictionary]ResiliencyPolicyDictionary[/clink]
+    to set global and connection policies.
+
+    In most cases the simplest way to implement this interface is used create
+    a facade to a well-established library of resiliency patterns such as [eurl=https://github.com/App-vNext/Polly]Polly[/eurl].
+
+    @example
+        @title=Implementing interface via Polly
+        @show=no
+        @highlight=cs
+
+        !class PollyResiliencyPolicy : IResiliencyPolicy
+        !{
+        !    private readonly ISyncPolicy mSyncPolicy;
+        !    private readonly IAsyncPolicy mAsyncPolicy;
+        !
+        !    public PolicyInvoker(ISyncPolicy syncPolicy, IAsyncPolicy asyncPolicy)
+        !    {
+        !        mSyncPolicy = syncPolicy;
+        !        mAsyncPolicy = asyncPolicy;
+        !    }
+        !
+        !    public void Execute(Action action)
+        !    {
+        !        mSyncPolicy.Execute(action);
+        !    }
+        !
+        !    public TResult Execute<TResult>(Func<TResult> action)
+        !    {
+        !        return mSyncPolicy.Execute<TResult>(action);
+        !    }
+        !
+        !    public Task ExecuteAsync(Func<Task> action)
+        !    {
+        !        return mAsyncPolicy.ExecuteAsync(action);
+        !    }
+        !
+        !    public Task ExecuteAsync(Func<CancellationToken, Task> action, CancellationToken token)
+        !    {
+        !        return mAsyncPolicy.ExecuteAsync(action, token);
+        !    }
+        !
+        !    public Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> action)
+        !    {
+        !        return mAsyncPolicy.ExecuteAsync<TResult>(action);
+        !    }
+        !
+        !    public Task<TResult> ExecuteAsync<TResult>(Func<CancellationToken, Task<TResult>> action, CancellationToken token)
+        !    {
+        !        return mAsyncPolicy.ExecuteAsync(action, token);
+        !    }
+        !}
+
+    @end
+
+    @member
+        @name=Execute
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IResiliencyPolicy.Execute(System.Action)
+        @key=Execute.0
+        @divisor=.
+        @brief=The group of methods that executes a synchronous action.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Execute
+            @return=void
+            @params=Action action
+        @end
+        @declaration
+            @language=cs
+            @name=Execute<TResult>
+            @return=TResult
+            @params=Func<TResult> action
+        @end
+
+        @param
+            @name=TResult
+
+        @end
+        @param
+            @name=action
+
+        @end
+
+    @end
+
+    @member
+        @name=ExecuteAsync
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IResiliencyPolicy.ExecuteAsync(System.Func`1)
+        @key=ExecuteAsync.0
+        @divisor=.
+        @brief=The group of methods that executes an asynchronous action.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ExecuteAsync
+            @return=Task
+            @params=Func<Task> action
+        @end
+        @declaration
+            @language=cs
+            @name=ExecuteAsync
+            @return=Task
+            @params=Func<CancellationToken, Task> action, CancellationToken token
+        @end
+        @declaration
+            @language=cs
+            @name=ExecuteAsync<TResult>
+            @return=Task
+            @params=Func<Task<TResult>> action
+        @end
+        @declaration
+            @language=cs
+            @name=ExecuteAsync<TResult>
+            @return=Task
+            @params=Func<CancellationToken, Task<TResult>> action, CancellationToken token
+        @end
+
+        @param
+            @name=TResult
+
+        @end
+        @param
+            @name=action
+
+        @end
+        @param
+            @name=token
+
+        @end
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end

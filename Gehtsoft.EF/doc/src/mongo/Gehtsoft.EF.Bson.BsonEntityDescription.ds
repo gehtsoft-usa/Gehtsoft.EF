@@ -1,0 +1,91 @@
+@class
+    @name=BsonEntityDescription
+    @key=Gehtsoft.EF.Bson.BsonEntityDescription
+    @brief=Description of the entity for BSON conversion purpose
+    @type=class
+    @ingroup=Gehtsoft.EF.Bson
+    @sig=T:Gehtsoft.EF.Bson.BsonEntityDescription
+
+    @member
+        @name=EntityType
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityDescription.EntityType
+        @key=EntityType.0
+        @divisor=.
+        @brief=The type of the entity.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=EntityType
+            @return=System.Type
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=Table
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityDescription.Table
+        @key=Table.0
+        @divisor=.
+        @brief=The table name of the entity.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Table
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=Fields
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityDescription.Fields
+        @key=Fields.0
+        @divisor=.
+        @brief=The list of fields of the entity
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Fields
+            @return=[clink=Gehtsoft.EF.Bson.BsonEntityField]BsonEntityField[/clink][]
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=PrimaryKey
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityDescription.PrimaryKey
+        @key=PrimaryKey.0
+        @divisor=.
+        @brief=The field which is primary key of the entity.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PrimaryKey
+            @return=[clink=Gehtsoft.EF.Bson.BsonEntityField]BsonEntityField[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Bson.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Bson]Gehtsoft.EF.Bson[/clink].
+@end

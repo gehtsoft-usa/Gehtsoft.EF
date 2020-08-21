@@ -1,0 +1,68 @@
+@class
+    @name=IEntitySerializationCallback
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.IEntitySerializationCallback
+    @brief=Serialization callback interface for entity objects than needs encoding/decoding database data.
+    @type=interface
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.IEntitySerializationCallback
+
+    The interface is to be implemented by entities that needs to decode database data into entity properties after reading and
+    to encode entity properties into database data before writing, for example when a set of properties needs to be serialized into
+    database as a JSON or XML string.
+
+
+    @member
+        @name=BeforeSerialization
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.IEntitySerializationCallback.BeforeSerialization(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @key=BeforeSerialization.0
+        @divisor=.
+        @brief=The method is called before the entity is saved to the database.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BeforeSerialization
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]Gehtsoft.EF.Db.SqlDb.SqlDbConnection[/clink] connection
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+    @end
+
+    @member
+        @name=AfterDeserealization
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.IEntitySerializationCallback.AfterDeserealization(Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase)
+        @key=AfterDeserealization.0
+        @divisor=.
+        @brief=The method is called after the entity is read from the database.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AfterDeserealization
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query
+        @end
+
+        @param
+            @name=query
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

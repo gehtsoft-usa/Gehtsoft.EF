@@ -1,0 +1,120 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.Common">
+      <Version>4.3.0</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="EntityQueries\DynamicEntity.cs" />
+    <None Remove="EntityQueries\Linq\EntityQueryLinqExtension.cs" />
+    <None Remove="EntityQueries\Linq\ExpressionCompiler.cs" />
+    <None Remove="EntityQueries\Linq\QueryableEntity.cs" />
+    <None Remove="EntityQueries\Linq\QueryableEntityProvider.cs" />
+    <None Remove="EntityQueries\Linq\SelectExpressionCompiler.cs" />
+    <None Remove="EntityQueries\Linq\SqlFunctions.cs" />
+    <None Remove="EntityQueries\SelectEntitiesTreeQuery.cs" />
+    <None Remove="SqlDbEntityCollectionExtension.cs" />
+    <None Remove="UniversalSqlDbFactory.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="EfSqlException.cs" />
+    <Compile Include="EntityGenericAccessor\GenericEntityAccessor.cs" />
+    <Compile Include="EntityGenericAccessor\GenericEntityAccessorUpdateRecord.cs" />
+    <Compile Include="EntityGenericAccessor\GenericEntityAccessorFilter.cs" />
+    <Compile Include="EntityGenericAccessor\GenericEntityAccessorWithAggregates.cs" />
+    <Compile Include="EntityGenericAccessor\GenericEntitySortOrder.cs" />
+    <Compile Include="EntityQueries\Context\ContextQuery.cs" />
+    <Compile Include="EntityQueries\Context\ContextTransaction.cs" />
+    <Compile Include="EntityQueries\Context\EntityContent.cs" />
+    <Compile Include="EntityQueries\DynamicEntity\DynamicEntityProperty.cs" />
+    <Compile Include="EntityQueries\DynamicEntity\DynamicEntityPropertyCollection.cs" />
+    <Compile Include="EntityQueries\DynamicEntity\DynamicPropertyAccessor.cs" />
+    <Compile Include="EntityQueries\DynamicEntity\IDynamicEntityProperty.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\EntityConditionBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\EntityQueryWithWhereBuilderBackwardCompatibility.cs" />
+    <Compile Include="EntityQueries\EntityQuery\ConditionEntityQueryBase.cs" />
+    <Compile Include="EntityQueries\CreateEntity\CreateEntityController.cs" />
+    <Compile Include="EntityQueries\EntityQuery\ConditionEntityQueryBaseBackwardCompatibility.cs" />
+    <Compile Include="EntityQueries\EntityQuery\DeleteEntityQuery.cs" />
+    <Compile Include="EntityQueries\DynamicEntity\DynamicEntity.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="EntityQueries\EntityConnection.cs" />
+    <Compile Include="EntityQueries\EntityInfo.cs" />
+    <Compile Include="EntityQueries\EntityQuery\EntityQuery.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\EntityQueryBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\EntityQueryWithWhereBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQuery\EntityQueryConditionBuilder.cs" />
+    <Compile Include="EntityQueries\IEntitySerializationCallback.cs" />
+    <Compile Include="EntityQueries\EntityQuery\SelectEntitiesTreeQuery.cs" />
+    <Compile Include="EntityQueries\EntityQuery\InsertEntityQuery.cs" />
+    <Compile Include="EntityQueries\Linq\EntityQueryLinqExtension.cs" />
+    <Compile Include="EntityQueries\Linq\ExpressionCompiler.cs" />
+    <Compile Include="EntityQueries\Linq\QueryableEntity.cs" />
+    <Compile Include="EntityQueries\Linq\QueryableEntityProvider.cs" />
+    <Compile Include="EntityQueries\Linq\SelectExpressionCompiler.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="EntityQueries\Linq\SqlFunctions.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\ModifyEntityQuery.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityCountQueryBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityQueryBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityQueryBuilderBase.cs" />
+    <Compile Include="EntityQueries\EntityQuery\SelectEntityQueryBuilderBaseReader.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityTreeQueryBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQuery\SelectEntityQueryFilter.cs" />
+    <Compile Include="EntityQueries\EntityQuery\ModifyEntityQuery.cs" />
+    <Compile Include="EntityQueries\EntityQuery\MultiDeleteEntityQuery.cs" />
+    <Compile Include="EntityQueries\EntityQuery\MultiUpdateEntityQuery.cs" />
+    <Compile Include="EntityQueries\EntityQuery\SelectEntitiesCountQuery.cs" />
+    <Compile Include="EntityQueries\EntityQuery\SelectEntitiesQuery.cs" />
+    <Compile Include="EntityQueries\EntityQuery\SelectEntitiesQueryBase.cs" />
+    <Compile Include="EntityQueries\EntityQuery\UpdateEntityQuery.cs" />
+    <Compile Include="ISqlDbConnectionFactory.cs" />
+    <Compile Include="QueryBuilder\AlterTableQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\ConditionBuilder.cs" />
+    <Compile Include="QueryBuilder\CreateTableBuilder.cs" />
+    <Compile Include="QueryBuilder\DeleteQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\DropQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\HierarchicalSelectQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\InsertQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\QueryBuilder.cs" />
+    <Compile Include="QueryBuilder\QueryWithWhereBuilder.cs" />
+    <Compile Include="QueryBuilder\SelectQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\TableDescriptor.cs" />
+    <Compile Include="QueryBuilder\UpdateQueryBuilder.cs" />
+    <Compile Include="ResiliencyPolicy.cs" />
+    <Compile Include="SelectQueryToTypeBinder.cs" />
+    <Compile Include="SqlDbConnection.cs" />
+    <Compile Include="SqlDbEntityCollectionExtension.cs" />
+    <Compile Include="SqlQuery.cs" />
+    <Compile Include="SqlLanguageSpecifics.cs" />
+    <Compile Include="SqlTransaction.cs" />
+    <Compile Include="UniversalSqlDbFactory.cs" />
+    <Compile Include="UpdateQueryToTypeBinder.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.4" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Entities\Gehtsoft.EF.Entities.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Utils\Gehtsoft.EF.Utils.csproj" />
+  </ItemGroup>
+</Project>

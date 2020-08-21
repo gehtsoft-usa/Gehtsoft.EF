@@ -1,0 +1,86 @@
+@class
+    @name=MapFlag
+    @key=Gehtsoft.EF.Mapper.MapFlag
+    @brief=The flag that modifies behavior of the mapping operation.
+    @type=enum
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.MapFlag
+    @member
+        @name=None
+        @sig=F:Gehtsoft.EF.Mapper.MapFlag.None
+        @key=None.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=None
+            @return=[clink=Gehtsoft.EF.Mapper.MapFlag]MapFlag[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=TrimStrings
+        @sig=F:Gehtsoft.EF.Mapper.MapFlag.TrimStrings
+        @key=TrimStrings.0
+        @divisor=.
+        @brief=Trims spaces from the start and the end of the string.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=TrimStrings
+            @return=[clink=Gehtsoft.EF.Mapper.MapFlag]MapFlag[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=TrimToSeconds
+        @sig=F:Gehtsoft.EF.Mapper.MapFlag.TrimToSeconds
+        @key=TrimToSeconds.0
+        @divisor=.
+        @brief=Trim datetime value to the whole seconds.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=TrimToSeconds
+            @return=[clink=Gehtsoft.EF.Mapper.MapFlag]MapFlag[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=TrimToDate
+        @sig=F:Gehtsoft.EF.Mapper.MapFlag.TrimToDate
+        @key=TrimToDate.0
+        @divisor=.
+        @brief=Trim datetime value to the date.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=TrimToDate
+            @return=[clink=Gehtsoft.EF.Mapper.MapFlag]MapFlag[/clink]
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end

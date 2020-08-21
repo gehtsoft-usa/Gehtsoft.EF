@@ -1,0 +1,17 @@
+@class
+    @name=DropTableBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.DropTableBuilder
+    @brief=The query builder that generates a drop table query.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.DropTableBuilder
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink]
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetDropTableBuilder.0]SqlDbConnection.GetCreateDropBuilder()[/clink] to get an instance
+    if the object.
+
+    The query checks whether the table exists and does not try to drop the table if it does not exist.
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

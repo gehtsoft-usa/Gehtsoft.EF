@@ -1,0 +1,111 @@
+@class
+    @name=MongoQueryWithCondition
+    @key=Gehtsoft.EF.MongoDb.MongoQueryWithCondition
+    @brief=The base class for all MongoDB query that has a condition.
+    @type=class
+    @ingroup=Gehtsoft.EF.MongoDb
+    @sig=T:Gehtsoft.EF.MongoDb.MongoQueryWithCondition
+    @parent=[clink=Gehtsoft.EF.MongoDb.MongoQuery]MongoQuery[/clink]
+
+    @member
+        @name=AddWhereFilter
+        @sig=M:Gehtsoft.EF.MongoDb.MongoQueryWithCondition.AddWhereFilter(Gehtsoft.EF.Entities.LogOp,System.String,Gehtsoft.EF.Entities.CmpOp,System.Object)
+        @key=AddWhereFilter.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+
+        @declaration
+            @language=cs
+            @name=AddWhereFilter
+            @return=void
+            @params=string path, [clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink] cmpOp, object value = null
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddWhereFilter
+            @return=void
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp, string path, [clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink] cmpOp, object value = null
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddWhereFilter
+            @return=void
+            @params=string path, [clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink] cmpOp, object[] values
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddWhereFilter
+            @return=void
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp, string path, [clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink] cmpOp, object[] values
+        @end
+
+        @param
+            @name=logOp
+
+        @end
+
+        @param
+            @name=path
+
+        @end
+
+        @param
+            @name=cmpOp
+
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+        @param
+            @name=values
+
+        @end
+
+    @end
+
+    @member
+        @name=AddWhereGroup
+        @sig=M:Gehtsoft.EF.MongoDb.MongoQueryWithCondition.AddWhereGroup(Gehtsoft.EF.Entities.LogOp)
+        @key=AddWhereGroup.1
+        @divisor=.
+        @brief=Add a where logical group.
+        @scope=instance
+        @visibility=public
+        @type=method
+
+        A logical group is a sequence of the conditions enclosed into the brackets. This may be needed to
+        define the exact precedence of the statements in the conditions such as (A OR B) AND (C OR D).
+
+        Dispose the returned object when you have finished adding the conditions inside the logical group, or
+        put the whole where group content creation code into [c]using()[/c] statement.
+
+
+        @declaration
+            @language=cs
+            @name=AddWhereGroup
+            @return=IDisposable
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp = LogOp.And
+        @end
+
+        @param
+            @name=logOp
+
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.MongoDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.MongoDb]Gehtsoft.EF.MongoDb[/clink].
+@end

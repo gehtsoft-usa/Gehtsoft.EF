@@ -1,0 +1,105 @@
+@class
+    @name=SelectEntitiesQuery
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery
+    @brief=The class to read entities from the entity collection.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]
+
+    See [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]ConditionEntityQueryBase[/clink] for details on how
+    to specify condition to selection.
+
+    @member
+        @name=ReadOne
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery.ReadOne
+        @key=ReadOne.1
+        @divisor=.
+        @brief=Reads one entity and returns it as an object.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadOne
+            @return=object
+        @end
+
+    @end
+
+    @member
+        @name=ReadOne
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery.ReadOne``1
+        @key=ReadOne.0
+        @divisor=.
+        @brief=Reads one entity and returns it with the type specified.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadOne<T>
+            @return=T
+        @end
+
+    @end
+
+    @member
+        @name=ReadAll
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery.ReadAll``2(Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery.OnRow{``1})
+        @key=ReadAll.0
+        @divisor=.
+        @brief=Reads all objects
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadAll<T>
+            @return=EntityCollection<T>
+            @params=
+        @end
+
+        @declaration
+            @language=cs
+            @name=SelectEntitiesQuery.OnRow<T>
+            @return=void
+            @prefix=public delegate
+            @params=T object, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery]SelectEntitiesQuery[/clink] query
+        @end
+
+
+        @declaration
+            @language=cs
+            @name=ReadAll<TC,T>
+            @return=TC
+            @params=SelectEntitiesQuery.OnRow<T> onrow = null
+        @end
+
+        @param
+            @name=TC
+            Type of the collection. The collection should be derived from [clink=Gehtsoft.EF.Entities.EntityCollection_T]EntityCollection[/clink].
+        @end
+
+        @param
+            @name=TC
+            The type of the entity.
+        @end
+
+
+        @param
+            @name=onrow
+            An callback to be executed after the object is read from the collection.
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

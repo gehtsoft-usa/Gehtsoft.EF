@@ -1,0 +1,46 @@
+@class
+    @name=ValidationExpressionCompiler
+    @key=Gehtsoft.Validator.JSConvertor.ValidationExpressionCompiler
+    @brief=The base validation compiler.
+    @type=class
+    @ingroup=Gehtsoft.Validator.JSConvertor
+    @sig=T:Gehtsoft.Validator.JSConvertor.ValidationExpressionCompiler
+    @parent=[clink=Gehtsoft.ExpressionToJs.ExpressionCompiler]Gehtsoft.ExpressionToJs.ExpressionCompiler[/clink]
+
+    @member
+        @name=ValidationExpressionCompiler
+        @sig=M:Gehtsoft.Validator.JSConvertor.ValidationExpressionCompiler.#ctor(System.Linq.Expressions.LambdaExpression,System.Nullable{System.Int32},System.Nullable{System.Int32})
+        @key=ValidationExpressionCompiler.0
+        @divisor=.
+        @brief=Constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=ValidationExpressionCompiler
+            @params=LambdaExpression lambdaExpression, int? entityParameterIndex = null, int? valueParameterIndex = null
+        @end
+
+        @param
+            @name=lambdaExpression
+            The lambda expression that has one or two parameters (each is either the value or the whole entity) and returns a boolean value.
+        @end
+
+        @param
+            @name=entityParameterIndex
+            The index of the entity parameter in the expression.
+        @end
+
+        @param
+            @name=valueParameterIndex
+            The index of the value parameter in the expression.
+        @end
+    @end
+
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator.JSConvertor]Gehtsoft.Validator.JSConvertor[/clink].
+@end

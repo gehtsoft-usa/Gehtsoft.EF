@@ -1,0 +1,72 @@
+@class
+    @name=MapClassAttribute
+    @key=Gehtsoft.EF.Mapper.MapClassAttribute
+    @brief=The attribute that marks a class as a model for another class.
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.MapClassAttribute
+    @parent=System.Attribute
+    @member
+        @name=MapClassAttribute
+        @sig=M:Gehtsoft.EF.Mapper.MapClassAttribute.#ctor
+        @key=MapClassAttribute.0
+        @divisor=.
+        @brief=Constructor
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=MapClassAttribute
+        @end
+        @declaration
+            @language=cs
+            @name=MapClassAttribute
+            @params=System.Type otherType
+        @end
+
+        @param
+            @name=otherType
+
+        @end
+
+    @end
+
+    @member
+        @name=OtherType
+        @sig=P:Gehtsoft.EF.Mapper.MapClassAttribute.OtherType
+        @key=OtherType.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=OtherType
+            @return=System.Type
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end
+
+@class
+    @name=DoNotAutoMapAttribute
+    @key=Gehtsoft.EF.Mapper.DoNotAutoMapAttribute
+    @brief=The attribute that marks a property so it won't be automatically mapped
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.DoNotAutoMapAttribute
+    @parent=System.Attribute
+
+    The type defined in the [c]Gehtsoft.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end

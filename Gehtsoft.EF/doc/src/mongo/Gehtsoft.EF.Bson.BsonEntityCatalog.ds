@@ -1,0 +1,87 @@
+@class
+    @name=BsonEntityCatalog
+    @key=Gehtsoft.EF.Bson.BsonEntityCatalog
+    @brief=The catalog of all entity descriptions for BSON conversion purpose
+    @type=class
+    @ingroup=Gehtsoft.EF.Bson
+    @sig=T:Gehtsoft.EF.Bson.BsonEntityCatalog
+
+    The class is a singleton class. Use [clink=Gehtsoft.EF.Bson.BsonEntityCatalog.Instance.0]Instance[/clink] method to get an instance of the class.
+
+
+    @member
+        @name=FindType
+        @sig=M:Gehtsoft.EF.Bson.BsonEntityCatalog.FindType(System.Type)
+        @key=FindType.1
+        @divisor=.
+        @brief=Finds the type description by the type.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FindType
+            @return=[clink=Gehtsoft.EF.Bson.BsonEntityDescription]BsonEntityDescription[/clink]
+            @params=System.Type type
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+        If type is not in the catalog yet, the method tries to recognize the method as an entity and add it to the catalog.
+    @end
+
+    @member
+        @name=FindType
+        @sig=M:Gehtsoft.EF.Bson.BsonEntityCatalog.FindType(System.String)
+        @key=FindType.0
+        @divisor=.
+        @brief=Finds the type description by the type name.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FindType
+            @return=[clink=Gehtsoft.EF.Bson.BsonEntityDescription]BsonEntityDescription[/clink]
+            @params=string name
+        @end
+
+        @param
+            @name=name
+            The name of the type (as in [c]Type.Name[/c])
+        @end
+
+        The method does NOT try to add type if type is not found.
+
+    @end
+
+    @member
+        @name=Instance
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityCatalog.Instance
+        @key=Instance.0
+        @divisor=.
+        @brief=Returns an instance of the catalog.
+        @scope=class
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Instance
+            @return=[clink=Gehtsoft.EF.Bson.BsonEntityCatalog]BsonEntityCatalog[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Bson.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Bson]Gehtsoft.EF.Bson[/clink].
+@end

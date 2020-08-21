@@ -1,0 +1,63 @@
+@class   
+    @name=IContextFilter
+    @key=Gehtsoft.EF.Entities.Context.IContextFilter
+    @brief=The definition of a query filter
+    @type=interface
+    @ingroup=Gehtsoft.EF.Entities.Context
+    @sig=T:Gehtsoft.EF.Entities.Context.IContextFilter
+    @member
+        @name=AddGroup
+        @sig=M:Gehtsoft.EF.Entities.Context.IContextFilter.AddGroup(Gehtsoft.EF.Entities.LogOp)
+        @key=AddGroup.0
+        @divisor=.
+        @brief=Start a group (multiple queries in brackets) of the condition.
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=AddGroup
+            @return=System.IDisposable
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]Gehtsoft.EF.Entities.LogOp[/clink] logOp
+        @end
+    
+        @param
+            @name=logOp
+
+        @end
+
+        The group is finished when the returned object is disposed.
+        
+    @end
+    
+    @member
+        @name=Add
+        @sig=M:Gehtsoft.EF.Entities.Context.IContextFilter.Add(Gehtsoft.EF.Entities.LogOp)
+        @key=Add.0
+        @divisor=.
+        @brief=Add a single condition to the filter.
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Add
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]Gehtsoft.EF.Entities.LogOp[/clink] op
+        @end
+    
+        @param
+            @name=op
+
+        @end
+        
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities.Context]Gehtsoft.EF.Entities.Context[/clink].
+@end
+    

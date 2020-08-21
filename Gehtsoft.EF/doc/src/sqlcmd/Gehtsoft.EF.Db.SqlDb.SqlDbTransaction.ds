@@ -1,0 +1,59 @@
+@class
+    @name=SqlDbTransaction
+    @key=Gehtsoft.EF.Db.SqlDb.SqlDbTransaction
+    @brief=Database transaction.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlDbTransaction
+    @parent=System.IDisposable
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.BeginTransaction.0]SqlDbConnection.BeginTransaction()[/clink] to start a transaction.
+
+    Dispose the transaction object when it isn't used anymore.
+
+    Please be aware that disposing transaction without committing is equal to rolling the transaction back.
+
+
+    @member
+        @name=Rollback
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbTransaction.Rollback
+        @key=Rollback.0
+        @divisor=.
+        @brief=Rollback (cancel) the transaction.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Rollback
+            @return=void
+
+        @end
+
+    @end
+
+    @member
+        @name=Commit
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbTransaction.Commit
+        @key=Commit.0
+        @divisor=.
+        @brief=Commit the transaction.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Commit
+            @return=void
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end

@@ -1,0 +1,131 @@
+﻿@{
+    ViewData["Title"] = "Products";
+}
+
+<div>
+    <h4 class="display-4">Products</h4>
+    <div id="example">
+        <div id="grid"></div>
+        <script>
+            $(document).ready(function () {
+                $("#grid").kendoGrid({
+                    dataSource: {
+                        type: "odata-v4",
+                        transport: {
+                            read: {
+                                url: function () {
+                                    return "/OData/Product?$candelete=true";
+                                }
+                            },
+                            update: {
+                                url: function (dataItem) {
+                                    return "/OData/Product(" + dataItem.ProductID + ")";
+                                }
+                            },
+                            create: {
+                                url: function (dataItem) {
+                                    delete dataItem.ProductID;
+                                    return "/OData/Product";
+                                }
+                            },
+                            destroy: {
+                                url: function (dataItem) {
+                                    return "/OData/Product(" + dataItem.ProductID + ")";
+                                }
+                            }
+                        },
+                        error: function (e) {
+                            var error = e.errorThrown;
+                            setTimeout(function () { alert(error + ": " + e.xhr.responseText); });
+                            console.log(e);
+                        },
+                        schema: {
+                            model: {
+                                id: "ProductID",
+                                fields: {
+                                    ProductID: { editable: false },
+                                    ProductName: { validation: { required: true } },
+                                    // for sort on 'name', not on 'id'
+                                    CategoryName: { field: "Category.CategoryName" },
+                                    Category: { field: "categoryID", type: "number", defaultValue: 1, validation: { required: true } },
+                                    // for sort on 'name', not on 'id'
+                                    SupplierName: { field: "Supplier.CompanyName" },
+                                    Supplier: { field: "supplierID", type: "number", defaultValue: 1, validation: { required: true } },
+                                    UnitPrice: { type: "number", defaultValue: 1, validation: { required: true, min: 1 } },
+                                    Discontinued: { type: "boolean" },
+                                    //QuantityPerUnit: { type: "string" },
+                                    UnitsInStock: { type: "number", validation: { min: 0, required: true } }
+                                }
+                            }
+                        },
+                        pageSize: 20,
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    dataBound: function () {
+                        //Selects all delete buttons
+                        $("#grid tbody tr .k-grid-delete").each(function () {
+                            var currentDataItem = $("#grid").data("kendoGrid").dataItem($(this).closest("tr"));
+
+                            //Check in the current dataItem if the row is deletable
+                            if (currentDataItem._candelete_ === false) {
+                                $(this).attr("disabled", "disabled");
+                                $(this).bind("click", function (e) { e.preventDefault(); return false; });
+                                this.title = "This Product is in use and can not be deleted"
+                            }
+                        });
+                        // for sort on 'name', not on 'id'
+                        $("#grid thead th.k-header[data-field='Category']").attr("data-field", "CategoryName");
+                        $("#grid thead th.k-header[data-field='Supplier']").attr("data-field", "SupplierName");
+                    },
+                    navigatable: true,
+                    pageable: true,
+                    height: 550,
+                    filterable: true,
+                    sortable: true,
+                    toolbar: ["create", "save", "cancel"],
+                    columns: [
+                        { field: "ProductName", title: "Product Name" },
+                        {
+                            field: "Category", width: "200px", dataTextField: "CategoryName", dataValueField: "CategoryID", dataSource: {
+                                type: "odata-v4",
+                                transport: {
+                                    read: {
+                                        url: function () {
+                                            return "/OData/Category";
+                                        }
+                                    }
+                                }
+                            },
+                            title: "Category",
+                            sortable: true
+                        },
+                        { field: "UnitPrice", title: "Unit Price", format: "{0:c}", width: 120 },
+                        { field: "UnitsInStock", title: "Units In Stock", width: 120 },
+                        { field: "Discontinued", width: 120, editor: customBoolEditor },
+                        {
+                            field: "Supplier", width: "200px", dataTextField: "CompanyName", dataValueField: "SupplierID", dataSource: {
+                                type: "odata-v4",
+                                transport: {
+                                    read: {
+                                        url: function () {
+                                            return "/OData/Supplier";
+                                        }
+                                    }
+                                }
+                            },
+                            title: "Supplier",
+                            sortable: true
+                        },
+                        { command: "destroy", title: "&nbsp;", width: 150 }],
+                    editable: true
+                });
+            });
+
+            function customBoolEditor(container, options) {
+                $('<input class="k-checkbox" type="checkbox" name="Discontinued" data-type="boolean" data-bind="checked:Discontinued">').appendTo(container);
+            }
+        </script>
+    </div>
+</div>

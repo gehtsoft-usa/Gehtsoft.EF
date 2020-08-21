@@ -1,0 +1,270 @@
+
+@class
+
+    @name=MongoSelectQueryBase
+    @key=Gehtsoft.EF.MongoDb.MongoSelectQueryBase
+    @brief=The base class for entity select queries.
+    @type=class
+    @ingroup=Gehtsoft.EF.MongoDb
+    @sig=T:Gehtsoft.EF.MongoDb.MongoSelectQueryBase
+    @parent=[clink=Gehtsoft.EF.MongoDb.MongoQueryWithCondition]MongoQueryWithCondition[/clink]
+    @parent=[clink=Gehtsoft.EF.MongoDb.MongoQuery]MongoQuery[/clink]
+
+    @member
+        @name=ReadNext
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQueryBase.ReadNext
+        @key=ReadNext.0
+        @divisor=.
+        @brief=Reads next row from the result set.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadNext
+            @return=bool
+        @end
+
+        The method returns [c]true[/c] if the value is successfully read.
+    @end
+
+    @member
+        @name=ReadOne
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQueryBase.ReadOne``1
+        @key=ReadOne.0
+        @divisor=.
+        @brief=Reads one instance of the entity associated with the query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadOne<T>
+            @return=T
+        @end
+
+        @param
+            @name=T
+            The type of the entity
+        @end
+
+        The method returns [c]null[/c] if the current row is the last row of the resultset.
+    @end
+
+    @member
+        @name=GetEntity
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQueryBase.GetEntity``1
+        @key=GetEntity.1
+        @divisor=.
+        @brief=Reads entity from the current row
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetEntity<T>
+            @return=T
+        @end
+
+        @declaration
+            @language=cs
+            @name=GetEntity
+            @return=object
+            @params=System.Type type
+        @end
+
+        @param
+            @name=T, type
+            Type of the entity.
+        @end
+
+    @end
+
+    @member
+        @name=GetDocument
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQueryBase.GetDocument
+        @key=GetDocument.0
+        @divisor=.
+        @brief=Get the current row as a Bson document.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDocument
+            @return=MongoDB.Bson.BsonDocument
+        @end
+
+    @end
+
+    @member
+        @name=GetValue
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQueryBase.GetValue(System.Int32,System.Type)
+        @key=GetValue.1
+        @divisor=.
+        @brief=Gets field's value.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetValue<T>
+            @return=T
+            @params=int columnIndex
+        @end
+        @declaration
+            @language=cs
+            @name=GetValue<T>
+            @return=T
+            @params=string columnName
+        @end
+        @declaration
+            @language=cs
+            @name=GetValue
+            @return=object
+            @params=int columnIndex, System.Type type
+        @end
+        @declaration
+            @language=cs
+            @name=GetValue
+            @return=object
+            @params=string columnName, System.Type type
+        @end
+
+        @param
+            @name=columnIndex
+            The column index. Please note that if the resultset is filtered, the column order (unlike to SQL queries) remains the same
+            as fields are located in the property, not the order in which the fields are included into the resultset.
+        @end
+        @param
+            @name=columnName
+            The name of the column (cannot be a name of the associated property of the entity).
+        @end
+
+        @param
+            @name=T, type
+            The data type of the value to be returned.
+        @end
+
+    @end
+
+
+    @member
+        @name=IsNull
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQueryBase.IsNull(System.Int32)
+        @key=IsNull.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=IsNull
+            @return=bool
+            @params=int columnIndex
+        @end
+        @declaration
+            @language=cs
+            @name=IsNull
+            @return=bool
+            @params=string columnName
+        @end
+
+        @param
+            @name=columnIndex
+            The column index. Please note that if the resultset is filtered, the column order (unlike to SQL queries) remains the same
+            as fields are located in the property, not the order in which the fields are included into the resultset.
+        @end
+        @param
+            @name=columnName
+            The name of the column (cannot be a name of the associated property of the entity).
+        @end
+
+    @end
+
+    @member
+        @name=FieldName
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQueryBase.FieldName(System.Int32)
+        @key=FieldName.0
+        @divisor=.
+        @brief=Returns the name of the field.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FieldName
+            @return=string
+            @params=int columnIndex
+        @end
+        @param
+            @name=columnIndex
+            The column index. Please note that if the resultset is filtered, the column order (unlike to SQL queries) remains the same
+            as fields are located in the property, not the order in which the fields are included into the resultset.
+        @end
+    @end
+
+    @member
+        @name=ResultSet
+        @sig=P:Gehtsoft.EF.MongoDb.MongoSelectQueryBase.ResultSet
+        @key=ResultSet.0
+        @divisor=.
+        @brief=The query resultset as a collection of Bson documents.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ResultSet
+            @return=List<MongoDB.Bson.BsonDocument>
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=FieldCount
+        @sig=P:Gehtsoft.EF.MongoDb.MongoSelectQueryBase.FieldCount
+        @key=FieldCount.0
+        @divisor=.
+        @brief=Number of fields in the resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=FieldCount
+            @return=int
+            @suffix= get;
+        @end
+
+        Please note that the field count can be obtained only in case:
+
+        a) Resultset contains at least one record
+
+        b) A row is currently successfully read using [clink=Gehtsoft.EF.MongoDb.MongoSelectQueryBase.ReadNext.0]ReadNext()[/clink] or
+        [clink=Gehtsoft.EF.MongoDb.MongoSelectQueryBase.ReadOne.0]ReadOne()[/clink] methods.
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.MongoDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.MongoDb]Gehtsoft.EF.MongoDb[/clink].
+@end

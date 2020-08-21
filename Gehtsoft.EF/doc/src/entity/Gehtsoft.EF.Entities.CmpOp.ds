@@ -1,0 +1,264 @@
+@class
+    @name=CmpOp
+    @key=Gehtsoft.EF.Entities.CmpOp
+    @brief=The list of comparison operations
+    @type=enum
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.CmpOp
+    @member
+        @name=Eq
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.Eq
+        @key=Eq.0
+        @divisor=.
+        @brief=a is equal to b
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Eq
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Neq
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.Neq
+        @key=Neq.0
+        @divisor=.
+        @brief=a is not equal to b
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Neq
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Ls
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.Ls
+        @key=Ls.0
+        @divisor=.
+        @brief=A is less than B
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Ls
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Le
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.Le
+        @key=Le.0
+        @divisor=.
+        @brief=A is less than or equal to B
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Le
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Gt
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.Gt
+        @key=Gt.0
+        @divisor=.
+        @brief=A is greater than B
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Gt
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Ge
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.Ge
+        @key=Ge.0
+        @divisor=.
+        @brief=A is greater than or equal to B
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Ge
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Like
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.Like
+        @key=Like.0
+        @divisor=.
+        @brief=A is like B
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Like
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+        [c]LIKE[/c] is a standard SQL operator which checks strings likeness.
+
+        The mask (parameter B) can consists of following patterns:
+
+        [c].[/c] - Any character
+        [c]%[/c] - Any sequence of characters including empty sequence.
+
+    @end
+
+    @member
+        @name=In
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.In
+        @key=In.0
+        @divisor=.
+        @brief=A is IN (subquery)
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=In
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=NotIn
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.NotIn
+        @key=NotIn.0
+        @divisor=.
+        @brief=A is not IN (subquery)
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=NotIn
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=IsNull
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.IsNull
+        @key=IsNull.0
+        @divisor=.
+        @brief=A is null
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=IsNull
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=NotNull
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.NotNull
+        @key=NotNull.0
+        @divisor=.
+        @brief=A is not null
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=NotNull
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Exists
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.Exists
+        @key=Exists.0
+        @divisor=.
+        @brief=exists/is not empty (subquery)
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Exists
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=NotExists
+        @sig=F:Gehtsoft.EF.Entities.CmpOp.NotExists
+        @key=NotExists.0
+        @divisor=.
+        @brief=not exists/is empty (subquery)
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=NotExists
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink]
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

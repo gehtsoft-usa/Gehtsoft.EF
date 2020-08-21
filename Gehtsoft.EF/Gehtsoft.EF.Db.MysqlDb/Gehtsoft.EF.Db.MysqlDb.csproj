@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.Common">
+      <Version>4.3.0</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="AlterTableQueryBuilder.cs" />
+    <Compile Include="MysqlConnection.cs" />
+    <Compile Include="MysqlCreateTableBuilder.cs" />
+    <Compile Include="MysqlDbLanguageSpecifics.cs" />
+    <Compile Include="MysqlHierarchicalSelectQueryBuilder.cs" />
+    <Compile Include="MysqlInsertQueryBuilder.cs" />
+    <Compile Include="MysqlQuery.cs" />
+    <Compile Include="MysqlTransaction.cs" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Entities\Gehtsoft.EF.Entities.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.SqlDb\Gehtsoft.EF.Db.SqlDb.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MySqlConnector">
+      <Version>1.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation">
+      <Version>4.3.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Buffers">
+      <Version>4.5.1</Version>
+    </PackageReference>
+  </ItemGroup>
+</Project>

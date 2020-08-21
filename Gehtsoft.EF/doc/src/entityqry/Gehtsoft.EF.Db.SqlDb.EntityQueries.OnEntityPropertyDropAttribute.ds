@@ -1,0 +1,49 @@
+
+@class
+
+    @name=OnEntityPropertyDropAttribute
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.OnEntityPropertyDropAttribute
+    @brief=The attribute that sets action when the property is about to be dropped.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.OnEntityPropertyDropAttribute
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.OnEntityActionAttribute]OnEntityActionAttribute[/clink]
+    @parent=System.Attribute
+    @member
+        @name=OnEntityPropertyDropAttribute
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.OnEntityPropertyDropAttribute.#ctor(System.Type,System.String)
+        @key=OnEntityPropertyDropAttribute.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=OnEntityPropertyDropAttribute
+            @params=System.Type containerType, string delegateName
+        @end
+
+        @param
+            @name=containerType
+            The type which consists of delegate.
+        @end
+
+        @param
+            @name=delegateName
+            The name of the delegate.
+        @end
+
+        Please note that action will be invoked only if the property is created when the entity is modified.
+
+        The delegate must have the following signature:
+
+        [c]public delegate void EntityActionDelegate(SqlDbConnection connection);[/c]
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

@@ -1,0 +1,7 @@
+{
+  "name": "asp.net",
+  "private": true,
+  "dependencies": {
+    "Kendo.UI": "https://www.myget.org/F/gehtsoft-public/auth/30c2ff90-89dc-462a-9263-e8c413d0bc05/bower/packages/Kendo.UI/2020.2.617.zip"
+  }
+}

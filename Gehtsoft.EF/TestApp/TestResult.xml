@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" name="TestApp.exe" fullname="D:/develop/components/Gehtsoft.EF/TestApp/bin/Release/net45/TestApp.exe" testcasecount="35" result="Failed" start-time="2017-10-06 18:01:00Z" end-time="2017-10-06 18:01:10Z" duration="10.028368" total="35" passed="31" failed="1" inconclusive="0" skipped="3" asserts="4233" random-seed="1080219095">
+  <command-line><![CDATA["D:\develop\components\Gehtsoft.EF\TestApp\bin\Release\net45\TestApp.exe" ]]></command-line>
+  <filter />
+  <test-suite type="Assembly" id="1043" name="TestApp.exe" fullname="D:/develop/components/Gehtsoft.EF/TestApp/bin/Release/net45/TestApp.exe" runstate="Runnable" testcasecount="35" result="Failed" site="Child" start-time="2017-10-06 18:01:00Z" end-time="2017-10-06 18:01:10Z" duration="10.028368" total="35" passed="31" failed="1" warnings="0" inconclusive="0" skipped="3" asserts="4233">
+    <environment framework-version="3.7.1.0" clr-version="4.0.30319.42000" os-version="Microsoft Windows NT 6.1.7601 Service Pack 1" platform="Win32NT" cwd="D:\develop\components\Gehtsoft.EF\TestApp" machine-name="NGEHT-T5810" user="ngeht" user-domain="ngeht-T5810" culture="en-US" uiculture="en-US" os-architecture="x64" />
+    <settings>
+      <setting name="WorkDirectory" value="D:\develop\components\Gehtsoft.EF\TestApp" />
+      <setting name="NumberOfTestWorkers" value="12" />
+    </settings>
+    <properties>
+      <property name="_PID" value="16592" />
+      <property name="_APPDOMAIN" value="TestApp.exe" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="TestSuite" id="1044" name="TestApp" fullname="TestApp" runstate="Runnable" testcasecount="35" result="Failed" site="Child" start-time="2017-10-06 18:01:00Z" end-time="2017-10-06 18:01:10Z" duration="10.015447" total="35" passed="31" failed="1" warnings="0" inconclusive="0" skipped="3" asserts="4233">
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="1029" name="MssqlTest" fullname="TestApp.MssqlTest" classname="TestApp.MssqlTest" runstate="Runnable" testcasecount="7" result="Failed" site="Child" start-time="2017-10-06 18:01:00Z" end-time="2017-10-06 18:01:01Z" duration="1.110961" total="7" passed="5" failed="1" warnings="0" inconclusive="0" skipped="1" asserts="807">
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1033" name="PerformanceTest" fullname="TestApp.MssqlTest.PerformanceTest" methodname="PerformanceTest" classname="TestApp.MssqlTest" runstate="Explicit" seed="1149930848" result="Skipped" label="Explicit" start-time="2017-10-06 18:01:00Z" end-time="2017-10-06 18:01:00Z" duration="0.004559" asserts="0" />
+        <test-case id="1035" name="TestAlterEntities" fullname="TestApp.MssqlTest.TestAlterEntities" methodname="TestAlterEntities" classname="TestApp.MssqlTest" runstate="Runnable" seed="123397491" result="Failed" label="Error" start-time="2017-10-06 18:01:00Z" end-time="2017-10-06 18:01:00Z" duration="0.417686" asserts="0">
+          <failure>
+            <message><![CDATA[System.Data.SqlClient.SqlException : The index 'entity1_code' is dependent on column 'code'.
+ALTER TABLE DROP COLUMN code failed because one or more objects access this column.]]></message>
+            <stack-trace><![CDATA[   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlCommand.RunExecuteNonQueryTds(String methodName, Boolean async, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.InternalExecuteNonQuery(TaskCompletionSource`1 completion, String methodName, Boolean sendToPipe, Int32 timeout, Boolean& usedCache, Boolean asyncWrite, Boolean inRetry)
+   at System.Data.SqlClient.SqlCommand.ExecuteNonQuery()
+   at Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateTables(SqlDbConnection connection, UpdateMode defaultUpdateMode, IDictionary`2 individualUpdateModes)
+   at TestApp.TestDbUpdate.TestEntityUpdate(SqlDbConnection connection)]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1034" name="TestAlterTables" fullname="TestApp.MssqlTest.TestAlterTables" methodname="TestAlterTables" classname="TestApp.MssqlTest" runstate="Runnable" seed="78421439" result="Passed" start-time="2017-10-06 18:01:00Z" end-time="2017-10-06 18:01:01Z" duration="0.061719" asserts="6" />
+        <test-case id="1030" name="TestDropCreate" fullname="TestApp.MssqlTest.TestDropCreate" methodname="TestDropCreate" classname="TestApp.MssqlTest" runstate="Runnable" seed="842878500" result="Passed" start-time="2017-10-06 18:01:01Z" end-time="2017-10-06 18:01:01Z" duration="0.136995" asserts="36" />
+        <test-case id="1032" name="TestEntities" fullname="TestApp.MssqlTest.TestEntities" methodname="TestEntities" classname="TestApp.MssqlTest" runstate="Runnable" seed="1624075415" result="Passed" start-time="2017-10-06 18:01:01Z" end-time="2017-10-06 18:01:01Z" duration="0.223472" asserts="741" />
+        <test-case id="1031" name="TestHierarchicalQuery" fullname="TestApp.MssqlTest.TestHierarchicalQuery" methodname="TestHierarchicalQuery" classname="TestApp.MssqlTest" runstate="Runnable" seed="1917014715" result="Passed" start-time="2017-10-06 18:01:01Z" end-time="2017-10-06 18:01:01Z" duration="0.065057" asserts="17" />
+        <test-case id="1036" name="TestNestedTransactions" fullname="TestApp.MssqlTest.TestNestedTransactions" methodname="TestNestedTransactions" classname="TestApp.MssqlTest" runstate="Runnable" seed="1626620696" result="Passed" start-time="2017-10-06 18:01:01Z" end-time="2017-10-06 18:01:01Z" duration="0.033874" asserts="7" />
+      </test-suite>
+      <test-suite type="TestFixture" id="1024" name="MysqlTest" fullname="TestApp.MysqlTest" classname="TestApp.MysqlTest" runstate="Runnable" testcasecount="4" result="Passed" start-time="2017-10-06 18:01:01Z" end-time="2017-10-06 18:01:03Z" duration="1.572701" total="4" passed="4" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="788">
+        <test-case id="1028" name="TestAlterEntities" fullname="TestApp.MysqlTest.TestAlterEntities" methodname="TestAlterEntities" classname="TestApp.MysqlTest" runstate="Runnable" seed="1792963112" result="Passed" start-time="2017-10-06 18:01:01Z" end-time="2017-10-06 18:01:02Z" duration="0.463429" asserts="10" />
+        <test-case id="1027" name="TestAlterTables" fullname="TestApp.MysqlTest.TestAlterTables" methodname="TestAlterTables" classname="TestApp.MysqlTest" runstate="Runnable" seed="481090971" result="Passed" start-time="2017-10-06 18:01:02Z" end-time="2017-10-06 18:01:02Z" duration="0.301313" asserts="6" />
+        <test-case id="1025" name="TestDropCreate" fullname="TestApp.MysqlTest.TestDropCreate" methodname="TestDropCreate" classname="TestApp.MysqlTest" runstate="Runnable" seed="298838204" result="Passed" start-time="2017-10-06 18:01:02Z" end-time="2017-10-06 18:01:02Z" duration="0.138990" asserts="36" />
+        <test-case id="1026" name="TestEntities" fullname="TestApp.MysqlTest.TestEntities" methodname="TestEntities" classname="TestApp.MysqlTest" runstate="Runnable" seed="1689484744" result="Passed" start-time="2017-10-06 18:01:02Z" end-time="2017-10-06 18:01:03Z" duration="0.495561" asserts="736" />
+      </test-suite>
+      <test-suite type="TestFixture" id="1000" name="OracleTest" fullname="TestApp.OracleTest" classname="TestApp.OracleTest" runstate="Runnable" testcasecount="5" result="Passed" start-time="2017-10-06 18:01:03Z" end-time="2017-10-06 18:01:06Z" duration="3.714143" total="5" passed="5" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="810">
+        <test-case id="1005" name="TestAlterEntities" fullname="TestApp.OracleTest.TestAlterEntities" methodname="TestAlterEntities" classname="TestApp.OracleTest" runstate="Runnable" seed="1747643261" result="Passed" start-time="2017-10-06 18:01:03Z" end-time="2017-10-06 18:01:04Z" duration="0.946403" asserts="10" />
+        <test-case id="1004" name="TestAlterTables" fullname="TestApp.OracleTest.TestAlterTables" methodname="TestAlterTables" classname="TestApp.OracleTest" runstate="Runnable" seed="1502342828" result="Passed" start-time="2017-10-06 18:01:04Z" end-time="2017-10-06 18:01:05Z" duration="0.409487" asserts="6" />
+        <test-case id="1001" name="TestDropCreate" fullname="TestApp.OracleTest.TestDropCreate" methodname="TestDropCreate" classname="TestApp.OracleTest" runstate="Runnable" seed="1874917481" result="Passed" start-time="2017-10-06 18:01:05Z" end-time="2017-10-06 18:01:05Z" duration="0.506328" asserts="36" />
+        <test-case id="1003" name="TestEntities" fullname="TestApp.OracleTest.TestEntities" methodname="TestEntities" classname="TestApp.OracleTest" runstate="Runnable" seed="1725536154" result="Passed" start-time="2017-10-06 18:01:05Z" end-time="2017-10-06 18:01:06Z" duration="0.576475" asserts="741" />
+        <test-case id="1002" name="TestHierarchicalQuery" fullname="TestApp.OracleTest.TestHierarchicalQuery" methodname="TestHierarchicalQuery" classname="TestApp.OracleTest" runstate="Runnable" seed="1481608953" result="Passed" start-time="2017-10-06 18:01:06Z" end-time="2017-10-06 18:01:06Z" duration="0.304137" asserts="17" />
+      </test-suite>
+      <test-suite type="TestFixture" id="1015" name="PostgresTest" fullname="TestApp.PostgresTest" classname="TestApp.PostgresTest" runstate="Runnable" testcasecount="8" result="Passed" start-time="2017-10-06 18:01:06Z" end-time="2017-10-06 18:01:09Z" duration="3.049425" total="8" passed="7" failed="0" warnings="0" inconclusive="0" skipped="1" asserts="857">
+        <test-case id="1020" name="PerformanceTest" fullname="TestApp.PostgresTest.PerformanceTest" methodname="PerformanceTest" classname="TestApp.PostgresTest" runstate="Explicit" seed="891817087" result="Skipped" label="Explicit" start-time="2017-10-06 18:01:07Z" end-time="2017-10-06 18:01:07Z" duration="0.000033" asserts="0" />
+        <test-case id="1022" name="TestAlterEntities" fullname="TestApp.PostgresTest.TestAlterEntities" methodname="TestAlterEntities" classname="TestApp.PostgresTest" runstate="Runnable" seed="398804159" result="Passed" start-time="2017-10-06 18:01:07Z" end-time="2017-10-06 18:01:07Z" duration="0.533953" asserts="10" />
+        <test-case id="1021" name="TestAlterTables" fullname="TestApp.PostgresTest.TestAlterTables" methodname="TestAlterTables" classname="TestApp.PostgresTest" runstate="Runnable" seed="1388296164" result="Passed" start-time="2017-10-06 18:01:07Z" end-time="2017-10-06 18:01:07Z" duration="0.192533" asserts="6" />
+        <test-case id="1016" name="TestDropCreate" fullname="TestApp.PostgresTest.TestDropCreate" methodname="TestDropCreate" classname="TestApp.PostgresTest" runstate="Runnable" seed="2075483748" result="Passed" start-time="2017-10-06 18:01:07Z" end-time="2017-10-06 18:01:08Z" duration="0.793836" asserts="36" />
+        <test-case id="1018" name="TestEntities" fullname="TestApp.PostgresTest.TestEntities" methodname="TestEntities" classname="TestApp.PostgresTest" runstate="Runnable" seed="965956997" result="Passed" start-time="2017-10-06 18:01:08Z" end-time="2017-10-06 18:01:09Z" duration="0.498609" asserts="737" />
+        <test-case id="1019" name="TestFts1" fullname="TestApp.PostgresTest.TestFts1" methodname="TestFts1" classname="TestApp.PostgresTest" runstate="Runnable" seed="330082945" result="Passed" start-time="2017-10-06 18:01:09Z" end-time="2017-10-06 18:01:09Z" duration="0.493018" asserts="44" />
+        <test-case id="1017" name="TestHierarchicalQuery" fullname="TestApp.PostgresTest.TestHierarchicalQuery" methodname="TestHierarchicalQuery" classname="TestApp.PostgresTest" runstate="Runnable" seed="647933249" result="Passed" start-time="2017-10-06 18:01:09Z" end-time="2017-10-06 18:01:09Z" duration="0.109901" asserts="17" />
+        <test-case id="1023" name="TestNestedTransactions" fullname="TestApp.PostgresTest.TestNestedTransactions" methodname="TestNestedTransactions" classname="TestApp.PostgresTest" runstate="Runnable" seed="1518737073" result="Passed" start-time="2017-10-06 18:01:09Z" end-time="2017-10-06 18:01:09Z" duration="0.068025" asserts="7" />
+      </test-suite>
+      <test-suite type="TestFixture" id="1006" name="SqliteTest" fullname="TestApp.SqliteTest" classname="TestApp.SqliteTest" runstate="Runnable" testcasecount="8" result="Passed" start-time="2017-10-06 18:01:09Z" end-time="2017-10-06 18:01:10Z" duration="0.328768" total="8" passed="7" failed="0" warnings="0" inconclusive="0" skipped="1" asserts="851">
+        <test-case id="1010" name="PerformanceTest" fullname="TestApp.SqliteTest.PerformanceTest" methodname="PerformanceTest" classname="TestApp.SqliteTest" runstate="Explicit" seed="1677747507" result="Skipped" label="Explicit" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.000009" asserts="0" />
+        <test-case id="1013" name="TestAlterEntities" fullname="TestApp.SqliteTest.TestAlterEntities" methodname="TestAlterEntities" classname="TestApp.SqliteTest" runstate="Runnable" seed="94402600" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.049188" asserts="10" />
+        <test-case id="1012" name="TestAlterTables" fullname="TestApp.SqliteTest.TestAlterTables" methodname="TestAlterTables" classname="TestApp.SqliteTest" runstate="Runnable" seed="363902351" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.001246" asserts="6" />
+        <test-case id="1007" name="TestDropCreate" fullname="TestApp.SqliteTest.TestDropCreate" methodname="TestDropCreate" classname="TestApp.SqliteTest" runstate="Runnable" seed="2103031536" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.034222" asserts="36" />
+        <test-case id="1009" name="TestEntities" fullname="TestApp.SqliteTest.TestEntities" methodname="TestEntities" classname="TestApp.SqliteTest" runstate="Runnable" seed="724459257" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.016778" asserts="731" />
+        <test-case id="1011" name="TestFts1" fullname="TestApp.SqliteTest.TestFts1" methodname="TestFts1" classname="TestApp.SqliteTest" runstate="Runnable" seed="2143833247" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.013783" asserts="44" />
+        <test-case id="1008" name="TestHierarchicalQuery" fullname="TestApp.SqliteTest.TestHierarchicalQuery" methodname="TestHierarchicalQuery" classname="TestApp.SqliteTest" runstate="Runnable" seed="862277624" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.001986" asserts="17" />
+        <test-case id="1014" name="TestNestedTransactions" fullname="TestApp.SqliteTest.TestNestedTransactions" methodname="TestNestedTransactions" classname="TestApp.SqliteTest" runstate="Runnable" seed="175100041" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.002120" asserts="7" />
+      </test-suite>
+      <test-suite type="TestFixture" id="1041" name="TestBson" fullname="TestApp.TestBson" classname="TestApp.TestBson" runstate="Runnable" testcasecount="1" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.185975" total="1" passed="1" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="9">
+        <test-case id="1042" name="DoTest1" fullname="TestApp.TestBson.DoTest1" methodname="DoTest1" classname="TestApp.TestBson" runstate="Runnable" seed="893167430" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.184911" asserts="9" />
+      </test-suite>
+      <test-suite type="TestFixture" id="1039" name="TestEntityResolver" fullname="TestApp.TestEntityResolver" classname="TestApp.TestEntityResolver" runstate="Runnable" testcasecount="1" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.029971" total="1" passed="1" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="96">
+        <test-case id="1040" name="TestFinderAndSorter" fullname="TestApp.TestEntityResolver.TestFinderAndSorter" methodname="TestFinderAndSorter" classname="TestApp.TestEntityResolver" runstate="Runnable" seed="978579235" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.028558" asserts="96" />
+      </test-suite>
+      <test-suite type="TestFixture" id="1037" name="TestFts" fullname="TestApp.TestFts" classname="TestApp.TestFts" runstate="Runnable" testcasecount="1" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.010053" total="1" passed="1" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="15">
+        <test-case id="1038" name="TestWordParser" fullname="TestApp.TestFts.TestWordParser" methodname="TestWordParser" classname="TestApp.TestFts" runstate="Runnable" seed="165436593" result="Passed" start-time="2017-10-06 18:01:10Z" end-time="2017-10-06 18:01:10Z" duration="0.008358" asserts="15" />
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

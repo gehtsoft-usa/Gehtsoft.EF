@@ -1,0 +1,421 @@
+@class
+    @name=ODataProcessor
+    @key=Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor
+    @brief=The OData query processor
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.OData
+    @sig=T:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor
+
+    @member
+        @name=ODataProcessor
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.#ctor(Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory,Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder,System.String)
+        @key=ODataProcessor.0
+        @divisor=.
+        @brief=Constructor
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=ODataProcessor
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory]Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory[/clink] connectionFactory, [clink=Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder]EdmModelBuilder[/clink] edmModelBuilder, string root
+        @end
+
+        @param
+            @name=connectionFactory
+            SQL.Db connection factory.
+        @end
+
+        @param
+            @name=edmModelBuilder
+            The ER model
+        @end
+
+        @param
+            @name=root
+            The root part of URIs (typically with the protocol and web site name, but may also contains the area name.
+
+            The processor will look for OData query right after the root part.
+        @end
+
+    @end
+
+    @member
+        @name=SelectDataAsync
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.SelectDataAsync(System.Void,System.Object)
+        @key=SelectDataAsync.0
+        @divisor=.
+        @brief=Selects the data asynchronously
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=SelectDataAsync
+            @return=Task<dynamic>
+            @params=Uri uri, CancellationToken? token
+        @end
+
+        @param
+            @name=uri
+            The URI
+        @end
+
+        @param
+            @name=token
+            The cancellation token
+        @end
+
+    @end
+
+    @member
+        @name=SelectData
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.SelectData(System.Uri)
+        @key=SelectData.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=SelectData
+            @return=dynamic
+            @params=Uri uri
+        @end
+
+        @param
+            @name=uri
+            The URI
+        @end
+    @end
+
+    @member
+        @name=GetFormattedDataAsync
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.GetFormattedDataAsync(System.Void,System.String)
+        @key=GetFormattedDataAsync.0
+        @divisor=.
+        @brief=Selects formatted data asynchronously
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetFormattedDataAsync
+            @return=Task<string>
+            @params=Uri uri, CancellationToken? token
+        @end
+
+        The uri must consists of [c]"$format=xml|json"[/c] parameter.
+
+        @param
+            @name=uri
+            The URI
+        @end
+
+        @param
+            @name=token
+            The cancellation token
+        @end
+
+    @end
+
+    @member
+        @name=GetFormattedData
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.GetFormattedData(System.Uri)
+        @key=GetFormattedData.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetFormattedData
+            @return=string
+            @params=Uri uri
+        @end
+
+        The uri must consists of [c]"$format=xml|json"[/c] parameter.
+
+        @param
+            @name=uri
+            The URI
+        @end
+
+    @end
+
+    @member
+        @name=RemoveRecordAsync
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.RemoveRecordAsync(System.Void,System.String,System.String)
+        @key=RemoveRecordAsync.0
+        @divisor=.
+        @brief=Removes the record asynchronously
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=RemoveRecordAsync
+            @return=Task<string>
+            @params=string tableName, int id, CancellationToken? token
+        @end
+
+        @param
+            @name=tableName
+            The name of the entity
+        @end
+
+        @param
+            @name=id
+            The entity identifier
+        @end
+
+        @param
+            @name=token
+            Cancellation token
+        @end
+
+        The method return non-empty string with the error message if the error happens.
+    @end
+
+    @member
+        @name=RemoveRecord
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.RemoveRecord(System.String,System.Int32)
+        @key=RemoveRecord.0
+        @divisor=.
+        @brief=Removes the record
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=RemoveRecord
+            @return=string
+            @params=string tableName, int id
+        @end
+
+        @param
+            @name=tableName
+            The name of the entity
+        @end
+
+        @param
+            @name=id
+            The entity identifier
+        @end
+
+        The method return non-empty string with the error message if the error happens.
+    @end
+
+    @member
+        @name=AddNewRecordAsync
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.AddNewRecordAsync(System.Void,System.Tuple`2,System.Boolean)
+        @key=AddNewRecordAsync.0
+        @divisor=.
+        @brief=Adds a new record
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddNewRecordAsync
+            @return=Task<Tuple<string, bool>>
+            @params=string tableName, string serializedBody, bool token
+        @end
+
+        @param
+            @name=tableName
+            The name of the table
+        @end
+
+        @param
+            @name=serializedBody
+            The body of the entity serialized as Json object.
+        @end
+
+        @param
+            @name=token
+
+        @end
+
+        The method returns a pair of a string value and boolean flag indicating whether the
+        string is a created object ([c]false[/c]) or a error message ([c]true[/c]).
+
+    @end
+
+    @member
+        @name=AddNewRecord
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.AddNewRecord(System.String,System.String,System.Boolean@)
+        @key=AddNewRecord.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddNewRecord
+            @return=string
+            @params=string tableName, string serializedBody, out bool wasError
+        @end
+
+        @param
+            @name=tableName
+            The name of the table.
+        @end
+
+        @param
+            @name=serializedBody
+            The body of the record serialized into Json
+        @end
+
+        @param
+            @name=wasError
+            The output flag indicating whether a error occurred.
+        @end
+
+        The method returns either the record (including assigned primary key) or a error message.
+    @end
+
+    @member
+        @name=UpdateRecordAsync
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.UpdateRecordAsync(System.Void,System.Tuple`2,System.Boolean,System.String)
+        @key=UpdateRecordAsync.0
+        @divisor=.
+        @brief=The method updates the record asynchronously
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=UpdateRecordAsync
+            @return=Task<Tuple<string, bool>>
+            @params=string tableName, string serializedBody, int id, CancellationToken? token
+        @end
+
+        @param
+            @name=tableName
+            The name of the table
+        @end
+
+        @param
+            @name=serializedBody
+            The method name serialized into json
+        @end
+
+        @param
+            @name=id
+            The object identifier.
+        @end
+
+        @param
+            @name=token
+            Cancellation token.
+        @end
+
+    @end
+
+    @member
+        @name=UpdateRecord
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.UpdateRecord(System.String,System.String,System.Int32,System.Boolean@)
+        @key=UpdateRecord.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=UpdateRecord
+            @return=string
+            @params=string tableName, string serializedBodyc, int id, out bool wasError
+        @end
+
+        @param
+            @name=tableName
+            The name of the table
+        @end
+
+        @param
+            @name=serializedBody
+            The object to be updated serialized as json.
+        @end
+
+        @param
+            @name=id
+            The object identifier.
+        @end
+
+        @param
+            @name=wasError
+            The flag indicating whether there was a error during the operation.
+        @end
+
+        The method returns either the record (including assigned primary key) or a error message.
+    @end
+
+    @member
+        @name=ODataCountName
+        @sig=P:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.ODataCountName
+        @key=ODataCountName.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ODataCountName
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=ODataMetadataName
+        @sig=P:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.ODataMetadataName
+        @key=ODataMetadataName.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ODataMetadataName
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.OData.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.OData]Gehtsoft.EF.Db.SqlDb.OData[/clink].
+@end

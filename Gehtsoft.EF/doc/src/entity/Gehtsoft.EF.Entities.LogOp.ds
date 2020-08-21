@@ -1,0 +1,71 @@
+@class
+    @name=LogOp
+    @key=Gehtsoft.EF.Entities.LogOp
+    @brief=The list of logical operators.
+    @type=enum
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.LogOp
+
+    The logical operation is a flag, so you can join NOT operation to AND and OR, e.g. use
+    [c](LogOp.AND | LogOp.NOT)[/c] This will be translated into [c]A AND NOT(B)[/c]
+
+    @member
+        @name=Not
+        @sig=F:Gehtsoft.EF.Entities.LogOp.Not
+        @key=Not.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Not
+            @return=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=And
+        @sig=F:Gehtsoft.EF.Entities.LogOp.And
+        @key=And.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=And
+            @return=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Or
+        @sig=F:Gehtsoft.EF.Entities.LogOp.Or
+        @key=Or.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Or
+            @return=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink]
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

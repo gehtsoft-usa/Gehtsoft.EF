@@ -1,0 +1,458 @@
+@class
+    @name=SelectQueryBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder
+    @brief=Select query builder.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder]QueryWithWhereBuilder[/clink]
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetSelectQueryBuilder.0]SqlDbConnection.GetSelectQueryBuilder()[/clink] to get
+    an instance of this object.
+
+    See [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder]QueryWithWhereBuilder[/clink] for details how to specify condition on the query.
+
+    @member
+        @name=Entities
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder.Entities
+        @key=Entities.0
+        @divisor=.
+        @brief=Returns the collection of entities inside of the query.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+        @declaration
+            @language=cs
+            @name=Entities
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntityCollection]QueryBuilderEntityCollection[/clink]
+            @suffix= get;
+        @end
+    @end
+
+
+    @member
+        @name=AddTable
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.AddTable(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor,Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo,Gehtsoft.EF.Entities.TableJoinType,Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity,Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo)
+        @key=AddTable.0
+        @divisor=.
+        @brief=Add a new table to the query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddTable
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] table, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] connectingColumn, [clink=Gehtsoft.EF.Entities.TableJoinType]Gehtsoft.EF.Entities.TableJoinType[/clink] joinType, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] connectToTable, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] connectToColumn
+        @end
+
+        @param
+            @name=table
+            The table descriptor.
+        @end
+
+        @param
+            @name=connectingColumn
+            The column of the table to be used to connect the table to another entity.
+        @end
+
+        @param
+            @name=joinType
+            The join type.
+        @end
+
+        @param
+            @name=connectToTable
+            The query entity to connect the specified table to.
+        @end
+
+        @param
+            @name=connectToColumn
+            The column of the entity to be use to connect the specified table to.
+        @end
+
+    @end
+
+    @member
+        @name=AddTable
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.AddTable(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor,System.Boolean)
+        @key=AddTable.1
+        @divisor=.
+        @brief=Add a table to the query and connect it automatically.
+        @scope=instance
+        @visibility=public
+        @type=method
+
+        The method recognizes two major cases of the table connections - when new table is connected via its primary key to other table foreign key and
+        when new table foreign key is connected to other table primary key. Automatic connection always takes the first occurrence of whatever
+        it can find - the first occurrence of the other table and/or the first occurrence of the foreign key.
+
+        If you have to connect more than one instance of the same table to the query, specify the connection condition manually using
+        the other version of [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.AddTable.0]AddTable()[/clink] method.
+
+
+
+        @declaration
+            @language=cs
+            @name=AddTable
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] table, bool autoConnect = true
+        @end
+
+        @param
+            @name=table
+            The table to be connected.
+        @end
+
+        @param
+            @name=autoConnect
+
+        @end
+
+    @end
+
+    @member
+        @name=AddExpressionToResultset
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.AddExpressionToResultset(System.String,System.Data.DbType,System.Boolean,System.String)
+        @key=AddExpressionToResultset.0
+        @divisor=.
+        @brief=Add an expression to the result set of the query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddExpressionToResultset
+            @return=void
+
+            @params=string expression, System.Data.DbType type, bool isAggregate = false, string alias = null
+        @end
+
+        @param
+            @name=expression
+            The expression to be added. Please be aware that the framework uses expressions as is.
+        @end
+
+        @param
+            @name=type
+            The datatype returned by the expression.
+        @end
+
+        @param
+            @name=isAggregate
+            The flag indicating whether the expression is an aggregate expression.
+        @end
+
+        @param
+            @name=alias
+            The column alias.
+        @end
+
+    @end
+
+    @member
+        @name=AddToResultset
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.AddToResultset(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo,Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity,System.String)
+        @key=AddToResultset.2
+        @divisor=.
+        @brief=Add a table column to the resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] column, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] entity, string alias
+        @end
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] column, string alias
+        @end
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=[clink=Gehtsoft.EF.Entities.AggFn]Gehtsoft.EF.Entities.AggFn[/clink] aggregate, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] column, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] entity, string alias
+        @end
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=[clink=Gehtsoft.EF.Entities.AggFn]Gehtsoft.EF.Entities.AggFn[/clink] aggregate, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] column, string alias
+        @end
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=[clink=Gehtsoft.EF.Entities.AggFn]Gehtsoft.EF.Entities.AggFn[/clink] aggregate, string alias
+        @end
+
+        @param
+            @name=aggregate
+            The aggregate function to be applied.
+        @end
+
+        @param
+            @name=column
+            The table column to be added.
+        @end
+
+        @param
+            @name=entity
+            The select query entity to which the table column belongs to. If the entity is not specified, the
+            first occurrence of the table in the query will be used.
+        @end
+
+        @param
+            @name=alias
+            The column alias.
+        @end
+
+    @end
+
+    @member
+        @name=AddToResultset
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.AddToResultset(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor,Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity,System.String)
+        @key=AddToResultset.0
+        @divisor=.
+        @brief=Add all columns of the table to the results.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] table, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] entity, string aliasPrefix
+        @end
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] table, string aliasPrefix
+        @end
+
+        @param
+            @name=table
+            The table descriptor.
+        @end
+
+        @param
+            @name=entity
+            The select query entity to which the table belongs to. If the entity is not specified, the
+            first occurrence of the table in the query will be used.
+
+        @end
+
+        @param
+            @name=aliasPrefix
+            The prefix to be added in front of the column name to make a result column name. E.g. if prefix is [c]"a_"[/c] and
+            the column name is [c]"b"[/c] then the result name will be [c]"a_b"[/c].
+
+            If you don't want prefix to be added, specify [c]null[/c] in the parameter.
+        @end
+
+    @end
+
+    @member
+        @name=AddOrderBy
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.AddOrderBy(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo,Gehtsoft.EF.Entities.SortDir)
+        @key=AddOrderBy.1
+        @divisor=.
+        @brief=Add the column to the order by list.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddOrderBy
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] column, [clink=Gehtsoft.EF.Entities.SortDir]SortDir[/clink] direction = SortDir.Ask
+        @end
+        @declaration
+            @language=cs
+            @name=AddOrderBy
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] column, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] entity, [clink=Gehtsoft.EF.Entities.SortDir]SortDir[/clink] direction = SortDir.Ask
+        @end
+
+        @param
+            @name=column
+            The table column to be added.
+        @end
+
+        @param
+            @name=entity
+            The select query entity to which the table column belongs to. If the entity is not specified, the
+            first occurrence of the table in the query will be used.
+        @end
+
+        @param
+            @name=direction
+
+        @end
+
+    @end
+
+    @member
+        @name=AddGroupBy
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.AddGroupBy(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo,Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity)
+        @key=AddGroupBy.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddGroupBy
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] column, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] entity
+        @end
+        @declaration
+            @language=cs
+            @name=AddGroupBy
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] column
+        @end
+
+        @param
+            @name=column
+            The table column to be added.
+        @end
+
+        @param
+            @name=entity
+            The select query entity to which the table column belongs to. If the entity is not specified, the
+            first occurrence of the table in the query will be used.
+        @end
+
+        Note that some databases requires all non-aggregate columns to be explicitly added to the group by list. You don't have
+        to do it manually, the framework will add all non-aggregate columns to group by clause automatically if it is required by
+        the query logic and database requirements.
+    @end
+
+    @member
+        @name=Distinct
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.Distinct
+        @key=Distinct.0
+        @divisor=.
+        @brief=Flag indicating whether distinct set of records needs to be selected.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Distinct
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Skip
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.Skip
+        @key=Skip.0
+        @divisor=.
+        @brief=The value indicating how many rows from the start of the results needs to be skipped.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Skip
+            @return=int
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Limit
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.Limit
+        @key=Limit.0
+        @divisor=.
+        @brief=The value limits the size of the resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Limit
+            @return=int
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Having
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.Having
+        @key=Having.0
+        @divisor=.
+        @brief=The having condition of the query.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Having
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder]ConditionBuilder[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+
+    @member
+        @name=QueryTableDescriptor
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.QueryTableDescriptor
+        @key=QueryTableDescriptor.0
+        @divisor=.
+        @brief=The table descriptor of the query resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=QueryTableDescriptor
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink]
+            @suffix= get;
+        @end
+
+        You can use this value to add a query as a table into another query.
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

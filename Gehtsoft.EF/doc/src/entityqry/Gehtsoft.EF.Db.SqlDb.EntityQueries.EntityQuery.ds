@@ -1,0 +1,241 @@
+@class
+    @name=EntityQuery
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery
+    @brief=Base class for all entity queries.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.IDbQuery]IDbQuery[/clink]
+
+    @member
+        @name=Execute
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.Execute
+        @key=Execute.0
+        @divisor=.
+        @brief=Execute the query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Execute
+            @return=void
+
+        @end
+        @declaration
+            @language=cs
+            @name=ExecuteAsync
+            @return=Task
+            @params=CancellationToken? token = null
+
+        @end
+
+    @end
+
+    @member
+        @name=BindParam
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.BindParam``1(System.String,``0)
+        @key=BindParam.0
+        @divisor=.
+        @brief=Bind parameter value.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BindParam<T>
+            @return=void
+
+            @params=string name, T value
+        @end
+
+        @param
+            @name=name
+
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=BindNull
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.BindNull(System.String,System.Data.DbType)
+        @key=BindNull.0
+        @divisor=.
+        @brief=Bind null to parameter.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BindNull
+            @return=void
+
+            @params=string name, System.Data.DbType type
+        @end
+
+        @param
+            @name=name
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+    @end
+
+    @member
+        @name=Field
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.Field(System.String)
+        @key=Field.0
+        @divisor=.
+        @brief=Gets resultset column description.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Field
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.FieldInfo]SqlDbQuery.FieldInfo[/clink]
+            @params=string name
+        @end
+
+        @param
+            @name=name
+
+        @end
+
+    @end
+
+    @member
+        @name=GetValue
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.GetValue``1(System.Int32)
+        @key=GetValue.0
+        @divisor=.
+        @brief=Get value
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetValue<T>
+            @return=T
+            @params=int column
+        @end
+        @declaration
+            @language=cs
+            @name=GetValue<T>
+            @return=T
+            @params=string field
+        @end
+
+        @param
+            @name=column
+            Column index in query resulset.
+        @end
+        @param
+            @name=field
+            The column name.
+        @end
+
+    @end
+
+    @member
+        @name=IsNull
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.IsNull(System.Int32)
+        @key=IsNull.0
+        @divisor=.
+        @brief=Checks whether the value of the resultset column is null.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=IsNull
+            @return=T
+            @params=int column
+        @end
+        @declaration
+            @language=cs
+            @name=IsNull
+            @return=T
+            @params=string field
+        @end
+
+        @param
+            @name=column
+            Column index in query resulset.
+        @end
+        @param
+            @name=field
+            The column name.
+        @end
+
+    @end
+
+    @member
+        @name=ReadNext
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.ReadNext()
+        @key=ReadNext.0
+        @divisor=.
+        @brief=Reads the next row of the resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadNext
+            @return=bool
+            @params=
+        @end
+        @declaration
+            @language=cs
+            @name=ReadNextAsync
+            @return=Task<bool>
+            @params=CancellationToken? token = null
+        @end
+    @end
+
+    @member
+        @name=FieldCount
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.FieldCount
+        @key=FieldCount.0
+        @divisor=.
+        @brief=Returns the number of the columns in the query resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=FieldCount
+            @return=int
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

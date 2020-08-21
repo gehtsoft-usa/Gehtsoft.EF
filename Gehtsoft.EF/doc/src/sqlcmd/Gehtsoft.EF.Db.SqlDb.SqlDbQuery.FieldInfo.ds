@@ -1,0 +1,74 @@
+@class
+    @name=SqlDbQuery.FieldInfo
+    @key=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.FieldInfo
+    @brief=Information about a cursor column.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.FieldInfo
+
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.Field.0]SqlDbQuery.Field()[/clink] to get an instance of the object.
+
+    @member
+        @name=Name
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.FieldInfo.Name
+        @key=Name.0
+        @divisor=.
+        @brief=The name of the column.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Name
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=DataType
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.FieldInfo.DataType
+        @key=DataType.0
+        @divisor=.
+        @brief=The type of the database.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=DataType
+            @return=System.Type
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=Index
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.FieldInfo.Index
+        @key=Index.0
+        @divisor=.
+        @brief=The index of the column.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Index
+            @return=int
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end

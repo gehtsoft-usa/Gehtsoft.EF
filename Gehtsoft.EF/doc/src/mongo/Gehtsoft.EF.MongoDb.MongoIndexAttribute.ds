@@ -1,0 +1,76 @@
+@class
+    @name=MongoIndexAttribute
+    @key=Gehtsoft.EF.MongoDb.MongoIndexAttribute
+    @brief=The entity attribute to create the index on field of included property field.
+    @type=class
+    @ingroup=Gehtsoft.EF.MongoDb
+    @sig=T:Gehtsoft.EF.MongoDb.MongoIndexAttribute
+    @parent=System.Attribute
+
+    @member
+        @name=MongoIndexAttribute
+        @sig=M:Gehtsoft.EF.MongoDb.MongoIndexAttribute.#ctor
+        @key=MongoIndexAttribute.0
+        @divisor=.
+        @brief=Constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=MongoIndexAttribute
+        @end
+
+    @end
+
+    @member
+        @name=MongoIndexAttribute
+        @sig=M:Gehtsoft.EF.MongoDb.MongoIndexAttribute.#ctor(System.String)
+        @key=MongoIndexAttribute.1
+        @divisor=.
+        @brief=Parameterized constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=MongoIndexAttribute
+            @params=string key
+        @end
+
+        @param
+            @name=key
+            The index key (the path expression).
+        @end
+
+    @end
+
+    @member
+        @name=Key
+        @sig=P:Gehtsoft.EF.MongoDb.MongoIndexAttribute.Key
+        @key=Key.0
+        @divisor=.
+        @brief=The index key (the path expression).
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Key
+            @return=string
+            @suffix= get; set;
+        @end
+
+
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.MongoDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.MongoDb]Gehtsoft.EF.MongoDb[/clink].
+@end

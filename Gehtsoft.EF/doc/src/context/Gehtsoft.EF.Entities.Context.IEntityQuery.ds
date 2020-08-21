@@ -1,0 +1,38 @@
+@class
+    @name=IEntityQuery
+    @key=Gehtsoft.EF.Entities.Context.IEntityQuery
+    @brief=A query to the entities in the context.
+    @type=interface
+    @ingroup=Gehtsoft.EF.Entities.Context
+    @sig=T:Gehtsoft.EF.Entities.Context.IEntityQuery
+    @parent=System.IDisposable
+    @member
+        @name=Execute
+        @sig=M:Gehtsoft.EF.Entities.Context.IEntityQuery.Execute
+        @key=Execute.0
+        @divisor=.
+        @brief=Executes the query. 
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Execute
+            @return=int
+        @end
+        @declaration
+            @language=cs
+            @name=ExecuteAsync
+            @return=Task<int>
+            @params=CancellationToken? token = null
+        @end
+    
+    @end
+   
+    
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities.Context]Gehtsoft.EF.Entities.Context[/clink].
+@end
+    

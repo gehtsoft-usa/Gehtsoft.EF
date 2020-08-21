@@ -1,0 +1,7 @@
+@group
+    @title=Namespace Gehtsoft.ExpressionToJs
+    @key=Gehtsoft.ExpressionToJs
+    @ingroup=Gehtsoft.Validator.JSConvertor
+    @brief=
+
+@end

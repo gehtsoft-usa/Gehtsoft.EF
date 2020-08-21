@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Entities\Gehtsoft.EF.Entities.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.SqlDb\Gehtsoft.EF.Db.SqlDb.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hime.SDK" Version="3.5.1" />
+    <PackageReference Include="Hime.Build.Task" Version="0.1.6" IncludeAssets="build" />
+  </ItemGroup>
+  <Target Name="CompileGrammar" BeforeTargets="BeforeCompile">
+    <CompileGrammar GrammarName="Sql" GrammarFile="sql.gram" Namespace="Gehtsoft.eF.Db.SqlDb.Sql" OutputMode="Source" CodeAccess="Internal" OutputPath="." />
+  </Target>
+  <ItemGroup>
+    <EmbeddedResource Include="SqlLexer.bin" />
+    <EmbeddedResource Include="SqlParser.bin" />
+    <Compile Include="CodeDom\SqlAggrFunc.cs" />
+    <Compile Include="CodeDom\SqlBaseExpression.cs" />
+    <Compile Include="CodeDom\SqlBinaryExpression.cs" />
+    <Compile Include="CodeDom\SqlCallFuncExpression.cs" />
+    <Compile Include="CodeDom\SqlConstant.cs" />
+    <Compile Include="CodeDom\SqlExpressionParser.cs" />
+    <Compile Include="CodeDom\SqlField.cs" />
+    <Compile Include="CodeDom\SqlFieldAlias.cs" />
+    <Compile Include="CodeDom\SqlFromClause.cs" />
+    <Compile Include="CodeDom\SqlPrimaryTable.cs" />
+    <Compile Include="CodeDom\SqlSelectList.cs" />
+    <Compile Include="CodeDom\SqlSelectStatement.cs" />
+    <Compile Include="CodeDom\SqlStatement.cs" />
+    <Compile Include="CodeDom\SqlStatementCollection.cs" />
+    <Compile Include="CodeDom\SqlTableSpecification.cs" />
+    <Compile Include="CodeDom\SqlUnarExpression.cs" />
+    <Compile Include="CodeDom\SqlWhereClause.cs" />
+    <Compile Include="SqlASTVisitor.cs" />
+    <Compile Include="SqlCodeDomBuilder.cs" />
+    <Compile Include="SqlError.cs" />
+    <Compile Include="SqlErrorCollection.cs" />
+    <Compile Include="SqlLexer.cs" />
+    <Compile Include="SqlParser.cs" />
+    <Compile Include="SqlParserException.cs" />
+  </ItemGroup>
+
+  <Target Name="CleanGrammar" BeforeTargets="Clean">
+    <Delete Files="SqlParser.cs" />
+    <Delete Files="SqlLexer.cs" />
+    <Delete Files="SqlParser.bin" />
+    <Delete Files="SqlLexer.bin" />
+  </Target>
+
+</Project>

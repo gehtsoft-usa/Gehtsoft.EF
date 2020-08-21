@@ -1,0 +1,292 @@
+@class
+    @name=BsonEntityField
+    @key=Gehtsoft.EF.Bson.BsonEntityField
+    @brief=The description of an entity field.
+    @type=class
+    @ingroup=Gehtsoft.EF.Bson
+    @sig=T:Gehtsoft.EF.Bson.BsonEntityField
+
+    @member
+        @name=PropertyName
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.PropertyName
+        @key=PropertyName.0
+        @divisor=.
+        @brief=The name of the property of the type.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PropertyName
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=FieldName
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.FieldName
+        @key=FieldName.0
+        @divisor=.
+        @brief=The name of the field
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=FieldName
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=PropertyInfo
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.PropertyInfo
+        @key=PropertyInfo.0
+        @divisor=.
+        @brief=The property info structure.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PropertyInfo
+            @return=PropertyInfo
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=PropertyType
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.PropertyType
+        @key=PropertyType.0
+        @divisor=.
+        @brief=The datatype of the property.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PropertyType
+            @return=System.Type
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=PropertyBaseType
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.PropertyBaseType
+        @key=PropertyBaseType.0
+        @divisor=.
+        @brief=The simple type of the property (e.g. a type of array element if the property is an array).
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PropertyBaseType
+            @return=System.Type
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=ProperyBaseBsonType
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.ProperyBaseBsonType
+        @key=ProperyBaseBsonType.0
+        @divisor=.
+        @brief=Bson type associated to the property base type.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ProperyBaseBsonType
+            @return=BsonType
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=ProperyBsonType
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.ProperyBsonType
+        @key=ProperyBsonType.0
+        @divisor=.
+        @brief=Bson type associated to the property type.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ProperyBsonType
+            @return=BsonType
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=IsArray
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.IsArray
+        @key=IsArray.0
+        @divisor=.
+        @brief=The flag indicating whether the property is an array.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=IsArray
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=IsNullable
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.IsNullable
+        @key=IsNullable.0
+        @divisor=.
+        @brief=The flag indicating whether the property is nullable.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=IsNullable
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=IsSorted
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.IsSorted
+        @key=IsSorted.0
+        @divisor=.
+        @brief=The flag indicating whether the table is sorted by this field.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=IsSorted
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=IsAutoId
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.IsAutoId
+        @key=IsAutoId.0
+        @divisor=.
+        @brief=The flag indicating whether the property is automatic ID
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=IsAutoId
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=IsPrimaryKey
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.IsPrimaryKey
+        @key=IsPrimaryKey.0
+        @divisor=.
+        @brief=The flag indicating whether the property is a primary key.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=IsPrimaryKey
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=IsReference
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.IsReference
+        @key=IsReference.0
+        @divisor=.
+        @brief=The flag indicating whether the property is a foreign key reference.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=IsReference
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=ReferencedEntity
+        @sig=P:Gehtsoft.EF.Bson.BsonEntityField.ReferencedEntity
+        @key=ReferencedEntity.0
+        @divisor=.
+        @brief=The description of the referenced entity.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ReferencedEntity
+            @return=[clink=Gehtsoft.EF.Bson.BsonEntityDescription]BsonEntityDescription[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Bson.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Bson]Gehtsoft.EF.Bson[/clink].
+@end

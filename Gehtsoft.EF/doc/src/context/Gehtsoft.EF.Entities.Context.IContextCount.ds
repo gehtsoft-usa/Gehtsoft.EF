@@ -1,0 +1,44 @@
+
+@class
+    
+    @name=IContextCount
+    @key=Gehtsoft.EF.Entities.Context.IContextCount
+    @brief=The query that gets a count of rows
+    @type=interface
+    @ingroup=Gehtsoft.EF.Entities.Context
+    @sig=T:Gehtsoft.EF.Entities.Context.IContextCount
+    @parent=[clink=Gehtsoft.EF.Entities.Context.IContextQueryWithCondition]IContextQueryWithCondition[/clink]
+    @parent=[clink=Gehtsoft.EF.Entities.Context.IEntityQuery]IEntityQuery[/clink]
+    @parent=System.IDisposable
+    
+    @member
+        @name=GetCount
+        @sig=M:Gehtsoft.EF.Entities.Context.IContextCount.GetCount
+        @key=GetCount.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=GetCount
+            @return=int
+        @end
+        @declaration
+            @language=cs
+            @name=GetCountAsync
+            @return=Task<int>
+            @params=CancellationToken? token = null
+        @end
+
+        Note: You must execute query before getting the row count.
+    @end
+    
+   
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities.Context]Gehtsoft.EF.Entities.Context[/clink].
+@end
+    

@@ -1,0 +1,95 @@
+@class
+    @name=JsValidatorRule
+    @key=Gehtsoft.Validator.JSConvertor.JsValidatorRule
+    @brief=JavaScript Validator Rule
+    @type=class
+    @ingroup=Gehtsoft.Validator.JSConvertor
+    @sig=T:Gehtsoft.Validator.JSConvertor.JsValidatorRule
+
+    @member
+        @name=JsTargetName
+        @sig=P:Gehtsoft.Validator.JSConvertor.JsValidatorRule.JsTargetName
+        @key=JsTargetName.0
+        @divisor=.
+        @brief=The name of the target.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        For entity targets, the name is empty.
+
+        For property targets, the name is the name of the property.
+
+        @declaration
+            @language=cs
+            @name=JsTargetName
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=JsValidationExpression
+        @sig=P:Gehtsoft.Validator.JSConvertor.JsValidatorRule.JsValidationExpression
+        @key=JsValidationExpression.0
+        @divisor=.
+        @brief=The JS boolean expression for the validation.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=JsValidationExpression
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=JsWhenExpression
+        @sig=P:Gehtsoft.Validator.JSConvertor.JsValidatorRule.JsWhenExpression
+        @key=JsWhenExpression.0
+        @divisor=.
+        @brief=The JS boolean expression to determine whether the validation is required.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=JsWhenExpression
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=ErrorMessage
+        @sig=P:Gehtsoft.Validator.JSConvertor.JsValidatorRule.ErrorMessage
+        @key=ErrorMessage.0
+        @divisor=.
+        @brief=The error message to show in case the validation failed.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ErrorMessage
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator.JSConvertor]Gehtsoft.Validator.JSConvertor[/clink].
+@end

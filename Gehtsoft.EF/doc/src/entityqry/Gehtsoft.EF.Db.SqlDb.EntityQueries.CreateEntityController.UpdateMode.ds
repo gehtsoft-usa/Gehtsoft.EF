@@ -1,0 +1,51 @@
+
+@class
+    
+    @name=CreateEntityController.UpdateMode
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode
+    @brief=
+    @type=enum
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode
+    @member
+        @name=Recreate
+        @sig=F:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode.Recreate
+        @key=Recreate.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=Recreate
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode]CreateEntityController.UpdateMode[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=Update
+        @sig=F:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode.Update
+        @key=Update.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=Update
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode]CreateEntityController.UpdateMode[/clink]
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end
+    

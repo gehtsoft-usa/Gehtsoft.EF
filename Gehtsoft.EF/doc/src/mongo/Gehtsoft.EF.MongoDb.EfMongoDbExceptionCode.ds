@@ -1,0 +1,146 @@
+
+@class
+    
+    @name=EfMongoDbExceptionCode
+    @key=Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode
+    @brief=
+    @type=enum
+    @ingroup=Gehtsoft.EF.MongoDb
+    @sig=T:Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode
+    @member
+        @name=LogOpNotSupported
+        @sig=F:Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode.LogOpNotSupported
+        @key=LogOpNotSupported.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=LogOpNotSupported
+            @return=[clink=Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode]EfMongoDbExceptionCode[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=CmpOpNotSupported
+        @sig=F:Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode.CmpOpNotSupported
+        @key=CmpOpNotSupported.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=CmpOpNotSupported
+            @return=[clink=Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode]EfMongoDbExceptionCode[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=PropertyNotFound
+        @sig=F:Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode.PropertyNotFound
+        @key=PropertyNotFound.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=PropertyNotFound
+            @return=[clink=Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode]EfMongoDbExceptionCode[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=NotAnEntity
+        @sig=F:Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode.NotAnEntity
+        @key=NotAnEntity.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=NotAnEntity
+            @return=[clink=Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode]EfMongoDbExceptionCode[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=LogOpNotSame
+        @sig=F:Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode.LogOpNotSame
+        @key=LogOpNotSame.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=LogOpNotSame
+            @return=[clink=Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode]EfMongoDbExceptionCode[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=FilterGroupIsEmpty
+        @sig=F:Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode.FilterGroupIsEmpty
+        @key=FilterGroupIsEmpty.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=FilterGroupIsEmpty
+            @return=[clink=Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode]EfMongoDbExceptionCode[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=FilterIsIncomplete
+        @sig=F:Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode.FilterIsIncomplete
+        @key=FilterIsIncomplete.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=FilterIsIncomplete
+            @return=[clink=Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode]EfMongoDbExceptionCode[/clink]
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.MongoDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.MongoDb]Gehtsoft.EF.MongoDb[/clink].
+@end
+    

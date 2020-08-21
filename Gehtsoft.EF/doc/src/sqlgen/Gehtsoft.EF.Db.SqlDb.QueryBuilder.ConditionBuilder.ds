@@ -1,0 +1,330 @@
+@class
+    @name=ConditionBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder
+    @brief=The condition builder for the where and having clause of the query.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder
+
+    @member
+        @name=Add
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Add(Gehtsoft.EF.Entities.LogOp,System.String)
+        @key=Add.2
+        @divisor=.
+        @brief=Adds a new condition using condition builder
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Add
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp
+        @end
+
+        @param
+            @name=logOp
+            The logical operation to join this condition with prior conditions.
+        @end
+
+    @end
+
+
+    @member
+        @name=Add
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Add(Gehtsoft.EF.Entities.LogOp,System.String)
+        @key=Add.0
+        @divisor=.
+        @brief=Adds a raw expression to the condition.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Add
+            @return=void
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp, string rawExpression
+        @end
+
+        @param
+            @name=logOp
+            The logical operation to join this condition with prior conditions.
+        @end
+
+        @param
+            @name=rawExpression
+            The raw expression.
+
+            Please note that the builder does not handle the expression in any manner and sends it to the server as is.
+        @end
+
+    @end
+
+    @member
+        @name=Add
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Add(Gehtsoft.EF.Entities.LogOp,System.String,Gehtsoft.EF.Entities.CmpOp,System.String)
+        @key=Add.1
+        @divisor=.
+        @brief=Makes the expression on raw left side, the operation code and raw right side.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Add
+            @return=void
+
+            @params=string leftSide, [clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink] cmpOp, string rightSide
+        @end
+        @declaration
+            @language=cs
+            @name=Add
+            @return=void
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp, string leftSide, [clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink] cmpOp, string rightSide
+        @end
+
+        @param
+            @name=logOp
+            The logical operation to join this condition with prior conditions
+
+            The default logical operation is [c]And[/c]
+        @end
+
+        @param
+            @name=leftSide
+            The raw left side of the expression. The left side is optional for [c]Exists[/c] and [c]NotExists[/c] operations.
+
+        @end
+
+        @param
+            @name=cmpOp
+            The operation code.
+        @end
+
+        @param
+            @name=rightSide
+            The raw right side of the expression. The right is optional for [c]IsNull[/c] and [c]NotNull[/c] operations.
+        @end
+
+    @end
+
+    @member
+        @name=Property
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Property(Gehtsoft.EF.Entities.AggFn,Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity,Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo)
+        @key=Property.2
+        @divisor=.
+        @brief=Starts the next condition with the property as the left side operation.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Property
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] entity, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] columnInfo
+        @end
+        @declaration
+            @language=cs
+            @name=Property
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] columnInfo
+        @end
+
+        @param
+            @name=entity
+            The entity to which the column belongs to (the first entity in the query by default).
+        @end
+
+        @param
+            @name=columnInfo
+            The table column.
+        @end
+
+    @end
+
+    @member
+        @name=PropertyName
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.PropertyName(Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity,Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo)
+        @key=PropertyName.0
+        @divisor=.
+        @brief=Returns the raw expression for the table column for the current database.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=PropertyName
+            @return=string
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] entity, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] columnDescriptor
+        @end
+        @declaration
+            @language=cs
+            @name=PropertyName
+            @return=string
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] columnDescriptor
+        @end
+        @declaration
+            @language=cs
+            @name=PropertyName
+            @return=string
+            @params=[clink=Gehtsoft.EF.Entities.AggFn]Gehtsoft.EF.Entities.AggFn[/clink] aggFn, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] entity, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] columnDescriptor
+        @end
+        @declaration
+            @language=cs
+            @name=PropertyName
+            @return=string
+            @params=[clink=Gehtsoft.EF.Entities.AggFn]Gehtsoft.EF.Entities.AggFn[/clink] aggFn, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] columnDescriptor
+        @end
+
+        @param
+            @name=aggFn
+            The aggregate function to apply at the column (this option may be used for having conditions only).
+        @end
+
+        @param
+            @name=entity
+            The entity to which the column belongs to (the first entity in the query by default).
+        @end
+
+        @param
+            @name=columnInfo
+            The table column.
+        @end
+
+    @end
+
+    @member
+        @name=Parameter
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Parameter(System.String)
+        @key=Parameter.0
+        @divisor=.
+        @brief=Returns the correct raw expression for the parameter name.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Parameter
+            @return=string
+            @params=string parameterName
+        @end
+
+        @param
+            @name=parameterName
+
+        @end
+
+    @end
+
+    @member
+        @name=Parameters
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Parameters(System.String[])
+        @key=Parameters.0
+        @divisor=.
+        @brief=Return the correct raw expression for a list of the parameters.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Parameters
+            @return=string
+            @params=string[] parameterNames
+        @end
+
+        @param
+            @name=parameterNames
+
+        @end
+
+    @end
+
+    @member
+        @name=Query
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Query(Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder)
+        @key=Query.0
+        @divisor=.
+        @brief=Returns the correct raw expression for a subquery.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Query
+            @return=string
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink] queryBuilder
+        @end
+
+        @param
+            @name=queryBuilder
+
+        @end
+
+    @end
+
+    @member
+        @name=AddGroup
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.AddGroup(Gehtsoft.EF.Entities.LogOp)
+        @key=AddGroup.0
+        @divisor=.
+        @brief=Starts a new group enclosed into the brackets
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddGroup
+            @return=[clink=Gehtsoft.EF.Entities.OpBracket]OpBracket[/clink]
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp
+        @end
+
+        @param
+            @name=logOp
+            The logical operations to join the group of conditions with prior conditions.
+        @end
+
+        Simply dispose the returned object in order to finish the group of conditions.
+
+    @end
+
+    @member
+        @name=IsEmpty
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.IsEmpty
+        @key=IsEmpty.0
+        @divisor=.
+        @brief=Returns the flag indicating whether the where condition is empty.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=IsEmpty
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

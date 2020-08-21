@@ -1,0 +1,47 @@
+@class
+    @name=MappingAction of (TSource,TTarget)
+    @key=Gehtsoft.EF.Mapper.MappingAction_TSource_TTarget
+    @brief=Actions to be performed before or after map.
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.MappingAction`2
+    @parent=[clink=Gehtsoft.EF.Mapper.IMappingAction]IMappingAction[/clink]
+
+    @param
+        @name=TSource
+
+    @end
+
+    @param
+        @name=TTarget
+
+    @end
+
+    @member
+        @name=When
+        @sig=M:Gehtsoft.EF.Mapper.MappingAction`2.When(System.Func`3)
+        @key=When.0
+        @divisor=.
+        @brief=Sets the predicate that defines the condition when the action must be performed.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=When
+            @return=[clink=Gehtsoft.EF.Mapper.MappingAction_TSource_TTarget]MappingAction[/clink]<TSource,TTarget>
+            @params=Func<TSource, TTarget, bool> predicate
+        @end
+
+        @param
+            @name=predicate
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end

@@ -1,0 +1,584 @@
+@class
+    @name=SingleConditionBuilderExtension
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension
+    @brief=The extension class providing syntax sugar for SingleConditionBuilder
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension
+    @member
+        @name=Eq
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Eq(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Eq.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Eq
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Neq
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Neq(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Neq.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Neq
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Le
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Le(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Le.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Le
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Ls
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Ls(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Ls.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Ls
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Ge
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Ge(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Ge.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Ge
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Gt
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Gt(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Gt.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Gt
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Like
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Like(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Like.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Like
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=In
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.In(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=In.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=In
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=NotIn
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.NotIn(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=NotIn.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=NotIn
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Exists
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Exists(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Exists.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Exists
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=NotExists
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.NotExists(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=NotExists.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=NotExists
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Value
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Value(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder,System.Int32)
+        @key=Value.1
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Value
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder, int value
+        @end
+        @declaration
+            @language=cs
+            @name=Value
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder, double value
+        @end
+        @declaration
+            @language=cs
+            @name=Value
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder, string value
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=Reference
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Reference(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder,Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.InQueryName)
+        @key=Reference.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Reference
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.InQueryName]ConditionEntityQueryBase.InQueryName[/clink] reference
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+        @param
+            @name=reference
+            The reference to a property inside an entity query.
+
+            Use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.GetReference.0]ConditionEntityQueryBase.GetReference()[/clink]
+            to obtain a reference.
+        @end
+    @end
+
+    @member
+        @name=Sum
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Sum(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Sum.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Sum
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Avg
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Avg(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Avg.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Avg
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Min
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Min(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Min.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Min
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Max
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Max(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Max.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Max
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Count
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Count(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Count.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Count
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Trim
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Trim(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Trim.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Trim
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Upper
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Upper(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Upper.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Upper
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Lower
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Lower(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Lower.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Lower
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Abs
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilderExtension.Abs(Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder)
+        @key=Abs.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Abs
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

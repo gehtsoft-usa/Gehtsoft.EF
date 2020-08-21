@@ -1,0 +1,270 @@
+@class
+    @name=PropertyMapping of (TSource,TDestination)
+    @key=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination
+    @brief=The property mapping definition.
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.PropertyMapping`2
+    @parent=[clink=Gehtsoft.EF.Mapper.IPropertyMapping]IPropertyMapping[/clink]
+
+    You gets instances of this class using [clink=Gehtsoft.EF.Mapper.Map_TSource_TDestination.For.1]Map.For()[/clink] method.
+
+
+    @param
+        @name=TSource
+
+    @end
+
+    @param
+        @name=TDestination
+
+    @end
+
+    @member
+        @name=From
+        @sig=M:Gehtsoft.EF.Mapper.PropertyMapping`2.From``1(System.Linq.Expressions.Expression{System.Func`2})
+        @key=From.1
+        @divisor=.
+        @brief=Sets the source of the mapping rule.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=From
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=string propertyName
+        @end
+
+        @param
+            @name=propertyName
+
+        @end
+
+        @declaration
+            @language=cs
+            @name=From<TValue>
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=Expression<Func<TSource, TValue>> expression
+        @end
+
+        @param
+            @name=expression
+            The LINQ expression for getting the source value. Please note that unlike destination expression that was used in
+            [clink=Gehtsoft.EF.Mapper.Map_TSource_TDestination.For.1]Map.For()[/clink] method, this expression can be any expression that
+            returns the value.
+        @end
+
+    @end
+
+    @member
+        @name=Assign
+        @sig=M:Gehtsoft.EF.Mapper.PropertyMapping`2.Assign``1(`2)
+        @key=Assign.1
+        @divisor=.
+        @brief=Sets a constant or expression source
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Assign
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=TValue constant
+        @end
+
+        @param
+            @name=constant
+
+        @end
+
+        @declaration
+            @language=cs
+            @name=Assign
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=Func<TSource, TValue> expression
+        @end
+
+        @param
+            @name=expression
+            The LINQ expression for getting the source value.
+        @end
+    @end
+
+
+    @member
+        @name=When
+        @sig=M:Gehtsoft.EF.Mapper.PropertyMapping`2.When(System.Func`2)
+        @key=When.1
+        @divisor=.
+        @brief=Add mapping rule predicate for source entity.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=When
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=Func<TSource, bool> predicate
+        @end
+
+        @param
+            @name=predicate
+
+        @end
+
+        Please note that the rule has only ONE predicate, so any subsequence call of the methods that
+        sets the predicate will remove the previously set predicate.
+
+    @end
+
+    @member
+        @name=WhenDestination
+        @sig=M:Gehtsoft.EF.Mapper.PropertyMapping`2.WhenDestination(System.Func`2)
+        @key=WhenDestination.0
+        @divisor=.
+        @brief=Add mapping rule predicate for destination entity.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=WhenDestination
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=Func<TDestination, bool> predicate
+        @end
+
+        @param
+            @name=predicate
+
+        @end
+
+        Please note that the rule has only ONE predicate, so any subsequence call of the methods that
+        sets the predicate will remove the previously set predicate.
+
+    @end
+
+    @member
+        @name=Otherwise
+        @sig=M:Gehtsoft.EF.Mapper.PropertyMapping`2.Otherwise()
+        @key=Otherwise.0
+        @divisor=.
+        @brief=Create a new mapping rule with the same target and condition opposite to the original condition.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+        @declaration
+            @language=cs
+            @name=Otherwise
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=
+        @end
+
+        @param
+            @name=predicate
+
+        @end
+    @end
+
+    @member
+        @name=Ignore
+        @sig=M:Gehtsoft.EF.Mapper.PropertyMapping`2.Ignore
+        @key=Ignore.0
+        @divisor=.
+        @brief=Set the rule predicate that makes it never run.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Ignore
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+        @end
+
+        Please note that the rule has only ONE predicate, so any subsequence call of the methods that
+        sets the predicate will remove the previously set predicate.
+
+        There are also an extension method for [c]IEnumerable[/c] of [c]PropertyMapping[/c] which applies [c]Ignore[/c] for all elements
+        of the enumeration.
+    @end
+
+    @member
+        @name=ReplaceWith
+        @sig=M:Gehtsoft.EF.Mapper.PropertyMapping`2.ReplaceWith
+        @key=ReplaceWith.0
+        @divisor=.
+        @brief=Puts ignore on all previously defined rules with the same target as a current rule and creates a new rule.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReplaceWith
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+        @end
+
+    @end
+
+
+    @member
+        @name=Always
+        @sig=M:Gehtsoft.EF.Mapper.PropertyMapping`2.Always
+        @key=Always.0
+        @divisor=.
+        @brief=Removes the rule predicate so it will run always.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Always
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+        @end
+
+        Please note that the rule has only ONE predicate, so any subsequence call of the methods that
+        sets the predicate will remove the previously set predicate.
+    @end
+
+    @member
+        @name=WithFlags
+        @sig=M:Gehtsoft.EF.Mapper.PropertyMapping`2.WithFlags(Gehtsoft.EF.Mapper.MapFlag)
+        @key=WithFlags.0
+        @divisor=.
+        @brief=Applies mapping flags to the mapping rule.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=WithFlags
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=[clink=Gehtsoft.EF.Mapper.MapFlag]MapFlag[/clink] flag
+        @end
+
+        @param
+            @name=flag
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end

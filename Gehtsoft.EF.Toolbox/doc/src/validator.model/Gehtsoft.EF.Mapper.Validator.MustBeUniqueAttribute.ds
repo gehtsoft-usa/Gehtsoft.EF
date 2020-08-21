@@ -1,0 +1,35 @@
+@class
+    @name=MustBeUniqueAttribute
+    @key=Gehtsoft.EF.Mapper.Validator.MustBeUniqueAttribute
+    @brief=The attribute that adds uniqueness validation
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper.Validator
+    @sig=T:Gehtsoft.EF.Mapper.Validator.MustBeUniqueAttribute
+    @parent=[clink=Gehtsoft.Validator.ValidatorAttributeBase]Gehtsoft.Validator.ValidatorAttributeBase[/clink]
+    @parent=System.Attribute
+
+    Please note that SQL connection factory must be set in the validator constructor in order to make this validator work.
+
+    @member
+        @name=MustBeUniqueAttribute
+        @sig=M:Gehtsoft.EF.Mapper.Validator.MustBeUniqueAttribute.#ctor
+        @key=MustBeUniqueAttribute.0
+        @divisor=.
+        @brief=Constructor
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=MustBeUniqueAttribute
+        @end
+
+    @end
+
+
+
+    The type defined in the [c]Gehtsoft.EF.Mapper.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper.Validator]Gehtsoft.EF.Mapper.Validator[/clink].
+@end

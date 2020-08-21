@@ -1,0 +1,105 @@
+@class
+    @name=EdmModelBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder
+    @brief=The model builder for OData ER model.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.OData
+    @sig=T:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder
+
+    @member
+        @name=EntityTypeByName
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder.EntityTypeByName(System.String)
+        @key=EntityTypeByName.0
+        @divisor=.
+        @brief=Returns the entity specification by its OData name.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=EntityTypeByName
+            @return=System.Type
+            @params=string odataEntityName
+        @end
+
+        @param
+            @name=odataEntityName
+            The odata entity name.
+        @end
+
+    @end
+
+    @member
+        @name=Build
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder.Build(Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo[],System.String)
+        @key=Build.0
+        @divisor=.
+        @brief=Builds a ER model using the list of the entities and the namespace name
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Build
+            @return=void
+            @params=[clink=Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo]Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo[/clink][] entities, string ns
+        @end
+
+        @param
+            @name=entities
+            The list of the entities
+
+            You can get the list of the entities using [clink=Gehtsoft.EF.Entities.EntityFinder]EntityFinder[/clink] class.
+        @end
+
+        @param
+            @name=ns
+            The OData namespace name.
+        @end
+    @end
+
+    @member
+        @name=EdmModelBuilder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder.#ctor
+        @key=EdmModelBuilder.0
+        @divisor=.
+        @brief=Constructor
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=EdmModelBuilder
+        @end
+
+    @end
+
+    @member
+        @name=Model
+        @sig=P:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder.Model
+        @key=Model.0
+        @divisor=.
+        @brief=The model
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Model
+            @return=Microsoft.OData.Edm.IEdmModel
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.OData.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.OData]Gehtsoft.EF.Db.SqlDb.OData[/clink].
+@end

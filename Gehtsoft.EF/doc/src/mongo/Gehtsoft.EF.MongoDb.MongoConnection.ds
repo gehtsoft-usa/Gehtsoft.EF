@@ -1,0 +1,483 @@
+@class
+    @name=MongoConnection
+    @key=Gehtsoft.EF.MongoDb.MongoConnection
+    @brief=Connection to the MongoDB
+    @type=class
+    @ingroup=Gehtsoft.EF.MongoDb
+    @sig=T:Gehtsoft.EF.MongoDb.MongoConnection
+    @parent=IDisposable
+
+    Note: Connection object is derived from [c]IDisposable[/c] in order to provide compatibility with SQL connections,
+    however Mongo connection does not require to be disposed.
+
+    @member
+        @name=GetSchema
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetSchema
+        @key=GetSchema.0
+        @divisor=.
+        @brief=Get list of tables in the connection.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetSchema
+            @return=string[]
+        @end
+
+    @end
+
+    @member
+        @name=Dispose
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.Dispose
+        @key=Dispose.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Dispose
+            @return=void
+
+        @end
+
+    @end
+
+    @member
+        @name=GetCreateListQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetCreateListQuery``1
+        @key=GetCreateListQuery.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetCreateListQuery<T>
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoCreateListQuery]MongoCreateListQuery[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=GetCreateListQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetCreateListQuery(System.Type)
+        @key=GetCreateListQuery.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetCreateListQuery
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoCreateListQuery]MongoCreateListQuery[/clink]
+            @params=System.Type t
+        @end
+
+        @param
+            @name=t
+
+        @end
+
+    @end
+
+    @member
+        @name=GetDeleteListQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetDeleteListQuery``1
+        @key=GetDeleteListQuery.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDeleteListQuery<T>
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoDeleteListQuery]MongoDeleteListQuery[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=GetDeleteListQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetDeleteListQuery(System.Type)
+        @key=GetDeleteListQuery.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDeleteListQuery
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoDeleteListQuery]MongoDeleteListQuery[/clink]
+            @params=System.Type t
+        @end
+
+        @param
+            @name=t
+
+        @end
+
+    @end
+
+    @member
+        @name=GetInsertEntityQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetInsertEntityQuery``1
+        @key=GetInsertEntityQuery.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetInsertEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoInsertEntityQuery]MongoInsertEntityQuery[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=GetInsertEntityQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetInsertEntityQuery(System.Type)
+        @key=GetInsertEntityQuery.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetInsertEntityQuery
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoInsertEntityQuery]MongoInsertEntityQuery[/clink]
+            @params=System.Type t
+        @end
+
+        @param
+            @name=t
+
+        @end
+
+    @end
+
+    @member
+        @name=GetUpdateEntityQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetUpdateEntityQuery``1
+        @key=GetUpdateEntityQuery.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetUpdateEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoUpdateEntityQuery]MongoUpdateEntityQuery[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=GetUpdateEntityQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetUpdateEntityQuery(System.Type)
+        @key=GetUpdateEntityQuery.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetUpdateEntityQuery
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoUpdateEntityQuery]MongoUpdateEntityQuery[/clink]
+            @params=System.Type t
+        @end
+
+        @param
+            @name=t
+
+        @end
+
+    @end
+
+    @member
+        @name=GetUpdateMultiEntityQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetUpdateMultiEntityQuery``1
+        @key=GetUpdateMultiEntityQuery.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetUpdateMultiEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoUpdateMultiEntityQuery]MongoUpdateMultiEntityQuery[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=GetUpdateMultiEntityQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetUpdateMultiEntityQuery(System.Type)
+        @key=GetUpdateMultiEntityQuery.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetUpdateMultiEntityQuery
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoUpdateMultiEntityQuery]MongoUpdateMultiEntityQuery[/clink]
+            @params=System.Type t
+        @end
+
+        @param
+            @name=t
+
+        @end
+
+    @end
+
+    @member
+        @name=GetDeleteEntityQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetDeleteEntityQuery``1
+        @key=GetDeleteEntityQuery.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDeleteEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoDeleteEntityQuery]MongoDeleteEntityQuery[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=GetDeleteEntityQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetDeleteEntityQuery(System.Type)
+        @key=GetDeleteEntityQuery.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDeleteEntityQuery
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoDeleteEntityQuery]MongoDeleteEntityQuery[/clink]
+            @params=System.Type t
+        @end
+
+        @param
+            @name=t
+
+        @end
+
+    @end
+
+    @member
+        @name=GetDeleteMultiEntityQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetDeleteMultiEntityQuery``1
+        @key=GetDeleteMultiEntityQuery.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDeleteMultiEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoDeleteMultiEntityQuery]MongoDeleteMultiEntityQuery[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=GetDeleteMultiEntityQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetDeleteMultiEntityQuery(System.Type)
+        @key=GetDeleteMultiEntityQuery.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDeleteMultiEntityQuery
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoDeleteMultiEntityQuery]MongoDeleteMultiEntityQuery[/clink]
+            @params=System.Type t
+        @end
+
+        @param
+            @name=t
+
+        @end
+
+    @end
+
+    @member
+        @name=GetSelectQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetSelectQuery``1(System.Boolean)
+        @key=GetSelectQuery.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetSelectQuery<T>
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoSelectQuery]MongoSelectQuery[/clink]
+            @params=bool expandReference
+        @end
+
+        @param
+            @name=expandReference
+
+        @end
+
+    @end
+
+    @member
+        @name=GetSelectQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetSelectQuery(System.Type,System.Boolean)
+        @key=GetSelectQuery.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetSelectQuery
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoSelectQuery]MongoSelectQuery[/clink]
+            @params=System.Type t, bool expandReference
+        @end
+
+        @param
+            @name=t
+
+        @end
+
+        @param
+            @name=expandReference
+
+        @end
+
+    @end
+
+    @member
+        @name=GetCountQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetCountQuery``1
+        @key=GetCountQuery.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetCountQuery<T>
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoCountQuery]MongoCountQuery[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=GetCountQuery
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnection.GetCountQuery(System.Type)
+        @key=GetCountQuery.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetCountQuery
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoCountQuery]MongoCountQuery[/clink]
+            @params=System.Type t
+        @end
+
+        @param
+            @name=t
+
+        @end
+
+    @end
+
+
+
+    @member
+        @name=Database
+        @sig=P:Gehtsoft.EF.MongoDb.MongoConnection.Database
+        @key=Database.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Database
+            @return=MongoDB.Driver.IMongoDatabase
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.MongoDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.MongoDb]Gehtsoft.EF.MongoDb[/clink].
+@end

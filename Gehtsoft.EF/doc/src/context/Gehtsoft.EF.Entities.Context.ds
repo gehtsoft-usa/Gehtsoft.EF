@@ -1,0 +1,10 @@
+
+@group
+    @title=Namespace Gehtsoft.EF.Entities.Context
+    @key=Gehtsoft.EF.Entities.Context
+    @ingroup=Gehtsoft.EF.Entities
+    @brief=The context namespace provides the interface to a simplified db-independent manipulations on entities
+
+    Both, [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] and
+    [clink=Gehtsoft.EF.MongoDb.MongoConnection]MongoConnection[/clink] supports this interface. 
+@end

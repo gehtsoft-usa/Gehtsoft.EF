@@ -1,0 +1,591 @@
+@class
+    @name=SingleEntityQueryConditionBuilderExtension
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension
+    @brief=The syntax-sugar extension for SingleEntityQueryConditionBuilder
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension
+
+    @member
+        @name=Eq
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Eq(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder,System.Object)
+        @key=Eq.1
+        @divisor=.
+        @brief=Adds = operator.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Eq
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=Eq
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, object value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=Neq
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Neq(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Neq.0
+        @divisor=.
+        @brief=Adds <> operator.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Neq
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=Neq
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, object value
+        @end
+
+    @end
+
+    @member
+        @name=Le
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Le(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Le.0
+        @divisor=.
+        @brief=Adds <= operator.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Le
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=Le
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, object value
+        @end
+    @end
+
+    @member
+        @name=Ls
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Ls(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Ls.0
+        @divisor=.
+        @brief=Adds < operator.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Ls
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=Ls
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, object value
+        @end
+    @end
+
+    @member
+        @name=Ge
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Ge(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Ge.0
+        @divisor=.
+        @brief=Adds >= operator.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Ge
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=Ge
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, object value
+        @end
+
+    @end
+
+    @member
+        @name=Gt
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Gt(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Gt.0
+        @divisor=.
+        @brief=Adds > operator.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Gt
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=Gt
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, object value
+        @end
+    @end
+
+    @member
+        @name=Like
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Like(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Like.0
+        @divisor=.
+        @brief=Adds LIKE operator
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Like
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=Like
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, string value
+        @end
+    @end
+
+    @member
+        @name=Exists
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Exists(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Exists.0
+        @divisor=.
+        @brief=Adds EXISTS operator
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Exists
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=Exists
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink] query
+        @end
+        @declaration
+            @language=cs
+            @name=Exists
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query
+        @end
+    @end
+
+    @member
+        @name=NotExists
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.NotExists(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=NotExists.0
+        @divisor=.
+        @brief=Adds NOT EXISTS operator
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=NotExists
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=NotExists
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink] query
+        @end
+        @declaration
+            @language=cs
+            @name=NotExists
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query
+        @end
+    @end
+
+    @member
+        @name=In
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.In(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=In.0
+        @divisor=.
+        @brief=Adds IN operator
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=In
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=In
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink] query
+        @end
+        @declaration
+            @language=cs
+            @name=In
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query
+        @end
+    @end
+
+    @member
+        @name=NotIn
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.NotIn(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=NotIn.0
+        @divisor=.
+        @brief=Adds NOT IN operator
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=NotIn
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=NotIn
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink] query
+        @end
+        @declaration
+            @language=cs
+            @name=NotIn
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query
+        @end
+    @end
+
+    @member
+        @name=Sum
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Sum(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Sum.0
+        @divisor=.
+        @brief=Wraps argument before with SUM function (for HAVING conditions only!)
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Sum
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=Min
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Min(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Min.0
+        @divisor=.
+        @brief=Wraps argument before with MIN function (for HAVING conditions only!)
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Min
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=Max
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Max(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Max.0
+        @divisor=.
+        @brief=Wraps argument before with MAX function (for HAVING conditions only!)
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Max
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=Avg
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Avg(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Avg.0
+        @divisor=.
+        @brief=Wraps argument before with AVG function (for HAVING conditions only!)
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Avg
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=Count
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Count(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Count.0
+        @divisor=.
+        @brief=Add COUNT function as argument (for HAVING conditions only!)
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Count
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=ToString
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.ToString(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=ToString.0
+        @divisor=.
+        @brief=Wraps argument before with to string conversion.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToString
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=ToInteger
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.ToInteger(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=ToInteger.0
+        @divisor=.
+        @brief=Wraps argument before with to integer conversion.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToInteger
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=ToDate
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.ToDate(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=ToDate.0
+        @divisor=.
+        @brief=Wraps argument before with to date conversion.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToDate
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=ToDouble
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.ToDouble(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=ToDouble.0
+        @divisor=.
+        @brief=Wraps argument before with to double conversion.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToDouble
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=ToTimestamp
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.ToTimestamp(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=ToTimestamp.0
+        @divisor=.
+        @brief=Wraps argument before with to timestamp conversion.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToTimestamp
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=ToUpper
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.ToUpper(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=ToUpper.0
+        @divisor=.
+        @brief=Wraps argument before with to upper case conversion.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToUpper
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=ToLower
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.ToLower(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=ToLower.0
+        @divisor=.
+        @brief=Wraps argument before with to lower case conversion.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToLower
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=Trim
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Trim(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Trim.0
+        @divisor=.
+        @brief=Wraps argument before with space trim function.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Trim
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+    @end
+
+    @member
+        @name=Abs
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension.Abs(Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder)
+        @key=Abs.0
+        @divisor=.
+        @brief=Wraps argument before with absolute value function.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Abs
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink] builder
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

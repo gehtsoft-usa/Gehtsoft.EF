@@ -1,0 +1,70 @@
+
+@class
+    
+    @name=SqlDbLanguageSpecifics.AutoincrementReturnStyle
+    @key=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.AutoincrementReturnStyle
+    @brief=
+    @type=enum
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.AutoincrementReturnStyle
+    @member
+        @name=Parameter
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.AutoincrementReturnStyle.Parameter
+        @key=Parameter.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=Parameter
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.AutoincrementReturnStyle]SqlDbLanguageSpecifics.AutoincrementReturnStyle[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=FirstResultset
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.AutoincrementReturnStyle.FirstResultset
+        @key=FirstResultset.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=FirstResultset
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.AutoincrementReturnStyle]SqlDbLanguageSpecifics.AutoincrementReturnStyle[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=SecondResultset
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.AutoincrementReturnStyle.SecondResultset
+        @key=SecondResultset.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=SecondResultset
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.AutoincrementReturnStyle]SqlDbLanguageSpecifics.AutoincrementReturnStyle[/clink]
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end
+    

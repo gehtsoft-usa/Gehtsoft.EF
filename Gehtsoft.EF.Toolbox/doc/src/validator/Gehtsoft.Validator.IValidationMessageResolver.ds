@@ -1,0 +1,54 @@
+@class
+    @name=IValidationMessageResolver
+    @key=Gehtsoft.Validator.IValidationMessageResolver
+    @brief=The interface that translates the validation message into a readable message.
+    @type=interface
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.IValidationMessageResolver
+
+    Use [clink=Gehtsoft.Validator.ValidationMessageResolverFactory.SetResolverFor.1]ValidationMessageResolverFactory.SetResolverFor()[/clink]
+    to set a resolver for specific entity type.
+
+    @member
+        @name=Resolve
+        @sig=M:Gehtsoft.Validator.IValidationMessageResolver.Resolve(Gehtsoft.Validator.ValidationTarget,System.Int32,System.String)
+        @key=Resolve.0
+        @divisor=.
+        @brief=Translate the message.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Resolve
+            @return=string
+            @params=Type entityType, [clink=Gehtsoft.Validator.ValidationTarget]ValidationTarget[/clink] target, int code, string message
+        @end
+
+        @param
+            @name=entityType
+            The type of the entity to be validated.
+        @end
+
+        @param
+            @name=target
+            The target within the entity to be validated.
+        @end
+
+        @param
+            @name=code
+            The error code set.
+        @end
+
+        @param
+            @name=message
+            The error message what is being set.
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end

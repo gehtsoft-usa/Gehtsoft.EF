@@ -1,0 +1,98 @@
+@class
+    @name=ValidationFailure
+    @key=Gehtsoft.Validator.ValidationFailure
+    @brief=The one validation failure.
+    @type=class
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.ValidationFailure
+
+    @member
+        @name=Name
+        @sig=P:Gehtsoft.Validator.ValidationFailure.Name
+        @key=Name.0
+        @divisor=.
+        @brief=The name of the value failed.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Name
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Code
+        @sig=P:Gehtsoft.Validator.ValidationFailure.Code
+        @key=Code.0
+        @divisor=.
+        @brief=The code of the failure.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Code
+            @return=int
+            @suffix= get; set;
+        @end
+
+        If no code is set to rule, the value will be 0.
+    @end
+
+    @member
+        @name=Path
+        @sig=P:Gehtsoft.Validator.ValidationFailure.Path
+        @key=Path.0
+        @divisor=.
+        @brief=The path to the value failed.
+        @scope=instance
+        @visibility=public
+        @type=property
+
+        If the validator didn't call other validators via [clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV.ValidateUsing.1]ValidateUsing()[/clink]
+        method, the path is equal to the name.
+
+        If other validaters are used, the property will consists of the full path of values, e.g. when property "X" is validated using other validator
+        and the other validator created the failure with name "Y", the path will consists of "X.Y".
+
+        @declaration
+            @language=cs
+            @name=Path
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Message
+        @sig=P:Gehtsoft.Validator.ValidationFailure.Message
+        @key=Message.0
+        @divisor=.
+        @brief=The error message.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Message
+            @return=string
+            @suffix= get; set;
+        @end
+        If no error message is set to the rule, the value will be [c]null[/c]
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end

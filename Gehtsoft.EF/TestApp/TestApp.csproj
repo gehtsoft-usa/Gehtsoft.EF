@@ -1,0 +1,94 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net461;netcoreapp2.2</TargetFrameworks>
+    <DefineConstants Condition=" '$(TargetFramework)' == 'netcoreapp2.2' ">NETCORE</DefineConstants>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <StartupObject>NUnitLite.Tests.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="AggregatesTest.cs" />
+    <None Remove="config.ini" />
+    <None Remove="DebugTests.cs" />
+    <None Remove="EntityReaderTest.cs" />
+    <None Remove="TestDbUpdate.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Gehtsoft.Tools.Profile" Version="1.0.5" />
+    <PackageReference Include="Moq" Version="4.14.5" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnitLite" Version="3.12.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Db.SqlDb.OData\Gehtsoft.EF.Db.SqlDb.OData.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Entities\Gehtsoft.EF.Entities.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.SqlDb\Gehtsoft.EF.Db.SqlDb.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.MssqlDb\Gehtsoft.EF.Db.MssqlDb.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.MysqlDb\Gehtsoft.EF.Db.MysqlDb.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.SqliteDb\Gehtsoft.EF.Db.SqliteDb.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.PostgresDb\Gehtsoft.EF.Db.PostgresDb.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.FTS\Gehtsoft.EF.FTS.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Northwind\Gehtsoft.EF.Northwind.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Utils\Gehtsoft.EF.Utils.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Bson\Gehtsoft.EF.Bson.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.MongoDb\Gehtsoft.EF.MongoDb.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.OracleDb\Gehtsoft.EF.Db.OracleDb.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="AggregatesTest.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="DebugTests.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="EntityContextTest.cs" />
+    <Compile Include="EntityNameConvertorTest.cs" />
+    <Compile Include="EntityReaderTest.cs" />
+    <Compile Include="NorthwindTest.cs" />
+    <Compile Include="ODataProcessorTest.cs" />
+    <Compile Include="ODataTest.cs" />
+    <Compile Include="ResiliencyTest.cs" />
+    <Compile Include="TestEntity2.cs" />
+    <Compile Include="TestNestedTransactions.cs" />
+    <Compile Include="SqliteDbTest.cs" />
+    <Compile Include="PostgresTest.cs" />
+    <Compile Include="MySqlTest.cs" />
+    <Compile Include="MssqlTest.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="TestDbUpdate.cs" />
+    <Compile Include="TestFts.cs" />
+    <Compile Include="TestPerformance.cs" />
+    <Compile Include="TestEntity1.cs" />
+    <Compile Include="TestHierarchical.cs" />
+    <Compile Include="TestCreateAndDrop.cs" />
+    <Compile Include="TestEntityResolver.cs" />
+    <Compile Include="BsonSerializerTest.cs" />
+    <Compile Include="MongoQueryTest.cs" />
+    <Compile Include="MongoTestNoRef.cs" />
+    <Compile Include="TestTasks.cs" />
+    <Compile Include="OracleTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="config.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Gehtsoft.Tools.TypeUtils">
+      <Version>1.1.4</Version>
+    </PackageReference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,257 @@
+@class
+    @name=UniversalSqlDbFactory
+    @key=Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory
+    @brief=Universal Connection Factory
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory
+
+    @member
+        @name=MSSQL
+        @sig=F:Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory.MSSQL
+        @key=MSSQL.0
+        @divisor=.
+        @brief=Id for MSSQL
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=MSSQL
+            @prefix=const
+            @return=string
+        @end
+
+    @end
+
+    @member
+        @name=MYSQL
+        @sig=F:Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory.MYSQL
+        @key=MYSQL.0
+        @divisor=.
+        @brief=Id for MySQL and MariaDB
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=MYSQL
+            @prefix=const
+            @return=string
+        @end
+
+    @end
+
+    @member
+        @name=ORACLE
+        @sig=F:Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory.ORACLE
+        @key=ORACLE.0
+        @divisor=.
+        @brief=Id for Oracle
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=ORACLE
+            @prefix=const
+            @return=string
+        @end
+
+    @end
+
+    @member
+        @name=POSTGRES
+        @sig=F:Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory.POSTGRES
+        @key=POSTGRES.0
+        @divisor=.
+        @brief=Id for PostgreSQL
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=POSTGRES
+            @prefix=const
+            @return=string
+        @end
+
+    @end
+
+    @member
+        @name=SQLITE
+        @sig=F:Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory.SQLITE
+        @key=SQLITE.0
+        @divisor=.
+        @brief=Id for SQLite
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=SQLITE
+            @prefix=const
+            @return=string
+        @end
+
+    @end
+
+    @member
+        @name=FindDriver
+        @sig=M:Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory.FindDriver(System.String,System.String@,System.String@)
+        @key=FindDriver.0
+        @divisor=.
+        @brief=Finds the driver
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FindDriver
+            @return=bool
+            @params=string dbname, out string assemblyName, out string className
+        @end
+
+        @param
+            @name=dbname
+            The database id.
+        @end
+
+        @param
+            @name=assemblyName
+            Output: the name of the assembly.
+        @end
+
+        @param
+            @name=className
+            Output: the name of the factory class.
+
+        @end
+
+        The method returns [c]true[/c] if the database id if know and [c]false[/c] if it is not.
+    @end
+
+    @member
+        @name=LoadFactory
+        @sig=M:Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory.LoadFactory(System.String)
+        @key=LoadFactory.0
+        @divisor=.
+        @brief=Loads factory and returns the delegate for creating a connection.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=LoadFactory
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactory]SqlDbConnectionFactory[/clink]
+            @params=string dbname
+        @end
+
+        @param
+            @name=dbname
+            The database id.
+        @end
+
+        If id is not know, an assembly cannot be loaded or does not contain a factory class an exception will be thrown.
+
+        The value returned is a delegate with the following prototype: [c]delegate SqlDbConnection [b]SqlDbConnectionFactory[/b](string connectionString)[/c]
+
+    @end
+
+    @member
+        @name=Create
+        @sig=M:Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory.Create(System.String,System.String)
+        @key=Create.0
+        @divisor=.
+        @brief=Create a connection.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Create
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink]
+            @params=string dbname, string connectionString
+        @end
+
+        @param
+            @name=dbname
+            The database id.
+        @end
+
+        @param
+            @name=connectionString
+            The connection string.
+        @end
+
+    @end
+
+    @member
+        @name=CreateAsync
+        @sig=M:Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory.Create(System.String,System.String)
+        @key=CreateAsync.0
+        @divisor=.
+        @brief=Create a connection.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Create
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink]
+            @params=string dbname, string connectionString, CancellationToken? token = null
+        @end
+
+        @param
+            @name=dbname
+            The database id.
+        @end
+
+        @param
+            @name=connectionString
+            The connection string.
+        @end
+
+    @end
+
+    @member
+        @name=SupportedDatabases
+        @sig=P:Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory.SupportedDatabases
+        @key=SupportedDatabases.0
+        @divisor=.
+        @brief=Returns the list of the supported database ids.
+        @scope=class
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=SupportedDatabases
+            @return=string[]
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end

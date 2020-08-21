@@ -1,0 +1,184 @@
+@class
+
+    @name=SingleConditionBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder
+    @brief=The builder for a single condition.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder
+
+    An instance of this class is returned by
+    [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Property.2]ConditionBuilder.Property()[/clink],
+    [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilderExtension.And.0]ConditionBuilder.And()[/clink] or
+    [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilderExtension.And.0]ConditionBuilder.Or()[/clink] methods.
+
+    The class builds a single condition within where or having clauses of the query.
+
+    The condition is build by adding two parts separated by the operation.
+
+    Typically the first part added is a property and the second is a parameter or subquery, however
+    there is no practical limits on how the expression can be build.
+
+    @member
+        @name=Raw
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder.Raw(System.String)
+        @key=Raw.0
+        @divisor=.
+        @brief=Add a raw expression part.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+        @declaration
+            @language=cs
+            @name=Raw
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=string rawExpression
+        @end
+
+        @param
+            @name=rawExpression
+
+        @end
+
+    @end
+
+    @member
+        @name=Property
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder.Property(Gehtsoft.EF.Entities.AggFn,Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity,Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo)
+        @key=Property.2
+        @divisor=.
+        @brief=Add a property as a expression part.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Property
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] columnInfo
+        @end
+        @declaration
+            @language=cs
+            @name=Property
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] entity, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] columnInfo
+        @end
+
+        @param
+            @name=entity
+            The entity to which the column belongs to (the first entity in the query by default).
+        @end
+
+        @param
+            @name=columnInfo
+            The table column.
+        @end
+
+    @end
+
+    @member
+        @name=Parameter
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder.Parameter(System.String)
+        @key=Parameter.0
+        @divisor=.
+        @brief=Adds a parameter as a part of the expression.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Parameter
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=string name
+        @end
+
+        @param
+            @name=name
+
+        @end
+
+    @end
+
+    @member
+        @name=Parameters
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder.Parameters(System.String[])
+        @key=Parameters.0
+        @divisor=.
+        @brief=Adds a list of parameters as a part of the expression.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Parameters
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=string[] names
+        @end
+
+        @param
+            @name=names
+
+        @end
+
+    @end
+
+    @member
+        @name=Query
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder.Query(Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder)
+        @key=Query.0
+        @divisor=.
+        @brief=Adds a subquery as a part of the expression.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Query
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=Is
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder.Is(Gehtsoft.EF.Entities.CmpOp)
+        @key=Is.0
+        @divisor=.
+        @brief=Sets the comparison operator for the expression.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Is
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder]SingleConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink] op
+        @end
+
+        @param
+            @name=op
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

@@ -1,0 +1,64 @@
+@class
+    @name=SqlInjectionProtectionPolicy
+    @key=Gehtsoft.EF.Db.SqlDb.SqlInjectionProtectionPolicy
+    @brief=The class that manages the policy for SQL Injection protection.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlInjectionProtectionPolicy
+
+    Gehtsoft EF by default has protection against SQL injection. You can enable it or disable it
+    using [c]SqlInjectionProtectionPolicy[/c] class.
+
+    Then injection protection is on, the multiple queries per one execution and using of string literals enclosed
+    into single or pair quites is disabled.
+
+    The protection won't cause problems for queries made according safe patterns, e.g.
+    using SQL or Entity query builder that uses parameters instead of raw values.
+
+    However, if you need to execute multiple query for some reason, create your own QueryBuilder. The queries
+    made by custom query builders are considered trusted. However, don't forget to cover such builders with
+    security-level unit testing to make sure that they are projected against SQL Injection attack.
+
+    @member
+        @name=ProtectFromScalarsInQueries
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlInjectionProtectionPolicy.ProtectFromScalarsInQueries
+        @key=ProtectFromScalarsInQueries.0
+        @divisor=.
+        @brief=Turns SQL Injection protection on or off.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ProtectFromScalarsInQueries
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Instance
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlInjectionProtectionPolicy.Instance
+        @key=Instance.0
+        @divisor=.
+        @brief=Gets the singleton instance of the policy.
+        @scope=class
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Instance
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlInjectionProtectionPolicy]SqlInjectionProtectionPolicy[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end

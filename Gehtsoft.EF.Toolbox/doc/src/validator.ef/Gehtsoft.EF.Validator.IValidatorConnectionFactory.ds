@@ -1,0 +1,52 @@
+
+@class
+    
+    @name=IValidatorConnectionFactory
+    @key=Gehtsoft.EF.Validator.IValidatorConnectionFactory
+    @brief=
+    @type=interface
+    @ingroup=Gehtsoft.EF.Validator
+    @sig=T:Gehtsoft.EF.Validator.IValidatorConnectionFactory
+    @member
+        @name=GetConnection
+        @sig=M:Gehtsoft.EF.Validator.IValidatorConnectionFactory.GetConnection
+        @key=GetConnection.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=GetConnection
+            @return=Gehtsoft.EF.Db.SqlDb.SqlDbConnection
+        @end
+    
+    @end
+    
+    @member
+        @name=NeedToDispose
+        @sig=P:Gehtsoft.EF.Validator.IValidatorConnectionFactory.NeedToDispose
+        @key=NeedToDispose.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=NeedToDispose
+            @return=bool
+            @suffix= get;
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Validator]Gehtsoft.EF.Validator[/clink].
+@end
+    

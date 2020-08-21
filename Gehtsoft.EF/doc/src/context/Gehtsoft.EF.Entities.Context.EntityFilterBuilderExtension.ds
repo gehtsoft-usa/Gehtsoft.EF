@@ -1,0 +1,454 @@
+
+@class
+    
+    @name=EntityFilterBuilderExtension
+    @key=Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension
+    @brief=The extension methods for a filter.
+    @type=class
+    @ingroup=Gehtsoft.EF.Entities.Context
+    @sig=T:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension
+    
+    @member
+        @name=And
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.And(Gehtsoft.EF.Entities.Context.IContextFilter)
+        @key=And.0
+        @divisor=.
+        @brief=Add another condition to the filter and join it using AND
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=And
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilter]IContextFilter[/clink] builder
+        @end
+    
+        @param
+            @name=builder
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Or
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Or(Gehtsoft.EF.Entities.Context.IContextFilter)
+        @key=Or.0
+        @divisor=.
+        @brief=Add another condition to filter and join it using OR
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Or
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilter]IContextFilter[/clink] builder
+        @end
+    
+        @param
+            @name=builder
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Property
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Property(Gehtsoft.EF.Entities.Context.IContextFilter,System.String)
+        @key=Property.0
+        @divisor=.
+        @brief=Add comparison of the property specified to the filter and join to using AND
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Property
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilter]IContextFilter[/clink] builder, string name
+        @end
+    
+        @param
+            @name=builder
+
+        @end
+        
+        @param
+            @name=name
+
+        @end
+        
+    @end
+    
+    @member
+        @name=IsNull
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.IsNull(Gehtsoft.EF.Entities.Context.IContextFilter,System.String)
+        @key=IsNull.0
+        @divisor=.
+        @brief=Add IsNull check to the filter and join it using AND
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=IsNull
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilter]IContextFilter[/clink] builder, string name
+        @end
+    
+        @param
+            @name=builder
+
+        @end
+        
+        @param
+            @name=name
+
+        @end
+        
+    @end
+    
+    @member
+        @name=IsNull
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.IsNull(Gehtsoft.EF.Entities.Context.IContextFilterCondition)
+        @key=IsNull.1
+        @divisor=.
+        @brief=Add IsNull operator to a condition
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=IsNull
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition
+        @end
+    
+        @param
+            @name=condition
+
+        @end
+        
+    @end
+    
+    @member
+        @name=NotNull
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.NotNull(Gehtsoft.EF.Entities.Context.IContextFilter,System.String)
+        @key=NotNull.0
+        @divisor=.
+        @brief=Add not null operator to the filter and join it using AND
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotNull
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilter]IContextFilter[/clink] builder, string name
+        @end
+    
+        @param
+            @name=builder
+
+        @end
+        
+        @param
+            @name=name
+
+        @end
+        
+    @end
+    
+    @member
+        @name=NotNull
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.NotNull(Gehtsoft.EF.Entities.Context.IContextFilterCondition)
+        @key=NotNull.1
+        @divisor=.
+        @brief=Add not null operator to a condition
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotNull
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition
+        @end
+    
+        @param
+            @name=condition
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Eq
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Eq(Gehtsoft.EF.Entities.Context.IContextFilterCondition)
+        @key=Eq.0
+        @divisor=.
+        @brief=Add equals to operator to a condition
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Eq
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition
+        @end
+        @declaration
+            @language=cs
+            @name=Eq
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition, object value
+        @end
+    
+        @param
+            @name=condition
+
+        @end
+
+        @param
+            @name=value
+        @end
+       
+    @end
+    
+    
+    @member
+        @name=Neq
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Neq(Gehtsoft.EF.Entities.Context.IContextFilterCondition)
+        @key=Neq.0
+        @divisor=.
+        @brief=Add not equals to operator to a condition
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Neq
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition
+        @end
+        @declaration
+            @language=cs
+            @name=Neq
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition, object value
+        @end
+
+    
+        @param
+            @name=condition
+
+        @end
+        @param
+            @name=value
+        @end
+        
+    @end
+    
+   
+    @member
+        @name=Gt
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Gt(Gehtsoft.EF.Entities.Context.IContextFilterCondition)
+        @key=Gt.0
+        @divisor=.
+        @brief=Add greater than operator to a condition
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Gt
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition
+        @end
+        @declaration
+            @language=cs
+            @name=Gt
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition, object value
+        @end
+
+    
+        @param
+            @name=condition
+
+        @end
+        @param
+            @name=value
+        @end
+        
+    @end
+     
+    @member
+        @name=Ge
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Ge(Gehtsoft.EF.Entities.Context.IContextFilterCondition)
+        @key=Ge.0
+        @divisor=.
+        @brief=Add greater than or equals to operator to a condition
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Ge
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition
+        @end
+        @declaration
+            @language=cs
+            @name=Ge
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition, object value
+        @end
+
+    
+        @param
+            @name=condition
+
+        @end
+        @param
+            @name=value
+        @end
+        
+    @end
+    
+
+    
+    @member
+        @name=Ls
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Ls(Gehtsoft.EF.Entities.Context.IContextFilterCondition)
+        @key=Ls.0
+        @divisor=.
+        @brief=Add less than operator to a condition
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Ls
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition
+        @end
+        @declaration
+            @language=cs
+            @name=Ls
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition, object value
+        @end
+
+    
+        @param
+            @name=condition
+
+        @end
+        @param
+            @name=value
+        @end
+        
+    @end
+    
+
+    
+    @member
+        @name=Le
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Le(Gehtsoft.EF.Entities.Context.IContextFilterCondition)
+        @key=Le.0
+        @divisor=.
+        @brief=Add less than or equals to operator to a condition
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Le
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition
+        @end
+        @declaration
+            @language=cs
+            @name=Le
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition, object value
+        @end
+    
+        @param
+            @name=condition
+
+        @end
+        @param
+            @name=value
+        @end
+        
+    @end
+    
+    @member
+        @name=Like
+        @sig=M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Like(Gehtsoft.EF.Entities.Context.IContextFilterCondition)
+        @key=Like.0
+        @divisor=.
+        @brief=Add like operator to a condition
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Like
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition
+        @end
+        @declaration
+            @language=cs
+            @name=Like
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=this [clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink] condition, object value
+        @end
+    
+        @param
+            @name=condition
+
+        @end
+        @param
+            @name=value
+        @end
+        
+    @end
+    
+   
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities.Context]Gehtsoft.EF.Entities.Context[/clink].
+@end
+    

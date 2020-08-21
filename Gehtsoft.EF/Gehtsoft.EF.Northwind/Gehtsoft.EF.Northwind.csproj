@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net461|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="csv\categories.csv" />
+    <None Remove="csv\customers.csv" />
+    <None Remove="csv\employees.csv" />
+    <None Remove="csv\employee_territories.csv" />
+    <None Remove="csv\orders.csv" />
+    <None Remove="csv\order_details.csv" />
+    <None Remove="csv\products.csv" />
+    <None Remove="csv\regions.csv" />
+    <None Remove="csv\shippers.csv" />
+    <None Remove="csv\suppliers.csv" />
+    <None Remove="csv\territories.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="csv\categories.csv" />
+    <EmbeddedResource Include="csv\customers.csv" />
+    <EmbeddedResource Include="csv\employees.csv" />
+    <EmbeddedResource Include="csv\employee_territories.csv" />
+    <EmbeddedResource Include="csv\orders.csv" />
+    <EmbeddedResource Include="csv\order_details.csv" />
+    <EmbeddedResource Include="csv\products.csv" />
+    <EmbeddedResource Include="csv\regions.csv" />
+    <EmbeddedResource Include="csv\shippers.csv" />
+    <EmbeddedResource Include="csv\suppliers.csv" />
+    <EmbeddedResource Include="csv\territories.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Entities\Gehtsoft.EF.Entities.csproj" />
+  </ItemGroup>
+</Project>

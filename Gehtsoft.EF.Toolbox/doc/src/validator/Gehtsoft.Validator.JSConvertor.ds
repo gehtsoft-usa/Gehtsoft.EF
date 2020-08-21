@@ -1,0 +1,99 @@
+@group
+    @title=Namespace Gehtsoft.Validator.JSConvertor
+    @key=Gehtsoft.Validator.JSConvertor
+    @ingroup=Gehtsoft.Validator
+    @brief=Conversion of the validator to JavaScript
+
+    The namespace provides basic tools to create JavaScript validator on the base of C# validator.
+
+    The functionality can be used, for example, to provide client-side validation on the WEB site.
+
+    Please note that in order to be able to use this feature you must:
+
+    1) Add Gehtsoft.ExpressionToJs package to your project
+
+    2) Add the scripts returned by [clink=Gehtsoft.ExpressionToJs.ExpressionToJsStubAccessor.GetJsIncludesAsString.0]ExpressionToJsStubAccessor.GetJsIncludesAsString()[/clink] method into
+    the scripts on the page where validation is supposed to be used.
+
+    No all predicates may be correctly ported. Only following predicates are successfully compiled to the JavaScript:
+
+    @list
+        @list-item
+            Null
+        @end
+        @list-item
+            NotNull
+        @end
+        @list-item
+            NotNullOrEmpty
+        @end
+        @list-item
+            ShorterThan and all predicates based on ShorterThan (e.g. MustHaveValidDbSize for strings)
+        @end
+        @list-item
+            Between and all predicates based on Between (e.g. MustBeInDbValueRange)
+        @end
+        @list-item
+            Match and all predicates based on Match (e.g. Email)
+        @end
+        @list-item
+            The LINQ predicates that uses only:
+            @list
+                @list-item
+                    Access to the entity or a value
+                @end
+                @list-item
+                    +, -, *, /, % math operators
+                @end
+                @list-item
+                    ==, !=, >, <, >=, <= comparison operators
+                @end
+                @list-item
+                    &&, ||, ! boolean operators
+                @end
+                @list-item
+                    The following [c]string[/c] methods and properties: [c]Length[/c], [c]Upper[/c], [c]Lower[/c], [c]Trim[/c], [c]StartsWith[/c], [c]IndexOf[/c], [c]Substring[/c], [c]IsNotNullOrEmpty[/c], [c]IsNotNullOrWhitespace[/c]
+                @end
+                @list-item
+                    The [c]IsMatch[/c] method of [c]RegExp[/c]
+                @end
+                @list-item
+                    The properties and methods of [c]Math[/c] class.
+                @end
+                @list-item
+                    [c]Year[/c], [c]Month[/c], [c]Day[/c], [c]DayOfWeek[/c], [c]Hour[/c], [c]Minute[/c] and [c]Second[/c] properties and [c]AddDays[/c], [c]AddHours[/c], [c]AddMinutes[/c], [c]AddSeconds[/c] method of [c]DateTime[/c]
+                @end
+                @list-item
+                    [c]TotalMilliseconds[/c], [c]TotalSeconds[/c], [c]TotalMinutes[/c], [c]TotalHours[/c] and [c]TotalDays[/c] properties of TimeSpan
+                @end
+                @list-item
+                    + and - operator between [c]DateTime[/c] and [c]TimeSpan[/c].
+                @end
+                @list-item
+                    - operator between two [c]DateTime[/c]
+                @end
+                @list-item
+                    Functions in [clink=Gehtsoft.ExpressionToJs.Functions]Gehtsoft.ExpressionToJs.Functions[/clink] class
+                @end
+                @list-item
+                    [c]HasValue[/c] and [c]Value[/c] properties of [c]Nullable[/c]
+                @end
+                @list-item
+                    [c]IsUpper[/c], [c]IsLower[/c], [c]IsDigit[/c], [c]IsLetter[/c], [c]IsLetterOrDigit[/c], [c]IsPunctuation[/c] and [c]IsWhitespace[/c] methods of [c]Char[/c].
+                @end
+                @list-item
+                    [c]Any[/c], [c]All[/c], [c]Empty[/c], [c]Count[/c], [c]First[/c] and [c]Last[/c] with lambda predicate for lists, arrays and strings.
+                @end
+            @end
+        @end
+    @end
+
+    In other words, function, enum value validity, uniqueness check, existence check as well as any expression predicate which is not
+    supported by the compiler won't be compiled into JavaScript code.
+
+    Please note that expression predicate compilation will case the exception in case of anything what is not supported is found,
+    unless the whole rule is marked as a server-only rule.
+
+    You can also provide your own implementation of the expression compiler derived from the standard one in order to support more
+    features for expression predicates.
+@end

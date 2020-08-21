@@ -1,0 +1,73 @@
+
+@class
+
+    @name=SelectEntitiesTreeQuery
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesTreeQuery
+    @brief=The query that reads a subtree of self-connected entities
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesTreeQuery
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]
+
+    The class is derived from [c]SelectEntitiesQueryBase[/c] so you need to add resultset columns explicitly.
+
+    If you need to select a collection entities, use IN operator
+
+    @example
+        @title=Example: Getting the list of entities starting at specified root (mgr1)
+        @highlight=cs
+   !    [Entity(Table = "employee")]
+   !    public class Employee
+   !    {
+   !        [EntityProperty(AutoId = true)]
+   !        public int ID { get; set; }
+   !        ...
+   !        [EntityProperty(ForeignKey = true, Nullable = true)]
+   !        public Employee Manager { get; set; }
+   !    }
+   !
+   !    ...
+   !    Employee manager = ...;
+   !
+   !
+   !    using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Employee>())
+   !    {
+   !        using (SelectEntitiesTreeQuery subreeQuery = connection.GetSelectEntitiesTreeQuery<Employee>(true))
+   !        {
+   !            subreeQuery.Root = manager;
+   !            subreeQuery.AddToResultset(nameof(Employee.ID));
+   !            ...
+   !            query.Where.Property(nameof(Employee.ID)).Is(CmpOp.In).Query(subreeQuery);
+   !            ...
+   !            query.AddOrderBy(nameof(Employee.ID));
+   !            ...
+   !            EntityCollection<Employee> emps = query.ReadAll<Employee>();
+   !            ...
+   !        }
+   !    }
+    @end
+
+
+    @member
+        @name=Root
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesTreeQuery.Root
+        @key=Root.0
+        @divisor=.
+        @brief=The root of the subtree as object itself or object's ID
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Root
+            @return=object
+            @suffix= set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

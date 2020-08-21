@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Entities\Gehtsoft.EF.Entities.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Bson\Gehtsoft.EF.Bson.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Utils\Gehtsoft.EF.Utils.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Bson">
+      <Version>2.10.4</Version>
+    </PackageReference>
+    <PackageReference Include="MongoDB.Driver">
+      <Version>2.10.4</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Context\" />
+  </ItemGroup>
+</Project>
+

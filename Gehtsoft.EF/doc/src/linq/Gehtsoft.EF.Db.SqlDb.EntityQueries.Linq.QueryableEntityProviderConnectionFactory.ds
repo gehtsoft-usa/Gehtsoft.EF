@@ -1,0 +1,47 @@
+@class
+    @name=QueryableEntityProviderConnectionFactory
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProviderConnectionFactory
+    @brief=Connection provider trough connection factory.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProviderConnectionFactory
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider.IConnectionProvider]QueryableEntityProvider.IConnectionProvider[/clink]
+
+    Use this class when the life time of the [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider]QueryableEntityProvider[/clink]
+    lifetime is longer than it is reasonable to keep the session alive.
+
+    This provides will take a connection from pool every time when operation is requested.
+
+    @member
+        @name=QueryableEntityProviderConnectionFactory
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProviderConnectionFactory.#ctor(Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactory,System.String)
+        @key=QueryableEntityProviderConnectionFactory.0
+        @divisor=.
+        @brief=Constructor
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=QueryableEntityProviderConnectionFactory
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactory]SqlDbConnectionFactory[/clink] factory, string connectionString
+        @end
+
+        @param
+            @name=factory
+            A delegate to connection factory method.
+            The delegate signature is [c]SqlDbConnection SqlDbConnectionFactory(string connectionString)[/c].
+        @end
+
+        @param
+            @name=connectionString
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq]Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq[/clink].
+@end

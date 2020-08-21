@@ -1,0 +1,238 @@
+
+@class
+    
+    @name=IEntityContext
+    @key=Gehtsoft.EF.Entities.Context.IEntityContext
+    @brief=
+    @type=interface
+    @ingroup=Gehtsoft.EF.Entities.Context
+    @sig=T:Gehtsoft.EF.Entities.Context.IEntityContext
+    @parent=System.IDisposable
+    @member
+        @name=DropEntity
+        @sig=M:Gehtsoft.EF.Entities.Context.IEntityContext.DropEntity(System.Type)
+        @key=DropEntity.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=DropEntity
+            @return=[clink=Gehtsoft.EF.Entities.Context.IEntityQuery]IEntityQuery[/clink]
+            @params=System.Type type
+        @end
+    
+        @param
+            @name=type
+
+        @end
+        
+    @end
+    
+    @member
+        @name=CreateEntity
+        @sig=M:Gehtsoft.EF.Entities.Context.IEntityContext.CreateEntity(System.Type)
+        @key=CreateEntity.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=CreateEntity
+            @return=[clink=Gehtsoft.EF.Entities.Context.IEntityQuery]IEntityQuery[/clink]
+            @params=System.Type type
+        @end
+    
+        @param
+            @name=type
+
+        @end
+        
+    @end
+    
+    @member
+        @name=InsertEntity
+        @sig=M:Gehtsoft.EF.Entities.Context.IEntityContext.InsertEntity(System.Type,System.Boolean)
+        @key=InsertEntity.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=InsertEntity
+            @return=[clink=Gehtsoft.EF.Entities.Context.IModifyEntityQuery]IModifyEntityQuery[/clink]
+            @params=System.Type type, bool createKey
+        @end
+    
+        @param
+            @name=type
+
+        @end
+        
+        @param
+            @name=createKey
+
+        @end
+        
+    @end
+    
+    @member
+        @name=UpdateEntity
+        @sig=M:Gehtsoft.EF.Entities.Context.IEntityContext.UpdateEntity(System.Type)
+        @key=UpdateEntity.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=UpdateEntity
+            @return=[clink=Gehtsoft.EF.Entities.Context.IModifyEntityQuery]IModifyEntityQuery[/clink]
+            @params=System.Type type
+        @end
+    
+        @param
+            @name=type
+
+        @end
+        
+    @end
+    
+    @member
+        @name=DeleteEntity
+        @sig=M:Gehtsoft.EF.Entities.Context.IEntityContext.DeleteEntity(System.Type)
+        @key=DeleteEntity.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=DeleteEntity
+            @return=[clink=Gehtsoft.EF.Entities.Context.IModifyEntityQuery]IModifyEntityQuery[/clink]
+            @params=System.Type type
+        @end
+    
+        @param
+            @name=type
+
+        @end
+        
+    @end
+    
+    @member
+        @name=DeleteMultiple
+        @sig=M:Gehtsoft.EF.Entities.Context.IEntityContext.DeleteMultiple(System.Type)
+        @key=DeleteMultiple.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=DeleteMultiple
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextQueryWithCondition]IContextQueryWithCondition[/clink]
+            @params=System.Type type
+        @end
+    
+        @param
+            @name=type
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Select
+        @sig=M:Gehtsoft.EF.Entities.Context.IEntityContext.Select(System.Type)
+        @key=Select.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Select
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextSelect]IContextSelect[/clink]
+            @params=System.Type type
+        @end
+    
+        @param
+            @name=type
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Count
+        @sig=M:Gehtsoft.EF.Entities.Context.IEntityContext.Count(System.Type)
+        @key=Count.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Count
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextCount]IContextCount[/clink]
+            @params=System.Type type
+        @end
+    
+        @param
+            @name=type
+
+        @end
+        
+    @end
+    
+    @member
+        @name=BeginTransaction
+        @sig=M:Gehtsoft.EF.Entities.Context.IEntityContext.BeginTransaction
+        @key=BeginTransaction.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=BeginTransaction
+            @return=[clink=Gehtsoft.EF.Entities.Context.IEntityContextTransaction]IEntityContextTransaction[/clink]
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities.Context]Gehtsoft.EF.Entities.Context[/clink].
+@end
+    

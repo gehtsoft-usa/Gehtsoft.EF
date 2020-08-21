@@ -1,0 +1,112 @@
+@class
+    @name=EfModelValidator of (T)
+    @key=Gehtsoft.EF.Mapper.Validator.EfModelValidator_T
+    @brief=The base class for mapper model validators.
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper.Validator
+    @sig=T:Gehtsoft.EF.Mapper.Validator.EfModelValidator`1
+    @parent=[clink=Gehtsoft.Validator.AbstractValidator_T]Gehtsoft.Validator.AbstractValidator[/clink]<T>
+
+    @param
+        @name=T
+        The type of the model to be validated.
+    @end
+
+    The model validator class validates the following:
+
+    @list
+        @list-item
+            Whether non-nullable properties aren't nulls.
+        @end
+        @list-item
+            Whether strings don't exceed property size limit.
+        @end
+        @list-item
+            Whether numerics don't exceed property size limit.
+        @end
+        @list-item
+            Whether dates and timestamps don't exceed database limits.
+        @end
+        @list-item
+            Whether the unique values are actually unique.
+        @end
+        @list-item
+            Whether the referenced object exists.
+        @end
+    @end
+
+
+    @member
+        @name=EfModelValidator
+        @sig=M:Gehtsoft.EF.Mapper.Validator.EfModelValidator`1.#ctor(Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics,Gehtsoft.EF.Validator.IValidatorConnectionFactory)
+        @key=EfModelValidator.0
+        @divisor=.
+        @brief=Constructor
+        @scope=instance
+        @visibility=public
+        @type=constructor
+
+        The constructor automatically recognizes any attribute-based validation specification and adds appropriate rules for them.
+
+        @declaration
+            @language=cs
+            @name=EfModelValidator
+            @params==[eurl=http://asp.gehtsoftusa.com/doc/ef/#Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.html]SqlDbLanguageSpecifics[/eurl] specifics = null, [clink=Gehtsoft.EF.Validator.IValidatorConnectionFactory]IValidatorConnectionFactory[/clink] connectionFactory = null
+        @end
+
+        @param
+            @name=specifics
+            The SQL specifics.
+
+            If the specifics aren't set, the date and timestamp ranges specific for the database won't be performed.
+        @end
+
+        @param
+            @name=connectionFactory
+            The connection factory.
+
+            You can make you own implementation or use one for the existing:
+
+            [clink=Gehtsoft.EF.Validator.ValidatorConnectionFactory]ValidatorConnectionFactory[/clink] or
+            [clink=Gehtsoft.EF.Validator.ValidatorSingletonConnectionFactory]ValidatorSingletonConnectionFactory[/clink].
+
+            If the connection factory isn't provided, the database-related checks such any uniqueness validation and existing of a reference validation
+            won't be performed.
+        @end
+
+    @end
+
+    @member
+        @name=ValidateModel
+        @sig=M:Gehtsoft.EF.Mapper.Validator.EfModelValidator`1.ValidateModel(Gehtsoft.EF.Validator.IEfValidatorMessageProvider)
+        @key=ValidateModel.0
+        @divisor=.
+        @brief=Finds the map and adds all required validation for the model.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ValidateModel
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Validator.IEfValidatorMessageProvider]Gehtsoft.EF.Validator.IEfValidatorMessageProvider[/clink] messageProvider
+        @end
+
+        @param
+            @name=messageProvider
+            The message provider.
+
+            If the message provider is not set, the messages in failures will be null value.
+        @end
+
+        The method scans the entity that is associated with this model via the map and adds all appropriate validation rules.
+
+        This method uses [clink=Gehtsoft.EF.Validator.EfValidationErrorCode]EfValidationErrorCode[/clink] to identify the failure.
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Mapper.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper.Validator]Gehtsoft.EF.Mapper.Validator[/clink].
+@end

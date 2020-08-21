@@ -1,0 +1,289 @@
+@class
+    @name=EntityQueryLinqExtension
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqExtension
+    @brief=The class consists of extensions for [c]EntityQuery[/c] to use [c]Expression[/c] instead of property names.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqExtension
+
+    Notes about types in the generic method parameters.
+
+    Note 1.
+
+    Generally, the developer uses an entity type as a generic method parameter that refers the first occurrence of that entity in the query.
+
+    However, sometimes an entity is used multiple times and the expression needs to refer a particular occurrence of that entity. In this case an array of
+    entity types must be set as a generic parameter. The occurrence inside the expression is referenced as a index to the array.
+
+    Node 2.
+
+    When dictionary (1)-(*) data join is added to the query using [c]AddEntity[/c] method, the foreign key reference in the data is not automatically
+    populated to the query (and it should not as dictionary is already populated), the expression (for example join) like below would not work:
+
+    [c]AddEntity<dictionary, data>(typeof(data), TableJoinType.Inner, (a, b) => a.ID == b.DictionaryReference.ID)[/c]
+
+    because [c]b.DictionaryReference.ID[/c] is no in the query.
+
+    In this case the whole entity must be used in Linq comparisons:
+
+    [c]AddEntity<dictionary, data>(typeof(data), TableJoinType.Inner, (a, b) => a == b.DictionaryReference)[/c]
+
+    @member
+        @name=Expression
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqExtension.Expression``1(Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder,System.Linq.Expressions.Expression{System.Func`2})
+        @key=Expression.1
+        @divisor=.
+        @brief=Adds an expression to the where or having clause of the entity query.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Expression<T>
+            @return=void
+
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder]EntityQueryConditionBuilder[/clink] builder, Expression<System.Func<T, bool>> expression
+        @end
+        @declaration
+            @language=cs
+            @name=Expression<T, T1>
+            @return=void
+
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder]EntityQueryConditionBuilder[/clink] builder, Expression<System.Func<T, T1, bool>> expression
+        @end
+        @declaration
+            @language=cs
+            @name=Expression<T, T1>
+            @return=void
+
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder]EntityQueryConditionBuilder[/clink] builder, [clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp, Expression<System.Func<T, T1, bool>> expression
+        @end
+
+        @param
+            @name=T
+            The entity type.
+        @end
+
+        @param
+            @name=T1
+            The second entity type to be involved into the expression. This options is useful when an entity is explicitly added to the
+            query and cannot be referenced via entity of [c]T[/c] type.
+        @end
+
+        @param
+            @name=logOp
+            Logical operation to be used to connect the expression to previous part of where filter.
+
+            Default operation is AND.
+        @end
+
+        @param
+            @name=expression
+            LINQ expression to be added.
+
+            Please note that only C# operators and functions from [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction]SqlFunction[/clink] class can be applied to properties of the entities.
+        @end
+
+    @end
+
+    @member
+        @name=AddToResultset
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqExtension.AddToResultset``2(Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase,System.Linq.Expressions.Expression{System.Func`2},System.Boolean)
+        @key=AddToResultset.0
+        @divisor=.
+        @brief=Adds an expression to the resultset filter of the query.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddToResultset<T,TRes>
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query, Expression<Func<T, TRes>> expression, string alias
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddToResultset<T,T1,TRes>
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query, Expression<Func<T, T1, TRes>> expression, string alias
+        @end
+
+        @param
+            @name=T
+            The entity type.
+        @end
+
+        @param
+            @name=T1
+            The second entity type to be involved into the expression. This options is useful when an entity is explicitly added to the
+            query and cannot be referenced via entity of [c]T[/c] type.
+        @end
+
+        @param
+            @name=TRes
+            The datatype of the value added.
+        @end
+
+
+        @param
+            @name=query
+            The query.
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+        @param
+            @name=alias
+            LINQ expression to be added.
+
+            Please note that only C# operators and functions from [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction]SqlFunction[/clink] class can be applied to properties of the entities.
+        @end
+
+    @end
+
+    @member
+        @name=AddOrderBy
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqExtension.AddOrderBy``1(Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase,System.Linq.Expressions.Expression{System.Func`2},System.Boolean)
+        @key=AddOrderBy.0
+        @divisor=.
+        @brief=Adds a property of the entity to the order by using the expression.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddOrderBy<T>
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query, Expression<Func<T, object>> expression, [clink=Gehtsoft.EF.Entities.SortDir]SortDir[/clink] direction = SortDir.Asc
+        @end
+
+        @param
+            @name=T
+            The entity type.
+        @end
+
+        @param
+            @name=query
+
+        @end
+
+        @param
+            @name=expression
+            The expression. The expression must be the simple reference to one property of the entity.
+        @end
+
+        @param
+            @name=direction
+            Sort direction.
+        @end
+
+    @end
+
+    @member
+        @name=AddGroupBy
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqExtension.AddGroupBy``1(Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase,System.Linq.Expressions.Expression{System.Func`2})
+        @key=AddGroupBy.0
+        @divisor=.
+        @brief=Adds a property of the entity to the group by using the expression.
+        @scope=class
+        @visibility=public
+        @type=method
+
+        @param
+            @name=T
+            The entity type.
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddGroupBy<T>
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query, Expression<Func<T, object>> expression
+        @end
+
+        @param
+            @name=T
+            The entity type.
+        @end
+
+        @param
+            @name=query
+
+        @end
+
+        @param
+            @name=expression
+            The expression. The expression must be the simple reference to one property of the entity.
+        @end
+
+        @param
+            @name=direction
+            Sort direction.
+        @end
+    @end
+
+    @member
+        @name=AddEntity
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqExtension.AddEntity``2(Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase,System.Type,Gehtsoft.EF.Entities.TableJoinType,System.Linq.Expressions.Expression{System.Func`3})
+        @key=AddEntity.0
+        @divisor=.
+        @brief=Adds a new entity and sets the join expression.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddEntity<T1,T2>
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query, System.Type type, [clink=Gehtsoft.EF.Entities.TableJoinType]TableJoinType[/clink] joinType, Expression<System.Func<T1, T2, bool>> joinExpression
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddEntity<T1,T2, T3>
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query, System.Type type, [clink=Gehtsoft.EF.Entities.TableJoinType]TableJoinType[/clink] joinType, Expression<System.Func<T1, T2, T3, bool>> joinExpression
+        @end
+
+        @param
+            @name=query
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+        @param
+            @name=joinType
+
+        @end
+
+        @param
+            @name=joinExpression
+
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq]Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq[/clink].
+@end

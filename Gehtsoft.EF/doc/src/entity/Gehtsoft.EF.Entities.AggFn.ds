@@ -1,0 +1,116 @@
+@class
+    @name=AggFn
+    @key=Gehtsoft.EF.Entities.AggFn
+    @brief=The list of aggregate functions
+    @type=enum
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.AggFn
+
+    The aggregate function code.
+
+    All functions except [c]Count[/c] ALWAYS require a column or expression to be aggregated.
+
+    The [c]Count[/c] function may be used either way:
+
+    - If the aggregate function argument is [c]null[/c] a count all ([c]Count(*)[/c]) will be added.
+
+    - If the aggregate function argument is set to a column or property name, a count distinct ([c]Count(Distinct [i]arg[/i])[/c]) will be added.
+
+    @member
+        @name=Count
+        @sig=F:Gehtsoft.EF.Entities.AggFn.Count
+        @key=Count.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Count
+            @return=[clink=Gehtsoft.EF.Entities.AggFn]AggFn[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Sum
+        @sig=F:Gehtsoft.EF.Entities.AggFn.Sum
+        @key=Sum.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Sum
+            @return=[clink=Gehtsoft.EF.Entities.AggFn]AggFn[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Avg
+        @sig=F:Gehtsoft.EF.Entities.AggFn.Avg
+        @key=Avg.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Avg
+            @return=[clink=Gehtsoft.EF.Entities.AggFn]AggFn[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Min
+        @sig=F:Gehtsoft.EF.Entities.AggFn.Min
+        @key=Min.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Min
+            @return=[clink=Gehtsoft.EF.Entities.AggFn]AggFn[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Max
+        @sig=F:Gehtsoft.EF.Entities.AggFn.Max
+        @key=Max.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Max
+            @return=[clink=Gehtsoft.EF.Entities.AggFn]AggFn[/clink]
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

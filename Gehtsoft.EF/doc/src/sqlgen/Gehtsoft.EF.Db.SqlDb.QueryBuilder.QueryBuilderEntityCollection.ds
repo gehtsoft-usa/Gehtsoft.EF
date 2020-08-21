@@ -1,0 +1,58 @@
+@class
+    @name=QueryBuilderEntityCollection
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntityCollection
+    @brief=The collection of the entities in the select query.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntityCollection
+    @parent=System.Collections.Generic.IEnumerable<[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink]>
+    @parent=System.Collections.IEnumerable
+
+    @member
+        @name=Count
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntityCollection.Count
+        @key=Count.0
+        @divisor=.
+        @brief=Returns the number of the entities.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Count
+            @return=int
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=Item
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntityCollection.Item(System.Int32)
+        @key=Item.0
+        @divisor=.
+        @brief=Returns the entity by its index.
+        @scope=instance
+        @visibility=public
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=this
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink]
+            @params=int index
+            @suffix= get;
+        @end
+
+        @param
+            @name=index
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

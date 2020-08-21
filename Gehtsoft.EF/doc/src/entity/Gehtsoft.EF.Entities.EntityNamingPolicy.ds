@@ -1,0 +1,206 @@
+@class
+    @name=EntityNamingPolicy
+    @key=Gehtsoft.EF.Entities.EntityNamingPolicy
+    @brief=The database naming policy
+    @type=enum
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.EntityNamingPolicy
+
+    The enumeration defines how to convert types and property names into table and column names.
+
+    The feature is introduced in version 1.1.3.3. Before this the following rules applied:
+
+    @list
+        @list-item
+            Table names must be specified.
+        @end
+        @list-item
+            The column names are the property name in lower case unless it is specified.
+        @end
+    @end
+
+    Please note that new naming policy is applied only in case the name is not specified in the attribute.
+
+
+    @member
+        @name=Default
+        @sig=F:Gehtsoft.EF.Entities.EntityNamingPolicy.Default
+        @key=Default.0
+        @divisor=.
+        @brief=Use default policy set in entities manager.
+        @scope=class
+        @visibility=public
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Default
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]EntityNamingPolicy[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=BackwardCompatibility
+        @sig=F:Gehtsoft.EF.Entities.EntityNamingPolicy.BackwardCompatibility
+        @key=BackwardCompatibility.0
+        @divisor=.
+        @brief=Name the properties according the rules used before 1.1.3.3 release.
+        @scope=class
+        @visibility=public
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=BackwardCompatibility
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]EntityNamingPolicy[/clink]
+        @end
+
+        The following rules applied:
+
+        @list
+            @list-item
+                Table names must be specified.
+            @end
+            @list-item
+                The column names are the property name in lower case unless it is specified.
+            @end
+        @end
+    @end
+
+    @member
+        @name=AsIs
+        @sig=F:Gehtsoft.EF.Entities.EntityNamingPolicy.AsIs
+        @key=AsIs.0
+        @divisor=.
+        @brief=The name of the property or class is used as is.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=AsIs
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]EntityNamingPolicy[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=LowerCase
+        @sig=F:Gehtsoft.EF.Entities.EntityNamingPolicy.LowerCase
+        @key=LowerCase.0
+        @divisor=.
+        @brief=The name of the property is used in lower case.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=LowerCase
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]EntityNamingPolicy[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=UpperCase
+        @sig=F:Gehtsoft.EF.Entities.EntityNamingPolicy.UpperCase
+        @key=UpperCase.0
+        @divisor=.
+        @brief=The name of the property is used in upper case.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=UpperCase
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]EntityNamingPolicy[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=LowerFirstCharacter
+        @sig=F:Gehtsoft.EF.Entities.EntityNamingPolicy.LowerFirstCharacter
+        @key=LowerFirstCharacter.0
+        @divisor=.
+        @brief=The first character of the property is used in lower case, the rest is as is.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=LowerFirstCharacter
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]EntityNamingPolicy[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=UpperFirstCharacter
+        @sig=F:Gehtsoft.EF.Entities.EntityNamingPolicy.UpperFirstCharacter
+        @key=UpperFirstCharacter.0
+        @divisor=.
+        @brief=The first character of the property is used in upper case, the rest is as is.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=UpperFirstCharacter
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]EntityNamingPolicy[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=LowerCaseWithUnderscores
+        @sig=F:Gehtsoft.EF.Entities.EntityNamingPolicy.LowerCaseWithUnderscores
+        @key=LowerCaseWithUnderscores.0
+        @divisor=.
+        @brief=All characters of the name is converted to the lower case. The uppercase characters are prefixed with underscore.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=LowerCaseWithUnderscores
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]EntityNamingPolicy[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=UpperCaseWithUnderscopes
+        @sig=F:Gehtsoft.EF.Entities.EntityNamingPolicy.UpperCaseWithUnderscopes
+        @key=UpperCaseWithUnderscopes.0
+        @divisor=.
+        @brief=All characters of the name is converted to the upper case. The uppercase characters are prefixed with underscore.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=UpperCaseWithUnderscopes
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]EntityNamingPolicy[/clink]
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

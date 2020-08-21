@@ -1,0 +1,12 @@
+@class
+    @name=OpBracket
+    @key=Gehtsoft.EF.Entities.OpBracket
+    @brief=The class which is used to automatically close bracket during the query generation.
+    @type=class
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.OpBracket
+    @parent=System.IDisposable
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

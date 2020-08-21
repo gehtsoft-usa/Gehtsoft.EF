@@ -1,0 +1,379 @@
+@class
+    @name=EntityPropertyAttribute
+    @key=Gehtsoft.EF.Entities.EntityPropertyAttribute
+    @brief=The mark up of entity property attribute.
+    @type=class
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.EntityPropertyAttribute
+    @parent=System.Attribute
+
+    @member
+        @name=EntityPropertyAttribute
+        @sig=M:Gehtsoft.EF.Entities.EntityPropertyAttribute.#ctor
+        @key=EntityPropertyAttribute.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=EntityPropertyAttribute
+        @end
+
+    @end
+
+    @member
+        @name=Field
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Field
+        @key=Field.0
+        @divisor=.
+        @brief=The name of the table field.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Field
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=DbType
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.DbType
+        @key=DbType.0
+        @divisor=.
+        @brief=The database type of the table field.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=DbType
+            @return=System.Data.DbType
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Size
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Size
+        @key=Size.0
+        @divisor=.
+        @brief=The size of the field.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Size
+            @return=int
+            @suffix= get; set;
+        @end
+
+        The meaning of this attribute depends on the database type:
+
+        @table
+            @row
+                @col
+                    String
+                @end
+                @col
+                    Defines the maximum length of the text. If no size specified, the
+                    column considered to be a CLOB.
+                @end
+            @end
+            @row
+                @col
+                    Number
+                @end
+                @col
+                    The maximum number of digits (in both, integer and fractional part).
+                @end
+            @end
+        @end
+    @end
+
+    @member
+        @name=Precision
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Precision
+        @key=Precision.0
+        @divisor=.
+        @brief=The precision (accuracy) of the numeric data.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Precision
+            @return=int
+            @suffix= get; set;
+        @end
+
+        The field can be applied to the numeric fields only and denotes the number of digits after decimal point.
+    @end
+
+    @member
+        @name=AutoId
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.AutoId
+        @key=AutoId.0
+        @divisor=.
+        @brief=Marks the field is an automatic identifier.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=AutoId
+            @return=bool
+            @suffix= get; set;
+        @end
+
+        This field is used for Non-SQL database in place of autoincrement. For SQL database auto id is equal to autoincrement.
+    @end
+
+    @member
+        @name=PrimaryKey
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.PrimaryKey
+        @key=PrimaryKey.0
+        @divisor=.
+        @brief=The field is a primary key.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PrimaryKey
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Autoincrement
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Autoincrement
+        @key=Autoincrement.0
+        @divisor=.
+        @brief=The field is an autoincrement field.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Autoincrement
+            @return=bool
+            @suffix= get; set;
+        @end
+
+        The flag shall be used in conjunction with primary key only. The flag means that
+        the value of the primary key will be automatically calculated during the insertion operation.
+    @end
+
+    @member
+        @name=ForeignKey
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.ForeignKey
+        @key=ForeignKey.0
+        @divisor=.
+        @brief=The field is a reference to another table.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ForeignKey
+            @return=bool
+            @suffix= get; set;
+        @end
+
+
+    @end
+
+    @member
+        @name=Sorted
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Sorted
+        @key=Sorted.0
+        @divisor=.
+        @brief=The field shall be indexed.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Sorted
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Unique
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Unique
+        @key=Unique.0
+        @divisor=.
+        @brief=The field is unique.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Unique
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Nullable
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Nullable
+        @key=Nullable.0
+        @divisor=.
+        @brief=The field can accept null values.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Nullable
+            @return=bool
+            @suffix= get; set;
+        @end
+
+        In case the datatype of the field is a value rather than a class (e.g. [c]int[/c] or [c]DateTime[/c]), you can use [c]Nullable[/c]
+        datatype e.g. [c]int?[/c].
+
+    @end
+
+    @member
+        @name=IgnoreRead
+        @sig=P:Gehtsoft.EF.Entities.EntityPropertyAttribute.IgnoreRead
+        @key=IgnoreRead.0
+        @divisor=.
+        @brief=The field should be ignored by default in select entity queries
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=IgnoreRead
+            @return=bool
+            @suffix= get; set;
+        @end
+
+        In case the datatype of the field is a value rather than a class (e.g. [c]int[/c] or [c]DateTime[/c]), you can use [c]Nullable[/c]
+        datatype e.g. [c]int?[/c].
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end
+
+@class
+    @name=ObsoleteEntityPropertyAttribute
+    @key=Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute
+    @brief=The mark up of obsolete entity property attribute.
+    @type=class
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute
+    @parent=System.Attribute
+
+    The attribute is used to mark obsolete field of existing entities. If the whole entity renders obsolete, there is no need
+    to mark individual fields obsolete as well.
+
+    @member
+        @name=ObsoleteEntityPropertyAttribute
+        @sig=M:Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute.#ctor
+        @key=ObsoleteEntityPropertyAttribute.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=ObsoleteEntityPropertyAttribute
+        @end
+
+    @end
+
+    @member
+        @name=Field
+        @sig=P:Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute.Field
+        @key=Field.0
+        @divisor=.
+        @brief=The name of the table field.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Field
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=ForeignKey
+        @sig=P:Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute.ForeignKey
+        @key=ForeignKey.0
+        @divisor=.
+        @brief=The field is a reference to another table.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ForeignKey
+            @return=bool
+            @suffix= get; set;
+        @end
+
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

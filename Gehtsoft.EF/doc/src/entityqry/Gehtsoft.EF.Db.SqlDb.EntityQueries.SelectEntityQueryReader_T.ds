@@ -1,0 +1,234 @@
+@class
+    @name=SelectEntityQueryReader(Of T)
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntityQueryReader_T
+    @brief=A reader for SelectEntityQuery results
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntityQueryReader`1
+    @param
+        @name=T
+        The class into which the data will be bound.
+    @end
+
+    Unless you are using pure [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery]SelectEntitiesQuery[/clink] that has built-in
+    binder for the target entity type, you typically have to read the data row-by-row and column-by-column.
+
+    This class is designed to bind any entity query result into any class.
+
+    @member
+        @name=SelectEntityQueryReader
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntityQueryReader`1.#ctor(Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase)
+        @key=SelectEntityQueryReader.0
+        @divisor=.
+        @brief=The constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=SelectEntityQueryReader
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query
+        @end
+
+        @param
+            @name=query
+            The query that will select the data.
+        @end
+
+    @end
+
+    @member
+        @name=Bind
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntityQueryReader`1.Bind
+        @key=Bind.0
+        @divisor=.
+        @brief=Binds properties and columns by name automatically.
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Bind
+            @return=void
+
+        @end
+
+        The method binds columns to the property which has the same name as the column. If such property doesn't exist, a
+        particular column won't be bound.
+    @end
+
+    @member
+        @name=Bind
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntityQueryReader`1.Bind(System.String,System.String)
+        @key=Bind.6
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Bind
+            @return=void
+            @params=string propertyName, string columnName
+        @end
+
+        @declaration
+            @language=cs
+            @name=Bind
+            @return=void
+
+            @params=string propertyName, int columnIndex
+        @end
+
+
+        @declaration
+            @language=cs
+            @name=Bind<TValue>
+            @return=void
+
+            @params=Expression<Func<T, TValue>> propertyAccessor, string columnName
+        @end
+
+
+        @declaration
+            @language=cs
+            @name=Bind<TValue>
+            @return=void
+
+            @params=Expression<Func<T, TValue>> propertyAccessor, int columnIndex
+        @end
+
+        @declaration
+            @language=cs
+            @name=Bind<TValue>
+            @return=void
+            @params=Expression<Func<T, TValue>> propertyAccessor, Func<[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink], TV> valueAccessor
+        @end
+
+        @declaration
+            @language=cs
+            @name=Bind
+            @return=void
+            @params=Action<T, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]> bindingAction
+        @end
+
+
+
+
+        @param
+            @name=propertyName
+            The name of the property to bind the column to.
+        @end
+
+        @param
+            @name=propertyAccessor
+            The LINQ expression to access the property to bind the column to.
+        @end
+
+        @param
+            @name=columnName
+            The column name to be bound.
+        @end
+
+        @param
+            @name=columnIndex
+            The column index to be bound.
+        @end
+
+        @param
+            @name=valueAccessor
+            A custom function to read the value to be bound from the query.
+        @end
+
+        @param
+            @name=bindingAction
+            An arbitrary binding action.
+        @end
+
+    @end
+
+    @member
+        @name=Scan
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntityQueryReader`1.Scan(System.Func`2)
+        @key=Scan.0
+        @divisor=.
+        @brief=Scans the resultset calling specified action for each row.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Scan
+            @return=void
+
+            @params=Func<T, bool> action
+        @end
+
+        @param
+            @name=action
+
+        @end
+
+        If function return [c]false[/c] the scan is terminated.
+
+    @end
+
+    @member
+        @name=ReadOne
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntityQueryReader`1.ReadOne
+        @key=ReadOne.0
+        @divisor=.
+        @brief=Reads one record from the query resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadOne
+            @return=T
+        @end
+
+    @end
+
+    @member
+        @name=ReadAll
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntityQueryReader`1.ReadAll``1
+        @key=ReadAll.0
+        @divisor=.
+        @brief=Reads all records from the query resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadAll<TC>
+            @return=TC
+        @end
+        @declaration
+            @language=cs
+            @name=ReadAll
+            @return=[clink=Gehtsoft.EF.Entities.EntityCollection_T]EntityCollection<T>[/clink]<T>
+        @end
+
+        @param
+            @name=TC
+            The data type of the read item collections. Must be derived from [c]IList<T>[/c].
+        @end
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

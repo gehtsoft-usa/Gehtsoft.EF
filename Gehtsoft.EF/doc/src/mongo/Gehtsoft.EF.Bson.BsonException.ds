@@ -1,0 +1,54 @@
+
+@class
+
+    @name=BsonException
+    @key=Gehtsoft.EF.Bson.BsonException
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.EF.Bson
+    @sig=T:Gehtsoft.EF.Bson.BsonException
+    @parent=System.Exception
+
+    @member
+        @name=Code
+        @sig=P:Gehtsoft.EF.Bson.BsonException.Code
+        @key=Code.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Code
+            @return=[clink=Gehtsoft.EF.Bson.BsonExceptionCode]BsonExceptionCode[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Message
+        @sig=P:Gehtsoft.EF.Bson.BsonException.Message
+        @key=Message.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Message
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Bson.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Bson]Gehtsoft.EF.Bson[/clink].
+@end

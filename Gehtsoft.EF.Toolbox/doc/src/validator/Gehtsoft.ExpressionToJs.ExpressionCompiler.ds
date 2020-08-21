@@ -1,0 +1,496 @@
+@class
+    @name=ExpressionCompiler
+    @key=Gehtsoft.ExpressionToJs.ExpressionCompiler
+    @brief=The compiler of Lambda expression into JavaScript code.
+    @type=class
+    @ingroup=Gehtsoft.ExpressionToJs
+    @sig=T:Gehtsoft.ExpressionToJs.ExpressionCompiler
+    @parent=IEquatable<[clink=Gehtsoft.ExpressionToJs.ExpressionCompiler]ExpressionCompiler[/clink]>
+    @parent=IEquatable<Expression>
+
+    @member
+        @name=ExpressionCompiler
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.#ctor(System.Linq.Expressions.LambdaExpression)
+        @key=ExpressionCompiler.0
+        @divisor=.
+        @brief=Constructor
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=ExpressionCompiler
+            @params=LambdaExpression lambdaExpression
+        @end
+
+        @param
+            @name=lambdaExpression
+
+        @end
+
+    @end
+
+    @member
+        @name=WalkExpression
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.WalkExpression(System.Linq.Expressions.Expression)
+        @key=WalkExpression.0
+        @divisor=.
+        @brief=Scans the expression and returns its JavaScript presentation.
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=WalkExpression
+            @return=string
+            @params=Expression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+        Wherever it is possible, the function attempts to calculate the expression value and put the resulting
+        constants inside of the whole expression tree.
+
+        Otherwise, it calls one of the other methods (see protected methods started with [c]Add[/c]) for particular
+        type of the expression.
+
+    @end
+
+    @member
+        @name=AddArrayLength
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddArrayLength(System.Linq.Expressions.UnaryExpression)
+        @key=AddArrayLength.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddArrayLength
+            @return=string
+            @params=UnaryExpression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddConditional
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddConditional(System.Linq.Expressions.ConditionalExpression)
+        @key=AddConditional.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddConditional
+            @return=string
+            @params=ConditionalExpression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddBinary
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddBinary(System.String,System.Linq.Expressions.BinaryExpression)
+        @key=AddBinary.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddBinary
+            @return=string
+            @params=string function, BinaryExpression expression
+        @end
+
+        @param
+            @name=function
+
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddLambdaParameter
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddLambdaParameter(System.String,System.Linq.Expressions.LambdaExpression)
+        @key=AddLambdaParameter.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddBinary
+            @return=string
+            @params=LambdaExpression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddUnary
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddUnary(System.String,System.Linq.Expressions.UnaryExpression)
+        @key=AddUnary.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddUnary
+            @return=string
+            @params=string function, UnaryExpression expression
+        @end
+
+        @param
+            @name=function
+
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddConstant
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddConstant(System.Object)
+        @key=AddConstant.1
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddConstant
+            @return=string
+            @params=object constantValue
+        @end
+
+        @param
+            @name=constantValue
+
+        @end
+
+    @end
+
+    @member
+        @name=AddConstant
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddConstant(System.Linq.Expressions.ConstantExpression)
+        @key=AddConstant.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddConstant
+            @return=string
+            @params=ConstantExpression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddMemberAccess
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddMemberAccess(System.Linq.Expressions.MemberExpression)
+        @key=AddMemberAccess.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddMemberAccess
+            @return=string
+            @params=MemberExpression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=IsExpressionRootsInParameter
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.IsExpressionRootsInParameter(System.Linq.Expressions.Expression)
+        @key=IsExpressionRootsInParameter.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=IsExpressionRootsInParameter
+            @return=bool
+            @params=Expression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddParameterAccess
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddParameterAccess(System.Linq.Expressions.Expression)
+        @key=AddParameterAccess.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddParameterAccess
+            @return=string
+            @params=Expression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddArrayIndex
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddArrayIndex(System.Linq.Expressions.BinaryExpression)
+        @key=AddArrayIndex.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddArrayIndex
+            @return=string
+            @params=BinaryExpression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddCall
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddCall(System.Linq.Expressions.MethodCallExpression)
+        @key=AddCall.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddCall
+            @return=string
+            @params=MethodCallExpression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddConvert
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddConvert(System.Linq.Expressions.UnaryExpression)
+        @key=AddConvert.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddConvert
+            @return=string
+            @params=UnaryExpression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddLam
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddConvert(System.Linq.Expressions.UnaryExpression)
+        @key=AddConvert.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddConvert
+            @return=string
+            @params=UnaryExpression expression
+        @end
+
+        @param
+            @name=expression
+
+        @end
+
+    @end
+
+    @member
+        @name=AddParameter
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddParameter(System.Linq.Expressions.ParameterExpression)
+        @key=AddParameter.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddParameter
+            @return=string
+            @params=ParameterExpression parameterExpression
+        @end
+
+        @param
+            @name=parameterExpression
+
+        @end
+
+    @end
+
+    @member
+        @name=ReturnType
+        @sig=P:Gehtsoft.ExpressionToJs.ExpressionCompiler.ReturnType
+        @key=ReturnType.0
+        @divisor=.
+        @brief=The datatype of the expression return value.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ReturnType
+            @return=System.Type
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=JavaScriptExpression
+        @sig=P:Gehtsoft.ExpressionToJs.ExpressionCompiler.JavaScriptExpression
+        @key=JavaScriptExpression.0
+        @divisor=.
+        @brief=The JavaScript version of the expression.
+        @scope=instance
+        @visibility=public
+
+        The expression is compiled at the first attempt to get this property. Being compiled once,
+        the expression is cached and returned from the cache.
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=JavaScriptExpression
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.ExpressionToJs.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.ExpressionToJs]Gehtsoft.ExpressionToJs[/clink].
+@end

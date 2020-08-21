@@ -1,0 +1,162 @@
+@class
+    @name=EfValidationErrorCode
+    @key=Gehtsoft.EF.Validator.EfValidationErrorCode
+    @brief=
+    @type=enum
+    @ingroup=Gehtsoft.EF.Validator
+    @sig=T:Gehtsoft.EF.Validator.EfValidationErrorCode
+    @member
+        @name=StringIsTooLong
+        @sig=F:Gehtsoft.EF.Validator.EfValidationErrorCode.StringIsTooLong
+        @key=StringIsTooLong.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=StringIsTooLong
+            @return=[clink=Gehtsoft.EF.Validator.EfValidationErrorCode]EfValidationErrorCode[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=NumberIsOutOfRange
+        @sig=F:Gehtsoft.EF.Validator.EfValidationErrorCode.NumberIsOutOfRange
+        @key=NumberIsOutOfRange.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=NumberIsOutOfRange
+            @return=[clink=Gehtsoft.EF.Validator.EfValidationErrorCode]EfValidationErrorCode[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=DateIsOutRange
+        @sig=F:Gehtsoft.EF.Validator.EfValidationErrorCode.DateIsOutRange
+        @key=DateIsOutRange.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=DateIsOutRange
+            @return=[clink=Gehtsoft.EF.Validator.EfValidationErrorCode]EfValidationErrorCode[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=TimestampIsOutOfRange
+        @sig=F:Gehtsoft.EF.Validator.EfValidationErrorCode.TimestampIsOutOfRange
+        @key=TimestampIsOutOfRange.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=TimestampIsOutOfRange
+            @return=[clink=Gehtsoft.EF.Validator.EfValidationErrorCode]EfValidationErrorCode[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=EnumerationValueIsInvalid
+        @sig=F:Gehtsoft.EF.Validator.EfValidationErrorCode.EnumerationValueIsInvalid
+        @key=EnumerationValueIsInvalid.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=EnumerationValueIsInvalid
+            @return=[clink=Gehtsoft.EF.Validator.EfValidationErrorCode]EfValidationErrorCode[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=NullValue
+        @sig=F:Gehtsoft.EF.Validator.EfValidationErrorCode.NullValue
+        @key=NullValue.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=NullValue
+            @return=[clink=Gehtsoft.EF.Validator.EfValidationErrorCode]EfValidationErrorCode[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=ValueIsNotUnique
+        @sig=F:Gehtsoft.EF.Validator.EfValidationErrorCode.ValueIsNotUnique
+        @key=ValueIsNotUnique.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=ValueIsNotUnique
+            @return=[clink=Gehtsoft.EF.Validator.EfValidationErrorCode]EfValidationErrorCode[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=ReferenceDoesNotExists
+        @sig=F:Gehtsoft.EF.Validator.EfValidationErrorCode.ReferenceDoesNotExists
+        @key=ReferenceDoesNotExists.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=ReferenceDoesNotExists
+            @return=[clink=Gehtsoft.EF.Validator.EfValidationErrorCode]EfValidationErrorCode[/clink]
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Validator]Gehtsoft.EF.Validator[/clink].
+@end

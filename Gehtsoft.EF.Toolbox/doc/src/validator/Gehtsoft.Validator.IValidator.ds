@@ -1,0 +1,35 @@
+@class
+    @name=IBaseValidator
+    @key=Gehtsoft.Validator.IBaseValidator
+    @brief=Base interface for all validators
+    @type=interface
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.IBaseValidator
+    @member
+        @name=Validate
+        @sig=M:Gehtsoft.Validator.IBaseValidator.Validate(System.Object)
+        @key=Validate.0
+        @divisor=.
+        @brief=Performs the validation.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Validate
+            @return=[clink=Gehtsoft.Validator.ValidationResult]ValidationResult[/clink]
+            @params=object entity
+        @end
+
+        @param
+            @name=entity
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end

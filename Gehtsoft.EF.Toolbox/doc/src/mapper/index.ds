@@ -1,0 +1,138 @@
+@group
+    @title=Mapping Toolkit
+    @key=mapper
+    @ingroup=index
+    @brief=
+    @sortarticles=no
+    @sortgroups=no
+
+    The library is designed to map between two different classes or (and this is the primary case of usage) between an EF entity and
+    a model class.
+
+    The benefit of this package over generic mappers such as AutoMapper is that it, in theory, does not require
+    any additional coding for EF entities, except placing
+    attributes as it uses the entity metadata to build the proper mapping logic.
+
+    If you need to map EF entities use [c]Gehtsoft.EF.Mapper[/c] package. Otherwise use [c]Gehtsoft.Mapper[/c] package so
+    no needless EF dependencies are loaded. However all classes both both packages are located in
+    [c]Gehtsoft.EF.Mapper[/c] namespace.
+
+    There are three options on how to make map
+
+    @list
+        @list-item
+            To define map between an EF entity and a model,
+            add [clink=Gehtsoft.EF.Mapper.MapEntityAttribute]MapEntityAttribute[/clink] and
+            add [clink=Gehtsoft.EF.Mapper.MapPropertyAttribute]MapPropertyAttribute[/clink] for each property of the model to be mapped.
+        @end
+        @list-item
+            To define map between an arbitrary class and a model,
+            add [clink=Gehtsoft.EF.Mapper.MapClassAttribute]MapClassAttribute[/clink] and
+            add [clink=Gehtsoft.EF.Mapper.MapPropertyAttribute]MapPropertyAttribute[/clink] for each property of the model to be mapped.
+        @end
+        @list-item
+            To define a custom map, create a map using [clink=Gehtsoft.EF.Mapper.MapFactory.CreateMap.0]MapFactory.CreateMap()[/clink]
+            and the define the map behavior via [clink=Gehtsoft.EF.Mapper.Map_TSource_TDestination]Map<TS, TD>[/clink] class.
+        @end
+
+    @end
+
+    The major benefits of this package over generic mappers such as AutoMapper is that it, in most cases, does not require
+    any additional coding except placing attributes as it uses the entity metadata to build the proper mapping logic.
+
+    It also use very useful in connection with model validator package because the model validator uses mapping data
+    to provide automatic entity-related validation.
+
+    @example
+        @title=Example: A simple map example
+        @show=yes
+       ![Entity]
+       !public class Entity2
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true)]
+       !    public Entity1 Entity1 { get; set; }
+       !
+       !    [EntityProperty]
+       !    public string StringValue1 { get; set; }
+       !
+       !    [EntityProperty]
+       !    public string StringValue2 { get; set; }
+       !
+       !    [EntityProperty]
+       !    public int IntegerValue { get; set; }
+       !
+       !    [EntityProperty(DbType = DbType.Int32, Nullable = true)]
+       !    public EntityEnum? EnumValue { get; set; }
+       !}
+       !
+       !
+       ![MapEntity(EntityType = typeof(Entity2))]
+       !public class Entity2Model
+       !{
+       !    [MapProperty]
+       !    public int? ID { get; set; }
+       !
+       !    [MapProperty(Name = nameof(Entity2.Entity1))]
+       !    public int? Reference { get; set; }
+       !
+       !    [MapProperty(MapFlags = MapFlag.TrimStrings)]
+       !    public string StringValue1 { get; set; }
+       !
+       !    [MapProperty]
+       !    public string StringValue2 { get; set; }
+       !
+       !    [MapProperty]
+       !    public decimal IntegerValue { get; set; }
+       !
+       !    [MapProperty]
+       !    public int? EnumValue { get; set; }
+       !}
+       !....
+       !
+       !var model = MapFactory.Map<Entity2, Entity2Model>(entity);
+    @end
+
+    @example
+        @title=Example: Creating a custom map
+        @show=yes
+       !public class Class1
+       !{
+       !    public int ID { get; set; }
+       !
+       !    public string StringValue1 { get; set; }
+       !
+       !    public int IntegerValue { get; set; }
+       !
+       !}
+       !
+       !
+       !public class Class2
+       !{
+       !    public int? ID { get; set; }
+       !
+       !    public string StringValue1 { get; set; }
+       !
+       !    public decimal IntegerValue { get; set; }
+       !
+       !}
+       !....
+       !//DO IT ONCE!!!
+       !Map<Class1, Class2> map1 = MapFactory.CreateMap<Class1, Class2>();
+       !map1.For(d => d.ID).From(s => s.ID);
+       !map1.For(d => d.Title).From(s => s.Name).WithFlags(MapFlag.TrimStrings);
+       !map1.For(d => d.DoubleValue).From(s => s.IntegerValue);
+       !
+       !Map<Class2, Class1> map2 = MapFactory.CreateMap<Class2, Class1>();
+       !map2.For(d => d.ID).From(s => s.ID);
+       !map2.For(d => d.Name).From(s => s.Title);
+       !map2.For(d => d.IntegerValue).From(s => s.DoubleValue).When(s => s.DoubleValue >= Int32.MinValue && s.DoubleValue <= Int32.MaxValue);
+       !map2.BeforeMapping((s, d) => d.IntegerValue = 0);
+       !....
+       !Class1 class1 = MapFactory.Map<Class2, Class1>(class2);
+       !Class2[] classes2 = MapFactory.Map<List<Class1>, Class2[]>(listOfClasses);
+    @end
+@end
+

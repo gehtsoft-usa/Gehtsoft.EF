@@ -1,0 +1,111 @@
+@class
+
+    @name=MustBeInRangeAttribute
+    @key=Gehtsoft.Validator.MustBeInRangeAttribute
+    @brief=The attribute that adds a range rule for a numeric and date field.
+    @type=class
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.MustBeInRangeAttribute
+    @parent=[clink=Gehtsoft.Validator.ValidatorAttributeBase]ValidatorAttributeBase[/clink]
+    @parent=System.Attribute
+    @member
+        @name=MustBeInRangeAttribute
+        @sig=M:Gehtsoft.Validator.MustBeInRangeAttribute.#ctor
+        @key=MustBeInRangeAttribute.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=MustBeInRangeAttribute
+        @end
+
+    @end
+
+    @member
+        @name=Mininum
+        @sig=P:Gehtsoft.Validator.MustBeInRangeAttribute.Mininum
+        @key=Mininum.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Mininum
+            @return=object
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=MinimumInclusive
+        @sig=P:Gehtsoft.Validator.MustBeInRangeAttribute.MinimumInclusive
+        @key=MinimumInclusive.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=MinimumInclusive
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Maximum
+        @sig=P:Gehtsoft.Validator.MustBeInRangeAttribute.Maximum
+        @key=Maximum.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Maximum
+            @return=object
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=MaximumInclusive
+        @sig=P:Gehtsoft.Validator.MustBeInRangeAttribute.MaximumInclusive
+        @key=MaximumInclusive.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=MaximumInclusive
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end

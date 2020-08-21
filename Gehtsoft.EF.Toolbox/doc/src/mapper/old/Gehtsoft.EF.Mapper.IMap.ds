@@ -1,0 +1,253 @@
+
+@class
+    
+    @name=IMap
+    @key=Gehtsoft.EF.Mapper.IMap
+    @brief=
+    @type=interface
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.IMap
+    @parent=System.IEquatable<[clink=Gehtsoft.EF.Mapper.IMap]IMap[/clink]>
+    @parent=System.Collections.Generic.IEnumerable<[clink=Gehtsoft.EF.Mapper.IPropertyMapping]IPropertyMapping[/clink]>
+    @parent=System.Collections.IEnumerable
+    @member
+        @name=For
+        @sig=M:Gehtsoft.EF.Mapper.IMap.For(Gehtsoft.EF.Mapper.IMappingTarget)
+        @key=For.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=For
+            @return=[clink=Gehtsoft.EF.Mapper.IPropertyMapping]IPropertyMapping[/clink]
+            @params=[clink=Gehtsoft.EF.Mapper.IMappingTarget]IMappingTarget[/clink] target
+        @end
+    
+        @param
+            @name=target
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Do
+        @sig=M:Gehtsoft.EF.Mapper.IMap.Do(System.Object,System.Object)
+        @key=Do.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Do
+            @return=void
+            
+            @params=object from, object to
+        @end
+    
+        @param
+            @name=from
+
+        @end
+        
+        @param
+            @name=to
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Do
+        @sig=M:Gehtsoft.EF.Mapper.IMap.Do(System.Object,System.Object,System.Boolean)
+        @key=Do.2
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Do
+            @return=void
+            
+            @params=object from, object to, bool ignoreNull
+        @end
+    
+        @param
+            @name=from
+
+        @end
+        
+        @param
+            @name=to
+
+        @end
+        
+        @param
+            @name=ignoreNull
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Do
+        @sig=M:Gehtsoft.EF.Mapper.IMap.Do(System.Object)
+        @key=Do.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Do
+            @return=object
+            @params=object from
+        @end
+    
+        @param
+            @name=from
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Source
+        @sig=P:Gehtsoft.EF.Mapper.IMap.Source
+        @key=Source.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Source
+            @return=System.Type
+            @suffix= get;
+        @end
+    
+    @end
+    
+    @member
+        @name=Destination
+        @sig=P:Gehtsoft.EF.Mapper.IMap.Destination
+        @key=Destination.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Destination
+            @return=System.Type
+            @suffix= get;
+        @end
+    
+    @end
+    
+    @member
+        @name=Mappings
+        @sig=P:Gehtsoft.EF.Mapper.IMap.Mappings
+        @key=Mappings.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Mappings
+            @return=[clink=Gehtsoft.EF.Mapper.IPropertyMappingCollection]IPropertyMappingCollection[/clink]
+            @suffix= get;
+        @end
+    
+    @end
+    
+    @member
+        @name=Pre
+        @sig=P:Gehtsoft.EF.Mapper.IMap.Pre
+        @key=Pre.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Pre
+            @return=[clink=Gehtsoft.EF.Mapper.IMappingActionCollection]IMappingActionCollection[/clink]
+            @suffix= get;
+        @end
+    
+    @end
+    
+    @member
+        @name=Post
+        @sig=P:Gehtsoft.EF.Mapper.IMap.Post
+        @key=Post.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Post
+            @return=[clink=Gehtsoft.EF.Mapper.IMappingActionCollection]IMappingActionCollection[/clink]
+            @suffix= get;
+        @end
+    
+    @end
+    
+    @member
+        @name=Factory
+        @sig=P:Gehtsoft.EF.Mapper.IMap.Factory
+        @key=Factory.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Factory
+            @return=System.Func<>
+            @suffix= get;
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end
+    

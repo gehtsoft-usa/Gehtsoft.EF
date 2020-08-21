@@ -1,0 +1,73 @@
+@class
+    @name=FilterPropertyAttribute
+    @key=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.FilterPropertyAttribute
+    @brief=Attribute to associate filter properties to entity properties.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.FilterPropertyAttribute
+    @parent=System.Attribute
+
+    The filter is involved into a default usage
+    scenario of [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter]GenericEntityAccessorFilter[/clink] class.
+
+    @member
+        @name=FilterPropertyAttribute
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.FilterPropertyAttribute.#ctor
+        @key=FilterPropertyAttribute.0
+        @divisor=.
+        @brief=Constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=FilterPropertyAttribute
+        @end
+
+    @end
+
+    @member
+        @name=PropertyName
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.FilterPropertyAttribute.PropertyName
+        @key=PropertyName.0
+        @divisor=.
+        @brief=The name (or path) to the associated entity property.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PropertyName
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Operation
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.FilterPropertyAttribute.Operation
+        @key=Operation.0
+        @divisor=.
+        @brief=The comparison operation to be used.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Operation
+            @return=[clink=Gehtsoft.EF.Entities.CmpOp]Gehtsoft.EF.Entities.CmpOp[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor]Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor[/clink].
+@end

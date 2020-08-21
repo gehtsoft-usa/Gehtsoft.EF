@@ -1,0 +1,184 @@
+@class
+    @name=GenericEntityAccessorFilter
+    @key=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter
+    @brief=The base class for all filters for generic accessor and derived classes.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter
+
+    The class is designed to be used in pair with [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor]EntityGenericAccessor[/clink] class to
+    provide record filters for various operations.
+
+    The default scenario for this class is the following:
+
+    1) The author derives entity-specific filter class from this class
+
+    2) The author adds properties for individual filters. Each filter is associated with one property of an entity.
+
+       The common rules is the following:
+
+       - For all comparison operations except [c]IsNull[/c] and [c]NotNull[/c], the type of the filter property must be a nullable
+         of the entity property type. E.g. if the entity property is int, the filter property must be int?. If the filter value is [c]null[/c]
+         that means that the property is not used in the filter.
+
+       - For [c]IsNull[/c] and [c]NotNull[/c] the filter type must be [c]bool?[/c]. If the filter value is [c]null[/c]
+         that means that the property is not used in the filter. [c]true[/c] and [c]false[/c] values means to add comparison or [c]not[/c] comparison.
+
+       - [c]In[/c] (for both arrays and subqueries), and all subquery-involved comparisons are not supported.
+
+    3) The filter properties are marked using [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.FilterPropertyAttribute]FilterPropertyAttribute[/clink] to
+    connect the filter properties to entity properties.
+
+
+    If the author wants to extend or modify the default behavior, he/she can override protected method of the base class to provide
+    more sophisticated functionality.
+
+    @member
+        @name=AddFilterField
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.AddFilterField(System.String,System.String,Gehtsoft.EF.Entities.CmpOp)
+        @key=AddFilterField.0
+        @divisor=.
+        @brief=Add a filter field to the auto-binding chain.
+        @scope=instance
+        @visibility=protected
+        @type=method
+
+        The method may be used if by some reason the author of the derived class does not want to
+        use [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.FilterPropertyAttribute]FilterPropertyAttribute[/clink] for an automatic
+        detection of the filter properties.
+
+        @declaration
+            @language=cs
+            @name=AddFilterField
+            @return=void
+
+            @params=string filterPropertyName, string associatedPropertyName, [clink=Gehtsoft.EF.Entities.CmpOp]Gehtsoft.EF.Entities.CmpOp[/clink] operation
+        @end
+
+        @param
+            @name=filterPropertyName
+            The path to the entity property to be used in filter.
+        @end
+
+        @param
+            @name=associatedPropertyName
+            The name of property of the filter class to take the value.
+        @end
+
+        @param
+            @name=operation
+            The comparison operation.
+        @end
+
+    @end
+
+    @member
+        @name=InitializeFilterData
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.InitializeFilterData
+        @key=InitializeFilterData.0
+        @divisor=.
+        @brief=Initialization of the filter auto-binding data.
+        @scope=instance
+        @visibility=protected
+        @type=method
+
+        The default implementation looks for the properties of the class that marked using
+        [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.FilterPropertyAttribute]FilterPropertyAttribute[/clink]
+        and adds them into auto-binding specification.
+
+        The author of a custom filter can override this method to add his/her own properties into auto-binding or to
+        initialize common data for a custom-binding. This method is called just once who the whole class (not instance!) lifetime, e.g.
+        once per application life, when the filter is first time used.
+
+        @declaration
+            @language=cs
+            @name=InitializeFilterData
+            @return=void
+
+        @end
+
+    @end
+
+    @member
+        @name=BindToQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.BindToQuery(Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase)
+        @key=BindToQuery.0
+        @divisor=.
+        @brief=Binds the filter to a conditional query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BindToQuery
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase[/clink] query
+        @end
+
+        @param
+            @name=query
+
+        @end
+
+    @end
+
+    @member
+        @name=BindToQueryImpl
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.BindToQueryImpl(Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase)
+        @key=BindToQueryImpl.0
+        @divisor=.
+        @brief=Binds the filter to a conditional query.
+        @scope=instance
+        @visibility=protected
+
+        The default implementation binds values of the auto-bind configuration.
+
+        The author of a custom filter can override this method to provide more sophisticated filters, such as filters using EXISTS or IN.
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BindToQueryImpl
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase[/clink] query
+        @end
+
+        @param
+            @name=query
+
+        @end
+
+    @end
+
+
+    @member
+        @name=GenericEntityAccessorFilter
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.#ctor(System.Type)
+        @key=GenericEntityAccessorFilter.0
+        @divisor=.
+        @brief=Constructor
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=GenericEntityAccessorFilter
+            @params=System.Type t
+        @end
+
+        @param
+            @name=t
+            The entity type.
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor]Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor[/clink].
+@end

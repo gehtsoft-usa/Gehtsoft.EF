@@ -1,0 +1,173 @@
+@class
+    @name=EntityAttribute
+    @key=Gehtsoft.EF.Entities.EntityAttribute
+    @brief=The entity markup attribute.
+    @type=class
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.EntityAttribute
+    @parent=System.Attribute
+
+    The entity attribute can be applied to a class to mark the class as an entity.
+
+    Use [clink=Gehtsoft.EF.Entities.EntityPropertyAttribute]EntityPropertyAttribute[/clink] to mark up individual properties.
+
+    @member
+        @name=EntityAttribute
+        @sig=M:Gehtsoft.EF.Entities.EntityAttribute.#ctor
+        @key=EntityAttribute.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=EntityAttribute
+        @end
+
+    @end
+
+    @member
+        @name=Table
+        @sig=P:Gehtsoft.EF.Entities.EntityAttribute.Table
+        @key=Table.0
+        @divisor=.
+        @brief=The name of the associated table.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Table
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Scope
+        @sig=P:Gehtsoft.EF.Entities.EntityAttribute.Scope
+        @key=Scope.0
+        @divisor=.
+        @brief=The scope of the entity.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Table
+            @return=string
+            @suffix= get; set;
+        @end
+
+        The scope is used to group multiple entities for performing create, drop and update operations at once.
+    @end
+
+    @member
+        @name=NamingPolicy
+        @sig=P:Gehtsoft.EF.Entities.EntityAttribute.NamingPolicy
+        @key=NamingPolicy.0
+        @divisor=.
+        @brief=The database object naming policy.
+        @scope=instance
+        @visibility=public
+        @type=property
+
+    The default naming policy is to use what is set in [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities]AllEntities[/clink] class.
+
+        @declaration
+            @language=cs
+            @name=NamingPolicy
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]EntityNamingPolicy[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end
+
+@class
+    @name=ObsoleteEntityAttribute
+    @key=Gehtsoft.EF.Entities.ObsoleteEntityAttribute
+    @brief=The obsolete entity markup attribute.
+    @type=class
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.ObsoleteEntityAttribute
+    @parent=System.Attribute
+
+    The obsolete entity attribute can be applied to a class to mark the class as an obsolete entity.
+
+    @member
+        @name=EntityAttribute
+        @sig=M:Gehtsoft.EF.Entities.EntityAttribute.#ctor
+        @key=EntityAttribute.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=EntityAttribute
+        @end
+
+    @end
+
+    @member
+        @name=Table
+        @sig=P:Gehtsoft.EF.Entities.ObsoleteEntityAttribute.Table
+        @key=Table.0
+        @divisor=.
+        @brief=The name of the associated table.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Table
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Scope
+        @sig=P:Gehtsoft.EF.Entities.ObsoleteEntityAttribute.Scope
+        @key=Scope.0
+        @divisor=.
+        @brief=The scope of the entity.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Table
+            @return=string
+            @suffix= get; set;
+        @end
+
+        The scope is used to group multiple entities for performing create, drop and update operations at once.
+    @end
+
+
+
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

@@ -1,0 +1,52 @@
+@class
+    @name=AQueryBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder
+    @brief=Abstract query builder which is used as a base class for all other query builder.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder
+
+    @member
+        @name=PrepareQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder.PrepareQuery
+        @key=PrepareQuery.0
+        @divisor=.
+        @brief=Generates the query text.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=PrepareQuery
+            @return=void
+
+        @end
+
+    @end
+
+    @member
+        @name=Query
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder.Query
+        @key=Query.0
+        @divisor=.
+        @brief=The query text.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Query
+            @return=string
+            @suffix= get;
+        @end
+
+        If the value is [c]null[/c], then the text is not generated yet and so [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder.PrepareQuery.0]PrepareQuery()[/clink] method must be used.
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

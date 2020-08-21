@@ -1,0 +1,118 @@
+@class
+
+    @name=EntityQueryConditionBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder
+    @brief=The builder for where and having clauses of entity queries.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder
+
+    You can also use syntax sugar methods defined in
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilderExtension]EntityQueryConditionBuilderExtension[/clink] class.
+
+
+    @member
+        @name=Add
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder.Add(Gehtsoft.EF.Entities.LogOp)
+        @key=Add.0
+        @divisor=.
+        @brief=Adds a new condition and joins it to the prior conditions with the specified operator.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Add
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp
+        @end
+
+        @declaration
+            @language=cs
+            @name=Add
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp, string rawExpression
+        @end
+
+        @declaration
+            @language=cs
+            @name=Add
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp, string left, [clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink] op, string right
+        @end
+
+        @param
+            @name=logOp
+            The logical operator.
+        @end
+
+        @param
+            @name=left
+            The raw left side of the expression.
+        @end
+
+        @param
+            @name=op
+            The comparison operator.
+        @end
+
+        @param
+            @name=right
+            The raw right side of the expression.
+        @end
+
+    @end
+
+    @member
+        @name=AddGroup
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder.AddGroup(Gehtsoft.EF.Entities.LogOp)
+        @key=AddGroup.0
+        @divisor=.
+        @brief=Starts a new group enclosed into the brackets
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddGroup
+            @return=[clink=Gehtsoft.EF.Entities.OpBracket]OpBracket[/clink]
+            @params=[clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink] logOp
+        @end
+
+        @param
+            @name=logOp
+            The logical operations to join the group of conditions with prior conditions.
+        @end
+
+        Simply dispose the returned object in order to finish the group of conditions.
+
+    @end
+
+    @member
+        @name=ToString
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder.ToString
+        @key=ToString.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToString
+            @return=string
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

@@ -1,0 +1,9 @@
+@group
+    @key=index
+    @brief=Gehtsoft Toolkit for EF
+    @title=Index
+    @ingroup=
+    @transform=yes
+
+
+@end

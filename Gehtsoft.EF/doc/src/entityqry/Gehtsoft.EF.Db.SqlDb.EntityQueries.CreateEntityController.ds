@@ -1,0 +1,189 @@
+@class
+    @name=CreateEntityController
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController
+    @brief=Controller to create or drop a set of entities
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController
+    @member
+        @name=CreateEntityController
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.#ctor(System.Type,System.String)
+        @key=CreateEntityController.2
+        @divisor=.
+        @brief=Constructor (by a type).
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=CreateEntityController
+            @params=System.Type findNearThisType, string scope = null
+        @end
+
+        @param
+            @name=findNearThisType
+            The type. Entities will be searched in the same assembly as the types specified.
+        @end
+
+        @param
+            @name=scope
+            The scope. If the scope is [c]null[/c] all scopes will be taken.
+        @end
+
+    @end
+
+    @member
+        @name=CreateEntityController
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.#ctor(System.Reflection.Assembly,System.String)
+        @key=CreateEntityController.1
+        @divisor=.
+        @brief=Constructor (by an assembly).
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=CreateEntityController
+            @params=System.Reflection.Assembly entityAssembly, string scope = null
+        @end
+
+        @param
+            @name=entityAssembly
+            The assembly in which entities will be searched.
+        @end
+
+        @param
+            @name=scope
+            The scope. If the scope is [c]null[/c] all scopes will be taken.
+        @end
+
+    @end
+
+    @member
+        @name=CreateEntityController
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.#ctor(System.Collections.Generic.IEnumerable{System.Reflection.Assembly},System.String)
+        @key=CreateEntityController.0
+        @divisor=.
+        @brief=Constructor (by a list of assemblies).
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=CreateEntityController
+            @params=System.Collections.Generic.IEnumerable<System.Reflection.Assembly> assemblies, string scope
+        @end
+
+        @param
+            @name=assemblies
+            The list of assemblies to search entities.
+        @end
+
+        @param
+            @name=scope
+            The scope. If the scope is [c]null[/c] all scopes will be taken.
+        @end
+
+    @end
+
+    @member
+        @name=DropTables
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.DropTables(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @key=DropTables.0
+        @divisor=.
+        @brief=Drops all tables.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=DropTables
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]Gehtsoft.EF.Db.SqlDb.SqlDbConnection[/clink] connection
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+    @end
+
+    @member
+        @name=CreateTables
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.CreateTables(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @key=CreateTables.0
+        @divisor=.
+        @brief=Creates all tables.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=CreateTables
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]Gehtsoft.EF.Db.SqlDb.SqlDbConnection[/clink] connection
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+    @end
+
+    @member
+        @name=UpdateTables
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateTables(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode,System.Collections.Generic.IDictionary{System.Type,Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode})
+        @key=UpdateTables.0
+        @divisor=.
+        @brief=Updates the table set.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        The method removes obsolete entities and obsolete entity fields, creates new entities and
+        adds new properties to the existing entities.
+
+        @declaration
+            @language=cs
+            @name=UpdateTables
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]Gehtsoft.EF.Db.SqlDb.SqlDbConnection[/clink] connection, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode]CreateEntityController.UpdateMode[/clink] defaultUpdateMode, System.Collections.Generic.IDictionary<System.Type,[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode]CreateEntityController.UpdateMode[/clink]> individualUpdateModes = null
+        @end
+
+        @param
+            @name=connection
+            Database connection.
+        @end
+
+        @param
+            @name=defaultUpdateMode
+            The default update mode. The mode would be either re-create all tables or update existing tables.
+        @end
+
+        @param
+            @name=individualUpdateModes
+            The modes for individual entities. This parameter may be useful for debugging new entities, so these new entities are recreated every
+            test run while all well-debugged properties are kept intact.
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

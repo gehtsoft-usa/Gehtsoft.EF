@@ -1,0 +1,102 @@
+@class
+    @name=QueryableEntity(Of T)
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntity_T
+    @brief=The class provides access to entities on the server using LINQ queries.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntity`1
+    @parent=System.Linq.IOrderedQueryable<T>
+    @parent=System.Linq.IQueryable<T>
+    @parent=System.Collections.Generic.IEnumerable<T>
+    @parent=System.Collections.IEnumerable
+    @parent=System.Linq.IQueryable
+    @parent=System.Linq.IOrderedQueryable
+    @param
+        @name=T
+        The entity type.
+    @end
+
+    Use the [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider.Entities.0]QueryableEntityProvider.Entities<T>()[/clink] method
+    to get an instance of the class.
+
+    @member
+        @name=Insert
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntity`1.Insert(`0)
+        @key=Insert.0
+        @divisor=.
+        @brief=Saves the entity to the server.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Insert
+            @return=void
+
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=Update
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntity`1.Update(`0)
+        @key=Update.0
+        @divisor=.
+        @brief=Updates the entity on the server.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Update
+            @return=void
+
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=Delete
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntity`1.Delete(`0)
+        @key=Delete.0
+        @divisor=.
+        @brief=Deletes the entity on the server.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Delete
+            @return=void
+
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq]Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq[/clink].
+@end

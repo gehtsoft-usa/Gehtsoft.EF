@@ -1,0 +1,63 @@
+
+@class
+
+    @name=AllEntities.NamingPolicyManager
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities.NamingPolicyManager
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities.NamingPolicyManager
+
+    @member
+        @name=Default
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities.NamingPolicyManager.Default
+        @key=Default.0
+        @divisor=.
+        @brief=Default naming policy for all objects.
+        @scope=instance
+        @visibility=public
+        @type=property
+
+        This policy is used when neither scope nor entity naming policy is set.
+
+        The default policy is backward compatibility.
+
+
+        @declaration
+            @language=cs
+            @name=Default
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]Gehtsoft.EF.Entities.EntityNamingPolicy[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Item
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities.NamingPolicyManager.Item(System.String)
+        @key=Item.0
+        @divisor=.
+        @brief=Gets or sets the naming policy for a scope.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=this
+            @return=[clink=Gehtsoft.EF.Entities.EntityNamingPolicy]Gehtsoft.EF.Entities.EntityNamingPolicy[/clink]
+            @params=string scope
+            @suffix= get; set;
+        @end
+
+        @param
+            @name=scope
+            The scope name.
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

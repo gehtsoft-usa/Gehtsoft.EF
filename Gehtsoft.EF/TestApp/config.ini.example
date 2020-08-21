@@ -1,0 +1,9 @@
+﻿[connectionStrings]
+[connectionStrings]
+mssql=server=__SERVER__;database=test;user=__USER__;password=__PASSWORD__;Connection Lifetime=900;Load Balance Timeout=60;Max Pool Size=25;Pooling=true;
+mysql=Server=__SERVER__;Database=test;Uid=__USER__;Pwd=__PASSWORD__;Allow User Variables=True
+postgres=server=__SERVER__;database=test;user id=__USER__;password=__PASSWORD__;
+oracle_tns=(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = __SERVER__)(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)(SID = XE)))
+oracle_user=
+oracle_password=
+mongo=mongodb://__USER__:__PASSWORD__@__SERVER__/test

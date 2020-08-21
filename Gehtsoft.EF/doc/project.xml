@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" ?>
+<dg:help-project xmlns:dg="http://www.gehtsoft.com/docgen/project">
+    <dg:source>
+        <dg:file name="src\index.ds" encoding="windows-1252" />
+        <dg:file name="src\tutorialsdb.ds" encoding="windows-1252" />
+        <dg:file name="src\tutorialsen.ds" encoding="windows-1252" />
+        <dg:folder name="src\sqlcmd" encoding="windows-1252" />
+        <dg:folder name="src\sqlgen" encoding="windows-1252" />
+        <dg:folder name="src\entity" encoding="windows-1252" />
+        <dg:folder name="src\context" encoding="windows-1252" />
+        <dg:folder name="src\entityqry" encoding="windows-1252" />
+        <dg:folder name="src\linq" encoding="windows-1252" />
+        <dg:folder name="src\mongo" encoding="windows-1252" />
+        <dg:folder name="src\fts" encoding="windows-1252" />
+        <dg:folder name="src\odata" encoding="windows-1252" />
+
+    </dg:source>
+
+<dg:output template="%docgen%\template\html\main.xsl" file="dst/null-file" encoding="windows-1252" >
+        <dg:define name="text-language" value="en" />
+        <dg:define name="hhp-language" value="0x409 English (United States)" />
+        <dg:define name="help-title" value="Gehtsoft EF Reference" />
+        <dg:define name="chm-file" value="..\Gehtsoft.EF.chm" />
+        <dg:define name="advanced-web-content" value="yes" />
+        <dg:define name="default-transform" value="yes" />
+        <dg:define name="enable-highlighter" value="yes" />
+    </dg:output>
+
+    <dg:output template="%docgen%\template\xmldoc\main.xsl" file="Gehtsoft.EF.Db.SqlDb.xml" encoding="windows-1252" >
+        <dg:define name="assembly" value="Gehtsoft.EF.Db.SqlDb" />
+    </dg:output>
+
+    <dg:output template="%docgen%\template\xmldoc\main.xsl" file="Gehtsoft.EF.Entities.xml" encoding="windows-1252" >
+        <dg:define name="assembly" value="Gehtsoft.EF.Entities" />
+    </dg:output>
+</dg:help-project>
+

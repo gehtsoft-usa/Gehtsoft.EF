@@ -1,0 +1,423 @@
+@class
+    @name=GenericEntityAccessor(Of T, TKey)
+    @key=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor_T_TKey
+    @brief=The basic accessor for entities.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2
+
+    @param
+        @name=T
+        Entity type.
+    @end
+
+    @param
+        @name=TKey
+        Type of the entity primary key.
+    @end
+
+    This generic class implements most common CRUD-related entity operations that used in desktop and web applications:
+
+    1) reading an entity or a set of entities.
+
+    2) saving an entity
+
+    3) deleting an entity
+
+    4) finding next/previous entity
+
+    The default implementation supports only simple primary key of integer, string or GUID type.
+
+    In case of integer type, the new key generation supposed to be done using auto increment fields. The value which is less than 1 considered
+    as a sign of a new entity.
+
+    In case of the string values the author is responsible for generating the key and identification of the new entities.
+
+    In case of the guid type, the class takes care about generating GUIDs for a new records. [c]Guid.Empty[/c] value is considered as a sign of
+    a new entity.
+
+    @member
+        @name=GenericEntityAccessor
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.#ctor(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @key=GenericEntityAccessor.0
+        @divisor=.
+        @brief=Constructor
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=GenericEntityAccessor
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]Gehtsoft.EF.Db.SqlDb.SqlDbConnection[/clink] connection
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+    @end
+
+    @member
+        @name=IsNew
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.IsNew(`0)
+        @key=IsNew.0
+        @divisor=.
+        @brief=Checks whether an entity is a new one.
+        @scope=instance
+        @visibility=protected
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=IsNew
+            @return=bool
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+        The default implementation only supports autoincrement integer and GUID types.
+
+        Override this method to customize the logic of the new entity identification.
+
+    @end
+
+    @member
+        @name=Save
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.Save(`0)
+        @key=Save.0
+        @divisor=.
+        @brief=Creates a new or saves an existing entity into database.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Save
+            @return=void
+
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=Delete
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.Delete(`0)
+        @key=Delete.0
+        @divisor=.
+        @brief=Deletes an entity in the database.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Delete
+            @return=void
+
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=DeleteMultiple
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.DeleteMultiple(Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter)
+        @key=DeleteMultiple.0
+        @divisor=.
+        @brief=Deletes multiple entities in the database.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=DeleteMultiple
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter]GenericEntityAccessorFilter[/clink] filter
+        @end
+
+        @param
+            @name=filter
+
+        @end
+
+        Default implementation supports only filtering by properties of the entity itself. Any referenced entities cannot be used in the filter.
+    @end
+
+    @member
+        @name=UpdateMultiple
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.UpdateMultiple(Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter,Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorUpdateRecord)
+        @key=UpdateMultiple.0
+        @divisor=.
+        @brief=Updates multiple instances of entity.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=UpdateMultiple
+            @return=int
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter]GenericEntityAccessorFilter[/clink] filter, [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorUpdateRecord]GenericEntityAccessorUpdateRecord[/clink] update
+        @end
+
+        @param
+            @name=filter
+
+        @end
+
+        @param
+            @name=update
+
+        @end
+
+        Default implementation supports only filtering by properties of the entity itself. Any referenced entities cannot be used in the filter.
+
+    @end
+
+
+    @member
+        @name=Get
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.Get(`1)
+        @key=Get.0
+        @divisor=.
+        @brief=Gets an entity by its ID.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Get
+            @return=T
+            @params=TKey id
+        @end
+
+        @param
+            @name=id
+
+        @end
+
+    @end
+
+    @member
+        @name=Read
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.Read``1(Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter,System.Collections.Generic.IEnumerable{Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder},System.Nullable{System.Int32},System.Nullable{System.Int32})
+        @key=Read.0
+        @divisor=.
+        @brief=Read multiple entities with optional filtering, sorting and paging.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Read<TC>
+            @return=TC
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter]GenericEntityAccessorFilter[/clink] filter, System.Collections.Generic.IEnumerable<[clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder]GenericEntitySortOrder[/clink]> sortOrder, int? skip, int? limit
+        @end
+
+        @param
+            @name=filter
+            The filter.
+        @end
+
+        @param
+            @name=sortOrder
+            The sort order.
+        @end
+
+        @param
+            @name=skip
+            The number of rows to skip from the beginning.
+        @end
+
+        @param
+            @name=limit
+            The maximum number of rows to be returned.
+        @end
+
+        Use [c]null[/c] for any parameter you don't want to be used. If all [c]null[/c] are specified, all rows in the default database order will be returned.
+    @end
+
+    @member
+        @name=Count
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.Count(Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter)
+        @key=Count.0
+        @divisor=.
+        @brief=Gets number of entities with optional filtering.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Count
+            @return=int
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter]GenericEntityAccessorFilter[/clink] filter
+        @end
+
+        @param
+            @name=filter
+            Filter to be used. Using [c]null[/c] to skip filtering.
+        @end
+
+    @end
+
+    @member
+        @name=NextEntity
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.NextEntity(`0,System.Collections.Generic.IEnumerable{Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder},Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter,System.Boolean)
+        @key=NextEntity.0
+        @divisor=.
+        @brief=Gets a next (or previous) entity.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=NextEntity
+            @return=T
+            @params=T entity, System.Collections.Generic.IEnumerable<[clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder]GenericEntitySortOrder[/clink]> sortOrder, [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter]GenericEntityAccessorFilter[/clink] filter, bool reverseDirection
+        @end
+
+        @param
+            @name=entity
+            A current entity. Set null to find a first (last) record.
+        @end
+
+        @param
+            @name=sortOrder
+            A sort order (required).
+        @end
+
+        @param
+            @name=filter
+            A filter (optional, use null to skip filtering).
+        @end
+
+        @param
+            @name=reverseDirection
+
+        @end
+
+    @end
+
+    @member
+        @name=NextKey
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.NextKey(`0,System.Collections.Generic.IEnumerable{Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder},Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter,System.Boolean)
+        @key=NextKey.0
+        @divisor=.
+        @brief=Gets key only of a next (or previous) entity.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=NextKey
+            @return=TKey
+            @params=T entity, System.Collections.Generic.IEnumerable<[clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder]GenericEntitySortOrder[/clink]> sortOrder, [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter]GenericEntityAccessorFilter[/clink] filter, bool reverseDirection
+        @end
+
+        @param
+            @name=entity
+            A current entity. Set null to find a first (last) record.
+        @end
+
+        @param
+            @name=sortOrder
+            A sort order (required).
+        @end
+
+        @param
+            @name=filter
+            A filter (optional, use null to skip filtering).
+        @end
+
+        @param
+            @name=reverseDirection
+            [c]true[/c] to find a next record and [c]false[/c] to find a previous record.
+        @end
+
+        Default implementation supports only filtering by properties of the entity itself. Any referenced entities cannot be used in the filter.
+    @end
+
+    @member
+        @name=Connection
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.Connection
+        @key=Connection.0
+        @divisor=.
+        @brief=The associated DB connection.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Connection
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]Gehtsoft.EF.Db.SqlDb.SqlDbConnection[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=CanDelete
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor`2.CanDelete(`0)
+        @key=CanDelete.0
+        @divisor=.
+        @brief=Returns whether the entity specified is not referenced anywhere and can be deleted.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=CanDelete
+            @return=bool
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor]Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor[/clink].
+@end

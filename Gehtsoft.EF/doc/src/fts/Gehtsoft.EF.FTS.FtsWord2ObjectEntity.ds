@@ -1,0 +1,91 @@
+
+@class
+    
+    @name=FtsWord2ObjectEntity
+    @key=Gehtsoft.EF.FTS.FtsWord2ObjectEntity
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.EF.FTS
+    @sig=T:Gehtsoft.EF.FTS.FtsWord2ObjectEntity
+    @member
+        @name=FtsWord2ObjectEntity
+        @sig=M:Gehtsoft.EF.FTS.FtsWord2ObjectEntity.#ctor
+        @key=FtsWord2ObjectEntity.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=constructor
+            
+        @declaration
+            @language=cs
+            @name=FtsWord2ObjectEntity
+        @end
+    
+    @end
+    
+    @member
+        @name=ID
+        @sig=P:Gehtsoft.EF.FTS.FtsWord2ObjectEntity.ID
+        @key=ID.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=ID
+            @return=int
+            @suffix= get; set;
+        @end
+    
+    @end
+    
+    @member
+        @name=Word
+        @sig=P:Gehtsoft.EF.FTS.FtsWord2ObjectEntity.Word
+        @key=Word.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Word
+            @return=[clink=Gehtsoft.EF.FTS.FtsWordEntity]FtsWordEntity[/clink]
+            @suffix= get; set;
+        @end
+    
+    @end
+    
+    @member
+        @name=Object
+        @sig=P:Gehtsoft.EF.FTS.FtsWord2ObjectEntity.Object
+        @key=Object.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Object
+            @return=[clink=Gehtsoft.EF.FTS.FtsObjectEntity]FtsObjectEntity[/clink]
+            @suffix= get; set;
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.FTS.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.FTS]Gehtsoft.EF.FTS[/clink].
+@end
+    

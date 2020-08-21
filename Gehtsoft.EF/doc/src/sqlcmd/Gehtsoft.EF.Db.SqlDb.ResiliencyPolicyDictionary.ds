@@ -1,0 +1,151 @@
+@class
+    @name=ResiliencyPolicyDictionary
+    @key=Gehtsoft.EF.Db.SqlDb.ResiliencyPolicyDictionary
+    @brief=The resiliency policy dictionary.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.ResiliencyPolicyDictionary
+
+    The [c]ResiliencyPolicyDictionary[/c] is a singleton object that allows apply
+    resiliency policies to the operations.
+
+    You can set as global policy as well as individual policies for different connections (if multiple
+    connections is used in the application.
+
+    Each policy is defined using [clink=Gehtsoft.EF.Db.SqlDb.IResiliencyPolicy]IResiliencyPolicy[/clink] interface.
+
+    The policy is applied to the following methods of:
+
+    * [clink=Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory]UniversalSqlDbFactory[/clink] ([c]Create[/c] and [c]CreateAsync[/c])
+
+    * [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuer]SqlDbQuery[/clink] ([c]ExecuteReader[/c], [c]ExecuteReaderAsync[/c], [c]ExecuteNoData[/c],
+      [c]ExecuteNoDataAsync[/c], [c]ReadNext[/c], [c]ReadNextAsync[/c], [c]NextReaderResult[/c], [c]NextReaderResultAsync[/c].
+
+    Correspondingly, all methods that are based on these method, e.g. all methods related to entity queries or generic accessors, will
+    also use the policy set.
+
+    However, the direct call of methods that creates a particular connection, e.g. [c]SqliteDbConnectionFactory.Create()[/c]
+    will NOT use resiliency policy.
+
+    @member
+        @name=SetGlobalPolicy
+        @sig=M:Gehtsoft.EF.Db.SqlDb.ResiliencyPolicyDictionary.SetGlobalPolicy(Gehtsoft.EF.Db.SqlDb.IResiliencyPolicy,System.Boolean)
+        @key=SetGlobalPolicy.0
+        @divisor=.
+        @brief=Sets a global (applied for all connections) policy.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=SetGlobalPolicy
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.IResiliencyPolicy]IResiliencyPolicy[/clink] policy, bool forceOverride = false
+        @end
+
+        @param
+            @name=policy
+            The policy.
+        @end
+
+        @param
+            @name=forceOverride
+            The flag indicating whether the method can override previously set policy.
+
+            If the flag is false and policy is already set, the exception will be thrown.
+        @end
+
+    @end
+
+    @member
+        @name=SetPolicy
+        @sig=M:Gehtsoft.EF.Db.SqlDb.ResiliencyPolicyDictionary.SetPolicy(System.String,Gehtsoft.EF.Db.SqlDb.IResiliencyPolicy,System.Boolean)
+        @key=SetPolicy.0
+        @divisor=.
+        @brief=Sets the policy for a particular econnection.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=SetPolicy
+            @return=void
+
+            @params=string connectionString, [clink=Gehtsoft.EF.Db.SqlDb.IResiliencyPolicy]IResiliencyPolicy[/clink] policy, bool forceOverride = false
+        @end
+
+        @param
+            @name=connectionString
+            The connection string that will be used to create the connection.
+        @end
+
+        @param
+            @name=policy
+            The policy.
+        @end
+
+        @param
+            @name=forceOverride
+            The flag indicating whether the method can override previously set policy.
+
+            If the flag is false and policy is already set, the exception will be thrown.
+        @end
+
+
+    @end
+
+    @member
+        @name=GetPolicy
+        @sig=M:Gehtsoft.EF.Db.SqlDb.ResiliencyPolicyDictionary.GetPolicy(System.String)
+        @key=GetPolicy.0
+        @divisor=.
+        @brief=Gets the policy for a particular connection.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetPolicy
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.IResiliencyPolicy]IResiliencyPolicy[/clink]
+            @params=string connectionString
+        @end
+
+        @param
+            @name=connectionString
+            The connection string.
+        @end
+
+        The method will return policy for a particular connection, or a global policy if connection-specific policy isn't set,
+        or [c]null[/c] if no policy is set at all.
+
+    @end
+
+    @member
+        @name=Instance
+        @sig=P:Gehtsoft.EF.Db.SqlDb.ResiliencyPolicyDictionary.Instance
+        @key=Instance.0
+        @divisor=.
+        @brief=Returns an instance of the signletone policy dictionary object.
+        @scope=class
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Instance
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.ResiliencyPolicyDictionary]ResiliencyPolicyDictionary[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end

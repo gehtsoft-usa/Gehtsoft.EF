@@ -1,0 +1,852 @@
+
+@class
+    
+    @name=GenericValidationRuleBuilder&lt;TE,TV&gt;
+    @key=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.GenericValidationRuleBuilder`2
+    @parent=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+    @param
+        @name=TE
+
+    @end
+
+    @param
+        @name=TV
+
+    @end
+
+    @member
+        @name=GenericValidationRuleBuilder
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.#ctor(Gehtsoft.Validator.BaseValidator,Gehtsoft.Validator.ValidationRule)
+        @key=GenericValidationRuleBuilder.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=constructor
+            
+        @declaration
+            @language=cs
+            @name=GenericValidationRuleBuilder
+            @params=[clink=Gehtsoft.Validator.BaseValidator]BaseValidator[/clink] validator, [clink=Gehtsoft.Validator.ValidationRule]ValidationRule[/clink] validationRule
+        @end
+    
+        @param
+            @name=validator
+
+        @end
+        
+        @param
+            @name=validationRule
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Must
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.Must(System.Linq.Expressions.Expression{System.Func`2})
+        @key=Must.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Must
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=System.Linq.Expressions.Expression<System.Func<>> predicate
+        @end
+    
+        @param
+            @name=predicate
+
+        @end
+        
+    @end
+    
+    @member
+        @name=EntityMust
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.EntityMust(System.Linq.Expressions.Expression{System.Func`2})
+        @key=EntityMust.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=EntityMust
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=System.Linq.Expressions.Expression<System.Func<>> predicate
+        @end
+    
+        @param
+            @name=predicate
+
+        @end
+        
+    @end
+    
+    @member
+        @name=WhenValue
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.WhenValue(System.Linq.Expressions.Expression{System.Func`2})
+        @key=WhenValue.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=WhenValue
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=System.Linq.Expressions.Expression<System.Func<>> predicate
+        @end
+    
+        @param
+            @name=predicate
+
+        @end
+        
+    @end
+    
+    @member
+        @name=WhenEntity
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.WhenEntity(System.Linq.Expressions.Expression{System.Func`2})
+        @key=WhenEntity.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=WhenEntity
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=System.Linq.Expressions.Expression<System.Func<>> predicate
+        @end
+    
+        @param
+            @name=predicate
+
+        @end
+        
+    @end
+    
+    @member
+        @name=UnlessValue
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.UnlessValue(System.Linq.Expressions.Expression{System.Func`2})
+        @key=UnlessValue.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=UnlessValue
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=System.Linq.Expressions.Expression<System.Func<>> predicate
+        @end
+    
+        @param
+            @name=predicate
+
+        @end
+        
+    @end
+    
+    @member
+        @name=UnlessEntity
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.UnlessEntity(System.Linq.Expressions.Expression{System.Func`2})
+        @key=UnlessEntity.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=UnlessEntity
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=System.Linq.Expressions.Expression<System.Func<>> predicate
+        @end
+    
+        @param
+            @name=predicate
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Null
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.Null
+        @key=Null.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Null
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=NotNull
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.NotNull
+        @key=NotNull.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotNull
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=NotNullOrEmpty
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.NotNullOrEmpty
+        @key=NotNullOrEmpty.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotNullOrEmpty
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=NotNullOrWhitespace
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.NotNullOrWhitespace
+        @key=NotNullOrWhitespace.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotNullOrWhitespace
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=ShorterThan
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.ShorterThan(System.Int32)
+        @key=ShorterThan.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ShorterThan
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=int length
+        @end
+    
+        @param
+            @name=length
+
+        @end
+        
+    @end
+    
+    @member
+        @name=DoesMatch
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.DoesMatch(System.String,System.Nullable{System.Text.RegularExpressions.RegexOptions},System.Nullable{System.TimeSpan})
+        @key=DoesMatch.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=DoesMatch
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=string pattern, System.Nullable<System.Text.RegularExpressions.RegexOptions> options, System.Nullable<System.TimeSpan> timeout
+        @end
+    
+        @param
+            @name=pattern
+
+        @end
+        
+        @param
+            @name=options
+
+        @end
+        
+        @param
+            @name=timeout
+
+        @end
+        
+    @end
+    
+    @member
+        @name=DoesNotMatch
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.DoesNotMatch(System.String,System.Nullable{System.Text.RegularExpressions.RegexOptions},System.Nullable{System.TimeSpan})
+        @key=DoesNotMatch.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=DoesNotMatch
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=string pattern, System.Nullable<System.Text.RegularExpressions.RegexOptions> options, System.Nullable<System.TimeSpan> timeout
+        @end
+    
+        @param
+            @name=pattern
+
+        @end
+        
+        @param
+            @name=options
+
+        @end
+        
+        @param
+            @name=timeout
+
+        @end
+        
+    @end
+    
+    @member
+        @name=EnumIsCorrect
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.EnumIsCorrect
+        @key=EnumIsCorrect.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=EnumIsCorrect
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=EnumIsCorrect
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.EnumIsCorrect(System.Type)
+        @key=EnumIsCorrect.2
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=EnumIsCorrect
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=System.Type enumType
+        @end
+    
+        @param
+            @name=enumType
+
+        @end
+        
+    @end
+    
+    @member
+        @name=EnumIsCorrect
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.EnumIsCorrect``1
+        @key=EnumIsCorrect.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=EnumIsCorrect<T>
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=Between
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.Between(`1,`1)
+        @key=Between.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Between
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=TV minValue, TV maxValue
+        @end
+    
+        @param
+            @name=minValue
+
+        @end
+        
+        @param
+            @name=maxValue
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Between
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.Between(`1,System.Boolean,`1,System.Boolean)
+        @key=Between.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Between
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=TV minValue, bool minInclusive, TV maxValue, bool maxInclusive
+        @end
+    
+        @param
+            @name=minValue
+
+        @end
+        
+        @param
+            @name=minInclusive
+
+        @end
+        
+        @param
+            @name=maxValue
+
+        @end
+        
+        @param
+            @name=maxInclusive
+
+        @end
+        
+    @end
+    
+    @member
+        @name=WithCode
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.WithCode(System.Int32)
+        @key=WithCode.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=WithCode
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=int code
+        @end
+    
+        @param
+            @name=code
+
+        @end
+        
+    @end
+    
+    @member
+        @name=WithMessage
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.WithMessage(System.String)
+        @key=WithMessage.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=WithMessage
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=string message
+        @end
+    
+        @param
+            @name=message
+
+        @end
+        
+    @end
+    
+    @member
+        @name=WhenNotNull
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.WhenNotNull
+        @key=WhenNotNull.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=WhenNotNull
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=ValidateUsing
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.ValidateUsing(System.Type)
+        @key=ValidateUsing.3
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ValidateUsing
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=System.Type validatorType
+        @end
+    
+        @param
+            @name=validatorType
+
+        @end
+        
+    @end
+    
+    @member
+        @name=ValidateUsing
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.ValidateUsing(System.Type,System.Object[])
+        @key=ValidateUsing.4
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ValidateUsing
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=System.Type validatorType, object[] args
+        @end
+    
+        @param
+            @name=validatorType
+
+        @end
+        
+        @param
+            @name=args
+
+        @end
+        
+    @end
+    
+    @member
+        @name=ValidateUsing
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.ValidateUsing(Gehtsoft.Validator.IBaseValidator)
+        @key=ValidateUsing.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ValidateUsing
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=[clink=Gehtsoft.Validator.IBaseValidator]IBaseValidator[/clink] validator
+        @end
+    
+        @param
+            @name=validator
+
+        @end
+        
+    @end
+    
+    @member
+        @name=ValidateUsing
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.ValidateUsing``1
+        @key=ValidateUsing.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ValidateUsing<TX>
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=ValidateUsing
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.ValidateUsing``1(System.Object[])
+        @key=ValidateUsing.2
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ValidateUsing<TX>
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=object[] args
+        @end
+    
+        @param
+            @name=args
+
+        @end
+        
+    @end
+    
+    @member
+        @name=EmailAddress
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.EmailAddress
+        @key=EmailAddress.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=EmailAddress
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=NotHTML
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.NotHTML
+        @key=NotHTML.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotHTML
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=NotSQLInjection
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.NotSQLInjection
+        @key=NotSQLInjection.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotSQLInjection
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=PhoneNumber
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.PhoneNumber
+        @key=PhoneNumber.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=PhoneNumber
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=CreditCardNumber
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.CreditCardNumber
+        @key=CreditCardNumber.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=CreditCardNumber
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=ServerOnly
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.ServerOnly
+        @key=ServerOnly.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ServerOnly
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=Otherwise
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.Otherwise
+        @key=Otherwise.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Otherwise
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    @member
+        @name=Also
+        @sig=M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.Also
+        @key=Also.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Also
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<TE,TV>
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end
+    

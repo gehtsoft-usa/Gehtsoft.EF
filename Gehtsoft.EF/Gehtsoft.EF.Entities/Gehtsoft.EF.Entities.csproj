@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net461|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="EntityAttribute.cs" />
+    <Compile Include="EntityCollection.cs" />
+    <Compile Include="EntityComparer.cs" />
+    <Compile Include="EntityFinder.cs" />
+    <Compile Include="EntityNameConvertor.cs" />
+    <Compile Include="EntityObjectExtension.cs" />
+    <Compile Include="IEntityContext.cs" />
+    <Compile Include="Ops.cs" />
+    <Compile Include="EntitySerialization.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.Common">
+      <Version>4.3.0</Version>
+    </PackageReference>
+  </ItemGroup>
+</Project>

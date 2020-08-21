@@ -1,0 +1,101 @@
+@class
+    @name=IContextSelect
+    @key=Gehtsoft.EF.Entities.Context.IContextSelect
+    @brief=The query to select entities.
+    @type=interface
+    @ingroup=Gehtsoft.EF.Entities.Context
+    @sig=T:Gehtsoft.EF.Entities.Context.IContextSelect
+    @parent=[clink=Gehtsoft.EF.Entities.Context.IContextQueryWithCondition]IContextQueryWithCondition[/clink]
+    @parent=[clink=Gehtsoft.EF.Entities.Context.IEntityQuery]IEntityQuery[/clink]
+    @parent=System.IDisposable
+    
+    @member
+        @name=ReadOne
+        @sig=M:Gehtsoft.EF.Entities.Context.IContextSelect.ReadOne
+        @key=ReadOne.0
+        @divisor=.
+        @brief=Reads one entity.
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ReadOne
+            @return=object
+        @end
+        @declaration
+            @language=cs
+            @name=ReadOneAsync
+            @return=Task<object>
+            @params=CancellationToken? token = null
+        @end
+    
+        The query must be executed before using this method. 
+    @end
+   
+    @member
+        @name=Order
+        @sig=P:Gehtsoft.EF.Entities.Context.IContextSelect.Order
+        @key=Order.0
+        @divisor=.
+        @brief=Sets the order of the query result set.
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Order
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextOrder]IContextOrder[/clink]
+            @suffix= get;
+        @end
+    
+    @end
+    
+    @member
+        @name=Take
+        @sig=P:Gehtsoft.EF.Entities.Context.IContextSelect.Take
+        @key=Take.0
+        @divisor=.
+        @brief=Sets maximum number of entities to be select.
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Take
+            @return=int?
+            @suffix= get; set;
+        @end
+    
+    @end
+    
+    @member
+        @name=Skip
+        @sig=P:Gehtsoft.EF.Entities.Context.IContextSelect.Skip
+        @key=Skip.0
+        @divisor=.
+        @brief=Sets the number of entities to skip.
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Skip
+            @return=int?
+            @suffix= get; set;
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities.Context]Gehtsoft.EF.Entities.Context[/clink].
+@end
+    

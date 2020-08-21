@@ -1,0 +1,382 @@
+@class
+    @name=SingleEntityQueryConditionBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder
+    @brief=Builds a single condition within where or having clauses of the entity conditions.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder
+
+    An instance for the class can be obtained from
+
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder.Add.0]Add()[/clink],
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilderExtension.And.0]And()[/clink],
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilderExtension.Or.0]Or()[/clink]
+    methods of the [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder]EntityQueryConditionBuilder[/clink] object.
+
+    You can also use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilderExtension]SingleEntityQueryConditionBuilderExtension[/clink]
+    methods to simply specification of the condition.
+
+    @member
+        @name=Raw
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.Raw(System.String,System.Nullable{System.Data.DbType})
+        @key=Raw.0
+        @divisor=.
+        @brief=Adds a raw part of the condition
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Raw
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=string raw, DbType? columnType = null
+        @end
+
+        @param
+            @name=raw
+            The raw expression to be added.
+        @end
+
+        @param
+            @name=columnType
+            The optional data type of the expression.
+
+            This datatype may be required in case the value is compared with a parameter or with a null.
+        @end
+
+    @end
+
+    @member
+        @name=Is
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.Is(Gehtsoft.EF.Entities.CmpOp)
+        @key=Is.0
+        @divisor=.
+        @brief=Adds the comparison operation.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Is
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink] op
+        @end
+
+        @param
+            @name=op
+
+        @end
+
+    @end
+
+    @member
+        @name=Property
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.Property(System.String)
+        @key=Property.0
+        @divisor=.
+        @brief=Adds a property by the path.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Property
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=string propertyPath
+        @end
+
+        @param
+            @name=propertyPath
+            The path to the property.
+
+            The [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]ConditionEntityQueryBase[/clink]
+            for details on what is the path to the property.
+        @end
+
+    @end
+
+    @member
+        @name=PropertyOf
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.PropertyOf(System.String,System.Type,System.Int32)
+        @key=PropertyOf.1
+        @divisor=.
+        @brief=Adds a property of an entity.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=PropertyOf
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=string name, System.Type type = null, int occurrence = 0
+        @end
+
+        @declaration
+            @language=cs
+            @name=PropertyOf<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=string name, int occurrence = 0
+        @end
+
+        @param
+            @name=name
+            The name of the property
+        @end
+
+        @param
+            @name=type, T
+            The type of the entity. If no type is specified, the first entity in the query is used.
+        @end
+
+        @param
+            @name=occurrence
+            The occurrence of the entity inside of the query (the order in which this entity was added to the query).
+
+            The parameter is used when the entity is referenced by the query more than once, directly (by adding the entity to the query)
+            or indirectly (when the entity is added by foreign key of another entity that was added to the query).
+
+            The first occurrence of the entity has index 0.
+        @end
+
+    @end
+
+    @member
+        @name=Reference
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.Reference(Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.InQueryName)
+        @key=Reference.0
+        @divisor=.
+        @brief=Adds a reference.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Reference
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.InQueryName]ConditionEntityQueryBase.InQueryName[/clink] reference
+        @end
+
+        @param
+            @name=reference
+            The reference to a property inside a query.
+
+            Use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.GetReference.0]ConditionEntityQueryBase.GetReference()[/clink]
+            to obtain a reference.
+        @end
+
+    @end
+
+    @member
+        @name=Parameter
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.Parameter(System.String)
+        @key=Parameter.0
+        @divisor=.
+        @brief=Adds a parameter name into the query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Parameter
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=string name
+        @end
+
+        @param
+            @name=name
+
+        @end
+
+    @end
+
+    @member
+        @name=Parameters
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.Parameters(System.String[])
+        @key=Parameters.0
+        @divisor=.
+        @brief=Adds a list of parameters into the query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Parameters
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=string[] name
+        @end
+
+        @param
+            @name=name
+
+        @end
+
+    @end
+
+    @member
+        @name=Query
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.Query(Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder,System.Nullable{System.Data.DbType})
+        @key=Query.1
+        @divisor=.
+        @brief=Adds a subquery.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Query
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink] builder, DbType? columnType = null
+        @end
+        @declaration
+            @language=cs
+            @name=Query
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+        @param
+            @name=columnType
+
+        @end
+
+    @end
+
+    @member
+        @name=Value
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.Value(System.Object,System.Nullable{System.Data.DbType})
+        @key=Value.0
+        @divisor=.
+        @brief=Adds a value.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Value
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=object value, DbType? valueDbType = null
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+        @param
+            @name=valueDbType
+            The DB type of the value.
+
+            If the value is added to the right side and the left side of the expression
+            has the value specified or it is possible to look up the value (e.g. when it is a property of an entity or
+            a subquery added using a query, not a query build) this parameter isn't required.
+        @end
+
+    @end
+
+    @member
+        @name=Values
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.Values(System.Object[])
+        @key=Values.1
+        @divisor=.
+        @brief=Adds the list of the values to the expression.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Values
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=object[] values
+        @end
+        @declaration
+            @language=cs
+            @name=Values
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder]SingleEntityQueryConditionBuilder[/clink]
+            @params=System.Nullable<System.Data.DbType> valueDbType, object[] values
+        @end
+
+        @param
+            @name=valueDbType
+            The DB type of the values.
+
+            If the value is added to the right side and the left side of the expression
+            has the value specified or it is possible to look up the value (e.g. when it is a property of an entity or
+            a subquery added using a query, not a query build) this parameter isn't required.
+
+        @end
+
+        @param
+            @name=values
+
+        @end
+
+    @end
+
+    @member
+        @name=ParameterName
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.ParameterName
+        @key=ParameterName.0
+        @divisor=.
+        @brief=The property contains the name of the parameter, created for added value.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ParameterName
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=ParameterNames
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.ParameterNames
+        @key=ParameterNames.0
+        @divisor=.
+        @brief=The property contains the array of names of the parameters, created for added values.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ParameterNames
+            @return=string[]
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

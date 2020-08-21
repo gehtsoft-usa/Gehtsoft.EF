@@ -1,0 +1,54 @@
+
+@class
+
+    @name=EfMongoDbException
+    @key=Gehtsoft.EF.MongoDb.EfMongoDbException
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.EF.MongoDb
+    @sig=T:Gehtsoft.EF.MongoDb.EfMongoDbException
+    @parent=System.Exception
+
+    @member
+        @name=Code
+        @sig=P:Gehtsoft.EF.MongoDb.EfMongoDbException.Code
+        @key=Code.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Code
+            @return=[clink=Gehtsoft.EF.MongoDb.EfMongoDbExceptionCode]EfMongoDbExceptionCode[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Message
+        @sig=P:Gehtsoft.EF.MongoDb.EfMongoDbException.Message
+        @key=Message.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Message
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.MongoDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.MongoDb]Gehtsoft.EF.MongoDb[/clink].
+@end

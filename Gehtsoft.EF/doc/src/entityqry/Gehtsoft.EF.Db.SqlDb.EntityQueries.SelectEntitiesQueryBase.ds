@@ -1,0 +1,442 @@
+@class
+    @name=SelectEntitiesQueryBase
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase
+    @brief=Base class for all entity select queries.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]ConditionEntityQueryBase[/clink]
+
+    See [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]ConditionEntityQueryBase[/clink] for details on how
+    to specify condition to selection.
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetGenericSelectEntityQuery.0]GetGenericSelectEntityQuery()[/clink]
+    method of the connection to get an instance of this class.
+
+    If you want to check what is the SQL query generated use [c]SelectBuilder.SelectQueryBuilder.Query[/c] property of your query.
+
+    If you want to apply an arbitrary SQL query on the results of the entity select query use [c]SelectBuilder.SelectQueryBuilder.QueryTableDescriptor[/c]
+    property of your query to get a [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] of the query result's.
+
+    @member
+        @name=Having
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Having
+        @key=Having.0
+        @divisor=.
+        @brief=The builder for the having clause.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Having
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder]EntityQueryConditionBuilder[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+
+    @member
+        @name=AddToResultset
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset(System.String,System.String)
+        @key=AddToResultset.2
+        @divisor=.
+        @brief=Add a property to resultset using property path.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=string propertyPath, string alias
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=[clink=Gehtsoft.EF.Entities.AggFn]AggFn[/clink] aggregation, string propertyPath, string alias
+        @end
+
+        @param
+            @name=aggregation
+            The aggregate function to apply on the property.
+        @end
+
+        @param
+            @name=property
+            The property path.
+
+            See [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]ConditionEntityQueryBase[/clink] for more details about
+            property path.
+        @end
+
+        @param
+            @name=alias
+            The resultset alias.
+        @end
+
+    @end
+
+    @member
+        @name=AddToResultset
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset(System.Type,System.String,System.String)
+        @key=AddToResultset.3
+        @divisor=.
+        @brief=Add a property to resultset using type and property name.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=System.Type type, string property, string alias
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=System.Type type, int occurrence, string property, string alias
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=[clink=Gehtsoft.EF.Entities.AggFn]AggFn[/clink] aggregation, System.Type type, string property, string alias
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+            @params=[clink=Gehtsoft.EF.Entities.AggFn]AggFn[/clink] aggregation, System.Type type, int occurrence, string property, string alias
+        @end
+
+        @param
+            @name=aggregation
+            The aggregate function to apply on the property.
+        @end
+
+        @param
+            @name=type
+            The property type. The first occurrence of the type in the query will be used.
+        @end
+
+
+        @param
+            @name=occurrence
+            The occurrence of the specified type in the query. Use [c]0[/c] for the first occurrence, [c]1[/c] for the second and so on.
+        @end
+
+
+        @param
+            @name=property
+            The property name.
+        @end
+
+        @param
+            @name=alias
+
+        @end
+
+    @end
+
+    @member
+        @name=AddOrderBy
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddOrderBy(System.String,Gehtsoft.EF.Entities.SortDir)
+        @key=AddOrderBy.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddOrderBy
+            @return=void
+            @params=System.Type type, string property, [clink=Gehtsoft.EF.Entities.SortDir]SortDir[/clink] direction
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddOrderBy
+            @return=void
+            @params=System.Type type, int occurrence, string property, [clink=Gehtsoft.EF.Entities.SortDir]SortDir[/clink] direction
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddOrderBy
+            @return=void
+            @params=string propertyPath, [clink=Gehtsoft.EF.Entities.SortDir]SortDir[/clink] direction
+        @end
+
+
+        @param
+            @name=type
+            The type to which the property belongs to
+        @end
+
+
+        @param
+            @name=occurrence
+            The occurrence of the specified type in the query. Use [c]0[/c] for the first occurrence, [c]1[/c] for the second and so on.
+        @end
+
+
+        @param
+            @name=property
+            The property name.
+        @end
+
+        @param
+            @name=propertyPath
+            See [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]ConditionEntityQueryBase[/clink] for more details about
+            property path.
+        @end
+
+        @param
+            @name=direction
+            Sorting direction
+        @end
+    @end
+
+    @member
+        @name=AddGroupBy
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddGroupBy(System.String)
+        @key=AddGroupBy.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddGroupBy
+            @return=void
+            @params=string propertyPath
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddGroupBy
+            @return=void
+            @params=System.Type type, string property
+        @end
+
+        @param
+            @name=type
+            The type to which the property belongs to
+        @end
+
+        @param
+            @name=property
+            The property name.
+        @end
+
+        @param
+            @name=propertyPath
+            See [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]ConditionEntityQueryBase[/clink] for more details about
+            property path.
+        @end
+
+    @end
+
+    @member
+        @name=AddEntity
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddEntity(System.Type,System.String,System.Boolean)
+        @key=AddEntity.0
+        @divisor=.
+        @brief=Add an entity to the query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddEntity
+            @return=void
+            @params=System.Type type, string connectToProperty, bool openJoin = false
+        @end
+
+        @declaration
+            @language=cs
+            @name=AddEntity
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink]
+            @params=System.Type type, [clink=Gehtsoft.EF.Entities.TableJoinType]TableJoinType joinType[/clink]
+        @end
+
+        @param
+            @name=type
+            The type to be connected.
+        @end
+
+        @param
+            @name=connectToProperty
+            The reference to the property to which this next entity should be connected to.
+
+            See [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]ConditionEntityQueryBase[/clink] for more details about
+            property path.
+
+            If property path is not specified, the query tries to automatically to find an entity which refers to ID of newly added property
+            as to foreign key.
+
+            If the path to the property to be connected to is specified, the query recognizes two type of the connection -
+            when the property to connect to is a foreign key which refers to the primary key of the entity to be connected, or
+            when the property to connect to is a primary key and the property connected has a foreign key that refers to the
+            property specified.
+        @end
+
+        @param
+            @name=open
+            The flag indicating whether the connection should be open (outer) or inner. The side of the connection (left/right) will be
+            detected automatically.
+        @end
+
+    @end
+
+    @member
+        @name=Skip
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Skip
+        @key=Skip.0
+        @divisor=.
+        @brief=Sets the number of entities to skip.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Skip
+            @return=int
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Limit
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Limit
+        @key=Limit.0
+        @divisor=.
+        @brief=Sets the maximum number of entities to be read.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Limit
+            @return=int
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=WhereParamPrefix
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.WhereParamPrefix
+        @key=WhereParamPrefix.0
+        @divisor=.
+        @brief=Sets the name prefix for the automatically generated query parameters for the where clause.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=WhereParamPrefix
+            @return=int
+            @suffix= get; set;
+        @end
+
+        This parameter must be used when the select query is reused as a sub query. The parameter prefixes
+        for each sub query must be unique among the whole query.
+    @end
+
+    @member
+        @name=AddWholeTree
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddWholeTree
+        @key=AddWholeTree.0
+        @divisor=.
+        @brief=Add the whole entity tree to the query without adding anything to resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddWholeTree
+            @return=void
+
+        @end
+
+    @end
+
+
+    @member
+        @name=ReadOneDynamic
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.ReadOneDynamic
+        @key=ReadOneDynamic.0
+        @divisor=.
+        @brief=Reads the row as a dynamic object.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadOneDynamic
+            @return=dynamic
+        @end
+
+        If the query is entity select query, the field names will correspond to the
+        property names of the entity. Other columns will be named by alias.
+    @end
+
+    @member
+        @name=ReadAllDynamic
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.ReadAllDynamic
+        @key=ReadAllDynamic.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadAllDynamic
+            @return=ICollection<dynamic>
+        @end
+
+        If the query is entity select query, the field names will correspond to the
+        property names of the entity. Other columns will be named by alias.
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

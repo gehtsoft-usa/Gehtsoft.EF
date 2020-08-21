@@ -1,0 +1,49 @@
+@class
+    @name=FtsQueryExtension
+    @key=Gehtsoft.EF.FTS.FtsQueryExtension
+    @brief=FTS query extensions
+    @type=class
+    @ingroup=Gehtsoft.EF.FTS
+    @sig=T:Gehtsoft.EF.FTS.FtsQueryExtension
+    @member
+        @name=AddFtsSearch
+        @sig=M:Gehtsoft.EF.FTS.FtsQueryExtension.AddFtsSearch(Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder,System.String,System.Boolean,System.String,System.Nullable{System.Int32})
+        @key=AddFtsSearch.0
+        @divisor=.
+        @brief=Adds a FTS condition to the main entity of a select entity query.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddFtsSearch
+            @return=void
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder]EntityQueryConditionBuilder[/clink] condition, string text, bool allWords, string ftsType, int? limit
+        @end
+
+        @param
+            @name=text
+            The words to be searched.
+        @end
+
+        @param
+            @name=allWords
+            The flag indicating whether all ([c]true[/c]) or any ([c]false[/c]) words needs to be found.
+        @end
+
+        @param
+            @name=ftsType
+            The type of the FTS object.
+        @end
+
+        @param
+            @name=limit
+            The maximum number of matches.
+        @end
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.FTS.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.FTS]Gehtsoft.EF.FTS[/clink].
+@end

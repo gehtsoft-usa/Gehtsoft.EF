@@ -1,0 +1,32 @@
+
+@class
+    
+    @name=FtsObjectEntityCollection
+    @key=Gehtsoft.EF.FTS.FtsObjectEntityCollection
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.EF.FTS
+    @sig=T:Gehtsoft.EF.FTS.FtsObjectEntityCollection
+    @parent=[clink=Gehtsoft.EF.Entities.EntityCollection_T]Gehtsoft.EF.Entities.EntityCollection[/clink]<[clink=Gehtsoft.EF.FTS.FtsObjectEntity]FtsObjectEntity[/clink]>
+    @member
+        @name=FtsObjectEntityCollection
+        @sig=M:Gehtsoft.EF.FTS.FtsObjectEntityCollection.#ctor
+        @key=FtsObjectEntityCollection.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=constructor
+            
+        @declaration
+            @language=cs
+            @name=FtsObjectEntityCollection
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.FTS.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.FTS]Gehtsoft.EF.FTS[/clink].
+@end
+    

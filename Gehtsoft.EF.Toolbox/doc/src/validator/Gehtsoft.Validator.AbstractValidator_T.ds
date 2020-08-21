@@ -1,0 +1,184 @@
+@class
+    @name=AbstractValidator&lt;T&gt;
+    @key=Gehtsoft.Validator.AbstractValidator_T
+    @brief=The parameterized generic for defining validators.
+    @type=class
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.AbstractValidator`1
+    @parent=[clink=Gehtsoft.Validator.BaseValidator]BaseValidator[/clink]
+    @parent=[clink=Gehtsoft.Validator.IValidator_T]IValidator[/clink]<T>
+    @parent=[clink=Gehtsoft.Validator.IBaseValidator]IBaseValidator[/clink]
+
+    @param
+        @name=T
+        The type of the entity to be validated by this class.
+    @end
+
+    @member
+        @name=AbstractValidator
+        @sig=M:Gehtsoft.Validator.AbstractValidator`1.#ctor
+        @key=AbstractValidator.0
+        @divisor=.
+        @brief=Constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=AbstractValidator
+        @end
+
+    @end
+
+    @member
+        @name=When
+        @sig=M:Gehtsoft.Validator.AbstractValidator`1.When(System.Func`2)
+        @key=When.0
+        @divisor=.
+        @brief=Sets "when" predicate.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=When
+            @return=void
+
+            @params=Func<T, bool> predicate
+        @end
+
+        @param
+            @name=predicate
+
+        @end
+
+        If this predicate set, the entity will be validated only if the predicate returns true.
+    @end
+
+    @member
+        @name=Unless
+        @sig=M:Gehtsoft.Validator.AbstractValidator`1.Unless(System.Func`2)
+        @key=Unless.0
+        @divisor=.
+        @brief=Set "unless" predicate.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Unless
+            @return=void
+
+            @params=Func<T> predicate
+        @end
+
+        @param
+            @name=predicate
+
+        @end
+
+        If this predicate set, the entity will be validated only if the predicate returns false.
+    @end
+
+    @member
+        @name=RuleForEntity
+        @sig=M:Gehtsoft.Validator.AbstractValidator`1.RuleForEntity(System.String)
+        @key=RuleForEntity.0
+        @divisor=.
+        @brief=Sets the rule for the whole entity.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=RuleForEntity
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<T,T>
+            @params=string name
+        @end
+
+        @param
+            @name=name
+            The name to be used in case the rule is failed.
+        @end
+
+    @end
+
+    @member
+        @name=RuleFor
+        @sig=M:Gehtsoft.Validator.AbstractValidator`1.RuleFor``1(System.Linq.Expressions.Expression{System.Func`2},System.Boolean)
+        @key=RuleFor.0
+        @divisor=.
+        @brief=Sets the rule for a property.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=RuleFor<TV>
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<T,TV>
+            @params=Expression<Func<T, TV>> accessor, string name = null
+        @end
+
+        @param
+            @name=accessor
+            The property accessor.
+        @end
+
+        @param
+            @name=name
+            The name to be used.
+
+            You may specify the name in case you want to customize how the name appears in the failure.
+
+            You must specify the name in case the accessor consists of any kind of formula.
+        @end
+
+    @end
+
+
+    @member
+        @name=RuleForForAll
+        @sig=M:Gehtsoft.Validator.AbstractValidator`1.RuleForForAll``1(System.Linq.Expressions.Expression{System.Func`2},System.Boolean)
+        @key=RuleForForAll.0
+        @divisor=.
+        @brief=Sets the rule for each element in the property.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=RuleForForAll<TV>
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]GenericValidationRuleBuilder[/clink]<T,TV>
+            @params=Expression<Func<TE, TV>> accessor, string name = null
+        @end
+
+        @param
+            @name=accessor
+
+        @end
+
+        @param
+            @name=name
+            You may specify the name in case you want to customize how the name appears in the failure.
+
+            You must specify the name in case the accessor consists of any kind of formula.
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end

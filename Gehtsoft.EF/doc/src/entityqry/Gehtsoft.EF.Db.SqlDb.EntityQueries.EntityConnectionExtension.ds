@@ -1,0 +1,398 @@
+@class
+    @name=EntityConnectionExtension
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension
+    @brief=Extension of the SqlDbConnection class to provide creation of entity queries and query builders.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension
+
+    You can also check [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor]EntityGenericAccessor[/clink] class
+    that automates a lot of typical entity CRUD operations.
+
+    @member
+        @name=GetCreateEntityQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetCreateEntityQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetCreateEntityQuery.0
+        @divisor=.
+        @brief=Gets the query that creates the table associated with the entity if the table does not exist.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetCreateEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery]EntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+
+        @declaration
+            @language=cs
+            @name=GetCreateEntityQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery]EntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        See also [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink] for more sophisticated
+        approach to create tables.
+    @end
+
+    @member
+        @name=GetDropEntityQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetDropEntityQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetDropEntityQuery.0
+        @divisor=.
+        @brief=Gets the query that drops the table associated with the entity.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDropEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery]EntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=GetDropEntityQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery]EntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+    @end
+
+    @member
+        @name=GetInsertEntityQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetInsertEntityQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetInsertEntityQuery.0
+        @divisor=.
+        @brief=Gets the query that inserts a new row into the entity tables.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetInsertEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ModifyEntityQuery]ModifyEntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+
+        @declaration
+            @language=cs
+            @name=GetInsertEntityQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ModifyEntityQuery]ModifyEntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+    @end
+
+    @member
+        @name=GetUpdateEntityQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetUpdateEntityQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetUpdateEntityQuery.0
+        @divisor=.
+        @brief=Gets the query that updates a row into the entity tables.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetUpdateEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ModifyEntityQuery]ModifyEntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=GetUpdateEntityQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ModifyEntityQuery]ModifyEntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+    @end
+
+    @member
+        @name=GetDeleteEntityQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetDeleteEntityQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetDeleteEntityQuery.0
+        @divisor=.
+        @brief=Gets the query that updates a row from the entity tables.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDeleteEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ModifyEntityQuery]ModifyEntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=GetDeleteEntityQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ModifyEntityQuery]ModifyEntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+    @end
+
+    @member
+        @name=GetGenericSelectEntityQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetGenericSelectEntityQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetGenericSelectEntityQuery.0
+        @divisor=.
+        @brief=Gets a generic query to build a custom selection.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetGenericSelectEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=GetGenericSelectEntityQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        The custom selection query has only main entity added and no resultset defined.
+
+        @param
+            @name=connection
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+    @end
+
+    @member
+        @name=GetSelectEntitiesCountQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetSelectEntitiesCountQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetSelectEntitiesCountQuery.0
+        @divisor=.
+        @brief=Gets a query to count the entities.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetSelectEntitiesCountQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesCountQuery]SelectEntitiesCountQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=GetSelectEntitiesCountQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesCountQuery]SelectEntitiesCountQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+        The query has the whole entity tree bound so you can use any sub entities in the query condition.
+    @end
+
+    @member
+        @name=GetSelectEntitiesQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetSelectEntitiesQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetSelectEntitiesQuery.0
+        @divisor=.
+        @brief=Gets the query to select a collection of entities from the database.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetSelectEntitiesQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery]SelectEntitiesQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=GetSelectEntitiesQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery]SelectEntitiesQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+    @end
+
+    @member
+        @name=GetSelectEntitiesTreeQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetSelectEntitiesTreeQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetSelectEntitiesTreeQuery.0
+        @divisor=.
+        @brief=Gets a query that selects a tree or a subtree from a self-connected table.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetSelectEntitiesTreeQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesTreeQuery]SelectEntitiesTreeQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=GetSelectEntitiesTreeQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesTreeQuery]SelectEntitiesTreeQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+    @end
+
+    @member
+        @name=GetMultiDeleteEntityQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetMultiDeleteEntityQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetMultiDeleteEntityQuery.1
+        @divisor=.
+        @brief=Gets a query that deletes multiple rows.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetMultiDeleteEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.MultiDeleteEntityQuery]MultiDeleteEntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=GetMultiDeleteEntityQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.MultiDeleteEntityQuery]MultiDeleteEntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDb.SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+    @end
+
+
+    @member
+        @name=GetMultiUpdateEntityQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetMultiUpdateEntityQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetMultiUpdateEntityQuery.1
+        @divisor=.
+        @brief=Gets a query that updates multiple rows.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetMultiUpdateEntityQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.MultiUpdateEntityQuery]MultiUpdateEntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=GetMultiUpdateEntityQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.MultiUpdateEntityQuery]MultiUpdateEntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

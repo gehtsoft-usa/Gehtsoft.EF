@@ -1,0 +1,183 @@
+@class
+    @name=SelectQueryTypeBinder
+    @key=Gehtsoft.EF.Db.SqlDb.SelectQueryTypeBinder
+    @brief=Autobinder between a cursor and an object.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SelectQueryTypeBinder
+
+    @member
+        @name=SelectQueryTypeBinder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SelectQueryTypeBinder.#ctor(System.Type)
+        @key=SelectQueryTypeBinder.0
+        @divisor=.
+        @brief=Constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=SelectQueryTypeBinder
+            @params=System.Type type
+        @end
+
+        @param
+            @name=type
+            The datatype to be bound.
+        @end
+
+    @end
+
+    @member
+        @name=AddBinding
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SelectQueryTypeBinder.AddBinding(System.String,System.String,System.Boolean)
+        @key=AddBinding.5
+        @divisor=.
+        @brief=Bind a column to a property.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddBinding
+            @return=void
+
+            @params=string columnName, string property, boolboolFalse pk
+        @end
+
+        @param
+            @name=columnName
+            The name of the resultset column.
+        @end
+
+        @param
+            @name=property
+            The name of the property.
+        @end
+
+        @param
+            @name=pk
+            The flag indicating whether the value is a primary key.
+        @end
+
+    @end
+
+    @member
+        @name=AddBinding
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SelectQueryTypeBinder.AddBinding(Gehtsoft.EF.Db.SqlDb.SelectQueryTypeBinder,System.String)
+        @key=AddBinding.1
+        @divisor=.
+        @brief=Bind a connected object.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        The method is useful in case the cursor consists of the values for dictionary objects attached to the object to be bound.
+
+        @declaration
+            @language=cs
+            @name=AddBinding
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SelectQueryTypeBinder]SelectQueryTypeBinder[/clink] binder, string property
+        @end
+
+        @param
+            @name=binder
+            The binder for attached property.
+        @end
+
+        @param
+            @name=property
+            The property to be bound.
+        @end
+
+    @end
+
+    @member
+        @name=AutoBind
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SelectQueryTypeBinder.AutoBind(System.String)
+        @key=AutoBind.0
+        @divisor=.
+        @brief=Bind the cursor automatically.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AutoBind
+            @return=void
+            @params=string prefix
+        @end
+
+        @param
+            @name=prefix
+            The database prefix of the column names.
+            The the value is null, the column names are considered to be equal to the
+            property names.
+        @end
+
+
+
+    @end
+
+    @member
+        @name=Read
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SelectQueryTypeBinder.Read(Gehtsoft.EF.Db.SqlDb.SqlDbQuery)
+        @key=Read.1
+        @divisor=.
+        @brief=Reads an object from the current row of the cursor (returns an instance of object).
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Read
+            @return=object
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery]SqlDbQuery[/clink] query
+        @end
+
+        @param
+            @name=query
+
+        @end
+
+    @end
+
+    @member
+        @name=Read
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SelectQueryTypeBinder.Read``1(Gehtsoft.EF.Db.SqlDb.SqlDbQuery)
+        @key=Read.0
+        @divisor=.
+        @brief=Reads an object from the current row of the cursor (returns an instance of the specified type).
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Read<T>
+            @return=T
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery]SqlDbQuery[/clink] query
+        @end
+
+        @param
+            @name=query
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end

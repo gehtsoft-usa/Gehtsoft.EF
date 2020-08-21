@@ -1,0 +1,77 @@
+@class
+    @name=ValidatorAttributeBase
+    @key=Gehtsoft.Validator.ValidatorAttributeBase
+    @brief=The base attribute class for all validation attributes.
+    @type=class
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.ValidatorAttributeBase
+    @parent=System.Attribute
+
+    @member
+        @name=WidthCode
+        @sig=P:Gehtsoft.Validator.ValidatorAttributeBase.WidthCode
+        @key=WidthCode.0
+        @divisor=.
+        @brief=The code to be used in case the rule is failed.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=WidthCode
+            @return=int?
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=WithMessage
+        @sig=P:Gehtsoft.Validator.ValidatorAttributeBase.WithMessage
+        @key=WithMessage.0
+        @divisor=.
+        @brief=The message to be used in case the rule is failed.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=WithMessage
+            @return=string
+            @suffix= get; set;
+        @end
+
+        If a [link=Gehtsoft.Validator.IValidationMessageResolver]message resolver[/link] is set, the message will be translated using the resolver.
+    @end
+
+    @member
+        @name=ForElement
+        @sig=P:Gehtsoft.Validator.ValidatorAttributeBase.ForElement
+        @key=ForElement.0
+        @divisor=.
+        @brief=The flag indicating whether the attribute is applied to the whole property or for each element of a property.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ForElement
+            @return=bool
+            @suffix= get; set;
+        @end
+
+        The default value is [c]false[/c].
+
+        This flag is useful to apply attribute to each element of an array or a list property.
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end

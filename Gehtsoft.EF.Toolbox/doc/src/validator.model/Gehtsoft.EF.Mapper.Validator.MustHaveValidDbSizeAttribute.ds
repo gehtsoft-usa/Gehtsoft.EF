@@ -1,0 +1,30 @@
+@class
+    @name=MustHaveValidDbSizeAttribute
+    @key=Gehtsoft.EF.Mapper.Validator.MustHaveValidDbSizeAttribute
+    @brief=The attribute that adds check whether the string value isn't longer than the associated database column.
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper.Validator
+    @sig=T:Gehtsoft.EF.Mapper.Validator.MustHaveValidDbSizeAttribute
+    @parent=[clink=Gehtsoft.Validator.ValidatorAttributeBase]Gehtsoft.Validator.ValidatorAttributeBase[/clink]
+    @parent=System.Attribute
+    @member
+        @name=MustHaveValidDbSizeAttribute
+        @sig=M:Gehtsoft.EF.Mapper.Validator.MustHaveValidDbSizeAttribute.#ctor
+        @key=MustHaveValidDbSizeAttribute.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=MustHaveValidDbSizeAttribute
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Mapper.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper.Validator]Gehtsoft.EF.Mapper.Validator[/clink].
+@end

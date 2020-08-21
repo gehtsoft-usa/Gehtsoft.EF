@@ -1,0 +1,340 @@
+@class
+    @name=TableDescriptor.ColumnInfo
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo
+    @brief=Description of a table column.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo
+    @parent=System.IEquatable<[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink]>
+
+
+    @member
+        @name=TableDescriptor.ColumnInfo
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.#ctor
+        @key=TableDescriptor.ColumnInfo.0
+        @divisor=.
+        @brief=Constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=TableDescriptor.ColumnInfo
+        @end
+
+    @end
+
+    @member
+        @name=ID
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.ID
+        @key=ID.0
+        @divisor=.
+        @brief=The identifier of the column.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        ID is equal to a column name if the table descriptor is not attached to an entity, or is a property name
+        in case the table descriptor is attached to an entity.
+
+        @declaration
+            @language=cs
+            @name=ID
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Name
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.Name
+        @key=Name.0
+        @divisor=.
+        @brief=The name of the table column.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Name
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=DbType
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.DbType
+        @key=DbType.0
+        @divisor=.
+        @brief=The datatype of the table column.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=DbType
+            @return=System.Data.DbType
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Size
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.Size
+        @key=Size.0
+        @divisor=.
+        @brief=The size of the table column.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Size
+            @return=int
+            @suffix= get; set;
+        @end
+
+        The meaning of this attribute depends on the database type:
+
+        @table
+            @row
+                @col
+                    String
+                @end
+                @col
+                    Defines the maximum length of the text. If no size specified, the
+                    column considered to be a CLOB.
+                @end
+            @end
+            @row
+                @col
+                    Number
+                @end
+                @col
+                    The maximum number of digits (in both, integer and fractional part).
+                @end
+            @end
+        @end
+
+
+    @end
+
+    @member
+        @name=Precision
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.Precision
+        @key=Precision.0
+        @divisor=.
+        @brief=The precision (accuracy) of the numeric data.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Precision
+            @return=int
+            @suffix= get; set;
+        @end
+
+        The value can be applied to the numeric fields only and denotes the number of digits after decimal point.
+    @end
+
+    @member
+        @name=PrimaryKey
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.PrimaryKey
+        @key=PrimaryKey.0
+        @divisor=.
+        @brief=The flag indicating whether the column is a primary key.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PrimaryKey
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Autoincrement
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.Autoincrement
+        @key=Autoincrement.0
+        @divisor=.
+        @brief=The flag indicating whether the column is an autoincrement value.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Autoincrement
+            @return=bool
+            @suffix= get; set;
+        @end
+
+        Autoincrement values are automatically assigned when a new row is created in a table.
+
+    @end
+
+    @member
+        @name=Sorted
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.Sorted
+        @key=Sorted.0
+        @divisor=.
+        @brief=The flag indicated that the column is indexed.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Sorted
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Unique
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.Unique
+        @key=Unique.0
+        @divisor=.
+        @brief=The flag indicating whether the column is unique.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Unique
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Nullable
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.Nullable
+        @key=Nullable.0
+        @divisor=.
+        @brief=The flag indicating whether the column is nullable.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Nullable
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=ForeignKey
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.ForeignKey
+        @key=ForeignKey.0
+        @divisor=.
+        @brief=The flag indicating whether the column is a foreign key (e.g. reference to another table).
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ForeignKey
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=ForeignTable
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.ForeignTable
+        @key=ForeignTable.0
+        @divisor=.
+        @brief=The table to which the this column is referred.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ForeignTable
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Table
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.Table
+        @key=Table.0
+        @divisor=.
+        @brief=The table to which this column belongs to.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Table
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=FullName
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.FullName
+        @key=FullName.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=FullName
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

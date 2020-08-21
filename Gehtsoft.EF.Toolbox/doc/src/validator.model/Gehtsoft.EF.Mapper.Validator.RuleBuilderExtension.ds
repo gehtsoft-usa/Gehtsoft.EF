@@ -1,0 +1,144 @@
+@class
+    @name=RuleBuilderExtension
+    @key=Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension
+    @brief=The extension of the validation rule builders for model validation.
+
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper.Validator
+    @sig=T:Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension
+
+    @member
+        @name=MustHaveValidDbSize
+        @sig=M:Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension.MustHaveValidDbSize(Gehtsoft.Validator.ValidationRuleBuilder)
+        @key=MustHaveValidDbSize.1
+        @divisor=.
+        @brief=Makes the rule to validate whether the string isn't longer than the corresponding database column.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=MustHaveValidDbSize
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]Gehtsoft.Validator.ValidationRuleBuilder[/clink]
+            @params=this [clink=Gehtsoft.Validator.ValidationRuleBuilder]Gehtsoft.Validator.ValidationRuleBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=MustHaveValidDbSize<TE,TV>
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]Gehtsoft.Validator.GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=this [clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]Gehtsoft.Validator.GenericValidationRuleBuilder[/clink]<TE,TV> builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=MustBeInValidDbRange
+        @sig=M:Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension.MustBeInValidDbRange(Gehtsoft.Validator.ValidationRuleBuilder)
+        @key=MustBeInValidDbRange.1
+        @divisor=.
+        @brief=Makes the rule to validate whether numeric or datatime value fits into the corresponding database column allowed range.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=MustBeInValidDbRange
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]Gehtsoft.Validator.ValidationRuleBuilder[/clink]
+            @params=this [clink=Gehtsoft.Validator.ValidationRuleBuilder]Gehtsoft.Validator.ValidationRuleBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=MustBeInValidDbRange<TE,TV>
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]Gehtsoft.Validator.GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=this [clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]Gehtsoft.Validator.GenericValidationRuleBuilder[/clink]<TE,TV> builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+        Please note that SQL specifics parameter must be set in the validator constructor in order to make
+        datetime validation work.
+
+    @end
+
+    @member
+        @name=MustBeUnqiue
+        @sig=M:Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension.MustBeUnqiue(Gehtsoft.Validator.ValidationRuleBuilder)
+        @key=MustBeUnqiue.1
+        @divisor=.
+        @brief=Makes the rule check that the value is unique.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=MustBeUnqiue
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]Gehtsoft.Validator.ValidationRuleBuilder[/clink]
+            @params=this [clink=Gehtsoft.Validator.ValidationRuleBuilder]Gehtsoft.Validator.ValidationRuleBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=MustBeUnqiue<TE,TV>
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]Gehtsoft.Validator.GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=this [clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]Gehtsoft.Validator.GenericValidationRuleBuilder[/clink]<TE,TV> builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+        Please note that SQL connection factory must be set in the validator constructor in order to make this validator work.
+
+    @end
+
+
+    @member
+        @name=MustExists
+        @sig=M:Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension.MustExists(Gehtsoft.Validator.ValidationRuleBuilder)
+        @key=MustExists.1
+        @divisor=.
+        @brief=Makes the rule check whether the referenced entity exists.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=MustExists
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]Gehtsoft.Validator.ValidationRuleBuilder[/clink]
+            @params=this [clink=Gehtsoft.Validator.ValidationRuleBuilder]Gehtsoft.Validator.ValidationRuleBuilder[/clink] builder
+        @end
+        @declaration
+            @language=cs
+            @name=MustExists<TE,TV>
+            @return=[clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]Gehtsoft.Validator.GenericValidationRuleBuilder[/clink]<TE,TV>
+            @params=this [clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV]Gehtsoft.Validator.GenericValidationRuleBuilder[/clink]<TE,TV> builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+        Please note that SQL connection factory must be set in the validator constructor in order to make this validator work.
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Mapper.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper.Validator]Gehtsoft.EF.Mapper.Validator[/clink].
+@end

@@ -1,0 +1,846 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<doc>
+  <assembly>
+    <name>Gehtsoft.Validator</name>
+  </assembly>
+  <members>
+    <member name="T:Gehtsoft.EF.Mapper.MapClassAttribute">
+      <summary>The attribute that marks a class as a model for another class.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.MapClassAttribute.#ctor">
+      <summary>Constructor</summary>
+      <param name="otherType" />
+    </member>
+    <member name="P:Gehtsoft.EF.Mapper.MapClassAttribute.OtherType">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.DoNotAutoMapAttribute">
+      <summary>The attribute that marks a property so it won't be automatically mapped</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.MapEntityAttribute">
+      <summary>The attribute that marks a class as a model for an EF entity.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.MapEntityAttribute.#ctor(System.Type)">
+      <summary></summary>
+      <param name="entityType" />
+    </member>
+    <member name="P:Gehtsoft.EF.Mapper.MapEntityAttribute.EntityType">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.MapFactory">
+      <summary>The main class of the mapping factory.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.MapFactory.GetMap``2">
+      <summary>Gets the map.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.MapFactory.CreateMap``2">
+      <summary>Creates a new map.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.MapFactory.Map``2(``0,``1)">
+      <summary>Maps one value to another.</summary>
+      <param name="source" />
+      <param name="destination" />
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.MapFactory.RemoveMap``2">
+      <summary>Removes previously created map from the map directory</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.MapFlag">
+      <summary>The flag that modifies behavior of the mapping operation.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Mapper.MapFlag.None">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Mapper.MapFlag.TrimStrings">
+      <summary>Trims spaces from the start and the end of the string.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Mapper.MapFlag.TrimToSeconds">
+      <summary>Trim datetime value to the whole seconds.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Mapper.MapFlag.TrimToDate">
+      <summary>Trim datetime value to the date.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.MappingAction`2">
+      <summary>Actions to be performed before or after map.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.MappingAction`2.When(System.Func`3)">
+      <summary>Sets the predicate that defines the condition when the action must be performed.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.MapPropertyAttribute">
+      <summary>The attribute that associates the model property to the property of the other class or entity.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.MapPropertyAttribute.#ctor(System.String)">
+      <summary>Constructor</summary>
+      <param name="name">The name of the property in the other class.</param>
+      <param name="mapFlags">The mapping behavior flag.</param>
+    </member>
+    <member name="P:Gehtsoft.EF.Mapper.MapPropertyAttribute.Name">
+      <summary>The name of the property in the other class.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Mapper.MapPropertyAttribute.MapFlags">
+      <summary>The mapping behavior flag.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.Map`2">
+      <summary>The map between two types</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Map`2.For(System.String)">
+      <summary>Creates a mapping specification for the specified target property.</summary>
+      <param name="name">The property name.</param>
+      <param name="member">The accessor expression.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Map`2.Find``1(System.Linq.Expressions.Expression{System.Func`2})">
+      <summary>Finds all mapping rules for the destination property.</summary>
+      <param name="member" />
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Map`2.Find(System.String)">
+      <summary>Finds all mapping specification for the specified target property.</summary>
+      <param name="name">The property name.</param>
+      <param name="member">The accessor expression.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Map`2.BeforeMapping(System.Action`2)">
+      <summary>Adds a before mapping action.</summary>
+      <param name="action" />
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Map`2.AfterMapping(System.Action`2)">
+      <summary>Adds an after mapping action.</summary>
+      <param name="action" />
+    </member>
+    <member name="P:Gehtsoft.EF.Mapper.Map`2.Factory">
+      <summary>Custom factory to create an instance of the destination type.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Map`2.Do(`0,`1)">
+      <summary>Performs mapping.</summary>
+      <param name="source" />
+      <param name="destination" />
+      <param name="ignoreNull">If this flag is set true, the null values of the source object properties will be ignored.</param>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.PropertyMapping`2">
+      <summary>The property mapping definition.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.PropertyMapping`2.From``1(System.Linq.Expressions.Expression{System.Func`2})">
+      <summary>Sets the source of the mapping rule.</summary>
+      <param name="propertyName" />
+      <param name="expression">The LINQ expression for getting the source value. Please note that unlike destination expression that was used in
+Map.For() method, this expression can be any expression that
+returns the value.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.PropertyMapping`2.Assign``1(`2)">
+      <summary>Sets a constant or expression source</summary>
+      <param name="constant" />
+      <param name="expression">The LINQ expression for getting the source value.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.PropertyMapping`2.When(System.Func`2)">
+      <summary>Add mapping rule predicate for source entity.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.PropertyMapping`2.WhenDestination(System.Func`2)">
+      <summary>Add mapping rule predicate for destination entity.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.PropertyMapping`2.Otherwise()">
+      <summary>Create a new mapping rule with the same target and condition opposite to the original condition.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.PropertyMapping`2.Ignore">
+      <summary>Set the rule predicate that makes it never run.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.PropertyMapping`2.ReplaceWith">
+      <summary>Puts ignore on all previously defined rules with the same target as a current rule and creates a new rule.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.PropertyMapping`2.Always">
+      <summary>Removes the rule predicate so it will run always.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.PropertyMapping`2.WithFlags(Gehtsoft.EF.Mapper.MapFlag)">
+      <summary>Applies mapping flags to the mapping rule.</summary>
+      <param name="flag" />
+    </member>
+    <member name="T:Gehtsoft.ExpressionToJs.ExpressionCompiler">
+      <summary>The compiler of Lambda expression into JavaScript code.</summary>
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.#ctor(System.Linq.Expressions.LambdaExpression)">
+      <summary>Constructor</summary>
+      <param name="lambdaExpression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.WalkExpression(System.Linq.Expressions.Expression)">
+      <summary>Scans the expression and returns its JavaScript presentation.</summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddArrayLength(System.Linq.Expressions.UnaryExpression)">
+      <summary></summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddConditional(System.Linq.Expressions.ConditionalExpression)">
+      <summary></summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddBinary(System.String,System.Linq.Expressions.BinaryExpression)">
+      <summary></summary>
+      <param name="function" />
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddLambdaParameter(System.String,System.Linq.Expressions.LambdaExpression)">
+      <summary></summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddUnary(System.String,System.Linq.Expressions.UnaryExpression)">
+      <summary></summary>
+      <param name="function" />
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddConstant(System.Object)">
+      <summary></summary>
+      <param name="constantValue" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddConstant(System.Linq.Expressions.ConstantExpression)">
+      <summary></summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddMemberAccess(System.Linq.Expressions.MemberExpression)">
+      <summary></summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.IsExpressionRootsInParameter(System.Linq.Expressions.Expression)">
+      <summary></summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddParameterAccess(System.Linq.Expressions.Expression)">
+      <summary></summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddArrayIndex(System.Linq.Expressions.BinaryExpression)">
+      <summary></summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddCall(System.Linq.Expressions.MethodCallExpression)">
+      <summary></summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddConvert(System.Linq.Expressions.UnaryExpression)">
+      <summary></summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddConvert(System.Linq.Expressions.UnaryExpression)">
+      <summary></summary>
+      <param name="expression" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionCompiler.AddParameter(System.Linq.Expressions.ParameterExpression)">
+      <summary></summary>
+      <param name="parameterExpression" />
+    </member>
+    <member name="P:Gehtsoft.ExpressionToJs.ExpressionCompiler.ReturnType">
+      <summary>The datatype of the expression return value.</summary>
+    </member>
+    <member name="P:Gehtsoft.ExpressionToJs.ExpressionCompiler.JavaScriptExpression">
+      <summary>The JavaScript version of the expression.</summary>
+    </member>
+    <member name="T:Gehtsoft.ExpressionToJs.ExpressionToJsStubAccessor">
+      <summary>The class that provides supporting JavaScript code for the code create by the expression compiler.</summary>
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.ExpressionToJsStubAccessor.GetJsIncludesAsString">
+      <summary>Returns the supporting JavaScript code.</summary>
+    </member>
+    <member name="T:Gehtsoft.ExpressionToJs.Functions">
+      <summary>Various functions supported in expressions to be compiled into JavaScript</summary>
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.Functions.DaysSince(System.DateTime,System.DateTime)">
+      <summary>Returns how much days are between the dates.</summary>
+      <param name="args0" />
+      <param name="args1" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.Functions.MonthsSince(System.DateTime,System.DateTime)">
+      <summary>Returns how much months are between the dates.</summary>
+      <param name="args0" />
+      <param name="args1" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.Functions.YearsSince(System.DateTime,System.DateTime)">
+      <summary>Returns how much years are between the dates.</summary>
+      <param name="args0" />
+      <param name="args1" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.Functions.IsCreditCardNumberCorrect(System.String)">
+      <summary>Checks whether the credit card number is correct.</summary>
+      <param name="value" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.Functions.ToBool(System.Object)">
+      <summary>Make sure that the argument is boolean</summary>
+      <param name="v" />
+    </member>
+    <member name="M:Gehtsoft.ExpressionToJs.Functions.ToInt(System.Object)">
+      <summary>Make sure that the argument is integer</summary>
+      <param name="v" />
+    </member>
+    <member name="T:Gehtsoft.Validator.AbstractValidator`1">
+      <summary>The parameterized generic for defining validators.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.AbstractValidator`1.#ctor">
+      <summary>Constructor.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.AbstractValidator`1.When(System.Func`2)">
+      <summary>Sets "when" predicate.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.AbstractValidator`1.Unless(System.Func`2)">
+      <summary>Set "unless" predicate.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.AbstractValidator`1.RuleForEntity(System.String)">
+      <summary>Sets the rule for the whole entity.</summary>
+      <param name="name">The name to be used in case the rule is failed.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.AbstractValidator`1.RuleFor``1(System.Linq.Expressions.Expression{System.Func`2},System.Boolean)">
+      <summary>Sets the rule for a property.</summary>
+      <param name="accessor">The property accessor.</param>
+      <param name="name">The name to be used.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.AbstractValidator`1.RuleForForAll``1(System.Linq.Expressions.Expression{System.Func`2},System.Boolean)">
+      <summary>Sets the rule for each element in the property.</summary>
+      <param name="accessor" />
+      <param name="name">You may specify the name in case you want to customize how the name appears in the failure.</param>
+    </member>
+    <member name="T:Gehtsoft.Validator.BaseValidator">
+      <summary>Basic validator.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.BaseValidator.#ctor(System.Type)">
+      <summary>Constructor.</summary>
+      <param name="validateType">The type to be validated.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.BaseValidator.When(Gehtsoft.Validator.IValidationPredicate)">
+      <summary>Sets "when" predicate.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.BaseValidator.Unless(Gehtsoft.Validator.IValidationPredicate)">
+      <summary>Sets "unless" predicate.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.BaseValidator.RuleForEntity(System.String)">
+      <summary>Add a rule for the whole object.</summary>
+      <param name="name" />
+    </member>
+    <member name="M:Gehtsoft.Validator.BaseValidator.RuleFor(System.String)">
+      <summary>Adds a rule for the object property.</summary>
+      <param name="propertyName" />
+    </member>
+    <member name="M:Gehtsoft.Validator.BaseValidator.RuleForAll(System.String)">
+      <summary>Sets a rule for each element of the object property.</summary>
+      <param name="propertyName" />
+    </member>
+    <member name="T:Gehtsoft.Validator.GenericValidationRuleBuilder`2">
+      <summary>The rule binder for AbstractValidator</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.Must(System.Func`2)">
+      <summary>Sets validation predicate as a function.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.WhenValue(System.Func`2)">
+      <summary>Sets "when" predicate for the value.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.WhenNotNull(System.Func`2)">
+      <summary>Sets validation only when the value is not null</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.WhenEntity(System.Func`2)">
+      <summary>Sets "when" predicate for the entity.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.UnlessValue(System.Func`2)">
+      <summary>Sets "unless" predicate for the value.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.UnlessEntity(System.Func`2)">
+      <summary>Sets "unless" predicate for the entity.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.Null">
+      <summary>Sets the validation predicate to the check whether the value is null.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.NotNull">
+      <summary>Sets the validation predicate to the check whether the value is not null.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.NotNullOrEmpty">
+      <summary>Sets the validation predicate to the check whether the value is not null or empty.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.NotNullOrWhitespace">
+      <summary>Sets the validation predicate to the check whether the value is not null, and is not an empty or whitespace string.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.ShorterThan(System.Int32)">
+      <summary>Sets the validation predicate to the check whether the value length is shorter than the value specified.</summary>
+      <param name="length">The length limit. Use the maximum desired length plus 1. In other words, this value is not the last permitted length, it is the first
+wrong length value.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.DoesMatch(System.String)">
+      <summary>Sets the validation predicate to the check whether the string value matches the regular expression specified.</summary>
+      <param name="pattern">The regular expression pattern to be checked.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.DoesNotMatch(System.String)">
+      <summary>Sets the validation predicate to the check whether the string value does not match the regular expression specified.</summary>
+      <param name="pattern">The regular expression pattern to be checked.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.EnumIsCorrect">
+      <summary>Sets the validation predicate to the check whether the enumeration value is a correct enumeration value.</summary>
+      <param name="T, enumType">The type of the enumeration.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.Between(`1,`1)">
+      <summary>Checks whether the value is between the specified limits.</summary>
+      <param name="minValue">The minimum value.</param>
+      <param name="maxValue">The maximum value.</param>
+      <param name="minInclusive">The flag indicating whether the minimum value is inclusive (true by default).</param>
+      <param name="maxInclusive">The flag indicating whether the maximum value is inclusive (true by default).</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.WithCode(System.Int32)">
+      <summary>Sets the error code.</summary>
+      <param name="code" />
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.WithMessage(System.String)">
+      <summary>Sets the message.</summary>
+      <param name="message" />
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.ValidateUsing(System.Type)">
+      <summary>Sets the validator to be used to validate the value.</summary>
+      <param name="validatorType, TX">The type of the validator.</param>
+      <param name="args">The arguments for the constructor in case the other then default constructor is desired to be used.</param>
+      <param name="validator">An instance of the validator to be used.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.EmailAddress">
+      <summary>Sets the validation whether the mail address is correct.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.NotSQLInjection">
+      <summary>Sets the validation whether the value is not an SQL Injection attempt</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.NotHTML">
+      <summary>Sets the validation whether the value is not an HTML Injection attempt</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.CreditCardNumber">
+      <summary>Sets the validation whether the credit card number is correct.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.ServerOnly">
+      <summary>Makes the validation rule a server-only one.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.ServerOnly">
+      <summary>Creates a new rule for the same target and the condition opposite to the condition of the original rule.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.GenericValidationRuleBuilder`2.Also">
+      <summary>Creates a new rule for the same target and the same condition</summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.IValidationMessageResolver">
+      <summary>The interface that translates the validation message into a readable message.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.IValidationMessageResolver.Resolve(Gehtsoft.Validator.ValidationTarget,System.Int32,System.String)">
+      <summary>Translate the message.</summary>
+      <param name="entityType">The type of the entity to be validated.</param>
+      <param name="target">The target within the entity to be validated.</param>
+      <param name="code">The error code set.</param>
+      <param name="message">The error message what is being set.</param>
+    </member>
+    <member name="T:Gehtsoft.Validator.IValidationPredicate">
+      <summary>The validation predicate interface.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.IValidationPredicate.Validate(System.Object)">
+      <summary>Validates the value.</summary>
+      <param name="value" />
+    </member>
+    <member name="P:Gehtsoft.Validator.IValidationPredicate.ParameterType">
+      <summary>The expected type of the value to be validated.</summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.IBaseValidator">
+      <summary>Base interface for all validators</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.IBaseValidator.Validate(System.Object)">
+      <summary>Performs the validation.</summary>
+      <param name="entity" />
+    </member>
+    <member name="T:Gehtsoft.Validator.IValidator`1">
+      <summary></summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.IValidator`1.Validate(`0)">
+      <summary>Performs validation.</summary>
+      <param name="entity" />
+    </member>
+    <member name="T:Gehtsoft.Validator.JSConvertor.ConvertToJsExtension">
+      <summary>The extension of the validator for JS conversion.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.JSConvertor.ConvertToJsExtension.GetJsRules(Gehtsoft.Validator.IBaseValidator)">
+      <summary>Convert Validator to JS</summary>
+      <param name="validator" />
+      <param name="compilerType">The type of the LINQ expression compiler to be used.</param>
+    </member>
+    <member name="T:Gehtsoft.Validator.JSConvertor.JsValidatorRule">
+      <summary>JavaScript Validator Rule</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.JSConvertor.JsValidatorRule.JsTargetName">
+      <summary>The name of the target.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.JSConvertor.JsValidatorRule.JsValidationExpression">
+      <summary>The JS boolean expression for the validation.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.JSConvertor.JsValidatorRule.JsWhenExpression">
+      <summary>The JS boolean expression to determine whether the validation is required.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.JSConvertor.JsValidatorRule.ErrorMessage">
+      <summary>The error message to show in case the validation failed.</summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.JSConvertor.ValidationExpressionCompiler">
+      <summary>The base validation compiler.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.JSConvertor.ValidationExpressionCompiler.#ctor(System.Linq.Expressions.LambdaExpression,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+      <summary>Constructor.</summary>
+      <param name="lambdaExpression">The lambda expression that has one or two parameters (each is either the value or the whole entity) and returns a boolean value.</param>
+      <param name="entityParameterIndex">The index of the entity parameter in the expression.</param>
+      <param name="valueParameterIndex">The index of the value parameter in the expression.</param>
+    </member>
+    <member name="T:Gehtsoft.Validator.MustBeInRangeAttribute">
+      <summary>The attribute that adds a range rule for a numeric and date field.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.MustBeInRangeAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.MustBeInRangeAttribute.Mininum">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.MustBeInRangeAttribute.MinimumInclusive">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.MustBeInRangeAttribute.Maximum">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.MustBeInRangeAttribute.MaximumInclusive">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.MustBeNotEmptyAttribute">
+      <summary>The attribute that adds not empty rule to string, nullables or collections.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.MustBeNotEmptyAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.MustBeNotNullAttribute">
+      <summary>The attribute that adds not null validation rule.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.MustBeNotNullAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.MustBeNotNullOrWhitespaceAttribute">
+      <summary>The attribute that adds not null or whitespace validation rule to strings.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.MustBeNotNullOrWhitespaceAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.MustBeShorterThanAttribute">
+      <summary>The validation rule that adds "length must be shorter" rule to strings or arrays.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.MustBeShorterThanAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.MustBeShorterThanAttribute.#ctor(System.Int32)">
+      <summary></summary>
+      <param name="length" />
+    </member>
+    <member name="P:Gehtsoft.Validator.MustBeShorterThanAttribute.Length">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.MustMatchAttribute">
+      <summary>The attribute adds a string must match a regular expression rule.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.MustMatchAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.MustMatchAttribute.#ctor(System.String)">
+      <summary></summary>
+      <param name="pattern" />
+    </member>
+    <member name="P:Gehtsoft.Validator.MustMatchAttribute.Pattern">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.ValidationFailure">
+      <summary>The one validation failure.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidationFailure.Name">
+      <summary>The name of the value failed.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidationFailure.Code">
+      <summary>The code of the failure.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidationFailure.Path">
+      <summary>The path to the value failed.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidationFailure.Message">
+      <summary>The error message.</summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.ValidationFailureCollection">
+      <summary>The list of validation failures.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidationFailureCollection.Count">
+      <summary>Returns the number of failures.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidationFailureCollection.Item(System.Int32)">
+      <summary>Returns the failure by its index.</summary>
+      <param name="index" />
+    </member>
+    <member name="T:Gehtsoft.Validator.ValidationMessageResolverFactory">
+      <summary>The factory of validation messages resolvers</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationMessageResolverFactory.GetResolver(System.Type)">
+      <summary>Gets resolver for the type specified.</summary>
+      <param name="entityType">The type of the entity.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationMessageResolverFactory.SetResolverFor(System.Type,Gehtsoft.Validator.IValidationMessageResolver)">
+      <summary>Sets resolve for the type specified.</summary>
+      <param name="T">The type of the entity.</param>
+      <param name="entityType">The type of the entity.</param>
+      <param name="resolver" />
+    </member>
+    <member name="T:Gehtsoft.Validator.ValidationResult">
+      <summary>The validation result.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidationResult.IsValid">
+      <summary>Returns the flag indicating whether the object is valid.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidationResult.Failures">
+      <summary>Returns the list of validation failures.</summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.ValidationRuleBuilder">
+      <summary>The rule binder for BaseValidator</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.Must(Gehtsoft.Validator.IValidationPredicate)">
+      <summary>Sets the validation predicate.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.WhenValue(Gehtsoft.Validator.IValidationPredicate)">
+      <summary>Sets when predicate for the value.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.WhenNotNull()">
+      <summary>Sets validation only when the value is not null.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.UnlessValue(Gehtsoft.Validator.IValidationPredicate)">
+      <summary>Sets unless predicate for the value.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.WhenEntity(Gehtsoft.Validator.IValidationPredicate)">
+      <summary>Sets when predicate for the whole entity.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.UnlessEntity(Gehtsoft.Validator.IValidationPredicate)">
+      <summary>Sets unless predicate for the entity.</summary>
+      <param name="predicate" />
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.WithCode(System.Int32)">
+      <summary>Sets the error code.</summary>
+      <param name="code" />
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.WithMessage(System.String)">
+      <summary>Sets the error message.</summary>
+      <param name="message" />
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.ValidateUsing(System.Type)">
+      <summary>Sets the validator to be used to validate the property.</summary>
+      <param name="validatorType">The type of the validator.</param>
+      <param name="args">The arguments for the constructor in case the other then default constructor is desired to be used.</param>
+      <param name="validator">An instance of the validator to be used.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.Null">
+      <summary>Sets the validation predicate to the check whether the value is null.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.NotNull">
+      <summary>Sets the validation predicate to the check whether the value is not null.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.NotNullOrEmpty">
+      <summary>Sets the validation predicate to the check whether the value is not null or empty.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.NotNullOrWhitespace">
+      <summary>Sets the validation predicate to the check whether the value is not null, and is not an empty or whitespace string.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.ShorterThan(System.Int32)">
+      <summary>Sets the validation predicate to the check whether the value length is shorter than the value specified.</summary>
+      <param name="length">The length limit. Use the maximum desired length plus 1. In other words, this value is not the last permitted length, it is the first
+wrong length value.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.DoesMatch(System.String)">
+      <summary>Sets the validation predicate to the check whether the string value matches the regular expression specified.</summary>
+      <param name="pattern">The regular expression pattern to be checked.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.DoesNotMatch(System.String)">
+      <summary>Sets the validation predicate to the check whether the string value does not match the regular expression specified.</summary>
+      <param name="pattern">The regular expression pattern to be checked.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.EnumIsCorrect">
+      <summary>Sets the validation predicate to the check whether the enumeration value is a correct enumeration value.</summary>
+      <param name="enumType">The type of the enumeration.</param>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.EmailAddress">
+      <summary>Sets the validation whether the mail address is correct.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.NotSQLInjection">
+      <summary>Sets the validation whether the value is not an SQL Injection attempt</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.NotHTML">
+      <summary>Sets the validation whether the value is not an HTML Injection attempt</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.CreditCardNumber">
+      <summary>Sets the validation whether the credit card number is correct.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationRuleBuilder.ServerOnly">
+      <summary>Makes the validation rule a server-only one.</summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.ValidationTarget">
+      <summary>The target of the validation rule.</summary>
+    </member>
+    <member name="M:Gehtsoft.Validator.ValidationTarget.GetCustomAttribute``1">
+      <summary>Gets a custom attribute for the target.</summary>
+      <param name="T">The type of the attribute (must be derived from Attribute).</param>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidationTarget.TargetName">
+      <summary>Gets a name of the target (e.g. property name or a name specified in RuleFor method).</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidationTarget.ValueType">
+      <summary>The type of the target value.</summary>
+    </member>
+    <member name="T:Gehtsoft.Validator.ValidatorAttributeBase">
+      <summary>The base attribute class for all validation attributes.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidatorAttributeBase.WidthCode">
+      <summary>The code to be used in case the rule is failed.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidatorAttributeBase.WithMessage">
+      <summary>The message to be used in case the rule is failed.</summary>
+    </member>
+    <member name="P:Gehtsoft.Validator.ValidatorAttributeBase.ForElement">
+      <summary>The flag indicating whether the attribute is applied to the whole property or for each element of a property.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Validator.EfEntityValidator`1">
+      <summary>The base class for validation of Gehtsoft.EF entity.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Validator.EfEntityValidator`1.#ctor(Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics,Gehtsoft.EF.Validator.IValidatorConnectionFactory)">
+      <summary>The constructor.</summary>
+      <param name="specifics">The SQL specifics.</param>
+      <param name="connectionFactory">The connection factory.</param>
+      <param name="messageProvider">The optional message text provider.</param>
+    </member>
+    <member name="T:Gehtsoft.EF.Validator.EfValidationErrorCode">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Validator.EfValidationErrorCode.StringIsTooLong">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Validator.EfValidationErrorCode.NumberIsOutOfRange">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Validator.EfValidationErrorCode.DateIsOutRange">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Validator.EfValidationErrorCode.TimestampIsOutOfRange">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Validator.EfValidationErrorCode.EnumerationValueIsInvalid">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Validator.EfValidationErrorCode.NullValue">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Validator.EfValidationErrorCode.ValueIsNotUnique">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Validator.EfValidationErrorCode.ReferenceDoesNotExists">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Validator.IEfValidatorMessageProvider">
+      <summary>The interface to a factory that provides messages for entity validator</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Validator.IEfValidatorMessageProvider.GetMessage(Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor,Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo,System.Int32)">
+      <summary>The method returns the message</summary>
+      <param name="entityDescriptor" />
+      <param name="column" />
+      <param name="validationErrorCode" />
+    </member>
+    <member name="T:Gehtsoft.EF.Validator.IValidatorConnectionFactory">
+      <summary></summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Validator.IValidatorConnectionFactory.GetConnection">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Validator.IValidatorConnectionFactory.NeedToDispose">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Validator.ValidatorConnectionFactory">
+      <summary></summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Validator.ValidatorConnectionFactory.#ctor(Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactory,System.String)">
+      <summary></summary>
+      <param name="factory" />
+      <param name="connectionString" />
+    </member>
+    <member name="M:Gehtsoft.EF.Validator.ValidatorConnectionFactory.GetConnection">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Validator.ValidatorConnectionFactory.NeedToDispose">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Validator.ValidatorSingletonConnectionFactory">
+      <summary></summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Validator.ValidatorSingletonConnectionFactory.#ctor(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)">
+      <summary></summary>
+      <param name="connection" />
+    </member>
+    <member name="M:Gehtsoft.EF.Validator.ValidatorSingletonConnectionFactory.GetConnection">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Validator.ValidatorSingletonConnectionFactory.NeedToDispose">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.Validator.EfModelValidator`1">
+      <summary>The base class for mapper model validators.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Validator.EfModelValidator`1.#ctor(Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics,Gehtsoft.EF.Validator.IValidatorConnectionFactory)">
+      <summary>Constructor</summary>
+      <param name="specifics">The SQL specifics.</param>
+      <param name="connectionFactory">The connection factory.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Validator.EfModelValidator`1.ValidateModel(Gehtsoft.EF.Validator.IEfValidatorMessageProvider)">
+      <summary>Finds the map and adds all required validation for the model.</summary>
+      <param name="messageProvider">The message provider.</param>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.Validator.MustBeInDbValueRangeAttribute">
+      <summary>The attribute that adds validation of allowed value range for numeric or datatime properties.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Validator.MustBeInDbValueRangeAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.Validator.MustBeUniqueAttribute">
+      <summary>The attribute that adds uniqueness validation</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Validator.MustBeUniqueAttribute.#ctor">
+      <summary>Constructor</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.Validator.MustExistAttribute">
+      <summary>The attribute that adds validator that checks whether the referenced object exists.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Validator.MustExistAttribute.#ctor">
+      <summary>Constructor.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.Validator.MustHaveValidDbSizeAttribute">
+      <summary>The attribute that adds check whether the string value isn't longer than the associated database column.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Validator.MustHaveValidDbSizeAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension">
+      <summary>The extension of the validation rule builders for model validation.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension.MustHaveValidDbSize(Gehtsoft.Validator.ValidationRuleBuilder)">
+      <summary>Makes the rule to validate whether the string isn't longer than the corresponding database column.</summary>
+      <param name="builder" />
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension.MustBeInValidDbRange(Gehtsoft.Validator.ValidationRuleBuilder)">
+      <summary>Makes the rule to validate whether numeric or datatime value fits into the corresponding database column allowed range.</summary>
+      <param name="builder" />
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension.MustBeUnqiue(Gehtsoft.Validator.ValidationRuleBuilder)">
+      <summary>Makes the rule check that the value is unique.</summary>
+      <param name="builder" />
+    </member>
+    <member name="M:Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension.MustExists(Gehtsoft.Validator.ValidationRuleBuilder)">
+      <summary>Makes the rule check whether the referenced entity exists.</summary>
+      <param name="builder" />
+    </member>
+  </members>
+</doc>

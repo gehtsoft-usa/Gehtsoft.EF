@@ -1,0 +1,82 @@
+@class
+    @name=UpdateQueryBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder
+    @brief=Query builder for UPDATE operation.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder]QueryWithWhereBuilder[/clink]
+
+    See [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder]QueryWithWhereBuilder[/clink] for details how to specify condition on the query.
+
+    @member
+        @name=AddUpdateColumn
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.AddUpdateColumn(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo)
+        @key=AddUpdateColumn.0
+        @divisor=.
+        @brief=Add one column to update.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddUpdateColumn
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] column
+        @end
+
+        @param
+            @name=column
+            The column to be updated. The parameter with the same name as the column has will be created.
+        @end
+
+    @end
+
+    @member
+        @name=AddUpdateAllColumns
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.AddUpdateAllColumns
+        @key=AddUpdateAllColumns.0
+        @divisor=.
+        @brief=Add all columns of the table to update.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddUpdateAllColumns
+            @return=void
+
+        @end
+
+        All columns (except primary key) will be added to the SET clause of the query. The parameters with the same name, as the corresponding
+        column has, will be created.
+    @end
+
+    @member
+        @name=UpdateById
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.UpdateById
+        @key=UpdateById.0
+        @divisor=.
+        @brief=Add a condition to update a row by its primary key.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=UpdateById
+            @return=void
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

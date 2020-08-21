@@ -1,0 +1,38 @@
+@class
+    @name=ParameterGroupQueryBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.ParameterGroupQueryBuilder
+    @brief=The builder of a pseudo-subquery with the list of the parameters to use it in IN and NOT IN operators.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ParameterGroupQueryBuilder
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink]
+
+    @member
+        @name=AddParameter
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.ParameterGroupQueryBuilder.AddParameter(System.String)
+        @key=AddParameter.0
+        @divisor=.
+        @brief=Add the parameter to the list.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddParameter
+            @return=void
+
+            @params=string parameter
+        @end
+
+        @param
+            @name=parameter
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

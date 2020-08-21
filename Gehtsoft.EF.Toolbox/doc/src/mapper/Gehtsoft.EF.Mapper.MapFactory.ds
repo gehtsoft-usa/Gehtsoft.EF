@@ -1,0 +1,143 @@
+@class
+    @name=MapFactory
+    @key=Gehtsoft.EF.Mapper.MapFactory
+    @brief=The main class of the mapping factory.
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.MapFactory
+
+    @member
+        @name=GetMap
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.GetMap``2
+        @key=GetMap.0
+        @divisor=.
+        @brief=Gets the map.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @params=bool createIfNotExists = true
+            @name=GetMap<TFrom,TTo>
+            @return=[clink=Gehtsoft.EF.Mapper.Map_TSource_TDestination]Map[/clink]<TFrom,TTo>
+        @end
+
+        If map does not exists, the method automatically creates it unless you request not to passing [c]false[/c] as a parameter.
+        If map creation is requested, the map automatic initialization
+        must be possible (i.e. it must be a map between an entity and a model or a class and a model).
+
+        See [clink=Gehtsoft.EF.Mapper.MapFactory.CreateMap.0]MapFactory.CreateMap()[/clink] for more details about the map creation.
+    @end
+
+    @member
+        @name=CreateMap
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.CreateMap``2
+        @key=CreateMap.0
+        @divisor=.
+        @brief=Creates a new map.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=CreateMap<TFrom,TTo>
+            @return=[clink=Gehtsoft.EF.Mapper.Map_TSource_TDestination]Map[/clink]<TFrom,TTo>
+        @end
+
+        If it is possible to initialize map automatically (e.g. this is an attribute-based entity to model, model to entity, class to model or
+        model to class mapping), it will be initialized.
+
+        Please note that properties attributed using [clink=Gehtsoft.EF.Mapper.DoNotAutoMapAttribute]DoNotAutoMapAttribute[/clink] won't be mapped.
+
+        Otherwise an empty map will be returned. You can refine the map definition using [clink=Gehtsoft.EF.Mapper.Map.MapPropertiesByName]MapPropertiesByName[/clink]
+        extension method of the map or using map's methods.
+
+    @end
+
+    @member
+        @name=Map
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.Map``2(``0,``1)
+        @key=Map.1
+        @divisor=.
+        @brief=Maps one value to another.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Map<TFrom,TTo>
+            @return=TTo
+            @params=TFrom source
+        @end
+
+
+        @declaration
+            @language=cs
+            @name=Map<TFrom,TTo>
+            @return=void
+
+            @params=TFrom source, TTo destination
+        @end
+
+        @param
+            @name=source
+
+        @end
+
+        @param
+            @name=destination
+
+        @end
+
+        Note that you can use this method for the types that have map defined, as well as for value types and
+        for arrays, collections and lists.
+
+        For value types and string the method returns the value itself.
+
+        For the arrays and object the method returns the object itself unless the map is defined or can be automatically created (e.g.
+        entity to model and class to model maps).
+
+        See [clink=Gehtsoft.EF.Mapper.MapFactory.CreateMap.0]MapFactory.CreateMap()[/clink] for more details about the map creation.
+
+        If you need to perform special mapping, when null values of the source are ignored, use [clink=Gehtsoft.EF.Mapper.MapFactory.GetMap.0]GetMap()[/clink]
+        method to find the map you need and the use [clink=Gehtsoft.EF.Mapper.Map_TSource_TDestination.Do.1]Do()[/clink] method of the map.
+    @end
+
+    @member
+        @name=RemoveMap
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.RemoveMap``2
+        @key=RemoveMap.0
+        @divisor=.
+        @brief=Removes previously created map from the map directory
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=RemoveMap<TFrom,TTo>
+            @return=void
+        @end
+
+        @declaration
+            @language=cs
+            @name=RemoveMap
+            @return=void
+
+            @params=Type source, Type destination
+        @end
+
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end

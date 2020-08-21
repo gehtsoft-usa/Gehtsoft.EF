@@ -1,0 +1,619 @@
+@group
+    @title=Validation Toolkit
+    @key=validation
+    @ingroup=index
+    @brief=
+    @sortarticles=no
+    @sortgroups=no
+
+    The validation toolkit consists of three packages:
+
+    @list
+        @list-item
+            [c]Gehtsoft.Validation[/c] for validating arbitrary data.
+        @end
+        @list-item
+            [c]Gehtsoft.EF.Validation[/c] for specially validating Gehtsoft.EF entities.
+        @end
+        @list-item
+            [c]Gehtsoft.EF.Mapper.Validation[/c] for specially validating [link=Gehtsoft.EF.Mapper]mapper[/link] models.
+        @end
+    @end
+
+    The whole idea of the validation toolkit is similar to FluentValidation, however the package was developed to overcome the
+    FluentValidation limitations to create validation map on the fly, using entities and models meta data.
+@end
+
+@article
+    @title=Introduction into validation
+    @key=validationarticle1
+    @ingroup=validation
+    @brief=
+
+    The validation is applying the set of rules to an object.
+
+    Each rule validates one value, which can be the object itself, a property of the object, an element of a collection which is
+    a property of the object or, even, an arbitrary expression. The value to be validated is called a validation rule target.
+
+    Each rule validates the value against one boolean condition which takes the target as input and returns simply [c]true[/c] (this value is valid)
+    or [c]false[/c] (this value is invalid). Such condition is called a predicate.
+
+    In case the rule is failed, it returns an validation failure which consists of
+
+    @list
+        @list-item
+            The name of the target failed (e.g. the name of the property, or the name of the collection property and the index of the element).
+        @end
+        @list-item
+            The validation failure code which is defined in the rule.
+        @end
+        @list-item
+            The validation failure message which is defined in the rule.
+        @end
+    @end
+
+    While one rule applies only one predicate at only one target, each validator can validate multiple targets for one validated object and
+    can apply multiple rules for each validation target. So, each validation result can consists of multiple validation failures.
+@end
+
+@article
+    @title=Attribute-based validation
+    @key=validationarticle2
+    @ingroup=validation
+    @brief=
+
+    The easiest way to start validating objects of some class is to apply validation attributes to its properties.
+
+    The validation properties are:
+    [clink=Gehtsoft.Validator.MustBeNotNullAttribute]MustBeNotNullAttribute[/clink],
+    [clink=Gehtsoft.Validator.MustBeNotEmptyAttribute]MustBeNotEmptyAttribute[/clink],
+    [clink=Gehtsoft.Validator.MustBeNotNullOrWhitespaceAttribute]MustBeNotNullOrWhitespaceAttribute[/clink],
+    [clink=Gehtsoft.Validator.MustBeInRangeAttribute]MustBeInRangeAttribute[/clink],
+    [clink=Gehtsoft.Validator.MustBeShorterThanAttribute]MustBeShorterThanAttribute[/clink], and
+    [clink=Gehtsoft.Validator.MustMatchAttribute]MustMatchAttribute[/clink].
+
+    You can apply multiple attributes to one property.
+
+    Each attribute specifies:
+
+    @list
+        @list-item
+            Validation parameters (when they are required, e.g. a regular expression for matching attribute).
+        @end
+        @list-item
+            The flag indicating whether the attribute applies to a property itself or to an element of a property (for arrays and collections).
+        @end
+        @list-item
+            The failure message.
+        @end
+        @list-item
+            The failure code.
+        @end
+    @end
+
+    @example
+        @title=Example: Attribute-base validation
+        @show=yes
+       !public class TestEntity4
+       !{
+       !    [MustBeNotNullOrWhitespace(WithMessage = "String Value must be not a null, empty or whitespace value")]
+       !    [MustBeShorterThan(10, WithMessage = "String Value is too long")]
+       !    public string StringValue { get; set; }
+       !
+       !    [MustBeNotNull(WithMessage = "The String Array must not be a null value")]
+       !    [MustBeShorterThan(5, WithMessage = "The String Array must be shorter than 5 elements")]
+       !    [MustMatch("^a.+", ForElement = true, WithMessage = "An element of String Array must start with 'a'")]
+       !    public string[] StringArray { get; set; }
+       !
+       !    [MustBeInRange(Mininum = 10, Maximum = 20, WithMessage = "The value must be in range of 10 to 20")]
+       !    public int IntegerValue { get; set; }
+       !}
+       !
+       !    .................
+       !
+       !    TestEntity4 entity;
+       !
+       !    .................
+       !    ValidationResult result = new BaseValidator(typeof(TestEntity4)).Validate(entity);
+       !    if (!result.IsValid)
+       !    .................
+    @end
+
+@end
+
+@article
+    @title=Rule-base validation
+    @key=validationarticle3
+    @ingroup=validation
+    @brief=
+
+    [b]Basic Features[/b]
+
+    The same validator as in [link=validationarticle2]the previous article[/link] may be created using rules instead
+    of the attributes.
+
+    To do that the developer needs to define his/her own validation class using [clink=Gehtsoft.Validator.AbstractValidator_T]AbstractValidator[/clink]
+    as a base class and then define the rule set in the constructor.
+
+    The example below provides exactly the same results as the example in the previous article.
+
+    @example
+        @title=Example: Rule-base validation
+        @show=yes
+    !   public class TestEntity4
+    !   {
+    !       public string StringValue { get; set; }
+    !
+    !       public string[] StringArray { get; set; }
+    !
+    !       public int IntegerValue { get; set; }
+    !   }
+    !
+    !   public class TestEntity4Validator : AbstractValidator<TestEntity4>
+    !   {
+    !       public TestEntity4Validator()
+    !       {
+    !           RuleFor(e => e.StringValue).NotNull().WithMessage("String Value must be not a null, empty or whitespace value");
+    !           RuleFor(e => e.StringValue).ShorterThan(10).WithMessage("String Value is too long");
+    !           RuleFor(e => e.StringArray).NotNull().WithMessage("The String Array must not be a null value");
+    !           RuleFor(e => e.StringArray).ShorterThan(10).WithMessage("The String Array must be shorter than 5 elements");
+    !           RuleForAll(e => e.StringArray).DoesMatch("^a.+").WithMessage("An element of String Array must start with 'a'");
+    !           RuleFor(e => e.IntegerValue).Between(10, 20).WithMessage("The value must be in range of 10 to 20");
+    !
+    !       }
+    !
+    !   }
+    @end
+
+    However, the rule-based validation is not just another way to do the same job. The rule-based validation provides more flexibility and
+    features for the validation definitions.
+
+    [b]Conditional Validation[/b]
+
+    In some cases the rule must be validated only when some condition is met. Say, in our example the integer value is nullable and we want to
+    validate it only in case it is not null.
+
+    @example
+        @title=Example: Conditional validation
+        @show=yes
+    !   public class TestEntity4
+    !   {
+    !       ................
+    !       public int? IntegerValue { get; set; }
+    !   }
+    !
+    !   public class TestEntity4Validator : AbstractValidator<TestEntity4>
+    !   {
+    !       public TestEntity4Validator()
+    !       {
+    !           ................
+    !           RuleFor(e => e.IntegerValue).Between(10, 20).WithMessage("The value must be in range of 10 to 20").WhenValue(v => v != null);
+    !
+    !       }
+    !
+    !   }
+    @end
+
+
+
+    [b]Entity-wide Validation[/b]
+
+    In some cases a complex target is required. Let say our entity has two properties the sum of which must not exceed some limit. Pay attention to
+    another way of conditional validation demonstrated (using unless condition instead of when).
+
+    @example
+        @title=Example: Entity-wide validation
+        @show=yes
+    !   public class TestEntity4
+    !   {
+    !       ................
+    !       public int Value1 { get; set; }
+    !       public int Value2 { get; set; }
+    !       public bool IgnoreTotalLimit { get; set; }
+    !
+    !   }
+    !
+    !   public class TestEntity4Validator : AbstractValidator<TestEntity4>
+    !   {
+    !       public TestEntity4Validator()
+    !       {
+    !           ................
+    !           RuleForEntity("Total").Must(e => e.Value1 + e.Value2 < 5)
+    !                                 .WithMessage("The total of value 1 and value 2 must be less than 5")
+    !                                 .UnlessEntity(e => e.IgnoreTotalLimit);
+    !       }
+    !
+    !   }
+    @end
+
+    [b]Cascade validation[/b]
+
+    When the validated target is an object of a class which has its own validator, it is possible to validate the value(s)
+    using that validator. Simply use [clink=Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV.ValidateUsing.1]ValidateUsing()[/clink]
+    predicate in the rule definition.
+
+    In case the other validator is defined via attributes, you still can use it, just specify [c]AbstractValidator<[i]EntityType[/i]>[/c],
+    it will behave exactly the same way as [c]BaseValidator(typeof([i]EntityType[/i]))[/c].
+@end
+
+@article
+    @title=Message resolving
+    @key=validationarticle5
+    @ingroup=validation
+    @brief=
+
+    The message resolving is it the tool that let the developer to
+    @list
+        @list-item
+            use various localization libraries or resource files to store the message.
+        @end
+        @list-item
+            use the generic message code and put property name into the message on the fly.
+        @end
+    @end
+
+    When no message resolving is configured, the messages passed to the rules and/or attributes are used "as is".
+
+    The developer can provide his/her own implementation of the [clink=Gehtsoft.Validator.IValidationMessageResolver]IValidationMessageResolver[/clink]
+    interface and so construct the messages on the fly.
+
+    The custom must be set for every type separately using [clink=Gehtsoft.Validator.ValidationMessageResolverFactory]ValidationMessageResolverFactory[/clink] class.
+
+    Every time when the message is added to validator, the resolver is called. The resolver gets:
+
+    @list
+        @list-item
+            The entity type.
+        @end
+        @list-item
+            The [link=Gehtsoft.Validator.ValidationTarget]validation target[/link] to get the entity type, C# name, type and any custom attributes of the target (in
+            case the target is a class or
+        @end
+        @list-item
+            The original message.
+        @end
+    @end
+
+    The example below resolves the message via a localization interface and puts a name of the target if it is defined via special attribute.
+
+    @example
+        @title=Example: Entity-wide validation
+        @show=yes
+       !public class TargetNameAttribute : Attribute
+       !{
+       !    public string DisplayName { get; set; }
+       !
+       !}
+       !
+       !public interface ILocalizationSource
+       !{
+       !    string Exists(string id);
+       !    string GetString(string id);
+       !}
+       !
+       !// Message resolver implementation,
+       !// so the localization resource ids can be used in place of the
+       !// message in the validation classes and attributes.
+       !public class ValidationMessageResolver : IValidationMessageResolver
+       !{
+       !    private ILocalizationSource mLocalizationSource;
+       !
+       !    public string Resolve(Type entity, ValidationTarget target, int code, string message)
+       !    {
+       !        string localizedMessage;
+       !
+       !        //resolve the message via localization
+       !        //or use raw message if it is not defined in the localization
+       !        if (mLocalizationSource.Exists(message))
+       !            localizedMessage = mLocalizationSource.GetString(message);
+       !        else
+       !            localizedMessage = message;
+       !
+       !        //if the message requires the name
+       !        //resolve it...
+       !        if (message.Contains("{name}"))
+       !        {
+       !            //using the attribute (if defined)
+       !            //or a C# target name
+       !            string localizedName;
+       !            if (target.GetCustomAttribute<TargetNameAttribute>() != null)
+       !                localizedName = target.GetCustomAttribute<TargetNameAttribute>().DisplayName;
+       !            else
+       !                localizedName = target.TargetName;
+       !
+       !            //try to resolve name via localization
+       !            if (mLocalizationSource.Exists(localizedName))
+       !                localizedName = mLocalizationSource.GetString(localizedName);
+       !
+       !            //and compose the name into the message
+       !            localizedMessage = localizedMessage.Replace("{name}", localizedName);
+       !        }
+       !
+       !        return localizedMessage;
+       !    }
+       !}
+    @end
+@end
+
+@article
+    @title=Entity validation
+    @key=validationarticle6
+    @ingroup=validation
+    @brief=
+
+    When an [eurl=http://asp.gehtsoftusa.com/doc/ef/]EF[/eurl] entity needs to be validated, the developer can use
+    [clink=Gehtsoft.EF.Validator.EfEntityValidator_T]EfEntityValidator[/clink] class.
+
+    There are three possible mode how the validator can work:
+
+    @list
+        @list-item
+            If there are no SQL language specifics and SQL connection factory is set, the validator will check only:
+            @list
+                @list-item
+                    Whether non-nullable properties aren't null.
+                @end
+                @list-item
+                    Whether numeric properties aren't out of range of the associated database type.
+                @end
+                @list-item
+                    Whether string properties aren't longer than the associated database property.
+                @end
+                @list-item
+                    Whether the enumerations assigned to the property has correct value.
+                @end
+                @list-item
+                    Any attribute-based validation additionally set to the entity.
+                @end
+            @end
+
+        @end
+        @list-item
+            If there are SQL language specifics set, the validator will additionally check whether data and timestamp properties are within the
+            date range supported by the currently used database.
+        @end
+        @list-item
+            If there are SQL connection factory set, the validator will additionally check whether:
+            @list
+                @list-item
+                    The unique properties are unique.
+                @end
+                @list-item
+                    The referenced foreign key values exists.
+                @end
+            @end
+
+        @end
+    @end
+
+    Note that the default validation rules do not define any messages, only error codes!
+
+    The developer can extend the validation deriving his/her validator class from [clink=Gehtsoft.EF.Validator.EfEntityValidator_T]EfEntityValidator[/clink]
+    and adding rules in the constructor in the same way as for a regular rule-based validator.
+
+    @example
+        @title=Example: Entity validation
+       ![Entity(Table = "dict")]
+       !public class MyDict
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Size = 256, Unique = true)]
+       !    public string StringValue { get; set; }
+       !}
+       !
+       !private SqlDbConnectionFactory mFactory;
+       !private string mConnectionString;
+       !
+       !public void MyMethod(MyDict entity)
+       !{
+       !    using (SqlDbConnection connection = mFactory.Invoke(mConnectionString))
+       !    {
+       !        EfEntityValidator<MyDict> validator = new EfEntityValidator<MyDict>(connection.GetLanguageSpecifics(), new ValidatorSingletonConnectionFactory(connection));
+       !
+       !        ValidationResult result = validator.Validate(entity);
+       !        if (!result.IsValid)
+       !        {
+       !            if (result.Failures.Contains(nameof(MyDict.StringValue), (int) EfValidationErrorCode.ValueIsNotUnique))
+       !                throw new ArgumentException("The dictionary value is not unique");
+       !            throw new ArgumentException("Other dictionary error");
+       !        }
+       !
+       !        using (ModifyEntityQuery query = connection.GetInsertEntityQuery<MyDict>())
+       !            query.Execute(entity);
+       !    }
+       !}
+    @end
+@end
+
+@article
+    @title=Mapper model validation
+    @key=validationarticle7
+    @ingroup=validation
+    @brief=
+
+    There are three options on how a model associated with a EF entity via map can be validated:
+
+    @list
+        @list-item
+            Using automatic rule creation.
+        @end
+        @list-item
+            Using attributes.
+        @end
+        @list-item
+            By explicit rule definition.
+        @end
+    @end
+
+    @example
+        @title=Entity and Model used in examples below
+        @show=yes
+       ![Entity(Table = "dictionary")]
+       !public class Dictionary
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Unique = true, Size = 64, Sorted = true, Nullable = false)]
+       !    public string Name { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true, Nullable = true)]
+       !    public Dictionary Parent { get; set; }
+       !
+       !    public Dictionary()
+       !    {
+       !
+       !    }
+       !
+       !    public Dictionary(int id)
+       !    {
+       !        ID = id;
+       !    }
+       !}
+       !
+       ![MapEntity(EntityType = typeof(Dictionary))]
+       !public class DictionaryModel
+       !{
+       !    [MapProperty]
+       !    public int? ID { get; set; }
+       !
+       !    [MapProperty]
+       !    public string Name { get; set; }
+       !
+       !    [MapProperty(MapType = MapType.PrimaryKey)]
+       !    public int? Parent { get; set; }
+       !}
+    @end
+
+    [b]Automatic rule creation[/b]
+
+    To create rules automatically using the map associated with the model type use
+    [clink=Gehtsoft.EF.Mapper.Validator.EfModelValidator_T.ValidateModel.0]ValidateModel()[/clink]
+    method.
+
+    @example
+        @title=A simple automatic model validator
+        @show=yes
+       !public class DictionaryModelValidator : EfModelValidator<DictionaryModel>
+       !{
+       !    public DictionaryModelValidator(SqlDbLanguageSpecifics specifics, IValidatorConnectionFactory connection) : base(specifics, connection)
+       !    {
+       !        ValidateModel();
+       !    }
+       !}
+    @end
+
+    The rules created by the example above won't have any messages set. Only the property name and the code will be reported.
+
+    If you want validator to have messages implement a [clink=Gehtsoft.EF.Validator.IEfValidatorMessageProvider]IEfValidatorMessageProvider[/clink] and
+    pass an instance of an object implementing this interface to [c]ValidateModel()[/c] method.
+
+    @example
+        @title=An validator with message provider
+        @show=yes
+       !public class MessageProvider : IEfValidatorMessageProvider
+       !{
+       !    public string GetMessage(EntityDescriptor entityDescriptor, TableDescriptor.ColumnInfo column, int validationErrorCode)
+       !    {
+       !        if (column.PrimaryKey && validationErrorCode == (int) EfValidationErrorCode.NullValue)
+       !            return "Internal error: Object identity isn't set";
+       !        switch (validationErrorCode)
+       !        {
+       !            case (int)EfValidationErrorCode.NullValue:
+       !                return "The value is required";
+       !            case (int)EfValidationErrorCode.StringIsTooLong:
+       !                return "The value is too long to be stored in DB";
+       !            case (int)EfValidationErrorCode.DateIsOutRange:
+       !                return "The date is out of the allowed range";
+       !            case (int)EfValidationErrorCode.NumberIsOutOfRange:
+       !                return "The number is out of the allowed range";
+       !            case (int)EfValidationErrorCode.ValueIsNotUnique:
+       !                return "The value already exists";
+       !            case (int)EfValidationErrorCode.ReferenceDoesNotExists:
+       !                return $"{ObjectName(entityDescriptor)} referenced does not exists in database";
+       !        }
+       !        return null;
+       !    }
+       !
+       !    private string ObjectName(EntityDescriptor entityDescriptor)
+       !    {
+       !        if (entityDescriptor.EntityType == typeof(Dictionary))
+       !            return "The parent";
+       !
+       !        return "The object";
+       !    }
+       !}
+       !
+       !public class DictionaryModelValidator : EfModelValidator<DictionaryModel>
+       !{
+       !    public DictionaryModelValidator(SqlDbLanguageSpecifics specifics, IValidatorConnectionFactory connection) : base(specifics, connection)
+       !    {
+       !        ValidateModel(new MessageProvider());
+       !    }
+       !}
+    @end
+
+    [b]Using attributes[/b]
+
+    You can also put attributes to the model properties in order to define model validation. This method allows you
+    to set messages as well as to provide more detailed validation. Pay attention that the example below uses non-empty instead of
+    non-null valdation.
+
+    @example
+        @title=An attribute-based validator
+        @show=yes
+       ![MapEntity(EntityType = typeof(Dictionary))]
+       !public class DictionaryModel
+       !{
+       !    [MustBeNotNull(WithMessage = "Internal error: Object identity isn't set")]
+       !    [MapProperty]
+       !    public int? ID { get; set; }
+       !
+       !    [MustBeNotEmpty(WithMessage = "The name must be set")]
+       !    [MustBeUnique(WithMessage = "The name must unique")]
+       !    [MustBeShorterThan(WithMessage = "The name is too long")]
+       !    [MapProperty]
+       !    public string Name { get; set; }
+       !
+       !    [MustExist(WithMessage = "The parent dictionary item does not exist in the dictionary")]
+       !    [MapProperty(MapType = MapType.PrimaryKey)]
+       !    public int? Parent { get; set; }
+       !}
+       !
+       !
+       !public class DictionaryModelValidator : EfModelValidator<DictionaryModel>
+       !{
+       !    public DictionaryModelValidator(SqlDbLanguageSpecifics specifics, IValidatorConnectionFactory connection) : base(specifics, connection)
+       !    {
+       !    }
+       !}
+    @end
+
+    [b]Using Rules[/b]
+
+    To get even more flexibility, use rule-based validation using [clink=Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension]RuleBuilderExtension[/clink]
+    methods.
+
+    @example
+        @title=A rule-based validator
+        @show=yes
+       !public class DictionaryModelValidator : EfModelValidator<DictionaryModel>
+       !{
+       !    public DictionaryModelValidator(SqlDbLanguageSpecifics specifics, IValidatorConnectionFactory connection) : base(specifics, connection)
+       !    {
+       !        RuleFor(m => m.ID).NotNull().WithMessage("Internal error: Object identity isn't set");
+       !        RuleFor(m => m.Name).NotNullOrEmpty().WithMessage("The name must be set");
+       !        RuleFor(m => m.Name).MustHaveValidDbSize().WithMessage("The name is too long to be stored in the DB");
+       !        RuleFor(m => m.Name).MustBeUnqiue().WithMessage("The name must be unique").WhenNotNull();
+       !        RuleFor(m => m.Parent).MustExists().WithMessage("The parent dictionary item does not exist in the dictionary").WhenNotNull();
+       !    }
+       !}
+    @end
+
+
+
+
+@end
+

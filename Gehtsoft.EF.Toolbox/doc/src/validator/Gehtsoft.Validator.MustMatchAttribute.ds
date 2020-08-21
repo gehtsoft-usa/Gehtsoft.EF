@@ -1,0 +1,74 @@
+@class
+    @name=MustMatchAttribute
+    @key=Gehtsoft.Validator.MustMatchAttribute
+    @brief=The attribute adds a string must match a regular expression rule.
+    @type=class
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.MustMatchAttribute
+    @parent=[clink=Gehtsoft.Validator.ValidatorAttributeBase]ValidatorAttributeBase[/clink]
+    @parent=System.Attribute
+    @member
+        @name=MustMatchAttribute
+        @sig=M:Gehtsoft.Validator.MustMatchAttribute.#ctor
+        @key=MustMatchAttribute.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=MustMatchAttribute
+        @end
+
+    @end
+
+    @member
+        @name=MustMatchAttribute
+        @sig=M:Gehtsoft.Validator.MustMatchAttribute.#ctor(System.String)
+        @key=MustMatchAttribute.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=MustMatchAttribute
+            @params=string pattern
+        @end
+
+        @param
+            @name=pattern
+
+        @end
+
+    @end
+
+    @member
+        @name=Pattern
+        @sig=P:Gehtsoft.Validator.MustMatchAttribute.Pattern
+        @key=Pattern.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Pattern
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end

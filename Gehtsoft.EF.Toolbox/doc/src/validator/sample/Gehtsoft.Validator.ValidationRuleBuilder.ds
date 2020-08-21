@@ -1,0 +1,685 @@
+
+@class
+    
+    @name=ValidationRuleBuilder
+    @key=Gehtsoft.Validator.ValidationRuleBuilder
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.ValidationRuleBuilder
+    @member
+        @name=ValidationRuleBuilder
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.#ctor(Gehtsoft.Validator.BaseValidator,Gehtsoft.Validator.ValidationRule)
+        @key=ValidationRuleBuilder.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=constructor
+            
+        @declaration
+            @language=cs
+            @name=ValidationRuleBuilder
+            @params=[clink=Gehtsoft.Validator.BaseValidator]BaseValidator[/clink] validator, [clink=Gehtsoft.Validator.ValidationRule]ValidationRule[/clink] validationRule
+        @end
+    
+        @param
+            @name=validator
+
+        @end
+        
+        @param
+            @name=validationRule
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Must
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.Must(Gehtsoft.Validator.IValidationPredicate)
+        @key=Must.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Must
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=[clink=Gehtsoft.Validator.IValidationPredicate]IValidationPredicate[/clink] predicate
+        @end
+    
+        @param
+            @name=predicate
+
+        @end
+        
+    @end
+    
+    @member
+        @name=WhenValue
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.WhenValue(Gehtsoft.Validator.IValidationPredicate)
+        @key=WhenValue.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=WhenValue
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=[clink=Gehtsoft.Validator.IValidationPredicate]IValidationPredicate[/clink] predicate
+        @end
+    
+        @param
+            @name=predicate
+
+        @end
+        
+    @end
+    
+    @member
+        @name=UnlessValue
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.UnlessValue(Gehtsoft.Validator.IValidationPredicate)
+        @key=UnlessValue.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=UnlessValue
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=[clink=Gehtsoft.Validator.IValidationPredicate]IValidationPredicate[/clink] predicate
+        @end
+    
+        @param
+            @name=predicate
+
+        @end
+        
+    @end
+    
+    @member
+        @name=WhenEntity
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.WhenEntity(Gehtsoft.Validator.IValidationPredicate)
+        @key=WhenEntity.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=WhenEntity
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=[clink=Gehtsoft.Validator.IValidationPredicate]IValidationPredicate[/clink] predicate
+        @end
+    
+        @param
+            @name=predicate
+
+        @end
+        
+    @end
+    
+    @member
+        @name=UnlessEntity
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.UnlessEntity(Gehtsoft.Validator.IValidationPredicate)
+        @key=UnlessEntity.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=UnlessEntity
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=[clink=Gehtsoft.Validator.IValidationPredicate]IValidationPredicate[/clink] predicate
+        @end
+    
+        @param
+            @name=predicate
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Null
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.Null
+        @key=Null.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Null
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=NotNull
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.NotNull
+        @key=NotNull.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotNull
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=NotNullOrEmpty
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.NotNullOrEmpty
+        @key=NotNullOrEmpty.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotNullOrEmpty
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=NotNullOrWhitespace
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.NotNullOrWhitespace
+        @key=NotNullOrWhitespace.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotNullOrWhitespace
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=ShorterThan
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.ShorterThan(System.Int32)
+        @key=ShorterThan.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ShorterThan
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=int length
+        @end
+    
+        @param
+            @name=length
+
+        @end
+        
+    @end
+    
+    @member
+        @name=DoesMatch
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.DoesMatch(System.String,System.Nullable{System.Text.RegularExpressions.RegexOptions},System.Nullable{System.TimeSpan})
+        @key=DoesMatch.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=DoesMatch
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=string pattern, System.Nullable<System.Text.RegularExpressions.RegexOptions> options, System.Nullable<System.TimeSpan> timeout
+        @end
+    
+        @param
+            @name=pattern
+
+        @end
+        
+        @param
+            @name=options
+
+        @end
+        
+        @param
+            @name=timeout
+
+        @end
+        
+    @end
+    
+    @member
+        @name=DoesNotMatch
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.DoesNotMatch(System.String,System.Nullable{System.Text.RegularExpressions.RegexOptions},System.Nullable{System.TimeSpan})
+        @key=DoesNotMatch.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=DoesNotMatch
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=string pattern, System.Nullable<System.Text.RegularExpressions.RegexOptions> options, System.Nullable<System.TimeSpan> timeout
+        @end
+    
+        @param
+            @name=pattern
+
+        @end
+        
+        @param
+            @name=options
+
+        @end
+        
+        @param
+            @name=timeout
+
+        @end
+        
+    @end
+    
+    @member
+        @name=EnumIsCorrect
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.EnumIsCorrect
+        @key=EnumIsCorrect.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=EnumIsCorrect
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=EnumIsCorrect
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.EnumIsCorrect(System.Type)
+        @key=EnumIsCorrect.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=EnumIsCorrect
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=System.Type enumType
+        @end
+    
+        @param
+            @name=enumType
+
+        @end
+        
+    @end
+    
+    @member
+        @name=WithCode
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.WithCode(System.Int32)
+        @key=WithCode.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=WithCode
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=int code
+        @end
+    
+        @param
+            @name=code
+
+        @end
+        
+    @end
+    
+    @member
+        @name=ServerOnly
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.ServerOnly
+        @key=ServerOnly.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ServerOnly
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=WithMessage
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.WithMessage(System.String)
+        @key=WithMessage.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=WithMessage
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=string message
+        @end
+    
+        @param
+            @name=message
+
+        @end
+        
+    @end
+    
+    @member
+        @name=ValidateUsing
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.ValidateUsing(System.Type)
+        @key=ValidateUsing.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ValidateUsing
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=System.Type validatorType
+        @end
+    
+        @param
+            @name=validatorType
+
+        @end
+        
+    @end
+    
+    @member
+        @name=ValidateUsing
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.ValidateUsing(System.Type,System.Object[])
+        @key=ValidateUsing.2
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ValidateUsing
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=System.Type validatorType, object[] args
+        @end
+    
+        @param
+            @name=validatorType
+
+        @end
+        
+        @param
+            @name=args
+
+        @end
+        
+    @end
+    
+    @member
+        @name=ValidateUsing
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.ValidateUsing(Gehtsoft.Validator.IBaseValidator)
+        @key=ValidateUsing.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ValidateUsing
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=[clink=Gehtsoft.Validator.IBaseValidator]IBaseValidator[/clink] validator
+        @end
+    
+        @param
+            @name=validator
+
+        @end
+        
+    @end
+    
+    @member
+        @name=WhenNotNull
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.WhenNotNull
+        @key=WhenNotNull.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=WhenNotNull
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=EmailAddress
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.EmailAddress
+        @key=EmailAddress.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=EmailAddress
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=NotSQLInjection
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.NotSQLInjection
+        @key=NotSQLInjection.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotSQLInjection
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=NotHTML
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.NotHTML
+        @key=NotHTML.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=NotHTML
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=PhoneNumber
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.PhoneNumber
+        @key=PhoneNumber.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=PhoneNumber
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=CreditCardNumber
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.CreditCardNumber
+        @key=CreditCardNumber.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=CreditCardNumber
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=Rule
+        @sig=P:Gehtsoft.Validator.ValidationRuleBuilder.Rule
+        @key=Rule.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Rule
+            @return=[clink=Gehtsoft.Validator.ValidationRule]ValidationRule[/clink]
+            @suffix= get; set;
+        @end
+    
+    @end
+    
+    @member
+        @name=Validator
+        @sig=P:Gehtsoft.Validator.ValidationRuleBuilder.Validator
+        @key=Validator.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Validator
+            @return=[clink=Gehtsoft.Validator.BaseValidator]BaseValidator[/clink]
+            @suffix= get; set;
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end
+    

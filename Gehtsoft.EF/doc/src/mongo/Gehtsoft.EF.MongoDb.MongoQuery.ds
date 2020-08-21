@@ -1,0 +1,73 @@
+@class
+    @name=MongoQuery
+    @key=Gehtsoft.EF.MongoDb.MongoQuery
+    @brief=The base class for all MongoDB queries.
+    @type=class
+    @ingroup=Gehtsoft.EF.MongoDb
+    @sig=T:Gehtsoft.EF.MongoDb.MongoQuery
+    @parent=System.IDisposable
+
+    Note: The object is derived from [c]IDisposable[/c] interfaces in order to be compatible with SQL entity queries, however
+    MongoDB does not require the objects to be disposed.
+
+    @member
+        @name=Collection
+        @sig=P:Gehtsoft.EF.MongoDb.MongoQuery.Collection
+        @key=Collection.0
+        @divisor=.
+        @brief=MongoDB collection associated with the query entity.
+        @scope=instance
+        @visibility=public
+        @type=property
+        @declaration
+            @language=cs
+            @name=Collection
+            @return=IMongoCollection<BsonDocument>
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=Connection
+        @sig=P:Gehtsoft.EF.MongoDb.MongoQuery.Connection
+        @key=Connection.0
+        @divisor=.
+        @brief=The MongoDB connection associated with the query.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Connection
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoConnection]MongoConnection[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=EntityType
+        @sig=P:Gehtsoft.EF.MongoDb.MongoQuery.EntityType
+        @key=EntityType.0
+        @divisor=.
+        @brief=Datatype of the entity associated with the query.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=EntityType
+            @return=Type
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.MongoDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.MongoDb]Gehtsoft.EF.MongoDb[/clink].
+@end

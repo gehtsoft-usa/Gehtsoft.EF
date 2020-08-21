@@ -1,0 +1,42 @@
+@class
+   
+    @name=IContextOrder
+    @key=Gehtsoft.EF.Entities.Context.IContextOrder
+    @brief=The order specification for a select query.
+    @type=interface
+    @ingroup=Gehtsoft.EF.Entities.Context
+    @sig=T:Gehtsoft.EF.Entities.Context.IContextOrder
+    @member
+        @name=Add
+        @sig=M:Gehtsoft.EF.Entities.Context.IContextOrder.Add(System.String,Gehtsoft.EF.Entities.SortDir)
+        @key=Add.0
+        @divisor=.
+        @brief=Adds another field into a sort order.
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Add
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextOrder]IContextOrder[/clink]
+            @params=string name, [clink=Gehtsoft.EF.Entities.SortDir]Gehtsoft.EF.Entities.SortDir[/clink] sortDir
+        @end
+    
+        @param
+            @name=name
+
+        @end
+        
+        @param
+            @name=sortDir
+
+        @end
+        
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities.Context]Gehtsoft.EF.Entities.Context[/clink].
+@end
+    

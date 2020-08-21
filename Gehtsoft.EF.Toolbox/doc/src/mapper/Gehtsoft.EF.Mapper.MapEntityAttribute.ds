@@ -1,0 +1,61 @@
+@class
+    @name=MapEntityAttribute
+    @key=Gehtsoft.EF.Mapper.MapEntityAttribute
+    @brief=The attribute that marks a class as a model for an EF entity.
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.MapEntityAttribute
+    @parent=System.Attribute
+
+    @member
+        @name=MapEntityAttribute
+        @sig=M:Gehtsoft.EF.Mapper.MapEntityAttribute.#ctor(System.Type)
+        @key=MapEntityAttribute.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=MapEntityAttribute
+        @end
+
+        @declaration
+            @language=cs
+            @name=MapEntityAttribute
+            @params=System.Type entityType
+        @end
+
+        @param
+            @name=entityType
+
+        @end
+
+    @end
+
+    @member
+        @name=EntityType
+        @sig=P:Gehtsoft.EF.Mapper.MapEntityAttribute.EntityType
+        @key=EntityType.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=EntityType
+            @return=System.Type
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end

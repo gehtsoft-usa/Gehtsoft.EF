@@ -1,0 +1,13 @@
+@class
+
+    @name=DeleteEntityQuery
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.DeleteEntityQuery
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.DeleteEntityQuery
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ModifyEntityQuery]ModifyEntityQuery[/clink]
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

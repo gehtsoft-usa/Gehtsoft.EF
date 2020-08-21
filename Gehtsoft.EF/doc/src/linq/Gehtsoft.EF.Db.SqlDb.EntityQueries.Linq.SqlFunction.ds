@@ -1,0 +1,611 @@
+@class
+    @name=SqlFunction
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction
+    @brief=The functions which can be used on entity properties in LINQ expressions and queries.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction
+
+    @member
+        @name=ToString
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.ToString(System.Object)
+        @key=ToString.0
+        @divisor=.
+        @brief=Converts the value into string.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToString
+            @return=string
+            @params=object value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+        The method may do nothing or do not provide precise conversion of the database does not support specified type or operation.
+
+    @end
+
+    @member
+        @name=ToDate
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.ToDate(System.Object)
+        @key=ToDate.0
+        @divisor=.
+        @brief=Converts the value into date.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToDate
+            @return=DateTime
+            @params=object value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+        The method may do nothing or do not provide precise conversion of the database does not support specified type or operation.
+    @end
+
+    @member
+        @name=ToTimestamp
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.ToTimestamp(System.Object)
+        @key=ToTimestamp.0
+        @divisor=.
+        @brief=Converts the value into timestamp.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToTimestamp
+            @return=DateTime
+            @params=object value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+        The method may do nothing or do not provide precise conversion of the database does not support specified type or operation.
+    @end
+
+    @member
+        @name=ToInteger
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.ToInteger(System.Object)
+        @key=ToInteger.0
+        @divisor=.
+        @brief=Converts the value into integer.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToInteger
+            @return=int
+            @params=object value
+        @end
+
+        @param
+            @name=value
+
+        @end
+        The method may do nothing or do not provide precise conversion of the database does not support specified type or operation.
+    @end
+
+    @member
+        @name=ToDouble
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.ToDouble(System.Object)
+        @key=ToDouble.0
+        @divisor=.
+        @brief=Converts the value into double.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToDouble
+            @return=double
+            @params=object value
+        @end
+
+        @param
+            @name=value
+
+        @end
+        The method may do nothing or do not provide precise conversion of the database does not support specified type or operation.
+    @end
+
+    @member
+        @name=Like
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Like(System.Object,System.String)
+        @key=Like.0
+        @divisor=.
+        @brief=Matches whether value specified matches the like mask.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Like
+            @return=bool
+            @params=object value, string mask
+        @end
+
+        @param
+            @name=value
+            The value to match.
+        @end
+
+        @param
+            @name=mask
+            The like mask. %, _, ? and * patterns are support.
+        @end
+
+    @end
+
+    @member
+        @name=Sum
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Sum``1(``0)
+        @key=Sum.0
+        @divisor=.
+        @brief=Calculates sum of the value specified.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Sum<T>
+            @return=T
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+        The methods adds the SQL aggregate function.
+        The method cannot be applied on local data.
+    @end
+
+    @member
+        @name=Avg
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Avg``1(``0)
+        @key=Avg.0
+        @divisor=.
+        @brief=Calculates average of the value specified.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Avg<T>
+            @return=T
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+        The methods adds the SQL aggregate function.
+        The method cannot be applied on local data.
+
+    @end
+
+    @member
+        @name=Min
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Min``1(``0)
+        @key=Min.0
+        @divisor=.
+        @brief=Calculates minimum of the value specified.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Min<T>
+            @return=T
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+        The methods adds the SQL aggregate function.
+        The method cannot be applied on local data.
+
+    @end
+
+    @member
+        @name=Max
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Max``1(``0)
+        @key=Max.0
+        @divisor=.
+        @brief=Calculates maximum of the value specified.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Max<T>
+            @return=T
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+        The methods adds the SQL aggregate function.
+        The method cannot be applied on local data.
+
+    @end
+
+    @member
+        @name=Count
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Count
+        @key=Count.0
+        @divisor=.
+        @brief=Counts number of the records.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Count
+            @return=int
+        @end
+        The methods adds the SQL aggregate function.
+        The method cannot be applied on local data.
+
+    @end
+
+    @member
+        @name=Abs
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Abs(System.Int32)
+        @key=Abs.1
+        @divisor=.
+        @brief=Returns the absolute value of the argument.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Abs
+            @return=int
+            @params=int value
+        @end
+
+        @declaration
+            @language=cs
+            @name=Abs
+            @return=double
+            @params=double value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=Trim
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Trim(System.String)
+        @key=Trim.0
+        @divisor=.
+        @brief=Trims spaces from both sides of the text.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Trim
+            @return=string
+            @params=string value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=TrimLeft
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.TrimLeft(System.String)
+        @key=TrimLeft.0
+        @divisor=.
+        @brief=Trims spaces from the left side of the text.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=TrimLeft
+            @return=string
+            @params=string value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=TrimRight
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.TrimRight(System.String)
+        @key=TrimRight.0
+        @divisor=.
+        @brief=Trims spaces from the right side of the text.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=TrimRight
+            @return=string
+            @params=string value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=Upper
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Upper(System.String)
+        @key=Upper.0
+        @divisor=.
+        @brief=Converts the text into upper case.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Upper
+            @return=string
+            @params=string value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=Concat
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Concat(System.String)
+        @key=Concat.0
+        @divisor=.
+        @brief=Concatenates strings
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Upper
+            @return=string
+            @params=string value1, string value2, string value3 = null, string value4 = null
+        @end
+
+    @end
+
+    @member
+        @name=Lower
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Lower(System.String)
+        @key=Lower.0
+        @divisor=.
+        @brief=Converts the text into lower case.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Lower
+            @return=string
+            @params=string value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=In
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.In(System.Object,Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase)
+        @key=In.0
+        @divisor=.
+        @brief=Returns true if the value specifies is inside the query results.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=In
+            @return=bool
+            @params=object value, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+        @param
+            @name=query
+
+        @end
+        The method cannot be applied on local data.
+    @end
+
+    @member
+        @name=NotIn
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.NotIn(System.Object,Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase)
+        @key=NotIn.0
+        @divisor=.
+        @brief=Returns true if the value specifies is not inside the query results.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=NotIn
+            @return=bool
+            @params=object value, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+        @param
+            @name=query
+
+        @end
+        The method cannot be applied on local data.
+    @end
+
+    @member
+        @name=Exists
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Exists(Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase)
+        @key=Exists.0
+        @divisor=.
+        @brief=Returns true if the query has non empty results.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Exists
+            @return=bool
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query
+        @end
+
+        @param
+            @name=query
+
+        @end
+        The method cannot be applied on local data.
+    @end
+
+    @member
+        @name=NotExists
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.NotExists(Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase)
+        @key=NotExists.0
+        @divisor=.
+        @brief=Returns true if the query has empty result.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=NotExists
+            @return=bool
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] query
+        @end
+
+        @param
+            @name=query
+
+        @end
+        The method cannot be applied on local data.
+    @end
+
+    @member
+        @name=Value
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.Value``1(Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.InQueryName)
+        @key=Value.0
+        @divisor=.
+        @brief=The function allow use of subquery property reference in LINQ expressions.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Value<T>
+            @return=T
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.InQueryName]EntityQueryBase.InQueryName[/clink] inQueryName
+        @end
+
+        @param
+            @name=inQueryName
+            The in-query value reference obtained using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.GetReference.0]GetReference[/clink] method.
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq]Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq[/clink].
+@end

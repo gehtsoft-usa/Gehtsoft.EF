@@ -1,0 +1,84 @@
+@class
+
+    @name=QueryWithWhereBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder
+    @brief=The base class for all queries which has WHERE condition.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink]
+
+    @member
+        @name=GetAlias
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder.GetAlias(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo,Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity)
+        @key=GetAlias.0
+        @divisor=.
+        @brief=Returns the alias of the column inside the query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetAlias
+            @return=string
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink] info, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] entity = null
+        @end
+
+        @param
+            @name=columnInfo
+            The column.
+        @end
+
+        @param
+            @name=entity
+            The query entity corresponding to the table to which the column belongs to.
+            If the entity is not specified, the alias of the first occurrence of the table is returned.
+        @end
+    @end
+
+    @member
+        @name=IsWhereEmpty
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder.IsWhereEmpty
+        @key=IsWhereEmpty.0
+        @divisor=.
+        @brief=Returns flag indicating whether the query has no conditions.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=IsWhereEmpty
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=Where
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder.Where
+        @key=Where.0
+        @divisor=.
+        @brief=The where condition of the query.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Where
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder]ConditionBuilder[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

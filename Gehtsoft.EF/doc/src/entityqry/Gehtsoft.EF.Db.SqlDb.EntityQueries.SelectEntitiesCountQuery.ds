@@ -1,0 +1,35 @@
+@class
+    @name=SelectEntitiesCountQuery
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesCountQuery
+    @brief=The query to count the number of the objects in the entity collection.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesCountQuery
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]
+
+    See [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]ConditionEntityQueryBase[/clink] for details on how
+    to specify condition to selection.
+
+    @member
+        @name=RowCount
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesCountQuery.RowCount
+        @key=RowCount.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=RowCount
+            @return=int
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

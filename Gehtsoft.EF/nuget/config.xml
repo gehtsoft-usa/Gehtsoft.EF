@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<nuget xmlns="http://www.gehtsoft.com/build/nuget">
+ <!-- versions. the FIRST version is the current -->
+ <versions>
+  <version id="1.3.1">- Refactor dependencies.</version>
+  <version id="1.2.11">- Introduce SQL Injection projection. Update dependencies.</version>
+  <version id="1.2.10">- Update dependencies, fix disposing of connection mutexes</version>
+  <version id="1.2.9">- Add IEntityContext interface. Add support calls that returns a scalar (e.g.) Count(), Sum() and so to LINQ queries</version>
+  <version id="1.2.8">Add resiliency policy support</version>
+  <version id="1.2.7.1">Add cancellation token to async methods, add netcore Oracle driver</version>
+  <version id="1.2.7">Add cancellation token to async methods, add netcore Oracle driver</version>
+  <version id="1.2.6.3">Add LockAsync()</version>
+  <version id="1.2.6.2">Change synchronization approach from SyncRoot to Lock method</version>
+  <version id="1.2.6.1">Add a update manager async version</version>
+  <version id="1.2.6">Further improve async implementation</version>
+  <version id="1.2.5">Improve async implementation, add reading blob as stream method</version>
+  <version id="1.2.4">Add SyncRoot to the connection class, update dependencies</version>
+  <version id="1.2.3">Async methods are introduced</version>
+  <version id="1.2.1.14">Mongo Only update</version>
+  <version id="1.2.1.13">Mongo Only update</version>
+  <version id="1.2.1.12">Update dependencies</version>
+  <version id="1.2.1.11">Add count(distinct) support, improve entity query builder syntax sugar, refactor Bson and Mongo</version>
+  <version id="1.2.1.10"></version>
+ </versions>
+ <properties>
+  <owner>Gehtsoft</owner>
+  <projectUrl>http://asp.gehtsoftusa.com/doc/ef/</projectUrl>
+  <licenseUrl>http://asp.gehtsoftusa.com/doc/privatelicense.html</licenseUrl>
+  <copyright>Gehtsoft USA LLC 2016-2019</copyright>
+ </properties>
+ <projects>
+   <project id="Gehtsoft.EF.Utils">
+    <description>Entity framework Utilities</description>
+   </project>
+   <project id="Gehtsoft.EF.Entities">
+    <description>Entity framework</description>
+   </project>
+   <project id="Gehtsoft.EF.Db.SqlDb">
+    <description>Common SQL-based implementation of entity framework.</description>
+   </project>
+   <project id="Gehtsoft.EF.Db.SqlDb.OData">
+    <description>OData supoirt for GS.EF entity framework.</description>
+   </project>
+   <project id="Gehtsoft.EF.Db.MssqlDb">
+    <description>Microsoft SQL Server implementation of entity framework</description>
+   </project>
+   <project id="Gehtsoft.EF.Db.MysqlDb">
+    <description>MySQL implementation of entity framework</description>
+   </project>
+   <project id="Gehtsoft.EF.Db.OracleDb">
+    <description>Oracle 11+ implementation of entity framework</description>
+   </project>
+   <project id="Gehtsoft.EF.Db.PostgresDb">
+    <description>Postgres implementation of entity framework</description>
+   </project>
+   <project id="Gehtsoft.EF.Db.SqliteDb">
+    <description>SQLite implementation of entity framework</description>
+   </project>
+   <project id="Gehtsoft.EF.FTS">
+    <description>Platfrom-indepdendent Full Text Search package</description>
+   </project>
+   <project id="Gehtsoft.EF.Bson" >
+    <description>Entity framework BSON serializer</description>
+   </project>
+   <project id="Gehtsoft.EF.MongoDb">
+    <description>Entity framework MongoDB driver</description>
+   </project>
+ </projects>
+</nuget>

@@ -1,0 +1,30 @@
+@group
+    @title=Namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
+    @ingroup=index
+    @brief=The namespace consists of classes to work with SQL entities using LINQ
+
+
+    This feature is allowing unique capabilities such as:
+
+    @list
+        @list-item
+            An ability to set expressions to resultset.
+        @end
+        @list-item
+            An ability to use calculate expressions in where conditions
+        @end
+        @list-item
+            An ability to use LINQ queries over the entities
+        @end
+    @end
+
+
+    NOTE:
+
+    It is important to know that LINQ queries are has worse performance comparing regular entity query due to specifics of
+    handling of C# [c]Expression[/c] classes and [c]IQueriable[/c] interfaces.
+
+    The common recommendation is to avoid using LINQ capabilities unless the unique features are required or when development time reduction is
+    critical and the application performance is not required at all.
+@end

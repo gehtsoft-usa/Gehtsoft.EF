@@ -1,0 +1,75 @@
+@class
+    @name=EntityFinder
+    @key=Gehtsoft.EF.Entities.EntityFinder
+    @brief=The class which can be used to gather information about the entities.
+    @type=class
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.EntityFinder
+
+    @member
+        @name=FindEntities
+        @sig=M:Gehtsoft.EF.Entities.EntityFinder.FindEntities(System.Collections.Generic.IEnumerable{System.Reflection.Assembly},System.String,System.Boolean)
+        @key=FindEntities.0
+        @divisor=.
+        @brief=Finds entities in the specified assembly list.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FindEntities
+            @return=[clink=Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo]EntityFinder.EntityTypeInfo[/clink][]
+            @params=System.Collections.Generic.IEnumerable<System.Reflection.Assembly> assemblies, string scope, bool includeObsolete
+        @end
+
+        @param
+            @name=assemblies
+            The list of the assemblies to find entities.
+        @end
+
+        @param
+            @name=scope
+            The name of the scope or [c]null[/c] to take all scopes
+        @end
+
+        @param
+            @name=includeObsolete
+            The flag indicating whether the obsolete entities must be also included.
+        @end
+
+    @end
+
+    @member
+        @name=ArrageEntities
+        @sig=M:Gehtsoft.EF.Entities.EntityFinder.ArrageEntities(Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo[])
+        @key=ArrageEntities.0
+        @divisor=.
+        @brief=Sorts entity by dependencies.
+        @scope=class
+        @visibility=public
+        @type=method
+
+        Sort all entities so entities that depends on other entities will be placed after the entities they depends on.
+
+        In other words you can safely create entities using the direct order and drop entities using the reverse order.
+
+        @declaration
+            @language=cs
+            @name=ArrageEntities
+            @return=void
+
+            @params=[clink=Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo]EntityFinder.EntityTypeInfo[/clink][] entities
+        @end
+
+        @param
+            @name=entities
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

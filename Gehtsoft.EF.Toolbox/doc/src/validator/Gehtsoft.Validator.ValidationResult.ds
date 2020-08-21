@@ -1,0 +1,53 @@
+@class
+    @name=ValidationResult
+    @key=Gehtsoft.Validator.ValidationResult
+    @brief=The validation result.
+    @type=class
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.ValidationResult
+
+    Use [clink=Gehtsoft.Validator.BaseValidator.Validate.0]BaseValidator.Validate()[/clink] method to get an instance of this object.
+
+    @member
+        @name=IsValid
+        @sig=P:Gehtsoft.Validator.ValidationResult.IsValid
+        @key=IsValid.0
+        @divisor=.
+        @brief=Returns the flag indicating whether the object is valid.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=IsValid
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=Failures
+        @sig=P:Gehtsoft.Validator.ValidationResult.Failures
+        @key=Failures.0
+        @divisor=.
+        @brief=Returns the list of validation failures.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Failures
+            @return=[clink=Gehtsoft.Validator.ValidationFailureCollection]ValidationFailureCollection[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end

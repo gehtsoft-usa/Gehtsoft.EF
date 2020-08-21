@@ -1,0 +1,30 @@
+@class
+    @name=ExpressionToJsStubAccessor
+    @key=Gehtsoft.ExpressionToJs.ExpressionToJsStubAccessor
+    @brief=The class that provides supporting JavaScript code for the code create by the expression compiler.
+    @type=class
+    @ingroup=Gehtsoft.ExpressionToJs
+    @sig=T:Gehtsoft.ExpressionToJs.ExpressionToJsStubAccessor
+
+    @member
+        @name=GetJsIncludesAsString
+        @sig=M:Gehtsoft.ExpressionToJs.ExpressionToJsStubAccessor.GetJsIncludesAsString
+        @key=GetJsIncludesAsString.0
+        @divisor=.
+        @brief=Returns the supporting JavaScript code.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetJsIncludesAsString
+            @return=string
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.ExpressionToJs.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.ExpressionToJs]Gehtsoft.ExpressionToJs[/clink].
+@end

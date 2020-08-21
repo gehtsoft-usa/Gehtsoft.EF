@@ -1,0 +1,108 @@
+@class
+    @name=EntityToBsonController
+    @key=Gehtsoft.EF.Bson.EntityToBsonController
+    @brief=The controller the converts an entity into a BSON document and BSON document to an entity.
+    @type=class
+    @ingroup=Gehtsoft.EF.Bson
+    @sig=T:Gehtsoft.EF.Bson.EntityToBsonController
+
+    @member
+        @name=ToDocument
+        @sig=M:Gehtsoft.EF.Bson.EntityToBsonController.ToDocument(System.Object)
+        @key=ToDocument.0
+        @divisor=.
+        @brief=Converts an entity of BSON document.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToDocument
+            @return=MongoDB.Bson.BsonDocument
+            @params=object entity
+        @end
+
+        @param
+            @name=entity
+
+        @end
+
+    @end
+
+    @member
+        @name=ToEntity
+        @sig=M:Gehtsoft.EF.Bson.EntityToBsonController.ToEntity(MongoDB.Bson.BsonDocument,System.Type)
+        @key=ToEntity.1
+        @divisor=.
+        @brief=Converts BSON document to an entity.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToEntity
+            @return=object
+            @params=BsonDocument document, System.Type type
+        @end
+
+        @declaration
+            @language=cs
+            @name=ToEntity<T>
+            @return=T
+            @params=BsonDocument document
+        @end
+
+        @param
+            @name=document
+            The document to be converted.
+        @end
+
+        @param
+            @name=type
+            The type of the entity.
+        @end
+
+        @param
+            @name=T
+            The type of the entity.
+        @end
+
+    @end
+
+    @member
+        @name=ToEntities
+        @sig=M:Gehtsoft.EF.Bson.EntityToBsonController.ToEntities``1(System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonDocument})
+        @key=ToEntities.0
+        @divisor=.
+        @brief=Converts an array of BSON documents to an entity collection.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToEntities<T>
+            @return=[clink=Gehtsoft.EF.Entities.EntityCollection_T]EntityCollection[/clink]<T>
+            @params=IEnumerable<BsonDocument> documents
+        @end
+
+        @param
+            @name=documents
+
+        @end
+
+        @param
+            @name=T
+            The type of the entity.
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Bson.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Bson]Gehtsoft.EF.Bson[/clink].
+@end

@@ -1,0 +1,316 @@
+@class
+    @name=EntityCollection(Of T)
+    @key=Gehtsoft.EF.Entities.EntityCollection_T
+    @brief=Collection of entities
+    @type=class
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.EntityCollection`1
+    @parent=System.Collections.Generic.IEnumerable<T>
+    @parent=System.Collections.IEnumerable
+
+    @member
+        @name=Find
+        @sig=M:Gehtsoft.EF.Entities.EntityCollection`1.Find(`0,System.Collections.Generic.IEqualityComparer{`0})
+        @key=Find.1
+        @divisor=.
+        @brief=Finds an entity in the collection using specified comparer.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Find
+            @return=int
+            @params=T entity, System.Collections.Generic.IEqualityComparer<T> comparer
+        @end
+
+        @param
+            @name=entity
+
+        @end
+
+        @param
+            @name=comparer
+
+        @end
+
+    @end
+
+    @member
+        @name=Find
+        @sig=M:Gehtsoft.EF.Entities.EntityCollection`1.Find(`0)
+        @key=Find.0
+        @divisor=.
+        @brief=Finds an entity in the collection using the default comparer.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Find
+            @return=int
+            @params=T entity
+        @end
+
+        @param
+            @name=entity
+
+        @end
+
+    @end
+
+    @member
+        @name=Contains
+        @sig=M:Gehtsoft.EF.Entities.EntityCollection`1.Contains(`0)
+        @key=Contains.0
+        @divisor=.
+        @brief=Checks whether collection consists of the the entity specified using default comparer.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Contains
+            @return=bool
+            @params=T entity
+        @end
+
+        @param
+            @name=entity
+
+        @end
+
+    @end
+
+    @member
+        @name=Contains
+        @sig=M:Gehtsoft.EF.Entities.EntityCollection`1.Contains(`0,System.Collections.Generic.IEqualityComparer{`0})
+        @key=Contains.1
+        @divisor=.
+        @brief=Checks whether collection consists of the the entity specified using the specified comparer.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Contains
+            @return=bool
+            @params=T entity, System.Collections.Generic.IEqualityComparer<T> comparer
+        @end
+
+        @param
+            @name=entity
+
+        @end
+
+        @param
+            @name=comparer
+
+        @end
+
+    @end
+
+    @member
+        @name=Add
+        @sig=M:Gehtsoft.EF.Entities.EntityCollection`1.Add(`0)
+        @key=Add.0
+        @divisor=.
+        @brief=Adds a new item into the collection.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Add
+            @return=void
+
+            @params=T entity
+        @end
+
+        @param
+            @name=entity
+
+        @end
+
+    @end
+
+    @member
+        @name=AddRange
+        @sig=M:Gehtsoft.EF.Entities.EntityCollection`1.AddRange(System.Collections.Generic.IEnumerable{`0})
+        @key=AddRange.0
+        @divisor=.
+        @brief=Add the range of the items into the collection.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddRange
+            @return=void
+
+            @params=System.Collections.Generic.IEnumerable<T> entities
+        @end
+
+        @param
+            @name=entities
+
+        @end
+
+    @end
+
+    @member
+        @name=Insert
+        @sig=M:Gehtsoft.EF.Entities.EntityCollection`1.Insert(System.Int32,`0)
+        @key=Insert.0
+        @divisor=.
+        @brief=Inserts and item at the specified position.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Insert
+            @return=void
+
+            @params=int index, T entity
+        @end
+
+        @param
+            @name=index
+
+        @end
+
+        @param
+            @name=entity
+
+        @end
+
+    @end
+
+    @member
+        @name=RemoveAt
+        @sig=M:Gehtsoft.EF.Entities.EntityCollection`1.RemoveAt(System.Int32)
+        @key=RemoveAt.0
+        @divisor=.
+        @brief=Removes the item at the specified position.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=RemoveAt
+            @return=void
+
+            @params=int index
+        @end
+
+        @param
+            @name=index
+
+        @end
+
+    @end
+
+    @member
+        @name=Clear
+        @sig=M:Gehtsoft.EF.Entities.EntityCollection`1.Clear
+        @key=Clear.0
+        @divisor=.
+        @brief=Removes all items.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Clear
+            @return=void
+
+        @end
+
+    @end
+
+    @member
+        @name=EntityCollection
+        @sig=M:Gehtsoft.EF.Entities.EntityCollection`1.#ctor
+        @key=EntityCollection.0
+        @divisor=.
+        @brief=Constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=EntityCollection
+        @end
+
+    @end
+
+    @member
+        @name=Count
+        @sig=P:Gehtsoft.EF.Entities.EntityCollection`1.Count
+        @key=Count.0
+        @divisor=.
+        @brief=Returns the number of the items in the collection.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Count
+            @return=int
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=Item
+        @sig=P:Gehtsoft.EF.Entities.EntityCollection`1.Item(System.Int32)
+        @key=Item.1
+        @divisor=.
+        @brief=Returns the item by its index.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=this
+            @return=T
+            @params=int index
+            @suffix= get; set;
+        @end
+
+        @param
+            @name=index
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

@@ -1,0 +1,70 @@
+
+@class
+    
+    @name=BsonExceptionCode
+    @key=Gehtsoft.EF.Bson.BsonExceptionCode
+    @brief=
+    @type=enum
+    @ingroup=Gehtsoft.EF.Bson
+    @sig=T:Gehtsoft.EF.Bson.BsonExceptionCode
+    @member
+        @name=TypeIsNotEntity
+        @sig=F:Gehtsoft.EF.Bson.BsonExceptionCode.TypeIsNotEntity
+        @key=TypeIsNotEntity.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=TypeIsNotEntity
+            @return=[clink=Gehtsoft.EF.Bson.BsonExceptionCode]BsonExceptionCode[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=TypeIsNotSupported
+        @sig=F:Gehtsoft.EF.Bson.BsonExceptionCode.TypeIsNotSupported
+        @key=TypeIsNotSupported.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=TypeIsNotSupported
+            @return=[clink=Gehtsoft.EF.Bson.BsonExceptionCode]BsonExceptionCode[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=NoPk
+        @sig=F:Gehtsoft.EF.Bson.BsonExceptionCode.NoPk
+        @key=NoPk.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=NoPk
+            @return=[clink=Gehtsoft.EF.Bson.BsonExceptionCode]BsonExceptionCode[/clink]
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.Bson.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Bson]Gehtsoft.EF.Bson[/clink].
+@end
+    

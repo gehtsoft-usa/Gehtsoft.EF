@@ -1,0 +1,82 @@
+@class
+    @name=ValidationMessageResolverFactory
+    @key=Gehtsoft.Validator.ValidationMessageResolverFactory
+    @brief=The factory of validation messages resolvers
+    @type=class
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.ValidationMessageResolverFactory
+
+    @member
+        @name=GetResolver
+        @sig=M:Gehtsoft.Validator.ValidationMessageResolverFactory.GetResolver(System.Type)
+        @key=GetResolver.0
+        @divisor=.
+        @brief=Gets resolver for the type specified.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetResolver
+            @return=[clink=Gehtsoft.Validator.IValidationMessageResolver]IValidationMessageResolver[/clink]
+            @params=Type entityType
+        @end
+
+        @param
+            @name=entityType
+            The type of the entity.
+        @end
+
+    @end
+
+    @member
+        @name=SetResolverFor
+        @sig=M:Gehtsoft.Validator.ValidationMessageResolverFactory.SetResolverFor(System.Type,Gehtsoft.Validator.IValidationMessageResolver)
+        @key=SetResolverFor.1
+        @divisor=.
+        @brief=Sets resolve for the type specified.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=SetResolverFor<T>
+            @return=void
+
+            @params=[clink=Gehtsoft.Validator.IValidationMessageResolver]IValidationMessageResolver[/clink] resolver
+        @end
+
+        @param
+            @name=T
+            The type of the entity.
+
+        @end
+
+
+        @declaration
+            @language=cs
+            @name=SetResolverFor
+            @return=void
+
+            @params=Type entityType, [clink=Gehtsoft.Validator.IValidationMessageResolver]IValidationMessageResolver[/clink] resolver
+        @end
+
+        @param
+            @name=entityType
+            The type of the entity.
+        @end
+
+        @param
+            @name=resolver
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end

@@ -1,0 +1,183 @@
+@class
+    @name=Functions
+    @key=Gehtsoft.ExpressionToJs.Functions
+    @brief=Various functions supported in expressions to be compiled into JavaScript
+    @type=class
+    @ingroup=Gehtsoft.ExpressionToJs
+    @sig=T:Gehtsoft.ExpressionToJs.Functions
+
+    @member
+        @name=DaysSince
+        @sig=M:Gehtsoft.ExpressionToJs.Functions.DaysSince(System.DateTime,System.DateTime)
+        @key=DaysSince.0
+        @divisor=.
+        @brief=Returns how much days are between the dates.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=DaysSince
+            @return=double
+            @params=DateTime args0, DateTime args1
+        @end
+
+        @param
+            @name=args0
+
+        @end
+
+        @param
+            @name=args1
+
+        @end
+
+    @end
+
+    @member
+        @name=MonthsSince
+        @sig=M:Gehtsoft.ExpressionToJs.Functions.MonthsSince(System.DateTime,System.DateTime)
+        @key=MonthsSince.0
+        @divisor=.
+        @brief=Returns how much months are between the dates.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=MonthsSince
+            @return=double
+            @params=DateTime args0, DateTime args1
+        @end
+
+        @param
+            @name=args0
+
+        @end
+
+        @param
+            @name=args1
+
+        @end
+
+    @end
+
+    @member
+        @name=YearsSince
+        @sig=M:Gehtsoft.ExpressionToJs.Functions.YearsSince(System.DateTime,System.DateTime)
+        @key=YearsSince.0
+        @divisor=.
+        @brief=Returns how much years are between the dates.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=YearsSince
+            @return=double
+            @params=DateTime args0, DateTime args1
+        @end
+
+        @param
+            @name=args0
+
+        @end
+
+        @param
+            @name=args1
+
+        @end
+
+    @end
+
+    @member
+        @name=IsCreditCardNumberCorrect
+        @sig=M:Gehtsoft.ExpressionToJs.Functions.IsCreditCardNumberCorrect(System.String)
+        @key=IsCreditCardNumberCorrect.0
+        @divisor=.
+        @brief=Checks whether the credit card number is correct.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=IsCreditCardNumberCorrect
+            @return=bool
+            @params=string value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=ToBool
+        @sig=M:Gehtsoft.ExpressionToJs.Functions.ToBool(System.Object)
+        @key=ToBool.0
+        @divisor=.
+        @brief=Make sure that the argument is boolean
+        @scope=class
+        @visibility=public
+
+        The function is useful when on the client side the argument may be converted from boolean to a string,
+        for example when a hidden field is used.
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToBool
+            @return=bool
+            @params=object v
+        @end
+
+        @param
+            @name=v
+
+        @end
+
+    @end
+
+    @member
+        @name=ToInt
+        @sig=M:Gehtsoft.ExpressionToJs.Functions.ToInt(System.Object)
+        @key=ToInt.0
+        @divisor=.
+        @brief=Make sure that the argument is integer
+        @scope=class
+        @visibility=public
+
+        The function is useful when on the client side the argument may be converted from boolean to a string,
+        for example when a hidden field is used.
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ToInt
+            @return=int
+            @params=object v
+        @end
+
+        @param
+            @name=v
+
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.ExpressionToJs.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.ExpressionToJs]Gehtsoft.ExpressionToJs[/clink].
+@end

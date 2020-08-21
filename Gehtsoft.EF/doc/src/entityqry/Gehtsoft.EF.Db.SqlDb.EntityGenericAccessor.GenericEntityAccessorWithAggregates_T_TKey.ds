@@ -1,0 +1,312 @@
+@class
+    @name=GenericEntityAccessorWithAggregates(Of T, TKey)
+    @key=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates_T_TKey
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates`2
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor_T_TKey]GenericEntityAccessor[/clink]<T,TKey>
+
+    @param
+        @name=T
+        Entity type.
+    @end
+
+    @param
+        @name=TKey
+        Type of the entity primary key.
+    @end
+
+    This class extends [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor_T_TKey]GenericEntityAccessor[/clink] class for a specific
+    case of two entities relationship - when one entity aggregates the other. In the database the same approach as for dictionaries is used, i.e. aggregated
+    object just use foreign key to refer to the aggregating object.
+
+    However, the logic is different. First and foremost, while dictionary record cannot be deleted until all referring records exists, the
+    aggregating object usually is deleted with its content.
+
+    @member
+        @name=GenericEntityAccessorWithAggregates
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates`2.#ctor(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GenericEntityAccessorWithAggregates.0
+        @divisor=.
+        @brief=Constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=GenericEntityAccessorWithAggregates
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]Gehtsoft.EF.Db.SqlDb.SqlDbConnection[/clink] connection, System.Type aggregate
+        @end
+
+        @param
+            @name=connection
+            The connection.
+        @end
+
+        @param
+            @name=aggregate
+            The type of the entity which is contained in a [c]T[/c] entity.
+        @end
+
+    @end
+
+    @member
+        @name=GenericEntityAccessorWithAggregates
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates`2.#ctor(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type[])
+        @key=GenericEntityAccessorWithAggregates.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=GenericEntityAccessorWithAggregates
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]Gehtsoft.EF.Db.SqlDb.SqlDbConnection[/clink] connection, IEnumerable<Type> aggregates
+        @end
+
+        @param
+            @name=connection
+            The type of the entity which is contained in a [c]T[/c] entity.
+        @end
+
+        @param
+            @name=aggregates
+            The list of types of the entity which are contained in a [c]T[/c] entity.
+        @end
+
+    @end
+
+    @member
+        @name=GetAggregates
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates`2.GetAggregates``2(`0,Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter,System.Collections.Generic.IEnumerable{Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder},System.Nullable{System.Int32},System.Nullable{System.Int32})
+        @key=GetAggregates.0
+        @divisor=.
+        @brief=Get the list of aggregated objects of type A
+        @scope=instance
+        @visibility=public
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetAggregates<TAC,TA>
+            @return=TAC
+            @params=T entity, [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter]GenericEntityAccessorFilter[/clink] filter, System.Collections.Generic.IEnumerable<[clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder]GenericEntitySortOrder[/clink]> sortOrder, int? skip, int? limit
+        @end
+
+        @param
+            @name=TAC
+            Type of the aggregated entity collection. Must be derived from [clink=Gehtsoft.EF.Entities.EntityCollection_T]EntityCollection<A>[/clink].
+        @end
+
+        @param
+            @name=TA
+            Type of the aggregated entity.
+        @end
+
+        @param
+            @name=filter
+            The filter for aggregated entity (may be null)
+        @end
+
+
+        @param
+            @name=entity
+            The aggregating object.
+        @end
+
+        @param
+            @name=filter
+            The filter for aggregated entity (may be null)
+        @end
+
+        @param
+            @name=sortOrder
+            The sort order for aggregated entity (may be null)
+        @end
+
+        @param
+            @name=skip
+            The number of entities to skip (may be null)
+        @end
+
+        @param
+            @name=limit
+            The maximum number of entity to get (may be null)
+        @end
+
+    @end
+
+    @member
+        @name=GetAggregatesCount
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates`2.GetAggregatesCount`1(`0,Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter)
+        @key=GetAggregatesCount.0
+        @divisor=.
+        @brief=Get the count of aggregated objects of type A
+        @scope=instance
+        @visibility=public
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetAggregates<TA>
+            @return=int
+            @params=T entity, [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter]GenericEntityAccessorFilter[/clink] filter
+        @end
+
+        @param
+            @name=TA
+            Type of the aggregated entity.
+        @end
+
+        @param
+            @name=entity
+            The aggregating object.
+        @end
+
+        @param
+            @name=filter
+            The filter for aggregated entity (may be null)
+        @end
+    @end
+
+    @member
+        @name=Delete
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates`2.Delete(`0)
+        @key=Delete.0
+        @divisor=.
+        @brief=Deletes the entity specified and all aggregated objects.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Delete
+            @return=void
+
+            @params=T entity
+        @end
+
+        @param
+            @name=entity
+
+        @end
+
+    @end
+
+    @member
+        @name=CanDelete
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates`2.CanDelete(`0)
+        @key=CanDelete.0
+        @divisor=.
+        @brief=Returns whether the entity can be deleted.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=CanDelete
+            @return=bool
+            @params=T value
+        @end
+
+        @param
+            @name=value
+
+        @end
+
+    @end
+
+    @member
+        @name=DeleteMultiple
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates`2.DeleteMultiple(Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter)
+        @key=DeleteMultiple.0
+        @divisor=.
+        @brief=Deletes multiple entities and all their aggregated objects
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=DeleteMultiple
+            @return=int
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter]GenericEntityAccessorFilter[/clink] filter
+        @end
+
+        @param
+            @name=filter
+
+        @end
+
+        Default implementation supports only filtering by properties of the entity itself. Any referenced entities cannot be used in the filter.
+    @end
+
+    @member
+        @name=SaveAggregates
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates`2.SaveAggregates``1(`0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0},System.Func`3,System.Char,``0,``0)
+        @key=SaveAggregates.0
+        @divisor=.
+        @brief=Saves the list of aggregates
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=SaveAggregates<TA>
+            @return=void
+
+            @params=T entity, IEnumerable<TA> originalAggregates, IEnumerable<TA> newAggregates, Func<TA, TA, bool> areDataEqual, Func<TA, TA, bool> areIDEqual, Func<TA, bool> isDefined, Func<TA, bool> isNew
+        @end
+
+        @param
+            @name=entity
+            The aggregating entity
+        @end
+
+        @param
+            @name=originalAggregates
+            The list of original aggregates
+        @end
+
+        @param
+            @name=newAggregates
+            The list of new aggregates
+        @end
+
+        @param
+            @name=areDataEqual
+            The function is used to check whether two instances of the aggregated object are equal.
+        @end
+
+        @param
+            @name=areIDEqual
+            The function is used to check whether two instances of the aggregated object have the same ID.
+        @end
+
+        @param
+            @name=isDefined
+            The function is used to check whether the instance of the aggregated object is empty (can be useful to make aggregated object empty) instead of deleting them.
+        @end
+
+        @param
+            @name=isNew
+            The function is used to check whether tho instance of the aggregated object is new.
+        @end
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor]Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor[/clink].
+@end

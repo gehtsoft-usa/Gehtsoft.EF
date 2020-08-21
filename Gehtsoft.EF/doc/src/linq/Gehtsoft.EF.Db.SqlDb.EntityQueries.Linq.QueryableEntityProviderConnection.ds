@@ -1,0 +1,40 @@
+
+@class
+
+    @name=QueryableEntityProviderConnection
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProviderConnection
+    @brief=Connection provider for existing connection.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProviderConnection
+    @parent=QueryableEntityProvider.IConnectionProvider
+
+    Use this class when the you have an instance of sql connection during the whole life time of
+    the [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider]QueryableEntityProvider[/clink] class.
+
+    @member
+        @name=QueryableEntityProviderConnection
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProviderConnection.#ctor(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @key=QueryableEntityProviderConnection.0
+        @divisor=.
+        @brief=Constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=QueryableEntityProviderConnection
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]Gehtsoft.EF.Db.SqlDb.SqlDbConnection[/clink] connection
+        @end
+
+        @param
+            @name=connection
+
+        @end
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq]Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq[/clink].
+@end

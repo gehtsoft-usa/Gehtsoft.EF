@@ -1,0 +1,9 @@
+@group
+    @title=Namespace Gehtsoft.Validator
+    @key=Gehtsoft.Validator
+    @ingroup=validation
+    @brief=
+
+    The library is designed to validate objects.
+
+@end

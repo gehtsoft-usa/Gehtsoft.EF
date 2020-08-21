@@ -1,0 +1,104 @@
+@class
+    @name=GenericEntitySortOrder
+    @key=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder
+    @brief=The class defines sort order for the GenericEntityAccessor
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder
+
+    @member
+        @name=GenericEntitySortOrder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder.#ctor(System.String)
+        @key=GenericEntitySortOrder.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=GenericEntitySortOrder
+            @params=string path
+        @end
+
+        @param
+            @name=path
+            The path to sort the result by in ascending order.
+        @end
+
+    @end
+
+    @member
+        @name=GenericEntitySortOrder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder.#ctor(System.String,Gehtsoft.EF.Entities.SortDir)
+        @key=GenericEntitySortOrder.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=GenericEntitySortOrder
+            @params=string path, [clink=Gehtsoft.EF.Entities.SortDir]Gehtsoft.EF.Entities.SortDir[/clink] direction
+        @end
+
+        @param
+            @name=path
+            The path to sort the result by.
+        @end
+
+        @param
+            @name=direction
+            The order to sort in.
+        @end
+
+    @end
+
+    @member
+        @name=Path
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder.Path
+        @key=Path.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Path
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Direction
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntitySortOrder.Direction
+        @key=Direction.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Direction
+            @return=[clink=Gehtsoft.EF.Entities.SortDir]Gehtsoft.EF.Entities.SortDir[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor]Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor[/clink].
+@end

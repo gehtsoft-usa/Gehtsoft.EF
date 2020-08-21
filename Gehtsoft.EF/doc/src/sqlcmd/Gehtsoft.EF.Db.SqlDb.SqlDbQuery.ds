@@ -1,0 +1,524 @@
+@class
+    @name=SqlDbQuery
+    @key=Gehtsoft.EF.Db.SqlDb.SqlDbQuery
+    @brief=SQL Query.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlDbQuery
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.IDbQuery]IDbQuery[/clink]
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetQuery.0]SqlDbConnection.GetQuery()[/clink] to create an instance of SQL query.
+
+    Dispose the object when it is not used anymore.
+
+    Note about parameter names: Do NOT use DB-specific prefixes for the parameter value, e.g. @ for MSSQL or : for Oracle in the methods
+    that requires the parameter name. The will be added automatically as needed. The only situation when you have to use parameter name
+    prefixes is when you are specifying the query text in as a raw, db-specific SQL command.
+
+    @member
+        @name=BindParam
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindParam``1(System.String,``0)
+        @key=BindParam.3
+        @divisor=.
+        @brief=Bind parameter value.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BindParam<T>
+            @return=void
+
+            @params=string name, T value
+        @end
+
+        @param
+            @name=name
+            The name of the parameter.
+
+            Do NOT use DB-specific prefixes for the parameter value, e.g. @ for MSSQL or : for Oracle. The will be added
+            automatically as needed.
+        @end
+
+        @param
+            @name=value
+            The parameter value.
+        @end
+
+    @end
+
+    @member
+        @name=BindNull
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindNull(System.String,System.Data.DbType)
+        @key=BindNull.0
+        @divisor=.
+        @brief=Binds null as a parameter value.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BindNull
+            @return=void
+
+            @params=string name, System.Data.DbType type
+        @end
+
+        @param
+            @name=name
+            The name.
+        @end
+
+        @param
+            @name=type
+            The value type.
+        @end
+
+    @end
+
+    @member
+        @name=BindOutput
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindOutput(System.String,System.Data.DbType)
+        @key=BindOutput.0
+        @divisor=.
+        @brief=Binds an output parameter.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BindNull
+            @return=void
+
+            @params=string name, System.Data.DbType type
+        @end
+
+        @param
+            @name=name
+            The name.
+        @end
+
+        @param
+            @name=type
+            The value type.
+        @end
+
+    @end
+
+    @member
+        @name=ExecuteNoData
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ExecuteNoData
+        @key=ExecuteNoData.0
+        @divisor=.
+        @brief=Execute query without reading the result cursor.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ExecuteNoData
+            @return=void
+
+        @end
+        @declaration
+            @language=cs
+            @name=Task ExecuteNoDataAsync
+            @return=void
+            @params=CancellationToken? token = null
+
+        @end
+
+    @end
+
+    @member
+        @name=GetParamValue
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetParamValue(System.String)
+        @key=GetParamValue.0
+        @divisor=.
+        @brief=Returns the parameter value.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetParamValue
+            @return=object
+            @params=string name
+        @end
+
+        @param
+            @name=name
+
+        @end
+
+    @end
+
+
+    @member
+        @name=ExecuteReader
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ExecuteReader
+        @key=ExecuteReader.0
+        @divisor=.
+        @brief=Execute query with reading the result cursor.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ExecuteReader
+            @return=void
+
+        @end
+        @declaration
+            @language=cs
+            @name=ExecuteReaderAsync
+            @return=Task
+            @params=CancellationToken? token = null
+
+        @end
+
+    @end
+
+    @member
+        @name=Field
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.Field(System.String)
+        @key=Field.0
+        @divisor=.
+        @brief=Finds field by its name.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Field
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.FieldInfo]SqlDbQuery.FieldInfo[/clink]
+            @params=string name
+        @end
+
+        @param
+            @name=name
+
+        @end
+
+    @end
+
+    @member
+        @name=NextReaderResult
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.NextReaderResult
+        @key=NextReaderResult.0
+        @divisor=.
+        @brief=Starts reading the next cursor.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=NextReaderResult
+            @return=bool
+        @end
+        @declaration
+            @language=cs
+            @name=NextReaderResultAsync
+            @return=Task<bool>
+            @params=CancellationToken? token = null
+        @end
+
+    @end
+
+    @member
+        @name=ReadNext
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ReadNext
+        @key=ReadNext.0
+        @divisor=.
+        @brief=Reads the next row of the cursor.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadNext
+            @return=bool
+        @end
+        @declaration
+            @language=cs
+            @name=ReadNextAsync
+            @return=Task<bool>
+            @params=CancellationToken? token = null
+        @end
+
+    @end
+
+    @member
+        @name=IsNull
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.IsNull(System.Int32)
+        @key=IsNull.0
+        @divisor=.
+        @brief=Checks whether the column specified is null (by index index of the column).
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=IsNull
+            @return=bool
+            @params=int column
+        @end
+
+        @param
+            @name=column
+
+        @end
+
+    @end
+
+    @member
+        @name=IsNull
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.IsNull(System.String)
+        @key=IsNull.1
+        @divisor=.
+        @brief=Checks whether the column specified is null (by the name of the column).
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=IsNull
+            @return=bool
+            @params=string column
+        @end
+
+        @param
+            @name=column
+
+        @end
+
+    @end
+
+    @member
+        @name=GetValue
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue``1(System.Int32)
+        @key=GetValue.1
+        @divisor=.
+        @brief=Gets the value of the column.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetValue
+            @return=object
+            @params=int column
+        @end
+        @declaration
+            @language=cs
+            @name=GetValue
+            @return=object
+            @params=string field
+        @end
+        @declaration
+            @language=cs
+            @name=GetValue<T>
+            @return=T
+            @params=int column
+        @end
+        @declaration
+            @language=cs
+            @name=GetValue<T>
+            @return=T
+            @params=string field
+        @end
+
+        @param
+            @name=T
+            The desired data type
+        @end
+        @param
+            @name=column
+            The index of the column
+        @end
+        @param
+            @name=field
+            The field name
+        @end
+
+    @end
+
+    @member
+        @name=Connection
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.Connection
+        @key=Connection.0
+        @divisor=.
+        @brief=Gets the connection.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Connection
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=CommandText
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.CommandText
+        @key=CommandText.0
+        @divisor=.
+        @brief=The text of the SQL command.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=CommandText
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=FieldCount
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.FieldCount
+        @key=FieldCount.0
+        @divisor=.
+        @brief=The number of the fields in the result set.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=FieldCount
+            @return=int
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=Cancel
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.Cancel
+        @key=Cancel.0
+        @divisor=.
+        @brief=Cancels execution of the query
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Cancel
+            @return=void
+
+        @end
+
+        Please note that cancellation of the query is not guaranteed and no exception
+        will be raised or error returned if the query isn't canceled.
+    @end
+
+    @member
+        @name=ReadBlobAsStream
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ReadBlobAsStream
+        @key=ReadBlobAsStream.0
+        @divisor=.
+        @brief=The flag indicating whether blob fields must be read as stream.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ReadBlobAsStream
+            @return=bool
+            @suffix= get; set;
+        @end
+
+        If the flag is set to [c]true[/c] the method does not read blob field
+        when [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ReadNext.0]ReadNext()[/clink] is called and
+        cannot return them using [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.1]GetValue[/clink] method.
+        You must use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetStream.0]GetStream()[/clink] method.
+
+        If the flag is set to [c]false[/c], blob values will be read as all other
+        types and can be obtained using [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.1]GetValue[/clink].
+
+        The flag must be set BEFORE executing the method.
+
+        By default flag is [c]false[/c]
+
+    @end
+
+    @member
+        @name=GetStream
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetStream(System.Int32)
+        @key=GetStream.0
+        @divisor=.
+        @brief=The method returns blob value as an i/o stream
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetStream
+            @return=Stream
+            @params=int column
+        @end
+        @declaration
+            @language=cs
+            @name=GetStream
+            @return=Stream
+            @params=string field
+        @end
+
+
+        @param
+            @name=column
+            The column index.
+        @end
+
+        @param
+            @name=field
+            The field name.
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end

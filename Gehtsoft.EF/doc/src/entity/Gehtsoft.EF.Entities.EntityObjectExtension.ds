@@ -1,0 +1,113 @@
+@class
+    @name=EntityObjectExtension
+    @key=Gehtsoft.EF.Entities.EntityObjectExtension
+    @brief=The class provides extensions for an object to get an entity primary key
+    @type=class
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.EntityObjectExtension
+
+    @member
+        @name=IsEfEntity
+        @sig=M:Gehtsoft.EF.Entities.EntityObjectExtension.IsEfEntity(System.Object,System.Type)
+        @key=IsEfEntity.0
+        @divisor=.
+        @brief=The extension method returns true if the object is an entity of the specified type
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=IsEfEntity
+            @return=bool
+            @params=this object entity, System.Type type = null
+        @end
+
+        @param
+            @name=entity
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+    @end
+
+    @member
+        @name=GetEfEntityId
+        @sig=M:Gehtsoft.EF.Entities.EntityObjectExtension.GetEfEntityId``1(System.Object)
+        @key=GetEfEntityId.0
+        @divisor=.
+        @brief=The extension method that returns the primary key value
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetEfEntityId<T>
+            @return=T
+            @params=this object entity
+        @end
+
+        @declaration
+            @language=cs
+            @name=GetEfEntityId
+            @return=object
+            @params=object entity, System.Type desiredType = null, System.Type entityType = null
+        @end
+
+
+        @param
+            @name=T
+            The data type of the primary key.
+        @end
+
+        @param
+            @name=entity
+
+        @end
+
+        @param
+            @name=desiredType
+            The expected type of the primary key
+        @end
+
+        @param
+            @name=entityType
+            The expected type of the entity
+        @end
+    @end
+
+    @member
+        @name=GetEfPrimaryKey
+        @sig=M:Gehtsoft.EF.Entities.EntityObjectExtension.GetEfPrimaryKey(System.Type)
+        @key=GetEfPrimaryKey.0
+        @divisor=.
+        @brief=The extension method that returns the property that is the primary key for the entity
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetEfPrimaryKey
+            @return=System.Reflection.PropertyInfo
+            @params=this System.Type type
+        @end
+
+        @param
+            @name=type
+            The type of the entity
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

@@ -1,0 +1,6 @@
+@group
+    @title=Namespace Gehtsoft.EF.FTS
+    @key=Gehtsoft.EF.FTS
+    @ingroup=index
+    @brief=The full-text search support for any database.
+@end

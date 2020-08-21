@@ -1,0 +1,354 @@
+@class
+    @name=FtsConnection
+    @key=Gehtsoft.EF.FTS.FtsConnection
+    @brief=FTS extension for database connection class.
+    @type=class
+    @ingroup=Gehtsoft.EF.FTS
+    @sig=T:Gehtsoft.EF.FTS.FtsConnection
+
+    @member
+        @name=FtsCreateTables
+        @sig=M:Gehtsoft.EF.FTS.FtsConnection.FtsCreateTables(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @key=FtsCreateTables.0
+        @divisor=.
+        @brief=Creates FTS tables.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FtsCreateTables
+            @return=void
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=FtsCreateTablesAsync
+            @return=Task
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, CancellationToken? token = null
+        @end
+    @end
+
+    @member
+        @name=FtsDropTables
+        @sig=M:Gehtsoft.EF.FTS.FtsConnection.FtsDropTables(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @key=FtsDropTables.0
+        @divisor=.
+        @brief=Drops FTS tables.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FtsDropTables
+            @return=void
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=FtsDropTablesAsync
+            @return=Task
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, CancellationToken? token = null
+        @end
+    @end
+
+    @member
+        @name=DoesFtsTableExist
+        @sig=M:Gehtsoft.EF.FTS.FtsConnection.DoesFtsTableExist(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @key=DoesFtsTableExist.0
+        @divisor=.
+        @brief=Checks whether FTS tables exists.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=DoesFtsTableExist
+            @return=bool
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=DoesFtsTableExistAsync
+            @return=Task<bool>
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, CancellationToken? token = null
+        @end
+    @end
+
+    @member
+        @name=FtsSetObjectText
+        @sig=M:Gehtsoft.EF.FTS.FtsConnection.FtsSetObjectText(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.String,System.String,System.String)
+        @key=FtsSetObjectText.0
+        @divisor=.
+        @brief=Sets text of the object.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FtsSetObjectText
+            @return=void
+
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string type, string objectID, string text
+        @end
+        @declaration
+            @language=cs
+            @name=FtsSetObjectText
+            @return=void
+
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string type, string objectID, string sorter, string text
+        @end
+        @declaration
+            @language=cs
+            @name=FtsSetObjectTextAsync
+            @return=Task
+
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string type, string objectID, string text, CancellationToken? token = null
+        @end
+        @declaration
+            @language=cs
+            @name=FtsSetObjectTextAsync
+            @return=Task
+
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string type, string objectID, string sorter, string text, CancellationToken? token = null
+        @end
+
+        @param
+            @name=type
+            The object type id (if the system has multiple types of the objects and wants to distinguish them).
+        @end
+
+        @param
+            @name=objectID
+            The object identifier (must be unique within the type).
+        @end
+
+        @param
+            @name=sorter
+            The value to be used to sort objects in the results. If no value provided, the object id is used to sort.
+        @end
+
+        @param
+            @name=text
+            The text to be set. The text will be parsed into separate words. Punctuation and numbers will be ignored.
+        @end
+
+    @end
+
+    @member
+        @name=FtsDeleteObject
+        @sig=M:Gehtsoft.EF.FTS.FtsConnection.FtsDeleteObject(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.String,System.String)
+        @key=FtsDeleteObject.0
+        @divisor=.
+        @brief=Deletes a FTS object.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FtsDeleteObject
+            @return=void
+
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string type, string objectID
+        @end
+        @declaration
+            @language=cs
+            @name=FtsDeleteObjectAsync
+            @return=Task
+
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string type, string objectID, CancellationToken? token = null
+        @end
+
+        @param
+            @name=type
+            The object type id.
+        @end
+
+        @param
+            @name=objectID
+            The object id.
+        @end
+
+        Please note that the method deletes only objects and associations between the objects and words. It does not
+        delete words in case there are no more objects associated.
+
+        To remove words that aren't associated with any objects anymore use [clink=Gehtsoft.EF.FTS.FtsConnection.FtsCleanupWords.0]FtsCleanupWords()[/clink]
+        method.
+
+    @end
+
+    @member
+        @name=FtsCleanupWords
+        @sig=M:Gehtsoft.EF.FTS.FtsConnection.FtsCleanupWords(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @key=FtsCleanupWords.0
+        @divisor=.
+        @brief=Deletes words that aren't associated with any object.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FtsCleanupWords
+            @return=void
+
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=FtsCleanupWordsAsync
+            @return=Task
+
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, CancellationToken? token = null
+        @end
+
+        The method is rather slow, so it is advised to use it only during database maintenance procedures.
+    @end
+
+    @member
+        @name=FtsCountObjects
+        @sig=M:Gehtsoft.EF.FTS.FtsConnection.FtsCountObjects(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.String,System.Boolean,System.String[])
+        @key=FtsCountObjects.0
+        @divisor=.
+        @brief=Returns the number of the objects.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FtsCountObjects
+            @return=int
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string text, bool allWords, string[] types
+        @end
+        @declaration
+            @language=cs
+            @name=FtsCountObjectsAsync
+            @return=Task<int>
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string text, bool allWords, string[] types, CancellationToken? token = null
+        @end
+
+        @param
+            @name=text
+            The words to be searched.
+        @end
+
+        @param
+            @name=allWords
+            The flag indicating whether all ([c]true[/c]) or any ([c]false[/c]) words needs to be found.
+        @end
+
+        @param
+            @name=types
+            The list of the object types.
+        @end
+
+    @end
+
+    @member
+        @name=FtsGetObjects
+        @sig=M:Gehtsoft.EF.FTS.FtsConnection.FtsGetObjects(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.String,System.Boolean,System.String[],System.Int32,System.Int32)
+        @key=FtsGetObjects.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FtsGetObjects
+            @return=[clink=Gehtsoft.EF.FTS.FtsObjectEntityCollection]FtsObjectEntityCollection[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string text, bool allWords, string[] types, int limit, int skip
+        @end
+        @declaration
+            @language=cs
+            @name=FtsGetObjectsAsync
+            @return=Task<[clink=Gehtsoft.EF.FTS.FtsObjectEntityCollection]FtsObjectEntityCollection[/clink]>
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string text, bool allWords, string[] types, int limit, int skip, CancellationToken? token = null
+        @end
+
+        @param
+            @name=text
+            The words to be searched.
+        @end
+
+        @param
+            @name=allWords
+            The flag indicating whether all ([c]true[/c]) or any ([c]false[/c]) words needs to be found.
+        @end
+
+        @param
+            @name=types
+            The list of the object types.
+        @end
+
+        @param
+            @name=limit
+
+        @end
+
+        @param
+            @name=skip
+
+        @end
+
+    @end
+
+    @member
+        @name=FtsGetWords
+        @sig=M:Gehtsoft.EF.FTS.FtsConnection.FtsGetWords(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.String,System.Int32,System.Int32)
+        @key=FtsGetWords.0
+        @divisor=.
+        @brief=Get words in the word list
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FtsGetWords
+            @return=[clink=Gehtsoft.EF.FTS.FtsWordEntityCollection]FtsWordEntityCollection[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string mask, int limit, int skip
+        @end
+        @declaration
+            @language=cs
+            @name=FtsGetWordsAsync
+            @return=Task<[clink=Gehtsoft.EF.FTS.FtsWordEntityCollection]FtsWordEntityCollection[/clink]>
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, string mask, int limit, int skip, CancellationToken? token = null
+        @end
+
+        @param
+            @name=mask
+
+        @end
+
+        @param
+            @name=limit
+
+        @end
+
+        @param
+            @name=skip
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.FTS.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.FTS]Gehtsoft.EF.FTS[/clink].
+@end

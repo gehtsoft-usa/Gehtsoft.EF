@@ -1,0 +1,32 @@
+@class
+    @name=MongoDeleteListQuery
+    @key=Gehtsoft.EF.MongoDb.MongoDeleteListQuery
+    @brief=The query that deletes a list (MongoDB table) associated with the entity type.
+    @type=class
+    @ingroup=Gehtsoft.EF.MongoDb
+    @sig=T:Gehtsoft.EF.MongoDb.MongoDeleteListQuery
+    @parent=[clink=Gehtsoft.EF.MongoDb.MongoQuery]MongoQuery[/clink]
+    @member
+        @name=Execute
+        @sig=M:Gehtsoft.EF.MongoDb.MongoDeleteListQuery.Execute
+        @key=Execute.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Execute
+            @return=void
+
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.MongoDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.MongoDb]Gehtsoft.EF.MongoDb[/clink].
+@end

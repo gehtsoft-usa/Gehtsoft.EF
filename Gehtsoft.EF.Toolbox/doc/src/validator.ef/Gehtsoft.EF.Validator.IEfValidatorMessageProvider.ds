@@ -1,0 +1,45 @@
+@class
+    @name=IEfValidatorMessageProvider
+    @key=Gehtsoft.EF.Validator.IEfValidatorMessageProvider
+    @brief=The interface to a factory that provides messages for entity validator
+    @type=interface
+    @ingroup=Gehtsoft.EF.Validator
+    @sig=T:Gehtsoft.EF.Validator.IEfValidatorMessageProvider
+    @member
+        @name=GetMessage
+        @sig=M:Gehtsoft.EF.Validator.IEfValidatorMessageProvider.GetMessage(Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor,Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo,System.Int32)
+        @key=GetMessage.0
+        @divisor=.
+        @brief=The method returns the message
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetMessage
+            @return=string
+            @params=[eurl=http://asp.gehtsoftusa.com/doc/ef/#Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor.html]EntityDescriptor entityDescriptor[/eurl], [eurl=http://asp.gehtsoftusa.com/doc/ef/#Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo.html]TableDescriptor.ColumnInfo[/eurl] column, int validationErrorCode
+        @end
+
+        @param
+            @name=entityDescriptor
+
+        @end
+
+        @param
+            @name=column
+
+        @end
+
+        @param
+            @name=validationErrorCode
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Validator]Gehtsoft.EF.Validator[/clink].
+@end

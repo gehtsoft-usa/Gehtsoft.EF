@@ -1,0 +1,67 @@
+@group
+    @title=Namespace Gehtsoft.EF.Bson
+    @key=Gehtsoft.EF.Bson
+    @ingroup=index
+    @brief=Entity to BSON conversion package
+
+
+    [b]How BSON serialization different from SQL serialization[/b]
+
+    There is a number of differences between BSON and SQL serialization.
+
+    @list
+        @list-item
+    Datatype definition: The datatype, size and precision in the [c]EntityProperty[/c] attribute is generally
+       ignored, the BSON type is chosen on the base of the field data type.
+
+       Following C# datatypes are supported:
+
+        @list
+            @list-item
+                [c]int[/c]
+            @end
+            @list-item
+                [c]long[/c]
+            @end
+            @list-item
+                [c]double[/c]
+            @end
+            @list-item
+                [c]decimal[/c]
+            @end
+            @list-item
+                [c]bool[/c]
+            @end
+            @list-item
+                [c]DateTime[/c]
+            @end
+            @list-item
+                [c]string[/c]
+            @end
+            @list-item
+                [c]GUID[/c] (stored as a string)
+            @end
+            @list-item
+                Any numeric enumeration (stored as an integer value).
+            @end
+            @list-item
+                [c]byte[][/c]
+            @end
+            @list-item
+                [c]ObjectID[/c]
+            @end
+        @end
+        @end
+        @list-item
+            Automatic Primary Keys: Autoincrement is not supported. AutoID is implemented via generating an [c]ObjectID[/c] value.
+        @end
+        @list-item
+            References & other entities: BSON serialization supported two types of other entity types inclusion: complete inclusion and reference.
+            If the [c]EntityProperty[/c] has [c]ForeignKey[/c] property set to [c]true[/c] only reference to the primary key is stored.
+            Otherwise the whole entity is completely serialized into the field.
+        @end
+        @list-item
+            The property can be an array of any legit type, including another entity (arrays aren't supported in SQL at all).
+        @end
+    @end
+@end

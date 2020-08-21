@@ -1,0 +1,605 @@
+
+@class
+    
+    @name=Map&lt;TSource,TDestination&gt;
+    @key=Gehtsoft.EF.Mapper.Map_TSource_TDestination
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.Map`2
+    @parent=[clink=Gehtsoft.EF.Mapper.IMap]IMap[/clink]
+    @parent=System.IEquatable<[clink=Gehtsoft.EF.Mapper.IMap]IMap[/clink]>
+    @parent=System.Collections.Generic.IEnumerable<[clink=Gehtsoft.EF.Mapper.IPropertyMapping]IPropertyMapping[/clink]>
+    @parent=System.Collections.IEnumerable
+    @param
+        @name=TSource
+
+    @end
+
+    @param
+        @name=TDestination
+
+    @end
+
+    @member
+        @name=Map
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.#ctor
+        @key=Map.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=constructor
+            
+        @declaration
+            @language=cs
+            @name=Map
+        @end
+    
+    @end
+    
+    @member
+        @name=FindTarget
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.FindTarget(Gehtsoft.EF.Mapper.IMappingTarget)
+        @key=FindTarget.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=FindTarget
+            @return=System.Collections.Generic.IEnumerable<[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>>
+            @params=[clink=Gehtsoft.EF.Mapper.IMappingTarget]IMappingTarget[/clink] target
+        @end
+    
+        @param
+            @name=target
+
+        @end
+        
+    @end
+    
+    @member
+        @name=For
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.For(System.String)
+        @key=For.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=For
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=string name
+        @end
+    
+        @param
+            @name=name
+
+        @end
+        
+    @end
+    
+    @member
+        @name=For
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.For``1(System.Linq.Expressions.Expression{System.Func`2})
+        @key=For.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=For<TValue>
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=System.Linq.Expressions.Expression<System.Func<>> member
+        @end
+    
+        @param
+            @name=member
+
+        @end
+        
+    @end
+    
+    @member
+        @name=GetTargetByName
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.GetTargetByName(System.String)
+        @key=GetTargetByName.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=GetTargetByName
+            @return=[clink=Gehtsoft.EF.Mapper.IMappingTarget]IMappingTarget[/clink]
+            @params=string name
+        @end
+    
+        @param
+            @name=name
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Find
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Find(System.String)
+        @key=Find.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Find
+            @return=System.Collections.Generic.IEnumerable<[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>>
+            @params=string name
+        @end
+    
+        @param
+            @name=name
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Find
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Find``1(System.Linq.Expressions.Expression{System.Func`2})
+        @key=Find.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Find<TValue>
+            @return=System.Collections.Generic.IEnumerable<[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>>
+            @params=System.Linq.Expressions.Expression<System.Func<>> member
+        @end
+    
+        @param
+            @name=member
+
+        @end
+        
+    @end
+    
+    @member
+        @name=ContainsRuleFor
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.ContainsRuleFor(System.String)
+        @key=ContainsRuleFor.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=ContainsRuleFor
+            @return=bool
+            @params=string name
+        @end
+    
+        @param
+            @name=name
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Assign
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Assign``1(System.Action`2)
+        @key=Assign.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Assign<TValue>
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=System.Action<> action
+        @end
+    
+        @param
+            @name=action
+
+        @end
+        
+    @end
+    
+    @member
+        @name=BeforeMapping
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.BeforeMapping(System.Action`2)
+        @key=BeforeMapping.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=BeforeMapping
+            @return=[clink=Gehtsoft.EF.Mapper.MappingAction_TSource_TTarget]MappingAction[/clink]<TSource,TDestination>
+            @params=System.Action<> action
+        @end
+    
+        @param
+            @name=action
+
+        @end
+        
+    @end
+    
+    @member
+        @name=AfterMapping
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.AfterMapping(System.Action`2)
+        @key=AfterMapping.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=AfterMapping
+            @return=[clink=Gehtsoft.EF.Mapper.MappingAction_TSource_TTarget]MappingAction[/clink]<TSource,TDestination>
+            @params=System.Action<> action
+        @end
+    
+        @param
+            @name=action
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Equals
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Equals(Gehtsoft.EF.Mapper.Map{`0,`1})
+        @key=Equals.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=protected
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Equals
+            @return=bool
+            @params=[clink=Gehtsoft.EF.Mapper.Map_TSource_TDestination]Map[/clink]<TSource,TDestination> other
+        @end
+    
+        @param
+            @name=other
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Equals
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Equals(System.Object)
+        @key=Equals.2
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Equals
+            @return=bool
+            @params=object obj
+        @end
+    
+        @param
+            @name=obj
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Equals
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Equals(Gehtsoft.EF.Mapper.IMap)
+        @key=Equals.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Equals
+            @return=bool
+            @params=[clink=Gehtsoft.EF.Mapper.IMap]IMap[/clink] obj
+        @end
+    
+        @param
+            @name=obj
+
+        @end
+        
+    @end
+    
+    @member
+        @name=GetHashCode
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.GetHashCode
+        @key=GetHashCode.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=GetHashCode
+            @return=int
+        @end
+    
+    @end
+    
+    @member
+        @name=Do
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Do(`0,`1,System.Boolean)
+        @key=Do.3
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Do
+            @return=void
+            
+            @params=TSource source, TDestination destination, bool ignoreNull
+        @end
+    
+        @param
+            @name=source
+
+        @end
+        
+        @param
+            @name=destination
+
+        @end
+        
+        @param
+            @name=ignoreNull
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Do
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Do(`0,`1)
+        @key=Do.2
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Do
+            @return=void
+            
+            @params=TSource source, TDestination destination
+        @end
+    
+        @param
+            @name=source
+
+        @end
+        
+        @param
+            @name=destination
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Do
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Do(`0)
+        @key=Do.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Do
+            @return=TDestination
+            @params=TSource source
+        @end
+    
+        @param
+            @name=source
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Do
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Do(System.Object)
+        @key=Do.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Do
+            @return=object
+            @params=object from
+        @end
+    
+        @param
+            @name=from
+
+        @end
+        
+    @end
+    
+    @member
+        @name=GetEnumerator
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.GetEnumerator
+        @key=GetEnumerator.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=GetEnumerator
+            @return=System.Collections.Generic.IEnumerator<[clink=Gehtsoft.EF.Mapper.IPropertyMapping]IPropertyMapping[/clink]>
+        @end
+    
+    @end
+    
+    @member
+        @name=Mappings
+        @sig=P:Gehtsoft.EF.Mapper.Map`2.Mappings
+        @key=Mappings.1
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Mappings
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMappingCollection_TSource_TDestination]PropertyMappingCollection[/clink]<TSource,TDestination>
+            @suffix= get;
+        @end
+    
+    @end
+    
+    @member
+        @name=Source
+        @sig=P:Gehtsoft.EF.Mapper.Map`2.Source
+        @key=Source.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Source
+            @return=System.Type
+            @suffix= get;
+        @end
+    
+    @end
+    
+    @member
+        @name=Destination
+        @sig=P:Gehtsoft.EF.Mapper.Map`2.Destination
+        @key=Destination.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Destination
+            @return=System.Type
+            @suffix= get;
+        @end
+    
+    @end
+    
+    @member
+        @name=Factory
+        @sig=P:Gehtsoft.EF.Mapper.Map`2.Factory
+        @key=Factory.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+            
+        @type=property
+            
+        @declaration
+            @language=cs
+            @name=Factory
+            @return=System.Func<>
+            @suffix= get; set;
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end
+    

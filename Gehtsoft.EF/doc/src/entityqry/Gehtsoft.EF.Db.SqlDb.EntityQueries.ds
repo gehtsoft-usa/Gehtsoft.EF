@@ -1,0 +1,8 @@
+@group
+    @title=Namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @ingroup=index
+    @brief=
+
+    To create entity queries use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension]EntityConnectionExtension[/clink] class.
+@end

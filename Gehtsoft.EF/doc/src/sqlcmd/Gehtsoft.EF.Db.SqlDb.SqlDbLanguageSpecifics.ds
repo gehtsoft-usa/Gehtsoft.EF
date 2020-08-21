@@ -1,0 +1,395 @@
+@class
+    @name=SqlDbLanguageSpecifics
+    @key=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics
+    @brief=The specific data for the database server
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetLanguageSpecifics.0]SqlDbConnection.GetLanguageSpecifics()[/clink]
+    method to gen an instance of this class.
+
+
+   @member
+        @name=TerminateWithSemicolon
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.TerminateWithSemicolon
+        @key=TerminateWithSemicolon.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=TerminateWithSemicolon
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=SupportsTransactions
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.SupportsTransactions
+        @key=SupportsTransactions.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=SupportsTransactions
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.TransactionSupport]SqlDbLanguageSpecifics.TransactionSupport[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=PreBlock
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.PreBlock
+        @key=PreBlock.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PreBlock
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=PostBlock
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.PostBlock
+        @key=PostBlock.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PostBlock
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=PreQueryInBlock
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.PreQueryInBlock
+        @key=PreQueryInBlock.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PreQueryInBlock
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=PostQueryInBlock
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.PostQueryInBlock
+        @key=PostQueryInBlock.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=PostQueryInBlock
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=ParameterInQueryPrefix
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.ParameterInQueryPrefix
+        @key=ParameterInQueryPrefix.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ParameterInQueryPrefix
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=ParameterPrefix
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.ParameterPrefix
+        @key=ParameterPrefix.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ParameterPrefix
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=TableAliasInSelect
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.TableAliasInSelect
+        @key=TableAliasInSelect.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=TableAliasInSelect
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=AllNonAggregatesInGroupBy
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.AllNonAggregatesInGroupBy
+        @key=AllNonAggregatesInGroupBy.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=AllNonAggregatesInGroupBy
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=RightJoinSupported
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.RightJoinSupported
+        @key=RightJoinSupported.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=RightJoinSupported
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=OuterJoinSupported
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.OuterJoinSupported
+        @key=OuterJoinSupported.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=OuterJoinSupported
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=DropColumnSupported
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.DropColumnSupported
+        @key=DropColumnSupported.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=DropColumnSupported
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=ModifyColumnSupported
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.ModifyColumnSupported
+        @key=ModifyColumnSupported.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ModifyColumnSupported
+            @return=bool
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=AutoincrementReturnedAs
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.AutoincrementReturnedAs
+        @key=AutoincrementReturnedAs.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=AutoincrementReturnedAs
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.AutoincrementReturnStyle]SqlDbLanguageSpecifics.AutoincrementReturnStyle[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=MinDate
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.MinDate
+        @key=MinDate.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=MinDate
+            @return=System.Nullable<DateTime>
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=MaxDate
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.MaxDate
+        @key=MaxDate.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=MaxDate
+            @return=System.Nullable<DateTime>
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=MinTimestamp
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.MinTimestamp
+        @key=MinTimestamp.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=MinTimestamp
+            @return=System.Nullable<DateTime>
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=MaxTimestamp
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.MaxTimestamp
+        @key=MaxTimestamp.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=MaxTimestamp
+            @return=System.Nullable<DateTime>
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end

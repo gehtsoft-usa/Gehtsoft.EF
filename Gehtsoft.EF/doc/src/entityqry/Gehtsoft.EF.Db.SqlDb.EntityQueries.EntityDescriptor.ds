@@ -1,0 +1,68 @@
+@class
+    @name=EntityDescriptor
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor
+    @brief=Entity descriptor.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor
+    @member
+        @name=EntityDescriptor
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor.#ctor
+        @key=EntityDescriptor.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=EntityDescriptor
+        @end
+
+    @end
+
+    @member
+        @name=EntityType
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor.EntityType
+        @key=EntityType.0
+        @divisor=.
+        @brief=The type associated with the entity.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=EntityType
+            @return=System.Type
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=TableDescriptor
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor.TableDescriptor
+        @key=TableDescriptor.0
+        @divisor=.
+        @brief=The table descriptor associated with the entity.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=TableDescriptor
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end

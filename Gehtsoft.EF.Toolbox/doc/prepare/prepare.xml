@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<dg:help-project xmlns:dg="http://www.gehtsoft.com/docgen/project">
+    <dg:source>
+        <dg:file name="null.ds" encoding="windows-1252" />
+    </dg:source>
+    <dg:output template="%docgen%\template\sandcastle2ds\main.xsl" file="src/null-file" encoding="windows-1252" >
+        <!-- sandcastle output file -->
+        <dg:define name="src-file" value="doc-source.xml" />
+        <!-- the name of the parent group for namespaces' groups -->
+        <dg:define name="group" value="index" />
+        <!-- comma-separated list of visibilities to include into the help source -->
+        <dg:define name="visibility" value="public,family" />
+    </dg:output>
+</dg:help-project>
+

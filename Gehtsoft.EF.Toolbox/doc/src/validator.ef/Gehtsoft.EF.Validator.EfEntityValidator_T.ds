@@ -1,0 +1,86 @@
+@class
+    @name=EfEntityValidator of (T)
+    @key=Gehtsoft.EF.Validator.EfEntityValidator_T
+    @brief=The base class for validation of Gehtsoft.EF entity.
+    @type=class
+    @ingroup=Gehtsoft.EF.Validator
+    @sig=T:Gehtsoft.EF.Validator.EfEntityValidator`1
+    @parent=[clink=Gehtsoft.Validator.AbstractValidator_T]AbstractValidator[/clink]<T>
+    @param
+        @name=T
+        The type of the entity.
+    @end
+
+    The entity validator class automatically validates the following:
+
+    @list
+        @list-item
+            Whether non-nullable properties aren't nulls.
+        @end
+        @list-item
+            Whether strings don't exceed property size limit.
+        @end
+        @list-item
+            Whether numerics don't exceed property size limit.
+        @end
+        @list-item
+            Whether dates and timestamps don't exceed database limits.
+        @end
+        @list-item
+            Whether the unique values are actually unique.
+        @end
+        @list-item
+            Whether the referenced object exists.
+        @end
+    @end
+
+    Some of these checks requires additional information to be passed to the constructor. Please see constructor documentation for the details.
+
+    @member
+        @name=EfEntityValidator
+        @sig=M:Gehtsoft.EF.Validator.EfEntityValidator`1.#ctor(Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics,Gehtsoft.EF.Validator.IValidatorConnectionFactory)
+        @key=EfEntityValidator.0
+        @divisor=.
+        @brief=The constructor.
+        @scope=instance
+        @visibility=public
+        @type=constructor
+
+        The constructor automatically adds all validations for the entity.
+
+        @param
+            @name=specifics
+            The SQL specifics.
+
+            If the specifics aren't set, the date and timestamp ranges specific for the database won't be performed.
+        @end
+
+        @param
+            @name=connectionFactory
+            The connection factory.
+
+            You can make you own implementation or use one for the existing:
+
+            [clink=Gehtsoft.EF.Validator.ValidatorConnectionFactory]ValidatorConnectionFactory[/clink] or
+            [clink=Gehtsoft.EF.Validator.ValidatorSingletonConnectionFactory]ValidatorSingletonConnectionFactory[/clink].
+
+            If the connection factory isn't provided, the database-related checks such any uniqueness validation and existing of a reference validation
+            won't be performed.
+
+        @end
+
+        @declaration
+            @language=cs
+            @name=EfEntityValidator
+            @params=[eurl=http://asp.gehtsoftusa.com/doc/ef/#Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.html]SqlDbLanguageSpecifics[/eurl] specifics = null, [clink=Gehtsoft.EF.Validator.IValidatorConnectionFactory]IValidatorConnectionFactory[/clink] connectionFactory = null, [clink=Gehtsoft.EF.Validator.IEfValidatorMessageProvider]IEfValidatorMessageProvider[/clink] messageProvider = null
+        @end
+
+        @param
+            @name=messageProvider
+            The optional message text provider.
+        @end
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Validator]Gehtsoft.EF.Validator[/clink].
+@end

@@ -1,0 +1,234 @@
+
+@class
+    
+    @name=MapFactory
+    @key=Gehtsoft.EF.Mapper.MapFactory
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.MapFactory
+    @member
+        @name=GetMap
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.GetMap(System.Type,System.Type,System.Boolean)
+        @key=GetMap.1
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=GetMap
+            @return=[clink=Gehtsoft.EF.Mapper.IMap]IMap[/clink]
+            @params=System.Type from, System.Type to, bool createIfNotExist
+        @end
+    
+        @param
+            @name=from
+
+        @end
+        
+        @param
+            @name=to
+
+        @end
+        
+        @param
+            @name=createIfNotExist
+
+        @end
+        
+    @end
+    
+    @member
+        @name=GetMap
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.GetMap``2(System.Boolean)
+        @key=GetMap.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=GetMap<TFrom,TTo>
+            @return=[clink=Gehtsoft.EF.Mapper.Map_TSource_TDestination]Map[/clink]<TFrom,TTo>
+            @params=bool createIfNotExist
+        @end
+    
+        @param
+            @name=createIfNotExist
+
+        @end
+        
+    @end
+    
+    @member
+        @name=CreateMap
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.CreateMap``2
+        @key=CreateMap.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=CreateMap<TFrom,TTo>
+            @return=[clink=Gehtsoft.EF.Mapper.Map_TSource_TDestination]Map[/clink]<TFrom,TTo>
+        @end
+    
+    @end
+    
+    @member
+        @name=CreateMap
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.CreateMap(System.Type,System.Type,System.Boolean)
+        @key=CreateMap.1
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=CreateMap
+            @return=[clink=Gehtsoft.EF.Mapper.IMap]IMap[/clink]
+            @params=System.Type from, System.Type to, bool createAlways
+        @end
+    
+        @param
+            @name=from
+
+        @end
+        
+        @param
+            @name=to
+
+        @end
+        
+        @param
+            @name=createAlways
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Map
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.Map``2(``0,``1)
+        @key=Map.1
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Map<TFrom,TTo>
+            @return=void
+            
+            @params=TFrom source, TTo destination
+        @end
+    
+        @param
+            @name=source
+
+        @end
+        
+        @param
+            @name=destination
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Map
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.Map``2(``0)
+        @key=Map.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Map<TFrom,TTo>
+            @return=TTo
+            @params=TFrom source
+        @end
+    
+        @param
+            @name=source
+
+        @end
+        
+    @end
+    
+    @member
+        @name=RemoveMap
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.RemoveMap(System.Type,System.Type)
+        @key=RemoveMap.1
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=RemoveMap
+            @return=void
+            
+            @params=System.Type source, System.Type destination
+        @end
+    
+        @param
+            @name=source
+
+        @end
+        
+        @param
+            @name=destination
+
+        @end
+        
+    @end
+    
+    @member
+        @name=RemoveMap
+        @sig=M:Gehtsoft.EF.Mapper.MapFactory.RemoveMap``2
+        @key=RemoveMap.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=RemoveMap<TFrom,TTo>
+            @return=void
+            
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end
+    

@@ -1,0 +1,65 @@
+@class
+    @name=MongoUpdateMultiEntityQuery
+    @key=Gehtsoft.EF.MongoDb.MongoUpdateMultiEntityQuery
+    @brief=The query that updates multiple entities by the condition.
+    @type=class
+    @ingroup=Gehtsoft.EF.MongoDb
+    @sig=T:Gehtsoft.EF.MongoDb.MongoUpdateMultiEntityQuery
+    @parent=[clink=Gehtsoft.EF.MongoDb.MongoQueryWithCondition]MongoQueryWithCondition[/clink]
+    @parent=[clink=Gehtsoft.EF.MongoDb.MongoQuery]MongoQuery[/clink]
+
+    @member
+        @name=Set
+        @sig=M:Gehtsoft.EF.MongoDb.MongoUpdateMultiEntityQuery.Set(System.String,System.Object)
+        @key=Set.0
+        @divisor=.
+        @brief=Add a set value
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Set
+            @return=void
+
+            @params=string path, object value
+        @end
+
+        @param
+            @name=path
+            The path to the property to be updated.
+        @end
+
+        @param
+            @name=value
+            The value to be set.
+        @end
+
+    @end
+
+
+    @member
+        @name=Execute
+        @sig=M:Gehtsoft.EF.MongoDb.MongoUpdateMultiEntityQuery.Execute
+        @key=Execute.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Execute
+            @return=void
+
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.MongoDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.MongoDb]Gehtsoft.EF.MongoDb[/clink].
+@end

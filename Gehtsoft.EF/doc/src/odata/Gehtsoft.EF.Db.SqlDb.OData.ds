@@ -1,0 +1,18 @@
+@group
+    @title=Namespace Gehtsoft.EF.Db.SqlDb.OData
+    @key=Gehtsoft.EF.Db.SqlDb.OData
+    @ingroup=index
+    @brief=The classes related to process OData queries.
+
+    OData is URI-based protocol to select and modify relational data.
+
+    [eurl=http://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part1-protocol.html]OData protocol specification[/eurl]
+
+    1) Create and initialize an instance of [clink=Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder]EdmModelBuilder[/clink] class
+    that represents the model of ER objects. It may be a single instance instance of model per the process.
+
+    2) Create an instance of [clink=Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor]ODataProcessor[/clink] object and use it
+       to handle OData query.
+
+    Please note that only entities with AutoId primary key are supported!
+@end

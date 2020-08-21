@@ -1,0 +1,374 @@
+@class
+    @name=SqlDbConnection
+    @key=Gehtsoft.EF.Db.SqlDb.SqlDbConnection
+    @brief=Generic SQL connection class.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlDbConnection
+    @parent=System.IDisposable
+
+    To create an instance of [c]SqlDbConnection[/c] use an connection factory class for particular database.
+
+    The connection must be disposed when it is not used anymore.
+
+    @member
+        @name=Connection
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.Connection
+        @key=Connection.0
+        @divisor=.
+        @brief=Gets the underlying SQL connection.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Connection
+            @return=System.Data.Common.DbConnection
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=SyncRoot
+        @sig=P:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.SyncRoot
+        @key=SyncRoot.0
+        @divisor=.
+        @brief=Gets the synchronization root.
+        @scope=instance
+        @visibility=public
+
+        The property returns the mutex object to be used as a synchronization root when connection is used in multiple
+        threads. Some connections do not support executing of multiple queries at a time, so, should the connection
+        be used in multi-task or multi-threaded environment, each [c]Get...Query/Execute[/c] must be surrounded
+        by a [c]lock(connection.SyncRoot)[/c]
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=SyncRoot
+            @return=object
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=BeginTransaction
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.BeginTransaction
+        @key=BeginTransaction.0
+        @divisor=.
+        @brief=Begins a transaction.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BeginTransaction
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbTransaction]SqlDbTransaction[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=GetQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetQuery
+        @key=GetQuery.0
+        @divisor=.
+        @brief=Creates a new query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery]SqlDbQuery[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=GetQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetQuery(System.String)
+        @key=GetQuery.2
+        @divisor=.
+        @brief=Gets a new query with the specified query command (as string).
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery]SqlDbQuery[/clink]
+            @params=string queryText
+        @end
+
+        @param
+            @name=queryText
+
+        @end
+
+    @end
+
+    @member
+        @name=GetQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetQuery(Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder)
+        @key=GetQuery.1
+        @divisor=.
+        @brief=Gets a new query with the specified query command (as query builder).
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery]SqlDbQuery[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink] builder
+        @end
+
+        @param
+            @name=builder
+
+        @end
+
+    @end
+
+    @member
+        @name=GetCreateTableBuilder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetCreateTableBuilder(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor)
+        @key=GetCreateTableBuilder.0
+        @divisor=.
+        @brief=Gets query builder for create table operation
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetCreateTableBuilder
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateTableBuilder]CreateTableBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] descriptor
+        @end
+
+        @param
+            @name=descriptor
+
+        @end
+
+    @end
+
+    @member
+        @name=GetDropTableBuilder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetDropTableBuilder(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor)
+        @key=GetDropTableBuilder.0
+        @divisor=.
+        @brief=Gets query builder for drop table operation
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDropTableBuilder
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.DropTableBuilder]DropTableBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] descriptor
+        @end
+
+        @param
+            @name=descriptor
+
+        @end
+
+    @end
+
+    @member
+        @name=GetInsertQueryBuilder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetInsertQueryBuilder(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor)
+        @key=GetInsertQueryBuilder.0
+        @divisor=.
+        @brief=Gets query builder for insert operation
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetInsertQueryBuilder
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.InsertQueryBuilder]InsertQueryBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] descriptor
+        @end
+
+        @param
+            @name=descriptor
+
+        @end
+
+    @end
+
+    @member
+        @name=GetUpdateQueryBuilder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetUpdateQueryBuilder(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor)
+        @key=GetUpdateQueryBuilder.0
+        @divisor=.
+        @brief=Gets query builder for update operation.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetUpdateQueryBuilder
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder]UpdateQueryBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] descriptor
+        @end
+
+        @param
+            @name=descriptor
+
+        @end
+
+    @end
+
+    @member
+        @name=GetDeleteQueryBuilder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetDeleteQueryBuilder(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor)
+        @key=GetDeleteQueryBuilder.0
+        @divisor=.
+        @brief=Gets query builder for delete operation
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDeleteQueryBuilder
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.DeleteQueryBuilder]DeleteQueryBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] descriptor
+        @end
+
+        @param
+            @name=descriptor
+
+        @end
+
+    @end
+
+    @member
+        @name=GetHierarchicalSelectQueryBuilder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetHierarchicalSelectQueryBuilder(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor,Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo,System.String)
+        @key=GetHierarchicalSelectQueryBuilder.0
+        @divisor=.
+        @brief=Gets query builder for select a subtree from a self-connected table.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetHierarchicalSelectQueryBuilder
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.HierarchicalSelectQueryBuilder]HierarchicalSelectQueryBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] descriptor, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]ColumnInfo[/clink] parentReferenceColumn, string rootParameter
+        @end
+
+        @param
+            @name=descriptor
+            The table descriptor.
+        @end
+
+        @param
+            @name=parentReferenceColumn
+            The column which references to the primary key of the parent row. The value for this column
+            for the root row is considered to be a [c]null[/c].
+        @end
+
+        @param
+            @name=rootParameter
+            The parameter name to set the root of the resultset.
+        @end
+
+    @end
+
+    @member
+        @name=GetSelectQueryBuilder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetSelectQueryBuilder(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor)
+        @key=GetSelectQueryBuilder.0
+        @divisor=.
+        @brief=Gets query builder for select operation
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetSelectQueryBuilder
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder]SelectQueryBuilder[/clink]
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] descriptor
+        @end
+
+        @param
+            @name=descriptor
+
+        @end
+    @end
+
+    @member
+        @name=GetParameterGroupBuilder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetParameterGroupBuilder
+        @key=GetParameterGroupBuilder.0
+        @divisor=.
+        @brief=Creates a parameter list pseudo-query builder.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetParameterGroupBuilder
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.ParameterGroupQueryBuilder]ParameterGroupQueryBuilder[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=GetLanguageSpecifics
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetLanguageSpecifics
+        @key=GetLanguageSpecifics.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetLanguageSpecifics
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics]SqlDbLanguageSpecifics[/clink]
+        @end
+
+    @end
+
+
+
+    The type defined in the [c]dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]SqlDb[/clink].
+@end

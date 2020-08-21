@@ -1,0 +1,86 @@
+@class   
+    @name=IContextFilterCondition
+    @key=Gehtsoft.EF.Entities.Context.IContextFilterCondition
+    @brief=A single condition of the filter.
+    @type=interface
+    @ingroup=Gehtsoft.EF.Entities.Context
+    @sig=T:Gehtsoft.EF.Entities.Context.IContextFilterCondition
+    @member
+        @name=Property
+        @sig=M:Gehtsoft.EF.Entities.Context.IContextFilterCondition.Property(System.String)
+        @key=Property.0
+        @divisor=.
+        @brief=Sets the property name.
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Property
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=string name
+        @end
+    
+        @param
+            @name=name
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Is
+        @sig=M:Gehtsoft.EF.Entities.Context.IContextFilterCondition.Is(Gehtsoft.EF.Entities.CmpOp)
+        @key=Is.0
+        @divisor=.
+        @brief=Sets the operator.
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Is
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=[clink=Gehtsoft.EF.Entities.CmpOp]Gehtsoft.EF.Entities.CmpOp[/clink] op
+        @end
+    
+        @param
+            @name=op
+
+        @end
+        
+    @end
+    
+    @member
+        @name=Value
+        @sig=M:Gehtsoft.EF.Entities.Context.IContextFilterCondition.Value(System.Object)
+        @key=Value.0
+        @divisor=.
+        @brief=Sets the value (may be used as the second operand only).
+        @scope=instance
+        @visibility=public
+            
+        @type=method
+            
+        @declaration
+            @language=cs
+            @name=Value
+            @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilterCondition]IContextFilterCondition[/clink]
+            @params=object value
+        @end
+    
+        @param
+            @name=value
+
+        @end
+        
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities.Context]Gehtsoft.EF.Entities.Context[/clink].
+@end
+    

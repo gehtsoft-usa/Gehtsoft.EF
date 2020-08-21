@@ -1,0 +1,65 @@
+@class
+    @name=HierarchicalSelectQueryBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.HierarchicalSelectQueryBuilder
+    @brief=A query to select the subtree from the self-connected table.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.HierarchicalSelectQueryBuilder
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink]
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetHierarchicalSelectQueryBuilder.0]SqlDbConnection.GetHierarchicalSelectQueryBuilder()[/clink]
+    to get an instance of this class.
+
+    Be aware that MySQL does not support hierarchical queries. MSSQL, Oracle, Postgres and SQLite do support them.
+
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+
+    @member
+        @name=GetTableDescriptor
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.HierarchicalSelectQueryBuilder.GetTableDescriptor
+        @key=GetTableDescriptor.0
+        @divisor=.
+        @brief=Gets the table descriptor of the resultset.
+        @scope=instance
+        @visibility=protected
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetTableDescriptor
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink]
+        @end
+
+        You can use this value to add the query as a table into another SELECT query.
+
+    @end
+    @member
+        @name=IdOnlyMode
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.HierarchicalSelectQueryBuilder.IdOnlyMode
+        @key=IdOnlyMode.0
+        @divisor=.
+        @brief=The flag indicating whether the resultset should consists of ids only.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=IdOnlyMode
+            @return=bool
+            @suffix= get; set;
+        @end
+
+        If the value is [c]true[/c], the resultset consists of only identifiers.
+
+        If the value is [c]false[/c], the results consists of identifier, parent reference and tree level columns.
+
+        The default value is [c]false[/c].
+
+    @end
+
+@end

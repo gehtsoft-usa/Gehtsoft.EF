@@ -1,0 +1,37 @@
+@class
+    @name=DeleteQueryBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.DeleteQueryBuilder
+    @brief=Query builder for delete operation.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.DeleteQueryBuilder
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder]QueryWithWhereBuilder[/clink]
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetDeleteQueryBuilder.0]SqlDbConnection.GetDeleteQueryBuilder()[/clink] to get an instance
+    of the object.
+
+    See [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder]QueryWithWhereBuilder[/clink] for details how to specify condition on the query.
+
+
+    @member
+        @name=DeleteById
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.DeleteQueryBuilder.DeleteById
+        @key=DeleteById.0
+        @divisor=.
+        @brief=Add a condition to delete a row by its primary key.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=DeleteById
+            @return=void
+
+        @end
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

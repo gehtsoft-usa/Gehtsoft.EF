@@ -1,0 +1,48 @@
+@class
+    @name=SortDir
+    @key=Gehtsoft.EF.Entities.SortDir
+    @brief=The list of sorting directions.
+    @type=enum
+    @ingroup=Gehtsoft.EF.Entities
+    @sig=T:Gehtsoft.EF.Entities.SortDir
+    @member
+        @name=Asc
+        @sig=F:Gehtsoft.EF.Entities.SortDir.Asc
+        @key=Asc.0
+        @divisor=.
+        @brief=Ascending (A->Z)
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Asc
+            @return=[clink=Gehtsoft.EF.Entities.SortDir]SortDir[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Desc
+        @sig=F:Gehtsoft.EF.Entities.SortDir.Desc
+        @key=Desc.0
+        @divisor=.
+        @brief=Descending (Z->A)
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Desc
+            @return=[clink=Gehtsoft.EF.Entities.SortDir]SortDir[/clink]
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
+@end

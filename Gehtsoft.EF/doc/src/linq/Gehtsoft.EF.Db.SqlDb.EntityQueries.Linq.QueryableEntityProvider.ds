@@ -1,0 +1,63 @@
+
+@class
+
+    @name=QueryableEntityProvider
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider
+    @brief=
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider
+    @parent=System.Linq.IQueryProvider
+
+    @member
+        @name=QueryableEntityProvider
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider.#ctor(Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider.IConnectionProvider)
+        @key=QueryableEntityProvider.0
+        @divisor=.
+        @brief=Constructor
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=QueryableEntityProvider
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider.IConnectionProvider]QueryableEntityProvider.IConnectionProvider[/clink] connectionProvider
+        @end
+
+        @param
+            @name=connectionProvider
+            The connection provider.
+
+            Create an instance of [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProviderConnection]QueryableEntityProviderConnection[/clink] or
+            [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProviderConnectionFactory]QueryableEntityProviderConnectionFactory[/clink] to pass in the parameter.
+        @end
+
+    @end
+
+
+    @member
+        @name=Entities
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider.Entities``1
+        @key=Entities.0
+        @divisor=.
+        @brief=Returns collection of entities.
+
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Entities<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntity_T]QueryableEntity[/clink]<T>
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq]Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq[/clink].
+@end

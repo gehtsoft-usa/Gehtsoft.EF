@@ -1,0 +1,102 @@
+@class
+    @name=MapPropertyAttribute
+    @key=Gehtsoft.EF.Mapper.MapPropertyAttribute
+    @brief=The attribute that associates the model property to the property of the other class or entity.
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.MapPropertyAttribute
+    @parent=System.Attribute
+
+
+    @member
+        @name=MapPropertyAttribute
+        @sig=M:Gehtsoft.EF.Mapper.MapPropertyAttribute.#ctor(System.String)
+        @key=MapPropertyAttribute.2
+        @divisor=.
+        @brief=Constructor
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+        @declaration
+            @language=cs
+            @name=MapPropertyAttribute
+        @end
+
+        @declaration
+            @language=cs
+            @name=MapPropertyAttribute
+            @params=string name
+        @end
+
+        @param
+            @name=name
+            The name of the property in the other class.
+
+            If the name is not set, the mapper will look for the property with the same name.
+        @end
+
+        @declaration
+            @language=cs
+            @name=MapPropertyAttribute
+            @params=string name, [clink=Gehtsoft.EF.Mapper.MapFlag]MapFlag[/clink] mapFlags
+        @end
+
+        @param
+            @name=mapFlags
+            The mapping behavior flag.
+        @end
+
+        @declaration
+            @language=cs
+            @name=MapPropertyAttribute
+            @params=[clink=Gehtsoft.EF.Mapper.MapFlag]MapFlag[/clink] mapFlags
+        @end
+    @end
+
+
+    @member
+        @name=Name
+        @sig=P:Gehtsoft.EF.Mapper.MapPropertyAttribute.Name
+        @key=Name.0
+        @divisor=.
+        @brief=The name of the property in the other class.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Name
+            @return=string
+            @suffix= get; set;
+        @end
+
+        If the property is not set, the mapper will look for the property with the same name.
+
+    @end
+
+    @member
+        @name=MapFlags
+        @sig=P:Gehtsoft.EF.Mapper.MapPropertyAttribute.MapFlags
+        @key=MapFlags.0
+        @divisor=.
+        @brief=The mapping behavior flag.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=MapFlags
+            @return=[clink=Gehtsoft.EF.Mapper.MapFlag]MapFlag[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end

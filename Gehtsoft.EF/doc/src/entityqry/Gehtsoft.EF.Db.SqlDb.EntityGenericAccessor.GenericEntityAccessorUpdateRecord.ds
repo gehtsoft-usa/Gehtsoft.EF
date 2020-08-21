@@ -1,0 +1,69 @@
+@class
+
+    @name=GenericEntityAccessorUpdateRecord
+    @key=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorUpdateRecord
+    @brief=The base class for all update records for generic accessor and all derived classes.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorUpdateRecord
+
+    The class is designed to provide the list of values for multiple entity update using
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor_T_TKey.UpdateMultiple.0]GenericEntityAccessor.UpdateMultiple[/clink]
+    method.
+
+    The default use scenario is that the developer:
+
+    1) Derives type-specific update record from this class
+
+    2) Declares properties for each individual property of entity to be updated
+
+    3) Marks these properties and defines association with entity properties
+       using [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.UpdateRecordPropertyAttribute]UpdateRecordPropertyAttribute[/clink].
+
+    @member
+        @name=Reset
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorUpdateRecord.Reset
+        @key=Reset.0
+        @divisor=.
+        @brief=Resets values to null.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Reset
+            @return=void
+
+        @end
+
+    @end
+
+    @member
+        @name=GenericEntityAccessorUpdateRecord
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorUpdateRecord.#ctor(System.Type)
+        @key=GenericEntityAccessorUpdateRecord.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=GenericEntityAccessorUpdateRecord
+            @params=System.Type t
+        @end
+
+        @param
+            @name=t
+            The type of the associated entity.
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor]Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor[/clink].
+@end

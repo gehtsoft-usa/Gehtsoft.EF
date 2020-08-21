@@ -1,0 +1,49 @@
+@group
+    @title=Namespace Gehtsoft.EF.MongoDb
+    @key=Gehtsoft.EF.MongoDb
+    @ingroup=index
+    @brief=MongoDB support for Entity Framework
+
+    MongoDB is a NonSQL database. The tables in MongoDB aren't two-dimension structures of simple types, as in SQL databases.
+    The tables in MongoDB are collections of Bson documents. So, unlike SQL the fields of MongoDB tables can be a complete
+    entity (in form of BSON document) or even an array of them.
+
+    So, the EF provides support of MongoDB as close as it is possible to the SQL databases, however there are specific for each
+    kind of databases.
+
+    @list
+        @list-item
+            The entities are serialized into BsonDocument differently from serializing into SQL table. Please read
+            comments to [clink=Gehtsoft.EF.Bson]Gehtsoft.EF.Bson[/clink] namespace for more details.
+        @end
+        @list-item
+            No table-level queries are supported to MongoDB, only entity-level queries.
+        @end
+        @list-item
+            MongoDB EF classes are declared as disposable for similarity with SQL code, however MongoDB does NOT require disposing of
+            connections and queries.
+        @end
+        @list-item
+            MongoDB EF queries does not support referencing of the fields by type and property name. Only paths can be used to
+            reference the field.
+
+            Also, MongoDB supports indexing in the paths using dotIndex notation (e.g [c]"field1.5"[/c] means 5th element of the array in the field 1).
+        @end
+        @list-item
+            Because MongoDB supports arrays, especially important - arrays of entities, the additional attribute [clink=Gehtsoft.EF.MongoDb.MongoIndexAttribute]MongoIndex[/clink]
+            is introduced in order to create indexes by the field of an entities stored in the array field of the attributed entity.
+        @end
+        @list-item
+            MongoDB itself does not support Like operation, it supports regular expressions instead. However, entity framework simulates
+            the behavior of a like operation by translating a like patter into regular expression pattern. If you want to use regular
+            expression pattern, use like operation, but enclose the mark into slashes ([c]/[/c]), e.g. use
+
+            [c]..., CmpOp.Like, "a%");[/c]
+
+            or
+
+            [c]..., CmpOp.Like, "/a.*/");[/c]
+
+        @end
+    @end
+@end

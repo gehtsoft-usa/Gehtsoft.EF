@@ -1,0 +1,70 @@
+
+@class
+    
+    @name=SqlDbLanguageSpecifics.TransactionSupport
+    @key=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.TransactionSupport
+    @brief=
+    @type=enum
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.TransactionSupport
+    @member
+        @name=None
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.TransactionSupport.None
+        @key=None.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=None
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.TransactionSupport]SqlDbLanguageSpecifics.TransactionSupport[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=Plain
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.TransactionSupport.Plain
+        @key=Plain.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=Plain
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.TransactionSupport]SqlDbLanguageSpecifics.TransactionSupport[/clink]
+        @end
+    
+    @end
+    
+    @member
+        @name=Nested
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.TransactionSupport.Nested
+        @key=Nested.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+            
+        @type=field
+            
+        @declaration
+            @language=cs
+            @name=Nested
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.TransactionSupport]SqlDbLanguageSpecifics.TransactionSupport[/clink]
+        @end
+    
+    @end
+    
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end
+    

@@ -1,0 +1,151 @@
+@class
+    @name=QueryBuilderEntity
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity
+    @brief=An entity inside a select query.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity
+
+    @member
+        @name=Table
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity.Table
+        @key=Table.0
+        @divisor=.
+        @brief=The table.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Table
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=ConnectingField
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity.ConnectingField
+        @key=ConnectingField.0
+        @divisor=.
+        @brief=The field of the table which is used to connect this table to another entity.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ConnectingField
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Alias
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity.Alias
+        @key=Alias.0
+        @divisor=.
+        @brief=The alias of the table inside the query.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Alias
+            @return=string
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=JoinType
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity.JoinType
+        @key=JoinType.0
+        @divisor=.
+        @brief=The type of the join.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=JoinType
+            @return=[clink=Gehtsoft.EF.Entities.TableJoinType]Gehtsoft.EF.Entities.TableJoinType[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=ConnectedToTable
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity.ConnectedToTable
+        @key=ConnectedToTable.0
+        @divisor=.
+        @brief=The query entity to which this table is connected to.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ConnectedToTable
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=ConnectedToField
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity.ConnectedToField
+        @key=ConnectedToField.0
+        @divisor=.
+        @brief=The field of another entity which is used to connect this table to another entity.
+        @scope=instance
+        @visibility=public
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ConnectedToField
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo]TableDescriptor.ColumnInfo[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=On
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity.On
+        @key=On.0
+        @divisor=.
+        @brief=The joining condition.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=On
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder]ConditionBuilder[/clink]
+            @suffix= get;
+        @end
+
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+@end

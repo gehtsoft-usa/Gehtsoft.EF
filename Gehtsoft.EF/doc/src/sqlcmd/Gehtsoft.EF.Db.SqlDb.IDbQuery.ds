@@ -1,0 +1,280 @@
+@class
+    @name=IDbQuery
+    @key=Gehtsoft.EF.Db.SqlDb.IDbQuery
+    @brief=An interface to generic query.
+    @type=interface
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.IDbQuery
+    @parent=System.IDisposable
+
+    @member
+        @name=BindNull
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IDbQuery.BindNull(System.String,System.Data.DbType)
+        @key=BindNull.0
+        @divisor=.
+        @brief=Binds a null value to the parameter.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BindNull
+            @return=void
+
+            @params=string name, System.Data.DbType type
+        @end
+
+        @param
+            @name=name
+            The name of the parameter (do not use DB-specific parameter prefixes, such as @ or :).
+        @end
+
+        @param
+            @name=type
+            The parameter datatype. Most DBs (e.g. MSSQL, SQLite) will access null of any type, but some may
+            require the exact type.
+        @end
+
+    @end
+
+    @member
+        @name=BindOutputParam
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IDbQuery.BindOutputParam(System.String,System.Data.DbType)
+        @key=BindOutputParam.0
+        @divisor=.
+        @brief=Binds output parameter.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BindOutputParam
+            @return=void
+
+            @params=string name, System.Data.DbType type
+        @end
+
+        @param
+            @name=name
+            The name of the parameter (do not use DB-specific parameter prefixes, such as @ or :).
+        @end
+
+        @param
+            @name=type
+            The parameter datatype.
+        @end
+
+    @end
+
+    @member
+        @name=BindParam
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IDbQuery.BindParam``1(System.String,``0)
+        @key=BindParam.1
+        @divisor=.
+        @brief=Binds the parameter of the type specified.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BindParam<T>
+            @return=void
+
+            @params=string name, T value
+        @end
+
+        @param
+            @name=name
+            The name of the parameter (do not use DB-specific parameter prefixes, such as @ or :).
+        @end
+
+        @param
+            @name=value
+            The value of the parameter.
+        @end
+
+    @end
+
+    @member
+        @name=GetParamValue
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IDbQuery.GetParamValue``1(System.String)
+        @key=GetParamValue.0
+        @divisor=.
+        @brief=Gets the parameter value
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetParamValue<T>
+            @return=T
+            @params=string name
+        @end
+
+        @param
+            @name=name
+            The name of the parameter (do not use DB-specific parameter prefixes, such as @ or :).
+        @end
+
+    @end
+
+    @member
+        @name=ExecuteNoData
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IDbQuery.ExecuteNoData
+        @key=ExecuteNoData.0
+        @divisor=.
+        @brief=Execute the query without creating resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ExecuteNoData
+            @return=void
+
+        @end
+
+    @end
+
+    @member
+        @name=ExecuteReader
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IDbQuery.ExecuteReader
+        @key=ExecuteReader.0
+        @divisor=.
+        @brief=Execute the query creating the resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ExecuteReader
+            @return=void
+
+        @end
+
+    @end
+
+    @member
+        @name=ReadNext
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IDbQuery.ReadNext
+        @key=ReadNext.0
+        @divisor=.
+        @brief=Reads the next row.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadNext
+            @return=bool
+        @end
+
+    @end
+
+    @member
+        @name=IsNull
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IDbQuery.IsNull(System.Int32)
+        @key=IsNull.0
+        @divisor=.
+        @brief=Checks whether the column is null.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=IsNull
+            @return=bool
+            @params=int column
+        @end
+
+        @declaration
+            @language=cs
+            @name=IsNull
+            @return=bool
+            @params=string column
+        @end
+
+        @param
+            @name=column
+            The index of the column or the name of the column.
+        @end
+    @end
+
+    @member
+        @name=GetValue
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IDbQuery.GetValue``1(System.Int32)
+        @key=GetValue.0
+        @divisor=.
+        @brief=Gets the value of the column.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetValue<T>
+            @return=T
+            @params=int column
+        @end
+
+        @declaration
+            @language=cs
+            @name=GetValue<T>
+            @return=T
+            @params=string column
+        @end
+
+        @param
+            @name=column
+            The index of the column or the name of the column.
+        @end
+
+    @end
+
+    @member
+        @name=FindField
+        @sig=M:Gehtsoft.EF.Db.SqlDb.IDbQuery.FindField(System.String)
+        @key=FindField.0
+        @divisor=.
+        @brief=Finds the index of the column by its name.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=FindField
+            @return=int
+            @params=string column
+        @end
+
+        @param
+            @name=column
+            The name of the column.
+        @end
+
+        The method returns the index of the column or -1 in case the column is not found.
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end

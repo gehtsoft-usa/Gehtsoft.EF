@@ -1,0 +1,122 @@
+@class
+    @name=UpdateQueryToTypeBinder
+    @key=Gehtsoft.EF.Db.SqlDb.UpdateQueryToTypeBinder
+    @brief=Autobinder between an object and a query.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.UpdateQueryToTypeBinder
+
+    @member
+        @name=UpdateQueryToTypeBinder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.UpdateQueryToTypeBinder.#ctor(System.Type)
+        @key=UpdateQueryToTypeBinder.0
+        @divisor=.
+        @brief=Constructor.
+        @scope=instance
+        @visibility=public
+
+        @type=constructor
+
+        @declaration
+            @language=cs
+            @name=UpdateQueryToTypeBinder
+            @params=System.Type type
+        @end
+
+        @param
+            @name=type
+            The type of the object to be bound.
+        @end
+
+    @end
+
+    @member
+        @name=AddBinding
+        @sig=M:Gehtsoft.EF.Db.SqlDb.UpdateQueryToTypeBinder.AddBinding(System.String,System.String,System.Data.DbType,System.Int32,System.Boolean)
+        @key=AddBinding.1
+        @divisor=.
+        @brief=Bind a property.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddBinding
+            @return=void
+
+            @params=string parameterName, string propertyName, System.Data.DbType dbType, int size, bool outputOnInsert = false
+        @end
+
+        @param
+            @name=parameterName
+            The name of the parameter.
+        @end
+
+        @param
+            @name=propertyName
+            The name of the property.
+        @end
+
+        @param
+            @name=dbType
+            The database type.
+        @end
+
+        @param
+            @name=size
+            The maximum size of the value.
+        @end
+
+        @param
+            @name=outputOnInsert
+            The flag indicating whether the value is provided by the server during
+            the insert (e.g. autoincrement).
+        @end
+
+    @end
+
+    @member
+        @name=BindAndExecute
+        @sig=M:Gehtsoft.EF.Db.SqlDb.UpdateQueryToTypeBinder.BindAndExecute(Gehtsoft.EF.Db.SqlDb.SqlDbQuery,System.Object,System.Nullable{System.Boolean})
+        @key=BindAndExecute.0
+        @divisor=.
+        @brief=Bind the object and execute the query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BindAndExecute
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery]SqlDbQuery[/clink] query, object value, bool insert = false
+        @end
+        @declaration
+            @language=cs
+            @name=BindAndExecuteAsync
+            @return=void
+            @params=[clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery]SqlDbQuery[/clink] query, object value, bool insert = false, CancellationToken? token = null
+        @end
+
+        @param
+            @name=query
+            The query.
+        @end
+
+        @param
+            @name=value
+            The object to be bound.
+        @end
+
+        @param
+            @name=insert
+            The flag indicating whether it is an insert or an update operation.
+        @end
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb]Gehtsoft.EF.Db.SqlDb[/clink].
+@end

@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Gehtsoft.EF.Entities</name>
+    </assembly>
+    <members>
+        <member name="T:Gehtsoft.EF.Entities.EntityCollection`1">
+            <summary>
+            Collection of entities of the type specified.
+            </summary>
+            <typeparam name="T">The type of the entity</typeparam>
+        </member>
+        <member name="P:Gehtsoft.EF.Entities.EntityCollection`1.IsReadOnly">
+            <summary>
+            Returns the flag indicating whether the collection is readonly
+            </summary>
+        </member>
+        <member name="M:Gehtsoft.EF.Entities.EntityCollection`1.Remove(`0)">
+             <summary>
+             Removes element for the collection.
+            
+             The method generates no error if there is no such element
+             </summary>
+             <param name="item">The item to be removed</param>
+             <returns></returns>
+        </member>
+        <member name="P:Gehtsoft.EF.Entities.EntityCollection`1.Count">
+            <summary>
+            Returns number of elements in the collection
+            </summary>
+        </member>
+        <member name="P:Gehtsoft.EF.Entities.EntityCollection`1.Item(System.Int32)">
+            <summary>
+            Returns element by its index
+            </summary>
+            <param name="index">The index of the element in the collection</param>
+            <exception cref="T:System.IndexOutOfRangeException">The exception is thrown if the index is out of range</exception>
+            <returns></returns>
+        </member>
+        <member name="T:Gehtsoft.EF.Entities.EntityCollection`1.AfterInsertDelegate">
+            <summary>
+            The delegate to be called when a new item is inserted into <see cref="T:Gehtsoft.EF.Entities.EntityCollection`1" />
+            </summary>
+            <param name="sender">The collection</param>
+            <param name="index">The index of the element</param>
+        </member>
+        <member name="E:Gehtsoft.EF.Entities.EntityCollection`1.AfterInsert">
+            <summary>
+            The event to be fired when a new item is inserted the collection
+            </summary>
+        </member>
+        <member name="M:Gehtsoft.EF.Entities.EntityObjectExtension.GetEfEntityId``1(System.Object)">
+            <summary>
+            Gets identifier of an entity object
+            </summary>
+            <typeparam name="T">The type of the identifier</typeparam>
+            <param name="entity">The entity to get a value</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

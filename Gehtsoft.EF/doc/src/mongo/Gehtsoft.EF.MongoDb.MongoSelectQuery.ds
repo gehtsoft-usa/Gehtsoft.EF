@@ -1,0 +1,196 @@
+@class
+    @name=MongoSelectQuery
+    @key=Gehtsoft.EF.MongoDb.MongoSelectQuery
+    @brief=The query that selects entities from the list (without lookup into references).
+    @type=class
+    @ingroup=Gehtsoft.EF.MongoDb
+    @sig=T:Gehtsoft.EF.MongoDb.MongoSelectQuery
+
+    @parent=[clink=Gehtsoft.EF.MongoDb.MongoSelectQueryBase]MongoSelectQueryBase[/clink]
+    @parent=[clink=Gehtsoft.EF.MongoDb.MongoQueryWithCondition]MongoQueryWithCondition[/clink]
+    @parent=[clink=Gehtsoft.EF.MongoDb.MongoQuery]MongoQuery[/clink]
+
+    @member
+        @name=AddToResultset
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQuery.AddToResultset(System.String)
+        @key=AddToResultset.0
+        @divisor=.
+        @brief=Add a field into resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddToResultset
+            @return=void
+
+            @params=string path
+        @end
+
+        @param
+            @name=path
+            The path to the field to be added.
+        @end
+
+        If no fields are added or excluded from the result set - all fields are selected by default.
+    @end
+
+    @member
+        @name=ExcludeFromResultset
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQuery.ExcludeFromResultset(System.String)
+        @key=ExcludeFromResultset.0
+        @divisor=.
+        @brief=Remove a field from from the resultset.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ExcludeFromResultset
+            @return=void
+            @params=string path
+        @end
+
+        @param
+            @name=path
+            The path the field to be excluded.
+        @end
+
+        The method is used solely to remove default _id column which is included into any resultset unless it is
+        clearly excluded.
+
+        Should you want to exclude other columns, you need to include all other columns explicitly using [clink=Gehtsoft.EF.MongoDb.MongoSelectQuery.AddToResultset.0]AddToResultset()[/clink]
+        method.
+    @end
+
+
+    @member
+        @name=AddOrderBy
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQuery.AddOrderBy(System.String,Gehtsoft.EF.Entities.SortDir)
+        @key=AddOrderBy.0
+        @divisor=.
+        @brief=Add path to sort the value by.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AddOrderBy
+            @return=void
+
+            @params=string property, [clink=Gehtsoft.EF.Entities.SortDir]SortDir[/clink] direction
+        @end
+
+        @param
+            @name=property
+
+        @end
+
+        @param
+            @name=direction
+
+        @end
+
+    @end
+
+    @member
+        @name=Execute
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQuery.Execute
+        @key=Execute.0
+        @divisor=.
+        @brief=
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Execute
+            @return=void
+
+        @end
+
+    @end
+
+    @member
+        @name=ReadAll
+        @sig=M:Gehtsoft.EF.MongoDb.MongoSelectQuery.ReadAll``1
+        @key=ReadAll.1
+        @divisor=.
+        @brief=Reads all entities.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=ReadAll<T>
+            @return=[clink=Gehtsoft.EF.Entities.EntityCollection_T]Gehtsoft.EF.Entities.EntityCollection[/clink]<T>
+        @end
+
+        @declaration
+            @language=cs
+            @name=ReadAll<TC,T>
+            @return=TC
+            @suffix= where TC : EntityCollection<T>
+        @end
+
+        @param
+            @name=T
+            Entity type.
+        @end
+
+    @end
+
+
+    @member
+        @name=Skip
+        @sig=P:Gehtsoft.EF.MongoDb.MongoSelectQuery.Skip
+        @key=Skip.0
+        @divisor=.
+        @brief=Sets number of records to be skipped at the beginning of the result.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Skip
+            @return=int
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=Limit
+        @sig=P:Gehtsoft.EF.MongoDb.MongoSelectQuery.Limit
+        @key=Limit.0
+        @divisor=.
+        @brief=Sets the maximum number of records to be returned.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Limit
+            @return=int
+            @suffix= get; set;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.MongoDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.MongoDb]Gehtsoft.EF.MongoDb[/clink].
+@end

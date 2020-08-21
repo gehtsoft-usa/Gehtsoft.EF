@@ -1,0 +1,35 @@
+@class
+    @name=MongoConnectionFactory
+    @key=Gehtsoft.EF.MongoDb.MongoConnectionFactory
+    @brief=Factory of MongoDB Connection
+    @type=class
+    @ingroup=Gehtsoft.EF.MongoDb
+    @sig=T:Gehtsoft.EF.MongoDb.MongoConnectionFactory
+    @member
+        @name=Create
+        @sig=M:Gehtsoft.EF.MongoDb.MongoConnectionFactory.Create(System.String)
+        @key=Create.0
+        @divisor=.
+        @brief=
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Create
+            @return=[clink=Gehtsoft.EF.MongoDb.MongoConnection]MongoConnection[/clink]
+            @params=string connectionString
+        @end
+
+        @param
+            @name=connectionString
+            MongoDB connection string.
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.EF.MongoDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.MongoDb]Gehtsoft.EF.MongoDb[/clink].
+@end

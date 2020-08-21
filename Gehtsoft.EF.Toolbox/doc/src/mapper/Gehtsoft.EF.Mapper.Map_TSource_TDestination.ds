@@ -1,0 +1,288 @@
+@class
+    @name=Map of (TSource,TDestination)
+    @key=Gehtsoft.EF.Mapper.Map_TSource_TDestination
+    @brief=The map between two types
+    @type=class
+    @ingroup=Gehtsoft.EF.Mapper
+    @sig=T:Gehtsoft.EF.Mapper.Map`2
+    @parent=System.IEquatable<[clink=Gehtsoft.EF.Mapper.IMap]IMap[/clink]>
+
+    @param
+        @name=TSource
+        The source type.
+    @end
+
+    @param
+        @name=TDestination
+        The destination type.
+
+    @end
+
+    @member
+        @name=For
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.For(System.String)
+        @key=For.1
+        @divisor=.
+        @brief=Creates a mapping specification for the specified target property.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=For
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=string name
+        @end
+
+        @declaration
+            @language=cs
+            @name=For<TValue>
+            @return=[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>
+            @params=Expression<Func<TDestination, TValue>> expression
+        @end
+
+        @param
+            @name=name
+            The property name.
+        @end
+
+        @param
+            @name=member
+            The accessor expression.
+
+            Please note that the expression can be a member access expression only! If you need to put any complex login on target,
+            using map actions instead.
+        @end
+    @end
+
+    @member
+        @name=Find
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Find``1(System.Linq.Expressions.Expression{System.Func`2})
+        @key=Find.0
+        @divisor=.
+        @brief=Finds all mapping rules for the destination property.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=Find<TValue>
+            @return=IEnumerable<[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>>
+            @params=Expression<Func<TDestination, TValue>> member
+        @end
+
+        @declaration
+            @language=cs
+            @name=Find
+            @return=IEnumerable<[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>>
+            @params=string name
+        @end
+
+        @param
+            @name=member
+
+        @end
+
+    @end
+
+
+    @member
+        @name=Find
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Find(System.String)
+        @key=Find.1
+        @divisor=.
+        @brief=Finds all mapping specification for the specified target property.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=For
+            @return=IEnumerable<[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>>
+            @params=string name
+        @end
+
+        @declaration
+            @language=cs
+            @name=For<TValue>
+            @return=IEnumerable<[clink=Gehtsoft.EF.Mapper.PropertyMapping_TSource_TDestination]PropertyMapping[/clink]<TSource,TDestination>>
+            @params=Expression<Func<TDestination, TValue>> expression
+        @end
+
+        @param
+            @name=name
+            The property name.
+        @end
+
+        @param
+            @name=member
+            The accessor expression.
+
+            Please note that the expression can be a member access expression only! If you need to put any complex login on target,
+            using map actions instead.
+        @end
+    @end
+
+    @member
+        @name=BeforeMapping
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.BeforeMapping(System.Action`2)
+        @key=BeforeMapping.0
+        @divisor=.
+        @brief=Adds a before mapping action.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=BeforeMapping
+            @return=[clink=Gehtsoft.EF.Mapper.MappingAction_TSource_TTarget]MappingAction[/clink]<TSource,TDestination>
+            @params=Action<TSource, TDescription> action
+        @end
+
+        @param
+            @name=action
+
+        @end
+
+    @end
+
+    @member
+        @name=AfterMapping
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.AfterMapping(System.Action`2)
+        @key=AfterMapping.0
+        @divisor=.
+        @brief=Adds an after mapping action.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=AfterMapping
+            @return=[clink=Gehtsoft.EF.Mapper.MappingAction_TSource_TTarget]MappingAction[/clink]<TSource,TDestination>
+            @params=Action<TSource, TDescription> action
+        @end
+
+        @param
+            @name=action
+
+        @end
+
+    @end
+
+    @member
+        @name=Factory
+        @sig=P:Gehtsoft.EF.Mapper.Map`2.Factory
+        @key=Factory.0
+        @divisor=.
+        @brief=Custom factory to create an instance of the destination type.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Factory
+            @return=System.Func<TSource, TDestination>
+            @suffix= get; set;
+        @end
+    @end
+
+
+
+    @member
+        @name=Do
+        @sig=M:Gehtsoft.EF.Mapper.Map`2.Do(`0,`1)
+        @key=Do.1
+        @divisor=.
+        @brief=Performs mapping.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+
+        @declaration
+            @language=cs
+            @name=Do
+            @return=TDestination
+            @params=TSource source
+        @end
+        @declaration
+            @language=cs
+            @name=Do
+            @return=void
+
+            @params=TSource source, TDestination destination
+        @end
+        @declaration
+            @language=cs
+            @name=Do
+            @return=void
+
+            @params=TSource source, TDestination destination, bool ignoreNull
+        @end
+
+        @param
+            @name=source
+
+        @end
+
+        @param
+            @name=destination
+
+        @end
+
+        @param
+            @name=ignoreNull
+            If this flag is set true, the null values of the source object properties will be ignored.
+
+            This option is useful to update entities from the model when [c]null[/c] in the model means "do not change".
+        @end
+
+    @end
+
+    @member
+        @name=MapPropertiesByName
+        @brief=Adds mapping rules associating source and destination type by property names.
+
+        Please note that properties attributed using [clink=Gehtsoft.EF.Mapper.DoNotAutoMapAttribute]DoNotAutoMapAttribute[/clink] won't be mapped.
+
+
+        @declaration
+            @language=cs
+            @params=bool onlyValueTypes = false, string[] propertyIgnoreList = null, Type[] typeIgnoreList = null
+            @return=void
+        @end
+
+        @param
+            @name=onlyValueTypes
+            If this flag is set, only value properties (i.e. numbers, string, dates, booleans) will be mapped.
+        @end
+
+        @param
+            @name=propertyIgnoreList
+            The list of the source type or destination type property names to be excluded from the mapping.
+        @end
+
+
+        @param
+            @name=typeIgnoreList
+            The list of the types to be excluded from the mapping.
+        @end
+    @end
+
+
+    The type defined in the [c]Gehtsoft.Mapper.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Mapper]Gehtsoft.EF.Mapper[/clink].
+@end

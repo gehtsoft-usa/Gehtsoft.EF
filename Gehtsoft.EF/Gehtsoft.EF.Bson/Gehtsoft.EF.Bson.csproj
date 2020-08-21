@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Db.SqlDb\Gehtsoft.EF.Db.SqlDb.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Entities\Gehtsoft.EF.Entities.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.4" />
+    <PackageReference Include="MongoDB.Bson">
+      <Version>2.10.4</Version>
+    </PackageReference>
+  </ItemGroup>
+</Project>
+

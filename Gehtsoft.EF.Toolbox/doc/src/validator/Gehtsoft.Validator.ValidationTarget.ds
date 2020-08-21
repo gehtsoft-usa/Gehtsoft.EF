@@ -1,0 +1,75 @@
+@class
+    @name=ValidationTarget
+    @key=Gehtsoft.Validator.ValidationTarget
+    @brief=The target of the validation rule.
+    @type=class
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.ValidationTarget
+
+    @member
+        @name=GetCustomAttribute
+        @sig=M:Gehtsoft.Validator.ValidationTarget.GetCustomAttribute``1
+        @key=GetCustomAttribute.0
+        @divisor=.
+        @brief=Gets a custom attribute for the target.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetCustomAttribute<T>
+            @return=T
+        @end
+
+        @param
+            @name=T
+            The type of the attribute (must be derived from [c]Attribute[/c]).
+        @end
+
+    @end
+
+    @member
+        @name=TargetName
+        @sig=P:Gehtsoft.Validator.ValidationTarget.TargetName
+        @key=TargetName.0
+        @divisor=.
+        @brief=Gets a name of the target (e.g. property name or a name specified in RuleFor method).
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=TargetName
+            @return=string
+            @suffix= get;
+        @end
+
+    @end
+
+    @member
+        @name=ValueType
+        @sig=P:Gehtsoft.Validator.ValidationTarget.ValueType
+        @key=ValueType.0
+        @divisor=.
+        @brief=The type of the target value.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=ValueType
+            @return=System.Type
+            @suffix= get;
+        @end
+
+    @end
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end

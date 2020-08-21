@@ -1,0 +1,115 @@
+@class
+    @name=ConditionEntityQueryBase
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase
+    @brief=The base class for condition entity queries.
+    @type=class
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase
+    @parent=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery]EntityQuery[/clink]
+
+
+    Important:
+
+    There are two way to refer a property of a type included into the query:
+
+    1) Using the type and the property name.
+
+    In this case the first occurrence of the specified property in the query will be taken.
+
+    2) Using the property path
+
+    Property path is full path how the property is accessed. The path to the property of the first added entity is just a property name. The path to the
+    property of an entity to which the root entity is connected - is the name of the referring property, then dot, then the property name of the referred
+    property.
+
+    For example there are entity [c]a[/c] which consists of property [c]RB[/c] which refers to the entity [c]b[/c]. Then path to property [c]X[/c] of [c]b[/c] will be [c]RB.X[/c].
+    Now, if entity [c]b[/c] refers to entity [c]c[/c] via property [c]RC[/c], the path to the property [c]Y[/c] of [c]c[/c] will be [c]RB.RC.Y[/c]
+
+    @member
+        @name=Where
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.Where
+        @key=Where.0
+        @divisor=.
+        @brief=The where condition builder.
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=Where
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilder]EntityQueryConditionBuilder[/clink]
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
+        @name=GetReference
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.GetReference(System.String)
+        @key=GetReference.0
+        @divisor=.
+        @brief=Returns reference information to a field of an entity included into the query.
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetReference
+            @return=ConditionEntityQueryBase.InQueryName
+            @params=string path
+        @end
+
+        @declaration
+            @language=cs
+            @name=GetReference
+            @return=ConditionEntityQueryBase.InQueryName
+            @params=System.Type type, string property
+        @end
+
+        @declaration
+            @language=cs
+            @name=GetReference
+            @return=ConditionEntityQueryBase.InQueryName
+            @params=System.Type type, int occurrence, string property
+        @end
+
+        @param
+            @name=path
+            The path to the property.
+
+            See [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase]ConditionEntityQueryBase[/clink] for more details about
+            property path.
+
+        @end
+
+
+        @param
+            @name=type
+            The entity type.
+        @end
+
+        @param
+            @name=occurrence
+            The occurrence of the specified type in the query. Use [c]0[/c] for the first occurrence, [c]1[/c] for the second and so on.
+        @end
+
+        @param
+            @name=property
+            The property name.
+        @end
+
+        The reference can be used as a parameter value in [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SingleEntityQueryConditionBuilder.Reference.0]SingleEntityQueryConditionBuilder.Reference()[/clink] method
+        instead of parameter value and makes comparison operation between two properties instead of a property and a parameter value.
+
+        The reference of the value from outer query can be used in where clause of a subquery, however when such option is used, the subquery
+        can not be executed independently, only as a subquery of the outer query.
+    @end
+
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
+@end
