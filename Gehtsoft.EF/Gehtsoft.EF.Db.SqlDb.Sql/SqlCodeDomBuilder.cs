@@ -105,5 +105,28 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 }
             }
         }
+
+        public object Run(ISqlDbConnectionFactory connectionFactory)
+        {
+            object result = null;
+            if (mLastParse == null)
+                throw new ArgumentException("Nothing parsed yet");
+
+            foreach(SqlStatement statement in mLastParse)
+            {
+                switch(statement.Id)
+                {
+                    case SqlStatement.StatementId.Select:
+                        SelectRunner runner = new SelectRunner(this, connectionFactory);
+                        result = runner.Run(statement as SqlSelectStatement);
+                        break;
+
+                    default:
+                        throw new Exception($"Unknown statement '{statement.Id}'");
+                }
+            }
+
+            return result;
+        }
     }
 }

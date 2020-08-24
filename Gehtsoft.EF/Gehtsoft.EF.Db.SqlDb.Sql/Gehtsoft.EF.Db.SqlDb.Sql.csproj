@@ -44,6 +44,8 @@
     <Compile Include="CodeDom\SqlTableSpecification.cs" />
     <Compile Include="CodeDom\SqlUnarExpression.cs" />
     <Compile Include="CodeDom\SqlWhereClause.cs" />
+    <Compile Include="IStatementRunner.cs" />
+    <Compile Include="SelectRunner.cs" />
     <Compile Include="SqlASTVisitor.cs" />
     <Compile Include="SqlCodeDomBuilder.cs" />
     <Compile Include="SqlError.cs" />

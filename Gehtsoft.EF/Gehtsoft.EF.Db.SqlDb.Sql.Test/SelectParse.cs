@@ -18,7 +18,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
         public SelectParse()
         {
-            ISqlDbConnectionFactory connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=d:\testsql.db"); ;
+            //ISqlDbConnectionFactory connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=d:\testsql.db"); ;
             //Snapshot snapshot = new Snapshot();
             //snapshot.CreateAsync(connectionFactory.GetConnection()).ConfigureAwait(true).GetAwaiter().GetResult();
             EntityFinder.EntityTypeInfo[] entities = EntityFinder.FindEntities(new Assembly[] { typeof(Snapshot).Assembly }, "northwind", false);
