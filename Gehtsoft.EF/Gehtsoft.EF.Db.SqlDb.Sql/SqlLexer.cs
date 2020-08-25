@@ -127,12 +127,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			new Symbol(0x006F, "MAX"),
 			new Symbol(0x0070, "MIN"),
 			new Symbol(0x0071, "AVG"),
-			new Symbol(0x0072, "COUNT(*)"),
-			new Symbol(0x0074, "AS"),
-			new Symbol(0x0075, "."),
-			new Symbol(0x0076, "WHERE"),
-			new Symbol(0x0077, "FROM"),
-			new Symbol(0x0079, "SELECT") };
+			new Symbol(0x0072, "SUM"),
+			new Symbol(0x0073, "COUNT(*)"),
+			new Symbol(0x0075, "AS"),
+			new Symbol(0x0076, "."),
+			new Symbol(0x0077, "WHERE"),
+			new Symbol(0x0078, "FROM"),
+			new Symbol(0x007A, "SELECT") };
 		/// <summary>
 		/// Initializes a new instance of the lexer
 		/// </summary>

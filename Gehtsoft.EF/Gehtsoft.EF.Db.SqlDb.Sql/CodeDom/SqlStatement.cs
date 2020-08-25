@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,12 +26,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             private string mEntityName;
             private string mAlias;
+            private EntityDescriptor mEntityDescriptor;
 
-            internal EntityEntry(string entityName, Type entityType, string alias)
+            internal EntityEntry(string entityName, Type entityType, string alias, EntityDescriptor entityDescriptor)
             {
                 mEntityName = entityName;
                 EntityType = entityType;
                 mAlias = alias;
+                mEntityDescriptor = entityDescriptor;
             }
 
             public Type EntityType { get; }
@@ -39,6 +42,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 get
                 {
                     return mAlias ?? mEntityName;
+                }
+            }
+
+            public EntityDescriptor EntityDescriptor
+            {
+                get
+                {
+                    return mEntityDescriptor;
                 }
             }
         }
@@ -96,7 +107,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 get
                 {
-                    return  mAliasName;
+                    return mAliasName;
                 }
             }
         }
@@ -149,10 +160,22 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         /// </summary>
         /// <param name="alias"></param>
         /// <param name="expression"></param>
-        internal void AddAliasEntry(string alias, SqlBaseExpression expression)
+        internal string AddAliasEntry(string alias, SqlBaseExpression expression)
         {
-            if(AliasEntrys.Exists(alias)) throw new Exception();
+            if (alias == null)
+            {
+                if (expression is SqlField field)
+                {
+                    alias = field.Name;
+                }
+                else
+                {
+                    alias = ($"autocolumn{AliasEntrys.Count + 1}");
+                }
+            }
+            if (AliasEntrys.Exists(alias)) throw new Exception();
             AliasEntrys.Add(new AliasEntry(alias, expression));
+            return alias;
         }
 
         /// <summary>
@@ -164,7 +187,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             Type entityType = CodeDomBuilder.EntityByName(name);
             if (entityType == null) throw new Exception();
-            EntityEntrys.Add(new EntityEntry(name, entityType, alias));
+            EntityEntrys.Add(new EntityEntry(name, entityType, alias, AllEntities.Inst[entityType]));
         }
 
         /// <summary>

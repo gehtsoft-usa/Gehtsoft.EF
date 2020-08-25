@@ -28,11 +28,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal virtual void SetResultType(ResultTypes resultType)
-        {
-            mResultType = resultType;
-        }
-
         internal SqlAggrFunc(string name, SqlField field, ResultTypes? resultType = null)
         {
             Name = name;
@@ -40,6 +35,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             if(resultType.HasValue)
             {
                 mResultType = resultType.Value;
+            } else if(Field != null)
+            {
+                mResultType = Field.ResultType;
             }
         }
 

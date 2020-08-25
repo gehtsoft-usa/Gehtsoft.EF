@@ -11,7 +11,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     public class SqlExpressionAlias : IEquatable<SqlExpressionAlias>
     {
         public SqlBaseExpression Expression { get; } = null;
-        public string Alias { get; } = null;
+        public string Alias { get; private set; } = null;
+        internal void SetAlias(string alias) => Alias = alias;
         internal SqlExpressionAlias(SqlStatement parentStatement, ASTNode fieldAliasNode, string source)
         {
             parentStatement.IgnoreAlias = true;
@@ -20,17 +21,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             if (fieldAliasNode.Children.Count > 1)
             {
                 Alias = fieldAliasNode.Children[1].Value;
-                try
-                {
-                    parentStatement.AddAliasEntry(Alias, Expression);
-                }
-                catch
-                {
-                    throw new SqlParserException(new SqlError(source,
-                        fieldAliasNode.Position.Line,
-                        fieldAliasNode.Position.Column,
-                        $"Duplicate alias name '{Alias}'"));
-                }
+            }
+            try
+            {
+                Alias = parentStatement.AddAliasEntry(Alias, Expression);
+            }
+            catch
+            {
+                throw new SqlParserException(new SqlError(source,
+                    fieldAliasNode.Position.Line,
+                    fieldAliasNode.Position.Column,
+                    $"Duplicate alias name '{Alias}'"));
             }
         }
         internal SqlExpressionAlias(SqlStatement parentStatement, SqlBaseExpression expression, string alias)
@@ -39,17 +40,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Alias = alias;
             try
             {
-                parentStatement.AddAliasEntry(Alias, Expression);
+                Alias = parentStatement.AddAliasEntry(Alias, Expression);
             }
             catch
             {
                 throw new SqlParserException(new SqlError(null, 0, 0, $"Duplicate alias name '{Alias}'"));
             }
         }
-        internal SqlExpressionAlias(SqlBaseExpression expression)
+        internal SqlExpressionAlias(SqlStatement parentStatement, SqlBaseExpression expression)
         {
             Expression = expression;
-            Alias = null;
+            Alias = parentStatement.AddAliasEntry(Alias, Expression);
         }
 
         public virtual bool Equals(SqlExpressionAlias other)
@@ -60,7 +61,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 return false;
             if (!(this.Expression == null ? (other.Expression == null) : Expression.Equals(other.Expression)))
                 return false;
-            return this.Alias == null?(other.Alias == null) : this.Alias == other.Alias;
+            return this.Alias == null ? (other.Alias == null) : this.Alias == other.Alias;
         }
 
         public override bool Equals(object obj)
@@ -111,7 +112,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return ((IEnumerable)mList).GetEnumerator();
         }
 
-        internal void Add(SqlExpressionAlias fieldAlias) => mList.Add(fieldAlias);
+        internal void Add(SqlExpressionAlias fieldAlias)
+        {
+            mList.Add(fieldAlias);
+        }
     }
 
 }

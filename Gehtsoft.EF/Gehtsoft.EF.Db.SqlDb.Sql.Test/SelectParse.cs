@@ -41,9 +41,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 );
 
             fromTables.Add(new SqlPrimaryTable(select, "Order"));
-            selectList.Add(new SqlExpressionAlias(new SqlField(select, "OrderID")));
-            selectList.Add(new SqlExpressionAlias(new SqlField(select, "OrderDate")));
-            selectList.Add(new SqlExpressionAlias(new SqlField(select, "ShipName")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderID")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderDate")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "ShipName")));
             select.WhereClause.RootExpression = new SqlBinaryExpression(
                 new SqlBinaryExpression(
                     new SqlField(select, "OrderID"),
@@ -85,8 +85,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             );
 
             fromTables.Add(new SqlPrimaryTable(select, "OrderDetail"));
-            selectList.Add(new SqlExpressionAlias(new SqlAggrFunc("COUNT", null)));
-            selectList.Add(new SqlExpressionAlias(new SqlAggrFunc("MAX", new SqlField(select, "Quantity"))));
+            selectList.Add(new SqlExpressionAlias(select, new SqlAggrFunc("COUNT", null)));
+            selectList.Add(new SqlExpressionAlias(select, new SqlAggrFunc("MAX", new SqlField(select, "Quantity"))));
 
             SqlStatementCollection target = new SqlStatementCollection() { select };
 

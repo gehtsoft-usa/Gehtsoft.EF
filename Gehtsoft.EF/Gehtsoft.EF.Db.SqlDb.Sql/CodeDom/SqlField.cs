@@ -1,14 +1,17 @@
-﻿using Hime.Redist;
+﻿using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Hime.Redist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlStatement;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     public class SqlField : SqlBaseExpression
     {
+        public EntityDescriptor EntityDescriptor { get; private set; } = null;
         public string Name { get; }
         public string Prefix { get; }
         private ResultTypes mResultType = ResultTypes.Unknown;
@@ -85,7 +88,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         private void processField(SqlStatement parentStatement, string prefix, string name, out string error)
         {
             error = null;
-            Type entityType = parentStatement.EntityEntrys[0].EntityType;
+            Type fieldType = null;
             if (prefix != null)
             {
                 if (!parentStatement.EntityEntrys.Exists(prefix))
@@ -93,19 +96,32 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     error = $"Not found entity '{prefix}'";
                     return;
                 }
-                entityType = parentStatement.EntityEntrys.Find(prefix).EntityType;
+                EntityEntry entityEntry = parentStatement.EntityEntrys.Find(prefix);
+                fieldType = parentStatement.CodeDomBuilder.TypeByName(entityEntry.EntityType, name);
+                EntityDescriptor = entityEntry.EntityDescriptor;
             }
-            Type fieldType = parentStatement.CodeDomBuilder.TypeByName(entityType, name);
-            if (fieldType == null && prefix == null && !parentStatement.IgnoreAlias)
+            else
             {
-                if(parentStatement.AliasEntrys.Exists(name))
+                foreach (EntityEntry entityEntry in parentStatement.EntityEntrys)
                 {
-                    fieldType = parentStatement.AliasEntrys.Find(name).Expression.RealType;
+                    fieldType = parentStatement.CodeDomBuilder.TypeByName(entityEntry.EntityType, name);
+                    if (fieldType == null && !parentStatement.IgnoreAlias)
+                    {
+                        if (parentStatement.AliasEntrys.Exists(name))
+                        {
+                            fieldType = parentStatement.AliasEntrys.Find(name).Expression.RealType;
+                        }
+                    }
+                    if (fieldType != null)
+                    {
+                        EntityDescriptor = entityEntry.EntityDescriptor;
+                        break;
+                    }
                 }
             }
             if (fieldType == null)
             {
-                error = $"Not found field '{name}' in entity '{entityType.Name}'";
+                error = $"Not found field '{name}' in entity";
                 return;
             }
 

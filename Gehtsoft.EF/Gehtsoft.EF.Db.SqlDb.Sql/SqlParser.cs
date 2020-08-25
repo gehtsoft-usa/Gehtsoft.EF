@@ -366,10 +366,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			new Symbol(0x004D, "ROOT"), 
 			new Symbol(0x0053, "__V83"), 
 			new Symbol(0x0060, "__V96"), 
-			new Symbol(0x0073, "__V115"), 
-			new Symbol(0x0078, "__V120"), 
-			new Symbol(0x007A, "__V122"), 
-			new Symbol(0x007B, "__VAxiom") };
+			new Symbol(0x0074, "__V116"), 
+			new Symbol(0x0079, "__V121"), 
+			new Symbol(0x007B, "__V123"), 
+			new Symbol(0x007C, "__VAxiom") };
 		/// <summary>
 		/// The collection of virtuals matched by this parser
 		/// </summary>

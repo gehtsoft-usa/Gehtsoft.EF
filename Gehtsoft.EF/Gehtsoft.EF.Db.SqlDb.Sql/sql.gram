@@ -145,7 +145,7 @@ grammar Sql
 		ASRERISK -> '*';
 
         AGGR_CALL_BRACKET -> '('! FIELD^ ')'!;
-		AGGR_FUNC -> 'COUNT' | 'MAX' | 'MIN' | 'AVG';
+		AGGR_FUNC -> 'COUNT' | 'MAX' | 'MIN' | 'AVG' | 'SUM';
 		AGGR_COUNT_ALL -> 'COUNT(*)'!;
         AGGR_CALL -> AGGR_FUNC^ AGGR_CALL_BRACKET | AGGR_COUNT_ALL^;
 

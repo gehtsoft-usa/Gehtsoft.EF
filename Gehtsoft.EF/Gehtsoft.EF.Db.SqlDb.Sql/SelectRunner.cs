@@ -1,8 +1,10 @@
 ﻿using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Db.SqlDb.Sql.CodeDom;
+using Gehtsoft.EF.Entities;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,13 +32,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             try
             {
                 processFrom(select.FromClause);
+                processSelectList(select.SelectList);
 
                 using (SqlDbQuery query = mConnection.GetQuery(mMainBuilder))
                 {
                     query.ExecuteReader();
                     while (query.ReadNext())
                     {
-                        object o = Bind(query);
+                        object o = bindRecord(query, select);
                         result.Add(o);
                     }
                 }
@@ -46,6 +49,96 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 if (mConnectionFactory.NeedDispose)
                     mConnection.Dispose();
             }
+            return result;
+        }
+
+        private void processSelectList(SqlSelectList selectList)
+        {
+            if (!selectList.All)
+            {
+                foreach (SqlExpressionAlias item in selectList.FieldAliasCollection)
+                {
+                    bool isAggregate;
+                    string sExpr = getStrExpression(item.Expression, out isAggregate);
+                    if (sExpr == null)
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Unknown expression"));
+                    mMainBuilder.AddExpressionToResultset(sExpr, getDbType(item.Expression.RealType), isAggregate, item.Alias);
+                }
+            }
+        }
+
+        private string getStrExpression(SqlBaseExpression expression, out bool isAggregate)
+        {
+            isAggregate = false;
+            if (expression is SqlField field)
+            {
+                return mMainBuilder.GetAlias(field.EntityDescriptor.TableDescriptor[field.Name]);
+            }
+            else if (expression is SqlAggrFunc aggrFunc)
+            {
+                isAggregate = true;
+                if (aggrFunc.Name == "COUNT" && aggrFunc.Field == null) // COUNT(*)
+                {
+                    return mConnection.GetLanguageSpecifics().GetAggFn(AggFn.Count, null);
+                }
+                else
+                {
+                    AggFn fn = AggFn.None;
+                    switch (aggrFunc.Name)
+                    {
+                        case "COUNT":
+                            fn = AggFn.Count;
+                            break;
+                        case "MAX":
+                            fn = AggFn.Max;
+                            break;
+                        case "MIN":
+                            fn = AggFn.Min;
+                            break;
+                        case "AVG":
+                            fn = AggFn.Avg;
+                            break;
+                        case "SUM":
+                            fn = AggFn.Sum;
+                            break;
+                    }
+                    if (fn != AggFn.None)
+                    {
+                        return mConnection.GetLanguageSpecifics().GetAggFn(fn, mMainBuilder.GetAlias(aggrFunc.Field.EntityDescriptor.TableDescriptor[aggrFunc.Field.Name]));
+                    }
+                }
+            }
+            return null;
+        }
+        private DbType getDbType(Type propType)
+        {
+            DbType result = DbType.String;
+
+            if (propType == typeof(string))
+            {
+                result = DbType.String;
+            }
+            else if (propType == typeof(Guid))
+            {
+                result = DbType.Guid;
+            }
+            else if (propType == typeof(bool))
+            {
+                result = DbType.Boolean;
+            }
+            else if (propType == typeof(int))
+            {
+                result = DbType.Int32;
+            }
+            else if (propType == typeof(double))
+            {
+                result = DbType.Double;
+            }
+            else if (propType == typeof(DateTime))
+            {
+                result = DbType.DateTime;
+            }
+
             return result;
         }
 
@@ -97,58 +190,58 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         }
 
 
-        public object Bind(SqlDbQuery query)
+        private object bindRecord(SqlDbQuery query, SqlSelectStatement select)
         {
             Dictionary<string, object> result = new Dictionary<string, object>();
             int fieldCount = query.FieldCount;
-            EntityDescriptor entityDescriptor;
+            ;
             for (int i = 0; i < fieldCount; i++)
             {
                 string name = query.Field(i).Name;
-                Dictionary<string, object> placeTo = result;
-
-                entityDescriptor = mMainEntityDescriptor;
-
                 object value = query.GetValue(i);
-                string nameOrg = name;
-                name = mBuilder.NameByField(entityDescriptor.EntityType, name);
+                Type toType = null;
 
-                if (name != null)
+                SqlStatement.AliasEntry aliasEntry = select.AliasEntrys.Find(name);
+                if(aliasEntry != null)
                 {
-                    if (value != null)
-                    {
-                        if (value.GetType().FullName == "System.DBNull")
-                        {
-                            if (mBuilder.TypeByName(entityDescriptor.EntityType, name) == null)
-                            {
-                                //continue; // for foreign keys
-                                name = nameOrg;
-                            }
-                            value = null;
-                        }
-                        else
-                        {
-                            Type toType = mBuilder.TypeByName(entityDescriptor.EntityType, name);
-                            if (toType != null)
-                            {
-                                value = query.LanguageSpecifics.TranslateValue(value, toType);
-                            }
-                            else
-                            {
-                                //continue; // for foreign keys
-                                name = nameOrg;
-                            }
-                        }
-                    }
+                    toType = select.AliasEntrys.Find(name).Expression.RealType;
                 }
                 else
                 {
-                    name = query.Field(i).Name;
+                    foreach(SqlStatement.EntityEntry entityEntry in select.EntityEntrys)
+                    {
+                        EntityDescriptor entityDescriptor = entityEntry.EntityDescriptor;
+                        name = mBuilder.NameByField(entityDescriptor.EntityType, name);
+                        if (name != null)
+                        {
+                            toType = mBuilder.TypeByName(entityDescriptor.EntityType, name);
+                            break;
+                        }
+                    }
+                    if (name == null)
+                    {
+                        name = query.Field(i).Name;
+                    }
+                }
+
+                if (value != null)
+                {
+                    if (value.GetType().FullName == "System.DBNull")
+                    {
+                        value = null;
+                    }
+                    else
+                    {
+                        if (toType != null)
+                        {
+                            value = query.LanguageSpecifics.TranslateValue(value, toType);
+                        }
+                    }
                 }
 
                 try
                 {
-                    placeTo.Add(name, value);
+                    result.Add(name, value);
                 }
                 catch
                 {
