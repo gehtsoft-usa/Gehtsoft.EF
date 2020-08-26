@@ -38,7 +38,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     break;
                 case SqlLexer.ID.TerminalStringdq:
                     opType = ResultTypes.String;
-                    constant = fieldNode.Value.Substring(1, fieldNode.Value.Length-2);
+                    constant = fieldNode.Value.Substring(1, fieldNode.Value.Length - 2);
                     break;
                 case SqlLexer.ID.TerminalStringsq:
                     opType = ResultTypes.String;
@@ -81,7 +81,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     binaryOp = SqlBinaryExpression.OperationType.Le;
                     break;
                 case SqlParser.ID.VariableLtOp:
-                    binaryOp = SqlBinaryExpression.OperationType.Lt;
+                    binaryOp = SqlBinaryExpression.OperationType.Ls;
                     break;
                 case SqlParser.ID.VariableEqOp:
                     binaryOp = SqlBinaryExpression.OperationType.Eq;
@@ -127,23 +127,20 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     ASTNode parameterNode = fieldNode.Children[0];
                     if (fieldNode.Children.Count > 1)
                     {
-                        if(fieldNode.Children[0].Symbol.ID == SqlParser.ID.VariableTrimLeading)
+                        if (fieldNode.Children[0].Symbol.ID == SqlParser.ID.VariableTrimLeading)
                             funcName = "LTRIM";
-                        else if(fieldNode.Children[0].Symbol.ID == SqlParser.ID.VariableTrimTrailing)
+                        else if (fieldNode.Children[0].Symbol.ID == SqlParser.ID.VariableTrimTrailing)
                             funcName = "RTRIM";
 
                         parameterNode = fieldNode.Children[1];
                     }
                     SqlBaseExpression parameter = SqlExpressionParser.ParseExpression(parentStatement, parameterNode, source);
-                    if(parameter.ResultType != ResultTypes.Unknown)
+                    if (parameter.ResultType != ResultTypes.String)
                     {
-                        if (parameter.ResultType != ResultTypes.String)
-                        {
-                            throw new SqlParserException(new SqlError(source,
-                                parameterNode.Position.Line,
-                                parameterNode.Position.Column,
-                                $"Incorrect type of parameter ({parameterNode.Value ?? "null"})"));
-                        }
+                        throw new SqlParserException(new SqlError(source,
+                            parameterNode.Position.Line,
+                            parameterNode.Position.Column,
+                            $"Incorrect type of parameter ({parameterNode.Value ?? "null"})"));
                     }
                     callParameters = new SqlBaseExpressionCollection();
                     callParameters.Add(parameter);
@@ -166,11 +163,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 result = new SqlConstant(constant, opType);
             }
-            if(binaryOp.HasValue)
+            if (binaryOp.HasValue)
             {
                 result = new SqlBinaryExpression(parentStatement, fieldNode.Children[0], binaryOp.Value, fieldNode.Children[1], source);
             }
-            if(unarOp.HasValue)
+            if (unarOp.HasValue)
             {
                 result = new SqlUnarExpression(parentStatement, fieldNode.Children[0], unarOp.Value, source);
             }

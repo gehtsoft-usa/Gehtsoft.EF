@@ -15,6 +15,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         public enum TableType
         {
             Primary,
+            QualifiedJoin
         };
 
         public abstract TableType Type { get; }

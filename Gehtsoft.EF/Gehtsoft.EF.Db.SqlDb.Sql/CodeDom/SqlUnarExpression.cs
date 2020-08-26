@@ -57,31 +57,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal SqlUnarExpression(SqlStatement parentStatement, ASTNode operand, OperationType operation, string source)
         {
             mOperand = SqlExpressionParser.ParseExpression(parentStatement, operand, source);
-            if (mOperand.ResultType != ResultTypes.Unknown)
+            if (!checkOperationAndType(operation, mOperand.ResultType))
             {
-                if (!checkOperationAndType(operation, mOperand.ResultType))
-                {
-                    throw new SqlParserException(new SqlError(source,
-                        operand.Position.Line,
-                        operand.Position.Column,
-                        $"Type of operand doesn't match the operation {operand.Symbol.Name} ({operand.Value ?? "null"})"));
-                }
-                mResultType = mOperand.ResultType;
+                throw new SqlParserException(new SqlError(source,
+                    operand.Position.Line,
+                    operand.Position.Column,
+                    $"Type of operand doesn't match the operation {operand.Symbol.Name} ({operand.Value ?? "null"})"));
             }
+            mResultType = mOperand.ResultType;
             mOperation = operation;
         }
 
         internal SqlUnarExpression(SqlBaseExpression operand, OperationType operation, SqlBaseExpression rightOperand)
         {
             mOperand = operand;
-            if (mOperand.ResultType != ResultTypes.Unknown)
+            if (!checkOperationAndType(operation, mOperand.ResultType))
             {
-                if (!checkOperationAndType(operation, mOperand.ResultType))
-                {
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Type of operand doesn't match the operation"));
-                }
-                mResultType = mOperand.ResultType;
+                throw new SqlParserException(new SqlError(null, 0, 0, $"Type of operand doesn't match the operation"));
             }
+            mResultType = mOperand.ResultType;
             mOperation = operation;
         }
 

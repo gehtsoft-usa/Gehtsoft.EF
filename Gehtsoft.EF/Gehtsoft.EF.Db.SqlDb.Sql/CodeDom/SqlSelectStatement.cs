@@ -36,8 +36,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 ASTNode whereNode = tableExpressionNode.Children[1];
                 WhereClause = new SqlWhereClause(this, whereNode, currentSource);
-                if (WhereClause.RootExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean &&
-                    WhereClause.RootExpression.ResultType != SqlBaseExpression.ResultTypes.Unknown)
+                if (WhereClause.RootExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
                 {
                     throw new SqlParserException(new SqlError(currentSource,
                         whereNode.Position.Line,

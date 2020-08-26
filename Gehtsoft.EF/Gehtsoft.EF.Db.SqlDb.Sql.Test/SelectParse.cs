@@ -67,7 +67,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 )
             );
 
-            SqlStatementCollection target = new SqlStatementCollection(){ select };
+            SqlStatementCollection target = new SqlStatementCollection() { select };
 
             result.Equals(target).Should().BeTrue();
         }
@@ -91,6 +91,65 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             SqlStatementCollection target = new SqlStatementCollection() { select };
 
             result.Equals(target).Should().BeTrue();
+        }
+
+        [Fact]
+        public void JoinedSelect()
+        {
+            SqlStatementCollection result = DomBuilder.Parse("test",
+                "SELECT OrderID, Quantity, " +
+                "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
+                "FROM OrderDetail " +
+                "INNER JOIN Order ON OrderDetail.Order = Order.OrderID " +
+                "INNER JOIN Customer ON Order.Customer = Customer.CustomerID " +
+                "INNER JOIN Employee ON Order.Employee = Employee.EmployeeID"
+                );
+
+            SqlExpressionAliasCollection selectList = new SqlExpressionAliasCollection();
+            SqlTableSpecificationCollection fromTables = new SqlTableSpecificationCollection();
+            SqlSelectStatement select = new SqlSelectStatement(DomBuilder,
+                new SqlSelectList(selectList),
+                new SqlFromClause(fromTables)
+            );
+
+            fromTables.Add(
+                new SqlQualifiedJoinedTable(
+                    new SqlQualifiedJoinedTable(
+                        new SqlQualifiedJoinedTable(
+                            new SqlPrimaryTable(select, "OrderDetail"),
+                            new SqlPrimaryTable(select, "Order"), "INNER",
+                            new SqlBinaryExpression(
+                                new SqlField(select, "Order", "OrderDetail"),
+                                SqlBinaryExpression.OperationType.Eq,
+                                new SqlField(select, "OrderID", "Order")
+                            )
+                        ),
+                        new SqlPrimaryTable(select, "Customer"), "INNER",
+                        new SqlBinaryExpression(
+                            new SqlField(select, "Customer", "Order"),
+                            SqlBinaryExpression.OperationType.Eq,
+                            new SqlField(select, "CustomerID", "Customer")
+                        )
+                    ),
+                    new SqlPrimaryTable(select, "Employee"), "INNER",
+                    new SqlBinaryExpression(
+                        new SqlField(select, "Employee", "Order"),
+                        SqlBinaryExpression.OperationType.Eq,
+                        new SqlField(select, "EmployeeID", "Employee")
+                    )
+                )
+            );
+
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderID")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "Quantity")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderDate", "Order")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "CompanyName", "Customer")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "FirstName", "Employee")));
+
+            SqlStatementCollection target = new SqlStatementCollection() { select };
+
+            result.Equals(target).Should().BeTrue();
+
         }
     }
 }

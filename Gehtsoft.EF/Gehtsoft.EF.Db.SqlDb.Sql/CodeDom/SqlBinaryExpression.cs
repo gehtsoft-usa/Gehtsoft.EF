@@ -23,7 +23,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             And,
             Gt,
             Ge,
-            Lt,
+            Ls,
             Le,
             Eq,
             Neq,
@@ -77,17 +77,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mLeftOperand = SqlExpressionParser.ParseExpression(parentStatement, leftOperand, source);
             mRightOperand = SqlExpressionParser.ParseExpression(parentStatement, rightOperand, source);
-            if (mLeftOperand.ResultType != ResultTypes.Unknown && mRightOperand.ResultType != ResultTypes.Unknown)
+            if (mLeftOperand.ResultType != mRightOperand.ResultType || !checkOperationAndType(operation, mLeftOperand.ResultType))
             {
-                if (mLeftOperand.ResultType != mRightOperand.ResultType || !checkOperationAndType(operation, mLeftOperand.ResultType))
-                {
-                    throw new SqlParserException(new SqlError(source,
-                        rightOperand.Position.Line,
-                        rightOperand.Position.Column,
-                        $"Incorrect type of operand {rightOperand.Symbol.Name} ({rightOperand.Value ?? "null"})"));
-                }
-                mResultType = getResultType(operation, mLeftOperand.ResultType);
+                throw new SqlParserException(new SqlError(source,
+                    rightOperand.Position.Line,
+                    rightOperand.Position.Column,
+                    $"Incorrect type of operand {rightOperand.Symbol.Name} ({rightOperand.Value ?? "null"})"));
             }
+            mResultType = getResultType(operation, mLeftOperand.ResultType);
             mOperation = operation;
         }
 
@@ -95,14 +92,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mLeftOperand = leftOperand;
             mRightOperand = rightOperand;
-            if (mLeftOperand.ResultType != ResultTypes.Unknown && mRightOperand.ResultType != ResultTypes.Unknown)
+            if (mLeftOperand.ResultType != mRightOperand.ResultType || !checkOperationAndType(operation, mLeftOperand.ResultType))
             {
-                if (mLeftOperand.ResultType != mRightOperand.ResultType || !checkOperationAndType(operation, mLeftOperand.ResultType))
-                {
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Types of operands don't match"));
-                }
-                mResultType = getResultType(operation, mLeftOperand.ResultType);
+                throw new SqlParserException(new SqlError(null, 0, 0, $"Types of operands don't match"));
             }
+            mResultType = getResultType(operation, mLeftOperand.ResultType);
             mOperation = operation;
         }
 
@@ -113,7 +107,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 operation == OperationType.Neq ||
                 operation == OperationType.Gt ||
                 operation == OperationType.Ge ||
-                operation == OperationType.Lt ||
+                operation == OperationType.Ls ||
                 operation == OperationType.Le)
                 result = ResultTypes.Boolean;
 

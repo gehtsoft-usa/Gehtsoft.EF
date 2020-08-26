@@ -22,6 +22,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     {
                         TableCollection.Add(new SqlPrimaryTable(parentStatement, tableReferenceNode, source));
                     }
+                    else if (tableReferenceNode.Symbol.ID == SqlParser.ID.VariableQualifiedJoin)
+                    {
+                        TableCollection.Add(new SqlQualifiedJoinedTable(parentStatement, tableReferenceNode, source));
+                    }
+                    else
+                    {
+                        throw new SqlParserException(new SqlError(source,
+                            tableReferenceCollectionNode.Position.Line,
+                            tableReferenceCollectionNode.Position.Column,
+                            $"Unexpected table reference node {statementNode.Symbol.Name}({tableReferenceCollectionNode.Value ?? "null"})"));
+                    }
                 }
             }
             else

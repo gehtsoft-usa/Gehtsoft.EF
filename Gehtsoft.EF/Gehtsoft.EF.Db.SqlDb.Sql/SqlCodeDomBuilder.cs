@@ -100,7 +100,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         else
                             fieldName = propertyAttribute.Field;
 
-                        mTypeToFields[entity.EntityType].Add(Tuple.Create(propertyAccessor.Name, fieldName, propertyAttribute.ForeignKey ? typeof(int) : propertyInfo.PropertyType));
+                        Type propertyType = propertyInfo.PropertyType;
+                        if (propertyAttribute.ForeignKey)
+                        {
+                            propertyType = null;
+                            foreach (PropertyInfo innerPropertyInfo in propertyInfo.PropertyType.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+                            {
+                                PropertyAccessor innerPropertyAccessor = new PropertyAccessor(innerPropertyInfo);
+                                EntityPropertyAttribute innerPropertyAttribute = innerPropertyAccessor.GetCustomAttribute<EntityPropertyAttribute>();
+                                if (innerPropertyAttribute != null)
+                                {
+                                    if(innerPropertyAttribute.PrimaryKey)
+                                    {
+                                        propertyType = innerPropertyInfo.PropertyType;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        mTypeToFields[entity.EntityType].Add(Tuple.Create(propertyAccessor.Name, fieldName, propertyType ?? typeof(int)));
                     }
                 }
             }

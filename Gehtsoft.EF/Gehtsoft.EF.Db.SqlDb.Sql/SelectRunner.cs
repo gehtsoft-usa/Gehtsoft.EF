@@ -16,8 +16,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         private SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection;
         private readonly ISqlDbConnectionFactory mConnectionFactory;
-        private SelectQueryBuilder mMainBuilder = null;
+        private MySelectQueryBuilder mMainBuilder = null;
         private EntityDescriptor mMainEntityDescriptor = null;
+        private Dictionary<string, object> mBindParams = new Dictionary<string, object>();
 
         internal SelectRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory)
         {
@@ -34,8 +35,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 processFrom(select.FromClause);
                 processSelectList(select.SelectList);
 
+                if (select.SetQuantifier == "DISTINCT")
+                    mMainBuilder.Distinct = true;
+
                 using (SqlDbQuery query = mConnection.GetQuery(mMainBuilder))
                 {
+                    bindParams(query);
+
                     query.ExecuteReader();
                     while (query.ReadNext())
                     {
@@ -108,6 +114,121 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     }
                 }
             }
+            else if (expression is SqlBinaryExpression binaryExpression)
+            {
+                bool isAggregateLeft;
+                bool isAggregateRight;
+                string leftOperand = getStrExpression(binaryExpression.LeftOperand, out isAggregateLeft);
+                string rightOperand = getStrExpression(binaryExpression.RightOperand, out isAggregateRight);
+                isAggregate = isAggregateLeft || isAggregateRight;
+
+                CmpOp? op = null;
+                LogOp? logOp = null;
+                ArifOp? arifOp = null;
+                switch (binaryExpression.Operation)
+                {
+                    case SqlBinaryExpression.OperationType.Eq:
+                        op = CmpOp.Eq;
+                        break;
+                    case SqlBinaryExpression.OperationType.Neq:
+                        op = CmpOp.Neq;
+                        break;
+                    case SqlBinaryExpression.OperationType.Gt:
+                        op = CmpOp.Gt;
+                        break;
+                    case SqlBinaryExpression.OperationType.Ge:
+                        op = CmpOp.Ge;
+                        break;
+                    case SqlBinaryExpression.OperationType.Ls:
+                        op = CmpOp.Ls;
+                        break;
+                    case SqlBinaryExpression.OperationType.Le:
+                        op = CmpOp.Le;
+                        break;
+                    case SqlBinaryExpression.OperationType.Or:
+                        logOp = LogOp.Or;
+                        break;
+                    case SqlBinaryExpression.OperationType.And:
+                        logOp = LogOp.And;
+                        break;
+                    case SqlBinaryExpression.OperationType.Plus:
+                        arifOp = ArifOp.Add;
+                        break;
+                    case SqlBinaryExpression.OperationType.Minus:
+                        arifOp = ArifOp.Minus;
+                        break;
+                    case SqlBinaryExpression.OperationType.Div:
+                        arifOp = ArifOp.Divide;
+                        break;
+                    case SqlBinaryExpression.OperationType.Mult:
+                        arifOp = ArifOp.Multiply;
+                        break;
+                    case SqlBinaryExpression.OperationType.Concat:
+                        List<string> pars = new List<string>() { leftOperand , rightOperand};
+                        return $"({mConnection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.Concat, pars.ToArray())})";
+                    default:
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Unknown operation"));
+                }
+
+                if (op.HasValue)
+                    return $"({mConnection.GetLanguageSpecifics().GetOp(op.Value, leftOperand, rightOperand)})";
+                else if (logOp.HasValue)
+                    return $"({leftOperand}{mConnection.GetLanguageSpecifics().GetLogOp(logOp.Value)}{rightOperand})";
+                else if (arifOp.HasValue)
+                    return $"({GetArifOp(arifOp.Value, leftOperand, rightOperand)})";
+            }
+            else if (expression is SqlConstant constant)
+            {
+                string paramName = $"$param${mBindParams.Count}";
+                mBindParams.Add(paramName, constant.Value);
+                return getParameter(paramName);
+            }
+            else if (expression is SqlUnarExpression unar)
+            {
+                string start = string.Empty;
+                string end = string.Empty;
+                switch (unar.Operation)
+                {
+                    case SqlUnarExpression.OperationType.Minus:
+                        start = " -(";
+                        break;
+                    case SqlUnarExpression.OperationType.Plus:
+                        start = " -(";
+                        break;
+                    case SqlUnarExpression.OperationType.Not:
+                        start = mConnection.GetLanguageSpecifics().GetLogOp(LogOp.Not);
+                        break;
+                }
+                if (start.Contains("(")) end = ")";
+                return $"{start}{getStrExpression(unar.Operand, out isAggregate)}{end}";
+            }
+            else if (expression is SqlCallFuncExpression callFunc)
+            {
+                SqlFunctionId? funcId = null;
+                switch(callFunc.Name)
+                {
+                    case "TRIM":
+                        funcId = SqlFunctionId.Trim;
+                        break;
+                    case "LTRIM":
+                        funcId = SqlFunctionId.TrimLeft;
+                        break;
+                    case "RTRIM":
+                        funcId = SqlFunctionId.TrimRight;
+                        break;
+                }
+                if(funcId.HasValue)
+                {
+                    List<string> pars = new List<string>();
+                    foreach(SqlBaseExpression paramExpression in callFunc.Parameters)
+                    {
+                        bool isAggregateLocal;
+                        pars.Add(getStrExpression(paramExpression, out isAggregateLocal));
+                        isAggregate = isAggregate || isAggregateLocal;
+                    }
+                    return $"({mConnection.GetLanguageSpecifics().GetSqlFunction(funcId.Value, pars.ToArray())})";
+                }
+            }
             return null;
         }
         private DbType getDbType(Type propType)
@@ -142,43 +263,61 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return result;
         }
 
+        private void diveTableSpecification(SqlTableSpecification table)
+        {
+            if (table is SqlPrimaryTable primaryTable)
+            {
+                if (mMainBuilder == null)
+                {
+                    mMainBuilder = createBuilder(primaryTable.TableName, out mMainEntityDescriptor);
+                }
+                else
+                {
+                    mMainBuilder.AddTable(findTableDescriptor(primaryTable.TableName), false);
+                }
+            }
+            if (table is SqlQualifiedJoinedTable joinedTable)
+            {
+                diveTableSpecification(joinedTable.LeftTable);
+
+                TableJoinType joinType = TableJoinType.None;
+                switch(joinedTable.JoinType)
+                {
+                    case "INNER":
+                        joinType = TableJoinType.Inner;
+                        break;
+                    case "LEFT":
+                        joinType = TableJoinType.Left;
+                        break;
+                    case "RIGHT":
+                        joinType = TableJoinType.Right;
+                        break;
+                    case "FULL":
+                        joinType = TableJoinType.Outer;
+                        break;
+                }
+                bool isAggregate;
+                QueryBuilderEntity builderEntity = mMainBuilder.AddTable(findTableDescriptor(joinedTable.RightTable.TableName), joinType);
+                builderEntity.On.Add(LogOp.And, getStrExpression(joinedTable.JoinCondition, out isAggregate));
+            }
+
+        }
+
         private void processFrom(SqlFromClause fromClause)
         {
-            int firstPrimary = 0;
             foreach (SqlTableSpecification table in fromClause.TableCollection)
             {
-                if (table.Type == SqlTableSpecification.TableType.Primary)
-                {
-                    break;
-                }
-                firstPrimary++;
-            }
-            if (firstPrimary >= fromClause.TableCollection.Count)
-                throw new SqlParserException(new SqlError(null, 0, 0, $"No primary entity in FROM clause"));
-
-            mMainBuilder = createBuilder(((SqlPrimaryTable)fromClause.TableCollection[firstPrimary]).TableName, out mMainEntityDescriptor);
-
-            int i = 0;
-            foreach (SqlTableSpecification table in fromClause.TableCollection)
-            {
-                if (firstPrimary != i)
-                {
-                    if (table.Type == SqlTableSpecification.TableType.Primary)
-                    {
-                        mMainBuilder.AddTable(findTableDescriptor(((SqlPrimaryTable)table).TableName), false);
-                    }
-                }
-                i++;
+                diveTableSpecification(table);
             }
         }
 
-        private SelectQueryBuilder createBuilder(string entityName, out EntityDescriptor entityDescriptor)
+        private MySelectQueryBuilder createBuilder(string entityName, out EntityDescriptor entityDescriptor)
         {
             Type entityType = mBuilder.EntityByName(entityName);
             if (entityType == null)
                 throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{entityName}'"));
             entityDescriptor = AllEntities.Inst[entityType];
-            return new SelectQueryBuilder(mConnection.GetLanguageSpecifics(), entityDescriptor.TableDescriptor);
+            return new MySelectQueryBuilder(mConnection.GetLanguageSpecifics(), entityDescriptor.TableDescriptor);
         }
 
         private TableDescriptor findTableDescriptor(string entityName)
@@ -188,7 +327,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{entityName}'"));
             return AllEntities.Inst[entityType].TableDescriptor;
         }
-
 
         private object bindRecord(SqlDbQuery query, SqlSelectStatement select)
         {
@@ -251,5 +389,72 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return result;
         }
 
+        public enum ArifOp
+        {
+            Add,
+            Minus,
+            Divide,
+            Multiply
+        }
+
+        internal string GetArifOp(ArifOp op, string leftSide, string rightSide)
+        {
+            switch (op)
+            {
+                case ArifOp.Add:
+                    return $"{leftSide} + {rightSide}";
+
+                case ArifOp.Minus:
+                    return $"{leftSide} - {rightSide}";
+
+                case ArifOp.Multiply:
+                    return $"{leftSide} * {rightSide}";
+
+                case ArifOp.Divide:
+                    return $"{leftSide} / {rightSide}";
+                default:
+                    throw new SqlParserException(new SqlError(null, 0, 0, $"Unknown arifmetic operation"));
+            }
+        }
+
+        private string getParameter(string parameterName)
+        {
+            if (parameterName == null)
+                return null;
+
+            string prefix = mConnection.GetLanguageSpecifics().ParameterInQueryPrefix;
+            if (!string.IsNullOrEmpty(prefix) && !parameterName.StartsWith(prefix))
+                parameterName = prefix + parameterName;
+            return parameterName;
+        }
+
+        private void bindParams(SqlDbQuery query)
+        {
+            foreach (KeyValuePair<string, object> pair in mBindParams)
+            {
+                Type tttt = pair.Value.GetType();
+                if (pair.Value is int intValue)
+                    query.BindParam(pair.Key, intValue);
+                else if (pair.Value is double doubleValue)
+                    query.BindParam(pair.Key, doubleValue);
+                else if (pair.Value is bool boolValue)
+                    query.BindParam(pair.Key, boolValue);
+                else if (pair.Value is DateTime dateTimeValue)
+                    query.BindParam(pair.Key, dateTimeValue);
+                else if (pair.Value is DateTimeOffset dateTimeOffsetValue)
+                    query.BindParam(pair.Key, dateTimeOffsetValue.LocalDateTime);
+                else
+                    query.BindParam(pair.Key, pair.Value.ToString());
+            }
+        }
     }
+
+    internal class MySelectQueryBuilder : SelectQueryBuilder
+    {
+        public MySelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor mainTable) : base(specifics, mainTable)
+        {
+        }
+        internal QueryBuilderEntity AddTable(TableDescriptor table, TableJoinType joinType) => base.AddTable(table, null, joinType, null, null);
+    }
+
 }

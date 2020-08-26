@@ -69,5 +69,65 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             DateTime min = (DateTime)(array[0] as Dictionary<string, object>)["Min"];
             (max > min).Should().BeTrue();
         }
+
+        [Fact]
+        public void SimpleSelectAggExpr()
+        {
+            DomBuilder.Parse("test", "SELECT MAX(Freight) AS Max, MAX(Freight) + 2.0 AS MaxIncreased FROM Order");
+            object result = DomBuilder.Run(connectionFactory);
+            List<object> array = result as List<object>;
+            double max = (double)(array[0] as Dictionary<string, object>)["Max"];
+            double maxIncreased = (double)(array[0] as Dictionary<string, object>)["MaxIncreased"];
+            (maxIncreased - max == 2.0).Should().BeTrue();
+        }
+
+        [Fact]
+        public void SimpleSelectConcatExpr()
+        {
+            DomBuilder.Parse("test", "SELECT CompanyName || ' ' || ContactName AS Concatted, CompanyName, ContactName FROM Customer");
+            object result = DomBuilder.Run(connectionFactory);
+            List<object> array = result as List<object>;
+            string concatted = (string)(array[0] as Dictionary<string, object>)["Concatted"];
+            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            string contactName = (string)(array[0] as Dictionary<string, object>)["ContactName"];
+            (companyName + " "+ contactName == concatted).Should().BeTrue();
+        }
+
+        [Fact]
+        public void SimpleSelectTrimExpr()
+        {
+            DomBuilder.Parse("test", "SELECT TRIM(' ' || CompanyName || ' ') AS Trimmed, CompanyName FROM Customer");
+            object result = DomBuilder.Run(connectionFactory);
+            List<object> array = result as List<object>;
+            string trimmed = (string)(array[0] as Dictionary<string, object>)["Trimmed"];
+            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            (companyName == trimmed).Should().BeTrue();
+        }
+
+        [Fact]
+        public void SimpleJoinedSelect()
+        {
+            DomBuilder.Parse("test",
+                "SELECT OrderID, Quantity, " +
+                "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
+                "FROM OrderDetail " +
+                "INNER JOIN Order ON OrderDetail.Order = Order.OrderID " +
+                "INNER JOIN Customer ON Order.Customer = Customer.CustomerID " +
+                "INNER JOIN Employee ON Order.Employee = Employee.EmployeeID"
+                );
+            object result = DomBuilder.Run(connectionFactory);
+            List<object> array = result as List<object>;
+
+            int orderID = (int)(array[0] as Dictionary<string, object>)["OrderID"];
+            (orderID > 0).Should().BeTrue();
+            double quantity = (double)(array[0] as Dictionary<string, object>)["Quantity"];
+            (quantity > 0.0).Should().BeTrue();
+            DateTime orderDate = (DateTime)(array[0] as Dictionary<string, object>)["OrderDate"];
+            (orderDate > DateTime.MinValue).Should().BeTrue();
+            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            string.IsNullOrWhiteSpace(companyName).Should().BeFalse();
+            string firstName = (string)(array[0] as Dictionary<string, object>)["FirstName"];
+            string.IsNullOrWhiteSpace(firstName).Should().BeFalse();
+        }
     }
 }
