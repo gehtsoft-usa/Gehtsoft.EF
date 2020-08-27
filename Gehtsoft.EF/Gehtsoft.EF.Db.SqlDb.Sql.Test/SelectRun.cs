@@ -108,17 +108,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         public void SimpleJoinedSelect()
         {
             DomBuilder.Parse("test",
-                "SELECT OrderID, Quantity, " +
+                "SELECT OrderID AS ID, Quantity, " +
                 "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
                 "FROM OrderDetail " +
-                "INNER JOIN Order ON OrderDetail.Order = Order.OrderID " +
+                "INNER JOIN Order ON OrderDetail.Order = ID " +
                 "INNER JOIN Customer ON Order.Customer = Customer.CustomerID " +
                 "INNER JOIN Employee ON Order.Employee = Employee.EmployeeID"
                 );
             object result = DomBuilder.Run(connectionFactory);
             List<object> array = result as List<object>;
 
-            int orderID = (int)(array[0] as Dictionary<string, object>)["OrderID"];
+            int orderID = (int)(array[0] as Dictionary<string, object>)["ID"];
             (orderID > 0).Should().BeTrue();
             double quantity = (double)(array[0] as Dictionary<string, object>)["Quantity"];
             (quantity > 0.0).Should().BeTrue();
@@ -128,6 +128,28 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             string.IsNullOrWhiteSpace(companyName).Should().BeFalse();
             string firstName = (string)(array[0] as Dictionary<string, object>)["FirstName"];
             string.IsNullOrWhiteSpace(firstName).Should().BeFalse();
+        }
+
+        [Fact]
+        public void JoinedSelectWithWhere()
+        {
+            DomBuilder.Parse("test",
+                "SELECT OrderID AS ID, Quantity, " +
+                "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
+                "FROM OrderDetail " +
+                "INNER JOIN Order ON OrderDetail.Order = ID " +
+                "INNER JOIN Customer ON Order.Customer = Customer.CustomerID " +
+                "INNER JOIN Employee ON Order.Employee = Employee.EmployeeID " +
+                "WHERE Quantity > 100"
+                );
+            object result = DomBuilder.Run(connectionFactory);
+            List<object> array = result as List<object>;
+
+            foreach (object obj in array)
+            {
+                double quantity = (double)(obj as Dictionary<string, object>)["Quantity"];
+                (quantity > 100.0).Should().BeTrue();
+            }
         }
     }
 }

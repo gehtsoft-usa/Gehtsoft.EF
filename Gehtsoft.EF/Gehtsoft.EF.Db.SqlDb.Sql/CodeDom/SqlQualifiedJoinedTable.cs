@@ -1,4 +1,5 @@
-﻿using Hime.Redist;
+﻿using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+using Hime.Redist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,42 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         private SqlTableSpecification mLeftTable;
         private SqlPrimaryTable mRightTable;
         private string mJoinType;
-        private SqlBaseExpression mJoinCondition;
+        private SqlBaseExpression mJoinCondition = null;
+        private ASTNode? mExpressionNode = null;
+        private SqlStatement mParentStatement;
+        private string mSource;
+
+        internal QueryBuilderEntity BuilderEntity { get; set; }
+
+        internal void TryExpression()
+        {
+            if (mExpressionNode.HasValue)
+            {
+                mJoinCondition = SqlExpressionParser.ParseExpression(mParentStatement, mExpressionNode.Value, mSource);
+                if (mJoinCondition == null)
+                {
+                    throw new SqlParserException(new SqlError(mSource,
+                        mExpressionNode.Value.Position.Line,
+                        mExpressionNode.Value.Position.Column,
+                        $"Unexpected or incorrect expression node {mExpressionNode.Value.Symbol.Name}({mExpressionNode.Value.Value ?? "null"})"));
+                }
+                if (mJoinCondition.ResultType != SqlBaseExpression.ResultTypes.Boolean)
+                {
+                    throw new SqlParserException(new SqlError(mSource,
+                        mExpressionNode.Value.Position.Line,
+                        mExpressionNode.Value.Position.Column,
+                        $"Result of ON should be boolean {mExpressionNode.Value.Symbol.Name} ({mExpressionNode.Value.Value ?? "null"})"));
+                }
+                if (mParentStatement.HasAggregateFunctions(mJoinCondition))
+                {
+                    throw new SqlParserException(new SqlError(mSource,
+                        mExpressionNode.Value.Position.Line,
+                        mExpressionNode.Value.Position.Column,
+                        $"ON expression should not contain calls of aggregate functions ({mExpressionNode.Value.Value ?? "null"})"));
+                }
+                mExpressionNode = null;
+            }
+        }
 
         public SqlTableSpecification LeftTable
         {
@@ -56,6 +92,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal SqlQualifiedJoinedTable(SqlStatement parentStatement, ASTNode fieldNode, string source)
         {
+            mSource = source;
+            mParentStatement = parentStatement;
+
             ASTNode node1 = fieldNode.Children[0];
             ASTNode node2 = fieldNode.Children[1];
             ASTNode node3 = fieldNode.Children[2];
@@ -95,22 +134,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 if (node4.Children[0].Symbol.ID == SqlParser.ID.VariableJoinCondition)
                 {
-                    ASTNode conditionNode = node4.Children[0];
-                    mJoinCondition = SqlExpressionParser.ParseExpression(parentStatement, conditionNode.Children[0], source);
-                    if (mJoinCondition == null)
-                    {
-                        throw new SqlParserException(new SqlError(source,
-                            conditionNode.Position.Line,
-                            conditionNode.Position.Column,
-                            $"Unexpected or incorrect expression node {conditionNode.Symbol.Name}({conditionNode.Value ?? "null"})"));
-                    }
-                    if (mJoinCondition.ResultType != SqlBaseExpression.ResultTypes.Boolean)
-                    {
-                        throw new SqlParserException(new SqlError(source,
-                            conditionNode.Position.Line,
-                            conditionNode.Position.Column,
-                            $"Result of ON should be boolean {conditionNode.Symbol.Name} ({conditionNode.Value ?? "null"})"));
-                    }
+                    mExpressionNode = node4.Children[0].Children[0];
                 }
             }
         }
@@ -125,6 +149,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         public virtual bool Equals(SqlQualifiedJoinedTable other)
         {
+            if (this.JoinCondition == null)
+            {
+                this.TryExpression();
+            }
             if (other == null)
                 return false;
             return (

@@ -29,7 +29,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
 
             ASTNode selectListNode = statementNode.Children[disp];
-            ASTNode tableExpressionNode = statementNode.Children[disp+1];
+            ASTNode tableExpressionNode = statementNode.Children[disp + 1];
             FromClause = new SqlFromClause(this, tableExpressionNode.Children[0], currentSource);
             SelectList = new SqlSelectList(this, selectListNode, currentSource);
             if (tableExpressionNode.Children.Count > 1)
@@ -42,6 +42,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         whereNode.Position.Line,
                         whereNode.Position.Column,
                         $"Result of WHERE should be boolean {whereNode.Symbol.Name} ({whereNode.Value ?? "null"})"));
+                }
+                if (HasAggregateFunctions(WhereClause.RootExpression))
+                {
+                    throw new SqlParserException(new SqlError(currentSource,
+                        whereNode.Position.Line,
+                        whereNode.Position.Column,
+                        $"WHERE expression should not contain calls of aggregate functions ({whereNode.Value ?? "null"})"));
                 }
             }
         }

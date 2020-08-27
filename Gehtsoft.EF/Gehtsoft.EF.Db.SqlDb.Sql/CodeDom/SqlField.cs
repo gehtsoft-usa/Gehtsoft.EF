@@ -84,6 +84,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 throw new SqlParserException(new SqlError(null, 0, 0, error));
             }
         }
+        internal SqlField(string name, Type fieldType)
+        {
+            Name = name;
+            Prefix = null;
+            mResultType = GetResultType(fieldType);
+        }
 
         private void processField(SqlStatement parentStatement, string prefix, string name, out string error)
         {

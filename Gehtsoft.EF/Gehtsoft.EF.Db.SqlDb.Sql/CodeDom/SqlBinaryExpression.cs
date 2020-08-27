@@ -79,10 +79,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mRightOperand = SqlExpressionParser.ParseExpression(parentStatement, rightOperand, source);
             if (mLeftOperand.ResultType != mRightOperand.ResultType || !checkOperationAndType(operation, mLeftOperand.ResultType))
             {
-                throw new SqlParserException(new SqlError(source,
-                    rightOperand.Position.Line,
-                    rightOperand.Position.Column,
-                    $"Incorrect type of operand {rightOperand.Symbol.Name} ({rightOperand.Value ?? "null"})"));
+                if (!(mLeftOperand.ResultType == ResultTypes.Integer || mLeftOperand.ResultType == ResultTypes.Double &&
+                   mRightOperand.ResultType == ResultTypes.Integer || mRightOperand.ResultType == ResultTypes.Double))
+                    throw new SqlParserException(new SqlError(source,
+                        rightOperand.Position.Line,
+                        rightOperand.Position.Column,
+                        $"Incorrect type of operand {rightOperand.Symbol.Name} ({rightOperand.Value ?? "null"})"));
             }
             mResultType = getResultType(operation, mLeftOperand.ResultType);
             mOperation = operation;

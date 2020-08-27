@@ -250,5 +250,46 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             return base.GetHashCode();
         }
+
+        public bool HasAggregateFunctions(SqlBaseExpression expression)
+        {
+            bool retval = false;
+
+            if (expression is SqlField field)
+            {
+                retval = false;
+            }
+            else if (expression is SqlAggrFunc aggrFunc)
+            {
+                retval = true;
+            }
+            else if (expression is SqlBinaryExpression binaryExpression)
+            {
+                bool isAggregateLeft = HasAggregateFunctions(binaryExpression.LeftOperand);
+                bool isAggregateRight = HasAggregateFunctions(binaryExpression.RightOperand);
+                retval = isAggregateLeft || isAggregateRight;
+            }
+            else if (expression is SqlConstant constant)
+            {
+                retval = false;
+            }
+            else if (expression is SqlUnarExpression unar)
+            {
+                retval = HasAggregateFunctions(unar.Operand);
+            }
+            else if (expression is SqlCallFuncExpression callFunc)
+            {
+                retval = false;
+                foreach (SqlBaseExpression paramExpression in callFunc.Parameters)
+                {
+                    if (HasAggregateFunctions(paramExpression))
+                    {
+                        retval = true;
+                        break;
+                    }
+                }
+            }
+            return retval;
+        }
     }
 }

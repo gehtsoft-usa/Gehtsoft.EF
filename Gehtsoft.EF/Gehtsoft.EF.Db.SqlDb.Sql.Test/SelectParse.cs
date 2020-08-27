@@ -27,7 +27,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void SelectSimple1()
+        public void SelectSimple()
         {
             SqlStatementCollection result = DomBuilder.Parse("test",
                 "SELECT OrderID, OrderDate, ShipName FROM Order WHERE OrderID > 100 AND (TRIM(TRAILING ShipAddress) <> 'street' OR OrderDate > DATE '2011-01-01')");
@@ -97,10 +97,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         public void JoinedSelect()
         {
             SqlStatementCollection result = DomBuilder.Parse("test",
-                "SELECT OrderID, Quantity, " +
+                "SELECT OrderID AS ID, Quantity, " +
                 "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
                 "FROM OrderDetail " +
-                "INNER JOIN Order ON OrderDetail.Order = Order.OrderID " +
+                "INNER JOIN Order ON OrderDetail.Order = ID " +
                 "INNER JOIN Customer ON Order.Customer = Customer.CustomerID " +
                 "INNER JOIN Employee ON Order.Employee = Employee.EmployeeID"
                 );
@@ -121,7 +121,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                             new SqlBinaryExpression(
                                 new SqlField(select, "Order", "OrderDetail"),
                                 SqlBinaryExpression.OperationType.Eq,
-                                new SqlField(select, "OrderID", "Order")
+                                new SqlField("ID", typeof(int))
                             )
                         ),
                         new SqlPrimaryTable(select, "Customer"), "INNER",
@@ -140,7 +140,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 )
             );
 
-            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderID")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderID"), "ID"));
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "Quantity")));
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderDate", "Order")));
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "CompanyName", "Customer")));
