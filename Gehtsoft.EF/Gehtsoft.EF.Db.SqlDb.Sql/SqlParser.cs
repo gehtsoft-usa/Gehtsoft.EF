@@ -282,37 +282,53 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			/// </summary>
 			public const int VariableJoinedTable = 0x004B;
 			/// <summary>
+			/// The unique identifier for variable AUTO_JOIN
+			/// </summary>
+			public const int VariableAutoJoin = 0x004C;
+			/// <summary>
 			/// The unique identifier for variable QUALIFIED_JOIN
 			/// </summary>
-			public const int VariableQualifiedJoin = 0x004C;
+			public const int VariableQualifiedJoin = 0x004D;
 			/// <summary>
 			/// The unique identifier for variable JOIN_TYPE
 			/// </summary>
-			public const int VariableJoinType = 0x004D;
+			public const int VariableJoinType = 0x004E;
 			/// <summary>
 			/// The unique identifier for variable OUTER_JOIN_TYPE
 			/// </summary>
-			public const int VariableOuterJoinType = 0x004E;
+			public const int VariableOuterJoinType = 0x004F;
 			/// <summary>
 			/// The unique identifier for variable JOIN_SPECIFICATION
 			/// </summary>
-			public const int VariableJoinSpecification = 0x004F;
+			public const int VariableJoinSpecification = 0x0050;
 			/// <summary>
 			/// The unique identifier for variable JOIN_CONDITION
 			/// </summary>
-			public const int VariableJoinCondition = 0x0050;
+			public const int VariableJoinCondition = 0x0051;
 			/// <summary>
 			/// The unique identifier for variable SELECT
 			/// </summary>
-			public const int VariableSelect = 0x0051;
+			public const int VariableSelect = 0x0052;
+			/// <summary>
+			/// The unique identifier for variable LIMIT_OFFSET
+			/// </summary>
+			public const int VariableLimitOffset = 0x0053;
+			/// <summary>
+			/// The unique identifier for variable LIMIT
+			/// </summary>
+			public const int VariableLimit = 0x0054;
+			/// <summary>
+			/// The unique identifier for variable OFFSET
+			/// </summary>
+			public const int VariableOffset = 0x0055;
 			/// <summary>
 			/// The unique identifier for variable STATEMENT
 			/// </summary>
-			public const int VariableStatement = 0x0052;
+			public const int VariableStatement = 0x0056;
 			/// <summary>
 			/// The unique identifier for variable ROOT
 			/// </summary>
-			public const int VariableRoot = 0x0053;
+			public const int VariableRoot = 0x0057;
 		}
 		/// <summary>
 		/// The collection of variables matched by this parser
@@ -386,20 +402,24 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			new Symbol(0x0049, "TABLE_REFERENCE"), 
 			new Symbol(0x004A, "TABLE_PRIMARY"), 
 			new Symbol(0x004B, "JOINED_TABLE"), 
-			new Symbol(0x004C, "QUALIFIED_JOIN"), 
-			new Symbol(0x004D, "JOIN_TYPE"), 
-			new Symbol(0x004E, "OUTER_JOIN_TYPE"), 
-			new Symbol(0x004F, "JOIN_SPECIFICATION"), 
-			new Symbol(0x0050, "JOIN_CONDITION"), 
-			new Symbol(0x0051, "SELECT"), 
-			new Symbol(0x0052, "STATEMENT"), 
-			new Symbol(0x0053, "ROOT"), 
-			new Symbol(0x0059, "__V89"), 
-			new Symbol(0x0066, "__V102"), 
-			new Symbol(0x007A, "__V122"), 
-			new Symbol(0x007F, "__V127"), 
-			new Symbol(0x0088, "__V136"), 
-			new Symbol(0x0089, "__VAxiom") };
+			new Symbol(0x004C, "AUTO_JOIN"), 
+			new Symbol(0x004D, "QUALIFIED_JOIN"), 
+			new Symbol(0x004E, "JOIN_TYPE"), 
+			new Symbol(0x004F, "OUTER_JOIN_TYPE"), 
+			new Symbol(0x0050, "JOIN_SPECIFICATION"), 
+			new Symbol(0x0051, "JOIN_CONDITION"), 
+			new Symbol(0x0052, "SELECT"), 
+			new Symbol(0x0053, "LIMIT_OFFSET"), 
+			new Symbol(0x0054, "LIMIT"), 
+			new Symbol(0x0055, "OFFSET"), 
+			new Symbol(0x0056, "STATEMENT"), 
+			new Symbol(0x0057, "ROOT"), 
+			new Symbol(0x005D, "__V93"), 
+			new Symbol(0x006A, "__V106"), 
+			new Symbol(0x007E, "__V126"), 
+			new Symbol(0x0083, "__V131"), 
+			new Symbol(0x008F, "__V143"), 
+			new Symbol(0x0090, "__VAxiom") };
 		/// <summary>
 		/// The collection of virtuals matched by this parser
 		/// </summary>
@@ -494,12 +514,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			public virtual void OnVariableTableReference(ASTNode node) {}
 			public virtual void OnVariableTablePrimary(ASTNode node) {}
 			public virtual void OnVariableJoinedTable(ASTNode node) {}
+			public virtual void OnVariableAutoJoin(ASTNode node) {}
 			public virtual void OnVariableQualifiedJoin(ASTNode node) {}
 			public virtual void OnVariableJoinType(ASTNode node) {}
 			public virtual void OnVariableOuterJoinType(ASTNode node) {}
 			public virtual void OnVariableJoinSpecification(ASTNode node) {}
 			public virtual void OnVariableJoinCondition(ASTNode node) {}
 			public virtual void OnVariableSelect(ASTNode node) {}
+			public virtual void OnVariableLimitOffset(ASTNode node) {}
+			public virtual void OnVariableLimit(ASTNode node) {}
+			public virtual void OnVariableOffset(ASTNode node) {}
 			public virtual void OnVariableStatement(ASTNode node) {}
 			public virtual void OnVariableRoot(ASTNode node) {}
 		}
@@ -598,14 +622,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 				case 0x0049: visitor.OnVariableTableReference(node); break;
 				case 0x004A: visitor.OnVariableTablePrimary(node); break;
 				case 0x004B: visitor.OnVariableJoinedTable(node); break;
-				case 0x004C: visitor.OnVariableQualifiedJoin(node); break;
-				case 0x004D: visitor.OnVariableJoinType(node); break;
-				case 0x004E: visitor.OnVariableOuterJoinType(node); break;
-				case 0x004F: visitor.OnVariableJoinSpecification(node); break;
-				case 0x0050: visitor.OnVariableJoinCondition(node); break;
-				case 0x0051: visitor.OnVariableSelect(node); break;
-				case 0x0052: visitor.OnVariableStatement(node); break;
-				case 0x0053: visitor.OnVariableRoot(node); break;
+				case 0x004C: visitor.OnVariableAutoJoin(node); break;
+				case 0x004D: visitor.OnVariableQualifiedJoin(node); break;
+				case 0x004E: visitor.OnVariableJoinType(node); break;
+				case 0x004F: visitor.OnVariableOuterJoinType(node); break;
+				case 0x0050: visitor.OnVariableJoinSpecification(node); break;
+				case 0x0051: visitor.OnVariableJoinCondition(node); break;
+				case 0x0052: visitor.OnVariableSelect(node); break;
+				case 0x0053: visitor.OnVariableLimitOffset(node); break;
+				case 0x0054: visitor.OnVariableLimit(node); break;
+				case 0x0055: visitor.OnVariableOffset(node); break;
+				case 0x0056: visitor.OnVariableStatement(node); break;
+				case 0x0057: visitor.OnVariableRoot(node); break;
 			}
 		}
 	}

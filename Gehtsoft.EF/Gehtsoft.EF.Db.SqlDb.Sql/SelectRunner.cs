@@ -14,8 +14,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
     internal class SelectRunner : StatementRunner<SqlSelectStatement>
     {
         private SqlCodeDomBuilder mBuilder;
-        private SqlDbConnection mConnection;
-        private readonly ISqlDbConnectionFactory mConnectionFactory;
+        private SqlDbConnection mConnection = null;
+        private readonly ISqlDbConnectionFactory mConnectionFactory = null;
         private MySelectQueryBuilder mMainBuilder = null;
         private EntityDescriptor mMainEntityDescriptor = null;
         private SqlSelectStatement mSelect;
@@ -24,6 +24,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             mBuilder = builder;
             mConnectionFactory = connectionFactory;
+        }
+
+        internal SelectRunner(SqlCodeDomBuilder builder, SqlDbConnection connection)
+        {
+            mBuilder = builder;
+            mConnection = connection;
         }
 
         protected override SqlStatement SqlStatement
@@ -62,7 +68,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             List<object> result = new List<object>();
             mSelect = select;
-            mConnection = mConnectionFactory.GetConnection();
+            if (mConnectionFactory != null)
+            {
+                mConnection = mConnectionFactory.GetConnection();
+            }
             try
             {
                 processFrom(select.FromClause);
@@ -72,6 +81,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
                 if (select.SetQuantifier == "DISTINCT")
                     mMainBuilder.Distinct = true;
+
+                mMainBuilder.Limit = mSelect.Limit;
+                mMainBuilder.Skip = mSelect.Offset;
 
                 using (SqlDbQuery query = mConnection.GetQuery(mMainBuilder))
                 {
@@ -87,8 +99,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             finally
             {
-                if (mConnectionFactory.NeedDispose)
-                    mConnection.Dispose();
+                if (mConnectionFactory != null)
+                {
+                    if (mConnectionFactory.NeedDispose)
+                        mConnection.Dispose();
+                }
             }
             return result;
         }
@@ -126,7 +141,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     mMainBuilder.AddTable(FindTableDescriptor(primaryTable.TableName), false);
                 }
             }
-            if (table is SqlQualifiedJoinedTable joinedTable)
+            else if (table is SqlQualifiedJoinedTable joinedTable)
             {
                 diveTableSpecification(joinedTable.LeftTable);
 
@@ -148,6 +163,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 }
 
                 joinedTable.BuilderEntity = mMainBuilder.AddTable(FindTableDescriptor(joinedTable.RightTable.TableName), joinType);
+            }
+            else if (table is SqlAutoJoinedTable autoJoinedTable)
+            {
+                diveTableSpecification(autoJoinedTable.LeftTable);
+
+                mMainBuilder.AddTable(FindTableDescriptor(autoJoinedTable.RightTable.TableName), true);
             }
         }
 

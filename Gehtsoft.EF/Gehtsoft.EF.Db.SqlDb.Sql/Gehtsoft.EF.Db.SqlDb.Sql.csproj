@@ -28,6 +28,7 @@
     <EmbeddedResource Include="SqlLexer.bin" />
     <EmbeddedResource Include="SqlParser.bin" />
     <Compile Include="CodeDom\SqlAggrFunc.cs" />
+    <Compile Include="CodeDom\SqlAutoJoinedTable.cs" />
     <Compile Include="CodeDom\SqlBaseExpression.cs" />
     <Compile Include="CodeDom\SqlBinaryExpression.cs" />
     <Compile Include="CodeDom\SqlCallFuncExpression.cs" />

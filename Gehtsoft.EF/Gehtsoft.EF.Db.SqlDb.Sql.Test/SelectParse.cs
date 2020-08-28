@@ -94,7 +94,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void JoinedSelect()
+        public void InnerJoinedSelect()
         {
             SqlStatementCollection result = DomBuilder.Parse("test",
                 "SELECT OrderID AS ID, Quantity, " +
@@ -137,6 +137,96 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                         SqlBinaryExpression.OperationType.Eq,
                         new SqlField(select, "EmployeeID", "Employee")
                     )
+                )
+            );
+
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderID"), "ID"));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "Quantity")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderDate", "Order")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "CompanyName", "Customer")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "FirstName", "Employee")));
+
+            SqlStatementCollection target = new SqlStatementCollection() { select };
+
+            result.Equals(target).Should().BeTrue();
+
+        }
+
+        [Fact]
+        public void AutoJoinedSelect()
+        {
+            SqlStatementCollection result = DomBuilder.Parse("test",
+                "SELECT OrderID AS ID, Quantity, " +
+                "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
+                "FROM OrderDetail " +
+                "AUTO JOIN Order " +
+                "AUTO JOIN Customer " +
+                "AUTO JOIN Employee "
+                );
+
+            SqlExpressionAliasCollection selectList = new SqlExpressionAliasCollection();
+            SqlTableSpecificationCollection fromTables = new SqlTableSpecificationCollection();
+            SqlSelectStatement select = new SqlSelectStatement(DomBuilder,
+                new SqlSelectList(selectList),
+                new SqlFromClause(fromTables)
+            );
+
+            fromTables.Add(
+                new SqlAutoJoinedTable(
+                    new SqlAutoJoinedTable(
+                        new SqlAutoJoinedTable(
+                            new SqlPrimaryTable(select, "OrderDetail"),
+                            new SqlPrimaryTable(select, "Order")
+                        ),
+                        new SqlPrimaryTable(select, "Customer")
+                    ),
+                    new SqlPrimaryTable(select, "Employee")
+                )
+            );
+
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderID"), "ID"));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "Quantity")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderDate", "Order")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "CompanyName", "Customer")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "FirstName", "Employee")));
+
+            SqlStatementCollection target = new SqlStatementCollection() { select };
+
+            result.Equals(target).Should().BeTrue();
+
+        }
+
+        [Fact]
+        public void AutoJoinedSelectWithOffsetLimit()
+        {
+            SqlStatementCollection result = DomBuilder.Parse("test",
+                "SELECT OrderID AS ID, Quantity, " +
+                "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
+                "FROM OrderDetail " +
+                "AUTO JOIN Order " +
+                "AUTO JOIN Customer " +
+                "AUTO JOIN Employee OFFSET 20 LIMIT 10"
+                );
+
+            SqlExpressionAliasCollection selectList = new SqlExpressionAliasCollection();
+            SqlTableSpecificationCollection fromTables = new SqlTableSpecificationCollection();
+            SqlSelectStatement select = new SqlSelectStatement(DomBuilder,
+                new SqlSelectList(selectList),
+                new SqlFromClause(fromTables)
+            );
+            select.Offset = 20;
+            select.Limit = 10;
+
+            fromTables.Add(
+                new SqlAutoJoinedTable(
+                    new SqlAutoJoinedTable(
+                        new SqlAutoJoinedTable(
+                            new SqlPrimaryTable(select, "OrderDetail"),
+                            new SqlPrimaryTable(select, "Order")
+                        ),
+                        new SqlPrimaryTable(select, "Customer")
+                    ),
+                    new SqlPrimaryTable(select, "Employee")
                 )
             );
 

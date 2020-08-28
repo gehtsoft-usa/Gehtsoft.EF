@@ -127,15 +127,31 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         public object Run(ISqlDbConnectionFactory connectionFactory)
         {
             object result = null;
+            SqlDbConnection connection =  connectionFactory.GetConnection();
+            try
+            {
+                result = Run(connection);
+            }
+            finally
+            {
+                if (connectionFactory.NeedDispose)
+                    connection.Dispose();
+            }
+            return result;
+        }
+
+        public object Run(SqlDbConnection connection)
+        {
+            object result = null;
             if (mLastParse == null)
                 throw new ArgumentException("Nothing parsed yet");
 
-            foreach(SqlStatement statement in mLastParse)
+            foreach (SqlStatement statement in mLastParse)
             {
-                switch(statement.Id)
+                switch (statement.Id)
                 {
                     case SqlStatement.StatementId.Select:
-                        SelectRunner runner = new SelectRunner(this, connectionFactory);
+                        SelectRunner runner = new SelectRunner(this, connection);
                         result = runner.Run(statement as SqlSelectStatement);
                         break;
 

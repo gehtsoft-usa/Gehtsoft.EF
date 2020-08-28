@@ -16,6 +16,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         public SqlSelectList SelectList { get; } = null;
         public SqlFromClause FromClause { get; } = null;
         public SqlWhereClause WhereClause { get; } = null;
+        public int Offset { get; internal set; } = 0;
+        public int Limit { get; internal set; } = 0;
 
         internal SqlSelectStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementId.Select, currentSource, statementNode.Position.Line, statementNode.Position.Column)
@@ -51,6 +53,29 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         $"WHERE expression should not contain calls of aggregate functions ({whereNode.Value ?? "null"})"));
                 }
             }
+
+            if(statementNode.Children.Count > disp + 2)
+            {
+                int nextsCount = statementNode.Children.Count - (disp + 2);
+                for (int i = 0; i < nextsCount; i++)
+                {
+                    ASTNode nextNode = statementNode.Children[disp + 2 + i];
+                    if (nextNode.Symbol.ID == SqlParser.ID.VariableLimitOffset)
+                    {
+                        foreach (ASTNode node in nextNode.Children)
+                        {
+                            if (node.Symbol.ID == SqlParser.ID.VariableOffset)
+                            {
+                                Offset = int.Parse(node.Children[0].Value);
+                            }
+                            if (node.Symbol.ID == SqlParser.ID.VariableLimit)
+                            {
+                                Limit = int.Parse(node.Children[0].Value);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         internal SqlSelectStatement(SqlCodeDomBuilder builder, SqlSelectList selectList, SqlFromClause fromClause, SqlWhereClause whereClause = null)
@@ -78,6 +103,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 return SelectList.Equals(stmt.SelectList) &&
                        SetQuantifier.Equals(stmt.SetQuantifier) &&
                        FromClause.Equals(stmt.FromClause) &&
+                       Limit == stmt.Limit &&
+                       Offset == stmt.Offset &&
                        (WhereClause == null && stmt.WhereClause == null ||
                         WhereClause != null && WhereClause.Equals(stmt.WhereClause));
             }

@@ -26,6 +26,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     {
                         TableCollection.Add(new SqlQualifiedJoinedTable(parentStatement, tableReferenceNode, source));
                     }
+                    else if (tableReferenceNode.Symbol.ID == SqlParser.ID.VariableAutoJoin)
+                    {
+                        TableCollection.Add(new SqlAutoJoinedTable(parentStatement, tableReferenceNode, source));
+                    }
                     else
                     {
                         throw new SqlParserException(new SqlError(source,
