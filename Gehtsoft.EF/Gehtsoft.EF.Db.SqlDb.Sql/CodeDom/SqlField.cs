@@ -15,7 +15,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         public string Name { get; }
         public string Prefix { get; }
         private ResultTypes mResultType = ResultTypes.Unknown;
-
+        private string mFieldName = null;
+        public string FieldName
+        {
+            get
+            {
+                return mFieldName ?? Name;
+            }
+        }
         public override ExpressionTypes ExpressionType
         {
             get
@@ -111,17 +118,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 foreach (EntityEntry entityEntry in parentStatement.EntityEntrys)
                 {
                     fieldType = parentStatement.CodeDomBuilder.TypeByName(entityEntry.EntityType, name);
-                    if (fieldType == null && !parentStatement.IgnoreAlias)
-                    {
-                        if (parentStatement.AliasEntrys.Exists(name))
-                        {
-                            fieldType = parentStatement.AliasEntrys.Find(name).Expression.RealType;
-                        }
-                    }
                     if (fieldType != null)
                     {
                         EntityDescriptor = entityEntry.EntityDescriptor;
                         break;
+                    }
+                }
+                if (fieldType == null && !parentStatement.IgnoreAlias)
+                {
+                    if (parentStatement.AliasEntrys.Exists(name))
+                    {
+                        AliasEntry aliasEntry = parentStatement.AliasEntrys.Find(name);
+                        fieldType = aliasEntry.Expression.RealType;
+                        if(aliasEntry.Expression is SqlField aliasField)
+                        {
+                            EntityDescriptor = aliasField.EntityDescriptor;
+                            mFieldName = aliasField.FieldName;
+                        }
                     }
                 }
             }

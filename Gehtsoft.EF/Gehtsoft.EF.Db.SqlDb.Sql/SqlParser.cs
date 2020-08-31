@@ -310,25 +310,53 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			/// </summary>
 			public const int VariableSelect = 0x0052;
 			/// <summary>
+			/// The unique identifier for variable ORDER_BY
+			/// </summary>
+			public const int VariableOrderBy = 0x0053;
+			/// <summary>
+			/// The unique identifier for variable SORT_SPECIFICATION_LIST
+			/// </summary>
+			public const int VariableSortSpecificationList = 0x0054;
+			/// <summary>
+			/// The unique identifier for variable SORT_SPECIFICATION
+			/// </summary>
+			public const int VariableSortSpecification = 0x0055;
+			/// <summary>
+			/// The unique identifier for variable ORDERING_SPECIFICATION
+			/// </summary>
+			public const int VariableOrderingSpecification = 0x0056;
+			/// <summary>
+			/// The unique identifier for variable GROUP_BY
+			/// </summary>
+			public const int VariableGroupBy = 0x0057;
+			/// <summary>
+			/// The unique identifier for variable GROUP_SPECIFICATION_LIST
+			/// </summary>
+			public const int VariableGroupSpecificationList = 0x0058;
+			/// <summary>
+			/// The unique identifier for variable GROUP_SPECIFICATION
+			/// </summary>
+			public const int VariableGroupSpecification = 0x0059;
+			/// <summary>
 			/// The unique identifier for variable LIMIT_OFFSET
 			/// </summary>
-			public const int VariableLimitOffset = 0x0053;
+			public const int VariableLimitOffset = 0x005A;
 			/// <summary>
 			/// The unique identifier for variable LIMIT
 			/// </summary>
-			public const int VariableLimit = 0x0054;
+			public const int VariableLimit = 0x005B;
 			/// <summary>
 			/// The unique identifier for variable OFFSET
 			/// </summary>
-			public const int VariableOffset = 0x0055;
+			public const int VariableOffset = 0x005C;
 			/// <summary>
 			/// The unique identifier for variable STATEMENT
 			/// </summary>
-			public const int VariableStatement = 0x0056;
+			public const int VariableStatement = 0x005D;
 			/// <summary>
 			/// The unique identifier for variable ROOT
 			/// </summary>
-			public const int VariableRoot = 0x0057;
+			public const int VariableRoot = 0x005E;
 		}
 		/// <summary>
 		/// The collection of variables matched by this parser
@@ -409,17 +437,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			new Symbol(0x0050, "JOIN_SPECIFICATION"), 
 			new Symbol(0x0051, "JOIN_CONDITION"), 
 			new Symbol(0x0052, "SELECT"), 
-			new Symbol(0x0053, "LIMIT_OFFSET"), 
-			new Symbol(0x0054, "LIMIT"), 
-			new Symbol(0x0055, "OFFSET"), 
-			new Symbol(0x0056, "STATEMENT"), 
-			new Symbol(0x0057, "ROOT"), 
-			new Symbol(0x005D, "__V93"), 
-			new Symbol(0x006A, "__V106"), 
-			new Symbol(0x007E, "__V126"), 
-			new Symbol(0x0083, "__V131"), 
-			new Symbol(0x008F, "__V143"), 
-			new Symbol(0x0090, "__VAxiom") };
+			new Symbol(0x0053, "ORDER_BY"), 
+			new Symbol(0x0054, "SORT_SPECIFICATION_LIST"), 
+			new Symbol(0x0055, "SORT_SPECIFICATION"), 
+			new Symbol(0x0056, "ORDERING_SPECIFICATION"), 
+			new Symbol(0x0057, "GROUP_BY"), 
+			new Symbol(0x0058, "GROUP_SPECIFICATION_LIST"), 
+			new Symbol(0x0059, "GROUP_SPECIFICATION"), 
+			new Symbol(0x005A, "LIMIT_OFFSET"), 
+			new Symbol(0x005B, "LIMIT"), 
+			new Symbol(0x005C, "OFFSET"), 
+			new Symbol(0x005D, "STATEMENT"), 
+			new Symbol(0x005E, "ROOT"), 
+			new Symbol(0x0064, "__V100"), 
+			new Symbol(0x0071, "__V113"), 
+			new Symbol(0x0085, "__V133"), 
+			new Symbol(0x008A, "__V138"), 
+			new Symbol(0x0095, "__V149"), 
+			new Symbol(0x0099, "__V153"), 
+			new Symbol(0x009C, "__V156"), 
+			new Symbol(0x009D, "__VAxiom") };
 		/// <summary>
 		/// The collection of virtuals matched by this parser
 		/// </summary>
@@ -521,6 +558,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			public virtual void OnVariableJoinSpecification(ASTNode node) {}
 			public virtual void OnVariableJoinCondition(ASTNode node) {}
 			public virtual void OnVariableSelect(ASTNode node) {}
+			public virtual void OnVariableOrderBy(ASTNode node) {}
+			public virtual void OnVariableSortSpecificationList(ASTNode node) {}
+			public virtual void OnVariableSortSpecification(ASTNode node) {}
+			public virtual void OnVariableOrderingSpecification(ASTNode node) {}
+			public virtual void OnVariableGroupBy(ASTNode node) {}
+			public virtual void OnVariableGroupSpecificationList(ASTNode node) {}
+			public virtual void OnVariableGroupSpecification(ASTNode node) {}
 			public virtual void OnVariableLimitOffset(ASTNode node) {}
 			public virtual void OnVariableLimit(ASTNode node) {}
 			public virtual void OnVariableOffset(ASTNode node) {}
@@ -629,11 +673,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 				case 0x0050: visitor.OnVariableJoinSpecification(node); break;
 				case 0x0051: visitor.OnVariableJoinCondition(node); break;
 				case 0x0052: visitor.OnVariableSelect(node); break;
-				case 0x0053: visitor.OnVariableLimitOffset(node); break;
-				case 0x0054: visitor.OnVariableLimit(node); break;
-				case 0x0055: visitor.OnVariableOffset(node); break;
-				case 0x0056: visitor.OnVariableStatement(node); break;
-				case 0x0057: visitor.OnVariableRoot(node); break;
+				case 0x0053: visitor.OnVariableOrderBy(node); break;
+				case 0x0054: visitor.OnVariableSortSpecificationList(node); break;
+				case 0x0055: visitor.OnVariableSortSpecification(node); break;
+				case 0x0056: visitor.OnVariableOrderingSpecification(node); break;
+				case 0x0057: visitor.OnVariableGroupBy(node); break;
+				case 0x0058: visitor.OnVariableGroupSpecificationList(node); break;
+				case 0x0059: visitor.OnVariableGroupSpecification(node); break;
+				case 0x005A: visitor.OnVariableLimitOffset(node); break;
+				case 0x005B: visitor.OnVariableLimit(node); break;
+				case 0x005C: visitor.OnVariableOffset(node); break;
+				case 0x005D: visitor.OnVariableStatement(node); break;
+				case 0x005E: visitor.OnVariableRoot(node); break;
 			}
 		}
 	}

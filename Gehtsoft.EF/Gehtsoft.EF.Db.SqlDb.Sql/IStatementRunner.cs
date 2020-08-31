@@ -41,11 +41,27 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             isAggregate = false;
             if (expression is SqlField field)
             {
-                if (SqlStatement.AliasEntrys.Exists(field.Name))
+                string result = null;
+                if(field.EntityDescriptor != null)
                 {
-                    return field.Name;
+                    try
+                    {
+                        result =  MainBuilder.GetAlias(field.EntityDescriptor.TableDescriptor[field.FieldName]);
+                    }
+                    catch { }
                 }
-                return MainBuilder.GetAlias(field.EntityDescriptor.TableDescriptor[field.Name]);
+                if(result == null)
+                {
+                    if (SqlStatement.AliasEntrys.Exists(field.Name))
+                    {
+                        result = field.Name;
+                    }
+                    else
+                    {
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Unknown operand '{field.Name}'"));
+                    }
+                }
+                return result;
             }
             else if (expression is SqlAggrFunc aggrFunc)
             {

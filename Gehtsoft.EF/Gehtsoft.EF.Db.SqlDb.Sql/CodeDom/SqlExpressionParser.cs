@@ -149,7 +149,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 case SqlParser.ID.VariableAggrFunc:
                     ASTNode nameNode = fieldNode.Children[0];
                     ASTNode innerFieldNode = fieldNode.Children[1];
-                    result = new SqlAggrFunc(nameNode.Value, new SqlField(parentStatement, innerFieldNode, source));
+                    ResultTypes? resultType = null;
+                    if(nameNode.Value == "COUNT")
+                    {
+                        resultType = ResultTypes.Integer;
+                    }
+                    result = new SqlAggrFunc(nameNode.Value, new SqlField(parentStatement, innerFieldNode, source), resultType);
                     break;
                 case SqlParser.ID.VariableAggrCountAll:
                     result = new SqlAggrFunc("COUNT", null, ResultTypes.Integer);

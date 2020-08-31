@@ -241,5 +241,84 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             result.Equals(target).Should().BeTrue();
 
         }
+
+        [Fact]
+        public void AutoJoinedSelectWithOrderByAndOffsetLimit()
+        {
+            SqlStatementCollection result = DomBuilder.Parse("test",
+                "SELECT OrderID AS ID, Quantity, " +
+                "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
+                "FROM OrderDetail " +
+                "AUTO JOIN Order " +
+                "AUTO JOIN Customer " +
+                "AUTO JOIN Employee " +
+                "ORDER BY Quantity DESC " +
+                "OFFSET 20 LIMIT 10"
+                );
+
+            SqlExpressionAliasCollection selectList = new SqlExpressionAliasCollection();
+            SqlTableSpecificationCollection fromTables = new SqlTableSpecificationCollection();
+            SqlSelectStatement select = new SqlSelectStatement(DomBuilder,
+                new SqlSelectList(selectList),
+                new SqlFromClause(fromTables)
+            );
+            select.Offset = 20;
+            select.Limit = 10;
+
+            fromTables.Add(
+                new SqlAutoJoinedTable(
+                    new SqlAutoJoinedTable(
+                        new SqlAutoJoinedTable(
+                            new SqlPrimaryTable(select, "OrderDetail"),
+                            new SqlPrimaryTable(select, "Order")
+                        ),
+                        new SqlPrimaryTable(select, "Customer")
+                    ),
+                    new SqlPrimaryTable(select, "Employee")
+                )
+            );
+
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderID"), "ID"));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "Quantity")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderDate", "Order")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "CompanyName", "Customer")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "FirstName", "Employee")));
+
+            select.Sorting = new SqlSortSpecificationCollection() { new SqlSortSpecification(new SqlField(select, "Quantity"), SortDir.Desc) };
+
+            SqlStatementCollection target = new SqlStatementCollection() { select };
+
+            result.Equals(target).Should().BeTrue();
+
+        }
+
+        [Fact]
+        public void SelectAggrFuncAndGroup()
+        {
+            SqlStatementCollection result = DomBuilder.Parse("test",
+                "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
+                "FROM Customer " +
+                "GROUP BY Country " +
+                "ORDER BY COUNT(CustomerID) DESC"
+                );
+
+            SqlExpressionAliasCollection selectList = new SqlExpressionAliasCollection();
+            SqlTableSpecificationCollection fromTables = new SqlTableSpecificationCollection();
+            SqlSelectStatement select = new SqlSelectStatement(DomBuilder,
+                new SqlSelectList(selectList),
+                new SqlFromClause(fromTables)
+            );
+
+            fromTables.Add(new SqlPrimaryTable(select, "Customer"));
+            selectList.Add(new SqlExpressionAlias(select, new SqlAggrFunc("COUNT", new SqlField(select, "CustomerID")), "CustomersInCountry"));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "Country")));
+
+            select.Grouping = new SqlGroupSpecificationCollection() { new SqlGroupSpecification(new SqlField(select, "Country")) };
+            select.Sorting = new SqlSortSpecificationCollection() { new SqlSortSpecification(new SqlAggrFunc("COUNT", new SqlField(select, "CustomerID")), SortDir.Desc) };
+
+            SqlStatementCollection target = new SqlStatementCollection() { select };
+
+            result.Equals(target).Should().BeTrue();
+        }
     }
 }

@@ -18,6 +18,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         public SqlWhereClause WhereClause { get; } = null;
         public int Offset { get; internal set; } = 0;
         public int Limit { get; internal set; } = 0;
+        public SqlSortSpecificationCollection Sorting { get; internal set; } = null;
+        public SqlGroupSpecificationCollection Grouping { get; internal set; } = null;
 
         internal SqlSelectStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementId.Select, currentSource, statementNode.Position.Line, statementNode.Position.Column)
@@ -54,7 +56,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 }
             }
 
-            if(statementNode.Children.Count > disp + 2)
+            if (statementNode.Children.Count > disp + 2)
             {
                 int nextsCount = statementNode.Children.Count - (disp + 2);
                 for (int i = 0; i < nextsCount; i++)
@@ -72,6 +74,24 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             {
                                 Limit = int.Parse(node.Children[0].Value);
                             }
+                        }
+                    }
+                    else if (nextNode.Symbol.ID == SqlParser.ID.VariableSortSpecificationList)
+                    {
+                        Sorting = new SqlSortSpecificationCollection();
+                        foreach (ASTNode node in nextNode.Children)
+                        {
+                            SqlSortSpecification sort = new SqlSortSpecification(this, node, currentSource);
+                            Sorting.Add(sort);
+                        }
+                    }
+                    else if (nextNode.Symbol.ID == SqlParser.ID.VariableGroupSpecificationList)
+                    {
+                        Grouping = new SqlGroupSpecificationCollection();
+                        foreach (ASTNode node in nextNode.Children)
+                        {
+                            SqlGroupSpecification group = new SqlGroupSpecification(this, node, currentSource);
+                            Grouping.Add(group);
                         }
                     }
                 }
@@ -106,7 +126,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                        Limit == stmt.Limit &&
                        Offset == stmt.Offset &&
                        (WhereClause == null && stmt.WhereClause == null ||
-                        WhereClause != null && WhereClause.Equals(stmt.WhereClause));
+                        WhereClause != null && WhereClause.Equals(stmt.WhereClause)) &&
+                       (Sorting == null && stmt.Sorting == null ||
+                        Sorting != null && Sorting.Equals(stmt.Sorting)) &&
+                       (Grouping == null && stmt.Grouping == null ||
+                        Grouping != null && Grouping.Equals(stmt.Grouping));
             }
             return base.Equals(other);
         }

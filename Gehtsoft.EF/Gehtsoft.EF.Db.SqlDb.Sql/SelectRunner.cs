@@ -77,7 +77,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 processFrom(select.FromClause);
                 processSelectList(select.SelectList);
                 reProcessFrom(select.FromClause);
-                if(select.WhereClause != null) processWhereClause(select.WhereClause);
+                if (select.WhereClause != null) processWhereClause(select.WhereClause);
+                if (select.Sorting != null) processSorting(select.Sorting);
+                if (select.Grouping != null) processGrouping(select.Grouping);
 
                 if (select.SetQuantifier == "DISTINCT")
                     mMainBuilder.Distinct = true;
@@ -106,6 +108,22 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 }
             }
             return result;
+        }
+
+        private void processGrouping(SqlGroupSpecificationCollection grouping)
+        {
+            foreach (SqlGroupSpecification group in grouping)
+            {
+                mMainBuilder.AddGroupByExpression(GetStrExpression(group.Expression));
+            }
+        }
+
+        private void processSorting(SqlSortSpecificationCollection sorting)
+        {
+            foreach(SqlSortSpecification sort in sorting)
+            {
+                mMainBuilder.AddOrderByExpression(GetStrExpression(sort.Expression), sort.Ordering);
+            }
         }
 
         private void processWhereClause(SqlWhereClause whereClause)
@@ -276,6 +294,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
         }
         internal QueryBuilderEntity AddTable(TableDescriptor table, TableJoinType joinType) => base.AddTable(table, null, joinType, null, null);
+        internal void AddOrderByExpression(string expression, SortDir direction = SortDir.Asc) => base.AddOrderByExpr(expression, direction);
+        internal void AddGroupByExpression(string expression) => base.AddGroupByExpr(expression);
     }
 
 }

@@ -208,5 +208,73 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             int id = (int)(array[0] as Dictionary<string, object>)["Id"];
             id.Should().Be(21);
         }
+
+        [Fact]
+        public void AutoJoinedSelectWithOrdering()
+        {
+            DomBuilder.Parse("test",
+                "SELECT OrderID AS ID, Quantity+1 AS Q, " +
+                "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
+                "FROM OrderDetail " +
+                "AUTO JOIN Order " +
+                "AUTO JOIN Customer " +
+                "AUTO JOIN Employee " +
+                "WHERE Q > 10 " +
+                "ORDER BY Quantity DESC, Order.OrderDate DESC"
+                );
+            object result = DomBuilder.Run(connection);
+            List<object> array = result as List<object>;
+
+            int orderID = (int)(array[0] as Dictionary<string, object>)["ID"];
+            (orderID > 0).Should().BeTrue();
+            double quantity1 = (double)(array[0] as Dictionary<string, object>)["Q"];
+            (quantity1 > 0.0).Should().BeTrue();
+            DateTime orderDate = (DateTime)(array[0] as Dictionary<string, object>)["OrderDate"];
+            (orderDate > DateTime.MinValue).Should().BeTrue();
+            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            string.IsNullOrWhiteSpace(companyName).Should().BeFalse();
+            string firstName = (string)(array[0] as Dictionary<string, object>)["FirstName"];
+            string.IsNullOrWhiteSpace(firstName).Should().BeFalse();
+
+            double max = double.MaxValue;
+            foreach (object obj in array)
+            {
+                double quantity = (double)(obj as Dictionary<string, object>)["Q"];
+                (quantity <= max).Should().BeTrue();
+                max = quantity;
+            }
+        }
+
+        [Fact]
+        public void SelectWithGroupAndOrder()
+        {
+            DomBuilder.Parse("test",
+                "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
+                "FROM Customer " +
+                "GROUP BY Country " +
+                "ORDER BY COUNT(CustomerID) DESC"
+                );
+            object result = DomBuilder.Run(connection);
+            List<object> array = result as List<object>;
+
+            int cstmCounter = (int)(array[0] as Dictionary<string, object>)["CustomersInCountry"];
+            (cstmCounter > 0).Should().BeTrue();
+            string country = (string)(array[0] as Dictionary<string, object>)["Country"];
+            string.IsNullOrWhiteSpace(country).Should().BeFalse();
+
+            int max = int.MaxValue;
+            foreach (object obj in array)
+            {
+                int count = (int)(obj as Dictionary<string, object>)["CustomersInCountry"];
+                (count <= max).Should().BeTrue();
+                max = count;
+                string countryName = (string)(obj as Dictionary<string, object>)["Country"];
+                DomBuilder.Parse("test", $"SELECT COUNT(*) AS q FROM Customer WHERE Country = '{countryName}'");
+                object resultInner = DomBuilder.Run(connection);
+                List<object> arrayInner = resultInner as List<object>;
+                int countFound = (int)(arrayInner[0] as Dictionary<string, object>)["q"];
+                countFound.Should().Be(count);
+            }
+        }
     }
 }
