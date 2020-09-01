@@ -63,7 +63,32 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             $"Incorrect DateTime ({fieldNode.Children[0].Value ?? "null"})"));
                     }
                     constant = dt;
-                    opType = ResultTypes.Date;
+                    opType = ResultTypes.DateTime;
+                    break;
+                case SqlParser.ID.VariableDatetimeConst:
+                    DateTime dtt;
+                    if (!DateTime.TryParseExact(fieldNode.Children[0].Value.Substring(1, fieldNode.Children[0].Value.Length - 2),
+                        "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
+                    {
+                        if (!DateTime.TryParseExact(fieldNode.Children[0].Value.Substring(1, fieldNode.Children[0].Value.Length - 2),
+                            "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
+                        {
+                            if (!DateTime.TryParseExact(fieldNode.Children[0].Value.Substring(1, fieldNode.Children[0].Value.Length - 2),
+                                "yyyy-MM-dd HH", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
+                            {
+                                if (!DateTime.TryParseExact(fieldNode.Children[0].Value.Substring(1, fieldNode.Children[0].Value.Length - 2),
+                                    "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
+                                {
+                                    throw new SqlParserException(new SqlError(source,
+                                        fieldNode.Children[0].Position.Line,
+                                        fieldNode.Children[0].Position.Column,
+                                        $"Incorrect DateTime ({fieldNode.Children[0].Value ?? "null"})"));
+                                }
+                            }
+                        }
+                    }
+                    constant = dtt;
+                    opType = ResultTypes.DateTime;
                     break;
                 case SqlParser.ID.VariableAndOp:
                     binaryOp = SqlBinaryExpression.OperationType.And;
@@ -146,11 +171,70 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     callParameters.Add(parameter);
 
                     break;
+                case SqlParser.ID.VariableStrFuncCall:
+                    funcName = fieldNode.Children[0].Value;
+                    funcResultType = ResultTypes.String;
+                    ASTNode parameterNodeStrFunc = fieldNode.Children[1];
+                    SqlBaseExpression parameterStrFunc = SqlExpressionParser.ParseExpression(parentStatement, parameterNodeStrFunc, source);
+                    if (parameterStrFunc.ResultType != ResultTypes.String)
+                    {
+                        throw new SqlParserException(new SqlError(source,
+                            parameterNodeStrFunc.Position.Line,
+                            parameterNodeStrFunc.Position.Column,
+                            $"Incorrect type of parameter ({parameterNodeStrFunc.Value ?? "null"})"));
+                    }
+                    callParameters = new SqlBaseExpressionCollection();
+                    callParameters.Add(parameterStrFunc);
+
+                    break;
+                case SqlParser.ID.VariableCastFuncCall:
+                    funcName = fieldNode.Children[0].Value;
+                    funcResultType = ResultTypes.String;
+                    ASTNode parameterNodeCustFunc = fieldNode.Children[1];
+                    switch (funcName)
+                    {
+                        case "TOSTRING":
+                            funcResultType = ResultTypes.String;
+                            break;
+                        case "TOINTEGER":
+                            funcResultType = ResultTypes.Integer;
+                            break;
+                        case "TODOUBLE":
+                            funcResultType = ResultTypes.Double;
+                            break;
+                        case "TODATE":
+                            funcResultType = ResultTypes.DateTime;
+                            break;
+                        case "TOTIMESTAMP":
+                            funcResultType = ResultTypes.DateTime;
+                            break;
+                    }
+                    SqlBaseExpression parameterCustFunc = SqlExpressionParser.ParseExpression(parentStatement, parameterNodeCustFunc, source);
+                    callParameters = new SqlBaseExpressionCollection();
+                    callParameters.Add(parameterCustFunc);
+
+                    break;
+                case SqlParser.ID.VariableMathFuncCall:
+                    funcName = fieldNode.Children[0].Value;
+                    ASTNode parameterNodeMathFunc = fieldNode.Children[1];
+                    SqlBaseExpression parameterMathFunc = SqlExpressionParser.ParseExpression(parentStatement, parameterNodeMathFunc, source);
+                    if (parameterMathFunc.ResultType != ResultTypes.Integer && parameterMathFunc.ResultType != ResultTypes.Double)
+                    {
+                        throw new SqlParserException(new SqlError(source,
+                            parameterNodeMathFunc.Position.Line,
+                            parameterNodeMathFunc.Position.Column,
+                            $"Incorrect type of parameter ({parameterNodeMathFunc.Value ?? "null"})"));
+                    }
+                    funcResultType = parameterMathFunc.ResultType;
+                    callParameters = new SqlBaseExpressionCollection();
+                    callParameters.Add(parameterMathFunc);
+
+                    break;
                 case SqlParser.ID.VariableAggrFunc:
                     ASTNode nameNode = fieldNode.Children[0];
                     ASTNode innerFieldNode = fieldNode.Children[1];
                     ResultTypes? resultType = null;
-                    if(nameNode.Value == "COUNT")
+                    if (nameNode.Value == "COUNT")
                     {
                         resultType = ResultTypes.Integer;
                     }
@@ -158,6 +242,61 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     break;
                 case SqlParser.ID.VariableAggrCountAll:
                     result = new SqlAggrFunc("COUNT", null, ResultTypes.Integer);
+                    break;
+                case SqlParser.ID.VariableExactLikeOp:
+                case SqlParser.ID.VariableNotLikeOp:
+                    funcName = fieldNode.Symbol.ID == SqlParser.ID.VariableExactLikeOp ? "LIKE" : "NOTLIKE";
+                    funcResultType = ResultTypes.Boolean;
+                    ASTNode parameter1Node = fieldNode.Children[0];
+                    SqlBaseExpression parameter1 = SqlExpressionParser.ParseExpression(parentStatement, parameter1Node, source);
+                    if (parameter1.ResultType != ResultTypes.String)
+                    {
+                        throw new SqlParserException(new SqlError(source,
+                            parameter1Node.Position.Line,
+                            parameter1Node.Position.Column,
+                            $"Incorrect type of parameter ({parameter1Node.Value ?? "null"})"));
+                    }
+                    ASTNode parameter2Node = fieldNode.Children[1];
+                    SqlBaseExpression parameter2 = SqlExpressionParser.ParseExpression(parentStatement, parameter2Node, source);
+                    if (parameter2.ResultType != ResultTypes.String)
+                    {
+                        throw new SqlParserException(new SqlError(source,
+                            parameter2Node.Position.Line,
+                            parameter2Node.Position.Column,
+                            $"Incorrect type of parameter ({parameter2Node.Value ?? "null"})"));
+                    }
+
+                    callParameters = new SqlBaseExpressionCollection();
+                    callParameters.Add(parameter1);
+                    callParameters.Add(parameter2);
+
+                    break;
+                case SqlParser.ID.VariableBoolStrFuncCall:
+                    funcName = fieldNode.Children[0].Value;
+                    funcResultType = ResultTypes.Boolean;
+                    ASTNode param1Node = fieldNode.Children[1];
+                    SqlBaseExpression param1 = SqlExpressionParser.ParseExpression(parentStatement, param1Node, source);
+                    if (param1.ResultType != ResultTypes.String)
+                    {
+                        throw new SqlParserException(new SqlError(source,
+                            param1Node.Position.Line,
+                            param1Node.Position.Column,
+                            $"Incorrect type of parameter ({param1Node.Value ?? "null"})"));
+                    }
+                    ASTNode param2Node = fieldNode.Children[2];
+                    SqlBaseExpression param2 = SqlExpressionParser.ParseExpression(parentStatement, param2Node, source);
+                    if (param2.ResultType != ResultTypes.String)
+                    {
+                        throw new SqlParserException(new SqlError(source,
+                            param2Node.Position.Line,
+                            param2Node.Position.Column,
+                            $"Incorrect type of parameter ({param2Node.Value ?? "null"})"));
+                    }
+
+                    callParameters = new SqlBaseExpressionCollection();
+                    callParameters.Add(param1);
+                    callParameters.Add(param2);
+
                     break;
             }
             if (funcName != null)

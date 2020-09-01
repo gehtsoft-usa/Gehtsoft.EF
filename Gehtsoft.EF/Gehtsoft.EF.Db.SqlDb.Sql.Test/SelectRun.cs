@@ -251,6 +251,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             DomBuilder.Parse("test",
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
                 "FROM Customer " +
+                "WHERE LOWER(Country) LIKE 'u' || '%' " +
                 "GROUP BY Country " +
                 "ORDER BY COUNT(CustomerID) DESC"
                 );
@@ -269,11 +270,112 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 (count <= max).Should().BeTrue();
                 max = count;
                 string countryName = (string)(obj as Dictionary<string, object>)["Country"];
-                DomBuilder.Parse("test", $"SELECT COUNT(*) AS q FROM Customer WHERE Country = '{countryName}'");
+                countryName.ToLower().StartsWith("u");
+                DomBuilder.Parse("test", $"SELECT COUNT(*) AS q FROM Customer WHERE UPPER(Country) = UPPER('{countryName}')");
                 object resultInner = DomBuilder.Run(connection);
                 List<object> arrayInner = resultInner as List<object>;
                 int countFound = (int)(arrayInner[0] as Dictionary<string, object>)["q"];
                 countFound.Should().Be(count);
+            }
+        }
+
+        [Fact]
+        public void AutoJoinedSelectWithAbs()
+        {
+            DomBuilder.Parse("test",
+                "SELECT OrderID AS ID, Quantity AS Q, " +
+                "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
+                "FROM OrderDetail " +
+                "AUTO JOIN Order " +
+                "AUTO JOIN Customer " +
+                "AUTO JOIN Employee " +
+                "WHERE ABS(-Q) > 100 " +
+                "ORDER BY Q DESC"
+                );
+            object result = DomBuilder.Run(connection);
+            List<object> array = result as List<object>;
+
+            int orderID = (int)(array[0] as Dictionary<string, object>)["ID"];
+            (orderID > 0).Should().BeTrue();
+            double quantity1 = (double)(array[0] as Dictionary<string, object>)["Q"];
+            (quantity1 > 0.0).Should().BeTrue();
+            DateTime orderDate = (DateTime)(array[0] as Dictionary<string, object>)["OrderDate"];
+            (orderDate > DateTime.MinValue).Should().BeTrue();
+            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            string.IsNullOrWhiteSpace(companyName).Should().BeFalse();
+            string firstName = (string)(array[0] as Dictionary<string, object>)["FirstName"];
+            string.IsNullOrWhiteSpace(firstName).Should().BeFalse();
+
+            double max = double.MaxValue;
+            foreach (object obj in array)
+            {
+                double quantity = (double)(obj as Dictionary<string, object>)["Q"];
+                (quantity > 100.0).Should().BeTrue();
+                (quantity <= max).Should().BeTrue();
+                max = quantity;
+            }
+        }
+
+        [Fact]
+        public void SelectWithStartsWith()
+        {
+            DomBuilder.Parse("test",
+                "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
+                "FROM Customer " +
+                "WHERE STARTSWITH(LOWER(Country), 'u') " +
+                "GROUP BY Country " +
+                "ORDER BY COUNT(CustomerID) DESC"
+                );
+            object result = DomBuilder.Run(connection);
+            List<object> array = result as List<object>;
+            array.Count.Should().BeGreaterThan(0);
+
+            foreach (object obj in array)
+            {
+                string countryName = (string)(obj as Dictionary<string, object>)["Country"];
+                countryName.ToLower().StartsWith("u");
+            }
+        }
+
+        [Fact]
+        public void SelectWithEndsWith()
+        {
+            DomBuilder.Parse("test",
+                "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
+                "FROM Customer " +
+                "WHERE ENDSWITH(LOWER(Country), 'a') " +
+                "GROUP BY Country " +
+                "ORDER BY COUNT(CustomerID) DESC"
+                );
+            object result = DomBuilder.Run(connection);
+            List<object> array = result as List<object>;
+            array.Count.Should().BeGreaterThan(0);
+
+            foreach (object obj in array)
+            {
+                string countryName = (string)(obj as Dictionary<string, object>)["Country"];
+                countryName.ToLower().EndsWith("a");
+            }
+        }
+
+        [Fact]
+        public void SelectWithContains()
+        {
+            DomBuilder.Parse("test",
+                "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
+                "FROM Customer " +
+                "WHERE CONTAINS(LOWER(Country), 'gent') " +
+                "GROUP BY Country " +
+                "ORDER BY COUNT(CustomerID) DESC"
+                );
+            object result = DomBuilder.Run(connection);
+            List<object> array = result as List<object>;
+            array.Count.Should().BeGreaterThan(0);
+
+            foreach (object obj in array)
+            {
+                string countryName = (string)(obj as Dictionary<string, object>)["Country"];
+                countryName.ToLower().Contains("gent");
             }
         }
     }

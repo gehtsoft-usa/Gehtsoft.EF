@@ -55,10 +55,13 @@ grammar Sql
 
         DATE_CONST -> 'DATE'! STRING_CONST;
 
+        DATETIME_CONST -> 'DATETIME'! STRING_CONST;
+
         CONSTANT -> NULL^ |
                     BOOLEAN_CONST^ |
                     STRING_CONST^ |
                     NUMBER_CONST^ |
+                    DATETIME_CONST^ |
 					DATE_CONST^;
 
         EOS -> ';'! *;
@@ -76,11 +79,24 @@ grammar Sql
         GE_OP -> '>='!;
         LT_OP -> '<'!;
         LE_OP -> '<='!;
+        EXACT_LIKE_OP -> 'LIKE'!;
+        NOT_LIKE_OP -> 'NOT LIKE'!;
+        LIKE_OP -> EXACT_LIKE_OP^ | NOT_LIKE_OP^;
 
         CALL_ARGS -> EXPR (','! EXPR)*;
-        CALL_BRACKET -> '('! CALL_ARGS? ')'!;
-		FUNC_NAME -> 'TRIM' | 'LTRIM' | 'RTRIM';
-        CALL -> FUNC_NAME^ CALL_BRACKET;
+        CALL_BRACKET -> '('! CALL_ARGS^ ')'!;
+
+		MATH_FUNC_NAME -> 'ABS'^;
+        MATH_FUNC_CALL -> MATH_FUNC_NAME  '('! EXPR ')'!;
+
+		CAST_FUNC_NAME -> 'TOSTRING'^ | 'TOINTEGER'^ | 'TODOUBLE'^ | 'TODATE'^ | 'TOTIMESTAMP'^;
+        CAST_FUNC_CALL -> CAST_FUNC_NAME  '('! EXPR ')'!;
+
+		STR_FUNC_NAME -> 'TRIM'^ | 'LTRIM'^ | 'RTRIM'^ | 'UPPER'^ | 'LOWER'^;
+        STR_FUNC_CALL -> STR_FUNC_NAME  '('! CONCAT_EXPR ')'!;
+
+		BOOL_STR_FUNC_NAME -> 'CONTAINS'^ | 'ENDSWITH'^ | 'STARTSWITH'^ ;
+        BOOL_STR_FUNC_CALL -> BOOL_STR_FUNC_NAME  '('! CONCAT_EXPR ','! CONCAT_EXPR ')'!;
 
 		TRIM_LEADING -> 'LEADING'! ;
 		TRIM_TRAILING -> 'TRAILING'! ;
@@ -88,7 +104,7 @@ grammar Sql
 		TRIM_SPECIFICATION -> TRIM_LEADING^ | TRIM_TRAILING^ | TRIM_BOTH^ ;
 		TRIM_CALL -> 'TRIM'! '('! TRIM_SPECIFICATION? CONCAT_EXPR ')'!;
 
-		FUNC_CALL -> TRIM_CALL^;
+		FUNC_CALL -> MATH_FUNC_CALL^ | BOOL_STR_FUNC_CALL^ | CAST_FUNC_CALL^ | STR_FUNC_CALL^ | TRIM_CALL^;
 
         BRACKET_EXPR -> '('! EXPR^ ')'!;
 
@@ -123,12 +139,16 @@ grammar Sql
                     REL_EXPR LT_OP^ COM_EXPR |
                     REL_EXPR LE_OP^ COM_EXPR;
 
+		LIKE_EXPR -> CONCAT_EXPR  LIKE_OP^ CONCAT_EXPR;
+
+		COMPARE_EXPR -> REL_EXPR^ | LIKE_EXPR^;
+
         NOT_OP -> 'NOT'!;
         AND_OP -> 'AND'!;
         OR_OP -> 'OR'!;
 
-        UX_BOOL_EXPR -> REL_EXPR^ |
-                        NOT_OP^ REL_EXPR;
+        UX_BOOL_EXPR -> COMPARE_EXPR^ |
+                        NOT_OP^ COMPARE_EXPR;
 
         AND_BOOL_EXPR -> UX_BOOL_EXPR^ |
                          AND_BOOL_EXPR AND_OP^ UX_BOOL_EXPR;

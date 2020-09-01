@@ -28,7 +28,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         public enum ResultTypes
         {
             Boolean,
-            Date,
+            DateTime,
             Integer,
             Double,
             String,
@@ -48,7 +48,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     case ResultTypes.Boolean:
                         retval = typeof(bool);
                         break;
-                    case ResultTypes.Date:
+                    case ResultTypes.DateTime:
                         retval = typeof(DateTime);
                         break;
                     case ResultTypes.Double:
@@ -71,7 +71,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             if (type == typeof(double))
                 return ResultTypes.Double;
             if (type == typeof(DateTime))
-                return ResultTypes.Date;
+                return ResultTypes.DateTime;
             if (type == typeof(string))
                 return ResultTypes.String;
             return ResultTypes.Unknown;

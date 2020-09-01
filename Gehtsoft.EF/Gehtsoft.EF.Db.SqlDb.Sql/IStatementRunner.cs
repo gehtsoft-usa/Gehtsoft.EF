@@ -188,6 +188,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             else if (expression is SqlCallFuncExpression callFunc)
             {
                 SqlFunctionId? funcId = null;
+                bool isNot = false;
+                SqlBaseExpressionCollection collection = null;
                 switch (callFunc.Name)
                 {
                     case "TRIM":
@@ -199,17 +201,97 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     case "RTRIM":
                         funcId = SqlFunctionId.TrimRight;
                         break;
+                    case "UPPER":
+                        funcId = SqlFunctionId.Upper;
+                        break;
+                    case "LOWER":
+                        funcId = SqlFunctionId.Lower;
+                        break;
+                    case "TOSTRING":
+                        funcId = SqlFunctionId.ToString;
+                        break;
+                    case "TOINTEGER":
+                        funcId = SqlFunctionId.ToInteger;
+                        break;
+                    case "TODOUBLE":
+                        funcId = SqlFunctionId.ToDouble;
+                        break;
+                    case "TODATE":
+                        funcId = SqlFunctionId.ToDate;
+                        break;
+                    case "TOTIMESTAMP":
+                        funcId = SqlFunctionId.ToTimestamp;
+                        break;
+                    case "ABS":
+                        funcId = SqlFunctionId.Abs;
+                        break;
+                    case "LIKE":
+                        funcId = SqlFunctionId.Like;
+                        break;
+                    case "NOTLIKE":
+                        funcId = SqlFunctionId.Like;
+                        isNot = true;
+                        break;
+                    case "STARTSWITH":
+                        funcId = SqlFunctionId.Like;
+                        SqlBaseExpression par2 = callFunc.Parameters[1];
+                        collection = new SqlBaseExpressionCollection();
+                        collection.Add(callFunc.Parameters[0]);
+
+                        SqlBaseExpression newpar2 = new SqlBinaryExpression(par2,
+                            SqlBinaryExpression.OperationType.Concat,
+                            new SqlConstant("%", SqlBaseExpression.ResultTypes.String)
+                        );
+                        collection.Add(newpar2);
+                        break;
+                    case "ENDSWITH":
+                        funcId = SqlFunctionId.Like;
+                        SqlBaseExpression epar2 = callFunc.Parameters[1];
+                        collection = new SqlBaseExpressionCollection();
+                        collection.Add(callFunc.Parameters[0]);
+
+                        SqlBaseExpression enewpar2 = new SqlBinaryExpression(new SqlConstant("%", SqlBaseExpression.ResultTypes.String),
+                            SqlBinaryExpression.OperationType.Concat,
+                            epar2
+                        );
+                        collection.Add(enewpar2);
+                        break;
+                    case "CONTAINS":
+                        funcId = SqlFunctionId.Like;
+                        SqlBaseExpression cpar2 = callFunc.Parameters[1];
+                        collection = new SqlBaseExpressionCollection();
+                        collection.Add(callFunc.Parameters[0]);
+
+                        SqlBaseExpression cnewpar2 = new SqlBinaryExpression(new SqlConstant("%", SqlBaseExpression.ResultTypes.String),
+                            SqlBinaryExpression.OperationType.Concat,
+                            new SqlBinaryExpression(cpar2,
+                                SqlBinaryExpression.OperationType.Concat,
+                                new SqlConstant("%", SqlBaseExpression.ResultTypes.String)
+                            )
+                        );
+                        collection.Add(cnewpar2);
+                        break;
+                }
+                if (collection == null)
+                {
+                    collection = callFunc.Parameters;
                 }
                 if (funcId.HasValue)
                 {
                     List<string> pars = new List<string>();
-                    foreach (SqlBaseExpression paramExpression in callFunc.Parameters)
+                    foreach (SqlBaseExpression paramExpression in collection)
                     {
                         bool isAggregateLocal;
                         pars.Add(GetStrExpression(paramExpression, out isAggregateLocal));
                         isAggregate = isAggregate || isAggregateLocal;
                     }
-                    return $"({Connection.GetLanguageSpecifics().GetSqlFunction(funcId.Value, pars.ToArray())})";
+                    string retval = $"({Connection.GetLanguageSpecifics().GetSqlFunction(funcId.Value, pars.ToArray())})";
+                    if(isNot)
+                    {
+                        string start = Connection.GetLanguageSpecifics().GetLogOp(LogOp.Not);
+                        retval = $"{start}{retval}";
+                    }
+                    return retval;
                 }
             }
             return null;

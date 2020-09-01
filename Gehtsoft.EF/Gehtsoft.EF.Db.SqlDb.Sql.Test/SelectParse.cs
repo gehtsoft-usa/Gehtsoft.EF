@@ -30,7 +30,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         public void SelectSimple()
         {
             SqlStatementCollection result = DomBuilder.Parse("test",
-                "SELECT OrderID, OrderDate, ShipName FROM Order WHERE OrderID > 100 AND (TRIM(TRAILING ShipAddress) <> 'street' OR OrderDate > DATE '2011-01-01')");
+                "SELECT OrderID, OrderDate, ShipName FROM Order WHERE OrderID > 100 AND (TRIM(TRAILING ShipAddress) <> 'street' OR OrderDate > DATETIME '2011-01-01 13:00')");
 
             SqlExpressionAliasCollection selectList = new SqlExpressionAliasCollection();
             SqlTableSpecificationCollection fromTables = new SqlTableSpecificationCollection();
@@ -62,7 +62,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                     new SqlBinaryExpression(
                         new SqlField(select, "OrderDate"),
                         SqlBinaryExpression.OperationType.Gt,
-                        new SqlConstant(DateTime.ParseExact("2011-01-01", "yyyy-MM-dd", CultureInfo.InvariantCulture), SqlBaseExpression.ResultTypes.Date)
+                        new SqlConstant(DateTime.ParseExact("2011-01-01 13:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture), SqlBaseExpression.ResultTypes.DateTime)
                     )
                 )
             );
