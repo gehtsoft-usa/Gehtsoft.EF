@@ -38,6 +38,7 @@
     <Compile Include="CodeDom\SqlFieldAlias.cs" />
     <Compile Include="CodeDom\SqlFromClause.cs" />
     <Compile Include="CodeDom\SqlGroupSpecification.cs" />
+    <Compile Include="CodeDom\SqlInExpression.cs" />
     <Compile Include="CodeDom\SqlPrimaryTable.cs" />
     <Compile Include="CodeDom\SqlQualifiedJoinedTable.cs" />
     <Compile Include="CodeDom\SqlSelectList.cs" />

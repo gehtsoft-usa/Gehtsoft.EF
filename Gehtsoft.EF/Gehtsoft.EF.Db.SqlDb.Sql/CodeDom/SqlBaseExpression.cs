@@ -19,7 +19,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Field,
             Constant,
             Call,
-            AggrFuncCall
+            AggrFuncCall,
+            In,
         };
 
         /// <summary>

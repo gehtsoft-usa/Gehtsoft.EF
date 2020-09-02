@@ -22,6 +22,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         public abstract object Run(T statement);
 
+        public abstract QueryWithWhereBuilder GetQueryWithWhereBuilder(T statement);
+
         protected abstract SqlStatement SqlStatement { get; }
 
         protected abstract QueryWithWhereBuilder MainBuilder { get; }
@@ -42,15 +44,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             if (expression is SqlField field)
             {
                 string result = null;
-                if(field.EntityDescriptor != null)
+                if (field.EntityDescriptor != null)
                 {
                     try
                     {
-                        result =  MainBuilder.GetAlias(field.EntityDescriptor.TableDescriptor[field.FieldName]);
+                        result = MainBuilder.GetAlias(field.EntityDescriptor.TableDescriptor[field.FieldName]);
                     }
                     catch { }
                 }
-                if(result == null)
+                if (result == null)
                 {
                     if (SqlStatement.AliasEntrys.Exists(field.Name))
                     {
@@ -181,6 +183,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     case SqlUnarExpression.OperationType.Not:
                         start = Connection.GetLanguageSpecifics().GetLogOp(LogOp.Not);
                         break;
+                    case SqlUnarExpression.OperationType.IsNull:
+                        return $"({Connection.GetLanguageSpecifics().GetOp(CmpOp.IsNull, GetStrExpression(unar.Operand, out isAggregate), null)})";
+                    case SqlUnarExpression.OperationType.IsNotNull:
+                        return $"({Connection.GetLanguageSpecifics().GetOp(CmpOp.NotNull, GetStrExpression(unar.Operand, out isAggregate), null)})";
                 }
                 if (start.Contains("(")) end = ")";
                 return $"{start}{GetStrExpression(unar.Operand, out isAggregate)}{end}";
@@ -286,13 +292,50 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         isAggregate = isAggregate || isAggregateLocal;
                     }
                     string retval = $"({Connection.GetLanguageSpecifics().GetSqlFunction(funcId.Value, pars.ToArray())})";
-                    if(isNot)
+                    if (isNot)
                     {
                         string start = Connection.GetLanguageSpecifics().GetLogOp(LogOp.Not);
                         retval = $"{start}{retval}";
                     }
                     return retval;
                 }
+            }
+            else if (expression is SqlInExpression inExpression)
+            {
+                bool isAggregateLeft;
+                bool isAggregateRight = false;
+                string leftOperand = GetStrExpression(inExpression.LeftOperand, out isAggregateLeft);
+                string rightOperand = null;
+                if (inExpression.RightOperandAsList != null)
+                {
+                    StringBuilder rightBuilder = new StringBuilder();
+                    foreach (SqlBaseExpression expr in inExpression.RightOperandAsList)
+                    {
+                        bool isAggregateRightLocal;
+                        rightBuilder.Append(rightBuilder.Length == 0 ? "(" : ",");
+                        rightBuilder.Append(GetStrExpression(expr, out isAggregateRightLocal));
+                        isAggregateRight = isAggregateRight || isAggregateRightLocal;
+                    }
+                    rightBuilder.Append(")");
+                    rightOperand = rightBuilder.ToString();
+                }
+                else if (inExpression.RightOperandAsSelect != null)
+                {
+                    SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection);
+                    QueryWithWhereBuilder builder = runner.GetQueryWithWhereBuilder(inExpression.RightOperandAsSelect);
+                    builder.PrepareQuery();
+                    rightOperand = $"({builder.Query})";
+                }
+
+                isAggregate = isAggregateLeft || isAggregateRight;
+
+                CmpOp op = CmpOp.In;
+                if (inExpression.Operation == SqlInExpression.OperationType.NotIn)
+                {
+                    op = CmpOp.NotIn;
+                }
+
+                return $"({Connection.GetLanguageSpecifics().GetOp(op, leftOperand, rightOperand)})";
             }
             return null;
         }

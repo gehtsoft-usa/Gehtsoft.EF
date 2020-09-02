@@ -79,9 +79,18 @@ grammar Sql
         GE_OP -> '>='!;
         LT_OP -> '<'!;
         LE_OP -> '<='!;
+
         EXACT_LIKE_OP -> 'LIKE'!;
         NOT_LIKE_OP -> 'NOT LIKE'!;
         LIKE_OP -> EXACT_LIKE_OP^ | NOT_LIKE_OP^;
+
+        EXACT_IN_OP -> 'IN'!;
+        NOT_IN_OP -> 'NOT IN'!;
+		IN_OP -> EXACT_IN_OP^ | NOT_IN_OP^;
+
+        EXACT_NULL_OP -> 'IS NULL'!;
+        NOT_NULL_OP -> 'IS NOT NULL'!;
+		NULL_OP -> EXACT_NULL_OP^ | NOT_NULL_OP^;
 
         CALL_ARGS -> EXPR (','! EXPR)*;
         CALL_BRACKET -> '('! CALL_ARGS^ ')'!;
@@ -141,7 +150,15 @@ grammar Sql
 
 		LIKE_EXPR -> CONCAT_EXPR  LIKE_OP^ CONCAT_EXPR;
 
-		COMPARE_EXPR -> REL_EXPR^ | LIKE_EXPR^;
+		IN_PREDICATE -> CONCAT_EXPR IN_OP^ IN_PREDICATE_VALUE;
+		IN_PREDICATE_VALUE -> '('! SELECT^ ')'! | IN_VALUE_LIST^;
+        IN_VALUE_ARGS -> EXPR (','! EXPR)*;
+        IN_VALUE_LIST -> '('! IN_VALUE_ARGS^ ')'!;
+
+		NULL_PREDICATE -> FIELD NULL_OP^;
+
+
+		COMPARE_EXPR -> REL_EXPR^ | LIKE_EXPR^ | IN_PREDICATE^ | NULL_PREDICATE^;
 
         NOT_OP -> 'NOT'!;
         AND_OP -> 'AND'!;

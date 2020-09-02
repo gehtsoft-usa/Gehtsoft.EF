@@ -19,6 +19,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             object constant = null;
             SqlBinaryExpression.OperationType? binaryOp = null;
             SqlUnarExpression.OperationType? unarOp = null;
+            SqlInExpression.OperationType? inOp = null;
             string funcName = null;
             SqlBaseExpressionCollection callParameters = null;
             ResultTypes funcResultType = ResultTypes.Unknown;
@@ -298,6 +299,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     callParameters.Add(param2);
 
                     break;
+                case SqlParser.ID.VariableExactInOp:
+                    inOp = SqlInExpression.OperationType.In;
+                    break;
+                case SqlParser.ID.VariableNotInOp:
+                    inOp = SqlInExpression.OperationType.NotIn;
+                    break;
+                case SqlParser.ID.VariableExactNullOp:
+                    unarOp = SqlUnarExpression.OperationType.IsNull;
+                    break;
+                case SqlParser.ID.VariableNotNullOp:
+                    unarOp = SqlUnarExpression.OperationType.IsNotNull;
+                    break;
             }
             if (funcName != null)
             {
@@ -314,6 +327,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             if (unarOp.HasValue)
             {
                 result = new SqlUnarExpression(parentStatement, fieldNode.Children[0], unarOp.Value, source);
+            }
+            if(inOp.HasValue)
+            {
+                result = new SqlInExpression(parentStatement, fieldNode.Children[0], inOp.Value, fieldNode.Children[1], source);
             }
 
             return result;

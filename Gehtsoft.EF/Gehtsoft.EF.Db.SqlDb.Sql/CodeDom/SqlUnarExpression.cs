@@ -21,6 +21,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Plus,
             Minus,
             Not,
+            IsNull,
+            IsNotNull
         };
 
         public override ExpressionTypes ExpressionType
@@ -64,7 +66,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     operand.Position.Column,
                     $"Type of operand doesn't match the operation {operand.Symbol.Name} ({operand.Value ?? "null"})"));
             }
-            mResultType = mOperand.ResultType;
+            if (operation == OperationType.IsNotNull || operation == OperationType.IsNull)
+            {
+                mResultType = ResultTypes.Boolean;
+            }
+            else
+            {
+                mResultType = mOperand.ResultType;
+            }
             mOperation = operation;
         }
 
@@ -75,7 +84,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 throw new SqlParserException(new SqlError(null, 0, 0, $"Type of operand doesn't match the operation"));
             }
-            mResultType = mOperand.ResultType;
+            if (operation == OperationType.IsNotNull || operation == OperationType.IsNull)
+            {
+                mResultType = ResultTypes.Boolean;
+            }
+            else
+            {
+                mResultType = mOperand.ResultType;
+            }
             mOperation = operation;
         }
 
@@ -90,6 +106,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     break;
                 case OperationType.Not:
                     isCorrect = resultType == ResultTypes.Boolean;
+                    break;
+                case OperationType.IsNotNull:
+                case OperationType.IsNull:
+                    isCorrect = true;
                     break;
             }
             return isCorrect;

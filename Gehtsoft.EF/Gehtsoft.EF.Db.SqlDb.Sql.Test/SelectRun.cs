@@ -378,5 +378,84 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 countryName.ToLower().Contains("gent");
             }
         }
+
+        [Fact]
+        public void SelectIn1()
+        {
+            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
+            object result = DomBuilder.Run(connection);
+            List<object> array = result as List<object>;
+            int total = (int)(array[0] as Dictionary<string, object>)["Total"];
+            total.Should().BeGreaterThan(0);
+
+            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Country IN (SELECT Country FROM Supplier)");
+            result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            int totalIn = (int)(array[0] as Dictionary<string, object>)["Total"];
+            totalIn.Should().BeGreaterThan(0);
+
+            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Country NOT IN (SELECT Country FROM Supplier)");
+            result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            int totalNotIn = (int)(array[0] as Dictionary<string, object>)["Total"];
+            totalNotIn.Should().BeGreaterThan(0);
+
+            total.Should().Be(totalIn + totalNotIn);
+        }
+
+        [Fact]
+        public void SelectIn2()
+        {
+            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
+            object result = DomBuilder.Run(connection);
+            List<object> array = result as List<object>;
+            int total = (int)(array[0] as Dictionary<string, object>)["Total"];
+            total.Should().BeGreaterThan(0);
+
+            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE UPPER(Country) IN ('USA', 'AUSTRALIA')");
+            result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            int totalIn = (int)(array[0] as Dictionary<string, object>)["Total"];
+            totalIn.Should().BeGreaterThan(0);
+
+            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE UPPER(Country) NOT IN ('USA', 'AUSTRALIA')");
+            result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            int totalNotIn = (int)(array[0] as Dictionary<string, object>)["Total"];
+            totalNotIn.Should().BeGreaterThan(0);
+
+            total.Should().Be(totalIn + totalNotIn);
+        }
+
+        [Fact]
+        public void SelectIsNull()
+        {
+            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
+            object result = DomBuilder.Run(connection);
+            List<object> array = result as List<object>;
+            int total = (int)(array[0] as Dictionary<string, object>)["Total"];
+            total.Should().BeGreaterThan(0);
+
+            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Region IS NULL");
+            result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            int totalNull = (int)(array[0] as Dictionary<string, object>)["Total"];
+            totalNull.Should().BeGreaterThan(0);
+
+            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Region IS NOT NULL");
+            result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            int totalNotNull = (int)(array[0] as Dictionary<string, object>)["Total"];
+            totalNotNull.Should().BeGreaterThan(0);
+
+            DomBuilder.Parse("test", "SELECT COUNT(Region) AS Total FROM Customer");
+            result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            int totalCountNotNull = (int)(array[0] as Dictionary<string, object>)["Total"];
+            totalCountNotNull.Should().BeGreaterThan(0);
+            totalCountNotNull.Should().BeLessOrEqualTo(totalNotNull);
+
+            total.Should().Be(totalNull + totalNotNull);
+        }
     }
 }

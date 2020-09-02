@@ -64,6 +64,47 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
+        public override QueryWithWhereBuilder GetQueryWithWhereBuilder(SqlSelectStatement select)
+        {
+            if(MainBuilder == null)
+            {
+                mSelect = select;
+                if (mConnectionFactory != null)
+                {
+                    mConnection = mConnectionFactory.GetConnection();
+                }
+                try
+                {
+                    processSelect(select);
+                }
+                finally
+                {
+                    if (mConnectionFactory != null)
+                    {
+                        if (mConnectionFactory.NeedDispose)
+                            mConnection.Dispose();
+                    }
+                }
+            }
+            return MainBuilder;
+        }
+
+        private void processSelect(SqlSelectStatement select)
+        {
+            processFrom(select.FromClause);
+            processSelectList(select.SelectList);
+            reProcessFrom(select.FromClause);
+            if (select.WhereClause != null) processWhereClause(select.WhereClause);
+            if (select.Sorting != null) processSorting(select.Sorting);
+            if (select.Grouping != null) processGrouping(select.Grouping);
+
+            if (select.SetQuantifier == "DISTINCT")
+                mMainBuilder.Distinct = true;
+
+            mMainBuilder.Limit = mSelect.Limit;
+            mMainBuilder.Skip = mSelect.Offset;
+        }
+
         public override object Run(SqlSelectStatement select)
         {
             List<object> result = new List<object>();
@@ -74,18 +115,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             try
             {
-                processFrom(select.FromClause);
-                processSelectList(select.SelectList);
-                reProcessFrom(select.FromClause);
-                if (select.WhereClause != null) processWhereClause(select.WhereClause);
-                if (select.Sorting != null) processSorting(select.Sorting);
-                if (select.Grouping != null) processGrouping(select.Grouping);
-
-                if (select.SetQuantifier == "DISTINCT")
-                    mMainBuilder.Distinct = true;
-
-                mMainBuilder.Limit = mSelect.Limit;
-                mMainBuilder.Skip = mSelect.Offset;
+                processSelect(select);
 
                 using (SqlDbQuery query = mConnection.GetQuery(mMainBuilder))
                 {
