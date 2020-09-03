@@ -92,6 +92,7 @@
     <Compile Include="QueryBuilder\DropQueryBuilder.cs" />
     <Compile Include="QueryBuilder\HierarchicalSelectQueryBuilder.cs" />
     <Compile Include="QueryBuilder\InsertQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\InsertSelectQueryBuilder.cs" />
     <Compile Include="QueryBuilder\QueryBuilder.cs" />
     <Compile Include="QueryBuilder\QueryWithWhereBuilder.cs" />
     <Compile Include="QueryBuilder\SelectQueryBuilder.cs" />

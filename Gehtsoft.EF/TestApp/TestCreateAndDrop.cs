@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Text;
+using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using MongoDB.Driver;
@@ -24,6 +25,16 @@ namespace TestApp
                 new TableDescriptor.ColumnInfo {Name = "vreal", DbType = DbType.Double, Size = 16, Precision = 2, Nullable = true},
                 new TableDescriptor.ColumnInfo {Name = "vdate", DbType = DbType.DateTime, Sorted = true, Nullable = true},
                 new TableDescriptor.ColumnInfo {Name = "vbool", DbType = DbType.Boolean, Nullable = true},
+            }
+        );
+
+        static TableDescriptor gCreateDropTable1 = new TableDescriptor
+        (
+            "createdroptest1",
+            new TableDescriptor.ColumnInfo[]
+            {
+                new TableDescriptor.ColumnInfo {Name = "vint_pk", DbType = DbType.Int32, PrimaryKey = true, Autoincrement = true},
+                new TableDescriptor.ColumnInfo {Name = "vstring", DbType = DbType.String, Size = 32, Nullable = true},
             }
         );
 
@@ -66,18 +77,26 @@ namespace TestApp
             DropTableBuilder dbuilder = connection.GetDropTableBuilder(gCreateDropTable);
             CreateTableBuilder cbuilder = connection.GetCreateTableBuilder(gCreateDropTable);
             InsertQueryBuilder ibuilder = connection.GetInsertQueryBuilder(gCreateDropTable);
+            DropTableBuilder dbuilder1 = connection.GetDropTableBuilder(gCreateDropTable1);
+            CreateTableBuilder cbuilder1 = connection.GetCreateTableBuilder(gCreateDropTable1);
 
             SqlDbQuery query;
 
             using (query = connection.GetQuery(dbuilder))
+                query.ExecuteNoData();
+            using (query = connection.GetQuery(dbuilder1))
                 query.ExecuteNoData();
 
             TableDescriptor[] schema = connection.Schema();
 
             Assert.NotNull(schema);
             Assert.IsFalse(schema.Contains("createdroptest"));
+            Assert.IsFalse(schema.Contains("createdroptest1"));
 
             using (query = connection.GetQuery(cbuilder))
+                query.ExecuteNoData();
+
+            using (query = connection.GetQuery(cbuilder1))
                 query.ExecuteNoData();
 
             schema = connection.Schema();
@@ -88,8 +107,9 @@ namespace TestApp
             Assert.IsTrue(schema.Contains("createdroptest", "vint_pk"));
             Assert.IsTrue(schema.Contains("createdroptest", "vblob"));
             Assert.IsTrue(schema.Contains("createdroptest", "vbool"));
-            Assert.IsFalse(schema.Contains("createdroptest1"));
-            Assert.IsFalse(schema.Contains("createdroptest", "vint_pk1"));
+            Assert.IsTrue(schema.Contains("createdroptest1"));
+            Assert.IsTrue(schema.Contains("createdroptest1", "vint_pk"));
+            Assert.IsFalse(schema.Contains("createdroptest2"));
 
             DateTime dt1 = DateTime.Now;
             dt1 = new DateTime(dt1.Year, dt1.Month, dt1.Day, dt1.Hour, dt1.Minute, dt1.Second);
@@ -212,6 +232,23 @@ namespace TestApp
                 Assert.AreEqual(false, query.GetValue<bool>("vbool"));
                 Assert.AreEqual(new DateTime(0), query.GetValue<DateTime>("vdate"));
             }
+
+            SelectQueryBuilder insert1Select = new SelectQueryBuilder(connection.GetLanguageSpecifics(), gCreateDropTable);
+            insert1Select.AddToResultset(gCreateDropTable["vstring"]);
+            insert1Select.Where.Property(gCreateDropTable["vint_pk"]).Eq().Value(2);
+            InsertSelectQueryBuilder insert1FromSelect = new InsertSelectQueryBuilder(connection.GetLanguageSpecifics(), gCreateDropTable1, insert1Select, true);
+            using (query = connection.GetQuery(insert1FromSelect))
+                query.ExecuteNoData();
+
+            using (query = connection.GetQuery($"select * from {gCreateDropTable1.Name}"))
+            {
+                query.ExecuteReader();
+                query.ReadNext().Should().BeTrue();
+                query.GetValue<int>(0).Should().Be(1);
+                query.GetValue<string>(1).Should().Be("string2");
+                query.ReadNext().Should().BeFalse();
+            }
+
 
             UpdateQueryBuilder ubuilder = connection.GetUpdateQueryBuilder(gCreateDropTable);
             ubuilder.AddWhereFilterPrimaryKey();

@@ -3,22 +3,33 @@ using System.Text;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
-    public class InsertQueryBuilder : AQueryBuilder
+    public class InsertSelectQueryBuilder : AQueryBuilder
     {
         protected TableDescriptor mTable;
+        protected SelectQueryBuilder mSelect;
         protected bool mIgnoreAutoIncrement;
+        protected HashSet<string> mInclude;
 
-        public InsertQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, bool ignoreAutoIncrement = false) : base(specifics)
+        public InsertSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false) : base(specifics)
         {
             mTable = table;
             mIgnoreAutoIncrement = ignoreAutoIncrement;
+            mSelect = selectQuery;
+            mInclude = null;
+        }
+
+        public void IncludeOnly(params string[] columns)
+        {
+            if (mInclude == null)
+                mInclude = new HashSet<string>();
+            foreach (string s in columns)
+                if (!mInclude.Contains(s))
+                    mInclude.Add(s);
         }
 
         public override void PrepareQuery()
         {
             StringBuilder leftSide = new StringBuilder();
-            StringBuilder rightSide = new StringBuilder();
-            bool first = true;
             TableDescriptor.ColumnInfo autoIncrement = null;
             foreach (TableDescriptor.ColumnInfo info in mTable)
             {
@@ -28,40 +39,25 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     continue;
                 }
 
-                if (first)
-                    first = false;
-                else
-                {
+                if (leftSide.Length > 0)
                     leftSide.Append(", ");
-                    rightSide.Append(", ");
-                }
 
-
-                leftSide.Append(info.Name);
-                if (info.Autoincrement && !mIgnoreAutoIncrement)
-                {
-                    autoIncrement = info;
-                    rightSide.Append(ExpressionForAutoincrement(info));
-                }
-                else
-                {
-                    rightSide.Append(mSpecifics.ParameterInQueryPrefix);
-                    rightSide.Append(info.Name);
-                }
+                if (!info.Autoincrement || !mIgnoreAutoIncrement)
+                    if (mInclude == null || mInclude.Contains(info.Name))
+                        leftSide.Append(info.Name);
             }
-            mQuery = BuildQuery(leftSide, rightSide, autoIncrement);
+            mQuery = BuildQuery(leftSide, autoIncrement);
         }
 
-        protected virtual string BuildQuery(StringBuilder leftSide, StringBuilder rightSide, TableDescriptor.ColumnInfo autoIncrement)
+        protected virtual string BuildQuery(StringBuilder leftSide, TableDescriptor.ColumnInfo autoIncrement)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append("INSERT INTO ");
             builder.Append(mTable.Name);
             builder.Append(" ( ");
             builder.Append(leftSide);
-            builder.Append(") VALUES (");
-            builder.Append(rightSide);
-            builder.Append(" ) ");
+            builder.Append(") ");
+            builder.Append(mSelect.Query);
             return builder.ToString();
         }
 

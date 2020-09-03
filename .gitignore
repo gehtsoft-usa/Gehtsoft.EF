@@ -20,3 +20,4 @@ TestResults/
 **/doc/dst/
 
 /gehtsoft.ef/archive/
+/gehtsoft.ef/Gehtsoft.EF.Db.SqlDb.Sql/*.bin
