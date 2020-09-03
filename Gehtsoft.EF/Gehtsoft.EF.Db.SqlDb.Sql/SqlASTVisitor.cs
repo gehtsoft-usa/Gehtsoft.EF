@@ -30,6 +30,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
                             return new SqlSelectStatement(builder, statementNode, source);
                         }
+                    case SqlParser.ID.VariableInsert:
+                        {
+                            if (statementNode.Children.Count < 3)
+                                break;
+
+                            return new SqlInsertStatement(builder, statementNode, source);
+                        }
                     case SqlParser.ID.VariableNop:
                         return null;
                 }

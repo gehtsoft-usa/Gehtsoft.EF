@@ -20,6 +20,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         public enum StatementId
         {
             Select,
+            Insert,
         };
 
         internal class EntityEntry

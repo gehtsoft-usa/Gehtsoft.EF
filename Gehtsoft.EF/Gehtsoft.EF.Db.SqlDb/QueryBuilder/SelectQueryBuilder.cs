@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Gehtsoft.EF.Entities;
 
@@ -112,6 +113,8 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public ConditionBuilder Having => mHaving ?? (mHaving = new ConditionBuilder(this));
 
         public SelectQueryBuilderResultset Resultset => mResultset;
+
+        public void ResetResultset() => mResultset = new SelectQueryBuilderResultset();
 
         private int mColumnAlias = 0;
 
@@ -237,7 +240,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mGroupBy.Add(new SelectQueryBuilderByItem(GetAlias(column, entity), SortDir.Asc));
         }
 
-        protected internal virtual void AddOrderByExpr(string expression, SortDir direction = SortDir.Asc)
+        public virtual void AddOrderByExpr(string expression, SortDir direction = SortDir.Asc)
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
@@ -247,7 +250,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mOrderBy.Add(new SelectQueryBuilderByItem(expression, direction));
         }
 
-        protected internal virtual void AddGroupByExpr(string expression)
+        public virtual void AddGroupByExpr(string expression)
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {

@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         private SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;
         private readonly ISqlDbConnectionFactory mConnectionFactory = null;
-        private MySelectQueryBuilder mMainBuilder = null;
+        private SelectQueryBuilder mMainBuilder = null;
         private EntityDescriptor mMainEntityDescriptor = null;
         private SqlSelectStatement mSelect;
 
@@ -64,7 +64,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public override QueryWithWhereBuilder GetQueryWithWhereBuilder(SqlSelectStatement select)
+        public override AQueryBuilder GetQueryBuilder(SqlSelectStatement select)
         {
             if(MainBuilder == null)
             {
@@ -144,7 +144,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             foreach (SqlGroupSpecification group in grouping)
             {
-                mMainBuilder.AddGroupByExpression(GetStrExpression(group.Expression));
+                mMainBuilder.AddGroupByExpr(GetStrExpression(group.Expression));
             }
         }
 
@@ -152,7 +152,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             foreach(SqlSortSpecification sort in sorting)
             {
-                mMainBuilder.AddOrderByExpression(GetStrExpression(sort.Expression), sort.Ordering);
+                mMainBuilder.AddOrderByExpr(GetStrExpression(sort.Expression), sort.Ordering);
             }
         }
 
@@ -210,7 +210,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         break;
                 }
 
-                joinedTable.BuilderEntity = mMainBuilder.AddTable(FindTableDescriptor(joinedTable.RightTable.TableName), joinType);
+                joinedTable.BuilderEntity = mMainBuilder.AddTable(FindTableDescriptor(joinedTable.RightTable.TableName), null, joinType, null, null);
             }
             else if (table is SqlAutoJoinedTable autoJoinedTable)
             {
@@ -247,13 +247,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        private MySelectQueryBuilder createBuilder(string entityName, out EntityDescriptor entityDescriptor)
+        private SelectQueryBuilder createBuilder(string entityName, out EntityDescriptor entityDescriptor)
         {
             Type entityType = mBuilder.EntityByName(entityName);
             if (entityType == null)
                 throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{entityName}'"));
             entityDescriptor = AllEntities.Inst[entityType];
-            return new MySelectQueryBuilder(mConnection.GetLanguageSpecifics(), entityDescriptor.TableDescriptor);
+            return mConnection.GetSelectQueryBuilder(entityDescriptor.TableDescriptor);
         }
 
         private object bindRecord(SqlDbQuery query, SqlSelectStatement select)
@@ -317,15 +317,4 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return result;
         }
     }
-
-    internal class MySelectQueryBuilder : SelectQueryBuilder
-    {
-        public MySelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor mainTable) : base(specifics, mainTable)
-        {
-        }
-        internal QueryBuilderEntity AddTable(TableDescriptor table, TableJoinType joinType) => base.AddTable(table, null, joinType, null, null);
-        internal void AddOrderByExpression(string expression, SortDir direction = SortDir.Asc) => base.AddOrderByExpr(expression, direction);
-        internal void AddGroupByExpression(string expression) => base.AddGroupByExpr(expression);
-    }
-
 }

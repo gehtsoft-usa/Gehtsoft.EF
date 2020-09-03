@@ -281,8 +281,8 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     }
 
                     long totalCount = -1;
-                    int limit = ((MySelectQueryBuilder)queryBuilder).Limit;
-                    int skip = ((MySelectQueryBuilder)queryBuilder).Skip;
+                    int limit = ((SelectQueryBuilder)queryBuilder).Limit;
+                    int skip = ((SelectQueryBuilder)queryBuilder).Skip;
                     if (inlinecount)
                     {
                         if (oDataToQuery.OneToMany)
@@ -297,7 +297,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                             uriParserForCount.Top = null;
                             ODataToQuery oDataToQueryForCount = new ODataToQuery(mModelBuilder, uriParserForCount, connection);
                             AQueryBuilder queryBuilderForCount = oDataToQueryForCount.BuildQuery(true);
-                            MySelectQueryBuilder builderForCount = (MySelectQueryBuilder)queryBuilderForCount;
+                            SelectQueryBuilder builderForCount = (SelectQueryBuilder)queryBuilderForCount;
                             builderForCount.ResetResultset();
                             builderForCount.AddToResultset(AggFn.Count);
 

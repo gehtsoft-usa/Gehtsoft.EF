@@ -442,13 +442,33 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			/// </summary>
 			public const int VariableOffset = 0x0073;
 			/// <summary>
+			/// The unique identifier for variable INSERT
+			/// </summary>
+			public const int VariableInsert = 0x0074;
+			/// <summary>
+			/// The unique identifier for variable FIELDS
+			/// </summary>
+			public const int VariableFields = 0x0075;
+			/// <summary>
+			/// The unique identifier for variable FIELDS_LIST
+			/// </summary>
+			public const int VariableFieldsList = 0x0076;
+			/// <summary>
+			/// The unique identifier for variable VALUES
+			/// </summary>
+			public const int VariableValues = 0x0077;
+			/// <summary>
+			/// The unique identifier for variable VALUES_LIST
+			/// </summary>
+			public const int VariableValuesList = 0x0078;
+			/// <summary>
 			/// The unique identifier for variable STATEMENT
 			/// </summary>
-			public const int VariableStatement = 0x0074;
+			public const int VariableStatement = 0x0079;
 			/// <summary>
 			/// The unique identifier for variable ROOT
 			/// </summary>
-			public const int VariableRoot = 0x0075;
+			public const int VariableRoot = 0x007A;
 		}
 		/// <summary>
 		/// The collection of variables matched by this parser
@@ -562,17 +582,24 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			new Symbol(0x0071, "LIMIT_OFFSET"), 
 			new Symbol(0x0072, "LIMIT"), 
 			new Symbol(0x0073, "OFFSET"), 
-			new Symbol(0x0074, "STATEMENT"), 
-			new Symbol(0x0075, "ROOT"), 
-			new Symbol(0x007C, "__V124"), 
-			new Symbol(0x008F, "__V143"), 
-			new Symbol(0x00A3, "__V163"), 
-			new Symbol(0x00AF, "__V175"), 
-			new Symbol(0x00B4, "__V180"), 
-			new Symbol(0x00BF, "__V191"), 
-			new Symbol(0x00C3, "__V195"), 
-			new Symbol(0x00C6, "__V198"), 
-			new Symbol(0x00C7, "__VAxiom") };
+			new Symbol(0x0074, "INSERT"), 
+			new Symbol(0x0075, "FIELDS"), 
+			new Symbol(0x0076, "FIELDS_LIST"), 
+			new Symbol(0x0077, "VALUES"), 
+			new Symbol(0x0078, "VALUES_LIST"), 
+			new Symbol(0x0079, "STATEMENT"), 
+			new Symbol(0x007A, "ROOT"), 
+			new Symbol(0x0081, "__V129"), 
+			new Symbol(0x0092, "__V146"), 
+			new Symbol(0x00A6, "__V166"), 
+			new Symbol(0x00B1, "__V177"), 
+			new Symbol(0x00B6, "__V182"), 
+			new Symbol(0x00C1, "__V193"), 
+			new Symbol(0x00C5, "__V197"), 
+			new Symbol(0x00CA, "__V202"), 
+			new Symbol(0x00CB, "__V203"), 
+			new Symbol(0x00CD, "__V205"), 
+			new Symbol(0x00CE, "__VAxiom") };
 		/// <summary>
 		/// The collection of virtuals matched by this parser
 		/// </summary>
@@ -707,6 +734,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			public virtual void OnVariableLimitOffset(ASTNode node) {}
 			public virtual void OnVariableLimit(ASTNode node) {}
 			public virtual void OnVariableOffset(ASTNode node) {}
+			public virtual void OnVariableInsert(ASTNode node) {}
+			public virtual void OnVariableFields(ASTNode node) {}
+			public virtual void OnVariableFieldsList(ASTNode node) {}
+			public virtual void OnVariableValues(ASTNode node) {}
+			public virtual void OnVariableValuesList(ASTNode node) {}
 			public virtual void OnVariableStatement(ASTNode node) {}
 			public virtual void OnVariableRoot(ASTNode node) {}
 		}
@@ -845,8 +877,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 				case 0x0071: visitor.OnVariableLimitOffset(node); break;
 				case 0x0072: visitor.OnVariableLimit(node); break;
 				case 0x0073: visitor.OnVariableOffset(node); break;
-				case 0x0074: visitor.OnVariableStatement(node); break;
-				case 0x0075: visitor.OnVariableRoot(node); break;
+				case 0x0074: visitor.OnVariableInsert(node); break;
+				case 0x0075: visitor.OnVariableFields(node); break;
+				case 0x0076: visitor.OnVariableFieldsList(node); break;
+				case 0x0077: visitor.OnVariableValues(node); break;
+				case 0x0078: visitor.OnVariableValuesList(node); break;
+				case 0x0079: visitor.OnVariableStatement(node); break;
+				case 0x007A: visitor.OnVariableRoot(node); break;
 			}
 		}
 	}

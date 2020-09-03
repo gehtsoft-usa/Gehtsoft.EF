@@ -29,6 +29,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 case SqlParser.ID.VariableField:
                     result = new SqlField(parentStatement, fieldNode, source);
                     break;
+                case SqlParser.ID.VariableNull:
+                    opType = ResultTypes.Unknown;
+                    constant = "NULL";
+                    break;
                 case SqlLexer.ID.TerminalInteger:
                     opType = ResultTypes.Integer;
                     constant = int.Parse(fieldNode.Value);
@@ -318,6 +322,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
             if (constant != null)
             {
+                if (opType == ResultTypes.Unknown && (string)constant == "NULL") constant = null;
                 result = new SqlConstant(constant, opType);
             }
             if (binaryOp.HasValue)

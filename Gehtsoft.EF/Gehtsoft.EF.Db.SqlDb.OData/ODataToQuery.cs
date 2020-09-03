@@ -55,8 +55,8 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
         public AQueryBuilder BuildQuery(bool withoutSorting = false)
         {
-            MySelectQueryBuilder builder = null;
-            MySelectQueryBuilder mainBuilder = null;
+            SelectQueryBuilder builder = null;
+            SelectQueryBuilder mainBuilder = null;
             EntityDescriptor entityDescriptor = null;
 
             int i = 0;
@@ -102,8 +102,8 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                             builder.AddToResultset(entityDescriptor.TableDescriptor[navigationPropertySegment.Identifier]);
                             string name = entytyType.Name;
 
-                            MySelectQueryBuilder builderOld = builder;
-                            MySelectQueryBuilder builderNew = createBuilder(name, out entityDescriptor);
+                            SelectQueryBuilder builderOld = builder;
+                            SelectQueryBuilder builderNew = createBuilder(name, out entityDescriptor);
                             builderNew.Where.And().Property(entityDescriptor.TableDescriptor.PrimaryKey).Is(CmpOp.In).Query(builderOld);
 
                             mainBuilder = builder = builderNew;
@@ -119,8 +119,8 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                                 builder.AddToResultset(entityDescriptor.TableDescriptor.PrimaryKey);
                                 string name = innerEntytyType.Name;
 
-                                MySelectQueryBuilder builderOld = builder;
-                                MySelectQueryBuilder builderNew = createBuilder(name, out entityDescriptor);
+                                SelectQueryBuilder builderOld = builder;
+                                SelectQueryBuilder builderNew = createBuilder(name, out entityDescriptor);
                                 builderNew.Where.And().Property(entityDescriptor.TableDescriptor[referFieldName]).Is(CmpOp.In).Query(builderOld);
 
                                 mainBuilder = builder = builderNew;
@@ -234,7 +234,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             return mainBuilder;
         }
 
-        private void processOrderBy(SelectQueryBuilder builder, EntityDescriptor entityDescriptor, OrderByClause clause)
+        private void processOrderBy(QueryBuilder.SelectQueryBuilder builder, EntityDescriptor entityDescriptor, OrderByClause clause)
         {
             if (clause.Expression is SingleValuePropertyAccessNode node)
             {
@@ -315,7 +315,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             }
         }
 
-        private void processFilter(SelectQueryBuilder builder, EntityDescriptor entityDescriptor, FilterClause clause)
+        private void processFilter(QueryBuilder.SelectQueryBuilder builder, EntityDescriptor entityDescriptor, FilterClause clause)
         {
             string expression = getStrExpression(clause.Expression, builder.Where, entityDescriptor);
             if (!builder.Where.IsEmpty)
@@ -544,7 +544,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             throw new EfODataException(EfODataExceptionCode.UnknownOperator);
         }
 
-        private void processSelectAndExpand(SelectQueryBuilder builder, EntityDescriptor entityDescriptor, SelectExpandClause clause, string prefix = "")
+        private void processSelectAndExpand(QueryBuilder.SelectQueryBuilder builder, EntityDescriptor entityDescriptor, SelectExpandClause clause, string prefix = "")
         {
             bool allSelected = clause.AllSelected;
             foreach (SelectItem item in clause.SelectedItems)
@@ -643,13 +643,13 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
         }
 
-        private MySelectQueryBuilder createBuilder(string edmName, out EntityDescriptor entityDescriptor)
+        private SelectQueryBuilder createBuilder(string edmName, out EntityDescriptor entityDescriptor)
         {
             Type entityType = mModelBuilder.EntityTypeByName(edmName);
             if (entityType == null)
                 throw new EfODataException(EfODataExceptionCode.NoEntityInBuildQuery);
             entityDescriptor = AllEntities.Inst[entityType];
-            return new MySelectQueryBuilder(mConnection.GetLanguageSpecifics(), entityDescriptor.TableDescriptor);
+            return mConnection.GetSelectQueryBuilder(entityDescriptor.TableDescriptor);
         }
 
         public object Bind(SqlDbQuery query)
@@ -772,13 +772,5 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             }
         }
 
-    }
-
-    internal class MySelectQueryBuilder : SelectQueryBuilder
-    {
-        public MySelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor mainTable) : base(specifics, mainTable)
-        {
-        }
-        public void ResetResultset() => this.mResultset = new SelectQueryBuilderResultset();
     }
 }

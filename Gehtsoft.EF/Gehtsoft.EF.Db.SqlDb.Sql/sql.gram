@@ -41,7 +41,7 @@ grammar Sql
 
     rules {
 
-        NULL -> 'null'!;
+        NULL -> 'NULL'!;
 
         BOOLEAN_TRUE -> 'TRUE'!;
 
@@ -81,15 +81,15 @@ grammar Sql
         LE_OP -> '<='!;
 
         EXACT_LIKE_OP -> 'LIKE'!;
-        NOT_LIKE_OP -> 'NOT LIKE'!;
+        NOT_LIKE_OP -> 'NOT'! 'LIKE'!;
         LIKE_OP -> EXACT_LIKE_OP^ | NOT_LIKE_OP^;
 
         EXACT_IN_OP -> 'IN'!;
-        NOT_IN_OP -> 'NOT IN'!;
+        NOT_IN_OP -> 'NOT'! 'IN'!;
 		IN_OP -> EXACT_IN_OP^ | NOT_IN_OP^;
 
-        EXACT_NULL_OP -> 'IS NULL'!;
-        NOT_NULL_OP -> 'IS NOT NULL'!;
+        EXACT_NULL_OP -> 'IS'! 'NULL'!;
+        NOT_NULL_OP -> 'IS'! 'NOT'! 'NULL'!;
 		NULL_OP -> EXACT_NULL_OP^ | NOT_NULL_OP^;
 
         CALL_ARGS -> EXPR (','! EXPR)*;
@@ -241,8 +241,15 @@ grammar Sql
 		LIMIT -> 'LIMIT'! INTEGER;
 		OFFSET -> 'OFFSET'! INTEGER;
 
-        STATEMENT -> SELECT |
-                     NOP;
+		INSERT -> 'INSERT'! 'INTO'! IDENTIFIER FIELDS_LIST VALUES_LIST;
+
+		FIELDS -> FIELD (','! FIELD)*;
+        FIELDS_LIST -> '('! FIELDS^ ')'!;
+
+		VALUES -> CONSTANT (','! CONSTANT)*;
+		VALUES_LIST -> 'VALUES'! '('! VALUES^ ')'! ;
+
+        STATEMENT -> SELECT | INSERT | NOP;
 
         ROOT -> STATEMENT STATEMENT*;
     }

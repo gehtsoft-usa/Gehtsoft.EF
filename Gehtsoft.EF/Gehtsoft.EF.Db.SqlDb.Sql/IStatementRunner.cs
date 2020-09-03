@@ -22,7 +22,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         public abstract object Run(T statement);
 
-        public abstract QueryWithWhereBuilder GetQueryWithWhereBuilder(T statement);
+        public abstract AQueryBuilder GetQueryBuilder(T statement);
 
         protected abstract SqlStatement SqlStatement { get; }
 
@@ -322,7 +322,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 else if (inExpression.RightOperandAsSelect != null)
                 {
                     SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection);
-                    QueryWithWhereBuilder builder = runner.GetQueryWithWhereBuilder(inExpression.RightOperandAsSelect);
+                    AQueryBuilder builder = runner.GetQueryBuilder(inExpression.RightOperandAsSelect);
                     builder.PrepareQuery();
                     rightOperand = $"({builder.Query})";
                 }
@@ -383,19 +383,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             foreach (KeyValuePair<string, object> pair in BindParams)
             {
-                Type tttt = pair.Value.GetType();
-                if (pair.Value is int intValue)
-                    query.BindParam(pair.Key, intValue);
-                else if (pair.Value is double doubleValue)
-                    query.BindParam(pair.Key, doubleValue);
-                else if (pair.Value is bool boolValue)
-                    query.BindParam(pair.Key, boolValue);
-                else if (pair.Value is DateTime dateTimeValue)
-                    query.BindParam(pair.Key, dateTimeValue);
-                else if (pair.Value is DateTimeOffset dateTimeOffsetValue)
-                    query.BindParam(pair.Key, dateTimeOffsetValue.LocalDateTime);
+                if (pair.Value == null)
+                {
+                    query.BindParam(pair.Key, DbType.String, null);
+                }
                 else
-                    query.BindParam(pair.Key, pair.Value.ToString());
+                {
+                    Type tttt = pair.Value.GetType();
+                    if (pair.Value is int intValue)
+                        query.BindParam(pair.Key, intValue);
+                    else if (pair.Value is double doubleValue)
+                        query.BindParam(pair.Key, doubleValue);
+                    else if (pair.Value is bool boolValue)
+                        query.BindParam(pair.Key, boolValue);
+                    else if (pair.Value is DateTime dateTimeValue)
+                        query.BindParam(pair.Key, dateTimeValue);
+                    else if (pair.Value is DateTimeOffset dateTimeOffsetValue)
+                        query.BindParam(pair.Key, dateTimeOffsetValue.LocalDateTime);
+                    else
+                        query.BindParam(pair.Key, pair.Value.ToString());
+                }
             }
         }
 

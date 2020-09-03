@@ -40,7 +40,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 throw new SqlParserException(new SqlError(source,
                     fieldNode.Position.Line,
                     fieldNode.Position.Column,
-                    $"Not found entty with name '{TableName}'"));
+                    $"Not found entity with name '{TableName}'"));
             }
         }
         internal SqlPrimaryTable(SqlStatement parentStatement, string tableName, string correlationName)
@@ -53,7 +53,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
             catch
             {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entty with name '{TableName}'"));
+                throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{TableName}'"));
             }
         }
         internal SqlPrimaryTable(SqlStatement parentStatement, string tableName) :
