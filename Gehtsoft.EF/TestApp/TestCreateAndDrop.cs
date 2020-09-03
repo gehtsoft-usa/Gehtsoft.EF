@@ -233,10 +233,13 @@ namespace TestApp
                 Assert.AreEqual(new DateTime(0), query.GetValue<DateTime>("vdate"));
             }
 
+            bool oracle = connection.ConnectionType == "oracle";
             SelectQueryBuilder insert1Select = new SelectQueryBuilder(connection.GetLanguageSpecifics(), gCreateDropTable);
+            if (oracle)
+                insert1Select.AddToResultset(gCreateDropTable["vint_pk"]);
             insert1Select.AddToResultset(gCreateDropTable["vstring"]);
             insert1Select.Where.Property(gCreateDropTable["vint_pk"]).Eq().Value(2);
-            InsertSelectQueryBuilder insert1FromSelect = new InsertSelectQueryBuilder(connection.GetLanguageSpecifics(), gCreateDropTable1, insert1Select, true);
+            InsertSelectQueryBuilder insert1FromSelect = new InsertSelectQueryBuilder(connection.GetLanguageSpecifics(), gCreateDropTable1, insert1Select, oracle ? false : true);
             using (query = connection.GetQuery(insert1FromSelect))
                 query.ExecuteNoData();
 
@@ -244,7 +247,7 @@ namespace TestApp
             {
                 query.ExecuteReader();
                 query.ReadNext().Should().BeTrue();
-                query.GetValue<int>(0).Should().Be(1);
+                query.GetValue<int>(0).Should().Be(oracle ? 2 : 1);
                 query.GetValue<string>(1).Should().Be("string2");
                 query.ReadNext().Should().BeFalse();
             }

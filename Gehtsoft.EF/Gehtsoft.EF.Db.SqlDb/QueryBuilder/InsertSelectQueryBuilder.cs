@@ -33,12 +33,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             TableDescriptor.ColumnInfo autoIncrement = null;
             foreach (TableDescriptor.ColumnInfo info in mTable)
             {
-                if (info.Autoincrement && !HasExpressionForAutoincrement && !mIgnoreAutoIncrement)
-                {
-                    autoIncrement = info;
-                    continue;
-                }
-
                 if (leftSide.Length > 0)
                     leftSide.Append(", ");
 
@@ -57,6 +51,8 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             builder.Append(" ( ");
             builder.Append(leftSide);
             builder.Append(") ");
+            if (string.IsNullOrEmpty(mSelect.Query))
+                mSelect.PrepareQuery();
             builder.Append(mSelect.Query);
             return builder.ToString();
         }

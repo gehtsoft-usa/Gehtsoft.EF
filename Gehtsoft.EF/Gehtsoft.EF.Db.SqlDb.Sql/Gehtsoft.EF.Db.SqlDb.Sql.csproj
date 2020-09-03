@@ -22,12 +22,7 @@
     <PackageReference Include="Hime.Build.Task" Version="0.1.6" IncludeAssets="build" />
   </ItemGroup>
 
-  <Target Name="CompileGrammar" BeforeTargets="BeforeBuild">
-    <Delete Files="SqlParser.cs" />
-    <Delete Files="SqlLexer.cs" />
-    <Delete Files="SqlParser.bin" />
-    <Delete Files="SqlLexer.bin" />
-
+  <Target Name="CompileGrammar" BeforeTargets="DispatchToInnerBuilds" >
     <CompileGrammar GrammarName="Sql" GrammarFile="sql.gram" Namespace="Gehtsoft.eF.Db.SqlDb.Sql" OutputMode="Source" CodeAccess="Internal" OutputPath="." />
   </Target>
 
