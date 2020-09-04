@@ -18,6 +18,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         public SqlConstantCollection Values { get; } = null;
         public string TableName { get; } = null;
         private EntityDescriptor mEntityDescriptor = null;
+        public SqlSelectStatement RightSelect { get; } = null;
 
         public EntityDescriptor EntityDescriptor
         {
@@ -46,7 +47,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
 
             ASTNode fieldsNode = statementNode.Children[1];
-            ASTNode valuesNode = statementNode.Children[2];
 
             Fields = new SqlFieldCollection();
             foreach (ASTNode fieldNode in fieldsNode.Children)
@@ -54,10 +54,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 Fields.Add(new SqlField(this, fieldNode, currentSource));
             }
 
-            Values = new SqlConstantCollection();
-            foreach (ASTNode constantNode in valuesNode.Children)
+            if (statementNode.Children[2].Symbol.ID == SqlParser.ID.VariableValues)
             {
-                Values.Add((SqlConstant)(SqlExpressionParser.ParseExpression(this, constantNode, currentSource)));
+                ASTNode valuesNode = statementNode.Children[2];
+                Values = new SqlConstantCollection();
+                foreach (ASTNode constantNode in valuesNode.Children)
+                {
+                    Values.Add((SqlConstant)(SqlExpressionParser.ParseExpression(this, constantNode, currentSource)));
+                }
+            }
+            else if (statementNode.Children[2].Symbol.ID == SqlParser.ID.VariableSelect)
+            {
+                RightSelect = new SqlSelectStatement(this.CodeDomBuilder, statementNode.Children[2], currentSource);
+            }
+            else
+            {
+                throw new SqlParserException(new SqlError(currentSource,
+                    statementNode.Children[2].Position.Line,
+                    statementNode.Children[2].Position.Column,
+                    $"Unknown right part of INSERT ({statementNode.Children[2].Value ?? "null"})"));
             }
             CheckFieldsAndValues();
         }
@@ -79,38 +94,58 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Values = values;
         }
 
+        internal SqlInsertStatement(SqlCodeDomBuilder builder, string tableName, SqlFieldCollection fields, SqlSelectStatement rightSelect)
+            : base(builder, StatementId.Insert, null, 0, 0)
+        {
+            TableName = tableName;
+            try
+            {
+                this.AddEntityEntry(TableName, null);
+            }
+            catch
+            {
+                throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{TableName}'"));
+            }
+
+            Fields = fields;
+            RightSelect = rightSelect;
+        }
+
         internal protected void CheckFieldsAndValues()
         {
-            if (Fields.Count != Values.Count)
+            if (Values != null)
             {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Number of fields and values in INSERT statement should be the same"));
-            }
-            for (int i = 0; i < Fields.Count; i++)
-            {
-                SqlField field = Fields[i];
-                SqlConstant constant = Values[i];
-
-                if (constant.ResultType != SqlBaseExpression.ResultTypes.Unknown && constant.ResultType != field.ResultType)
+                if (Fields.Count != Values.Count)
                 {
-                    if (!(field.ResultType == SqlBaseExpression.ResultTypes.Double && constant.ResultType == SqlBaseExpression.ResultTypes.Integer))
+                    throw new SqlParserException(new SqlError(null, 0, 0, $"Number of fields and values in INSERT statement should be the same"));
+                }
+                for (int i = 0; i < Fields.Count; i++)
+                {
+                    SqlField field = Fields[i];
+                    SqlConstant constant = Values[i];
+
+                    if (constant.ResultType != SqlBaseExpression.ResultTypes.Unknown && constant.ResultType != field.ResultType)
                     {
-                        throw new SqlParserException(new SqlError(null, 0, 0, $"Types of field and value in position {i + 1} of INSERT statement don't match"));
+                        if (!(field.ResultType == SqlBaseExpression.ResultTypes.Double && constant.ResultType == SqlBaseExpression.ResultTypes.Integer))
+                        {
+                            throw new SqlParserException(new SqlError(null, 0, 0, $"Types of field and value in position {i + 1} of INSERT statement don't match"));
+                        }
+                    }
+                    else if (constant.ResultType == SqlBaseExpression.ResultTypes.Unknown) //NULL
+                    {
+                        if (!EntityDescriptor[field.Name].Nullable)
+                        {
+                            throw new SqlParserException(new SqlError(null, 0, 0, $"Field '{field.Name}' is not nullable"));
+                        }
                     }
                 }
-                else if (constant.ResultType == SqlBaseExpression.ResultTypes.Unknown) //NULL
-                {
-                    if (!EntityDescriptor[field.Name].Nullable)
-                    {
-                        throw new SqlParserException(new SqlError(null, 0, 0, $"Field '{field.Name}' is not nullable"));
-                    }
-                }
             }
 
-            foreach(TableDescriptor.ColumnInfo column in EntityDescriptor.TableDescriptor)
+            foreach (TableDescriptor.ColumnInfo column in EntityDescriptor.TableDescriptor)
             {
-                if(Fields.FindByName(column.ID) == null)
+                if (Fields.FindByName(column.ID) == null)
                 {
-                    if(!column.Nullable && column.DefaultValue == null && !(column.PrimaryKey && column.Autoincrement))
+                    if (!column.Nullable && column.DefaultValue == null && !(column.PrimaryKey && column.Autoincrement))
                     {
                         throw new SqlParserException(new SqlError(null, 0, 0, $"Value for the field '{column.ID}' should be set"));
                     }
@@ -123,9 +158,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             if (other is SqlInsertStatement stmt)
             {
-                return TableName.Equals(stmt.TableName) &&
-                       Fields.Equals(stmt.Fields) &&
-                       Values.Equals(stmt.Values);
+                if (RightSelect == null && stmt.RightSelect != null)
+                    return false;
+                if (RightSelect != null && !RightSelect.Equals(stmt.RightSelect))
+                    return false;
+                if (Values == null && stmt.Values != null)
+                    return false;
+                if (Values != null && !Values.Equals(stmt.Values))
+                    return false;
+                return TableName.Equals(stmt.TableName) && Fields.Equals(stmt.Fields);
             }
             return base.Equals(other);
         }

@@ -106,5 +106,65 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 )
             );
         }
+
+        [Fact]
+        public void InsertSelect()
+        {
+            SqlStatementCollection result = DomBuilder.Parse("test",
+                "INSERT INTO Supplier " +
+                "(CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax) " +
+                "SELECT " +
+                "CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax " +
+                "FROM Customer WHERE PostalCode LIKE '80%'"
+            );
+
+            SqlExpressionAliasCollection selectList = new SqlExpressionAliasCollection();
+            SqlFieldCollection fields = new SqlFieldCollection();
+            SqlTableSpecificationCollection fromTables = new SqlTableSpecificationCollection();
+            SqlSelectStatement select = new SqlSelectStatement(DomBuilder,
+                new SqlSelectList(selectList),
+                new SqlFromClause(fromTables),
+                new SqlWhereClause()
+                );
+
+            fromTables.Add(new SqlPrimaryTable(select, "Customer"));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "CompanyName")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "ContactName")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "ContactTitle")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "Address")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "City")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "Region")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "PostalCode")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "Country")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "Phone")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "Fax")));
+
+            select.WhereClause.RootExpression = new SqlCallFuncExpression(
+                SqlBaseExpression.ResultTypes.Boolean, "LIKE",
+                new SqlBaseExpressionCollection()
+                {
+                    new SqlField(select, "PostalCode"),
+                    new SqlConstant("80%", SqlBaseExpression.ResultTypes.String)
+                });
+
+            SqlInsertStatement insert = new SqlInsertStatement(DomBuilder, "Supplier", fields, select);
+
+            fields.Add(new SqlField(insert, "CompanyName"));
+            fields.Add(new SqlField(insert, "ContactName"));
+            fields.Add(new SqlField(insert, "ContactTitle"));
+            fields.Add(new SqlField(insert, "Address"));
+            fields.Add(new SqlField(insert, "City"));
+            fields.Add(new SqlField(insert, "Region"));
+            fields.Add(new SqlField(insert, "PostalCode"));
+            fields.Add(new SqlField(insert, "Country"));
+            fields.Add(new SqlField(insert, "Phone"));
+            fields.Add(new SqlField(insert, "Fax"));
+
+            insert.CheckFieldsAndValues();
+
+            SqlStatementCollection target = new SqlStatementCollection() { insert };
+
+            result.Equals(target).Should().BeTrue();
+        }
     }
 }
