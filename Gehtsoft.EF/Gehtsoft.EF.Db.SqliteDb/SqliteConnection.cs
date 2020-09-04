@@ -50,6 +50,11 @@ namespace Gehtsoft.EF.Db.SqliteDb
             return new SqliteInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);
         }
 
+        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement)
+        {
+            return new SqliteInsertSelectQueryBuilder(gSpecifics, descriptor, selectQuery, ignoreAutoIncrement);
+        }
+
         public override HierarchicalSelectQueryBuilder GetHierarchicalSelectQueryBuilder(TableDescriptor descriptor, TableDescriptor.ColumnInfo parentReferenceColumn, string rootParameter = null)
         {
             return new SqliteHierarchicalSelectQueryBuilder(gSpecifics, descriptor, parentReferenceColumn, rootParameter);

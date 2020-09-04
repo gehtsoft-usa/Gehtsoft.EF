@@ -116,6 +116,13 @@ namespace Gehtsoft.EF.Db.SqlDb
             return new InsertQueryBuilder(GetLanguageSpecifics(), descriptor, ignoreAutoIncrement);
         }
 
+        public InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery) => GetInsertSelectQueryBuilder(descriptor, selectQuery, false);
+
+        public virtual InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement)
+        {
+            return new InsertSelectQueryBuilder(GetLanguageSpecifics(), descriptor, selectQuery, ignoreAutoIncrement);
+        }
+
         public virtual UpdateQueryBuilder GetUpdateQueryBuilder(TableDescriptor descriptor)
         {
             return new UpdateQueryBuilder(GetLanguageSpecifics(), descriptor);

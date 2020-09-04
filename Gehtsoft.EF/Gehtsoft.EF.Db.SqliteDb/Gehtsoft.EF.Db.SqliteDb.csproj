@@ -35,6 +35,7 @@
     <Compile Include="SqliteDbQuery.cs" />
     <Compile Include="SqliteHierarchicalSelectQueryBuilder.cs" />
     <Compile Include="SqliteInsertQueryBuilder.cs" />
+    <Compile Include="SqliteInsertSelectQueryBuilder.cs" />
     <Compile Include="SqliteLanguageSpecifics.cs" />
     <Compile Include="SqliteTransaction.cs" />
   </ItemGroup>
