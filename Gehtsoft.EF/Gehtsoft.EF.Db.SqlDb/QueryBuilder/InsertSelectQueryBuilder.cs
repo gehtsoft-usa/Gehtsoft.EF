@@ -33,12 +33,20 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             TableDescriptor.ColumnInfo autoIncrement = null;
             foreach (TableDescriptor.ColumnInfo info in mTable)
             {
-                if (leftSide.Length > 0)
-                    leftSide.Append(", ");
-
                 if (!info.Autoincrement || !mIgnoreAutoIncrement)
+                {
                     if (mInclude == null || mInclude.Contains(info.Name))
+                    {
+                        if (leftSide.Length > 0)
+                            leftSide.Append(", ");
                         leftSide.Append(info.Name);
+                    }
+                }
+                if (info.Autoincrement && !mIgnoreAutoIncrement)
+                {
+                    autoIncrement = info;
+                }
+
             }
             mQuery = BuildQuery(leftSide, autoIncrement);
         }

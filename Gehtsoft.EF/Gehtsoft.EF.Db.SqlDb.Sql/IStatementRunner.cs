@@ -16,9 +16,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         object Run(T statement);
     }
 
-    public abstract class StatementRunner<T> : IStatementRunner<T>
+    public interface IBindParamsOwner
     {
-        protected Dictionary<string, object> BindParams = new Dictionary<string, object>();
+        Dictionary<string, object> BindParams { get; }
+    }
+
+    public abstract class StatementRunner<T> : IStatementRunner<T>, IBindParamsOwner
+    {
+        protected IBindParamsOwner BindParamsOwner { get; set; } = null;
+
+        private Dictionary<string, object> mBindParams = new Dictionary<string, object>();
+
+        public Dictionary<string, object> BindParams
+        {
+            get
+            {
+                if (BindParamsOwner == null)
+                    return mBindParams;
+                return BindParamsOwner.BindParams;
+            }
+        }
 
         public abstract object Run(T statement);
 
@@ -48,7 +65,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 {
                     try
                     {
-                        result = MainBuilder.GetAlias(field.EntityDescriptor.TableDescriptor[field.FieldName]);
+                        result = GetAlias(field.EntityDescriptor.TableDescriptor[field.FieldName]);
                     }
                     catch { }
                 }
@@ -95,7 +112,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     }
                     if (fn != AggFn.None)
                     {
-                        return Connection.GetLanguageSpecifics().GetAggFn(fn, MainBuilder.GetAlias(aggrFunc.Field.EntityDescriptor.TableDescriptor[aggrFunc.Field.Name]));
+                        return Connection.GetLanguageSpecifics().GetAggFn(fn, GetAlias(aggrFunc.Field.EntityDescriptor.TableDescriptor[aggrFunc.Field.Name]));
                     }
                 }
             }
@@ -321,7 +338,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 }
                 else if (inExpression.RightOperandAsSelect != null)
                 {
-                    SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection);
+                    SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection, this);
                     AQueryBuilder builder = runner.GetQueryBuilder(inExpression.RightOperandAsSelect);
                     builder.PrepareQuery();
                     rightOperand = $"({builder.Query})";
@@ -338,6 +355,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 return $"({Connection.GetLanguageSpecifics().GetOp(op, leftOperand, rightOperand)})";
             }
             return null;
+        }
+
+        internal string GetAlias(TableDescriptor.ColumnInfo info, QueryBuilderEntity entity = null)
+        {
+            if (MainBuilder != null)
+                return MainBuilder.GetAlias(info, entity);
+
+            return $"{info.Name}";
         }
 
         public enum ArifOp

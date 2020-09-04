@@ -20,16 +20,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         private EntityDescriptor mMainEntityDescriptor = null;
         private SqlSelectStatement mSelect;
 
-        internal SelectRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory)
+        internal SelectRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory, IBindParamsOwner bindParamsOwner = null)
         {
             mBuilder = builder;
             mConnectionFactory = connectionFactory;
+            BindParamsOwner = bindParamsOwner;
         }
 
-        internal SelectRunner(SqlCodeDomBuilder builder, SqlDbConnection connection)
+        internal SelectRunner(SqlCodeDomBuilder builder, SqlDbConnection connection, IBindParamsOwner bindParamsOwner = null)
         {
             mBuilder = builder;
             mConnection = connection;
+            BindParamsOwner = bindParamsOwner;
         }
 
         protected override SqlStatement SqlStatement
@@ -260,7 +262,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             Dictionary<string, object> result = new Dictionary<string, object>();
             int fieldCount = query.FieldCount;
-            ;
+
             for (int i = 0; i < fieldCount; i++)
             {
                 string name = query.Field(i).Name;

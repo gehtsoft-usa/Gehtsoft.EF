@@ -151,8 +151,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 switch (statement.Id)
                 {
                     case SqlStatement.StatementId.Select:
-                        SelectRunner runner = new SelectRunner(this, connection);
-                        result = runner.Run(statement as SqlSelectStatement);
+                        SelectRunner selectRunner = new SelectRunner(this, connection);
+                        result = selectRunner.Run(statement as SqlSelectStatement);
+                        break;
+
+                    case SqlStatement.StatementId.Insert:
+                        InsertRunner insertRunner = new InsertRunner(this, connection);
+                        result = insertRunner.Run(statement as SqlInsertStatement);
                         break;
 
                     default:
