@@ -37,7 +37,11 @@ namespace Gehtsoft.EF.Db.OracleDb
                 builder.Append($" UNIQUE");
             if (column.DefaultValue != null)
                 builder.Append($" DEFAULT {mSpecifics.FormatValue(column.DefaultValue)}");
+        }
 
+        protected override bool NeedIndex(TableDescriptor.ColumnInfo column)
+        {
+            return (column.Sorted && !column.Unique && !column.PrimaryKey);
         }
     }
 }

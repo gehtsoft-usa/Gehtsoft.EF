@@ -24,6 +24,18 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mFieldSet.Append($"{column.Name}={mSpecifics.ParameterInQueryPrefix}{parameterName ?? column.Name}");
         }
 
+        public void AddUpdateColumnExpression(TableDescriptor.ColumnInfo column, string rawExpression, string parameterDelimiter = "@")
+        {
+            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+                if (rawExpression.ContainsScalar())
+                    throw new ArgumentException("The query must not contain string scalars", nameof(rawExpression));
+            if (mFieldSet.Length > 0)
+                mFieldSet.Append(", ");
+            if (parameterDelimiter != mSpecifics.ParameterInQueryPrefix)
+                rawExpression = rawExpression.Replace(parameterDelimiter, mSpecifics.ParameterInQueryPrefix);
+            mFieldSet.Append($"{column.Name}={rawExpression}");
+        }
+
         public void AddUpdateColumnSubquery(TableDescriptor.ColumnInfo column, AQueryBuilder builder)
         {
             if (mFieldSet.Length > 0)

@@ -33,7 +33,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             TableDescriptor.ColumnInfo autoIncrement = null;
             foreach (TableDescriptor.ColumnInfo info in mTable)
             {
-                if (!info.Autoincrement || !mIgnoreAutoIncrement)
+                if (!info.Autoincrement || mIgnoreAutoIncrement)
                 {
                     if (mInclude == null || mInclude.Contains(info.Name))
                     {
@@ -42,11 +42,17 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                         leftSide.Append(info.Name);
                     }
                 }
-                if (info.Autoincrement && !mIgnoreAutoIncrement)
-                {
-                    autoIncrement = info;
-                }
 
+                if (info.Autoincrement)
+                    autoIncrement = info;
+
+            }
+            if (!mIgnoreAutoIncrement && HasExpressionForAutoincrement && autoIncrement != null)
+            {
+                if (leftSide.Length > 0)
+                    leftSide.Append(", ");
+                leftSide.Append(autoIncrement.Name);
+                mSelect.AddExpressionToResultset(ExpressionForAutoincrement(autoIncrement), System.Data.DbType.Int32);
             }
             mQuery = BuildQuery(leftSide, autoIncrement);
         }

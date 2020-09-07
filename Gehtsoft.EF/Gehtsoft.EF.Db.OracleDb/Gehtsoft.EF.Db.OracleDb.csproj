@@ -33,6 +33,7 @@
     <Compile Include="OracleDropTableBuilder.cs" />
     <Compile Include="OracleHierarchicalSelectQueryBuilder.cs" />
     <Compile Include="OracleInsertQueryBuilder.cs" />
+    <Compile Include="OracleInsertSelectQueryBuilder.cs" />
     <Compile Include="OracleQuery.cs" />
     <Compile Include="OracleSelectQueryBuilder.cs" />
   </ItemGroup>
