@@ -21,6 +21,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             Select,
             Insert,
+            Update,
         };
 
         internal class EntityEntry

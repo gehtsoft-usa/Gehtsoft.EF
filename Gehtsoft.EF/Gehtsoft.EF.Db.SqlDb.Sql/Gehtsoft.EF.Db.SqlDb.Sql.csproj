@@ -50,6 +50,7 @@
     <Compile Include="CodeDom\SqlGroupSpecification.cs" />
     <Compile Include="CodeDom\SqlInExpression.cs" />
     <Compile Include="CodeDom\SqlInsertStatement.cs" />
+    <Compile Include="CodeDom\SqlIUpdateStatement.cs" />
     <Compile Include="CodeDom\SqlPrimaryTable.cs" />
     <Compile Include="CodeDom\SqlQualifiedJoinedTable.cs" />
     <Compile Include="CodeDom\SqlSelectList.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="CodeDom\SqlStatementCollection.cs" />
     <Compile Include="CodeDom\SqlTableSpecification.cs" />
     <Compile Include="CodeDom\SqlUnarExpression.cs" />
+    <Compile Include="CodeDom\SqlUpdateAssign.cs" />
     <Compile Include="CodeDom\SqlWhereClause.cs" />
     <Compile Include="InsertRunner.cs" />
     <Compile Include="IStatementRunner.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="SqlLexer.cs" />
     <Compile Include="SqlParser.cs" />
     <Compile Include="SqlParserException.cs" />
+    <Compile Include="UpdateRunner.cs" />
   </ItemGroup>
 
   <Target Name="CleanGrammar" BeforeTargets="Clean">

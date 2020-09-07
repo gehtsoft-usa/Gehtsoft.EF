@@ -37,6 +37,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
                             return new SqlInsertStatement(builder, statementNode, source);
                         }
+                    case SqlParser.ID.VariableUpdate:
+                        {
+                            if (statementNode.Children.Count < 2)
+                                break;
+
+                            return new SqlUpdateStatement(builder, statementNode, source);
+                        }
                     case SqlParser.ID.VariableNop:
                         return null;
                 }

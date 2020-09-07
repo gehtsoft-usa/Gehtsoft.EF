@@ -113,6 +113,20 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mOperation = operation;
         }
 
+        internal SqlInExpression(SqlBaseExpression leftOperand, OperationType operation, SqlBaseExpressionCollection rightOperand)
+        {
+            mLeftOperand = leftOperand;
+            mRightList = rightOperand;
+            mOperation = operation;
+        }
+
+        internal SqlInExpression(SqlBaseExpression leftOperand, OperationType operation, SqlSelectStatement rightOperand)
+        {
+            mLeftOperand = leftOperand;
+            mRightSelect = rightOperand;
+            mOperation = operation;
+        }
+
         public virtual bool Equals(SqlInExpression other)
         {
             if (other == null)

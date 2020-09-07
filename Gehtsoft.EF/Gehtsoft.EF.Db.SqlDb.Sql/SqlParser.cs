@@ -466,13 +466,29 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			/// </summary>
 			public const int VariableToInsert = 0x0079;
 			/// <summary>
+			/// The unique identifier for variable UPDATE
+			/// </summary>
+			public const int VariableUpdate = 0x007A;
+			/// <summary>
+			/// The unique identifier for variable UPDATE_LIST
+			/// </summary>
+			public const int VariableUpdateList = 0x007B;
+			/// <summary>
+			/// The unique identifier for variable UPDATE_ASSIGN
+			/// </summary>
+			public const int VariableUpdateAssign = 0x007C;
+			/// <summary>
+			/// The unique identifier for variable UPDATE_OPERAND
+			/// </summary>
+			public const int VariableUpdateOperand = 0x007D;
+			/// <summary>
 			/// The unique identifier for variable STATEMENT
 			/// </summary>
-			public const int VariableStatement = 0x007A;
+			public const int VariableStatement = 0x007E;
 			/// <summary>
 			/// The unique identifier for variable ROOT
 			/// </summary>
-			public const int VariableRoot = 0x007B;
+			public const int VariableRoot = 0x007F;
 		}
 		/// <summary>
 		/// The collection of variables matched by this parser
@@ -592,19 +608,24 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			new Symbol(0x0077, "VALUES"), 
 			new Symbol(0x0078, "VALUES_LIST"), 
 			new Symbol(0x0079, "TO_INSERT"), 
-			new Symbol(0x007A, "STATEMENT"), 
-			new Symbol(0x007B, "ROOT"), 
-			new Symbol(0x0082, "__V130"), 
-			new Symbol(0x0093, "__V147"), 
-			new Symbol(0x00A7, "__V167"), 
-			new Symbol(0x00B2, "__V178"), 
-			new Symbol(0x00B7, "__V183"), 
-			new Symbol(0x00C2, "__V194"), 
+			new Symbol(0x007A, "UPDATE"), 
+			new Symbol(0x007B, "UPDATE_LIST"), 
+			new Symbol(0x007C, "UPDATE_ASSIGN"), 
+			new Symbol(0x007D, "UPDATE_OPERAND"), 
+			new Symbol(0x007E, "STATEMENT"), 
+			new Symbol(0x007F, "ROOT"), 
+			new Symbol(0x0086, "__V134"), 
+			new Symbol(0x0097, "__V151"), 
+			new Symbol(0x00AB, "__V171"), 
+			new Symbol(0x00B6, "__V182"), 
+			new Symbol(0x00BB, "__V187"), 
 			new Symbol(0x00C6, "__V198"), 
-			new Symbol(0x00CB, "__V203"), 
-			new Symbol(0x00CC, "__V204"), 
-			new Symbol(0x00CE, "__V206"), 
-			new Symbol(0x00CF, "__VAxiom") };
+			new Symbol(0x00CA, "__V202"), 
+			new Symbol(0x00CF, "__V207"), 
+			new Symbol(0x00D0, "__V208"), 
+			new Symbol(0x00D4, "__V212"), 
+			new Symbol(0x00D5, "__V213"), 
+			new Symbol(0x00D6, "__VAxiom") };
 		/// <summary>
 		/// The collection of virtuals matched by this parser
 		/// </summary>
@@ -745,6 +766,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			public virtual void OnVariableValues(ASTNode node) {}
 			public virtual void OnVariableValuesList(ASTNode node) {}
 			public virtual void OnVariableToInsert(ASTNode node) {}
+			public virtual void OnVariableUpdate(ASTNode node) {}
+			public virtual void OnVariableUpdateList(ASTNode node) {}
+			public virtual void OnVariableUpdateAssign(ASTNode node) {}
+			public virtual void OnVariableUpdateOperand(ASTNode node) {}
 			public virtual void OnVariableStatement(ASTNode node) {}
 			public virtual void OnVariableRoot(ASTNode node) {}
 		}
@@ -889,8 +914,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 				case 0x0077: visitor.OnVariableValues(node); break;
 				case 0x0078: visitor.OnVariableValuesList(node); break;
 				case 0x0079: visitor.OnVariableToInsert(node); break;
-				case 0x007A: visitor.OnVariableStatement(node); break;
-				case 0x007B: visitor.OnVariableRoot(node); break;
+				case 0x007A: visitor.OnVariableUpdate(node); break;
+				case 0x007B: visitor.OnVariableUpdateList(node); break;
+				case 0x007C: visitor.OnVariableUpdateAssign(node); break;
+				case 0x007D: visitor.OnVariableUpdateOperand(node); break;
+				case 0x007E: visitor.OnVariableStatement(node); break;
+				case 0x007F: visitor.OnVariableRoot(node); break;
 			}
 		}
 	}
