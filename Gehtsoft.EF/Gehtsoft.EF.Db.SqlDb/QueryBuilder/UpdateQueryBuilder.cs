@@ -16,9 +16,10 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public void AddUpdateColumn(TableDescriptor.ColumnInfo column, string parameterName = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
-                if (parameterName.ContainsScalar())
-                    throw new ArgumentException("The query must not contain string scalars", nameof(parameterName));
+            if (parameterName != null)
+                if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+                    if (parameterName.ContainsScalar())
+                        throw new ArgumentException("The query must not contain string scalars", nameof(parameterName));
             if (mFieldSet.Length > 0)
                 mFieldSet.Append(", ");
             mFieldSet.Append($"{column.Name}={mSpecifics.ParameterInQueryPrefix}{parameterName ?? column.Name}");
@@ -31,7 +32,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     throw new ArgumentException("The query must not contain string scalars", nameof(rawExpression));
             if (mFieldSet.Length > 0)
                 mFieldSet.Append(", ");
-            if (parameterDelimiter != mSpecifics.ParameterInQueryPrefix)
+            if (parameterDelimiter != null && parameterDelimiter != mSpecifics.ParameterInQueryPrefix)
                 rawExpression = rawExpression.Replace(parameterDelimiter, mSpecifics.ParameterInQueryPrefix);
             mFieldSet.Append($"{column.Name}={rawExpression}");
         }

@@ -160,6 +160,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         result = insertRunner.Run(statement as SqlInsertStatement);
                         break;
 
+                    case SqlStatement.StatementId.Update:
+                        UpdateRunner updateRunner = new UpdateRunner(this, connection);
+                        result = updateRunner.Run(statement as SqlUpdateStatement);
+                        break;
+
                     default:
                         throw new Exception($"Unknown statement '{statement.Id}'");
                 }

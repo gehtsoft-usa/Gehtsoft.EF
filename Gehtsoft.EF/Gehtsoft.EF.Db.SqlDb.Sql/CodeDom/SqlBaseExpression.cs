@@ -21,6 +21,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Call,
             AggrFuncCall,
             In,
+            SelectExpression
         };
 
         /// <summary>

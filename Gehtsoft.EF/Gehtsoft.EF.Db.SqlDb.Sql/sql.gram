@@ -117,10 +117,13 @@ grammar Sql
 
         BRACKET_EXPR -> '('! EXPR^ ')'!;
 
+		SELECT_EXPR -> '('! SELECT ')'!;
+
         SIMPLE_EXPR -> FIELD^ |
                        FUNC_CALL^ |
                        BRACKET_EXPR^ |
 					   CONSTANT^ |
+					   SELECT_EXPR^ |
 					   AGGR_CALL^;
 
         UNARY_EXPR -> SIMPLE_EXPR^ |
@@ -256,7 +259,9 @@ grammar Sql
         UPDATE_ASSIGN -> FIELD '='! UPDATE_OPERAND;
 		UPDATE_OPERAND -> EXPR^ | '('! SELECT^ ')'! ;
 
-        STATEMENT -> SELECT | INSERT | UPDATE | NOP;
+		DELETE -> 'DELETE'! 'FROM'! IDENTIFIER (WHERE_CLAUSE)?;
+
+        STATEMENT -> SELECT | INSERT | UPDATE | DELETE | NOP;
 
         ROOT -> STATEMENT STATEMENT*;
     }

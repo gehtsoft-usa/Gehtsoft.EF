@@ -53,6 +53,7 @@
     <Compile Include="CodeDom\SqlIUpdateStatement.cs" />
     <Compile Include="CodeDom\SqlPrimaryTable.cs" />
     <Compile Include="CodeDom\SqlQualifiedJoinedTable.cs" />
+    <Compile Include="CodeDom\SqlSelectExpression.cs" />
     <Compile Include="CodeDom\SqlSelectList.cs" />
     <Compile Include="CodeDom\SqlSelectStatement.cs" />
     <Compile Include="CodeDom\SqlSortSpecification.cs" />

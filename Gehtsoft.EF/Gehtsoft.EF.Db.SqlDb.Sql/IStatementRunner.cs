@@ -354,6 +354,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
                 return $"({Connection.GetLanguageSpecifics().GetOp(op, leftOperand, rightOperand)})";
             }
+            else if (expression is SqlSelectExpression selectExpression)
+            {
+                SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection, this);
+                AQueryBuilder builder = runner.GetQueryBuilder(selectExpression.SelectStatement);
+                builder.PrepareQuery();
+                return$"({builder.Query})";
+            }
             return null;
         }
 

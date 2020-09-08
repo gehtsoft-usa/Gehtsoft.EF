@@ -26,6 +26,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             switch (fieldNode.Symbol.ID)
             {
+                case SqlParser.ID.VariableSelectExpr:
+                    result = new SqlSelectExpression(parentStatement, fieldNode, source);
+                    break;
                 case SqlParser.ID.VariableField:
                     result = new SqlField(parentStatement, fieldNode, source);
                     break;

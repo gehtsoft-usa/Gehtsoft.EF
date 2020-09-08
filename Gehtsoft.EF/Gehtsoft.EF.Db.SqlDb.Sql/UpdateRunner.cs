@@ -113,7 +113,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     }
                     else
                     {
-                        throw new SqlParserException(new SqlError(null, 0, 0, $"Constant only is supported as right operand in UPDATE SET"));
+                        mUpdateBuilder.AddUpdateColumnExpression(column, GetStrExpression(updateAssign.Expression), null);
                     }
                 }
                 else if(updateAssign.Select != null)
