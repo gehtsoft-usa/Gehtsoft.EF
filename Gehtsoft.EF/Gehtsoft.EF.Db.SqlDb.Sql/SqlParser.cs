@@ -486,13 +486,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			/// </summary>
 			public const int VariableUpdateOperand = 0x007E;
 			/// <summary>
+			/// The unique identifier for variable DELETE
+			/// </summary>
+			public const int VariableDelete = 0x007F;
+			/// <summary>
 			/// The unique identifier for variable STATEMENT
 			/// </summary>
-			public const int VariableStatement = 0x007F;
+			public const int VariableStatement = 0x0080;
 			/// <summary>
 			/// The unique identifier for variable ROOT
 			/// </summary>
-			public const int VariableRoot = 0x0080;
+			public const int VariableRoot = 0x0081;
 		}
 		/// <summary>
 		/// The collection of variables matched by this parser
@@ -617,20 +621,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			new Symbol(0x007C, "UPDATE_LIST"), 
 			new Symbol(0x007D, "UPDATE_ASSIGN"), 
 			new Symbol(0x007E, "UPDATE_OPERAND"), 
-			new Symbol(0x007F, "STATEMENT"), 
-			new Symbol(0x0080, "ROOT"), 
-			new Symbol(0x0087, "__V135"), 
-			new Symbol(0x0098, "__V152"), 
-			new Symbol(0x00AC, "__V172"), 
-			new Symbol(0x00B7, "__V183"), 
-			new Symbol(0x00BC, "__V188"), 
-			new Symbol(0x00C7, "__V199"), 
-			new Symbol(0x00CB, "__V203"), 
-			new Symbol(0x00D0, "__V208"), 
+			new Symbol(0x007F, "DELETE"), 
+			new Symbol(0x0080, "STATEMENT"), 
+			new Symbol(0x0081, "ROOT"), 
+			new Symbol(0x0088, "__V136"), 
+			new Symbol(0x0099, "__V153"), 
+			new Symbol(0x00AD, "__V173"), 
+			new Symbol(0x00B8, "__V184"), 
+			new Symbol(0x00BD, "__V189"), 
+			new Symbol(0x00C8, "__V200"), 
+			new Symbol(0x00CC, "__V204"), 
 			new Symbol(0x00D1, "__V209"), 
-			new Symbol(0x00D5, "__V213"), 
+			new Symbol(0x00D2, "__V210"), 
 			new Symbol(0x00D6, "__V214"), 
-			new Symbol(0x00D7, "__VAxiom") };
+			new Symbol(0x00D8, "__V216"), 
+			new Symbol(0x00D9, "__VAxiom") };
 		/// <summary>
 		/// The collection of virtuals matched by this parser
 		/// </summary>
@@ -776,6 +781,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			public virtual void OnVariableUpdateList(ASTNode node) {}
 			public virtual void OnVariableUpdateAssign(ASTNode node) {}
 			public virtual void OnVariableUpdateOperand(ASTNode node) {}
+			public virtual void OnVariableDelete(ASTNode node) {}
 			public virtual void OnVariableStatement(ASTNode node) {}
 			public virtual void OnVariableRoot(ASTNode node) {}
 		}
@@ -925,8 +931,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 				case 0x007C: visitor.OnVariableUpdateList(node); break;
 				case 0x007D: visitor.OnVariableUpdateAssign(node); break;
 				case 0x007E: visitor.OnVariableUpdateOperand(node); break;
-				case 0x007F: visitor.OnVariableStatement(node); break;
-				case 0x0080: visitor.OnVariableRoot(node); break;
+				case 0x007F: visitor.OnVariableDelete(node); break;
+				case 0x0080: visitor.OnVariableStatement(node); break;
+				case 0x0081: visitor.OnVariableRoot(node); break;
 			}
 		}
 	}

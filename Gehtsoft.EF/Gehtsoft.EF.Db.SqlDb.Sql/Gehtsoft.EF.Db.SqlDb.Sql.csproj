@@ -50,7 +50,7 @@
     <Compile Include="CodeDom\SqlGroupSpecification.cs" />
     <Compile Include="CodeDom\SqlInExpression.cs" />
     <Compile Include="CodeDom\SqlInsertStatement.cs" />
-    <Compile Include="CodeDom\SqlIUpdateStatement.cs" />
+    <Compile Include="CodeDom\SqlUpdateStatement.cs" />
     <Compile Include="CodeDom\SqlPrimaryTable.cs" />
     <Compile Include="CodeDom\SqlQualifiedJoinedTable.cs" />
     <Compile Include="CodeDom\SqlSelectExpression.cs" />
