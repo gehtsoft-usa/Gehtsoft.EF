@@ -165,6 +165,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         result = updateRunner.Run(statement as SqlUpdateStatement);
                         break;
 
+                    case SqlStatement.StatementId.Delete:
+                        DeleteRunner deleteRunner = new DeleteRunner(this, connection);
+                        result = deleteRunner.Run(statement as SqlDeleteStatement);
+                        break;
+
                     default:
                         throw new Exception($"Unknown statement '{statement.Id}'");
                 }

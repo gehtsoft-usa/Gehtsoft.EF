@@ -42,6 +42,7 @@
     <Compile Include="CodeDom\SqlCallFuncExpression.cs" />
     <Compile Include="CodeDom\SqlConstant.cs" />
     <Compile Include="CodeDom\SqlConstantCollection.cs" />
+    <Compile Include="CodeDom\SqlDeleteStatement.cs" />
     <Compile Include="CodeDom\SqlExpressionParser.cs" />
     <Compile Include="CodeDom\SqlField.cs" />
     <Compile Include="CodeDom\SqlFieldAlias.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="CodeDom\SqlUnarExpression.cs" />
     <Compile Include="CodeDom\SqlUpdateAssign.cs" />
     <Compile Include="CodeDom\SqlWhereClause.cs" />
+    <Compile Include="DeleteRunner.cs" />
     <Compile Include="InsertRunner.cs" />
     <Compile Include="IStatementRunner.cs" />
     <Compile Include="SelectRunner.cs" />

@@ -44,6 +44,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
                             return new SqlUpdateStatement(builder, statementNode, source);
                         }
+                    case SqlParser.ID.VariableDelete:
+                        {
+                            return new SqlDeleteStatement(builder, statementNode, source);
+                        }
                     case SqlParser.ID.VariableNop:
                         return null;
                 }

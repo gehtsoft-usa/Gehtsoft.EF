@@ -82,8 +82,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     SqlBaseExpression item = SqlExpressionParser.ParseExpression(parentStatement, node, source);
                     if (mLeftOperand.ResultType != item.ResultType)
                     {
-                        if (!(mLeftOperand.ResultType == ResultTypes.Integer || mLeftOperand.ResultType == ResultTypes.Double &&
-                           item.ResultType == ResultTypes.Integer || item.ResultType == ResultTypes.Double))
+                        if (!((mLeftOperand.ResultType == ResultTypes.Integer || mLeftOperand.ResultType == ResultTypes.Double) &&
+                           (item.ResultType == ResultTypes.Integer || item.ResultType == ResultTypes.Double)))
                             throw new SqlParserException(new SqlError(source,
                                 rightOperand.Position.Line,
                                 rightOperand.Position.Column,
@@ -101,6 +101,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         rightOperand.Position.Line,
                         rightOperand.Position.Column,
                         $"Expected 1 column in inner SELECT {rightOperand.Symbol.Name} ({rightOperand.Value ?? "null"})"));
+                }
+                ResultTypes selectExptType = mRightSelect.SelectList.FieldAliasCollection[0].Expression.ResultType;
+                if (mLeftOperand.ResultType != selectExptType)
+                {
+                    if (!((mLeftOperand.ResultType == ResultTypes.Integer || mLeftOperand.ResultType == ResultTypes.Double) &&
+                       (selectExptType == ResultTypes.Integer || selectExptType == ResultTypes.Double)))
+                        throw new SqlParserException(new SqlError(source,
+                            rightOperand.Position.Line,
+                            rightOperand.Position.Column,
+                            $"Incorrect type of operand {rightOperand.Symbol.Name} ({rightOperand.Value ?? "null"})"));
                 }
             }
             else

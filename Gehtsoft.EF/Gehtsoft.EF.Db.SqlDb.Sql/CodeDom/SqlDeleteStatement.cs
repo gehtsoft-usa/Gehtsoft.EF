@@ -10,16 +10,15 @@ using System.Threading.Tasks;
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     /// <summary>
-    /// Update statement
+    /// Delete statement
     /// </summary>
-    public class SqlUpdateStatement : SqlStatement
+    public class SqlDeleteStatement : SqlStatement
     {
-        public SqlUpdateAssignCollection UpdateAssigns { get; } = null;
         public string TableName { get; } = null;
         public SqlWhereClause WhereClause { get; } = null;
 
-        internal SqlUpdateStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
-            : base(builder, StatementId.Update, currentSource, statementNode.Position.Line, statementNode.Position.Column)
+        internal SqlDeleteStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
+            : base(builder, StatementId.Delete, currentSource, statementNode.Position.Line, statementNode.Position.Column)
         {
             TableName = statementNode.Children[0].Value;
             try
@@ -34,17 +33,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     $"Not found entity with name '{TableName}'"));
             }
 
-            ASTNode updateListNode = statementNode.Children[1];
-
-            UpdateAssigns = new SqlUpdateAssignCollection();
-            foreach (ASTNode updateAssugnNode in updateListNode.Children)
+            if (statementNode.Children.Count > 1)
             {
-                UpdateAssigns.Add(new SqlUpdateAssign(this, updateAssugnNode, currentSource));
-            }
-
-            if (statementNode.Children.Count > 2)
-            {
-                ASTNode whereNode = statementNode.Children[2];
+                ASTNode whereNode = statementNode.Children[1];
                 WhereClause = new SqlWhereClause(this, whereNode, currentSource);
                 if (WhereClause.RootExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
                 {
@@ -64,8 +55,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         }
 
-        internal SqlUpdateStatement(SqlCodeDomBuilder builder, string tableName, SqlUpdateAssignCollection updateAssigns, SqlWhereClause whereClause = null)
-            : base(builder, StatementId.Update, null, 0, 0)
+        internal SqlDeleteStatement(SqlCodeDomBuilder builder, string tableName, SqlWhereClause whereClause = null)
+            : base(builder, StatementId.Delete, null, 0, 0)
         {
             TableName = tableName;
             try
@@ -76,19 +67,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{TableName}'"));
             }
-
-            UpdateAssigns = updateAssigns;
             WhereClause = whereClause;
         }
 
-        public virtual bool Equals(SqlUpdateStatement other)
+        public virtual bool Equals(SqlDeleteStatement other)
         {
-            if (other is SqlUpdateStatement stmt)
+            if (other is SqlDeleteStatement stmt)
             {
-                if (UpdateAssigns == null && stmt.UpdateAssigns != null)
-                    return false;
-                if (UpdateAssigns != null && !UpdateAssigns.Equals(stmt.UpdateAssigns))
-                    return false;
                 if (WhereClause == null && stmt.WhereClause != null)
                     return false;
                 if (WhereClause != null && !WhereClause.Equals(stmt.WhereClause))
@@ -100,7 +85,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         public override bool Equals(SqlStatement obj)
         {
-            if (obj is SqlUpdateStatement item)
+            if (obj is SqlDeleteStatement item)
                 return Equals(item);
             return base.Equals(obj);
         }

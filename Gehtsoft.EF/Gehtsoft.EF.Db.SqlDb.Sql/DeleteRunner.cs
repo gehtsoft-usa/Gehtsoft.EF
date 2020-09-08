@@ -11,21 +11,21 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
-    internal class UpdateRunner : StatementRunner<SqlUpdateStatement>
+    internal class DeleteRunner : StatementRunner<SqlDeleteStatement>
     {
         private SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;
         private readonly ISqlDbConnectionFactory mConnectionFactory = null;
-        private SqlUpdateStatement mUpdate;
-        private UpdateQueryBuilder mUpdateBuilder = null;
+        private SqlDeleteStatement mDelete;
+        private DeleteQueryBuilder mDeleteBuilder = null;
 
-        internal UpdateRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory)
+        internal DeleteRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory)
         {
             mBuilder = builder;
             mConnectionFactory = connectionFactory;
         }
 
-        internal UpdateRunner(SqlCodeDomBuilder builder, SqlDbConnection connection)
+        internal DeleteRunner(SqlCodeDomBuilder builder, SqlDbConnection connection)
         {
             mBuilder = builder;
             mConnection = connection;
@@ -35,7 +35,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             get
             {
-                return mUpdate;
+                return mDelete;
             }
         }
 
@@ -43,7 +43,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             get
             {
-                return mUpdateBuilder;
+                return mDeleteBuilder;
             }
         }
 
@@ -63,18 +63,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public override AQueryBuilder GetQueryBuilder(SqlUpdateStatement update)
+        public override AQueryBuilder GetQueryBuilder(SqlDeleteStatement delete)
         {
-            if (mUpdateBuilder == null)
+            if (mDeleteBuilder == null)
             {
-                mUpdate = update;
+                mDelete = delete;
                 if (mConnectionFactory != null)
                 {
                     mConnection = mConnectionFactory.GetConnection();
                 }
                 try
                 {
-                    processUpdate(update);
+                    processDelete(delete);
                 }
                 finally
                 {
@@ -85,65 +85,36 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     }
                 }
             }
-            return mUpdateBuilder;
+            return mDeleteBuilder;
         }
 
-        private void processUpdate(SqlUpdateStatement update)
+        private void processDelete(SqlDeleteStatement delete)
         {
-            Type entityType = mBuilder.EntityByName(update.TableName);
+            Type entityType = mBuilder.EntityByName(delete.TableName);
             if (entityType == null)
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{update.TableName}'"));
+                throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{delete.TableName}'"));
             EntityDescriptor entityDescriptor = AllEntities.Inst[entityType];
-            mUpdateBuilder = mConnection.GetUpdateQueryBuilder(entityDescriptor.TableDescriptor);
+            mDeleteBuilder = mConnection.GetDeleteQueryBuilder(entityDescriptor.TableDescriptor);
 
-            for (int i = 0; i < update.UpdateAssigns.Count; i++)
+            if (delete.WhereClause != null)
             {
-                SqlUpdateAssign updateAssign = update.UpdateAssigns[i];
-                SqlField field = updateAssign.Field;
-
-                TableDescriptor.ColumnInfo column = entityDescriptor.TableDescriptor[field.Name];
-
-                if(updateAssign.Expression != null)
-                {
-                    if (updateAssign.Expression is SqlConstant constant)
-                    {
-                        string paramName = $"{entityDescriptor.TableDescriptor[field.Name].Name}";
-                        BindParams.Add(paramName, constant.Value);
-                        mUpdateBuilder.AddUpdateColumn(column, paramName);
-                    }
-                    else
-                    {
-                        mUpdateBuilder.AddUpdateColumnExpression(column, GetStrExpression(updateAssign.Expression), null);
-                    }
-                }
-                else if(updateAssign.Select != null)
-                {
-                    SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection, this);
-                    SelectQueryBuilder selectBuilder = (SelectQueryBuilder)runner.GetQueryBuilder(updateAssign.Select);
-
-                    mUpdateBuilder.AddUpdateColumnSubquery(column, selectBuilder);
-                }
-            }
-
-            if (update.WhereClause != null)
-            {
-                mUpdateBuilder.Where.Add(LogOp.And, GetStrExpression(update.WhereClause.RootExpression));
+                mDeleteBuilder.Where.Add(LogOp.And, GetStrExpression(delete.WhereClause.RootExpression));
             }
         }
 
-        public override object Run(SqlUpdateStatement update)
+        public override object Run(SqlDeleteStatement delete)
         {
             List<object> result = new List<object>();
-            mUpdate = update;
+            mDelete = delete;
             if (mConnectionFactory != null)
             {
                 mConnection = mConnectionFactory.GetConnection();
             }
             try
             {
-                processUpdate(update);
+                processDelete(delete);
 
-                using (SqlDbQuery query = mConnection.GetQuery(mUpdateBuilder))
+                using (SqlDbQuery query = mConnection.GetQuery(mDeleteBuilder))
                 {
                     ApplyBindParams(query);
 

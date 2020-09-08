@@ -79,8 +79,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mRightOperand = SqlExpressionParser.ParseExpression(parentStatement, rightOperand, source);
             if (mLeftOperand.ResultType != mRightOperand.ResultType || !checkOperationAndType(operation, mLeftOperand.ResultType))
             {
-                if (!(mLeftOperand.ResultType == ResultTypes.Integer || mLeftOperand.ResultType == ResultTypes.Double &&
-                   mRightOperand.ResultType == ResultTypes.Integer || mRightOperand.ResultType == ResultTypes.Double))
+                if (!((mLeftOperand.ResultType == ResultTypes.Integer || mLeftOperand.ResultType == ResultTypes.Double) &&
+                   (mRightOperand.ResultType == ResultTypes.Integer || mRightOperand.ResultType == ResultTypes.Double)))
                     throw new SqlParserException(new SqlError(source,
                         rightOperand.Position.Line,
                         rightOperand.Position.Column,
