@@ -28,475 +28,507 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			/// <summary>
 			/// The unique identifier for variable NULL
 			/// </summary>
-			public const int VariableNull = 0x000C;
+			public const int VariableNull = 0x000D;
 			/// <summary>
 			/// The unique identifier for variable BOOLEAN_TRUE
 			/// </summary>
-			public const int VariableBooleanTrue = 0x000D;
+			public const int VariableBooleanTrue = 0x000E;
 			/// <summary>
 			/// The unique identifier for variable BOOLEAN_FALSE
 			/// </summary>
-			public const int VariableBooleanFalse = 0x000E;
+			public const int VariableBooleanFalse = 0x000F;
 			/// <summary>
 			/// The unique identifier for variable BOOLEAN_CONST
 			/// </summary>
-			public const int VariableBooleanConst = 0x000F;
+			public const int VariableBooleanConst = 0x0010;
 			/// <summary>
 			/// The unique identifier for variable STRING_CONST
 			/// </summary>
-			public const int VariableStringConst = 0x0010;
+			public const int VariableStringConst = 0x0011;
 			/// <summary>
 			/// The unique identifier for variable NUMBER_CONST
 			/// </summary>
-			public const int VariableNumberConst = 0x0011;
+			public const int VariableNumberConst = 0x0012;
 			/// <summary>
 			/// The unique identifier for variable DATE_CONST
 			/// </summary>
-			public const int VariableDateConst = 0x0012;
+			public const int VariableDateConst = 0x0013;
 			/// <summary>
 			/// The unique identifier for variable DATETIME_CONST
 			/// </summary>
-			public const int VariableDatetimeConst = 0x0013;
+			public const int VariableDatetimeConst = 0x0014;
 			/// <summary>
 			/// The unique identifier for variable CONSTANT
 			/// </summary>
-			public const int VariableConstant = 0x0014;
+			public const int VariableConstant = 0x0015;
 			/// <summary>
 			/// The unique identifier for variable EOS
 			/// </summary>
-			public const int VariableEos = 0x0015;
+			public const int VariableEos = 0x0016;
 			/// <summary>
 			/// The unique identifier for variable NOP
 			/// </summary>
-			public const int VariableNop = 0x0016;
+			public const int VariableNop = 0x0017;
 			/// <summary>
 			/// The unique identifier for variable MINUS_OP
 			/// </summary>
-			public const int VariableMinusOp = 0x0017;
+			public const int VariableMinusOp = 0x0018;
 			/// <summary>
 			/// The unique identifier for variable PLUS_OP
 			/// </summary>
-			public const int VariablePlusOp = 0x0018;
+			public const int VariablePlusOp = 0x0019;
 			/// <summary>
 			/// The unique identifier for variable MUL_OP
 			/// </summary>
-			public const int VariableMulOp = 0x0019;
+			public const int VariableMulOp = 0x001A;
 			/// <summary>
 			/// The unique identifier for variable DIV_OP
 			/// </summary>
-			public const int VariableDivOp = 0x001A;
+			public const int VariableDivOp = 0x001B;
 			/// <summary>
 			/// The unique identifier for variable CONCAT_OP
 			/// </summary>
-			public const int VariableConcatOp = 0x001B;
+			public const int VariableConcatOp = 0x001C;
 			/// <summary>
 			/// The unique identifier for variable EQ_OP
 			/// </summary>
-			public const int VariableEqOp = 0x001C;
+			public const int VariableEqOp = 0x001D;
 			/// <summary>
 			/// The unique identifier for variable NEQ_OP
 			/// </summary>
-			public const int VariableNeqOp = 0x001D;
+			public const int VariableNeqOp = 0x001E;
 			/// <summary>
 			/// The unique identifier for variable GT_OP
 			/// </summary>
-			public const int VariableGtOp = 0x001E;
+			public const int VariableGtOp = 0x001F;
 			/// <summary>
 			/// The unique identifier for variable GE_OP
 			/// </summary>
-			public const int VariableGeOp = 0x001F;
+			public const int VariableGeOp = 0x0020;
 			/// <summary>
 			/// The unique identifier for variable LT_OP
 			/// </summary>
-			public const int VariableLtOp = 0x0020;
+			public const int VariableLtOp = 0x0021;
 			/// <summary>
 			/// The unique identifier for variable LE_OP
 			/// </summary>
-			public const int VariableLeOp = 0x0021;
+			public const int VariableLeOp = 0x0022;
 			/// <summary>
 			/// The unique identifier for variable EXACT_LIKE_OP
 			/// </summary>
-			public const int VariableExactLikeOp = 0x0022;
+			public const int VariableExactLikeOp = 0x0023;
 			/// <summary>
 			/// The unique identifier for variable NOT_LIKE_OP
 			/// </summary>
-			public const int VariableNotLikeOp = 0x0023;
+			public const int VariableNotLikeOp = 0x0024;
 			/// <summary>
 			/// The unique identifier for variable LIKE_OP
 			/// </summary>
-			public const int VariableLikeOp = 0x0024;
+			public const int VariableLikeOp = 0x0025;
 			/// <summary>
 			/// The unique identifier for variable EXACT_IN_OP
 			/// </summary>
-			public const int VariableExactInOp = 0x0025;
+			public const int VariableExactInOp = 0x0026;
 			/// <summary>
 			/// The unique identifier for variable NOT_IN_OP
 			/// </summary>
-			public const int VariableNotInOp = 0x0026;
+			public const int VariableNotInOp = 0x0027;
 			/// <summary>
 			/// The unique identifier for variable IN_OP
 			/// </summary>
-			public const int VariableInOp = 0x0027;
+			public const int VariableInOp = 0x0028;
 			/// <summary>
 			/// The unique identifier for variable EXACT_NULL_OP
 			/// </summary>
-			public const int VariableExactNullOp = 0x0028;
+			public const int VariableExactNullOp = 0x0029;
 			/// <summary>
 			/// The unique identifier for variable NOT_NULL_OP
 			/// </summary>
-			public const int VariableNotNullOp = 0x0029;
+			public const int VariableNotNullOp = 0x002A;
 			/// <summary>
 			/// The unique identifier for variable NULL_OP
 			/// </summary>
-			public const int VariableNullOp = 0x002A;
+			public const int VariableNullOp = 0x002B;
 			/// <summary>
 			/// The unique identifier for variable CALL_ARGS
 			/// </summary>
-			public const int VariableCallArgs = 0x002B;
+			public const int VariableCallArgs = 0x002C;
 			/// <summary>
 			/// The unique identifier for variable CALL_BRACKET
 			/// </summary>
-			public const int VariableCallBracket = 0x002C;
+			public const int VariableCallBracket = 0x002D;
 			/// <summary>
 			/// The unique identifier for variable MATH_FUNC_NAME
 			/// </summary>
-			public const int VariableMathFuncName = 0x002D;
+			public const int VariableMathFuncName = 0x002E;
 			/// <summary>
 			/// The unique identifier for variable MATH_FUNC_CALL
 			/// </summary>
-			public const int VariableMathFuncCall = 0x002E;
+			public const int VariableMathFuncCall = 0x002F;
 			/// <summary>
 			/// The unique identifier for variable CAST_FUNC_NAME
 			/// </summary>
-			public const int VariableCastFuncName = 0x002F;
+			public const int VariableCastFuncName = 0x0030;
 			/// <summary>
 			/// The unique identifier for variable CAST_FUNC_CALL
 			/// </summary>
-			public const int VariableCastFuncCall = 0x0030;
+			public const int VariableCastFuncCall = 0x0031;
 			/// <summary>
 			/// The unique identifier for variable STR_FUNC_NAME
 			/// </summary>
-			public const int VariableStrFuncName = 0x0031;
+			public const int VariableStrFuncName = 0x0032;
 			/// <summary>
 			/// The unique identifier for variable STR_FUNC_CALL
 			/// </summary>
-			public const int VariableStrFuncCall = 0x0032;
+			public const int VariableStrFuncCall = 0x0033;
 			/// <summary>
 			/// The unique identifier for variable BOOL_STR_FUNC_NAME
 			/// </summary>
-			public const int VariableBoolStrFuncName = 0x0033;
+			public const int VariableBoolStrFuncName = 0x0034;
 			/// <summary>
 			/// The unique identifier for variable BOOL_STR_FUNC_CALL
 			/// </summary>
-			public const int VariableBoolStrFuncCall = 0x0034;
+			public const int VariableBoolStrFuncCall = 0x0035;
 			/// <summary>
 			/// The unique identifier for variable TRIM_LEADING
 			/// </summary>
-			public const int VariableTrimLeading = 0x0035;
+			public const int VariableTrimLeading = 0x0036;
 			/// <summary>
 			/// The unique identifier for variable TRIM_TRAILING
 			/// </summary>
-			public const int VariableTrimTrailing = 0x0036;
+			public const int VariableTrimTrailing = 0x0037;
 			/// <summary>
 			/// The unique identifier for variable TRIM_BOTH
 			/// </summary>
-			public const int VariableTrimBoth = 0x0037;
+			public const int VariableTrimBoth = 0x0038;
 			/// <summary>
 			/// The unique identifier for variable TRIM_SPECIFICATION
 			/// </summary>
-			public const int VariableTrimSpecification = 0x0038;
+			public const int VariableTrimSpecification = 0x0039;
 			/// <summary>
 			/// The unique identifier for variable TRIM_CALL
 			/// </summary>
-			public const int VariableTrimCall = 0x0039;
+			public const int VariableTrimCall = 0x003A;
 			/// <summary>
 			/// The unique identifier for variable FUNC_CALL
 			/// </summary>
-			public const int VariableFuncCall = 0x003A;
+			public const int VariableFuncCall = 0x003B;
 			/// <summary>
 			/// The unique identifier for variable BRACKET_EXPR
 			/// </summary>
-			public const int VariableBracketExpr = 0x003B;
+			public const int VariableBracketExpr = 0x003C;
 			/// <summary>
 			/// The unique identifier for variable SELECT_EXPR
 			/// </summary>
-			public const int VariableSelectExpr = 0x003C;
+			public const int VariableSelectExpr = 0x003D;
+			/// <summary>
+			/// The unique identifier for variable PARAMETER_TYPE
+			/// </summary>
+			public const int VariableParameterType = 0x003E;
+			/// <summary>
+			/// The unique identifier for variable GLOBAL_PARAMETER
+			/// </summary>
+			public const int VariableGlobalParameter = 0x003F;
 			/// <summary>
 			/// The unique identifier for variable SIMPLE_EXPR
 			/// </summary>
-			public const int VariableSimpleExpr = 0x003D;
+			public const int VariableSimpleExpr = 0x0040;
 			/// <summary>
 			/// The unique identifier for variable UNARY_EXPR
 			/// </summary>
-			public const int VariableUnaryExpr = 0x003E;
+			public const int VariableUnaryExpr = 0x0041;
 			/// <summary>
 			/// The unique identifier for variable MUL_EXPR
 			/// </summary>
-			public const int VariableMulExpr = 0x003F;
+			public const int VariableMulExpr = 0x0042;
 			/// <summary>
 			/// The unique identifier for variable ADD_EXPR
 			/// </summary>
-			public const int VariableAddExpr = 0x0040;
+			public const int VariableAddExpr = 0x0043;
 			/// <summary>
 			/// The unique identifier for variable CONCAT_EXPR
 			/// </summary>
-			public const int VariableConcatExpr = 0x0041;
+			public const int VariableConcatExpr = 0x0044;
 			/// <summary>
 			/// The unique identifier for variable COM_EXPR
 			/// </summary>
-			public const int VariableComExpr = 0x0042;
+			public const int VariableComExpr = 0x0045;
 			/// <summary>
 			/// The unique identifier for variable REL_EXPR
 			/// </summary>
-			public const int VariableRelExpr = 0x0043;
+			public const int VariableRelExpr = 0x0046;
 			/// <summary>
 			/// The unique identifier for variable LIKE_EXPR
 			/// </summary>
-			public const int VariableLikeExpr = 0x0044;
+			public const int VariableLikeExpr = 0x0047;
 			/// <summary>
 			/// The unique identifier for variable IN_PREDICATE
 			/// </summary>
-			public const int VariableInPredicate = 0x0045;
+			public const int VariableInPredicate = 0x0048;
 			/// <summary>
 			/// The unique identifier for variable IN_PREDICATE_VALUE
 			/// </summary>
-			public const int VariableInPredicateValue = 0x0046;
+			public const int VariableInPredicateValue = 0x0049;
 			/// <summary>
 			/// The unique identifier for variable IN_VALUE_ARGS
 			/// </summary>
-			public const int VariableInValueArgs = 0x0047;
+			public const int VariableInValueArgs = 0x004A;
 			/// <summary>
 			/// The unique identifier for variable IN_VALUE_LIST
 			/// </summary>
-			public const int VariableInValueList = 0x0048;
+			public const int VariableInValueList = 0x004B;
 			/// <summary>
 			/// The unique identifier for variable NULL_PREDICATE
 			/// </summary>
-			public const int VariableNullPredicate = 0x0049;
+			public const int VariableNullPredicate = 0x004C;
 			/// <summary>
 			/// The unique identifier for variable COMPARE_EXPR
 			/// </summary>
-			public const int VariableCompareExpr = 0x004A;
+			public const int VariableCompareExpr = 0x004D;
 			/// <summary>
 			/// The unique identifier for variable NOT_OP
 			/// </summary>
-			public const int VariableNotOp = 0x004B;
+			public const int VariableNotOp = 0x004E;
 			/// <summary>
 			/// The unique identifier for variable AND_OP
 			/// </summary>
-			public const int VariableAndOp = 0x004C;
+			public const int VariableAndOp = 0x004F;
 			/// <summary>
 			/// The unique identifier for variable OR_OP
 			/// </summary>
-			public const int VariableOrOp = 0x004D;
+			public const int VariableOrOp = 0x0050;
 			/// <summary>
 			/// The unique identifier for variable UX_BOOL_EXPR
 			/// </summary>
-			public const int VariableUxBoolExpr = 0x004E;
+			public const int VariableUxBoolExpr = 0x0051;
 			/// <summary>
 			/// The unique identifier for variable AND_BOOL_EXPR
 			/// </summary>
-			public const int VariableAndBoolExpr = 0x004F;
+			public const int VariableAndBoolExpr = 0x0052;
 			/// <summary>
 			/// The unique identifier for variable OR_BOOL_EXPR
 			/// </summary>
-			public const int VariableOrBoolExpr = 0x0050;
+			public const int VariableOrBoolExpr = 0x0053;
 			/// <summary>
 			/// The unique identifier for variable EXPR
 			/// </summary>
-			public const int VariableExpr = 0x0051;
+			public const int VariableExpr = 0x0054;
 			/// <summary>
 			/// The unique identifier for variable BOOL_EXPR
 			/// </summary>
-			public const int VariableBoolExpr = 0x0052;
+			public const int VariableBoolExpr = 0x0055;
 			/// <summary>
 			/// The unique identifier for variable SET_QUANTIFIER
 			/// </summary>
-			public const int VariableSetQuantifier = 0x0053;
+			public const int VariableSetQuantifier = 0x0056;
 			/// <summary>
 			/// The unique identifier for variable ASRERISK
 			/// </summary>
-			public const int VariableAsrerisk = 0x0054;
+			public const int VariableAsrerisk = 0x0057;
 			/// <summary>
 			/// The unique identifier for variable AGGR_CALL_BRACKET
 			/// </summary>
-			public const int VariableAggrCallBracket = 0x0055;
+			public const int VariableAggrCallBracket = 0x0058;
 			/// <summary>
 			/// The unique identifier for variable AGGR_FUNC
 			/// </summary>
-			public const int VariableAggrFunc = 0x0056;
+			public const int VariableAggrFunc = 0x0059;
 			/// <summary>
 			/// The unique identifier for variable AGGR_COUNT_ALL
 			/// </summary>
-			public const int VariableAggrCountAll = 0x0057;
+			public const int VariableAggrCountAll = 0x005A;
 			/// <summary>
 			/// The unique identifier for variable AGGR_CALL
 			/// </summary>
-			public const int VariableAggrCall = 0x0058;
+			public const int VariableAggrCall = 0x005B;
 			/// <summary>
 			/// The unique identifier for variable SELECT_SUBLIST
 			/// </summary>
-			public const int VariableSelectSublist = 0x0059;
+			public const int VariableSelectSublist = 0x005C;
 			/// <summary>
 			/// The unique identifier for variable EXPR_ALIAS
 			/// </summary>
-			public const int VariableExprAlias = 0x005A;
+			public const int VariableExprAlias = 0x005D;
 			/// <summary>
 			/// The unique identifier for variable FIELD
 			/// </summary>
-			public const int VariableField = 0x005B;
+			public const int VariableField = 0x005E;
 			/// <summary>
 			/// The unique identifier for variable SELECT_LIST
 			/// </summary>
-			public const int VariableSelectList = 0x005C;
+			public const int VariableSelectList = 0x005F;
 			/// <summary>
 			/// The unique identifier for variable TABLE_EXPRESSION
 			/// </summary>
-			public const int VariableTableExpression = 0x005D;
+			public const int VariableTableExpression = 0x0060;
 			/// <summary>
 			/// The unique identifier for variable WHERE_CLAUSE
 			/// </summary>
-			public const int VariableWhereClause = 0x005E;
+			public const int VariableWhereClause = 0x0061;
 			/// <summary>
 			/// The unique identifier for variable FROM_CLAUSE
 			/// </summary>
-			public const int VariableFromClause = 0x005F;
+			public const int VariableFromClause = 0x0062;
 			/// <summary>
 			/// The unique identifier for variable TABLE_REFERENCE_LIST
 			/// </summary>
-			public const int VariableTableReferenceList = 0x0060;
+			public const int VariableTableReferenceList = 0x0063;
 			/// <summary>
 			/// The unique identifier for variable TABLE_REFERENCE
 			/// </summary>
-			public const int VariableTableReference = 0x0061;
+			public const int VariableTableReference = 0x0064;
 			/// <summary>
 			/// The unique identifier for variable TABLE_PRIMARY
 			/// </summary>
-			public const int VariableTablePrimary = 0x0062;
+			public const int VariableTablePrimary = 0x0065;
 			/// <summary>
 			/// The unique identifier for variable JOINED_TABLE
 			/// </summary>
-			public const int VariableJoinedTable = 0x0063;
+			public const int VariableJoinedTable = 0x0066;
 			/// <summary>
 			/// The unique identifier for variable AUTO_JOIN
 			/// </summary>
-			public const int VariableAutoJoin = 0x0064;
+			public const int VariableAutoJoin = 0x0067;
 			/// <summary>
 			/// The unique identifier for variable QUALIFIED_JOIN
 			/// </summary>
-			public const int VariableQualifiedJoin = 0x0065;
+			public const int VariableQualifiedJoin = 0x0068;
 			/// <summary>
 			/// The unique identifier for variable JOIN_TYPE
 			/// </summary>
-			public const int VariableJoinType = 0x0066;
+			public const int VariableJoinType = 0x0069;
 			/// <summary>
 			/// The unique identifier for variable OUTER_JOIN_TYPE
 			/// </summary>
-			public const int VariableOuterJoinType = 0x0067;
+			public const int VariableOuterJoinType = 0x006A;
 			/// <summary>
 			/// The unique identifier for variable JOIN_SPECIFICATION
 			/// </summary>
-			public const int VariableJoinSpecification = 0x0068;
+			public const int VariableJoinSpecification = 0x006B;
 			/// <summary>
 			/// The unique identifier for variable JOIN_CONDITION
 			/// </summary>
-			public const int VariableJoinCondition = 0x0069;
+			public const int VariableJoinCondition = 0x006C;
 			/// <summary>
 			/// The unique identifier for variable SELECT
 			/// </summary>
-			public const int VariableSelect = 0x006A;
+			public const int VariableSelect = 0x006D;
 			/// <summary>
 			/// The unique identifier for variable ORDER_BY
 			/// </summary>
-			public const int VariableOrderBy = 0x006B;
+			public const int VariableOrderBy = 0x006E;
 			/// <summary>
 			/// The unique identifier for variable SORT_SPECIFICATION_LIST
 			/// </summary>
-			public const int VariableSortSpecificationList = 0x006C;
+			public const int VariableSortSpecificationList = 0x006F;
 			/// <summary>
 			/// The unique identifier for variable SORT_SPECIFICATION
 			/// </summary>
-			public const int VariableSortSpecification = 0x006D;
+			public const int VariableSortSpecification = 0x0070;
 			/// <summary>
 			/// The unique identifier for variable ORDERING_SPECIFICATION
 			/// </summary>
-			public const int VariableOrderingSpecification = 0x006E;
+			public const int VariableOrderingSpecification = 0x0071;
 			/// <summary>
 			/// The unique identifier for variable GROUP_BY
 			/// </summary>
-			public const int VariableGroupBy = 0x006F;
+			public const int VariableGroupBy = 0x0072;
 			/// <summary>
 			/// The unique identifier for variable GROUP_SPECIFICATION_LIST
 			/// </summary>
-			public const int VariableGroupSpecificationList = 0x0070;
+			public const int VariableGroupSpecificationList = 0x0073;
 			/// <summary>
 			/// The unique identifier for variable GROUP_SPECIFICATION
 			/// </summary>
-			public const int VariableGroupSpecification = 0x0071;
+			public const int VariableGroupSpecification = 0x0074;
 			/// <summary>
 			/// The unique identifier for variable LIMIT_OFFSET
 			/// </summary>
-			public const int VariableLimitOffset = 0x0072;
+			public const int VariableLimitOffset = 0x0075;
 			/// <summary>
 			/// The unique identifier for variable LIMIT
 			/// </summary>
-			public const int VariableLimit = 0x0073;
+			public const int VariableLimit = 0x0076;
 			/// <summary>
 			/// The unique identifier for variable OFFSET
 			/// </summary>
-			public const int VariableOffset = 0x0074;
+			public const int VariableOffset = 0x0077;
 			/// <summary>
 			/// The unique identifier for variable INSERT
 			/// </summary>
-			public const int VariableInsert = 0x0075;
+			public const int VariableInsert = 0x0078;
 			/// <summary>
 			/// The unique identifier for variable FIELDS
 			/// </summary>
-			public const int VariableFields = 0x0076;
+			public const int VariableFields = 0x0079;
 			/// <summary>
 			/// The unique identifier for variable FIELDS_LIST
 			/// </summary>
-			public const int VariableFieldsList = 0x0077;
+			public const int VariableFieldsList = 0x007A;
 			/// <summary>
 			/// The unique identifier for variable VALUES
 			/// </summary>
-			public const int VariableValues = 0x0078;
+			public const int VariableValues = 0x007B;
 			/// <summary>
 			/// The unique identifier for variable VALUES_LIST
 			/// </summary>
-			public const int VariableValuesList = 0x0079;
+			public const int VariableValuesList = 0x007C;
 			/// <summary>
 			/// The unique identifier for variable TO_INSERT
 			/// </summary>
-			public const int VariableToInsert = 0x007A;
+			public const int VariableToInsert = 0x007D;
 			/// <summary>
 			/// The unique identifier for variable UPDATE
 			/// </summary>
-			public const int VariableUpdate = 0x007B;
+			public const int VariableUpdate = 0x007E;
 			/// <summary>
 			/// The unique identifier for variable UPDATE_LIST
 			/// </summary>
-			public const int VariableUpdateList = 0x007C;
+			public const int VariableUpdateList = 0x007F;
 			/// <summary>
 			/// The unique identifier for variable UPDATE_ASSIGN
 			/// </summary>
-			public const int VariableUpdateAssign = 0x007D;
+			public const int VariableUpdateAssign = 0x0080;
 			/// <summary>
 			/// The unique identifier for variable UPDATE_OPERAND
 			/// </summary>
-			public const int VariableUpdateOperand = 0x007E;
+			public const int VariableUpdateOperand = 0x0081;
 			/// <summary>
 			/// The unique identifier for variable DELETE
 			/// </summary>
-			public const int VariableDelete = 0x007F;
+			public const int VariableDelete = 0x0082;
+			/// <summary>
+			/// The unique identifier for variable SET
+			/// </summary>
+			public const int VariableSet = 0x0083;
+			/// <summary>
+			/// The unique identifier for variable SET_LIST
+			/// </summary>
+			public const int VariableSetList = 0x0084;
+			/// <summary>
+			/// The unique identifier for variable SET_ITEM
+			/// </summary>
+			public const int VariableSetItem = 0x0085;
+			/// <summary>
+			/// The unique identifier for variable DECLARE
+			/// </summary>
+			public const int VariableDeclare = 0x0086;
+			/// <summary>
+			/// The unique identifier for variable DECLARE_LIST
+			/// </summary>
+			public const int VariableDeclareList = 0x0087;
+			/// <summary>
+			/// The unique identifier for variable DECLARE_ITEM
+			/// </summary>
+			public const int VariableDeclareItem = 0x0088;
 			/// <summary>
 			/// The unique identifier for variable STATEMENT
 			/// </summary>
-			public const int VariableStatement = 0x0080;
+			public const int VariableStatement = 0x0089;
 			/// <summary>
 			/// The unique identifier for variable ROOT
 			/// </summary>
-			public const int VariableRoot = 0x0081;
+			public const int VariableRoot = 0x008A;
 		}
 		/// <summary>
 		/// The collection of variables matched by this parser
@@ -506,136 +538,146 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 		/// so that variable indices in the automaton can be used to retrieve the variables in this table
 		/// </remarks>
 		private static readonly Symbol[] variables = {
-			new Symbol(0x000C, "NULL"), 
-			new Symbol(0x000D, "BOOLEAN_TRUE"), 
-			new Symbol(0x000E, "BOOLEAN_FALSE"), 
-			new Symbol(0x000F, "BOOLEAN_CONST"), 
-			new Symbol(0x0010, "STRING_CONST"), 
-			new Symbol(0x0011, "NUMBER_CONST"), 
-			new Symbol(0x0012, "DATE_CONST"), 
-			new Symbol(0x0013, "DATETIME_CONST"), 
-			new Symbol(0x0014, "CONSTANT"), 
-			new Symbol(0x0015, "EOS"), 
-			new Symbol(0x0016, "NOP"), 
-			new Symbol(0x0017, "MINUS_OP"), 
-			new Symbol(0x0018, "PLUS_OP"), 
-			new Symbol(0x0019, "MUL_OP"), 
-			new Symbol(0x001A, "DIV_OP"), 
-			new Symbol(0x001B, "CONCAT_OP"), 
-			new Symbol(0x001C, "EQ_OP"), 
-			new Symbol(0x001D, "NEQ_OP"), 
-			new Symbol(0x001E, "GT_OP"), 
-			new Symbol(0x001F, "GE_OP"), 
-			new Symbol(0x0020, "LT_OP"), 
-			new Symbol(0x0021, "LE_OP"), 
-			new Symbol(0x0022, "EXACT_LIKE_OP"), 
-			new Symbol(0x0023, "NOT_LIKE_OP"), 
-			new Symbol(0x0024, "LIKE_OP"), 
-			new Symbol(0x0025, "EXACT_IN_OP"), 
-			new Symbol(0x0026, "NOT_IN_OP"), 
-			new Symbol(0x0027, "IN_OP"), 
-			new Symbol(0x0028, "EXACT_NULL_OP"), 
-			new Symbol(0x0029, "NOT_NULL_OP"), 
-			new Symbol(0x002A, "NULL_OP"), 
-			new Symbol(0x002B, "CALL_ARGS"), 
-			new Symbol(0x002C, "CALL_BRACKET"), 
-			new Symbol(0x002D, "MATH_FUNC_NAME"), 
-			new Symbol(0x002E, "MATH_FUNC_CALL"), 
-			new Symbol(0x002F, "CAST_FUNC_NAME"), 
-			new Symbol(0x0030, "CAST_FUNC_CALL"), 
-			new Symbol(0x0031, "STR_FUNC_NAME"), 
-			new Symbol(0x0032, "STR_FUNC_CALL"), 
-			new Symbol(0x0033, "BOOL_STR_FUNC_NAME"), 
-			new Symbol(0x0034, "BOOL_STR_FUNC_CALL"), 
-			new Symbol(0x0035, "TRIM_LEADING"), 
-			new Symbol(0x0036, "TRIM_TRAILING"), 
-			new Symbol(0x0037, "TRIM_BOTH"), 
-			new Symbol(0x0038, "TRIM_SPECIFICATION"), 
-			new Symbol(0x0039, "TRIM_CALL"), 
-			new Symbol(0x003A, "FUNC_CALL"), 
-			new Symbol(0x003B, "BRACKET_EXPR"), 
-			new Symbol(0x003C, "SELECT_EXPR"), 
-			new Symbol(0x003D, "SIMPLE_EXPR"), 
-			new Symbol(0x003E, "UNARY_EXPR"), 
-			new Symbol(0x003F, "MUL_EXPR"), 
-			new Symbol(0x0040, "ADD_EXPR"), 
-			new Symbol(0x0041, "CONCAT_EXPR"), 
-			new Symbol(0x0042, "COM_EXPR"), 
-			new Symbol(0x0043, "REL_EXPR"), 
-			new Symbol(0x0044, "LIKE_EXPR"), 
-			new Symbol(0x0045, "IN_PREDICATE"), 
-			new Symbol(0x0046, "IN_PREDICATE_VALUE"), 
-			new Symbol(0x0047, "IN_VALUE_ARGS"), 
-			new Symbol(0x0048, "IN_VALUE_LIST"), 
-			new Symbol(0x0049, "NULL_PREDICATE"), 
-			new Symbol(0x004A, "COMPARE_EXPR"), 
-			new Symbol(0x004B, "NOT_OP"), 
-			new Symbol(0x004C, "AND_OP"), 
-			new Symbol(0x004D, "OR_OP"), 
-			new Symbol(0x004E, "UX_BOOL_EXPR"), 
-			new Symbol(0x004F, "AND_BOOL_EXPR"), 
-			new Symbol(0x0050, "OR_BOOL_EXPR"), 
-			new Symbol(0x0051, "EXPR"), 
-			new Symbol(0x0052, "BOOL_EXPR"), 
-			new Symbol(0x0053, "SET_QUANTIFIER"), 
-			new Symbol(0x0054, "ASRERISK"), 
-			new Symbol(0x0055, "AGGR_CALL_BRACKET"), 
-			new Symbol(0x0056, "AGGR_FUNC"), 
-			new Symbol(0x0057, "AGGR_COUNT_ALL"), 
-			new Symbol(0x0058, "AGGR_CALL"), 
-			new Symbol(0x0059, "SELECT_SUBLIST"), 
-			new Symbol(0x005A, "EXPR_ALIAS"), 
-			new Symbol(0x005B, "FIELD"), 
-			new Symbol(0x005C, "SELECT_LIST"), 
-			new Symbol(0x005D, "TABLE_EXPRESSION"), 
-			new Symbol(0x005E, "WHERE_CLAUSE"), 
-			new Symbol(0x005F, "FROM_CLAUSE"), 
-			new Symbol(0x0060, "TABLE_REFERENCE_LIST"), 
-			new Symbol(0x0061, "TABLE_REFERENCE"), 
-			new Symbol(0x0062, "TABLE_PRIMARY"), 
-			new Symbol(0x0063, "JOINED_TABLE"), 
-			new Symbol(0x0064, "AUTO_JOIN"), 
-			new Symbol(0x0065, "QUALIFIED_JOIN"), 
-			new Symbol(0x0066, "JOIN_TYPE"), 
-			new Symbol(0x0067, "OUTER_JOIN_TYPE"), 
-			new Symbol(0x0068, "JOIN_SPECIFICATION"), 
-			new Symbol(0x0069, "JOIN_CONDITION"), 
-			new Symbol(0x006A, "SELECT"), 
-			new Symbol(0x006B, "ORDER_BY"), 
-			new Symbol(0x006C, "SORT_SPECIFICATION_LIST"), 
-			new Symbol(0x006D, "SORT_SPECIFICATION"), 
-			new Symbol(0x006E, "ORDERING_SPECIFICATION"), 
-			new Symbol(0x006F, "GROUP_BY"), 
-			new Symbol(0x0070, "GROUP_SPECIFICATION_LIST"), 
-			new Symbol(0x0071, "GROUP_SPECIFICATION"), 
-			new Symbol(0x0072, "LIMIT_OFFSET"), 
-			new Symbol(0x0073, "LIMIT"), 
-			new Symbol(0x0074, "OFFSET"), 
-			new Symbol(0x0075, "INSERT"), 
-			new Symbol(0x0076, "FIELDS"), 
-			new Symbol(0x0077, "FIELDS_LIST"), 
-			new Symbol(0x0078, "VALUES"), 
-			new Symbol(0x0079, "VALUES_LIST"), 
-			new Symbol(0x007A, "TO_INSERT"), 
-			new Symbol(0x007B, "UPDATE"), 
-			new Symbol(0x007C, "UPDATE_LIST"), 
-			new Symbol(0x007D, "UPDATE_ASSIGN"), 
-			new Symbol(0x007E, "UPDATE_OPERAND"), 
-			new Symbol(0x007F, "DELETE"), 
-			new Symbol(0x0080, "STATEMENT"), 
-			new Symbol(0x0081, "ROOT"), 
-			new Symbol(0x0088, "__V136"), 
-			new Symbol(0x0099, "__V153"), 
-			new Symbol(0x00AD, "__V173"), 
-			new Symbol(0x00B8, "__V184"), 
-			new Symbol(0x00BD, "__V189"), 
-			new Symbol(0x00C8, "__V200"), 
-			new Symbol(0x00CC, "__V204"), 
-			new Symbol(0x00D1, "__V209"), 
-			new Symbol(0x00D2, "__V210"), 
-			new Symbol(0x00D6, "__V214"), 
+			new Symbol(0x000D, "NULL"), 
+			new Symbol(0x000E, "BOOLEAN_TRUE"), 
+			new Symbol(0x000F, "BOOLEAN_FALSE"), 
+			new Symbol(0x0010, "BOOLEAN_CONST"), 
+			new Symbol(0x0011, "STRING_CONST"), 
+			new Symbol(0x0012, "NUMBER_CONST"), 
+			new Symbol(0x0013, "DATE_CONST"), 
+			new Symbol(0x0014, "DATETIME_CONST"), 
+			new Symbol(0x0015, "CONSTANT"), 
+			new Symbol(0x0016, "EOS"), 
+			new Symbol(0x0017, "NOP"), 
+			new Symbol(0x0018, "MINUS_OP"), 
+			new Symbol(0x0019, "PLUS_OP"), 
+			new Symbol(0x001A, "MUL_OP"), 
+			new Symbol(0x001B, "DIV_OP"), 
+			new Symbol(0x001C, "CONCAT_OP"), 
+			new Symbol(0x001D, "EQ_OP"), 
+			new Symbol(0x001E, "NEQ_OP"), 
+			new Symbol(0x001F, "GT_OP"), 
+			new Symbol(0x0020, "GE_OP"), 
+			new Symbol(0x0021, "LT_OP"), 
+			new Symbol(0x0022, "LE_OP"), 
+			new Symbol(0x0023, "EXACT_LIKE_OP"), 
+			new Symbol(0x0024, "NOT_LIKE_OP"), 
+			new Symbol(0x0025, "LIKE_OP"), 
+			new Symbol(0x0026, "EXACT_IN_OP"), 
+			new Symbol(0x0027, "NOT_IN_OP"), 
+			new Symbol(0x0028, "IN_OP"), 
+			new Symbol(0x0029, "EXACT_NULL_OP"), 
+			new Symbol(0x002A, "NOT_NULL_OP"), 
+			new Symbol(0x002B, "NULL_OP"), 
+			new Symbol(0x002C, "CALL_ARGS"), 
+			new Symbol(0x002D, "CALL_BRACKET"), 
+			new Symbol(0x002E, "MATH_FUNC_NAME"), 
+			new Symbol(0x002F, "MATH_FUNC_CALL"), 
+			new Symbol(0x0030, "CAST_FUNC_NAME"), 
+			new Symbol(0x0031, "CAST_FUNC_CALL"), 
+			new Symbol(0x0032, "STR_FUNC_NAME"), 
+			new Symbol(0x0033, "STR_FUNC_CALL"), 
+			new Symbol(0x0034, "BOOL_STR_FUNC_NAME"), 
+			new Symbol(0x0035, "BOOL_STR_FUNC_CALL"), 
+			new Symbol(0x0036, "TRIM_LEADING"), 
+			new Symbol(0x0037, "TRIM_TRAILING"), 
+			new Symbol(0x0038, "TRIM_BOTH"), 
+			new Symbol(0x0039, "TRIM_SPECIFICATION"), 
+			new Symbol(0x003A, "TRIM_CALL"), 
+			new Symbol(0x003B, "FUNC_CALL"), 
+			new Symbol(0x003C, "BRACKET_EXPR"), 
+			new Symbol(0x003D, "SELECT_EXPR"), 
+			new Symbol(0x003E, "PARAMETER_TYPE"), 
+			new Symbol(0x003F, "GLOBAL_PARAMETER"), 
+			new Symbol(0x0040, "SIMPLE_EXPR"), 
+			new Symbol(0x0041, "UNARY_EXPR"), 
+			new Symbol(0x0042, "MUL_EXPR"), 
+			new Symbol(0x0043, "ADD_EXPR"), 
+			new Symbol(0x0044, "CONCAT_EXPR"), 
+			new Symbol(0x0045, "COM_EXPR"), 
+			new Symbol(0x0046, "REL_EXPR"), 
+			new Symbol(0x0047, "LIKE_EXPR"), 
+			new Symbol(0x0048, "IN_PREDICATE"), 
+			new Symbol(0x0049, "IN_PREDICATE_VALUE"), 
+			new Symbol(0x004A, "IN_VALUE_ARGS"), 
+			new Symbol(0x004B, "IN_VALUE_LIST"), 
+			new Symbol(0x004C, "NULL_PREDICATE"), 
+			new Symbol(0x004D, "COMPARE_EXPR"), 
+			new Symbol(0x004E, "NOT_OP"), 
+			new Symbol(0x004F, "AND_OP"), 
+			new Symbol(0x0050, "OR_OP"), 
+			new Symbol(0x0051, "UX_BOOL_EXPR"), 
+			new Symbol(0x0052, "AND_BOOL_EXPR"), 
+			new Symbol(0x0053, "OR_BOOL_EXPR"), 
+			new Symbol(0x0054, "EXPR"), 
+			new Symbol(0x0055, "BOOL_EXPR"), 
+			new Symbol(0x0056, "SET_QUANTIFIER"), 
+			new Symbol(0x0057, "ASRERISK"), 
+			new Symbol(0x0058, "AGGR_CALL_BRACKET"), 
+			new Symbol(0x0059, "AGGR_FUNC"), 
+			new Symbol(0x005A, "AGGR_COUNT_ALL"), 
+			new Symbol(0x005B, "AGGR_CALL"), 
+			new Symbol(0x005C, "SELECT_SUBLIST"), 
+			new Symbol(0x005D, "EXPR_ALIAS"), 
+			new Symbol(0x005E, "FIELD"), 
+			new Symbol(0x005F, "SELECT_LIST"), 
+			new Symbol(0x0060, "TABLE_EXPRESSION"), 
+			new Symbol(0x0061, "WHERE_CLAUSE"), 
+			new Symbol(0x0062, "FROM_CLAUSE"), 
+			new Symbol(0x0063, "TABLE_REFERENCE_LIST"), 
+			new Symbol(0x0064, "TABLE_REFERENCE"), 
+			new Symbol(0x0065, "TABLE_PRIMARY"), 
+			new Symbol(0x0066, "JOINED_TABLE"), 
+			new Symbol(0x0067, "AUTO_JOIN"), 
+			new Symbol(0x0068, "QUALIFIED_JOIN"), 
+			new Symbol(0x0069, "JOIN_TYPE"), 
+			new Symbol(0x006A, "OUTER_JOIN_TYPE"), 
+			new Symbol(0x006B, "JOIN_SPECIFICATION"), 
+			new Symbol(0x006C, "JOIN_CONDITION"), 
+			new Symbol(0x006D, "SELECT"), 
+			new Symbol(0x006E, "ORDER_BY"), 
+			new Symbol(0x006F, "SORT_SPECIFICATION_LIST"), 
+			new Symbol(0x0070, "SORT_SPECIFICATION"), 
+			new Symbol(0x0071, "ORDERING_SPECIFICATION"), 
+			new Symbol(0x0072, "GROUP_BY"), 
+			new Symbol(0x0073, "GROUP_SPECIFICATION_LIST"), 
+			new Symbol(0x0074, "GROUP_SPECIFICATION"), 
+			new Symbol(0x0075, "LIMIT_OFFSET"), 
+			new Symbol(0x0076, "LIMIT"), 
+			new Symbol(0x0077, "OFFSET"), 
+			new Symbol(0x0078, "INSERT"), 
+			new Symbol(0x0079, "FIELDS"), 
+			new Symbol(0x007A, "FIELDS_LIST"), 
+			new Symbol(0x007B, "VALUES"), 
+			new Symbol(0x007C, "VALUES_LIST"), 
+			new Symbol(0x007D, "TO_INSERT"), 
+			new Symbol(0x007E, "UPDATE"), 
+			new Symbol(0x007F, "UPDATE_LIST"), 
+			new Symbol(0x0080, "UPDATE_ASSIGN"), 
+			new Symbol(0x0081, "UPDATE_OPERAND"), 
+			new Symbol(0x0082, "DELETE"), 
+			new Symbol(0x0083, "SET"), 
+			new Symbol(0x0084, "SET_LIST"), 
+			new Symbol(0x0085, "SET_ITEM"), 
+			new Symbol(0x0086, "DECLARE"), 
+			new Symbol(0x0087, "DECLARE_LIST"), 
+			new Symbol(0x0088, "DECLARE_ITEM"), 
+			new Symbol(0x0089, "STATEMENT"), 
+			new Symbol(0x008A, "ROOT"), 
+			new Symbol(0x0091, "__V145"), 
+			new Symbol(0x00A2, "__V162"), 
+			new Symbol(0x00BA, "__V186"), 
+			new Symbol(0x00C5, "__V197"), 
+			new Symbol(0x00C9, "__V201"), 
+			new Symbol(0x00D4, "__V212"), 
 			new Symbol(0x00D8, "__V216"), 
-			new Symbol(0x00D9, "__VAxiom") };
+			new Symbol(0x00DD, "__V221"), 
+			new Symbol(0x00DE, "__V222"), 
+			new Symbol(0x00E2, "__V226"), 
+			new Symbol(0x00E4, "__V228"), 
+			new Symbol(0x00E6, "__V230"), 
+			new Symbol(0x00E7, "__V231"), 
+			new Symbol(0x00E8, "__VAxiom") };
 		/// <summary>
 		/// The collection of virtuals matched by this parser
 		/// </summary>
@@ -666,6 +708,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			public virtual void OnTerminalCommentLine(ASTNode node) {}
 			public virtual void OnTerminalIdentifier(ASTNode node) {}
 			public virtual void OnTerminalSeparator(ASTNode node) {}
+			public virtual void OnTerminalGlobalParameterName(ASTNode node) {}
 			public virtual void OnVariableNull(ASTNode node) {}
 			public virtual void OnVariableBooleanTrue(ASTNode node) {}
 			public virtual void OnVariableBooleanFalse(ASTNode node) {}
@@ -715,6 +758,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			public virtual void OnVariableFuncCall(ASTNode node) {}
 			public virtual void OnVariableBracketExpr(ASTNode node) {}
 			public virtual void OnVariableSelectExpr(ASTNode node) {}
+			public virtual void OnVariableParameterType(ASTNode node) {}
+			public virtual void OnVariableGlobalParameter(ASTNode node) {}
 			public virtual void OnVariableSimpleExpr(ASTNode node) {}
 			public virtual void OnVariableUnaryExpr(ASTNode node) {}
 			public virtual void OnVariableMulExpr(ASTNode node) {}
@@ -782,6 +827,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			public virtual void OnVariableUpdateAssign(ASTNode node) {}
 			public virtual void OnVariableUpdateOperand(ASTNode node) {}
 			public virtual void OnVariableDelete(ASTNode node) {}
+			public virtual void OnVariableSet(ASTNode node) {}
+			public virtual void OnVariableSetList(ASTNode node) {}
+			public virtual void OnVariableSetItem(ASTNode node) {}
+			public virtual void OnVariableDeclare(ASTNode node) {}
+			public virtual void OnVariableDeclareList(ASTNode node) {}
+			public virtual void OnVariableDeclareItem(ASTNode node) {}
 			public virtual void OnVariableStatement(ASTNode node) {}
 			public virtual void OnVariableRoot(ASTNode node) {}
 		}
@@ -816,124 +867,133 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 				case 0x0009: visitor.OnTerminalCommentLine(node); break;
 				case 0x000A: visitor.OnTerminalIdentifier(node); break;
 				case 0x000B: visitor.OnTerminalSeparator(node); break;
-				case 0x000C: visitor.OnVariableNull(node); break;
-				case 0x000D: visitor.OnVariableBooleanTrue(node); break;
-				case 0x000E: visitor.OnVariableBooleanFalse(node); break;
-				case 0x000F: visitor.OnVariableBooleanConst(node); break;
-				case 0x0010: visitor.OnVariableStringConst(node); break;
-				case 0x0011: visitor.OnVariableNumberConst(node); break;
-				case 0x0012: visitor.OnVariableDateConst(node); break;
-				case 0x0013: visitor.OnVariableDatetimeConst(node); break;
-				case 0x0014: visitor.OnVariableConstant(node); break;
-				case 0x0015: visitor.OnVariableEos(node); break;
-				case 0x0016: visitor.OnVariableNop(node); break;
-				case 0x0017: visitor.OnVariableMinusOp(node); break;
-				case 0x0018: visitor.OnVariablePlusOp(node); break;
-				case 0x0019: visitor.OnVariableMulOp(node); break;
-				case 0x001A: visitor.OnVariableDivOp(node); break;
-				case 0x001B: visitor.OnVariableConcatOp(node); break;
-				case 0x001C: visitor.OnVariableEqOp(node); break;
-				case 0x001D: visitor.OnVariableNeqOp(node); break;
-				case 0x001E: visitor.OnVariableGtOp(node); break;
-				case 0x001F: visitor.OnVariableGeOp(node); break;
-				case 0x0020: visitor.OnVariableLtOp(node); break;
-				case 0x0021: visitor.OnVariableLeOp(node); break;
-				case 0x0022: visitor.OnVariableExactLikeOp(node); break;
-				case 0x0023: visitor.OnVariableNotLikeOp(node); break;
-				case 0x0024: visitor.OnVariableLikeOp(node); break;
-				case 0x0025: visitor.OnVariableExactInOp(node); break;
-				case 0x0026: visitor.OnVariableNotInOp(node); break;
-				case 0x0027: visitor.OnVariableInOp(node); break;
-				case 0x0028: visitor.OnVariableExactNullOp(node); break;
-				case 0x0029: visitor.OnVariableNotNullOp(node); break;
-				case 0x002A: visitor.OnVariableNullOp(node); break;
-				case 0x002B: visitor.OnVariableCallArgs(node); break;
-				case 0x002C: visitor.OnVariableCallBracket(node); break;
-				case 0x002D: visitor.OnVariableMathFuncName(node); break;
-				case 0x002E: visitor.OnVariableMathFuncCall(node); break;
-				case 0x002F: visitor.OnVariableCastFuncName(node); break;
-				case 0x0030: visitor.OnVariableCastFuncCall(node); break;
-				case 0x0031: visitor.OnVariableStrFuncName(node); break;
-				case 0x0032: visitor.OnVariableStrFuncCall(node); break;
-				case 0x0033: visitor.OnVariableBoolStrFuncName(node); break;
-				case 0x0034: visitor.OnVariableBoolStrFuncCall(node); break;
-				case 0x0035: visitor.OnVariableTrimLeading(node); break;
-				case 0x0036: visitor.OnVariableTrimTrailing(node); break;
-				case 0x0037: visitor.OnVariableTrimBoth(node); break;
-				case 0x0038: visitor.OnVariableTrimSpecification(node); break;
-				case 0x0039: visitor.OnVariableTrimCall(node); break;
-				case 0x003A: visitor.OnVariableFuncCall(node); break;
-				case 0x003B: visitor.OnVariableBracketExpr(node); break;
-				case 0x003C: visitor.OnVariableSelectExpr(node); break;
-				case 0x003D: visitor.OnVariableSimpleExpr(node); break;
-				case 0x003E: visitor.OnVariableUnaryExpr(node); break;
-				case 0x003F: visitor.OnVariableMulExpr(node); break;
-				case 0x0040: visitor.OnVariableAddExpr(node); break;
-				case 0x0041: visitor.OnVariableConcatExpr(node); break;
-				case 0x0042: visitor.OnVariableComExpr(node); break;
-				case 0x0043: visitor.OnVariableRelExpr(node); break;
-				case 0x0044: visitor.OnVariableLikeExpr(node); break;
-				case 0x0045: visitor.OnVariableInPredicate(node); break;
-				case 0x0046: visitor.OnVariableInPredicateValue(node); break;
-				case 0x0047: visitor.OnVariableInValueArgs(node); break;
-				case 0x0048: visitor.OnVariableInValueList(node); break;
-				case 0x0049: visitor.OnVariableNullPredicate(node); break;
-				case 0x004A: visitor.OnVariableCompareExpr(node); break;
-				case 0x004B: visitor.OnVariableNotOp(node); break;
-				case 0x004C: visitor.OnVariableAndOp(node); break;
-				case 0x004D: visitor.OnVariableOrOp(node); break;
-				case 0x004E: visitor.OnVariableUxBoolExpr(node); break;
-				case 0x004F: visitor.OnVariableAndBoolExpr(node); break;
-				case 0x0050: visitor.OnVariableOrBoolExpr(node); break;
-				case 0x0051: visitor.OnVariableExpr(node); break;
-				case 0x0052: visitor.OnVariableBoolExpr(node); break;
-				case 0x0053: visitor.OnVariableSetQuantifier(node); break;
-				case 0x0054: visitor.OnVariableAsrerisk(node); break;
-				case 0x0055: visitor.OnVariableAggrCallBracket(node); break;
-				case 0x0056: visitor.OnVariableAggrFunc(node); break;
-				case 0x0057: visitor.OnVariableAggrCountAll(node); break;
-				case 0x0058: visitor.OnVariableAggrCall(node); break;
-				case 0x0059: visitor.OnVariableSelectSublist(node); break;
-				case 0x005A: visitor.OnVariableExprAlias(node); break;
-				case 0x005B: visitor.OnVariableField(node); break;
-				case 0x005C: visitor.OnVariableSelectList(node); break;
-				case 0x005D: visitor.OnVariableTableExpression(node); break;
-				case 0x005E: visitor.OnVariableWhereClause(node); break;
-				case 0x005F: visitor.OnVariableFromClause(node); break;
-				case 0x0060: visitor.OnVariableTableReferenceList(node); break;
-				case 0x0061: visitor.OnVariableTableReference(node); break;
-				case 0x0062: visitor.OnVariableTablePrimary(node); break;
-				case 0x0063: visitor.OnVariableJoinedTable(node); break;
-				case 0x0064: visitor.OnVariableAutoJoin(node); break;
-				case 0x0065: visitor.OnVariableQualifiedJoin(node); break;
-				case 0x0066: visitor.OnVariableJoinType(node); break;
-				case 0x0067: visitor.OnVariableOuterJoinType(node); break;
-				case 0x0068: visitor.OnVariableJoinSpecification(node); break;
-				case 0x0069: visitor.OnVariableJoinCondition(node); break;
-				case 0x006A: visitor.OnVariableSelect(node); break;
-				case 0x006B: visitor.OnVariableOrderBy(node); break;
-				case 0x006C: visitor.OnVariableSortSpecificationList(node); break;
-				case 0x006D: visitor.OnVariableSortSpecification(node); break;
-				case 0x006E: visitor.OnVariableOrderingSpecification(node); break;
-				case 0x006F: visitor.OnVariableGroupBy(node); break;
-				case 0x0070: visitor.OnVariableGroupSpecificationList(node); break;
-				case 0x0071: visitor.OnVariableGroupSpecification(node); break;
-				case 0x0072: visitor.OnVariableLimitOffset(node); break;
-				case 0x0073: visitor.OnVariableLimit(node); break;
-				case 0x0074: visitor.OnVariableOffset(node); break;
-				case 0x0075: visitor.OnVariableInsert(node); break;
-				case 0x0076: visitor.OnVariableFields(node); break;
-				case 0x0077: visitor.OnVariableFieldsList(node); break;
-				case 0x0078: visitor.OnVariableValues(node); break;
-				case 0x0079: visitor.OnVariableValuesList(node); break;
-				case 0x007A: visitor.OnVariableToInsert(node); break;
-				case 0x007B: visitor.OnVariableUpdate(node); break;
-				case 0x007C: visitor.OnVariableUpdateList(node); break;
-				case 0x007D: visitor.OnVariableUpdateAssign(node); break;
-				case 0x007E: visitor.OnVariableUpdateOperand(node); break;
-				case 0x007F: visitor.OnVariableDelete(node); break;
-				case 0x0080: visitor.OnVariableStatement(node); break;
-				case 0x0081: visitor.OnVariableRoot(node); break;
+				case 0x000C: visitor.OnTerminalGlobalParameterName(node); break;
+				case 0x000D: visitor.OnVariableNull(node); break;
+				case 0x000E: visitor.OnVariableBooleanTrue(node); break;
+				case 0x000F: visitor.OnVariableBooleanFalse(node); break;
+				case 0x0010: visitor.OnVariableBooleanConst(node); break;
+				case 0x0011: visitor.OnVariableStringConst(node); break;
+				case 0x0012: visitor.OnVariableNumberConst(node); break;
+				case 0x0013: visitor.OnVariableDateConst(node); break;
+				case 0x0014: visitor.OnVariableDatetimeConst(node); break;
+				case 0x0015: visitor.OnVariableConstant(node); break;
+				case 0x0016: visitor.OnVariableEos(node); break;
+				case 0x0017: visitor.OnVariableNop(node); break;
+				case 0x0018: visitor.OnVariableMinusOp(node); break;
+				case 0x0019: visitor.OnVariablePlusOp(node); break;
+				case 0x001A: visitor.OnVariableMulOp(node); break;
+				case 0x001B: visitor.OnVariableDivOp(node); break;
+				case 0x001C: visitor.OnVariableConcatOp(node); break;
+				case 0x001D: visitor.OnVariableEqOp(node); break;
+				case 0x001E: visitor.OnVariableNeqOp(node); break;
+				case 0x001F: visitor.OnVariableGtOp(node); break;
+				case 0x0020: visitor.OnVariableGeOp(node); break;
+				case 0x0021: visitor.OnVariableLtOp(node); break;
+				case 0x0022: visitor.OnVariableLeOp(node); break;
+				case 0x0023: visitor.OnVariableExactLikeOp(node); break;
+				case 0x0024: visitor.OnVariableNotLikeOp(node); break;
+				case 0x0025: visitor.OnVariableLikeOp(node); break;
+				case 0x0026: visitor.OnVariableExactInOp(node); break;
+				case 0x0027: visitor.OnVariableNotInOp(node); break;
+				case 0x0028: visitor.OnVariableInOp(node); break;
+				case 0x0029: visitor.OnVariableExactNullOp(node); break;
+				case 0x002A: visitor.OnVariableNotNullOp(node); break;
+				case 0x002B: visitor.OnVariableNullOp(node); break;
+				case 0x002C: visitor.OnVariableCallArgs(node); break;
+				case 0x002D: visitor.OnVariableCallBracket(node); break;
+				case 0x002E: visitor.OnVariableMathFuncName(node); break;
+				case 0x002F: visitor.OnVariableMathFuncCall(node); break;
+				case 0x0030: visitor.OnVariableCastFuncName(node); break;
+				case 0x0031: visitor.OnVariableCastFuncCall(node); break;
+				case 0x0032: visitor.OnVariableStrFuncName(node); break;
+				case 0x0033: visitor.OnVariableStrFuncCall(node); break;
+				case 0x0034: visitor.OnVariableBoolStrFuncName(node); break;
+				case 0x0035: visitor.OnVariableBoolStrFuncCall(node); break;
+				case 0x0036: visitor.OnVariableTrimLeading(node); break;
+				case 0x0037: visitor.OnVariableTrimTrailing(node); break;
+				case 0x0038: visitor.OnVariableTrimBoth(node); break;
+				case 0x0039: visitor.OnVariableTrimSpecification(node); break;
+				case 0x003A: visitor.OnVariableTrimCall(node); break;
+				case 0x003B: visitor.OnVariableFuncCall(node); break;
+				case 0x003C: visitor.OnVariableBracketExpr(node); break;
+				case 0x003D: visitor.OnVariableSelectExpr(node); break;
+				case 0x003E: visitor.OnVariableParameterType(node); break;
+				case 0x003F: visitor.OnVariableGlobalParameter(node); break;
+				case 0x0040: visitor.OnVariableSimpleExpr(node); break;
+				case 0x0041: visitor.OnVariableUnaryExpr(node); break;
+				case 0x0042: visitor.OnVariableMulExpr(node); break;
+				case 0x0043: visitor.OnVariableAddExpr(node); break;
+				case 0x0044: visitor.OnVariableConcatExpr(node); break;
+				case 0x0045: visitor.OnVariableComExpr(node); break;
+				case 0x0046: visitor.OnVariableRelExpr(node); break;
+				case 0x0047: visitor.OnVariableLikeExpr(node); break;
+				case 0x0048: visitor.OnVariableInPredicate(node); break;
+				case 0x0049: visitor.OnVariableInPredicateValue(node); break;
+				case 0x004A: visitor.OnVariableInValueArgs(node); break;
+				case 0x004B: visitor.OnVariableInValueList(node); break;
+				case 0x004C: visitor.OnVariableNullPredicate(node); break;
+				case 0x004D: visitor.OnVariableCompareExpr(node); break;
+				case 0x004E: visitor.OnVariableNotOp(node); break;
+				case 0x004F: visitor.OnVariableAndOp(node); break;
+				case 0x0050: visitor.OnVariableOrOp(node); break;
+				case 0x0051: visitor.OnVariableUxBoolExpr(node); break;
+				case 0x0052: visitor.OnVariableAndBoolExpr(node); break;
+				case 0x0053: visitor.OnVariableOrBoolExpr(node); break;
+				case 0x0054: visitor.OnVariableExpr(node); break;
+				case 0x0055: visitor.OnVariableBoolExpr(node); break;
+				case 0x0056: visitor.OnVariableSetQuantifier(node); break;
+				case 0x0057: visitor.OnVariableAsrerisk(node); break;
+				case 0x0058: visitor.OnVariableAggrCallBracket(node); break;
+				case 0x0059: visitor.OnVariableAggrFunc(node); break;
+				case 0x005A: visitor.OnVariableAggrCountAll(node); break;
+				case 0x005B: visitor.OnVariableAggrCall(node); break;
+				case 0x005C: visitor.OnVariableSelectSublist(node); break;
+				case 0x005D: visitor.OnVariableExprAlias(node); break;
+				case 0x005E: visitor.OnVariableField(node); break;
+				case 0x005F: visitor.OnVariableSelectList(node); break;
+				case 0x0060: visitor.OnVariableTableExpression(node); break;
+				case 0x0061: visitor.OnVariableWhereClause(node); break;
+				case 0x0062: visitor.OnVariableFromClause(node); break;
+				case 0x0063: visitor.OnVariableTableReferenceList(node); break;
+				case 0x0064: visitor.OnVariableTableReference(node); break;
+				case 0x0065: visitor.OnVariableTablePrimary(node); break;
+				case 0x0066: visitor.OnVariableJoinedTable(node); break;
+				case 0x0067: visitor.OnVariableAutoJoin(node); break;
+				case 0x0068: visitor.OnVariableQualifiedJoin(node); break;
+				case 0x0069: visitor.OnVariableJoinType(node); break;
+				case 0x006A: visitor.OnVariableOuterJoinType(node); break;
+				case 0x006B: visitor.OnVariableJoinSpecification(node); break;
+				case 0x006C: visitor.OnVariableJoinCondition(node); break;
+				case 0x006D: visitor.OnVariableSelect(node); break;
+				case 0x006E: visitor.OnVariableOrderBy(node); break;
+				case 0x006F: visitor.OnVariableSortSpecificationList(node); break;
+				case 0x0070: visitor.OnVariableSortSpecification(node); break;
+				case 0x0071: visitor.OnVariableOrderingSpecification(node); break;
+				case 0x0072: visitor.OnVariableGroupBy(node); break;
+				case 0x0073: visitor.OnVariableGroupSpecificationList(node); break;
+				case 0x0074: visitor.OnVariableGroupSpecification(node); break;
+				case 0x0075: visitor.OnVariableLimitOffset(node); break;
+				case 0x0076: visitor.OnVariableLimit(node); break;
+				case 0x0077: visitor.OnVariableOffset(node); break;
+				case 0x0078: visitor.OnVariableInsert(node); break;
+				case 0x0079: visitor.OnVariableFields(node); break;
+				case 0x007A: visitor.OnVariableFieldsList(node); break;
+				case 0x007B: visitor.OnVariableValues(node); break;
+				case 0x007C: visitor.OnVariableValuesList(node); break;
+				case 0x007D: visitor.OnVariableToInsert(node); break;
+				case 0x007E: visitor.OnVariableUpdate(node); break;
+				case 0x007F: visitor.OnVariableUpdateList(node); break;
+				case 0x0080: visitor.OnVariableUpdateAssign(node); break;
+				case 0x0081: visitor.OnVariableUpdateOperand(node); break;
+				case 0x0082: visitor.OnVariableDelete(node); break;
+				case 0x0083: visitor.OnVariableSet(node); break;
+				case 0x0084: visitor.OnVariableSetList(node); break;
+				case 0x0085: visitor.OnVariableSetItem(node); break;
+				case 0x0086: visitor.OnVariableDeclare(node); break;
+				case 0x0087: visitor.OnVariableDeclareList(node); break;
+				case 0x0088: visitor.OnVariableDeclareItem(node); break;
+				case 0x0089: visitor.OnVariableStatement(node); break;
+				case 0x008A: visitor.OnVariableRoot(node); break;
 			}
 		}
 	}

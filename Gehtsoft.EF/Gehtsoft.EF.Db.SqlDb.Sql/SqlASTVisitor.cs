@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         /// <param name="source"></param>
         /// <param name="statementNode"></param>
         /// <returns></returns>
-        public SqlStatement VisitStatement(SqlCodeDomBuilder builder, string source, ASTNode statementNode)
+        public Statement VisitStatement(SqlCodeDomBuilder builder, string source, ASTNode statementNode)
         {
             if (statementNode.Symbol.ID == SqlParser.ID.VariableStatement)
             {
@@ -48,6 +48,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         {
                             return new SqlDeleteStatement(builder, statementNode, source);
                         }
+                    case SqlParser.ID.VariableSet:
+                        {
+                            return new SetStatement(builder, statementNode, source);
+                        }
+                    case SqlParser.ID.VariableDeclare:
+                        {
+                            var q = new DeclareStatement(builder, statementNode, source);
+                            return null;
+                        }
                     case SqlParser.ID.VariableNop:
                         return null;
                 }
@@ -65,15 +74,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         /// <param name="source"></param>
         /// <param name="statementNode"></param>
         /// <returns></returns>
-        public SqlStatementCollection VisitStatements(SqlCodeDomBuilder builder, string source, ASTNode statementNode)
+        public StatementCollection VisitStatements(SqlCodeDomBuilder builder, string source, ASTNode statementNode)
         {
-            SqlStatementCollection r = null;
+            StatementCollection r = null;
 
             if (statementNode.Symbol.ID == SqlParser.ID.VariableRoot)
             {
                 if (statementNode.Children.Count == 0)
                     return null;
-                r = new SqlStatementCollection();
+                r = new StatementCollection();
                 for (int i = 0; i < statementNode.Children.Count; i++)
                 {
                     var stmt = VisitStatement(builder, source, statementNode.Children[i]);

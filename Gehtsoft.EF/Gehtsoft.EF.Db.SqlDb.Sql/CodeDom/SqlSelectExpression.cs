@@ -29,7 +29,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlSelectExpression(SqlStatement parentStatement, ASTNode exprNode, string source)
+        internal SqlSelectExpression(Statement parentStatement, ASTNode exprNode, string source)
         {
             SelectStatement = new SqlSelectStatement(parentStatement.CodeDomBuilder, exprNode.Children[0], source);
             if (SelectStatement.SelectList.FieldAliasCollection.Count != 1)

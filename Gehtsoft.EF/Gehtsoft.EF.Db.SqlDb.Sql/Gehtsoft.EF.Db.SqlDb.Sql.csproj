@@ -35,6 +35,9 @@
    <ItemGroup>
     <EmbeddedResource Include="SqlLexer.bin" />
     <EmbeddedResource Include="SqlParser.bin" />
+    <Compile Include="CodeDom\DeclareStatement.cs" />
+    <Compile Include="CodeDom\GlobalParameter.cs" />
+    <Compile Include="CodeDom\SetStatement.cs" />
     <Compile Include="CodeDom\SqlAggrFunc.cs" />
     <Compile Include="CodeDom\SqlAutoJoinedTable.cs" />
     <Compile Include="CodeDom\SqlBaseExpression.cs" />
@@ -59,11 +62,12 @@
     <Compile Include="CodeDom\SqlSelectStatement.cs" />
     <Compile Include="CodeDom\SqlSortSpecification.cs" />
     <Compile Include="CodeDom\SqlStatement.cs" />
-    <Compile Include="CodeDom\SqlStatementCollection.cs" />
+    <Compile Include="CodeDom\StatementCollection.cs" />
     <Compile Include="CodeDom\SqlTableSpecification.cs" />
     <Compile Include="CodeDom\SqlUnarExpression.cs" />
     <Compile Include="CodeDom\SqlUpdateAssign.cs" />
     <Compile Include="CodeDom\SqlWhereClause.cs" />
+    <Compile Include="CodeDom\Statement.cs" />
     <Compile Include="DeleteRunner.cs" />
     <Compile Include="InsertRunner.cs" />
     <Compile Include="IStatementRunner.cs" />

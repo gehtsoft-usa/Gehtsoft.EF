@@ -26,7 +26,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void InsertSimple()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "INSERT INTO Supplier "+
                 "(CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax, HomePage) " +
                 "VALUES " +
@@ -65,7 +65,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
             insert.CheckFieldsAndValues();
 
-            SqlStatementCollection target = new SqlStatementCollection() { insert };
+            StatementCollection target = new StatementCollection() { insert };
 
             result.Equals(target).Should().BeTrue();
         }
@@ -110,7 +110,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void InsertSelect()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "INSERT INTO Supplier " +
                 "(CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax) " +
                 "SELECT " +
@@ -162,7 +162,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
             insert.CheckFieldsAndValues();
 
-            SqlStatementCollection target = new SqlStatementCollection() { insert };
+            StatementCollection target = new StatementCollection() { insert };
 
             result.Equals(target).Should().BeTrue();
         }

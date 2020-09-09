@@ -26,7 +26,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void UpdateParse1()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "UPDATE OrderDetail " +
                 "SET Discount= Discount * 1.1, UnitPrice = UnitPrice * 1.03 " +
                 "WHERE Order IN " +
@@ -73,7 +73,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 )
             );
 
-            SqlStatementCollection target = new SqlStatementCollection() { update };
+            StatementCollection target = new StatementCollection() { update };
 
             result.Equals(target).Should().BeTrue();
         }
@@ -119,7 +119,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void UpdateParse2()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "UPDATE Order " +
                 "SET Freight =(SELECT MAX(Freight) FROM Order) " +
                 "WHERE ShipCountry = 'UK'"
@@ -147,7 +147,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
             updateAssigns.Add(new SqlUpdateAssign( new SqlField(update, "Freight"), select));
 
-            SqlStatementCollection target = new SqlStatementCollection() { update };
+            StatementCollection target = new StatementCollection() { update };
 
             result.Equals(target).Should().BeTrue();
         }

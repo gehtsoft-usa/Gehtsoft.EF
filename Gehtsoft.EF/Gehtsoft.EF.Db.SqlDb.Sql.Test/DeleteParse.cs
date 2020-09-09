@@ -26,7 +26,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void DeleteParse1()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "DELETE FROM OrderDetail " +
                 "WHERE Order IN " +
                 "(SELECT OrderID FROM Order WHERE ShipCountry = 'UK')"
@@ -55,7 +55,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                     new SqlField(update, "Order"), SqlInExpression.OperationType.In, select
             );
 
-            SqlStatementCollection target = new SqlStatementCollection() { update };
+            StatementCollection target = new StatementCollection() { update };
 
             result.Equals(target).Should().BeTrue();
         }
@@ -90,13 +90,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void DeleteParse2()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "DELETE FROM Order"
             );
 
             SqlDeleteStatement update = new SqlDeleteStatement(DomBuilder, "Order");
 
-            SqlStatementCollection target = new SqlStatementCollection() { update };
+            StatementCollection target = new StatementCollection() { update };
 
             result.Equals(target).Should().BeTrue();
         }

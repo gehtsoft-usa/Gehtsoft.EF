@@ -29,7 +29,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectSimple()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "SELECT OrderID, OrderDate, ShipName FROM Order WHERE OrderID > 100 AND (TRIM(TRAILING ShipAddress) <> 'street' OR OrderDate > DATETIME '2011-01-01 13:00')");
 
             SqlExpressionAliasCollection selectList = new SqlExpressionAliasCollection();
@@ -67,7 +67,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 )
             );
 
-            SqlStatementCollection target = new SqlStatementCollection() { select };
+            StatementCollection target = new StatementCollection() { select };
 
             result.Equals(target).Should().BeTrue();
         }
@@ -75,7 +75,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectAggrFunc()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test", "SELECT COUNT(*), MAX(Quantity) FROM OrderDetail");
+            StatementCollection result = DomBuilder.Parse("test", "SELECT COUNT(*), MAX(Quantity) FROM OrderDetail");
 
             SqlExpressionAliasCollection selectList = new SqlExpressionAliasCollection();
             SqlTableSpecificationCollection fromTables = new SqlTableSpecificationCollection();
@@ -88,7 +88,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             selectList.Add(new SqlExpressionAlias(select, new SqlAggrFunc("COUNT", null)));
             selectList.Add(new SqlExpressionAlias(select, new SqlAggrFunc("MAX", new SqlField(select, "Quantity"))));
 
-            SqlStatementCollection target = new SqlStatementCollection() { select };
+            StatementCollection target = new StatementCollection() { select };
 
             result.Equals(target).Should().BeTrue();
         }
@@ -96,7 +96,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void InnerJoinedSelect()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "SELECT OrderID AS ID, Quantity, " +
                 "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
                 "FROM OrderDetail " +
@@ -146,7 +146,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "CompanyName", "Customer")));
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "FirstName", "Employee")));
 
-            SqlStatementCollection target = new SqlStatementCollection() { select };
+            StatementCollection target = new StatementCollection() { select };
 
             result.Equals(target).Should().BeTrue();
 
@@ -155,7 +155,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void AutoJoinedSelect()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "SELECT OrderID AS ID, Quantity, " +
                 "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
                 "FROM OrderDetail " +
@@ -190,7 +190,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "CompanyName", "Customer")));
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "FirstName", "Employee")));
 
-            SqlStatementCollection target = new SqlStatementCollection() { select };
+            StatementCollection target = new StatementCollection() { select };
 
             result.Equals(target).Should().BeTrue();
 
@@ -199,7 +199,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void AutoJoinedSelectWithOffsetLimit()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "SELECT OrderID AS ID, Quantity, " +
                 "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
                 "FROM OrderDetail " +
@@ -236,7 +236,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "CompanyName", "Customer")));
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "FirstName", "Employee")));
 
-            SqlStatementCollection target = new SqlStatementCollection() { select };
+            StatementCollection target = new StatementCollection() { select };
 
             result.Equals(target).Should().BeTrue();
 
@@ -245,9 +245,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void AutoJoinedSelectWithOrderByAndOffsetLimit()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "SELECT OrderID AS ID, Quantity, " +
-                "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
+                "Order.OrderDate, Customer.CompanyName, Employee.FirstName, (10 + 0.5)*4 AS Const1 " +
                 "FROM OrderDetail " +
                 "AUTO JOIN Order " +
                 "AUTO JOIN Customer " +
@@ -283,10 +283,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "OrderDate", "Order")));
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "CompanyName", "Customer")));
             selectList.Add(new SqlExpressionAlias(select, new SqlField(select, "FirstName", "Employee")));
+            selectList.Add(new SqlExpressionAlias(select, new SqlConstant(42.0, SqlBaseExpression.ResultTypes.Double), "Const1"));
 
             select.Sorting = new SqlSortSpecificationCollection() { new SqlSortSpecification(new SqlField(select, "Quantity"), SortDir.Desc) };
 
-            SqlStatementCollection target = new SqlStatementCollection() { select };
+            StatementCollection target = new StatementCollection() { select };
 
             result.Equals(target).Should().BeTrue();
 
@@ -295,7 +296,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectAggrFuncAndGroup()
         {
-            SqlStatementCollection result = DomBuilder.Parse("test",
+            StatementCollection result = DomBuilder.Parse("test",
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
                 "FROM Customer " +
                 "GROUP BY Country " +
@@ -316,7 +317,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             select.Grouping = new SqlGroupSpecificationCollection() { new SqlGroupSpecification(new SqlField(select, "Country")) };
             select.Sorting = new SqlSortSpecificationCollection() { new SqlSortSpecification(new SqlAggrFunc("COUNT", new SqlField(select, "CustomerID")), SortDir.Desc) };
 
-            SqlStatementCollection target = new SqlStatementCollection() { select };
+            StatementCollection target = new StatementCollection() { select };
 
             result.Equals(target).Should().BeTrue();
         }

@@ -59,43 +59,91 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal SqlUnarExpression(SqlStatement parentStatement, ASTNode operand, OperationType operation, string source)
         {
             mOperand = SqlExpressionParser.ParseExpression(parentStatement, operand, source);
-            if (!checkOperationAndType(operation, mOperand.ResultType))
-            {
-                throw new SqlParserException(new SqlError(source,
-                    operand.Position.Line,
-                    operand.Position.Column,
-                    $"Type of operand doesn't match the operation {operand.Symbol.Name} ({operand.Value ?? "null"})"));
-            }
-            if (operation == OperationType.IsNotNull || operation == OperationType.IsNull)
-            {
-                mResultType = ResultTypes.Boolean;
-            }
-            else
-            {
-                mResultType = mOperand.ResultType;
-            }
             mOperation = operation;
+            checkOperationAndType(operation, mOperand.ResultType, source, operand.Position.Line, operand.Position.Column);
+            mResultType = prepareResultType(mOperand, operation);
         }
 
-        internal SqlUnarExpression(SqlBaseExpression operand, OperationType operation, SqlBaseExpression rightOperand)
+        internal SqlUnarExpression(SqlBaseExpression operand, OperationType operation)
         {
             mOperand = operand;
-            if (!checkOperationAndType(operation, mOperand.ResultType))
+            mOperation = operation;
+            checkOperationAndType(operation, mOperand.ResultType);
+            mResultType = prepareResultType(operand, operation);
+        }
+        internal static SqlConstant TryGetConstant(SqlBaseExpression operand, OperationType operation)
+        {
+            SqlConstant result = null;
+
+            checkOperationAndType(operation, operand.ResultType);
+            if (operand is SqlConstant constant)
             {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Type of operand doesn't match the operation"));
+                object value = null;
+                ResultTypes type = prepareResultType(operand, operation);
+                switch (constant.ResultType)
+                {
+                    case ResultTypes.Integer:
+                        switch (operation)
+                        {
+                            case OperationType.Plus:
+                                value = (int)constant.Value;
+                                break;
+                            case OperationType.Minus:
+                                value = 0 - (int)constant.Value;
+                                break;
+                        }
+                        break;
+                    case ResultTypes.Double:
+                        switch (operation)
+                        {
+                            case OperationType.Plus:
+                                value = (double)constant.Value;
+                                break;
+                            case OperationType.Minus:
+                                value = 0.0 - (double)constant.Value;
+                                break;
+                        }
+                        break;
+                    case ResultTypes.Boolean:
+                        switch (operation)
+                        {
+                            case OperationType.Not:
+                                value = !((bool)constant.Value);
+                                break;
+                        }
+                        break;
+                    case ResultTypes.Unknown:
+                        switch (operation)
+                        {
+                            case OperationType.IsNull:
+                                value = true;
+                                break;
+                            case OperationType.IsNotNull:
+                                value = false;
+                                break;
+                        }
+                        break;
+                }
+                if (value != null)
+                    result = new SqlConstant(value, type);
             }
+            return result;
+        }
+
+        private static ResultTypes prepareResultType(SqlBaseExpression operand, OperationType operation)
+        {
             if (operation == OperationType.IsNotNull || operation == OperationType.IsNull)
             {
-                mResultType = ResultTypes.Boolean;
+                return ResultTypes.Boolean;
             }
             else
             {
-                mResultType = mOperand.ResultType;
+                return operand.ResultType;
             }
-            mOperation = operation;
         }
 
-        private bool checkOperationAndType(OperationType operation, ResultTypes resultType)
+        private static void checkOperationAndType(OperationType operation, ResultTypes resultType,
+            string source = null, int line = 0, int column = 0)
         {
             bool isCorrect = false;
             switch (operation)
@@ -112,7 +160,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     isCorrect = true;
                     break;
             }
-            return isCorrect;
+            if (!isCorrect)
+            {
+                throw new SqlParserException(new SqlError(source, line, column, $"Type of operand doesn't match the operation"));
+            }
         }
 
         public virtual bool Equals(SqlUnarExpression other)

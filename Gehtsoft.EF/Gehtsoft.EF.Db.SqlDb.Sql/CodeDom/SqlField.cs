@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlStatement;
+using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.Statement;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
@@ -48,7 +48,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
 
 
-        internal SqlField(SqlStatement parentStatement, ASTNode fieldNode, string source)
+        internal SqlField(Statement parentStatement, ASTNode fieldNode, string source)
         {
             if (fieldNode.Children.Count > 1)
             {
@@ -69,7 +69,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     error));
             }
         }
-        internal SqlField(SqlStatement parentStatement, string name, string prefix)
+        internal SqlField(Statement parentStatement, string name, string prefix)
         {
             Name = name;
             Prefix = prefix;
@@ -80,7 +80,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 throw new SqlParserException(new SqlError(null, 0, 0, error));
             }
         }
-        internal SqlField(SqlStatement parentStatement, string name)
+        internal SqlField(Statement parentStatement, string name)
         {
             Name = name;
             Prefix = null;
@@ -98,7 +98,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mResultType = GetResultType(fieldType);
         }
 
-        private void processField(SqlStatement parentStatement, string prefix, string name, out string error)
+        private void processField(Statement parentStatement, string prefix, string name, out string error)
         {
             error = null;
             Type fieldType = null;

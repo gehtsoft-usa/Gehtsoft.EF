@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 [assembly: InternalsVisibleTo("Gehtsoft.EF.Db.SqlDb.Sql.Test,PublicKey="+
 "00240000048000009400000006020000002400005253413100040000010001005d19d6f6a54328"+
@@ -46,23 +47,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return result.Root;
         }
 
-        private SqlStatementCollection mLastParse = null;
+        private StatementCollection mLastParse = null;
 
-        public SqlStatementCollection Parse(string name, TextReader source)
+        public StatementCollection Parse(string name, TextReader source)
         {
             var root = ParseToRawTree(name, source);
             var visitor = new SqlASTVisitor();
             mLastParse = visitor.VisitStatements(this, name, root); // for possible run later
             return mLastParse;
         }
-        public SqlStatementCollection Parse(string name, string source)
+        public StatementCollection Parse(string name, string source)
         {
             using (var reader = new StringReader(source))
             {
                 return Parse(name, reader);
             }
         }
-        public SqlStatementCollection Parse(string fileName, Encoding encoding = null)
+        public StatementCollection Parse(string fileName, Encoding encoding = null)
         {
             using (StreamReader sr = new StreamReader(fileName, encoding ?? Encoding.UTF8, true))
             {
@@ -176,6 +177,24 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
 
             return result;
+        }
+
+
+        private Dictionary<string, SqlBaseExpression> globalParameters = new Dictionary<string, SqlBaseExpression>();
+
+        internal bool AddGlobalParameter(string name, ResultTypes resultType)
+        {
+            if (globalParameters.ContainsKey(name))
+                return false;
+            globalParameters.Add(name, new SqlConstant(null, resultType));
+            return true;
+        }
+
+        internal SqlBaseExpression FindGlobalParameter(string name)
+        {
+            if (globalParameters.ContainsKey(name))
+                return globalParameters[name];
+            return null;
         }
     }
 }

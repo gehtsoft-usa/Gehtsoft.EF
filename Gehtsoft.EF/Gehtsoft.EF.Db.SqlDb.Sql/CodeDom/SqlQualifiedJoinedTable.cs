@@ -39,7 +39,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         mExpressionNode.Value.Position.Column,
                         $"Result of ON should be boolean {mExpressionNode.Value.Symbol.Name} ({mExpressionNode.Value.Value ?? "null"})"));
                 }
-                if (mParentStatement.HasAggregateFunctions(mJoinCondition))
+                if (Statement.HasAggregateFunctions(mJoinCondition))
                 {
                     throw new SqlParserException(new SqlError(mSource,
                         mExpressionNode.Value.Position.Line,

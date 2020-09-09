@@ -37,6 +37,7 @@ grammar Sql
         COMMENT_LINE    -> '--' (.* - (.* NEW_LINE .*)) ;
         IDENTIFIER  -> [a-zA-Z_] [a-zA-Z0-9_]* ;
         SEPARATOR   -> WHITE_SPACE | COMMENT_LINE | NEW_LINE;
+		GLOBAL_PARAMETER_NAME -> '?' IDENTIFIER;
     }
 
     rules {
@@ -119,7 +120,11 @@ grammar Sql
 
 		SELECT_EXPR -> '('! SELECT ')'!;
 
+		PARAMETER_TYPE -> 'STRING'^ | 'INTEGER'^ |'DOUBLE'^ |'BOOLEAN'^ |'DATETIME'^ ;
+		GLOBAL_PARAMETER -> GLOBAL_PARAMETER_NAME ('AS'! PARAMETER_TYPE)?;
+
         SIMPLE_EXPR -> FIELD^ |
+					   GLOBAL_PARAMETER^ |
                        FUNC_CALL^ |
                        BRACKET_EXPR^ |
 					   CONSTANT^ |
@@ -261,7 +266,16 @@ grammar Sql
 
 		DELETE -> 'DELETE'! 'FROM'! IDENTIFIER (WHERE_CLAUSE)?;
 
-        STATEMENT -> SELECT | INSERT | UPDATE | DELETE | NOP;
+		SET -> 'SET'! SET_LIST;
+		SET_LIST -> SET_ITEM (','! SET_ITEM)*;
+		SET_ITEM -> IDENTIFIER ('='! EXPR)?;
+
+		DECLARE -> 'DECLARE'! DECLARE_LIST;
+		DECLARE_LIST -> DECLARE_ITEM (','! DECLARE_ITEM)*;
+		DECLARE_ITEM -> IDENTIFIER 'AS'! PARAMETER_TYPE;
+
+
+        STATEMENT -> SELECT | INSERT | UPDATE | DELETE | SET | DECLARE | NOP;
 
         ROOT -> STATEMENT STATEMENT*;
     }

@@ -77,15 +77,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mLeftOperand = SqlExpressionParser.ParseExpression(parentStatement, leftOperand, source);
             mRightOperand = SqlExpressionParser.ParseExpression(parentStatement, rightOperand, source);
-            if (mLeftOperand.ResultType != mRightOperand.ResultType || !checkOperationAndType(operation, mLeftOperand.ResultType))
-            {
-                if (!((mLeftOperand.ResultType == ResultTypes.Integer || mLeftOperand.ResultType == ResultTypes.Double) &&
-                   (mRightOperand.ResultType == ResultTypes.Integer || mRightOperand.ResultType == ResultTypes.Double)))
-                    throw new SqlParserException(new SqlError(source,
-                        rightOperand.Position.Line,
-                        rightOperand.Position.Column,
-                        $"Incorrect type of operand {rightOperand.Symbol.Name} ({rightOperand.Value ?? "null"})"));
-            }
+
+            checkOperands(mLeftOperand, operation, mRightOperand, source, rightOperand.Position.Line, rightOperand.Position.Column);
             mResultType = getResultType(operation, mLeftOperand.ResultType);
             mOperation = operation;
         }
@@ -94,15 +87,283 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mLeftOperand = leftOperand;
             mRightOperand = rightOperand;
-            if (mLeftOperand.ResultType != mRightOperand.ResultType || !checkOperationAndType(operation, mLeftOperand.ResultType))
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Types of operands don't match"));
-            }
+            checkOperands(mLeftOperand, operation, mRightOperand);
             mResultType = getResultType(operation, mLeftOperand.ResultType);
             mOperation = operation;
         }
 
-        private ResultTypes getResultType(OperationType operation, ResultTypes resultType)
+        internal static SqlConstant TryGetConstant(SqlBaseExpression leftOperand, OperationType operation, SqlBaseExpression rightOperand)
+        {
+            SqlConstant result = null;
+
+            checkOperands(leftOperand, operation, rightOperand);
+            if (leftOperand is SqlConstant leftConstant && rightOperand is SqlConstant rightConstant)
+            {
+                object value = null;
+                ResultTypes type = ResultTypes.Unknown;
+                if (leftConstant.ResultType == rightConstant.ResultType)
+                {
+                    switch (leftConstant.ResultType)
+                    {
+                        case ResultTypes.Integer:
+                            switch (operation)
+                            {
+                                case OperationType.Eq:
+                                    value = (int)leftConstant.Value == (int)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Neq:
+                                    value = (int)leftConstant.Value != (int)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Gt:
+                                    value = (int)leftConstant.Value > (int)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Ge:
+                                    value = (int)leftConstant.Value >= (int)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Ls:
+                                    value = (int)leftConstant.Value < (int)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Le:
+                                    value = (int)leftConstant.Value <= (int)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+
+                                case OperationType.Plus:
+                                    value = (int)leftConstant.Value + (int)rightConstant.Value;
+                                    type = ResultTypes.Integer;
+                                    break;
+                                case OperationType.Minus:
+                                    value = (int)leftConstant.Value - (int)rightConstant.Value;
+                                    type = ResultTypes.Integer;
+                                    break;
+                                case OperationType.Mult:
+                                    value = (int)leftConstant.Value * (int)rightConstant.Value;
+                                    type = ResultTypes.Integer;
+                                    break;
+                                case OperationType.Div:
+                                    value = (int)leftConstant.Value / (int)rightConstant.Value;
+                                    type = ResultTypes.Integer;
+                                    break;
+                            }
+                            break;
+                        case ResultTypes.Double:
+                            switch (operation)
+                            {
+                                case OperationType.Eq:
+                                    value = (double)leftConstant.Value == (double)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Neq:
+                                    value = (double)leftConstant.Value != (double)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Gt:
+                                    value = (double)leftConstant.Value > (double)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Ge:
+                                    value = (double)leftConstant.Value >= (double)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Ls:
+                                    value = (double)leftConstant.Value < (double)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Le:
+                                    value = (double)leftConstant.Value <= (double)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+
+                                case OperationType.Plus:
+                                    value = (double)leftConstant.Value + (double)rightConstant.Value;
+                                    type = ResultTypes.Double;
+                                    break;
+                                case OperationType.Minus:
+                                    value = (double)leftConstant.Value - (double)rightConstant.Value;
+                                    type = ResultTypes.Double;
+                                    break;
+                                case OperationType.Mult:
+                                    value = (double)leftConstant.Value * (double)rightConstant.Value;
+                                    type = ResultTypes.Double;
+                                    break;
+                                case OperationType.Div:
+                                    value = (double)leftConstant.Value / (double)rightConstant.Value;
+                                    type = ResultTypes.Double;
+                                    break;
+                            }
+                            break;
+                        case ResultTypes.Boolean:
+                            switch (operation)
+                            {
+                                case OperationType.Eq:
+                                    value = (bool)leftConstant.Value == (bool)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Neq:
+                                    value = (bool)leftConstant.Value != (bool)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+
+                                case OperationType.And:
+                                    value = (bool)leftConstant.Value && (bool)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Or:
+                                    value = (bool)leftConstant.Value || (bool)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                            }
+                            break;
+                        case ResultTypes.DateTime:
+                            switch (operation)
+                            {
+                                case OperationType.Eq:
+                                    value = (DateTime)leftConstant.Value == (DateTime)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Neq:
+                                    value = (DateTime)leftConstant.Value != (DateTime)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Gt:
+                                    value = (DateTime)leftConstant.Value > (DateTime)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Ge:
+                                    value = (DateTime)leftConstant.Value >= (DateTime)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Ls:
+                                    value = (DateTime)leftConstant.Value < (DateTime)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Le:
+                                    value = (DateTime)leftConstant.Value <= (DateTime)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                            }
+                            break;
+                        case ResultTypes.String:
+                            switch (operation)
+                            {
+                                case OperationType.Eq:
+                                    value = (string)leftConstant.Value == (string)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Neq:
+                                    value = (string)leftConstant.Value != (string)rightConstant.Value;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Gt:
+                                    value = ((string)leftConstant.Value).CompareTo((string)rightConstant.Value) > 0;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Ge:
+                                    value = ((string)leftConstant.Value).CompareTo((string)rightConstant.Value) >= 0;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Ls:
+                                    value = ((string)leftConstant.Value).CompareTo((string)rightConstant.Value) < 0;
+                                    type = ResultTypes.Boolean;
+                                    break;
+                                case OperationType.Le:
+                                    value = ((string)leftConstant.Value).CompareTo((string)rightConstant.Value) <= 0;
+                                    type = ResultTypes.Boolean;
+                                    break;
+
+                                case OperationType.Concat:
+                                    value = (string)leftConstant.Value + (string)rightConstant.Value;
+                                    type = ResultTypes.String;
+                                    break;
+                            }
+                            break;
+                    }
+                }
+                else
+                {
+                    if ((leftConstant.ResultType == ResultTypes.Integer || leftConstant.ResultType == ResultTypes.Double) &&
+                       (rightConstant.ResultType == ResultTypes.Integer || rightConstant.ResultType == ResultTypes.Double))
+                    {
+                        string leftStr = leftConstant.Value.ToString();
+                        string rightStr = rightConstant.Value.ToString();
+                        double leftValue = double.Parse(leftStr);
+                        double rightValue = double.Parse(rightStr);
+                        switch (operation)
+                        {
+                            case OperationType.Eq:
+                                value = leftValue == rightValue;
+                                type = ResultTypes.Boolean;
+                                break;
+                            case OperationType.Neq:
+                                value = leftValue != rightValue;
+                                type = ResultTypes.Boolean;
+                                break;
+                            case OperationType.Gt:
+                                value = leftValue > rightValue;
+                                type = ResultTypes.Boolean;
+                                break;
+                            case OperationType.Ge:
+                                value = leftValue >= rightValue;
+                                type = ResultTypes.Boolean;
+                                break;
+                            case OperationType.Ls:
+                                value = leftValue < rightValue;
+                                type = ResultTypes.Boolean;
+                                break;
+                            case OperationType.Le:
+                                value = leftValue <= rightValue;
+                                type = ResultTypes.Boolean;
+                                break;
+
+                            case OperationType.Plus:
+                                value = leftValue + rightValue;
+                                type = ResultTypes.Double;
+                                break;
+                            case OperationType.Minus:
+                                value = leftValue - rightValue;
+                                type = ResultTypes.Double;
+                                break;
+                            case OperationType.Mult:
+                                value = leftValue * rightValue;
+                                type = ResultTypes.Double;
+                                break;
+                            case OperationType.Div:
+                                value = leftValue / rightValue;
+                                type = ResultTypes.Double;
+                                break;
+                        }
+                    }
+
+                }
+                if(value != null)
+                    result = new SqlConstant(value, type);
+            }
+
+            return result;
+        }
+
+        private static void checkOperands(SqlBaseExpression leftOperand, OperationType operation, SqlBaseExpression rightOperand,
+            string source = null, int line = 0, int column = 0)
+        {
+            if (leftOperand.ResultType != rightOperand.ResultType)
+            {
+                if (!((leftOperand.ResultType == ResultTypes.Integer || leftOperand.ResultType == ResultTypes.Double) &&
+                   (rightOperand.ResultType == ResultTypes.Integer || rightOperand.ResultType == ResultTypes.Double)))
+                    throw new SqlParserException(new SqlError(source, line, column, $"Types of operands don't match"));
+            }
+            if (!checkOperationAndType(operation, leftOperand.ResultType))
+            {
+                throw new SqlParserException(new SqlError(source, line, column,
+                    $"Incorrect type of operation '{operation}' for type '{leftOperand.ResultType.ToString()}')"));
+            }
+        }
+
+        private static ResultTypes getResultType(OperationType operation, ResultTypes resultType)
         {
             ResultTypes result = resultType;
             if (operation == OperationType.Eq ||
@@ -116,7 +377,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return result;
         }
 
-        private bool checkOperationAndType(OperationType operation, ResultTypes resultType)
+        private static bool checkOperationAndType(OperationType operation, ResultTypes resultType)
         {
             bool isCorrect = true;
             switch (operation)

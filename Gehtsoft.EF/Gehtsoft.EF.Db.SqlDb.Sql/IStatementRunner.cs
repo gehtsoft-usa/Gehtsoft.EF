@@ -185,6 +185,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 BindParams.Add(paramName, constant.Value);
                 return GetParameter(paramName);
             }
+            else if (expression is GlobalParameter globalParameter)
+            {
+                return GetStrExpression(globalParameter.InnerExpression, out isAggregate);
+            }
             else if (expression is SqlUnarExpression unar)
             {
                 string start = string.Empty;

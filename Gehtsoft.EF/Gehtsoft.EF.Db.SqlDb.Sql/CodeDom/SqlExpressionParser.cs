@@ -11,7 +11,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     public static class SqlExpressionParser
     {
-        public static SqlBaseExpression ParseExpression(SqlStatement parentStatement, ASTNode fieldNode, string source)
+        public static SqlBaseExpression ParseExpression(Statement parentStatement, ASTNode fieldNode, string source)
         {
             SqlBaseExpression result = null;
             string operation = string.Empty;
@@ -167,7 +167,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
                         parameterNode = fieldNode.Children[1];
                     }
-                    SqlBaseExpression parameter = SqlExpressionParser.ParseExpression(parentStatement, parameterNode, source);
+                    SqlBaseExpression parameter = ParseExpression(parentStatement, parameterNode, source);
                     if (parameter.ResultType != ResultTypes.String)
                     {
                         throw new SqlParserException(new SqlError(source,
@@ -183,7 +183,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     funcName = fieldNode.Children[0].Value;
                     funcResultType = ResultTypes.String;
                     ASTNode parameterNodeStrFunc = fieldNode.Children[1];
-                    SqlBaseExpression parameterStrFunc = SqlExpressionParser.ParseExpression(parentStatement, parameterNodeStrFunc, source);
+                    SqlBaseExpression parameterStrFunc = ParseExpression(parentStatement, parameterNodeStrFunc, source);
                     if (parameterStrFunc.ResultType != ResultTypes.String)
                     {
                         throw new SqlParserException(new SqlError(source,
@@ -217,7 +217,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             funcResultType = ResultTypes.DateTime;
                             break;
                     }
-                    SqlBaseExpression parameterCustFunc = SqlExpressionParser.ParseExpression(parentStatement, parameterNodeCustFunc, source);
+                    SqlBaseExpression parameterCustFunc = ParseExpression(parentStatement, parameterNodeCustFunc, source);
                     callParameters = new SqlBaseExpressionCollection();
                     callParameters.Add(parameterCustFunc);
 
@@ -225,7 +225,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 case SqlParser.ID.VariableMathFuncCall:
                     funcName = fieldNode.Children[0].Value;
                     ASTNode parameterNodeMathFunc = fieldNode.Children[1];
-                    SqlBaseExpression parameterMathFunc = SqlExpressionParser.ParseExpression(parentStatement, parameterNodeMathFunc, source);
+                    SqlBaseExpression parameterMathFunc = ParseExpression(parentStatement, parameterNodeMathFunc, source);
                     if (parameterMathFunc.ResultType != ResultTypes.Integer && parameterMathFunc.ResultType != ResultTypes.Double)
                     {
                         throw new SqlParserException(new SqlError(source,
@@ -256,7 +256,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     funcName = fieldNode.Symbol.ID == SqlParser.ID.VariableExactLikeOp ? "LIKE" : "NOTLIKE";
                     funcResultType = ResultTypes.Boolean;
                     ASTNode parameter1Node = fieldNode.Children[0];
-                    SqlBaseExpression parameter1 = SqlExpressionParser.ParseExpression(parentStatement, parameter1Node, source);
+                    SqlBaseExpression parameter1 = ParseExpression(parentStatement, parameter1Node, source);
                     if (parameter1.ResultType != ResultTypes.String)
                     {
                         throw new SqlParserException(new SqlError(source,
@@ -265,7 +265,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             $"Incorrect type of parameter ({parameter1Node.Value ?? "null"})"));
                     }
                     ASTNode parameter2Node = fieldNode.Children[1];
-                    SqlBaseExpression parameter2 = SqlExpressionParser.ParseExpression(parentStatement, parameter2Node, source);
+                    SqlBaseExpression parameter2 = ParseExpression(parentStatement, parameter2Node, source);
                     if (parameter2.ResultType != ResultTypes.String)
                     {
                         throw new SqlParserException(new SqlError(source,
@@ -283,7 +283,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     funcName = fieldNode.Children[0].Value;
                     funcResultType = ResultTypes.Boolean;
                     ASTNode param1Node = fieldNode.Children[1];
-                    SqlBaseExpression param1 = SqlExpressionParser.ParseExpression(parentStatement, param1Node, source);
+                    SqlBaseExpression param1 = ParseExpression(parentStatement, param1Node, source);
                     if (param1.ResultType != ResultTypes.String)
                     {
                         throw new SqlParserException(new SqlError(source,
@@ -292,7 +292,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             $"Incorrect type of parameter ({param1Node.Value ?? "null"})"));
                     }
                     ASTNode param2Node = fieldNode.Children[2];
-                    SqlBaseExpression param2 = SqlExpressionParser.ParseExpression(parentStatement, param2Node, source);
+                    SqlBaseExpression param2 = ParseExpression(parentStatement, param2Node, source);
                     if (param2.ResultType != ResultTypes.String)
                     {
                         throw new SqlParserException(new SqlError(source,
@@ -318,6 +318,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 case SqlParser.ID.VariableNotNullOp:
                     unarOp = SqlUnarExpression.OperationType.IsNotNull;
                     break;
+                case SqlParser.ID.VariableGlobalParameter:
+                    result = new GlobalParameter(parentStatement, fieldNode);
+                    break;
             }
             if (funcName != null)
             {
@@ -330,13 +333,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
             if (binaryOp.HasValue)
             {
-                result = new SqlBinaryExpression(parentStatement, fieldNode.Children[0], binaryOp.Value, fieldNode.Children[1], source);
+                SqlBaseExpression mLeftOperand = ParseExpression(parentStatement, fieldNode.Children[0], source);
+                SqlBaseExpression mRightOperand = ParseExpression(parentStatement, fieldNode.Children[1], source);
+
+                SqlConstant mConstant = SqlBinaryExpression.TryGetConstant(mLeftOperand, binaryOp.Value, mRightOperand);
+                if (mConstant != null)
+                    result = mConstant;
+                else
+                    result = new SqlBinaryExpression(mLeftOperand, binaryOp.Value, mRightOperand);
             }
             if (unarOp.HasValue)
             {
-                result = new SqlUnarExpression(parentStatement, fieldNode.Children[0], unarOp.Value, source);
+                SqlBaseExpression mOperand = ParseExpression(parentStatement, fieldNode.Children[0], source);
+
+                SqlConstant mConstant = SqlUnarExpression.TryGetConstant(mOperand, unarOp.Value);
+                if (mConstant != null)
+                    result = mConstant;
+                else
+                    result = new SqlUnarExpression(mOperand, unarOp.Value);
             }
-            if(inOp.HasValue)
+            if (inOp.HasValue)
             {
                 result = new SqlInExpression(parentStatement, fieldNode.Children[0], inOp.Value, fieldNode.Children[1], source);
             }

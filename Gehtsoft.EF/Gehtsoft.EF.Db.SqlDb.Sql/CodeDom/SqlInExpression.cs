@@ -71,7 +71,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlInExpression(SqlStatement parentStatement, ASTNode leftOperand, OperationType operation, ASTNode rightOperand, string source)
+        internal SqlInExpression(Statement parentStatement, ASTNode leftOperand, OperationType operation, ASTNode rightOperand, string source)
         {
             mLeftOperand = SqlExpressionParser.ParseExpression(parentStatement, leftOperand, source);
             if (rightOperand.Symbol.ID == SqlParser.ID.VariableInValueArgs)
