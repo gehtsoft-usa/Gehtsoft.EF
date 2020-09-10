@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
-    internal class InsertRunner : StatementRunner<SqlInsertStatement>
+    internal class InsertRunner : SqlStatementRunner<SqlInsertStatement>
     {
         private SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;

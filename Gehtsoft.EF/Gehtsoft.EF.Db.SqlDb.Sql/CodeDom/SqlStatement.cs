@@ -101,7 +101,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return (this.Id == other.Id);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(Statement obj)
         {
             if (obj is SqlStatement item)
                 return Equals(item);

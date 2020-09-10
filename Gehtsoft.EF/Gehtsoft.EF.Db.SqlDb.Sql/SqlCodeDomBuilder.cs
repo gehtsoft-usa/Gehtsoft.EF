@@ -15,11 +15,11 @@ using System.Text;
 using System.Threading.Tasks;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
-[assembly: InternalsVisibleTo("Gehtsoft.EF.Db.SqlDb.Sql.Test,PublicKey="+
-"00240000048000009400000006020000002400005253413100040000010001005d19d6f6a54328"+
-"9d63039adebf287aeb946fb5920d9318135d576d3b8eef0e9e8f81bfc95e6735e7bfbe059ed389"+
-"cacf829780c9b2a5095dd47c15f10d40f1843828c85a6232802d1a21dafe16f1381facd2b11008"+
-"e6be0ab0795400f6c5d12c76f2ea5dcd82464fb5f4a0589097346872f683e3bca6d4ec9ed917dc"+
+[assembly: InternalsVisibleTo("Gehtsoft.EF.Db.SqlDb.Sql.Test,PublicKey=" +
+"00240000048000009400000006020000002400005253413100040000010001005d19d6f6a54328" +
+"9d63039adebf287aeb946fb5920d9318135d576d3b8eef0e9e8f81bfc95e6735e7bfbe059ed389" +
+"cacf829780c9b2a5095dd47c15f10d40f1843828c85a6232802d1a21dafe16f1381facd2b11008" +
+"e6be0ab0795400f6c5d12c76f2ea5dcd82464fb5f4a0589097346872f683e3bca6d4ec9ed917dc" +
 "9276c1cf")]
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
@@ -111,7 +111,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                                 EntityPropertyAttribute innerPropertyAttribute = innerPropertyAccessor.GetCustomAttribute<EntityPropertyAttribute>();
                                 if (innerPropertyAttribute != null)
                                 {
-                                    if(innerPropertyAttribute.PrimaryKey)
+                                    if (innerPropertyAttribute.PrimaryKey)
                                     {
                                         propertyType = innerPropertyInfo.PropertyType;
                                         break;
@@ -128,7 +128,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         public object Run(ISqlDbConnectionFactory connectionFactory)
         {
             object result = null;
-            SqlDbConnection connection =  connectionFactory.GetConnection();
+            SqlDbConnection connection = connectionFactory.GetConnection();
             try
             {
                 result = Run(connection);
@@ -147,32 +147,45 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             if (mLastParse == null)
                 throw new ArgumentException("Nothing parsed yet");
 
-            foreach (SqlStatement statement in mLastParse)
+            foreach (Statement statement in mLastParse)
             {
-                switch (statement.Id)
+                if (statement is SqlStatement sqlStatement)
                 {
-                    case SqlStatement.StatementId.Select:
-                        SelectRunner selectRunner = new SelectRunner(this, connection);
-                        result = selectRunner.Run(statement as SqlSelectStatement);
-                        break;
+                    switch (sqlStatement.Id)
+                    {
+                        case SqlStatement.StatementId.Select:
+                            SelectRunner selectRunner = new SelectRunner(this, connection);
+                            result = selectRunner.Run(sqlStatement as SqlSelectStatement);
+                            break;
 
-                    case SqlStatement.StatementId.Insert:
-                        InsertRunner insertRunner = new InsertRunner(this, connection);
-                        result = insertRunner.Run(statement as SqlInsertStatement);
-                        break;
+                        case SqlStatement.StatementId.Insert:
+                            InsertRunner insertRunner = new InsertRunner(this, connection);
+                            result = insertRunner.Run(sqlStatement as SqlInsertStatement);
+                            break;
 
-                    case SqlStatement.StatementId.Update:
-                        UpdateRunner updateRunner = new UpdateRunner(this, connection);
-                        result = updateRunner.Run(statement as SqlUpdateStatement);
-                        break;
+                        case SqlStatement.StatementId.Update:
+                            UpdateRunner updateRunner = new UpdateRunner(this, connection);
+                            result = updateRunner.Run(sqlStatement as SqlUpdateStatement);
+                            break;
 
-                    case SqlStatement.StatementId.Delete:
-                        DeleteRunner deleteRunner = new DeleteRunner(this, connection);
-                        result = deleteRunner.Run(statement as SqlDeleteStatement);
-                        break;
+                        case SqlStatement.StatementId.Delete:
+                            DeleteRunner deleteRunner = new DeleteRunner(this, connection);
+                            result = deleteRunner.Run(sqlStatement as SqlDeleteStatement);
+                            break;
 
-                    default:
-                        throw new Exception($"Unknown statement '{statement.Id}'");
+                        default:
+                            throw new Exception($"Unknown statement '{sqlStatement.Id}'");
+                    }
+                }
+                else
+                {
+                    switch (statement.Type)
+                    {
+                        case Statement.StatementType.Set:
+                            SetRunner setRunner = new SetRunner(this, connection);
+                            result = setRunner.Run(statement as SetStatement);
+                            break;
+                    }
                 }
             }
 
@@ -180,7 +193,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         }
 
 
-        private Dictionary<string, SqlBaseExpression> globalParameters = new Dictionary<string, SqlBaseExpression>();
+        private Dictionary<string, SqlConstant> globalParameters = new Dictionary<string, SqlConstant>();
 
         internal bool AddGlobalParameter(string name, ResultTypes resultType)
         {
@@ -190,7 +203,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return true;
         }
 
-        internal SqlBaseExpression FindGlobalParameter(string name)
+        internal void UpdateGlobalParameter(string name, SqlConstant value)
+        {
+            if (!globalParameters.ContainsKey(name))
+                globalParameters.Add(name, value);
+            else
+                globalParameters[name] = value;
+        }
+
+        internal SqlConstant FindGlobalParameter(string name)
         {
             if (globalParameters.ContainsKey(name))
                 return globalParameters[name];

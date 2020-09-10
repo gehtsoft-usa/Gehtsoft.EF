@@ -5,9 +5,12 @@ using Gehtsoft.EF.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
@@ -21,7 +24,272 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         Dictionary<string, object> BindParams { get; }
     }
 
-    public abstract class StatementRunner<T> : IStatementRunner<T>, IBindParamsOwner
+    public abstract class StatementRunner<T> : IStatementRunner<T>
+    {
+        public abstract object Run(T statement);
+
+        protected abstract SqlDbConnection Connection { get; }
+
+        protected abstract SqlCodeDomBuilder CodeDomBuilder { get; }
+
+        protected SqlConstant CalculateExpression(SqlBaseExpression expression)
+        {
+            if (expression is SqlField field)
+            {
+                return null;
+            }
+            else if (expression is SqlAggrFunc aggrFunc)
+            {
+                return null;
+            }
+            else if (expression is SqlBinaryExpression binaryExpression)
+            {
+                SqlBaseExpression leftOperand = CalculateExpression(binaryExpression.LeftOperand);
+                SqlBaseExpression rightOperand = CalculateExpression(binaryExpression.RightOperand);
+
+                if (leftOperand == null || !(leftOperand is SqlConstant) || rightOperand == null || !(rightOperand is SqlConstant))
+                    return null;
+
+                return SqlBinaryExpression.TryGetConstant(leftOperand, binaryExpression.Operation, rightOperand);
+            }
+            else if (expression is SqlConstant constant)
+            {
+                return constant;
+            }
+            else if (expression is GlobalParameter globalParameter)
+            {
+                return CalculateExpression(globalParameter.InnerExpression);
+            }
+            else if (expression is SqlUnarExpression unar)
+            {
+                SqlBaseExpression operand = CalculateExpression(unar.Operand);
+
+                if (operand == null || !(operand is SqlConstant))
+                    return null;
+
+                return SqlUnarExpression.TryGetConstant(operand, unar.Operation);
+            }
+            else if (expression is SqlCallFuncExpression callFunc)
+            {
+                List<SqlConstant> pars = new List<SqlConstant>();
+                foreach (SqlBaseExpression expr in callFunc.Parameters)
+                {
+                    SqlBaseExpression curr = CalculateExpression(expr);
+                    if (curr is SqlConstant cnst)
+                    {
+                        pars.Add(cnst);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+                ResultTypes resultType = ResultTypes.Unknown;
+                object value = null;
+
+                try
+                {
+                    switch (callFunc.Name)
+                    {
+                        case "TRIM":
+                            resultType = ResultTypes.String;
+                            value = ((string)pars[0].Value).Trim();
+                            break;
+                        case "LTRIM":
+                            resultType = ResultTypes.String;
+                            value = ((string)pars[0].Value).TrimStart();
+                            break;
+                        case "RTRIM":
+                            resultType = ResultTypes.String;
+                            value = ((string)pars[0].Value).TrimEnd();
+                            break;
+                        case "UPPER":
+                            resultType = ResultTypes.String;
+                            value = ((string)pars[0].Value).ToUpper();
+                            break;
+                        case "LOWER":
+                            resultType = ResultTypes.String;
+                            value = ((string)pars[0].Value).ToLower();
+                            break;
+                        case "TOSTRING":
+                            resultType = ResultTypes.String;
+                            value = ((string)pars[0].Value).ToString();
+                            break;
+                        case "TOINTEGER":
+                            int intRes;
+                            if (int.TryParse((string)pars[0].Value, out intRes))
+                            {
+                                resultType = ResultTypes.Integer;
+                                value = intRes;
+                            }
+                            break;
+                        case "TODOUBLE":
+                            double doubleRes;
+                            if (double.TryParse((string)pars[0].Value, out doubleRes))
+                            {
+                                resultType = ResultTypes.Double;
+                                value = doubleRes;
+                            }
+                            break;
+                        case "TODATE":
+                            DateTime? dtt = tryParseDateTime((string)pars[0].Value);
+                            if (dtt.HasValue)
+                            {
+                                resultType = ResultTypes.DateTime;
+                                value = dtt.Value;
+                            }
+                            break;
+                        case "TOTIMESTAMP":
+                            DateTime? dtt1 = tryParseDateTime((string)pars[0].Value);
+                            if (dtt1.HasValue)
+                            {
+                                resultType = ResultTypes.Integer;
+                                value = unixTimeStampUTC(dtt1.Value);
+                            }
+                            break;
+                        case "ABS":
+                            if (pars[0].ResultType == ResultTypes.Integer)
+                            {
+                                resultType = ResultTypes.Integer;
+                                value = Math.Abs((int)pars[0].Value);
+                            }
+                            else if (pars[0].ResultType == ResultTypes.Double)
+                            {
+                                resultType = ResultTypes.Double;
+                                value = Math.Abs((double)pars[0].Value);
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                            break;
+                        case "LIKE":
+                            resultType = ResultTypes.Boolean;
+                            value = ((string)pars[0].Value).Like(((string)pars[1].Value));
+                            break;
+                        case "NOTLIKE":
+                            resultType = ResultTypes.Boolean;
+                            value = !((string)pars[0].Value).Like(((string)pars[1].Value));
+                            break;
+                        case "STARTSWITH":
+                            resultType = ResultTypes.Boolean;
+                            value = !((string)pars[0].Value).StartsWith(((string)pars[1].Value));
+                            break;
+                        case "ENDSWITH":
+                            resultType = ResultTypes.Boolean;
+                            value = !((string)pars[0].Value).EndsWith(((string)pars[1].Value));
+                            break;
+                        case "CONTAINS":
+                            resultType = ResultTypes.Boolean;
+                            value = !((string)pars[0].Value).Contains(((string)pars[1].Value));
+                            break;
+                    }
+                }
+                catch
+                {
+                    return null;
+                }
+                return new SqlConstant(value, resultType);
+            }
+            else if (expression is SqlInExpression inExpression)
+            {
+                bool inExpressionResult = false;
+                SqlBaseExpression leftOperand = CalculateExpression(inExpression.LeftOperand);
+                if (leftOperand == null || !(leftOperand is SqlConstant))
+                    return null;
+
+                SqlBaseExpression rightOperand = null;
+                if (inExpression.RightOperandAsList != null)
+                {
+                    foreach (SqlBaseExpression expr in inExpression.RightOperandAsList)
+                    {
+                        rightOperand = CalculateExpression(inExpression.LeftOperand);
+                        if (rightOperand == null || !(rightOperand is SqlConstant))
+                            return null;
+                        if(((SqlConstant)leftOperand).Equals((SqlConstant)rightOperand))
+                        {
+                            inExpressionResult = true;
+                            break;
+                        }
+                    }
+                }
+                else if (inExpression.RightOperandAsSelect != null)
+                {
+                    SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection);
+                    List<object> selectResult = runner.Run(inExpression.RightOperandAsSelect) as List<object>;
+                    foreach(object recordObj in selectResult)
+                    {
+                        Dictionary<string, object> record = recordObj as Dictionary<string, object>;
+                        if(((SqlConstant)leftOperand).Value.Equals(record[record.Keys.First()]))
+                        {
+                            inExpressionResult = true;
+                            break;
+                        }
+                    }
+                }
+                return new SqlConstant(inExpressionResult, ResultTypes.Boolean);
+            }
+            else if (expression is SqlSelectExpression selectExpression)
+            {
+                SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection);
+                List<object> selectResult = runner.Run(selectExpression.SelectStatement) as List<object>;
+                if (selectResult.Count > 0)
+                {
+                    object recordObj = selectResult[0];
+                    Dictionary<string, object> record = recordObj as Dictionary<string, object>;
+                    return new SqlConstant(record[record.Keys.First()], selectExpression.ResultType);
+                }
+                else
+                {
+                    return new SqlConstant(null, selectExpression.ResultType);
+                }
+            }
+            return null;
+        }
+
+        private DateTime? tryParseDateTime(string strDateTime)
+        {
+            DateTime dtt;
+            if (!DateTime.TryParseExact(strDateTime,
+                "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
+            {
+                if (!DateTime.TryParseExact(strDateTime,
+                    "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
+                {
+                    if (!DateTime.TryParseExact(strDateTime,
+                        "yyyy-MM-dd HH", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
+                    {
+                        if (!DateTime.TryParseExact(strDateTime,
+                            "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
+                        {
+                            return null;
+                        }
+                    }
+                }
+            }
+            return dtt;
+        }
+
+        public int unixTimeStampUTC(DateTime currentTime)
+        {
+            int unixTimeStamp;
+            DateTime zuluTime = currentTime.ToUniversalTime();
+            DateTime unixEpoch = new DateTime(1970, 1, 1);
+            unixTimeStamp = (Int32)(zuluTime.Subtract(unixEpoch)).TotalSeconds;
+            return unixTimeStamp;
+        }
+
+        public enum ArifOp
+        {
+            Add,
+            Minus,
+            Divide,
+            Multiply
+        }
+    }
+
+    public abstract class SqlStatementRunner<T> : StatementRunner<T>, IBindParamsOwner
     {
         protected IBindParamsOwner BindParamsOwner { get; set; } = null;
 
@@ -37,17 +305,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public abstract object Run(T statement);
-
         public abstract AQueryBuilder GetQueryBuilder(T statement);
 
         protected abstract SqlStatement SqlStatement { get; }
 
         protected abstract QueryWithWhereBuilder MainBuilder { get; }
-
-        protected abstract SqlDbConnection Connection { get; }
-
-        protected abstract SqlCodeDomBuilder CodeDomBuilder { get; }
 
         protected string GetStrExpression(SqlBaseExpression expression)
         {
@@ -363,7 +625,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection, this);
                 AQueryBuilder builder = runner.GetQueryBuilder(selectExpression.SelectStatement);
                 builder.PrepareQuery();
-                return$"({builder.Query})";
+                return $"({builder.Query})";
             }
             return null;
         }
@@ -374,14 +636,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 return MainBuilder.GetAlias(info, entity);
 
             return $"{info.Name}";
-        }
-
-        public enum ArifOp
-        {
-            Add,
-            Minus,
-            Divide,
-            Multiply
         }
 
         internal string GetArifOp(ArifOp op, string leftSide, string rightSide)
@@ -482,5 +736,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return result;
         }
 
+    }
+    public static class MyStringExtensions
+    {
+        public static bool Like(this string toSearch, string toFind)
+        {
+            return new Regex(@"\A" + new Regex(@"\.|\$|\^|\{|\[|\(|\||\)|\*|\+|\?|\\").Replace(toFind, ch => @"\" + ch).Replace('_', '.').Replace("%", ".*") + @"\z", RegexOptions.Singleline).IsMatch(toSearch);
+        }
     }
 }

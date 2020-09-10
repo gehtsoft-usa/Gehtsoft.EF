@@ -72,6 +72,7 @@
     <Compile Include="InsertRunner.cs" />
     <Compile Include="IStatementRunner.cs" />
     <Compile Include="SelectRunner.cs" />
+    <Compile Include="SetRunner.cs" />
     <Compile Include="SqlASTVisitor.cs" />
     <Compile Include="SqlCodeDomBuilder.cs" />
     <Compile Include="SqlError.cs" />

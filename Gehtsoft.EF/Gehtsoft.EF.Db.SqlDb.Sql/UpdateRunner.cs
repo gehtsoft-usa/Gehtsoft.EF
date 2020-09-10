@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
-    internal class UpdateRunner : StatementRunner<SqlUpdateStatement>
+    internal class UpdateRunner : SqlStatementRunner<SqlUpdateStatement>
     {
         private SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
-    internal class DeleteRunner : StatementRunner<SqlDeleteStatement>
+    internal class DeleteRunner : SqlStatementRunner<SqlDeleteStatement>
     {
         private SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;

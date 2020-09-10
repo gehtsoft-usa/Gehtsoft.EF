@@ -36,7 +36,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 return reval;
             }
         }
-        public SqlBaseExpression InnerExpression
+        public SqlConstant InnerExpression
         {
             get
             {
