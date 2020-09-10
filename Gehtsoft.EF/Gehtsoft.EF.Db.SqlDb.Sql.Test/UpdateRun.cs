@@ -50,7 +50,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             );
             result = DomBuilder.Run(connection);
             array = result as List<object>;
-            Int64 insertedID = (Int64)(array[0]);
+            Int64 insertedID = (Int64)(array[0] as Dictionary<string, object>)["LastInsertedId"];
 
             DomBuilder.Parse("test", $"SELECT * FROM Shipper LIMIT 1");
             result = DomBuilder.Run(connection);
@@ -70,6 +70,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 $"Region = 'was here: ' || (SELECT Region FROM Employee WHERE PostalCode= '98122') " +
                 $"WHERE SupplierID={insertedID}");
             result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            int updated = (int)(array[0] as Dictionary<string, object>)["Updated"];
+            updated.Should().Be(1);
 
             DomBuilder.Parse("test", $"SELECT * FROM Supplier WHERE SupplierID={insertedID}");
             result = DomBuilder.Run(connection);

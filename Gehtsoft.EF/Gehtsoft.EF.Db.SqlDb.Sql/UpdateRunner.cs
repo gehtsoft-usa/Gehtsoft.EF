@@ -147,12 +147,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 {
                     ApplyBindParams(query);
 
-                    query.ExecuteReader();
-                    while (query.ReadNext())
-                    {
-                        object o = bindRecord(query);
-                        result.Add(o);
-                    }
+                    int updated = query.ExecuteNoData();
+                    Dictionary<string, object> subResult = new Dictionary<string, object>();
+                    subResult.Add("Updated", updated);
+                    result.Add(subResult);
                 }
             }
             finally
@@ -163,13 +161,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         mConnection.Dispose();
                 }
             }
-            return result;
-        }
-
-        private object bindRecord(SqlDbQuery query)
-        {
-            object result = null;
-            if (query.FieldCount > 0) result = query.GetValue(0);
             return result;
         }
     }

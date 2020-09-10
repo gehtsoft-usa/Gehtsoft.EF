@@ -55,7 +55,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             );
             result = DomBuilder.Run(connection);
             array = result as List<object>;
-            Int64 insertedID = (Int64)(array[0]);
+            Int64 insertedID = (Int64)(array[0] as Dictionary<string, object>)["LastInsertedId"];
 
             DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = DomBuilder.Run(connection);
@@ -66,6 +66,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             DomBuilder.Parse("test", $"DELETE FROM Supplier " +
                 $"WHERE SupplierID={insertedID}");
             result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            int deleted = (int)(array[0] as Dictionary<string, object>)["Deleted"];
+            deleted.Should().Be(1);
 
             DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = DomBuilder.Run(connection);
@@ -76,6 +79,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             DomBuilder.Parse("test", $"DELETE FROM Supplier " +
                 $"WHERE SupplierID={insertedID}");
             result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            deleted = (int)(array[0] as Dictionary<string, object>)["Deleted"];
+            deleted.Should().Be(0);
 
             DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = DomBuilder.Run(connection);

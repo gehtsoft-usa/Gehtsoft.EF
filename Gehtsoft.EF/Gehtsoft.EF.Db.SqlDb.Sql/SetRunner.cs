@@ -43,8 +43,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         public override object Run(SetStatement setStatement)
         {
-            List<object> result = new List<object>();
-
             foreach(SetItem item in setStatement.SetItems)
             {
                 string name = item.Name;
@@ -57,7 +55,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 mBuilder.UpdateGlobalParameter($"?{name}", resultConstant);
             }
 
-            return result;
+            return null;
         }
     }
 }

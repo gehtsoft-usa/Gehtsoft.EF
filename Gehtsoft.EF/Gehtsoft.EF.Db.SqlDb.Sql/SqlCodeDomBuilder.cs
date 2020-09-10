@@ -183,7 +183,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     {
                         case Statement.StatementType.Set:
                             SetRunner setRunner = new SetRunner(this, connection);
-                            result = setRunner.Run(statement as SetStatement);
+                            setRunner.Run(statement as SetStatement);
                             break;
                     }
                 }

@@ -117,13 +117,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 using (SqlDbQuery query = mConnection.GetQuery(mDeleteBuilder))
                 {
                     ApplyBindParams(query);
-
-                    query.ExecuteReader();
-                    while (query.ReadNext())
-                    {
-                        object o = bindRecord(query);
-                        result.Add(o);
-                    }
+                    int deleted = query.ExecuteNoData();
+                    Dictionary<string, object> subResult = new Dictionary<string, object>();
+                    subResult.Add("Deleted", deleted);
+                    result.Add(subResult);
                 }
             }
             finally
@@ -134,13 +131,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         mConnection.Dispose();
                 }
             }
-            return result;
-        }
-
-        private object bindRecord(SqlDbQuery query)
-        {
-            object result = null;
-            if (query.FieldCount > 0) result = query.GetValue(0);
             return result;
         }
     }

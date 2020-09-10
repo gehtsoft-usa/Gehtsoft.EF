@@ -183,8 +183,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         private object bindRecord(SqlDbQuery query)
         {
-            object result = null;
-            if (query.FieldCount > 0) result = query.GetValue(0);
+            Dictionary<string, object> result = new Dictionary<string, object>();
+            if (query.FieldCount > 0) result.Add("LastInsertedId", query.GetValue(0));
             return result;
         }
     }
