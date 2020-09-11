@@ -47,23 +47,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return result.Root;
         }
 
-        private StatementCollection mLastParse = null;
+        private StatementSetEnvironment mLastParse = null;
 
-        public StatementCollection Parse(string name, TextReader source)
+        public StatementSetEnvironment Parse(string name, TextReader source)
         {
             var root = ParseToRawTree(name, source);
             var visitor = new SqlASTVisitor();
-            mLastParse = visitor.VisitStatements(this, name, root); // for possible run later
+            StatementSetEnvironment initialSet = new StatementSetEnvironment();
+            initialSet.ParentEnvironment = null;
+            initialSet.ParentStatement = null;
+            mLastParse = visitor.VisitStatements(this, name, root, initialSet); // for possible run later
             return mLastParse;
         }
-        public StatementCollection Parse(string name, string source)
+        public StatementSetEnvironment Parse(string name, string source)
         {
             using (var reader = new StringReader(source))
             {
                 return Parse(name, reader);
             }
         }
-        public StatementCollection Parse(string fileName, Encoding encoding = null)
+        public StatementSetEnvironment Parse(string fileName, Encoding encoding = null)
         {
             using (StreamReader sr = new StreamReader(fileName, encoding ?? Encoding.UTF8, true))
             {
@@ -71,8 +74,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        private Dictionary<string, Type> mTypeNameToEntity = new Dictionary<string, Type>();
-        private Dictionary<Type, List<Tuple<string, string, Type>>> mTypeToFields = new Dictionary<Type, List<Tuple<string, string, Type>>>();
+        protected Dictionary<string, Type> mTypeNameToEntity = new Dictionary<string, Type>();
+        protected Dictionary<Type, List<Tuple<string, string, Type>>> mTypeToFields = new Dictionary<Type, List<Tuple<string, string, Type>>>();
 
         public Type TypeByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item3;
         public string FieldByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item2;
@@ -125,6 +128,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
+        public SqlCodeDomBuilder NewEnvironment()
+        {
+            SqlCodeDomBuilder retval = new SqlCodeDomBuilder();
+            retval.mTypeNameToEntity = mTypeNameToEntity;
+            retval.mTypeToFields = mTypeToFields;
+
+            return retval;
+        }
+
         public object Run(ISqlDbConnectionFactory connectionFactory)
         {
             object result = null;
@@ -143,78 +155,139 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         public object Run(SqlDbConnection connection)
         {
-            object result = null;
             if (mLastParse == null)
                 throw new ArgumentException("Nothing parsed yet");
 
-            foreach (Statement statement in mLastParse)
+            mLastParse.ParentEnvironment = null;
+            mLastParse.ParentStatement = null;
+            TopEnvironment = mLastParse;
+            return Run(connection, mLastParse);
+        }
+
+        internal object LastStatementResult
+        {
+            get
             {
-                if (statement is SqlStatement sqlStatement)
+                IStatementSetEnvironment current = TopEnvironment;
+                while (current != null)
                 {
-                    switch (sqlStatement.Id)
+                    if (current.LastStatementResult != null)
+                        return current.LastStatementResult;
+                    current = current.ParentEnvironment;
+                }
+                return new List<object>();
+            }
+        }
+
+        internal object Run(SqlDbConnection connection, StatementSetEnvironment statements)
+        {
+            statements.ClearEnvironment();
+            statements.LastStatementResult = null;
+            bool cont = true;
+            while (cont)
+            {
+                foreach (Statement statement in statements)
+                {
+                    if (statement is SqlStatement sqlStatement)
                     {
-                        case SqlStatement.StatementId.Select:
-                            SelectRunner selectRunner = new SelectRunner(this, connection);
-                            result = selectRunner.Run(sqlStatement as SqlSelectStatement);
-                            break;
+                        switch (sqlStatement.Id)
+                        {
+                            case SqlStatement.StatementId.Select:
+                                SelectRunner selectRunner = new SelectRunner(this, connection);
+                                statements.LastStatementResult = selectRunner.Run(sqlStatement as SqlSelectStatement);
+                                break;
 
-                        case SqlStatement.StatementId.Insert:
-                            InsertRunner insertRunner = new InsertRunner(this, connection);
-                            result = insertRunner.Run(sqlStatement as SqlInsertStatement);
-                            break;
+                            case SqlStatement.StatementId.Insert:
+                                InsertRunner insertRunner = new InsertRunner(this, connection);
+                                statements.LastStatementResult = insertRunner.Run(sqlStatement as SqlInsertStatement);
+                                break;
 
-                        case SqlStatement.StatementId.Update:
-                            UpdateRunner updateRunner = new UpdateRunner(this, connection);
-                            result = updateRunner.Run(sqlStatement as SqlUpdateStatement);
-                            break;
+                            case SqlStatement.StatementId.Update:
+                                UpdateRunner updateRunner = new UpdateRunner(this, connection);
+                                statements.LastStatementResult = updateRunner.Run(sqlStatement as SqlUpdateStatement);
+                                break;
 
-                        case SqlStatement.StatementId.Delete:
-                            DeleteRunner deleteRunner = new DeleteRunner(this, connection);
-                            result = deleteRunner.Run(sqlStatement as SqlDeleteStatement);
-                            break;
+                            case SqlStatement.StatementId.Delete:
+                                DeleteRunner deleteRunner = new DeleteRunner(this, connection);
+                                statements.LastStatementResult = deleteRunner.Run(sqlStatement as SqlDeleteStatement);
+                                break;
 
-                        default:
-                            throw new Exception($"Unknown statement '{sqlStatement.Id}'");
+                            default:
+                                throw new Exception($"Unknown statement '{sqlStatement.Id}'");
+                        }
                     }
+                    else
+                    {
+                        switch (statement.Type)
+                        {
+                            case Statement.StatementType.Set:
+                                SetRunner setRunner = new SetRunner(this, connection);
+                                setRunner.Run(statement as SetStatement);
+                                break;
+                            case Statement.StatementType.Exit:
+                                ExitRunner exitRunner = new ExitRunner(this, connection, statements);
+                                exitRunner.Run(statement as ExitStatement);
+                                break;
+                        }
+                    }
+                    if (statements.Leave)
+                    {
+                        statements.Leave = false;
+                        break;
+                    }
+                }
+
+                if (statements.Continue)
+                {
+                    cont = true;
+                    statements.Continue = false;
                 }
                 else
                 {
-                    switch (statement.Type)
-                    {
-                        case Statement.StatementType.Set:
-                            SetRunner setRunner = new SetRunner(this, connection);
-                            setRunner.Run(statement as SetStatement);
-                            break;
-                    }
+                    cont = false;
                 }
             }
-
-            return result;
+            TopEnvironment = statements.ParentEnvironment;
+            return statements.LastStatementResult;
         }
 
+        internal IStatementSetEnvironment TopEnvironment { get; set; } = null;
 
-        private Dictionary<string, SqlConstant> globalParameters = new Dictionary<string, SqlConstant>();
+        private IStatementSetEnvironment findEnvironmentWithParameter(string name)
+        {
+            IStatementSetEnvironment current = TopEnvironment;
+            while(current != null)
+            {
+                if (current.ContainsGlobalParameter(name))
+                    return current;
+                current = current.ParentEnvironment;
+            }
+            return null;
+        }
 
         internal bool AddGlobalParameter(string name, ResultTypes resultType)
         {
-            if (globalParameters.ContainsKey(name))
+            IStatementSetEnvironment found = findEnvironmentWithParameter(name);
+            if (found != null)
                 return false;
-            globalParameters.Add(name, new SqlConstant(null, resultType));
+            TopEnvironment.AddGlobalParameter(name, new SqlConstant(null, resultType));
             return true;
         }
 
         internal void UpdateGlobalParameter(string name, SqlConstant value)
         {
-            if (!globalParameters.ContainsKey(name))
-                globalParameters.Add(name, value);
+            IStatementSetEnvironment found = findEnvironmentWithParameter(name);
+            if (found == null)
+                TopEnvironment.AddGlobalParameter(name, value);
             else
-                globalParameters[name] = value;
+                found.UpdateGlobalParameter(name, value);
         }
 
         internal SqlConstant FindGlobalParameter(string name)
         {
-            if (globalParameters.ContainsKey(name))
-                return globalParameters[name];
+            IStatementSetEnvironment found = findEnvironmentWithParameter(name);
+            if (found != null)
+                return found.FindGlobalParameter(name);
             return null;
         }
     }

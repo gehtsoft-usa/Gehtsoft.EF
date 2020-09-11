@@ -24,16 +24,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             get
             {
+                if (mResultType.HasValue) return mResultType.Value;
                 if (InnerExpression == null)
                 {
-                    return mResultType.HasValue ? mResultType.Value : ResultTypes.Unknown;
+                    mResultType = mResultType.HasValue ? mResultType.Value : ResultTypes.Unknown;
                 }
-                ResultTypes reval = InnerExpression.ResultType;
-                if (reval == ResultTypes.Unknown && mResultType.HasValue)
+                else
                 {
-                    reval = mResultType.Value;
+                    mResultType = InnerExpression.ResultType;
                 }
-                return reval;
+                return mResultType.Value;
             }
         }
         public SqlConstant InnerExpression
@@ -55,24 +55,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mParentStatement = parentStatement;
             if (node.Children.Count > 1)
             {
-                switch (node.Children[1].Value)
-                {
-                    case "STRING":
-                        mResultType = ResultTypes.String;
-                        break;
-                    case "INTEGER":
-                        mResultType = ResultTypes.Integer;
-                        break;
-                    case "DOUBLE":
-                        mResultType = ResultTypes.Double;
-                        break;
-                    case "BOOLEAN":
-                        mResultType = ResultTypes.Boolean;
-                        break;
-                    case "DATETIME":
-                        mResultType = ResultTypes.DateTime;
-                        break;
-                }
+                mResultType = Statement.GetResultTypeByName(node.Children[1].Value);
+            }
+            else
+            {
+                // try find declared
+                ResultTypes rType = ResultType;
             }
         }
 

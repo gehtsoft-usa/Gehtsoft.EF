@@ -26,7 +26,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SetParse1()
         {
-            StatementCollection result = DomBuilder.Parse("test",
+            StatementSetEnvironment result = DomBuilder.Parse("test",
                 "SET qqq = 'Con' || '%'"
             );
 
@@ -35,7 +35,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 new SetItem("qqq", new SqlConstant("Con%", SqlBaseExpression.ResultTypes.String))
             });
 
-            StatementCollection target = new StatementCollection() { set };
+            StatementSetEnvironment target = new StatementSetEnvironment() { set };
 
             result.Equals(target).Should().BeTrue();
         }
@@ -43,7 +43,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SetParse2()
         {
-            StatementCollection result = DomBuilder.Parse("test",
+            StatementSetEnvironment result = DomBuilder.Parse("test",
                 "SET qqq = UPPER(?mmm AS STRING) = 'WWWWW'"
             );
 
@@ -57,7 +57,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                     ))
             });
 
-            StatementCollection target = new StatementCollection() { set };
+            StatementSetEnvironment target = new StatementSetEnvironment() { set };
 
             result.Equals(target).Should().BeTrue();
         }
@@ -65,7 +65,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SetPars3()
         {
-            StatementCollection result = DomBuilder.Parse("test",
+            StatementSetEnvironment result = DomBuilder.Parse("test",
                 "DECLARE qqq AS BOOLEAN, mmm AS STRING;" +
                 "SET qqq = UPPER(?mmm) = 'WWWWW';"
             );
@@ -80,7 +80,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                     ))
             });
 
-            StatementCollection target = new StatementCollection() { set };
+            StatementSetEnvironment target = new StatementSetEnvironment() { set };
 
             result.Equals(target).Should().BeTrue();
         }

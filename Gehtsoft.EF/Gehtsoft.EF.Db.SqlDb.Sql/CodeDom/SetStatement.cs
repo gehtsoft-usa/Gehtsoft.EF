@@ -55,6 +55,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             SetItems = setItems;
         }
+
+        public virtual bool Equals(SetStatement other)
+        {
+            if (other is SetStatement stmt)
+            {
+                if (SetItems == null && stmt.SetItems != null)
+                    return false;
+                if (SetItems != null && !SetItems.Equals(stmt.SetItems))
+                    return false;
+                return true;
+            }
+            return base.Equals(other);
+        }
+
+        public override bool Equals(Statement obj)
+        {
+            if (obj is SetStatement item)
+                return Equals(item);
+            return base.Equals(obj);
+        }
     }
 
     public class SetItem : IEquatable<SetItem>

@@ -36,7 +36,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     opType = ResultTypes.Unknown;
                     constant = "NULL";
                     break;
-                case SqlLexer.ID.TerminalInteger:
+                case SqlLexer.ID.TerminalInt:
                     opType = ResultTypes.Integer;
                     constant = int.Parse(fieldNode.Value);
                     break;
@@ -320,6 +320,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     break;
                 case SqlParser.ID.VariableGlobalParameter:
                     result = new GlobalParameter(parentStatement, fieldNode);
+                    break;
+                case SqlParser.ID.VariableLastResultCall:
+                    result = new GetLastResult();
+                    break;
+                case SqlParser.ID.VariableRowsCountCall:
+                    result = new GetRowsCount(parentStatement, fieldNode, source);
                     break;
             }
             if (funcName != null)

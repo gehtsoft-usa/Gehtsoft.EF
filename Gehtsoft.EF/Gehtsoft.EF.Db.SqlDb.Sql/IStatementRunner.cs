@@ -47,7 +47,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 SqlBaseExpression leftOperand = CalculateExpression(binaryExpression.LeftOperand);
                 SqlBaseExpression rightOperand = CalculateExpression(binaryExpression.RightOperand);
 
-                if (leftOperand == null || !(leftOperand is SqlConstant) || rightOperand == null || !(rightOperand is SqlConstant))
+                if (leftOperand == null || rightOperand == null)
                     return null;
 
                 return SqlBinaryExpression.TryGetConstant(leftOperand, binaryExpression.Operation, rightOperand);
@@ -59,6 +59,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             else if (expression is GlobalParameter globalParameter)
             {
                 return CalculateExpression(globalParameter.InnerExpression);
+            }
+            else if (expression is GetLastResult)
+            {
+                return new SqlConstant(CodeDomBuilder.LastStatementResult, ResultTypes.RowSet);
+            }
+            else if (expression is GetRowsCount getRowsCount)
+            {
+                SqlConstant param = CalculateExpression(getRowsCount.Parameter);
+                if (param == null)
+                    return null;
+
+                List<object> array = param.Value as List<object>; ;
+                return new SqlConstant(array.Count, ResultTypes.Integer);
             }
             else if (expression is SqlUnarExpression unar)
             {
@@ -196,7 +209,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             {
                 bool inExpressionResult = false;
                 SqlBaseExpression leftOperand = CalculateExpression(inExpression.LeftOperand);
-                if (leftOperand == null || !(leftOperand is SqlConstant))
+                if (leftOperand == null)
                     return null;
 
                 SqlBaseExpression rightOperand = null;
@@ -205,7 +218,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     foreach (SqlBaseExpression expr in inExpression.RightOperandAsList)
                     {
                         rightOperand = CalculateExpression(inExpression.LeftOperand);
-                        if (rightOperand == null || !(rightOperand is SqlConstant))
+                        if (rightOperand == null)
                             return null;
                         if(((SqlConstant)leftOperand).Equals((SqlConstant)rightOperand))
                         {

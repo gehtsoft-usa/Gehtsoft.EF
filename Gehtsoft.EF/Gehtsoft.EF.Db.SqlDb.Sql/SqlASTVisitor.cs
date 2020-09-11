@@ -57,6 +57,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                             var q = new DeclareStatement(builder, statementNode, source);
                             return null;
                         }
+                    case SqlParser.ID.VariableExit:
+                        {
+                            return new ExitStatement(builder, statementNode, source);
+                        }
                     case SqlParser.ID.VariableNop:
                         return null;
                 }
@@ -74,28 +78,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         /// <param name="source"></param>
         /// <param name="statementNode"></param>
         /// <returns></returns>
-        public StatementCollection VisitStatements(SqlCodeDomBuilder builder, string source, ASTNode statementNode)
+        public StatementSetEnvironment VisitStatements(SqlCodeDomBuilder builder, string source, ASTNode statementNode, StatementSetEnvironment initialSet)
         {
-            StatementCollection r = null;
-
-            if (statementNode.Symbol.ID == SqlParser.ID.VariableRoot)
+            if (statementNode.Children.Count == 0)
+                return null;
+            builder.TopEnvironment = initialSet;
+            for (int i = 0; i < statementNode.Children.Count; i++)
             {
-                if (statementNode.Children.Count == 0)
-                    return null;
-                r = new StatementCollection();
-                for (int i = 0; i < statementNode.Children.Count; i++)
-                {
-                    var stmt = VisitStatement(builder, source, statementNode.Children[i]);
-                    if (stmt != null)
-                        r.Add(stmt);
-                }
-                return r;
+                var stmt = VisitStatement(builder, source, statementNode.Children[i]);
+                if (stmt != null)
+                    initialSet.Add(stmt);
             }
 
-            throw new SqlParserException(new SqlError(source,
-                statementNode.Position.Line,
-                statementNode.Position.Column,
-                $"Unexpected parser element {statementNode.Symbol.Name}({statementNode.Value ?? "null"})"));
+            initialSet.FixInitialGobalParameters();
+            builder.TopEnvironment = builder.TopEnvironment.ParentEnvironment;
+            return initialSet;
         }
     }
 }

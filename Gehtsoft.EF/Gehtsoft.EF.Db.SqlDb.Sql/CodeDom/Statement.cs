@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
@@ -21,7 +22,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             Sql,
             Set,
-            Declare
+            Declare,
+            Exit
         };
         /// <summary>
         /// Type of the statement
@@ -236,7 +238,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return retval;
         }
 
-
         public static bool IsCalculable(SqlBaseExpression expression)
         {
             bool retval = false;
@@ -263,6 +264,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 retval = true;
             }
+            else if (expression is GetLastResult)
+            {
+                retval = true;
+            }
+            else if (expression is GetRowsCount getRowsCount)
+            {
+                retval = IsCalculable(getRowsCount.Parameter);
+            }
             else if (expression is SqlSelectExpression)
             {
                 retval = true;
@@ -284,6 +293,36 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 }
             }
             return retval;
+        }
+
+        public static ResultTypes GetResultTypeByName(string name)
+        {
+            ResultTypes resultType = ResultTypes.Unknown;
+            switch (name)
+            {
+                case "STRING":
+                    resultType = ResultTypes.String;
+                    break;
+                case "INTEGER":
+                    resultType = ResultTypes.Integer;
+                    break;
+                case "DOUBLE":
+                    resultType = ResultTypes.Double;
+                    break;
+                case "BOOLEAN":
+                    resultType = ResultTypes.Boolean;
+                    break;
+                case "DATETIME":
+                    resultType = ResultTypes.DateTime;
+                    break;
+                case "ROW":
+                    resultType = ResultTypes.Row;
+                    break;
+                case "ROWSET":
+                    resultType = ResultTypes.RowSet;
+                    break;
+            }
+            return resultType;
         }
     }
 }

@@ -22,7 +22,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             AggrFuncCall,
             In,
             SelectExpression,
-            GlobalParameter
+            GlobalParameter,
+            GetLastResult,
+            GetRowsCount
         };
 
         /// <summary>
@@ -35,6 +37,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Integer,
             Double,
             String,
+            Row,
+            RowSet,
             Unknown
         };
 

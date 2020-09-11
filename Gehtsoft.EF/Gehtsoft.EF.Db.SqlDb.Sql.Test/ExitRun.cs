@@ -12,13 +12,13 @@ using Xunit;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
-    public class SetRun : IDisposable
+    public class ExitRun : IDisposable
     {
         private SqlCodeDomBuilder DomBuilder { get; }
         private ISqlDbConnectionFactory connectionFactory;
         private SqlDbConnection connection;
 
-        public SetRun()
+        public ExitRun()
         {
             connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:"); ;
             Snapshot snapshot = new Snapshot();
@@ -36,35 +36,35 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void SetSuccess()
+        public void ExitSuccess()
         {
             object result;
             List<object> array;
 
-            DomBuilder.Parse("test",
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
+            environment.Parse("test",
                 "DECLARE qqq AS STRING;" +
                 "SET qqq = 'u';" +
-                "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
+                "SELECT COUNT(*) AS Total " +
                 "FROM Customer " +
-                "WHERE LOWER(Country) LIKE ?qqq || '%' " +
-                "GROUP BY Country"
+                "WHERE LOWER(Country) LIKE ?qqq || '%' "
             );
-            result = DomBuilder.Run(connection);
+            result = environment.Run(connection);
             array = result as List<object>;
-            array.Count.Should().Be(2);
+            int cnt1 = (int)(array[0] as Dictionary<string, object>)["Total"];
 
-            DomBuilder.Parse("test",
-                "DECLARE qqq AS STRING;" +
-                "SET qqq = 'u';" +
-                "SET qqq = ?qqq || 'K';" +
-                "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
+            environment.Parse("test",
+                "DECLARE qqq AS INTEGER;" +
+                "SELECT * " +
                 "FROM Customer " +
-                "WHERE LOWER(Country) LIKE LOWER(?qqq) || '%' " +
-                "GROUP BY Country"
+                "WHERE LOWER(Country) LIKE 'u%' " +
+                "SET qqq = ROWS_COUNT(LAST_RESULT());" +
+                "EXIT WITH ?qqq"
             );
-            result = DomBuilder.Run(connection);
-            array = result as List<object>;
-            array.Count.Should().Be(1);
+            result = environment.Run(connection);
+            int cnt2 = (int)result;
+
+            cnt1.Should().Be(cnt2);
         }
     }
 }
