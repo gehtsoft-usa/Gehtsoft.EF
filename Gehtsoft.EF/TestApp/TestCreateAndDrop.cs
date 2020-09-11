@@ -5,7 +5,6 @@ using System.Text;
 using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
-using MongoDB.Driver;
 using NUnit.Framework;
 
 namespace TestApp

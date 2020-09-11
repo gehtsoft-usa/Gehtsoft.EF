@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="Gehtsoft.Tools.Profile" Version="1.0.5" />
+    <PackageReference Include="Gehtsoft.Tools.Profile" Version="1.0.6" />
     <PackageReference Include="Moq" Version="4.14.5" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnitLite" Version="3.12.0" />
@@ -37,8 +37,6 @@
     <ProjectReference Include="..\Gehtsoft.EF.FTS\Gehtsoft.EF.FTS.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Northwind\Gehtsoft.EF.Northwind.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Utils\Gehtsoft.EF.Utils.csproj" />
-    <ProjectReference Include="..\Gehtsoft.EF.Bson\Gehtsoft.EF.Bson.csproj" />
-    <ProjectReference Include="..\Gehtsoft.EF.MongoDb\Gehtsoft.EF.MongoDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.OracleDb\Gehtsoft.EF.Db.OracleDb.csproj" />
   </ItemGroup>
 
@@ -69,11 +67,16 @@
     <Compile Include="TestHierarchical.cs" />
     <Compile Include="TestCreateAndDrop.cs" />
     <Compile Include="TestEntityResolver.cs" />
+    <Compile Include="TestTasks.cs" />
+    <Compile Include="OracleTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Bson\Gehtsoft.EF.Bson.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.MongoDb\Gehtsoft.EF.MongoDb.csproj" />
     <Compile Include="BsonSerializerTest.cs" />
     <Compile Include="MongoQueryTest.cs" />
     <Compile Include="MongoTestNoRef.cs" />
-    <Compile Include="TestTasks.cs" />
-    <Compile Include="OracleTest.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -88,7 +91,7 @@
 
   <ItemGroup>
     <PackageReference Include="Gehtsoft.Tools.TypeUtils">
-      <Version>1.1.4</Version>
+      <Version>1.1.7</Version>
     </PackageReference>
   </ItemGroup>
 </Project>

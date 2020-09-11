@@ -15,12 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
-[assembly: InternalsVisibleTo("Gehtsoft.EF.Db.SqlDb.Sql.Test,PublicKey=" +
-"00240000048000009400000006020000002400005253413100040000010001005d19d6f6a54328" +
-"9d63039adebf287aeb946fb5920d9318135d576d3b8eef0e9e8f81bfc95e6735e7bfbe059ed389" +
-"cacf829780c9b2a5095dd47c15f10d40f1843828c85a6232802d1a21dafe16f1381facd2b11008" +
-"e6be0ab0795400f6c5d12c76f2ea5dcd82464fb5f4a0589097346872f683e3bca6d4ec9ed917dc" +
-"9276c1cf")]
+[assembly: InternalsVisibleTo("Gehtsoft.EF.Db.SqlDb.Sql.Test")]
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {

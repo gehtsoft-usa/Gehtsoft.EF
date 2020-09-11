@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+   <Import Project="$(MSBuildProjectDirectory)\..\version.proj" />
+
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>$(VersionMajor)</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,10 +14,10 @@
 
   <ItemGroup>
     <PackageReference Include="MongoDB.Bson">
-      <Version>2.10.4</Version>
+      <Version>2.11.2</Version>
     </PackageReference>
     <PackageReference Include="MongoDB.Driver">
-      <Version>2.10.4</Version>
+      <Version>2.11.2</Version>
     </PackageReference>
   </ItemGroup>
 
