@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace TestWebApp
 {
@@ -38,11 +39,13 @@ namespace TestWebApp
             services.AddSingleton<ISqlDbConnectionFactory>(new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=d:\testw.db"));
             services.AddSingleton<EdmModelBuilder, EdmModelBuilder>();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc()
+                .AddMvcOptions(options => options.EnableEndpointRouting = false)
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             ISqlDbConnectionFactory connectionFactory = (ISqlDbConnectionFactory)serviceProvider.GetService(typeof(ISqlDbConnectionFactory));
             Snapshot snapshot = new Snapshot();

@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.7" />
+    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.8" />
     <PackageReference Include="MongoDB.Bson">
       <Version>2.11.2</Version>
     </PackageReference>

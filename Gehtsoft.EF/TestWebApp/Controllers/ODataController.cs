@@ -21,6 +21,7 @@ namespace TestWebApp.Controllers
         {
             mPocessor = new ODataProcessor(connectionFactory, edmModelBuilder);
             mPocessor.ODataCountName = "@odata.count"; // Kendo specific
+            //mPocessor.ODataCountName = "__count"; // Kendo specific
             mPocessor.ODataMetadataName = "@odata.context"; // Kendo specific
         }
 

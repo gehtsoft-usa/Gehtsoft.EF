@@ -1,15 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
   </PropertyGroup>
 
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.8" PrivateAssets="All" />
   </ItemGroup>
 
 
@@ -18,5 +17,21 @@
     <ProjectReference Include="..\Gehtsoft.EF.Db.SqliteDb\Gehtsoft.EF.Db.SqliteDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Northwind\Gehtsoft.EF.Northwind.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Gehtsoft.Build.ContentDelivery" Version="0.1.9" IncludeAssets="build" />
+  </ItemGroup>
+
+  <Target Name="CleanContent">
+   <ItemGroup>
+    <FilesToDelete Include="wwwroot/lib/Kendo.UI/**/*" />
+   </ItemGroup>
+   <Delete Files="@(FilesToDelete)" />
+   <RemoveDir Directories="wwwroot/lib/Kendo.UI" />
+  </Target>
+
+  <Target Name="Content">
+   <GetContent Source="$(gs-feed)/bower/packages/Kendo.UI/2020.2.617.zip" Destination="$(MSBuildProjectDirectory)/wwwroot/lib/Kendo.UI" Unzip="true" />
+  </Target>
 
 </Project>
