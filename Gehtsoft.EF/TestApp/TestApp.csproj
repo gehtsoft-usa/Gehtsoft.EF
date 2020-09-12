@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net461;netcoreapp2.2</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <DefineConstants Condition=" '$(TargetFramework)' == 'netcoreapp2.2' ">NETCORE</DefineConstants>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <StartupObject>NUnitLite.Tests.Program</StartupObject>
