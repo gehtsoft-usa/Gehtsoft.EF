@@ -54,7 +54,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             array.Count.Should().Be(2);
 
             DomBuilder.Parse("test",
-                "DECLARE qqq AS STRING;" +
                 "SET qqq = 'u';" +
                 "SET qqq = ?qqq || 'K';" +
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +

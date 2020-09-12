@@ -464,6 +464,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             {
                 return GetStrExpression(globalParameter.InnerExpression, out isAggregate);
             }
+            else if (expression is GetLastResult getLastResult)
+            {
+                return GetStrExpression(CalculateExpression(getLastResult), out isAggregate);
+            }
+            else if (expression is GetRowsCount getRowsCount)
+            {
+                return GetStrExpression(CalculateExpression(getRowsCount), out isAggregate);
+            }
+
             else if (expression is SqlUnarExpression unar)
             {
                 string start = string.Empty;

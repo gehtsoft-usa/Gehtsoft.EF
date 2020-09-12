@@ -38,8 +38,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             throw new SqlParserException(new SqlError(currentSource,
                                 expressionNode.Position.Line,
                                 expressionNode.Position.Column,
-                                $"Expression in SET statement doesn't match type of declared ({expressionNode.Value ?? "null"})"));
+                                $"Expression in SET statement doesn't match type of declared before ({existing.ResultType.ToString()})"));
                         }
+                    }
+                    else
+                    {
+                        builder.AddGlobalParameter($"?{name}", expression.ResultType);
                     }
                     SetItems.Add(new SetItem(name, expression));
                 }
