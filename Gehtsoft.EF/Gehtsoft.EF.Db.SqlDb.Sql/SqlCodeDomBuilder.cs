@@ -47,13 +47,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         public StatementSetEnvironment Parse(string name, TextReader source)
         {
             var root = ParseToRawTree(name, source);
-            var visitor = new SqlASTVisitor();
-            StatementSetEnvironment initialSet = new StatementSetEnvironment();
-            initialSet.ParentEnvironment = null;
-            initialSet.ParentStatement = null;
-            mLastParse = visitor.VisitStatements(this, name, root, initialSet); // for possible run later
+            TopEnvironment = null;
+            mLastParse = ParseNode(name, root); // for possible run later
             return mLastParse;
         }
+
+        internal StatementSetEnvironment ParseNode(string name, ASTNode root, Statement parentStatement = null)
+        {
+            var visitor = new SqlASTVisitor();
+            StatementSetEnvironment initialSet = new StatementSetEnvironment();
+            initialSet.ParentStatement = parentStatement;
+            return visitor.VisitStatements(this, name, root, initialSet);
+        }
+
         public StatementSetEnvironment Parse(string name, string source)
         {
             using (var reader = new StringReader(source))
@@ -155,7 +161,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
             mLastParse.ParentEnvironment = null;
             mLastParse.ParentStatement = null;
-            TopEnvironment = mLastParse;
+            TopEnvironment = null;
             return Run(connection, mLastParse);
         }
 
@@ -174,9 +180,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        internal object Run(SqlDbConnection connection, StatementSetEnvironment statements)
+        public object Run(SqlDbConnection connection, StatementSetEnvironment statements)
         {
             statements.ClearEnvironment();
+            statements.ParentEnvironment = TopEnvironment;
+            TopEnvironment = statements;
             statements.LastStatementResult = null;
             bool cont = true;
             while (cont)
@@ -223,6 +231,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                                 ExitRunner exitRunner = new ExitRunner(this, connection, statements);
                                 exitRunner.Run(statement as ExitStatement);
                                 break;
+                            case Statement.StatementType.If:
+                                IfRunner ifRunner = new IfRunner(this, connection);
+                                object ifResult = ifRunner.Run(statement as IfStatement);
+                                if (ifResult != null)
+                                {
+                                    statements.LastStatementResult = ifResult;
+                                }
+                                break;
                         }
                     }
                     if (statements.Leave)
@@ -248,7 +264,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal IStatementSetEnvironment TopEnvironment { get; set; } = null;
 
-        private IStatementSetEnvironment findEnvironmentWithParameter(string name)
+        private IStatementSetEnvironment findEnvironmentWithParameter(string name, bool local = false)
         {
             IStatementSetEnvironment current = TopEnvironment;
             while(current != null)
@@ -256,13 +272,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 if (current.ContainsGlobalParameter(name))
                     return current;
                 current = current.ParentEnvironment;
+                if (local) break;
             }
             return null;
         }
 
-        internal bool AddGlobalParameter(string name, ResultTypes resultType)
+        internal bool AddGlobalParameter(string name, ResultTypes resultType, bool local = false)
         {
-            IStatementSetEnvironment found = findEnvironmentWithParameter(name);
+            IStatementSetEnvironment found = findEnvironmentWithParameter(name, local);
             if (found != null)
                 return false;
             TopEnvironment.AddGlobalParameter(name, new SqlConstant(null, resultType));

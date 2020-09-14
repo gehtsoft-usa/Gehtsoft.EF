@@ -23,7 +23,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Sql,
             Set,
             Declare,
-            Exit
+            Exit,
+            If
         };
         /// <summary>
         /// Type of the statement

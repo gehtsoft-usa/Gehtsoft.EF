@@ -30,6 +30,7 @@
     <Compile Include="CodeDom\GetRowsCount.cs" />
     <Compile Include="CodeDom\GlobalParameter.cs" />
     <Compile Include="CodeDom\GetLastResult.cs" />
+    <Compile Include="CodeDom\IfStatement.cs" />
     <Compile Include="CodeDom\SetStatement.cs" />
     <Compile Include="CodeDom\SqlAggrFunc.cs" />
     <Compile Include="CodeDom\SqlAutoJoinedTable.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="CodeDom\Statement.cs" />
     <Compile Include="DeleteRunner.cs" />
     <Compile Include="ExitRunner.cs" />
+    <Compile Include="IfRunner.cs" />
     <Compile Include="InsertRunner.cs" />
     <Compile Include="IStatementRunner.cs" />
     <Compile Include="SelectRunner.cs" />

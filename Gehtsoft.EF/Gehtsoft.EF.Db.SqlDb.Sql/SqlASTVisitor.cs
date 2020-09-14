@@ -61,6 +61,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         {
                             return new ExitStatement(builder, statementNode, source);
                         }
+                    case SqlParser.ID.VariableIfthen:
+                        {
+                            return new IfStatement(builder, statementNode, source);
+                        }
                     case SqlParser.ID.VariableNop:
                         return null;
                 }
@@ -82,6 +86,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             if (statementNode.Children.Count == 0)
                 return null;
+            initialSet.ParentEnvironment = builder.TopEnvironment;
             builder.TopEnvironment = initialSet;
             for (int i = 0; i < statementNode.Children.Count; i++)
             {

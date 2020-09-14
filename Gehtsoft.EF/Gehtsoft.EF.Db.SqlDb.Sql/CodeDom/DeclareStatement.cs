@@ -19,7 +19,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 string name = $"?{node.Children[0].Value}";
                 ResultTypes resultType = GetResultTypeByName(node.Children[1].Value);
 
-                if (!builder.AddGlobalParameter(name, resultType))
+                if (!builder.AddGlobalParameter(name, resultType, true))
                 {
                     throw new SqlParserException(new SqlError(currentSource,
                         node.Children[0].Position.Line,
