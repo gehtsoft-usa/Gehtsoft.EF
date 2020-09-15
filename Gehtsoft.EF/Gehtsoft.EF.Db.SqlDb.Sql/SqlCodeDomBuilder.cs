@@ -239,6 +239,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                                     statements.LastStatementResult = ifResult;
                                 }
                                 break;
+                            case Statement.StatementType.Continue:
+                                ContinueRunner continueRunner = new ContinueRunner(this, connection, statements);
+                                continueRunner.Run(statement as ContinueStatement);
+                                break;
+                            case Statement.StatementType.Break:
+                                BreakRunner breakRunner = new BreakRunner(this, connection, statements);
+                                breakRunner.Run(statement as BreakStatement);
+                                break;
+                            case Statement.StatementType.Loop:
+                                if (statement is WhileDoStatement whileDoStatement)
+                                {
+                                    WhileDoRunner whileDoRunner = new WhileDoRunner(this, connection);
+                                    object whileDoResult = whileDoRunner.Run(whileDoStatement);
+                                    if (whileDoResult != null)
+                                    {
+                                        statements.LastStatementResult = whileDoResult;
+                                    }
+                                }
+                                break;
                         }
                     }
                     if (statements.Leave)

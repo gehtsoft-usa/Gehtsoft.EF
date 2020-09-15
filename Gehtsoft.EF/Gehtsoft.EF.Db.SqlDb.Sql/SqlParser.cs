@@ -542,17 +542,29 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			/// </summary>
 			public const int VariableIfthen = 0x008D;
 			/// <summary>
+			/// The unique identifier for variable WHILEDO
+			/// </summary>
+			public const int VariableWhiledo = 0x008E;
+			/// <summary>
+			/// The unique identifier for variable BREAK
+			/// </summary>
+			public const int VariableBreak = 0x008F;
+			/// <summary>
+			/// The unique identifier for variable CONTINUE
+			/// </summary>
+			public const int VariableContinue = 0x0090;
+			/// <summary>
 			/// The unique identifier for variable SQL_STATEMENT
 			/// </summary>
-			public const int VariableSqlStatement = 0x008E;
+			public const int VariableSqlStatement = 0x0091;
 			/// <summary>
 			/// The unique identifier for variable STATEMENT
 			/// </summary>
-			public const int VariableStatement = 0x008F;
+			public const int VariableStatement = 0x0092;
 			/// <summary>
 			/// The unique identifier for variable ROOT
 			/// </summary>
-			public const int VariableRoot = 0x0090;
+			public const int VariableRoot = 0x0093;
 		}
 		/// <summary>
 		/// The collection of variables matched by this parser
@@ -691,25 +703,28 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			new Symbol(0x008B, "DECLARE_ITEM"), 
 			new Symbol(0x008C, "EXIT"), 
 			new Symbol(0x008D, "IFTHEN"), 
-			new Symbol(0x008E, "SQL_STATEMENT"), 
-			new Symbol(0x008F, "STATEMENT"), 
-			new Symbol(0x0090, "ROOT"), 
-			new Symbol(0x0097, "__V151"), 
-			new Symbol(0x00A8, "__V168"), 
-			new Symbol(0x00C5, "__V197"), 
-			new Symbol(0x00D0, "__V208"), 
-			new Symbol(0x00D4, "__V212"), 
-			new Symbol(0x00DF, "__V223"), 
-			new Symbol(0x00E3, "__V227"), 
-			new Symbol(0x00E8, "__V232"), 
-			new Symbol(0x00E9, "__V233"), 
-			new Symbol(0x00ED, "__V237"), 
-			new Symbol(0x00EF, "__V239"), 
-			new Symbol(0x00F1, "__V241"), 
+			new Symbol(0x008E, "WHILEDO"), 
+			new Symbol(0x008F, "BREAK"), 
+			new Symbol(0x0090, "CONTINUE"), 
+			new Symbol(0x0091, "SQL_STATEMENT"), 
+			new Symbol(0x0092, "STATEMENT"), 
+			new Symbol(0x0093, "ROOT"), 
+			new Symbol(0x009A, "__V154"), 
+			new Symbol(0x00AB, "__V171"), 
+			new Symbol(0x00C8, "__V200"), 
+			new Symbol(0x00D3, "__V211"), 
+			new Symbol(0x00D7, "__V215"), 
+			new Symbol(0x00E2, "__V226"), 
+			new Symbol(0x00E6, "__V230"), 
+			new Symbol(0x00EB, "__V235"), 
+			new Symbol(0x00EC, "__V236"), 
+			new Symbol(0x00F0, "__V240"), 
+			new Symbol(0x00F2, "__V242"), 
 			new Symbol(0x00F4, "__V244"), 
-			new Symbol(0x00F8, "__V248"), 
+			new Symbol(0x00F7, "__V247"), 
 			new Symbol(0x00FB, "__V251"), 
-			new Symbol(0x00FC, "__VAxiom") };
+			new Symbol(0x0102, "__V258"), 
+			new Symbol(0x0103, "__VAxiom") };
 		/// <summary>
 		/// The collection of virtuals matched by this parser
 		/// </summary>
@@ -870,6 +885,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			public virtual void OnVariableDeclareItem(ASTNode node) {}
 			public virtual void OnVariableExit(ASTNode node) {}
 			public virtual void OnVariableIfthen(ASTNode node) {}
+			public virtual void OnVariableWhiledo(ASTNode node) {}
+			public virtual void OnVariableBreak(ASTNode node) {}
+			public virtual void OnVariableContinue(ASTNode node) {}
 			public virtual void OnVariableSqlStatement(ASTNode node) {}
 			public virtual void OnVariableStatement(ASTNode node) {}
 			public virtual void OnVariableRoot(ASTNode node) {}
@@ -1035,9 +1053,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 				case 0x008B: visitor.OnVariableDeclareItem(node); break;
 				case 0x008C: visitor.OnVariableExit(node); break;
 				case 0x008D: visitor.OnVariableIfthen(node); break;
-				case 0x008E: visitor.OnVariableSqlStatement(node); break;
-				case 0x008F: visitor.OnVariableStatement(node); break;
-				case 0x0090: visitor.OnVariableRoot(node); break;
+				case 0x008E: visitor.OnVariableWhiledo(node); break;
+				case 0x008F: visitor.OnVariableBreak(node); break;
+				case 0x0090: visitor.OnVariableContinue(node); break;
+				case 0x0091: visitor.OnVariableSqlStatement(node); break;
+				case 0x0092: visitor.OnVariableStatement(node); break;
+				case 0x0093: visitor.OnVariableRoot(node); break;
 			}
 		}
 	}

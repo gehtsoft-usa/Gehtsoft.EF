@@ -40,6 +40,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             $"Unexpected condition expression in IF statement {node.Symbol.Name} ({node.Value ?? "null"})"));
                     }
                     SqlBaseExpression ifExpression = SqlExpressionParser.ParseExpression(this, node, currentSource);
+                    if(!Statement.IsCalculable(ifExpression))
+                    {
+                        throw new SqlParserException(new SqlError(currentSource,
+                            node.Position.Line,
+                            node.Position.Column,
+                            $"Not calculable expression in IF statement"));
+                    }
                     if (ifExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
                     {
                         throw new SqlParserException(new SqlError(currentSource,

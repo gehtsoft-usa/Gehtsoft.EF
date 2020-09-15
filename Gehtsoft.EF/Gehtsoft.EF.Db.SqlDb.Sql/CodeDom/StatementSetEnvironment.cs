@@ -33,6 +33,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
 
         internal void Add(Statement statement) => mCollection.Add(statement);
+        internal void InsertFirst(Statement statement) => mCollection.Insert(0, statement);
 
         public virtual bool Equals(StatementSetEnvironment other)
         {

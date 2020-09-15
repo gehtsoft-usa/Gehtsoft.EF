@@ -65,6 +65,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         {
                             return new IfStatement(builder, statementNode, source);
                         }
+                    case SqlParser.ID.VariableContinue:
+                        {
+                            return new ContinueStatement(builder, statementNode, source);
+                        }
+                    case SqlParser.ID.VariableBreak:
+                        {
+                            return new BreakStatement(builder, statementNode, source);
+                        }
+                    case SqlParser.ID.VariableWhiledo:
+                        {
+                            return new WhileDoStatement(builder, statementNode, source);
+                        }
                     case SqlParser.ID.VariableNop:
                         return null;
                 }

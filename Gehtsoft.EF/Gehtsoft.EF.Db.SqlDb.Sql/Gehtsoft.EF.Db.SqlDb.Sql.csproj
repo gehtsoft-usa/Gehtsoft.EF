@@ -25,6 +25,9 @@
    <ItemGroup>
     <EmbeddedResource Include="SqlLexer.bin" />
     <EmbeddedResource Include="SqlParser.bin" />
+    <Compile Include="BreakeRunner.cs" />
+    <Compile Include="CodeDom\BreakStatement.cs" />
+    <Compile Include="CodeDom\ContinueStatement.cs" />
     <Compile Include="CodeDom\DeclareStatement.cs" />
     <Compile Include="CodeDom\ExitStatement.cs" />
     <Compile Include="CodeDom\GetRowsCount.cs" />
@@ -62,6 +65,8 @@
     <Compile Include="CodeDom\SqlUpdateAssign.cs" />
     <Compile Include="CodeDom\SqlWhereClause.cs" />
     <Compile Include="CodeDom\Statement.cs" />
+    <Compile Include="CodeDom\WhileDoStatement.cs" />
+    <Compile Include="ContinueRunner.cs" />
     <Compile Include="DeleteRunner.cs" />
     <Compile Include="ExitRunner.cs" />
     <Compile Include="IfRunner.cs" />
@@ -77,6 +82,7 @@
     <Compile Include="SqlParser.cs" />
     <Compile Include="SqlParserException.cs" />
     <Compile Include="UpdateRunner.cs" />
+    <Compile Include="WhileDoRunner.cs" />
   </ItemGroup>
 
   <Target Name="CleanGrammar" BeforeTargets="Clean">
