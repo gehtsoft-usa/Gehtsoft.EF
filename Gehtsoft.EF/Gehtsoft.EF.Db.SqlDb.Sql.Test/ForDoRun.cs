@@ -12,13 +12,13 @@ using Xunit;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
-    public class WhileDoRun : IDisposable
+    public class ForDoRun : IDisposable
     {
         private SqlCodeDomBuilder DomBuilder { get; }
         private ISqlDbConnectionFactory connectionFactory;
         private SqlDbConnection connection;
 
-        public WhileDoRun()
+        public ForDoRun()
         {
             connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:"); ;
             Snapshot snapshot = new Snapshot();
@@ -36,41 +36,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void WhileDoSuccess()
+        public void ForDoSuccess()
         {
             object result;
             SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
 
             environment.Parse("test",
-                "SET factorial=1, n=1" +
-                "WHILE ?n <= 5 LOOP" +
-                "   SET factorial = ?factorial * ?n" +
-                "   SET n = ?n + 1" +
-                "END LOOP " +
-                "EXIT WITH ?factorial"
-            );
-            result = environment.Run(connection);
-            ((int)result).Should().Be(120);
-
-            environment.Parse("test",
-                "SET factorial=1, n=0" +
-                "WHILE ?n <= 5 LOOP" +
-                "   IF ?n = 0 THEN SET n = 1; CONTINUE; END IF " +
-                "   IF ?n = 5 THEN BREAK; END IF " +
-                "   SET factorial = ?factorial * ?n" +
-                "   SET n = ?n + 1" +
-                "END LOOP " +
-                "EXIT WITH ?factorial"
-            );
-            result = environment.Run(connection);
-            ((int)result).Should().Be(24);
-
-            environment.Parse("test",
-                "SET factorial=1, n=1" +
-                "WHILE TRUE LOOP" +
-                "   SET factorial = ?factorial * ?n" +
-                "   SET n = ?n + 1" +
-                "   IF ?n > 5 THEN BREAK; END IF " +
+                "SET factorial = 1 " +
+                "FOR SET n=0 WHILE ?n <= 5 NEXT SET n=?n+1 LOOP " +
+                "   IF ?n = 0 THEN CONTINUE; END IF " +
+                "   SET factorial = ?factorial * ?n " +
                 "END LOOP " +
                 "EXIT WITH ?factorial"
             );

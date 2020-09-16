@@ -77,6 +77,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         {
                             return new WhileDoStatement(builder, statementNode, source);
                         }
+                    case SqlParser.ID.VariableFordo:
+                        {
+                            return new ForDoStatement(builder, statementNode, source);
+                        }
+                    case SqlParser.ID.VariableSwitch:
+                        {
+                            return new SwitchStatement(builder, statementNode, source);
+                        }
                     case SqlParser.ID.VariableNop:
                         return null;
                 }

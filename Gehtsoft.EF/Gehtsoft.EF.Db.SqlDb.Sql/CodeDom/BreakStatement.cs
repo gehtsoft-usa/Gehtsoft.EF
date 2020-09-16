@@ -24,7 +24,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             bool found = false;
             while (current != null)
             {
-                if (current.ParentStatement != null && current.ParentStatement.Type == StatementType.Loop)
+                if (current.ParentStatement != null && (current.ParentStatement.Type == StatementType.Loop || current.ParentStatement.Type == StatementType.Switch))
                 {
                     found = true;
                     break;
@@ -35,6 +35,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 throw new SqlParserException(new SqlError(currentSource, line, column, $"Unexpected operator BREAK (out of LOOP)"));
             }
+        }
+
+        internal BreakStatement()
+            : base(null, StatementType.Break)
+        {
         }
 
         public virtual bool Equals(BreakStatement other)

@@ -189,6 +189,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             bool cont = true;
             while (cont)
             {
+                statements.Leave = false;
                 foreach (Statement statement in statements)
                 {
                     if (statement is SqlStatement sqlStatement)
@@ -248,27 +249,36 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                                 breakRunner.Run(statement as BreakStatement);
                                 break;
                             case Statement.StatementType.Loop:
-                                if (statement is WhileDoStatement whileDoStatement)
+                            case Statement.StatementType.Block:
+                                BlockRunner blockRunner = new BlockRunner(this, connection);
+                                object blockDoResult = blockRunner.Run(statement as BlockStatement);
+                                if (blockDoResult != null)
                                 {
-                                    WhileDoRunner whileDoRunner = new WhileDoRunner(this, connection);
-                                    object whileDoResult = whileDoRunner.Run(whileDoStatement);
-                                    if (whileDoResult != null)
-                                    {
-                                        statements.LastStatementResult = whileDoResult;
-                                    }
+                                    statements.LastStatementResult = blockDoResult;
+                                }
+                                break;
+                            case Statement.StatementType.Switch:
+                                SwitchRunner switchRunner = new SwitchRunner(this, connection);
+                                object switchResult = switchRunner.Run(statement as SwitchStatement);
+                                if (switchResult != null)
+                                {
+                                    statements.LastStatementResult = switchResult;
                                 }
                                 break;
                         }
                     }
                     if (statements.Leave)
                     {
-                        statements.Leave = false;
                         break;
                     }
                 }
 
                 if (statements.Continue)
                 {
+                    if(statements.BeforeContinue != null)
+                    {
+                        Run(connection, statements.BeforeContinue);
+                    }
                     cont = true;
                     statements.Continue = false;
                 }

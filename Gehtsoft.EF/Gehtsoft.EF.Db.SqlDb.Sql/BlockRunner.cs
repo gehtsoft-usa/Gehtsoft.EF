@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
-    internal class WhileDoRunner : StatementRunner<WhileDoStatement>
+    internal class BlockRunner : StatementRunner<BlockStatement>
     {
         private SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;
@@ -29,21 +29,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        internal WhileDoRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory)
+        internal BlockRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory)
         {
             mBuilder = builder;
             mConnectionFactory = connectionFactory;
         }
 
-        internal WhileDoRunner(SqlCodeDomBuilder builder, SqlDbConnection connection)
+        internal BlockRunner(SqlCodeDomBuilder builder, SqlDbConnection connection)
         {
             mBuilder = builder;
             mConnection = connection;
         }
 
-        public override object Run(WhileDoStatement whileDoStatement)
+        public override object Run(BlockStatement blockStatement)
         {
-            return mBuilder.Run(mConnection, whileDoStatement.RepeatStatements);
+            return mBuilder.Run(mConnection, blockStatement.Statements);
         }
     }
 }

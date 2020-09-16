@@ -27,7 +27,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             If,
             Continue,
             Break,
-            Loop
+            Loop,
+            Block,
+            Switch
         };
         /// <summary>
         /// Type of the statement

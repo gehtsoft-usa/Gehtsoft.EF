@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
-    internal class IfRunner : StatementRunner<IfStatement>
+    internal class SwitchRunner : StatementRunner<SwitchStatement>
     {
         private SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;
@@ -29,33 +29,40 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        internal IfRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory)
+        internal SwitchRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory)
         {
             mBuilder = builder;
             mConnectionFactory = connectionFactory;
         }
 
-        internal IfRunner(SqlCodeDomBuilder builder, SqlDbConnection connection)
+        internal SwitchRunner(SqlCodeDomBuilder builder, SqlDbConnection connection)
         {
             mBuilder = builder;
             mConnection = connection;
         }
 
-        public override object Run(IfStatement ifStatement)
+        public override object Run(SwitchStatement switchStatement)
         {
             object result = null;
-            foreach (ConditionalStatementsRun item in ifStatement.ConditionalRuns)
+            bool forceRunAll = false;
+            foreach (ConditionalStatementsRun item in switchStatement.ConditionalRuns)
             {
-                SqlConstant resultConstant = CalculateExpression(item.ConditionalExpression);
-                if (resultConstant == null || resultConstant.ResultType != SqlBaseExpression.ResultTypes.Boolean)
+                bool runCurrent = false;
+                if (!forceRunAll)
                 {
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error while IF execution"));
+                    SqlConstant resultConstant = CalculateExpression(item.ConditionalExpression);
+                    if (resultConstant == null || resultConstant.ResultType != SqlBaseExpression.ResultTypes.Boolean)
+                    {
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error while SWITCH execution"));
+                    }
+                    runCurrent = (bool)resultConstant.Value;
                 }
-                bool condition = (bool)resultConstant.Value;
-                if(condition)
+                if (runCurrent || forceRunAll)
                 {
                     result = mBuilder.Run(mConnection, item.Statements);
-                    break;
+                    if (item.Statements.Leave)
+                        break;
+                    forceRunAll = true;
                 }
             }
             return result;

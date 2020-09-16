@@ -11,67 +11,67 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     public class IfStatement : Statement
     {
-        public IfItemCollection IfItems { get; }
+        public ConditionalStatementsRunCollection ConditionalRuns { get; }
         internal IfStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.If)
         {
-            IfItems = new IfItemCollection();
-            IfItem currentIfItem = null;
+            ConditionalRuns = new ConditionalStatementsRunCollection();
+            ConditionalStatementsRun currentConditionalRun = null;
             foreach (ASTNode node in statementNode.Children)
             {
                 if(node.Symbol.ID == SqlParser.ID.VariableRoot)
                 {
                     StatementSetEnvironment inner = builder.ParseNode("IF-ELSE Body", node, this);
-                    if (currentIfItem == null)
+                    if (currentConditionalRun == null)
                     {
-                        currentIfItem = new IfItem(new SqlConstant(true, ResultTypes.Boolean));
+                        currentConditionalRun = new ConditionalStatementsRun(new SqlConstant(true, ResultTypes.Boolean));
                     }
-                    currentIfItem.Statements = inner;
-                    IfItems.Add(currentIfItem);
-                    currentIfItem = null;
+                    currentConditionalRun.Statements = inner;
+                    ConditionalRuns.Add(currentConditionalRun);
+                    currentConditionalRun = null;
                 }
                 else
                 {
-                    if (currentIfItem != null)
+                    if (currentConditionalRun != null)
                     {
                         throw new SqlParserException(new SqlError(currentSource,
                             node.Position.Line,
                             node.Position.Column,
                             $"Unexpected condition expression in IF statement {node.Symbol.Name} ({node.Value ?? "null"})"));
                     }
-                    SqlBaseExpression ifExpression = SqlExpressionParser.ParseExpression(this, node, currentSource);
-                    if(!Statement.IsCalculable(ifExpression))
+                    SqlBaseExpression conditionalExpression = SqlExpressionParser.ParseExpression(this, node, currentSource);
+                    if(!Statement.IsCalculable(conditionalExpression))
                     {
                         throw new SqlParserException(new SqlError(currentSource,
                             node.Position.Line,
                             node.Position.Column,
                             $"Not calculable expression in IF statement"));
                     }
-                    if (ifExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
+                    if (conditionalExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
                     {
                         throw new SqlParserException(new SqlError(currentSource,
                             node.Position.Line,
                             node.Position.Column,
                             $"Condition expression of IF(ELSIF) should be boolean {node.Symbol.Name} ({node.Value ?? "null"})"));
                     }
-                    currentIfItem = new IfItem(ifExpression);
+                    currentConditionalRun = new ConditionalStatementsRun(conditionalExpression);
                 }
             }
         }
 
-        internal IfStatement(SqlCodeDomBuilder builder, IfItemCollection ifItems)
+        internal IfStatement(SqlCodeDomBuilder builder, ConditionalStatementsRunCollection conditionalRuns)
             : base(builder, StatementType.If)
         {
-            IfItems = ifItems;
+            ConditionalRuns = conditionalRuns;
         }
 
         public virtual bool Equals(IfStatement other)
         {
             if (other is IfStatement stmt)
             {
-                if (IfItems == null && stmt.IfItems != null)
+                if (ConditionalRuns == null && stmt.ConditionalRuns != null)
                     return false;
-                if (IfItems != null && !IfItems.Equals(stmt.IfItems))
+                if (ConditionalRuns != null && !ConditionalRuns.Equals(stmt.ConditionalRuns))
                     return false;
                 return true;
             }
@@ -85,27 +85,27 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(obj);
         }
     }
-    public class IfItem : IEquatable<IfItem>
+    public class ConditionalStatementsRun : IEquatable<ConditionalStatementsRun>
     {
         public StatementSetEnvironment Statements { get; internal set; }
-        public SqlBaseExpression IfExpression { get; }
+        public SqlBaseExpression ConditionalExpression { get; internal set; }
 
-        internal IfItem(SqlBaseExpression ifExpression, StatementSetEnvironment statements = null)
+        internal ConditionalStatementsRun(SqlBaseExpression conditionalExpression, StatementSetEnvironment statements = null)
         {
             Statements = statements;
-            IfExpression = ifExpression;
+            ConditionalExpression = conditionalExpression;
         }
 
-        public virtual bool Equals(IfItem other)
+        public virtual bool Equals(ConditionalStatementsRun other)
         {
             if (other == null)
                 return false;
-            return this.IfExpression.Equals(other.IfExpression) && this.Statements.Equals(other.Statements);
+            return this.ConditionalExpression.Equals(other.ConditionalExpression) && this.Statements.Equals(other.Statements);
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is IfItem item)
+            if (obj is ConditionalStatementsRun item)
                 return Equals(item);
             return base.Equals(obj);
         }
@@ -116,22 +116,22 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
     }
 
-    public class IfItemCollection : IReadOnlyList<IfItem>, IEquatable<IfItemCollection>
+    public class ConditionalStatementsRunCollection : IReadOnlyList<ConditionalStatementsRun>, IEquatable<ConditionalStatementsRunCollection>
     {
-        private readonly List<IfItem> mList = new List<IfItem>();
+        private readonly List<ConditionalStatementsRun> mList = new List<ConditionalStatementsRun>();
 
-        internal IfItemCollection()
+        internal ConditionalStatementsRunCollection()
         {
 
         }
 
-        public IfItem this[int index] => ((IReadOnlyList<IfItem>)mList)[index];
+        public ConditionalStatementsRun this[int index] => ((IReadOnlyList<ConditionalStatementsRun>)mList)[index];
 
-        public int Count => ((IReadOnlyCollection<IfItem>)mList).Count;
+        public int Count => ((IReadOnlyCollection<ConditionalStatementsRun>)mList).Count;
 
-        public IEnumerator<IfItem> GetEnumerator()
+        public IEnumerator<ConditionalStatementsRun> GetEnumerator()
         {
-            return ((IEnumerable<IfItem>)mList).GetEnumerator();
+            return ((IEnumerable<ConditionalStatementsRun>)mList).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -139,12 +139,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return ((IEnumerable)mList).GetEnumerator();
         }
 
-        internal void Add(IfItem fieldName)
+        internal void Add(ConditionalStatementsRun conditionalRun)
         {
-            mList.Add(fieldName);
+            mList.Add(conditionalRun);
         }
 
-        public virtual bool Equals(IfItemCollection other)
+        public virtual bool Equals(ConditionalStatementsRunCollection other)
         {
             if (other == null)
                 return false;
@@ -164,7 +164,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         public override bool Equals(object obj)
         {
-            if (obj is IfItemCollection item)
+            if (obj is ConditionalStatementsRunCollection item)
                 return Equals(item);
             return base.Equals(obj);
         }

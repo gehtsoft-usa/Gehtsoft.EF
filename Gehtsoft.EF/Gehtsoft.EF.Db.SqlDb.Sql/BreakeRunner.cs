@@ -49,18 +49,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             object result = null;
             IStatementSetEnvironment current = mStatements;
-            bool foundLoop = false;
+            bool foundOperator = false;
             while (current != null)
             {
                 current.Leave = true;
-                if (current.ParentStatement != null && current.ParentStatement.Type == StatementType.Loop)
+                if (current.ParentStatement != null && (current.ParentStatement.Type == StatementType.Loop || current.ParentStatement.Type == StatementType.Switch))
                 {
-                    foundLoop = true;
+                    foundOperator = true;
                     break;
                 }
                 current = current.ParentEnvironment;
             }
-            if (!foundLoop)
+            if (!foundOperator)
             {
                 throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error: not found LOOP"));
             }

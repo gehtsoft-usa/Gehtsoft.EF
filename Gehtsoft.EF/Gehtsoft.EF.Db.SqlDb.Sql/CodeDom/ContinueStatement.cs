@@ -37,6 +37,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
+        internal ContinueStatement()
+            : base(null, StatementType.Continue)
+        {
+        }
         public virtual bool Equals(ContinueStatement other)
         {
             if (other is ContinueStatement stmt)

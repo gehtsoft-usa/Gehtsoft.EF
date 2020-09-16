@@ -554,17 +554,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			/// </summary>
 			public const int VariableContinue = 0x0090;
 			/// <summary>
+			/// The unique identifier for variable FORDO
+			/// </summary>
+			public const int VariableFordo = 0x0091;
+			/// <summary>
+			/// The unique identifier for variable SWITCH
+			/// </summary>
+			public const int VariableSwitch = 0x0092;
+			/// <summary>
 			/// The unique identifier for variable SQL_STATEMENT
 			/// </summary>
-			public const int VariableSqlStatement = 0x0091;
+			public const int VariableSqlStatement = 0x0093;
 			/// <summary>
 			/// The unique identifier for variable STATEMENT
 			/// </summary>
-			public const int VariableStatement = 0x0092;
+			public const int VariableStatement = 0x0094;
 			/// <summary>
 			/// The unique identifier for variable ROOT
 			/// </summary>
-			public const int VariableRoot = 0x0093;
+			public const int VariableRoot = 0x0095;
 		}
 		/// <summary>
 		/// The collection of variables matched by this parser
@@ -706,25 +714,28 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			new Symbol(0x008E, "WHILEDO"), 
 			new Symbol(0x008F, "BREAK"), 
 			new Symbol(0x0090, "CONTINUE"), 
-			new Symbol(0x0091, "SQL_STATEMENT"), 
-			new Symbol(0x0092, "STATEMENT"), 
-			new Symbol(0x0093, "ROOT"), 
-			new Symbol(0x009A, "__V154"), 
-			new Symbol(0x00AB, "__V171"), 
-			new Symbol(0x00C8, "__V200"), 
-			new Symbol(0x00D3, "__V211"), 
-			new Symbol(0x00D7, "__V215"), 
-			new Symbol(0x00E2, "__V226"), 
-			new Symbol(0x00E6, "__V230"), 
-			new Symbol(0x00EB, "__V235"), 
-			new Symbol(0x00EC, "__V236"), 
-			new Symbol(0x00F0, "__V240"), 
+			new Symbol(0x0091, "FORDO"), 
+			new Symbol(0x0092, "SWITCH"), 
+			new Symbol(0x0093, "SQL_STATEMENT"), 
+			new Symbol(0x0094, "STATEMENT"), 
+			new Symbol(0x0095, "ROOT"), 
+			new Symbol(0x009C, "__V156"), 
+			new Symbol(0x00AD, "__V173"), 
+			new Symbol(0x00CA, "__V202"), 
+			new Symbol(0x00D5, "__V213"), 
+			new Symbol(0x00D9, "__V217"), 
+			new Symbol(0x00E4, "__V228"), 
+			new Symbol(0x00E8, "__V232"), 
+			new Symbol(0x00ED, "__V237"), 
+			new Symbol(0x00EE, "__V238"), 
 			new Symbol(0x00F2, "__V242"), 
 			new Symbol(0x00F4, "__V244"), 
-			new Symbol(0x00F7, "__V247"), 
-			new Symbol(0x00FB, "__V251"), 
-			new Symbol(0x0102, "__V258"), 
-			new Symbol(0x0103, "__VAxiom") };
+			new Symbol(0x00F6, "__V246"), 
+			new Symbol(0x00F9, "__V249"), 
+			new Symbol(0x00FD, "__V253"), 
+			new Symbol(0x0109, "__V265"), 
+			new Symbol(0x010B, "__V267"), 
+			new Symbol(0x010C, "__VAxiom") };
 		/// <summary>
 		/// The collection of virtuals matched by this parser
 		/// </summary>
@@ -888,6 +899,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			public virtual void OnVariableWhiledo(ASTNode node) {}
 			public virtual void OnVariableBreak(ASTNode node) {}
 			public virtual void OnVariableContinue(ASTNode node) {}
+			public virtual void OnVariableFordo(ASTNode node) {}
+			public virtual void OnVariableSwitch(ASTNode node) {}
 			public virtual void OnVariableSqlStatement(ASTNode node) {}
 			public virtual void OnVariableStatement(ASTNode node) {}
 			public virtual void OnVariableRoot(ASTNode node) {}
@@ -1056,9 +1069,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 				case 0x008E: visitor.OnVariableWhiledo(node); break;
 				case 0x008F: visitor.OnVariableBreak(node); break;
 				case 0x0090: visitor.OnVariableContinue(node); break;
-				case 0x0091: visitor.OnVariableSqlStatement(node); break;
-				case 0x0092: visitor.OnVariableStatement(node); break;
-				case 0x0093: visitor.OnVariableRoot(node); break;
+				case 0x0091: visitor.OnVariableFordo(node); break;
+				case 0x0092: visitor.OnVariableSwitch(node); break;
+				case 0x0093: visitor.OnVariableSqlStatement(node); break;
+				case 0x0094: visitor.OnVariableStatement(node); break;
+				case 0x0095: visitor.OnVariableRoot(node); break;
 			}
 		}
 	}

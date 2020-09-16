@@ -13,6 +13,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     {
         private readonly List<Statement> mCollection = new List<Statement>();
 
+        internal StatementSetEnvironment BeforeContinue { get; set; } = null;
+
         public Statement this[int index] => ((IReadOnlyList<Statement>)mCollection)[index];
 
         public int Count => ((IReadOnlyCollection<Statement>)mCollection).Count;
@@ -32,8 +34,45 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         }
 
+        internal StatementSetEnvironment(SqlCodeDomBuilder builder)
+        {
+
+        }
+
         internal void Add(Statement statement) => mCollection.Add(statement);
+        internal void Add(StatementSetEnvironment statements)
+        {
+            foreach (Statement statement in statements)
+                mCollection.Add(statement);
+            if (statements.InitialGobalParameters != null)
+            {
+                if (InitialGobalParameters == null)
+                    InitialGobalParameters = new Dictionary<string, SqlConstant>();
+                foreach (KeyValuePair<string, SqlConstant> item in statements.InitialGobalParameters)
+                {
+                    if (!InitialGobalParameters.ContainsKey(item.Key))
+                        InitialGobalParameters.Add(item.Key, item.Value);
+                }
+                ClearEnvironment();
+            }
+        }
         internal void InsertFirst(Statement statement) => mCollection.Insert(0, statement);
+        internal void InsertFirst(StatementSetEnvironment statements)
+        {
+            for (int i = statements.Count - 1; i >= 0; i--)
+                mCollection.Insert(0, statements[i]);
+            if (statements.InitialGobalParameters != null)
+            {
+                if (InitialGobalParameters == null)
+                    InitialGobalParameters = new Dictionary<string, SqlConstant>();
+                foreach (KeyValuePair<string, SqlConstant> item in statements.InitialGobalParameters)
+                {
+                    if (!InitialGobalParameters.ContainsKey(item.Key))
+                        InitialGobalParameters.Add(item.Key, item.Value);
+                }
+                ClearEnvironment();
+            }
+        }
 
         public virtual bool Equals(StatementSetEnvironment other)
         {
@@ -44,6 +83,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             for (int i = 0; i < Count; i++)
                 if (!this[i].Equals(other[i]))
                     return false;
+            if (BeforeContinue == null && other.BeforeContinue != null)
+                return false;
+            if (BeforeContinue != null && !BeforeContinue.Equals(other.BeforeContinue))
+                return false;
             return true;
         }
 
@@ -60,11 +103,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
 
         private Dictionary<string, SqlConstant> globalParameters = new Dictionary<string, SqlConstant>();
-        private Dictionary<string, SqlConstant> initialGobalParameters = null;
+        internal Dictionary<string, SqlConstant> InitialGobalParameters { get; set; } = null;
 
         internal void FixInitialGobalParameters()
         {
-            initialGobalParameters = globalParameters;
+            InitialGobalParameters = globalParameters;
         }
 
         public bool AddGlobalParameter(string name, SqlConstant value)
@@ -96,9 +139,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         public void ClearEnvironment()
         {
-            if (initialGobalParameters != null)
+            if (InitialGobalParameters != null)
             {
-                globalParameters = initialGobalParameters;
+                globalParameters = InitialGobalParameters;
             }
             else
             {

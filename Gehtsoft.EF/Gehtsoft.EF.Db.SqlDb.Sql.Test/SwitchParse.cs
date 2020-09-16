@@ -12,11 +12,11 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlStatement;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
-    public class IfParse
+    public class SwitchParse
     {
         private SqlCodeDomBuilder DomBuilder { get; }
 
-        public IfParse()
+        public SwitchParse()
         {
             EntityFinder.EntityTypeInfo[] entities = EntityFinder.FindEntities(new Assembly[] { typeof(Snapshot).Assembly }, "northwind", false);
             DomBuilder = new SqlCodeDomBuilder();
@@ -24,70 +24,80 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void IfParseSuccess()
+        public void SwitchParseSuccess()
         {
-            StatementSetEnvironment result = DomBuilder.Parse("test",
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
+            StatementSetEnvironment result = environment.Parse("test",
                 "SET q=3, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "ELSIF ?q = 4 THEN" +
-                "   SET m = 4" +
-                "ELSE" +
-                "   SET m = 1" +
-                "END IF"
+                "SWITCH ?q " +
+                "   CASE 2 :" +
+                "      SET m = 2" +
+                "      BREAK" +
+                "   CASE 3 :" +
+                "      SET m = 3" +
+                "      BREAK" +
+                "   CASE 4 :" +
+                "      SET m = 4" +
+                "      BREAK" +
+                "   OTHERWISE:" +
+                "      SET m = 1" +
+                "END SWITCH"
             );
 
-            SetStatement set = new SetStatement(DomBuilder, new SetItemCollection()
+            SetStatement set = new SetStatement(environment, new SetItemCollection()
             {
                 new SetItem("q", new SqlConstant(3, SqlBaseExpression.ResultTypes.Integer)),
                 new SetItem("m", new SqlConstant(0, SqlBaseExpression.ResultTypes.Integer))
             });
 
-            IfStatement ifElse = new IfStatement(DomBuilder, new ConditionalStatementsRunCollection()
+            StatementSetEnvironment target = new StatementSetEnvironment() { set };
+            environment.TopEnvironment = target;
+
+            SwitchStatement swtch = new SwitchStatement(environment, new ConditionalStatementsRunCollection()
             {
                 new ConditionalStatementsRun(new SqlBinaryExpression(new GlobalParameter("?q", SqlBaseExpression.ResultTypes.Integer),
                                 SqlBinaryExpression.OperationType.Eq,
                                 new SqlConstant(2, SqlBaseExpression.ResultTypes.Integer)),
                                 new StatementSetEnvironment()
                                 {
-                                    new SetStatement(DomBuilder, new SetItemCollection()
+                                    new SetStatement(environment, new SetItemCollection()
                                                 {
                                                     new SetItem("m", new SqlConstant(2, SqlBaseExpression.ResultTypes.Integer))
-                                                })
+                                                }),
+                                    new BreakStatement()
                                 }),
                 new ConditionalStatementsRun(new SqlBinaryExpression(new GlobalParameter("?q", SqlBaseExpression.ResultTypes.Integer),
                                 SqlBinaryExpression.OperationType.Eq,
                                 new SqlConstant(3, SqlBaseExpression.ResultTypes.Integer)),
                                 new StatementSetEnvironment()
                                 {
-                                    new SetStatement(DomBuilder, new SetItemCollection()
+                                    new SetStatement(environment, new SetItemCollection()
                                                 {
                                                     new SetItem("m", new SqlConstant(3, SqlBaseExpression.ResultTypes.Integer))
-                                                })
+                                                }),
+                                    new BreakStatement()
                                 }),
                 new ConditionalStatementsRun(new SqlBinaryExpression(new GlobalParameter("?q", SqlBaseExpression.ResultTypes.Integer),
                                 SqlBinaryExpression.OperationType.Eq,
                                 new SqlConstant(4, SqlBaseExpression.ResultTypes.Integer)),
                                 new StatementSetEnvironment()
                                 {
-                                    new SetStatement(DomBuilder, new SetItemCollection()
+                                    new SetStatement(environment, new SetItemCollection()
                                                 {
                                                     new SetItem("m", new SqlConstant(4, SqlBaseExpression.ResultTypes.Integer))
-                                                })
+                                                }),
+                                    new BreakStatement()
                                 }),
                 new ConditionalStatementsRun(new SqlConstant(true, SqlBaseExpression.ResultTypes.Boolean),
                                 new StatementSetEnvironment()
                                 {
-                                    new SetStatement(DomBuilder, new SetItemCollection()
+                                    new SetStatement(environment, new SetItemCollection()
                                                 {
                                                     new SetItem("m", new SqlConstant(1, SqlBaseExpression.ResultTypes.Integer))
                                                 })
                                 }),
             });
-
-            StatementSetEnvironment target = new StatementSetEnvironment() { set, ifElse };
+            target.Add(swtch);
 
             result.Equals(target).Should().BeTrue();
 
@@ -95,60 +105,60 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
 
         [Fact]
-        public void IfParseError()
+        public void SwitchParseError()
         {
             Assert.Throws<SqlParserException>(() =>
                 DomBuilder.Parse("test",
                 "SET q=3, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "ELSE" +
-                "   SET m = 4" +
-                "ELSE" +
-                "   SET m = 1" +
-                "END IF"
+                "SWITCH ?q " +
+                "   CASE '2' :" +
+                "      SET m = 2" +
+                "      BREAK" +
+                "   CASE 3 :" +
+                "      SET m = 3" +
+                "      BREAK" +
+                "   CASE 4 :" +
+                "      SET m = 4" +
+                "      BREAK" +
+                "   OTHERWISE:" +
+                "      SET m = 1" +
+                "END SWITCH"
                 )
             );
             Assert.Throws<SqlParserException>(() =>
                 DomBuilder.Parse("test",
-                "SET q=3, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "ELSIF ?q = 4 THEN" +
-                "   SET m = 4" +
-                "ELSE" +
-                "   SET m = 1"
+                "SET q='3', m=0" +
+                "SWITCH ?q " +
+                "   CASE 2 :" +
+                "      SET m = 2" +
+                "      BREAK" +
+                "   CASE 3 :" +
+                "      SET m = 3" +
+                "      BREAK" +
+                "   CASE 4 :" +
+                "      SET m = 4" +
+                "      BREAK" +
+                "   OTHERWISE:" +
+                "      SET m = 1" +
+                "END SWITCH"
                 )
             );
             Assert.Throws<SqlParserException>(() =>
                 DomBuilder.Parse("test",
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "ELSIF ?q = 4 THEN" +
-                "   SET m = 4" +
-                "ELSE" +
-                "   SET m = 1" +
-                "END IF"
-                )
-            );
-            Assert.Throws<SqlParserException>(() =>
-                DomBuilder.Parse("test",
-                "SET q=3, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "ELSIF 4 THEN" +
-                "   SET m = 4" +
-                "ELSE" +
-                "   SET m = 1" +
-                "END IF"
+                "SET m=0" +
+                "SWITCH ?q " +
+                "   CASE 2 :" +
+                "      SET m = 2" +
+                "      BREAK" +
+                "   CASE 3 :" +
+                "      SET m = 3" +
+                "      BREAK" +
+                "   CASE 4 :" +
+                "      SET m = 4" +
+                "      BREAK" +
+                "   OTHERWISE:" +
+                "      SET m = 1" +
+                "END SWITCH"
                 )
             );
         }
