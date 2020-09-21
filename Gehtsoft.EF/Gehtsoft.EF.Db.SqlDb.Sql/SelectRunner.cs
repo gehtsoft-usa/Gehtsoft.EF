@@ -107,6 +107,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mMainBuilder.Skip = mSelect.Offset;
         }
 
+        public void RunWithResult(SqlSelectStatement select)
+        {
+            mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(select);
+        }
         public override object Run(SqlSelectStatement select)
         {
             List<object> result = new List<object>();

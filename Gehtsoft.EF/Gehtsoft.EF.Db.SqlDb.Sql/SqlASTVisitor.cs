@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
@@ -54,8 +55,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         }
                     case SqlParser.ID.VariableDeclare:
                         {
-                            var q = new DeclareStatement(builder, statementNode, source);
-                            return null;
+                            return new DeclareStatement(builder, statementNode, source);
                         }
                     case SqlParser.ID.VariableExit:
                         {
@@ -111,13 +111,36 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             for (int i = 0; i < statementNode.Children.Count; i++)
             {
                 var stmt = VisitStatement(builder, source, statementNode.Children[i]);
-                if (stmt != null)
+                if (stmt != null && !(stmt is DeclareStatement))
                     initialSet.Add(stmt);
             }
 
             initialSet.FixInitialGobalParameters();
             builder.TopEnvironment = builder.TopEnvironment.ParentEnvironment;
             return initialSet;
+        }
+        public Expression VisitStatementsToLinq(SqlCodeDomBuilder builder, string source, ASTNode statementNode, Statement.StatementType statementType, Expression onContinue)
+        {
+            LabelTarget startLabel = Expression.Label();
+            LabelTarget endLabel = Expression.Label();
+            List<Expression> initialSet = new List<Expression>();
+            if (statementNode.Children.Count == 0)
+                return null;
+            initialSet.Add(builder.StartBlock(startLabel, endLabel, statementType));
+            initialSet.Add(Expression.Label(startLabel));
+            SqlCodeDomBuilder.PushDescriptor(builder, startLabel, endLabel, statementType);
+            builder.BlockDescriptors.Peek().OnContinue = onContinue;
+            for (int i = 0; i < statementNode.Children.Count; i++)
+            {
+                var stmt = VisitStatement(builder, source, statementNode.Children[i]);
+                if (stmt != null)
+                    initialSet.Add(stmt.ToLinqWxpression());
+            }
+
+            SqlCodeDomBuilder.PopDescriptor(builder);
+            initialSet.Add(Expression.Label(endLabel));
+            initialSet.Add(builder.EndBlock());
+            return Expression.Block(initialSet);
         }
     }
 }

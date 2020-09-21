@@ -43,18 +43,22 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         public override object Run(SetStatement setStatement)
         {
-            foreach(SetItem item in setStatement.SetItems)
+            return Run(mBuilder, setStatement);
+        }
+
+        public static object Run(SqlCodeDomBuilder builder, SetStatement setStatement)
+        {
+            foreach (SetItem item in setStatement.SetItems)
             {
                 string name = item.Name;
                 SqlBaseExpression sourceExpression = item.Expression;
-                SqlConstant resultConstant = CalculateExpression(sourceExpression);
+                SqlConstant resultConstant = CalculateExpression(sourceExpression, builder, builder.Connection);
                 if (resultConstant == null)
                 {
                     throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error while SET execution"));
                 }
-                mBuilder.UpdateGlobalParameter($"?{name}", resultConstant);
+                builder.UpdateGlobalParameter($"?{name}", resultConstant);
             }
-
             return null;
         }
     }

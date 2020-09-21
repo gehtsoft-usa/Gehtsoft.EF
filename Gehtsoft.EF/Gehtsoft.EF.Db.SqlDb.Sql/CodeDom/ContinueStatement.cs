@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Hime.Redist;
@@ -41,6 +42,32 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             : base(null, StatementType.Continue)
         {
         }
+
+        internal override Expression ToLinqWxpression()
+        {
+            BlockDescriptor[] array = CodeDomBuilder.BlockDescriptors.ToArray();
+            BlockDescriptor foundDescr = null;
+            for (int i = array.Length - 1; i >= 0; i--)
+            {
+                BlockDescriptor descr = array[i];
+                if (descr.StatementType == StatementType.Loop)
+                {
+                    foundDescr = descr;
+                    break;
+                }
+            }
+            if (foundDescr == null)
+            {
+                throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error: BREAK out of appropriate body"));
+            }
+            List<Expression> leaveSet = new List<Expression>();
+            if (foundDescr.OnContinue != null)
+                leaveSet.Add(foundDescr.OnContinue);
+            leaveSet.Add(Expression.Call(Expression.Constant(CodeDomBuilder), "ContinueRun", null));
+            leaveSet.Add(Expression.Goto(foundDescr.StartLabel));
+            return Expression.Block(leaveSet);
+        }
+
         public virtual bool Equals(ContinueStatement other)
         {
             if (other is ContinueStatement stmt)

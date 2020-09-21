@@ -4,6 +4,7 @@ using Hime.Redist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -68,6 +69,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{TableName}'"));
             }
             WhereClause = whereClause;
+        }
+
+        internal override Expression ToLinqWxpression()
+        {
+            DeleteRunner runner = new DeleteRunner(CodeDomBuilder, CodeDomBuilder.Connection);
+            return Expression.Call(Expression.Constant(runner), "RunWithResult", null, Expression.Constant(this));
         }
 
         public virtual bool Equals(SqlDeleteStatement other)

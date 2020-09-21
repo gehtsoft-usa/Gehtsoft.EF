@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using System.Text;
 using Xunit;
+using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
@@ -36,7 +37,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void IfSuccess1()
+        public void IfSuccessWithRun1()
         {
             object result;
 
@@ -122,7 +123,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void IfSuccess2()
+        public void IfSuccessWithRun2()
         {
             object result;
 
@@ -160,6 +161,138 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "EXIT WITH ?m"
             );
             result = DomBuilder.Run(connection);
+            ((int)result).Should().Be(0);
+        }
+
+        [Fact]
+        public void IfSuccessWithLinq1()
+        {
+            Expression block;
+            object result;
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+
+            block = environment.ParseToLinq("test",
+                "SET q=4, m=0" +
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "ELSIF ?q = 4 THEN" +
+                "   SET m = 4" +
+                "ELSE" +
+                "   SET m = 1" +
+                "END IF " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(4);
+
+            block = environment.ParseToLinq("test",
+                "SET q=3, m=0" +
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "ELSIF ?q = 4 THEN" +
+                "   SET m = 4" +
+                "ELSE" +
+                "   SET m = 1" +
+                "END IF " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(3);
+
+            block = environment.ParseToLinq("test",
+                "SET q=2, m=0" +
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "ELSIF ?q = 4 THEN" +
+                "   SET m = 4" +
+                "ELSE" +
+                "   SET m = 1" +
+                "END IF " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(2);
+
+            block = environment.ParseToLinq("test",
+                "SET q=1, m=0" +
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "ELSIF ?q = 4 THEN" +
+                "   SET m = 4" +
+                "ELSE" +
+                "   SET m = 1" +
+                "END IF " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(1);
+
+            block = environment.ParseToLinq("test",
+                "SET q=0, m=0" +
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "ELSIF ?q = 4 THEN" +
+                "   SET m = 4" +
+                "ELSE" +
+                "   SET m = 1" +
+                "END IF " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(1);
+        }
+
+        [Fact]
+        public void IfSuccessWithLinq2()
+        {
+            Expression block;
+            object result;
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+
+            block = environment.ParseToLinq("test",
+                "SET q=2, m=0" +
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "END IF " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(2);
+
+            block = environment.ParseToLinq("test",
+                "SET q=3, m=0" +
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "END IF " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(3);
+
+            block = environment.ParseToLinq("test",
+                "SET q=4, m=0" +
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "END IF " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             ((int)result).Should().Be(0);
         }
     }

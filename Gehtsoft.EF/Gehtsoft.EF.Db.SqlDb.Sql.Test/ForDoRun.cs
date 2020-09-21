@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using System.Text;
 using Xunit;
+using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
@@ -36,7 +37,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void ForDoSuccess()
+        public void ForDoWithRun()
         {
             object result;
             SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
@@ -50,6 +51,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "EXIT WITH ?factorial"
             );
             result = environment.Run(connection);
+            ((int)result).Should().Be(120);
+        }
+
+        [Fact]
+        public void ForDoWithLinq()
+        {
+            Expression block;
+            object result;
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+
+            block = environment.ParseToLinq("test",
+                "SET factorial = 1 " +
+                "FOR SET n=0 WHILE ?n <= 5 NEXT SET n=?n+1 LOOP " +
+                "   IF ?n = 0 THEN CONTINUE; END IF " +
+                "   SET factorial = ?factorial * ?n " +
+                "END LOOP " +
+                "EXIT WITH ?factorial"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             ((int)result).Should().Be(120);
         }
     }

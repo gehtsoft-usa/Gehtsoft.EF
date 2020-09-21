@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Hime.Redist;
@@ -33,15 +34,47 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             node = statementNode.Children[1];
             Statements = builder.ParseNode("WHILE-LOOP Body", node, this);
+
             Statements.ParentEnvironment = builder.TopEnvironment;
             builder.TopEnvironment = Statements;
             builder.TopEnvironment.ParentStatement = this;
+            BreakStatement breakStatement = new BreakStatement(builder);
+            ConditionalStatementsRun condition = new ConditionalStatementsRun(new SqlUnarExpression(whileExpression, SqlUnarExpression.OperationType.Not),
+                new StatementSetEnvironment() { breakStatement });
+            IfStatement ifStatement = new IfStatement(builder, new ConditionalStatementsRunCollection() { condition });
 
-            Statements.InsertFirst(new IfStatement(builder, new ConditionalStatementsRunCollection() {
-                new ConditionalStatementsRun( new SqlUnarExpression( whileExpression, SqlUnarExpression.OperationType.Not),
-                new StatementSetEnvironment() { new BreakStatement(builder) })
-            }));
+            Statements.InsertFirst(ifStatement);
             Statements.Add(new ContinueStatement(builder));
+
+            if (builder.WhetherParseToLinq)
+            {
+                BlockExpression linqExpression = (BlockExpression)builder.ParseNodeToLinq("WHILE-LOOP Body", node, this);
+                List<Expression> expressionList = new List<Expression>();
+                int cnt = linqExpression.Expressions.Count;
+
+                LabelTarget startLabel = ((LabelExpression)linqExpression.Expressions[1]).Target;
+                LabelTarget endLabel = ((LabelExpression)linqExpression.Expressions[cnt - 2]).Target;
+
+                SqlCodeDomBuilder.PushDescriptor(builder, startLabel, endLabel, this.Type);
+
+                condition.LinqExpression = Expression.Block(breakStatement.ToLinqWxpression(), Expression.Constant(null));
+
+                expressionList.Add(linqExpression.Expressions[0]);
+                expressionList.Add(linqExpression.Expressions[1]);
+                expressionList.Add(ifStatement.ToLinqWxpression());
+                for (int i = 2; i < cnt - 2; i++)
+                {
+                    Expression expr = linqExpression.Expressions[i];
+                    expressionList.Add(expr);
+                }
+                expressionList.Add(new ContinueStatement(builder).ToLinqWxpression());
+                expressionList.Add(linqExpression.Expressions[cnt - 2]);
+                expressionList.Add(linqExpression.Expressions[cnt - 1]);
+
+                LinqExpression = Expression.Block(expressionList);
+
+                SqlCodeDomBuilder.PopDescriptor(builder);
+            }
             builder.TopEnvironment = Statements.ParentEnvironment;
         }
 

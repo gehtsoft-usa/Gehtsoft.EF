@@ -64,6 +64,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     case ResultTypes.String:
                         retval = typeof(string);
                         break;
+                    case ResultTypes.Row:
+                        retval = typeof(Dictionary<string, object>);
+                        break;
+                    case ResultTypes.RowSet:
+                        retval = typeof(List<object>);
+                        break;
                 }
                 return retval;
             }
@@ -81,6 +87,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 return ResultTypes.DateTime;
             if (type == typeof(string))
                 return ResultTypes.String;
+            if (type == typeof(Dictionary<string, object>))
+                return ResultTypes.Row;
+            if (type == typeof(List<object>))
+                return ResultTypes.RowSet;
             return ResultTypes.Unknown;
         }
 

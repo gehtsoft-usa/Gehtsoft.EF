@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Hime.Redist;
@@ -32,19 +33,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 if (node.Symbol.ID == SqlParser.ID.VariableRoot)
                 {
                     StatementSetEnvironment inner = builder.ParseNode("SWITCH CASE", node, this);
+                    inner.ParentEnvironment = builder.TopEnvironment;
+                    builder.TopEnvironment = inner;
+                    builder.TopEnvironment.ParentStatement = this;
+                    inner.Add(new BreakStatement(builder));
                     if (conditionalRun == null)
                     {
                         conditionalRun = new ConditionalStatementsRun(new SqlConstant(true, ResultTypes.Boolean));
                     }
                     conditionalRun.Statements = inner;
+                    if (builder.WhetherParseToLinq)
+                    {
+                        conditionalRun.LinqExpression = builder.ParseNodeToLinq("SWITCH CASE", node, this);
+                    }
                     ConditionalRuns.Add(conditionalRun);
                     conditionalRun = null;
+                    builder.TopEnvironment = inner.ParentEnvironment;
                 }
                 else
                 {
-                    if (conditionalRun != null)
-                    {
-                    }
                     SqlBaseExpression rightOperand = SqlExpressionParser.ParseExpression(this, node, currentSource);
                     if (!Statement.IsCalculable(rightOperand))
                     {
@@ -78,6 +85,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             : base(builder, StatementType.Switch)
         {
             ConditionalRuns = conditionalRuns;
+        }
+
+        internal override Expression ToLinqWxpression()
+        {
+            List<SwitchCase> cases = new List<SwitchCase>();
+            foreach(ConditionalStatementsRun item in ConditionalRuns)
+            {
+                cases.Add(Expression.SwitchCase(item.LinqExpression, StatementRunner.CalculateExpressionValue<bool>(item.ConditionalExpression, CodeDomBuilder)));
+            }
+            ConstantExpression switchValue = Expression.Constant(true);
+            return Expression.Switch(
+                switchValue,
+                Expression.Constant(null),
+                cases.ToArray()
+            );
         }
 
         public virtual bool Equals(SwitchStatement other)

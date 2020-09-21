@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Hime.Redist;
@@ -38,6 +39,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 throw new SqlParserException(new SqlError(null, 0, 0,
                     $"Not calculable expression in EXIT statement"));
             }
+        }
+
+        internal override Expression ToLinqWxpression()
+        {
+            BlockDescriptor descr =  CodeDomBuilder.BlockDescriptors.ToArray()[0];
+            return Expression.Block(
+                Expression.Call(Expression.Constant(CodeDomBuilder), "ExitRun", null, Expression.Constant(this.ExitExpression)),
+                Expression.Goto(descr.EndLabel)
+            );
         }
 
         public virtual bool Equals(ExitStatement other)

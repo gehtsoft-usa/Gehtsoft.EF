@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using System.Text;
 using Xunit;
+using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
@@ -115,6 +116,96 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
             DomBuilder.Parse("test", $"SELECT * FROM Supplier WHERE SupplierID={lastInsertedID}");
             result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            array.Count().Should().Be(1);
+
+            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            companyName.Should().Be(shouldBeCompanyName);
+        }
+
+        [Fact]
+        public void SimpleInsertToLinq()
+        {
+            Expression block;
+            object result;
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+            List<object> array;
+
+            block = environment.ParseToLinq("test", "SELECT COUNT(*) AS Total FROM Supplier");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            int countBefore = (int)(array[0] as Dictionary<string, object>)["Total"];
+
+            block = environment.ParseToLinq("test",
+                "INSERT INTO Supplier " +
+                "(CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country) " +
+                "VALUES " +
+                "('Gehtsoft', 'Just Gehtsoft', 'Wow', '1-st street 1', 'Omsk', 'Siberia', '644000', 'Russia')"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+
+            Int64 insertedID = (Int64)(array[0] as Dictionary<string, object>)["LastInsertedId"];
+            insertedID.Should().BeGreaterThan(0);
+
+            block = environment.ParseToLinq("test", "SELECT COUNT(*) AS Total FROM Supplier");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            int countAfter = (int)(array[0] as Dictionary<string, object>)["Total"];
+
+            countAfter.Should().Be(countBefore + 1);
+
+            block = environment.ParseToLinq("test", $"SELECT * FROM Supplier WHERE SupplierID={insertedID}");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            array.Count().Should().Be(1);
+
+            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            companyName.Should().Be("Gehtsoft");
+        }
+
+        [Fact]
+        public void InsertFromSelectToLinq()
+        {
+            Expression block;
+            object result;
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+            List<object> array;
+
+            block = environment.ParseToLinq("test", "SELECT COUNT(*) AS Total FROM Supplier");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            int countBefore = (int)(array[0] as Dictionary<string, object>)["Total"];
+
+            block = environment.ParseToLinq("test", "SELECT * FROM Customer WHERE PostalCode LIKE '80%'");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            int countShoulfBeAdded = array.Count;
+            string shouldBeCompanyName = (string)(array[array.Count - 1] as Dictionary<string, object>)["CompanyName"];
+
+            block = environment.ParseToLinq("test",
+                "INSERT INTO Supplier " +
+                "(CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax) " +
+                "SELECT " +
+                "CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax " +
+                "FROM Customer WHERE PostalCode LIKE '80%'"
+            );
+
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+
+            Int64 lastInsertedID = (Int64)(array[0] as Dictionary<string, object>)["LastInsertedId"];
+            lastInsertedID.Should().BeGreaterThan(0);
+
+            block = environment.ParseToLinq("test", "SELECT COUNT(*) AS Total FROM Supplier");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            int countAfter = (int)(array[0] as Dictionary<string, object>)["Total"];
+
+            countAfter.Should().Be(countBefore + countShoulfBeAdded);
+
+            block = environment.ParseToLinq("test", $"SELECT * FROM Supplier WHERE SupplierID={lastInsertedID}");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             array.Count().Should().Be(1);
 

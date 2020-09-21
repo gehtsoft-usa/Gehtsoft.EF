@@ -102,6 +102,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
+        public void RunWithResult(SqlDeleteStatement delete)
+        {
+            mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(delete);
+        }
+
         public override object Run(SqlDeleteStatement delete)
         {
             List<object> result = new List<object>();

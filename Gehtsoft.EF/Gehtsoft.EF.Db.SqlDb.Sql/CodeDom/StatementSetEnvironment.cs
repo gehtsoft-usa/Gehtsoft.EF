@@ -172,17 +172,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
     }
 
-    public interface IStatementSetEnvironment
+    public interface IStatementSetEnvironment : IParametersHolder
     {
-        object LastStatementResult { get; set; }
         bool Continue { get; set; }
         bool Leave { get; set; }
         IStatementSetEnvironment ParentEnvironment { get; set; }
         Statement ParentStatement { get; set; }
+        void ClearEnvironment();
+    }
+
+    public interface IParametersHolder
+    {
+        object LastStatementResult { get; set; }
         bool AddGlobalParameter(string name, SqlConstant value);
         void UpdateGlobalParameter(string name, SqlConstant value);
         SqlConstant FindGlobalParameter(string name);
-        void ClearEnvironment();
         bool ContainsGlobalParameter(string name);
     }
 }

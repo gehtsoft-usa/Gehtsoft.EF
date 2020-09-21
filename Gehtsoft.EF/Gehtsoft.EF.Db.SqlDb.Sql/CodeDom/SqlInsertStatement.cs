@@ -4,6 +4,7 @@ using Hime.Redist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -109,6 +110,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             Fields = fields;
             RightSelect = rightSelect;
+        }
+
+        internal override Expression ToLinqWxpression()
+        {
+            InsertRunner runner = new InsertRunner(CodeDomBuilder, CodeDomBuilder.Connection);
+            return Expression.Call(Expression.Constant(runner), "RunWithResult", null, Expression.Constant(this));
         }
 
         internal protected void CheckFieldsAndValues()

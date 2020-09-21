@@ -4,6 +4,7 @@ using Hime.Redist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -79,6 +80,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             UpdateAssigns = updateAssigns;
             WhereClause = whereClause;
+        }
+
+        internal override Expression ToLinqWxpression()
+        {
+            UpdateRunner runner = new UpdateRunner(CodeDomBuilder, CodeDomBuilder.Connection);
+            return Expression.Call(Expression.Constant(runner), "RunWithResult", null, Expression.Constant(this));
         }
 
         public virtual bool Equals(SqlUpdateStatement other)

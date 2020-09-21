@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -115,7 +116,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             SelectList = selectList;
             WhereClause = whereClause;
         }
-
+        internal override Expression ToLinqWxpression()
+        {
+            SelectRunner runner = new SelectRunner(CodeDomBuilder, CodeDomBuilder.Connection);
+            return Expression.Call(Expression.Constant(runner), "RunWithResult", null, Expression.Constant(this));
+        }
         public virtual bool Equals(SqlSelectStatement other)
         {
             if (other is SqlSelectStatement stmt)

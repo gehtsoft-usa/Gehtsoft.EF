@@ -14,6 +14,8 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
+using System.Linq.Expressions;
+using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.Statement;
 
 [assembly: InternalsVisibleTo("Gehtsoft.EF.Db.SqlDb.Sql.Test")]
 
@@ -44,6 +46,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         private StatementSetEnvironment mLastParse = null;
 
+        internal bool WhetherParseToLinq {get; set;} = false;
         public StatementSetEnvironment Parse(string name, TextReader source)
         {
             var root = ParseToRawTree(name, source);
@@ -54,10 +57,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal StatementSetEnvironment ParseNode(string name, ASTNode root, Statement parentStatement = null)
         {
+            bool saveWhetherParseToLinq = WhetherParseToLinq;
+            WhetherParseToLinq = false;
             var visitor = new SqlASTVisitor();
             StatementSetEnvironment initialSet = new StatementSetEnvironment();
             initialSet.ParentStatement = parentStatement;
-            return visitor.VisitStatements(this, name, root, initialSet);
+            StatementSetEnvironment result = visitor.VisitStatements(this, name, root, initialSet);
+            WhetherParseToLinq = saveWhetherParseToLinq;
+            return result;
         }
 
         public StatementSetEnvironment Parse(string name, string source)
@@ -72,6 +79,38 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             using (StreamReader sr = new StreamReader(fileName, encoding ?? Encoding.UTF8, true))
             {
                 return Parse(fileName, sr);
+            }
+        }
+
+        public Expression ParseToLinq(string name, TextReader source)
+        {
+            var root = ParseToRawTree(name, source);
+            Expression result = ParseNodeToLinq(name, root);
+            return result;
+        }
+
+        internal Expression ParseNodeToLinq(string name, ASTNode root, Statement parentStatement = null)
+        {
+            bool saveWhetherParseToLinq = WhetherParseToLinq;
+            WhetherParseToLinq = true;
+            var visitor = new SqlASTVisitor();
+            Expression result = visitor.VisitStatementsToLinq(this, name, root, parentStatement?.Type ?? Statement.StatementType.Block, parentStatement?.OnContinue);
+            WhetherParseToLinq = saveWhetherParseToLinq;
+            return result;
+        }
+
+        public Expression ParseToLinq(string name, string source)
+        {
+            using (var reader = new StringReader(source))
+            {
+                return ParseToLinq(name, reader);
+            }
+        }
+        public Expression ParseToLinq(string fileName, Encoding encoding = null)
+        {
+            using (StreamReader sr = new StreamReader(fileName, encoding ?? Encoding.UTF8, true))
+            {
+                return ParseToLinq(fileName, sr);
             }
         }
 
@@ -134,6 +173,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             SqlCodeDomBuilder retval = new SqlCodeDomBuilder();
             retval.mTypeNameToEntity = mTypeNameToEntity;
             retval.mTypeToFields = mTypeToFields;
+
+            return retval;
+        }
+
+        public SqlDbConnection Connection { get; private set; } = null;
+        public SqlCodeDomBuilder NewEnvironment(SqlDbConnection connection)
+        {
+            SqlCodeDomBuilder retval = NewEnvironment();
+            retval.Connection = connection;
 
             return retval;
         }
@@ -275,7 +323,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
                 if (statements.Continue)
                 {
-                    if(statements.BeforeContinue != null)
+                    if (statements.BeforeContinue != null)
                     {
                         Run(connection, statements.BeforeContinue);
                     }
@@ -293,43 +341,201 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal IStatementSetEnvironment TopEnvironment { get; set; } = null;
 
-        private IStatementSetEnvironment findEnvironmentWithParameter(string name, bool local = false)
+        internal Stack<BlockDescriptor> BlockDescriptors { get; set; } = new Stack<BlockDescriptor>();
+
+        public static void PushDescriptor(SqlCodeDomBuilder codeDomBuilder, LabelTarget startLabel, LabelTarget endLabel, Statement.StatementType statementType)
+        {
+            BlockDescriptor descr = new BlockDescriptor();
+            descr.StartLabel = startLabel;
+            descr.EndLabel = endLabel;
+            descr.StatementType = statementType;
+            codeDomBuilder.BlockDescriptors.Push(descr);
+        }
+        public static object PopDescriptor(SqlCodeDomBuilder codeDomBuilder)
+        {
+            object retval = codeDomBuilder.BlockDescriptors.Peek().LastStatementResult;
+            codeDomBuilder.BlockDescriptors.Pop();
+            return retval;
+        }
+        public Expression StartBlock(LabelTarget startLabel, LabelTarget endLabel, Statement.StatementType statementType)
+        {
+            return Expression.Call(typeof(SqlCodeDomBuilder), "PushDescriptor", null,
+                Expression.Constant(this),
+                Expression.Constant(startLabel),
+                Expression.Constant(endLabel),
+                Expression.Constant(statementType)
+                );
+        }
+
+        public Expression EndBlock()
+        {
+            return Expression.Call(typeof(SqlCodeDomBuilder), "PopDescriptor", null, Expression.Constant(this));
+        }
+
+        private IParametersHolder findEnvironmentWithParameter(string name, bool local = false)
         {
             IStatementSetEnvironment current = TopEnvironment;
-            while(current != null)
+            while (current != null)
             {
                 if (current.ContainsGlobalParameter(name))
                     return current;
                 current = current.ParentEnvironment;
                 if (local) break;
             }
+            if (current == null && BlockDescriptors.Count > 0)
+            {
+                BlockDescriptor[] array = BlockDescriptors.ToArray();
+                for (int i = array.Length - 1; i >= 0; i--)
+                {
+                    BlockDescriptor descr = array[i];
+                    if (descr.ContainsGlobalParameter(name))
+                        return descr;
+                }
+            }
             return null;
         }
 
         internal bool AddGlobalParameter(string name, ResultTypes resultType, bool local = false)
         {
-            IStatementSetEnvironment found = findEnvironmentWithParameter(name, local);
+            IParametersHolder found = findEnvironmentWithParameter(name, local);
             if (found != null)
                 return false;
-            TopEnvironment.AddGlobalParameter(name, new SqlConstant(null, resultType));
+            if (TopEnvironment != null)
+                TopEnvironment.AddGlobalParameter(name, new SqlConstant(null, resultType));
+            if (BlockDescriptors.Count > 0)
+                BlockDescriptors.Peek().AddGlobalParameter(name, new SqlConstant(null, resultType));
             return true;
         }
 
         internal void UpdateGlobalParameter(string name, SqlConstant value)
         {
-            IStatementSetEnvironment found = findEnvironmentWithParameter(name);
+            IParametersHolder found = findEnvironmentWithParameter(name);
             if (found == null)
-                TopEnvironment.AddGlobalParameter(name, value);
+            {
+                if (TopEnvironment != null)
+                    TopEnvironment.AddGlobalParameter(name, value);
+                if (BlockDescriptors.Count > 0)
+                    BlockDescriptors.Peek().AddGlobalParameter(name, value);
+            }
             else
                 found.UpdateGlobalParameter(name, value);
         }
 
         internal SqlConstant FindGlobalParameter(string name)
         {
-            IStatementSetEnvironment found = findEnvironmentWithParameter(name);
+            IParametersHolder found = findEnvironmentWithParameter(name);
             if (found != null)
                 return found.FindGlobalParameter(name);
             return null;
+        }
+
+        public void ExitRun(SqlBaseExpression exitExpression)
+        {
+            object exitValue = null;
+            if (exitExpression != null)
+            {
+                SqlConstant resultConstant = StatementRunner.CalculateExpression(exitExpression, this, Connection);
+                if (resultConstant == null)
+                {
+                    throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error while SET execution"));
+                }
+                exitValue = resultConstant.Value;
+            }
+            while (BlockDescriptors.Count > 1)
+            {
+                BlockDescriptor current = BlockDescriptors.Peek();
+                if (exitValue != null)
+                {
+                    current.LastStatementResult = exitValue;
+                }
+                else if (current.LastStatementResult != null)
+                {
+                    exitValue = current.LastStatementResult;
+                }
+                BlockDescriptors.Pop();
+            }
+
+            if (exitValue != null)
+            {
+                BlockDescriptors.Peek().LastStatementResult = exitValue;
+            }
+        }
+
+        public void BreakRun()
+        {
+            while (BlockDescriptors.Count > 0)
+            {
+                BlockDescriptor current = BlockDescriptors.Peek();
+                if (current.StatementType == StatementType.Loop || current.StatementType == StatementType.Switch)
+                {
+                    break;
+                }
+                BlockDescriptors.Pop();
+            }
+        }
+
+        public void ContinueRun()
+        {
+            while (BlockDescriptors.Count > 0)
+            {
+                BlockDescriptor current = BlockDescriptors.Peek();
+                if (current.StatementType == StatementType.Loop)
+                {
+                    break;
+                }
+                BlockDescriptors.Pop();
+            }
+        }
+    }
+
+    public class BlockDescriptor : IParametersHolder
+    {
+        internal Expression OnContinue { get; set; } = null;
+        internal LabelTarget StartLabel { get; set; }
+        internal LabelTarget EndLabel { get; set; }
+        internal Statement.StatementType StatementType { get; set; }
+
+        private Dictionary<string, SqlConstant> globalParameters = new Dictionary<string, SqlConstant>();
+
+        public bool AddGlobalParameter(string name, SqlConstant value)
+        {
+            if (globalParameters.ContainsKey(name))
+                return false;
+            globalParameters.Add(name, value);
+            return true;
+        }
+
+        public void UpdateGlobalParameter(string name, SqlConstant value)
+        {
+            if (!globalParameters.ContainsKey(name))
+                globalParameters.Add(name, value);
+            else
+                globalParameters[name] = value;
+        }
+
+        public SqlConstant FindGlobalParameter(string name)
+        {
+            if (globalParameters.ContainsKey(name))
+                return globalParameters[name];
+            return null;
+        }
+        public bool ContainsGlobalParameter(string name)
+        {
+            return globalParameters.ContainsKey(name);
+        }
+
+        private object mLastStatementResult = new List<object>();
+
+        public object LastStatementResult
+        {
+            get
+            {
+                return mLastStatementResult;
+            }
+            set
+            {
+                mLastStatementResult = value;
+            }
         }
     }
 }

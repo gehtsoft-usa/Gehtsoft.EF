@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using System.Text;
 using Xunit;
+using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
@@ -76,6 +77,60 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
             DomBuilder.Parse("test", $"SELECT * FROM Supplier WHERE SupplierID={insertedID}");
             result = DomBuilder.Run(connection);
+            array = result as List<object>;
+
+            string contactTitle = (string)(array[0] as Dictionary<string, object>)["ContactTitle"];
+            contactTitle.Should().Be("Wow SUPER");
+            string city = (string)(array[0] as Dictionary<string, object>)["City"];
+            city.Should().Be("Omsk");
+            string phone = (string)(array[0] as Dictionary<string, object>)["Phone"];
+            phone.Should().Be(shipperPhone);
+            string region = (string)(array[0] as Dictionary<string, object>)["Region"];
+            region.Should().Be("was here: " + emploeeRegion);
+        }
+
+        [Fact]
+        public void UpdateSuccessToLinq()
+        {
+            Expression block;
+            object result;
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+            List<object> array;
+
+            block = environment.ParseToLinq("test",
+                "INSERT INTO Supplier " +
+                "(CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country) " +
+                "VALUES " +
+                "('Gehtsoft', 'Just Gehtsoft', 'Wow', '1-st street 1', 'Moscow', 'Siberia', '644000', 'Russia')"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            Int64 insertedID = (Int64)(array[0] as Dictionary<string, object>)["LastInsertedId"];
+
+            block = environment.ParseToLinq("test", $"SELECT * FROM Shipper LIMIT 1");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            string shipperCompanyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            string shipperPhone = (string)(array[0] as Dictionary<string, object>)["Phone"];
+
+            block = environment.ParseToLinq("test", $"SELECT * FROM Employee WHERE PostalCode= '98122'");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            string emploeeRegion = (string)(array[0] as Dictionary<string, object>)["Region"];
+
+            block = environment.ParseToLinq("test", $"UPDATE Supplier SET " +
+                $"ContactTitle = ContactTitle || ' SUPER', " +
+                $"City = 'Omsk', " +
+                $"Phone = (SELECT Phone FROM Shipper WHERE CompanyName='{shipperCompanyName}'), " +
+                $"Region = 'was here: ' || (SELECT Region FROM Employee WHERE PostalCode= '98122') " +
+                $"WHERE SupplierID={insertedID}");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            int updated = (int)(array[0] as Dictionary<string, object>)["Updated"];
+            updated.Should().Be(1);
+
+            block = environment.ParseToLinq("test", $"SELECT * FROM Supplier WHERE SupplierID={insertedID}");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
 
             string contactTitle = (string)(array[0] as Dictionary<string, object>)["ContactTitle"];

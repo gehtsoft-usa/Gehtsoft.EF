@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Hime.Redist;
@@ -12,27 +13,39 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     public class BlockStatement : Statement
     {
         public StatementSetEnvironment Statements { get; protected set; }
+        protected Expression LinqExpression { get; set; }
 
         internal BlockStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Block)
         {
             ASTNode node = statementNode.Children[0];
             Statements = builder.ParseNode("Block Body", node, this);
-            Statements.ParentEnvironment = builder.TopEnvironment;
-            builder.TopEnvironment = Statements;
+            //Statements.ParentEnvironment = builder.TopEnvironment;
+            //builder.TopEnvironment = Statements;
+            if (builder.WhetherParseToLinq)
+            {
+                LinqExpression = builder.ParseNodeToLinq("Block Body", node, this);
+            }
         }
 
         internal BlockStatement(SqlCodeDomBuilder builder, StatementSetEnvironment statements)
             : base(builder, StatementType.Block)
         {
             Statements = statements;
-            Statements.ParentEnvironment = builder.TopEnvironment;
-            builder.TopEnvironment = Statements;
+            //Statements.ParentEnvironment = builder.TopEnvironment;
+            //builder.TopEnvironment = Statements;
         }
         protected BlockStatement(SqlCodeDomBuilder builder, StatementType type)
             : base(builder, type)
         {
         }
+
+
+        internal override Expression ToLinqWxpression()
+        {
+            return LinqExpression;
+        }
+
         public virtual bool Equals(BlockStatement other)
         {
             if (other is BlockStatement stmt)

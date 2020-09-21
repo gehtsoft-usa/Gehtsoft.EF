@@ -131,6 +131,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
+        public void RunWithResult(SqlUpdateStatement update)
+        {
+            mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(update);
+        }
+
         public override object Run(SqlUpdateStatement update)
         {
             List<object> result = new List<object>();

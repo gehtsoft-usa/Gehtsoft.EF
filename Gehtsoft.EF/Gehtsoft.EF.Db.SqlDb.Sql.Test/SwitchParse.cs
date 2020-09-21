@@ -32,13 +32,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "SWITCH ?q " +
                 "   CASE 2 :" +
                 "      SET m = 2" +
-                "      BREAK" +
                 "   CASE 3 :" +
                 "      SET m = 3" +
-                "      BREAK" +
                 "   CASE 4 :" +
                 "      SET m = 4" +
-                "      BREAK" +
                 "   OTHERWISE:" +
                 "      SET m = 1" +
                 "END SWITCH"
@@ -94,7 +91,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                                     new SetStatement(environment, new SetItemCollection()
                                                 {
                                                     new SetItem("m", new SqlConstant(1, SqlBaseExpression.ResultTypes.Integer))
-                                                })
+                                                }),
+                                    new BreakStatement()
                                 }),
             });
             target.Add(swtch);

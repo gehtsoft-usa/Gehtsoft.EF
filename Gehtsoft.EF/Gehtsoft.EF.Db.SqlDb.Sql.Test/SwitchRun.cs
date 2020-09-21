@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using System.Text;
 using Xunit;
+using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
@@ -36,13 +37,88 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void SwitchSuccess1()
+        public void SwitchWithLinq()
         {
+            Expression block;
             object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
 
-            environment.Parse("test",
+            block = environment.ParseToLinq("test",
+                "DECLARE q AS INTEGER, m AS INTEGER;" +
                 "SET q=4, m=0" +
+                "SWITCH ?q " +
+                "   CASE 2 :" +
+                "      SET m = 2" +
+                "   CASE 3 :" +
+                "      SET m = 3" +
+                "   CASE 4 :" +
+                "      SET m = 4" +
+                "      BREAK" +
+                "   OTHERWISE:" +
+                "      SET m = 1" +
+                "END SWITCH " +
+                "EXIT WITH ?m"
+            );
+
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(4);
+
+            block = environment.ParseToLinq("test",
+                "SET q=3, m=0" +
+                "SWITCH ?q " +
+                "   CASE 2 :" +
+                "      SET m = 2" +
+                "   CASE 3 :" +
+                "      SET m = 3" +
+                "      BREAK" +
+                "      SET m = 4" +
+                "   CASE 4 :" +
+                "      SET m = 4" +
+                "      BREAK" +
+                "   OTHERWISE:" +
+                "      SET m = 1" +
+                "END SWITCH " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(3);
+
+            block = environment.ParseToLinq("test",
+                "SET q=2, m=0" +
+                "SWITCH ?q " +
+                "   CASE 2 :" +
+                "      SET m = 2" +
+                "   CASE 3 :" +
+                "      SET m = 3" +
+                "   CASE 4 :" +
+                "      SET m = 4" +
+                "   OTHERWISE:" +
+                "      SET m = 1" +
+                "END SWITCH " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(2);
+
+            block = environment.ParseToLinq("test",
+                "SET q=2, m=0" +
+                "SWITCH ?q " +
+                "   CASE 2 :" +
+                "   CASE 3 :" +
+                "      SET m = 3" +
+                "   CASE 4 :" +
+                "      SET m = 4" +
+                "      BREAK" +
+                "   OTHERWISE:" +
+                "      SET m = 1" +
+                "END SWITCH " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(3);
+
+            block = environment.ParseToLinq("test",
+                "SET q=1, m=0" +
                 "SWITCH ?q " +
                 "   CASE 2 :" +
                 "      SET m = 2" +
@@ -53,6 +129,50 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "   CASE 4 :" +
                 "      SET m = 4" +
                 "      BREAK" +
+                "   OTHERWISE:" +
+                "      SET m = 1" +
+                "END SWITCH " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(1);
+
+            block = environment.ParseToLinq("test",
+                "SET q=0, m=0" +
+                "SWITCH ?q " +
+                "   CASE 2 :" +
+                "      SET m = 2" +
+                "      BREAK" +
+                "   CASE 3 :" +
+                "      SET m = 3" +
+                "      BREAK" +
+                "   CASE 4 :" +
+                "      SET m = 4" +
+                "      BREAK" +
+                "   OTHERWISE:" +
+                "      SET m = 1" +
+                "END SWITCH " +
+                "EXIT WITH ?m"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            ((int)result).Should().Be(1);
+        }
+
+        [Fact]
+        public void SwitchWithRun()
+        {
+            object result;
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
+
+            environment.Parse("test",
+                "SET q=4, m=0" +
+                "SWITCH ?q " +
+                "   CASE 2 :" +
+                "      SET m = 2" +
+                "   CASE 3 :" +
+                "      SET m = 3" +
+                "   CASE 4 :" +
+                "      SET m = 4" +
                 "   OTHERWISE:" +
                 "      SET m = 1" +
                 "END SWITCH " +
@@ -66,10 +186,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "SWITCH ?q " +
                 "   CASE 2 :" +
                 "      SET m = 2" +
-                "      BREAK" +
                 "   CASE 3 :" +
                 "      SET m = 3" +
                 "      BREAK" +
+                "      SET m = 4" +
                 "   CASE 4 :" +
                 "      SET m = 4" +
                 "      BREAK" +
@@ -86,13 +206,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "SWITCH ?q " +
                 "   CASE 2 :" +
                 "      SET m = 2" +
-                "      BREAK" +
                 "   CASE 3 :" +
                 "      SET m = 3" +
-                "      BREAK" +
                 "   CASE 4 :" +
                 "      SET m = 4" +
-                "      BREAK" +
                 "   OTHERWISE:" +
                 "      SET m = 1" +
                 "END SWITCH " +
@@ -105,28 +222,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "SET q=2, m=0" +
                 "SWITCH ?q " +
                 "   CASE 2 :" +
-                "      SET m = 2" +
                 "   CASE 3 :" +
                 "      SET m = 3" +
-                "      BREAK" +
-                "   CASE 4 :" +
-                "      SET m = 4" +
-                "      BREAK" +
-                "   OTHERWISE:" +
-                "      SET m = 1" +
-                "END SWITCH " +
-                "EXIT WITH ?m"
-            );
-            result = environment.Run(connection);
-            ((int)result).Should().Be(3);
-
-            environment.Parse("test",
-                "SET q=2, m=0" +
-                "SWITCH ?q " +
-                "   CASE 2 :" +
-                "   CASE 3 :" +
-                "      SET m = 3" +
-                "      BREAK" +
                 "   CASE 4 :" +
                 "      SET m = 4" +
                 "      BREAK" +

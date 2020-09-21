@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Hime.Redist;
@@ -27,6 +28,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         currentConditionalRun = new ConditionalStatementsRun(new SqlConstant(true, ResultTypes.Boolean));
                     }
                     currentConditionalRun.Statements = inner;
+                    if (builder.WhetherParseToLinq)
+                    {
+                        currentConditionalRun.LinqExpression = builder.ParseNodeToLinq("IF-ELSE Body", node, this);
+                    }
                     ConditionalRuns.Add(currentConditionalRun);
                     currentConditionalRun = null;
                 }
@@ -65,6 +70,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             ConditionalRuns = conditionalRuns;
         }
 
+        internal override Expression ToLinqWxpression()
+        {
+            List<SwitchCase> cases = new List<SwitchCase>();
+            foreach (ConditionalStatementsRun item in ConditionalRuns)
+            {
+                cases.Add(Expression.SwitchCase(item.LinqExpression, StatementRunner.CalculateExpressionValue<bool>(item.ConditionalExpression, CodeDomBuilder)));
+            }
+            ConstantExpression switchValue = Expression.Constant(true);
+            return Expression.Switch(
+                switchValue,
+                Expression.Constant(null),
+                cases.ToArray()
+            );
+        }
+
         public virtual bool Equals(IfStatement other)
         {
             if (other is IfStatement stmt)
@@ -88,6 +108,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     public class ConditionalStatementsRun : IEquatable<ConditionalStatementsRun>
     {
         public StatementSetEnvironment Statements { get; internal set; }
+        public Expression LinqExpression { get; internal set; }
         public SqlBaseExpression ConditionalExpression { get; internal set; }
 
         internal ConditionalStatementsRun(SqlBaseExpression conditionalExpression, StatementSetEnvironment statements = null)

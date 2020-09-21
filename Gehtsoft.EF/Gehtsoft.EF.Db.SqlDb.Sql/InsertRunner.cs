@@ -146,6 +146,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
+
+        public void RunWithResult(SqlInsertStatement insert)
+        {
+            mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(insert);
+        }
         public override object Run(SqlInsertStatement insert)
         {
             List<object> result = new List<object>();

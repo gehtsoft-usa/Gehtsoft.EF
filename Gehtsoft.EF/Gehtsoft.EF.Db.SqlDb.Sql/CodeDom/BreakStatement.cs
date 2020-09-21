@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Hime.Redist;
@@ -20,8 +21,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal BreakStatement(SqlCodeDomBuilder builder, string currentSource = null, int line = 0, int column = 0)
             : base(builder, StatementType.Break)
         {
-            IStatementSetEnvironment current = builder.TopEnvironment;
             bool found = false;
+            IStatementSetEnvironment current = builder.TopEnvironment;
             while (current != null)
             {
                 if (current.ParentStatement != null && (current.ParentStatement.Type == StatementType.Loop || current.ParentStatement.Type == StatementType.Switch))
@@ -30,6 +31,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     break;
                 }
                 current = current.ParentEnvironment;
+            }
+            if (current == null && builder.BlockDescriptors.Count > 0)
+            {
+                BlockDescriptor[] array = builder.BlockDescriptors.ToArray();
+                for (int i = array.Length - 1; i >= 0; i--)
+                {
+                    BlockDescriptor descr = array[i];
+                    if (descr.StatementType == StatementType.Loop || descr.StatementType == StatementType.Switch)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
             }
             if (!found)
             {
@@ -40,6 +54,29 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal BreakStatement()
             : base(null, StatementType.Break)
         {
+        }
+
+        internal override Expression ToLinqWxpression()
+        {
+            BlockDescriptor[] array = CodeDomBuilder.BlockDescriptors.ToArray();
+            BlockDescriptor foundDescr = null;
+            for (int i = array.Length - 1; i >= 0; i--)
+            {
+                BlockDescriptor descr = array[i];
+                if (descr.StatementType == StatementType.Loop || descr.StatementType == StatementType.Switch)
+                {
+                    foundDescr = descr;
+                    break;
+                }
+            }
+            if (foundDescr == null)
+            {
+                throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error: BREAK out of appropriate body"));
+            }
+            return Expression.Block(
+                Expression.Call(Expression.Constant(CodeDomBuilder), "BreakRun", null),
+                Expression.Goto(foundDescr.EndLabel)
+            );
         }
 
         public virtual bool Equals(BreakStatement other)

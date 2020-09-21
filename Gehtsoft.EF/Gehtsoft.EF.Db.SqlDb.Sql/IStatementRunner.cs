@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -24,15 +26,27 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         Dictionary<string, object> BindParams { get; }
     }
 
-    public abstract class StatementRunner<T> : IStatementRunner<T>
+    public abstract class StatementRunner<T> : StatementRunner, IStatementRunner<T>
     {
         public abstract object Run(T statement);
+    }
+    public abstract class StatementRunner
+    {
 
         protected abstract SqlDbConnection Connection { get; }
 
         protected abstract SqlCodeDomBuilder CodeDomBuilder { get; }
 
         protected SqlConstant CalculateExpression(SqlBaseExpression expression)
+        {
+            return CalculateExpression(expression, CodeDomBuilder, Connection);
+        }
+        public static T CalculateExpression<T>(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder)
+        {
+            object value = CalculateExpression(expression, codeDomBuilder, codeDomBuilder.Connection).Value;
+            return (T)Convert.ChangeType(value, typeof(T));
+        }
+        public static SqlConstant CalculateExpression(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder, SqlDbConnection connection)
         {
             if (expression is SqlField field)
             {
@@ -44,8 +58,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (expression is SqlBinaryExpression binaryExpression)
             {
-                SqlBaseExpression leftOperand = CalculateExpression(binaryExpression.LeftOperand);
-                SqlBaseExpression rightOperand = CalculateExpression(binaryExpression.RightOperand);
+                SqlBaseExpression leftOperand = CalculateExpression(binaryExpression.LeftOperand, codeDomBuilder, connection);
+                SqlBaseExpression rightOperand = CalculateExpression(binaryExpression.RightOperand, codeDomBuilder, connection);
 
                 if (leftOperand == null || rightOperand == null)
                     return null;
@@ -58,15 +72,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (expression is GlobalParameter globalParameter)
             {
-                return CalculateExpression(globalParameter.InnerExpression);
+                return CalculateExpression(globalParameter.InnerExpression, codeDomBuilder, connection);
             }
             else if (expression is GetLastResult)
             {
-                return new SqlConstant(CodeDomBuilder.LastStatementResult, ResultTypes.RowSet);
+                return new SqlConstant(codeDomBuilder.LastStatementResult, ResultTypes.RowSet);
             }
             else if (expression is GetRowsCount getRowsCount)
             {
-                SqlConstant param = CalculateExpression(getRowsCount.Parameter);
+                SqlConstant param = CalculateExpression(getRowsCount.Parameter, codeDomBuilder, connection);
                 if (param == null)
                     return null;
 
@@ -75,7 +89,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (expression is SqlUnarExpression unar)
             {
-                SqlBaseExpression operand = CalculateExpression(unar.Operand);
+                SqlBaseExpression operand = CalculateExpression(unar.Operand, codeDomBuilder, connection);
 
                 if (operand == null || !(operand is SqlConstant))
                     return null;
@@ -87,7 +101,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 List<SqlConstant> pars = new List<SqlConstant>();
                 foreach (SqlBaseExpression expr in callFunc.Parameters)
                 {
-                    SqlBaseExpression curr = CalculateExpression(expr);
+                    SqlBaseExpression curr = CalculateExpression(expr, codeDomBuilder, connection);
                     if (curr is SqlConstant cnst)
                     {
                         pars.Add(cnst);
@@ -208,7 +222,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             else if (expression is SqlInExpression inExpression)
             {
                 bool inExpressionResult = false;
-                SqlBaseExpression leftOperand = CalculateExpression(inExpression.LeftOperand);
+                SqlBaseExpression leftOperand = CalculateExpression(inExpression.LeftOperand, codeDomBuilder, connection);
                 if (leftOperand == null)
                     return null;
 
@@ -217,10 +231,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 {
                     foreach (SqlBaseExpression expr in inExpression.RightOperandAsList)
                     {
-                        rightOperand = CalculateExpression(inExpression.LeftOperand);
+                        rightOperand = CalculateExpression(inExpression.LeftOperand, codeDomBuilder, connection);
                         if (rightOperand == null)
                             return null;
-                        if(((SqlConstant)leftOperand).Equals((SqlConstant)rightOperand))
+                        if (((SqlConstant)leftOperand).Equals((SqlConstant)rightOperand))
                         {
                             inExpressionResult = true;
                             break;
@@ -229,12 +243,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 }
                 else if (inExpression.RightOperandAsSelect != null)
                 {
-                    SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection);
+                    SelectRunner runner = new SelectRunner(codeDomBuilder, connection);
                     List<object> selectResult = runner.Run(inExpression.RightOperandAsSelect) as List<object>;
-                    foreach(object recordObj in selectResult)
+                    foreach (object recordObj in selectResult)
                     {
                         Dictionary<string, object> record = recordObj as Dictionary<string, object>;
-                        if(((SqlConstant)leftOperand).Value.Equals(record[record.Keys.First()]))
+                        if (((SqlConstant)leftOperand).Value.Equals(record[record.Keys.First()]))
                         {
                             inExpressionResult = true;
                             break;
@@ -245,7 +259,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (expression is SqlSelectExpression selectExpression)
             {
-                SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection);
+                SelectRunner runner = new SelectRunner(codeDomBuilder, connection);
                 List<object> selectResult = runner.Run(selectExpression.SelectStatement) as List<object>;
                 if (selectResult.Count > 0)
                 {
@@ -261,7 +275,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return null;
         }
 
-        private DateTime? tryParseDateTime(string strDateTime)
+        private static DateTime? tryParseDateTime(string strDateTime)
         {
             DateTime dtt;
             if (!DateTime.TryParseExact(strDateTime,
@@ -284,7 +298,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return dtt;
         }
 
-        public int unixTimeStampUTC(DateTime currentTime)
+        public static int unixTimeStampUTC(DateTime currentTime)
         {
             int unixTimeStamp;
             DateTime zuluTime = currentTime.ToUniversalTime();
@@ -300,6 +314,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             Divide,
             Multiply
         }
+
+        internal static Expression CalculateExpressionValue<T>(SqlBaseExpression expression, SqlCodeDomBuilder builder)
+        {
+            //return Expression.Constant(CalculateExpression(expression, builder, builder.Connection).Value);
+            Expression callExpr = Expression.Call(typeof(StatementRunner), "CalculateExpression", new Type[] { typeof(T)},
+                    Expression.Constant(expression), Expression.Constant(builder)
+            );
+            return callExpr;
+            //return Expression.Lambda<Func<object>>(callExpr);
+        }
+
     }
 
     public abstract class SqlStatementRunner<T> : StatementRunner<T>, IBindParamsOwner

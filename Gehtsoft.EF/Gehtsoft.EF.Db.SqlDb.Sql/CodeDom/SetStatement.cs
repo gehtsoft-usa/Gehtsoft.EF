@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Hime.Redist;
@@ -24,16 +25,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 {
                     ASTNode expressionNode = node.Children[1];
                     SqlBaseExpression expression = SqlExpressionParser.ParseExpression(this, expressionNode, currentSource);
-                    if(!Statement.IsCalculable(expression))
+                    if (!Statement.IsCalculable(expression))
                     {
                         throw new SqlParserException(new SqlError(currentSource,
                             expressionNode.Position.Line,
                             expressionNode.Position.Column,
                             $"Not calculable expression in SET statement ({expressionNode.Value ?? "null"})"));
                     }
-                    if(existing != null)
+                    if (existing != null)
                     {
-                        if(existing.ResultType != expression.ResultType)
+                        if (existing.ResultType != expression.ResultType)
                         {
                             throw new SqlParserException(new SqlError(currentSource,
                                 expressionNode.Position.Line,
@@ -58,6 +59,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             : base(builder, StatementType.Set)
         {
             SetItems = setItems;
+        }
+
+        internal override Expression ToLinqWxpression()
+        {
+            return Expression.Call(typeof(SetRunner), "Run", null,
+                Expression.Constant(CodeDomBuilder), Expression.Constant(this)
+                );
         }
 
         public virtual bool Equals(SetStatement other)

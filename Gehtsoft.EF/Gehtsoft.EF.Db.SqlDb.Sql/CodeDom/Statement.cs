@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
+using System.Linq.Expressions;
+
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
@@ -14,6 +16,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// </summary>
     public abstract class Statement : IEquatable<Statement>
     {
+        internal Expression OnContinue { get; set; } = null;
         public SqlCodeDomBuilder CodeDomBuilder { get; } = null;
         /// <summary>
         /// The types of the statements
@@ -190,6 +193,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 return false;
             return (this.Type == other.Type);
         }
+
+        internal abstract Expression ToLinqWxpression();
 
         public override bool Equals(object obj)
         {
