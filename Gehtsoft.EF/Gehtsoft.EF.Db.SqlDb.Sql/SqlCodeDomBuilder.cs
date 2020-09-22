@@ -317,6 +317,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                                     statements.LastStatementResult = switchResult;
                                 }
                                 break;
+                            case Statement.StatementType.AddField:
+                                AddFieldStatement addFieldStatement = statement as AddFieldStatement;
+                                addFieldStatement.Run(connection);
+                                break;
+                            case Statement.StatementType.AddRow:
+                                AddRowStatement addRowStatement = statement as AddRowStatement;
+                                addRowStatement.Run(connection);
+                                break;
                         }
                     }
                     if (statements.Leave)

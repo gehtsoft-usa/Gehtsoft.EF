@@ -84,8 +84,67 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 if (param == null)
                     return null;
 
-                List<object> array = param.Value as List<object>; ;
+                List<object> array = param.Value as List<object>;
                 return new SqlConstant(array.Count, ResultTypes.Integer);
+            }
+            else if (expression is GetRow getRow)
+            {
+                SqlConstant rowSetParam = CalculateExpression(getRow.RowSetParameter, codeDomBuilder, connection);
+                if (rowSetParam == null)
+                    return null;
+
+                List<object> array = rowSetParam.Value as List<object>;
+
+                SqlConstant indexParam = CalculateExpression(getRow.IndexParameter, codeDomBuilder, connection);
+                if (indexParam == null)
+                    return null;
+
+                int index = (int)indexParam.Value;
+
+                if(index < 0 || index >= array.Count)
+                {
+                    throw new SqlParserException(new SqlError(null, 0, 0, $"Index out of range"));
+                }
+
+                return new SqlConstant(array[index], ResultTypes.Row);
+            }
+            else if (expression is GetField getField)
+            {
+                SqlConstant rowParam = CalculateExpression(getField.RowParameter, codeDomBuilder, connection);
+                if (rowParam == null)
+                    return null;
+
+                Dictionary<string, object> dictionary = rowParam.Value as Dictionary<string, object>;
+                if(dictionary == null)
+                {
+                    throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error in getting ROW"));
+                }
+
+                SqlConstant nameParam = CalculateExpression(getField.NameParameter, codeDomBuilder, connection);
+                if (nameParam == null)
+                    return null;
+
+                string name = (string)nameParam.Value;
+
+                if (!dictionary.ContainsKey(name))
+                {
+                    throw new SqlParserException(new SqlError(null, 0, 0, $"ROW doesn't contain field '{name}'"));
+                }
+
+                if(SqlBaseExpression.GetResultType(dictionary[name].GetType()) != getField.ResultType)
+                {
+                    throw new SqlParserException(new SqlError(null, 0, 0, $"Field '{name}' is not of type '{getField.ResultType}'"));
+                }
+
+                return new SqlConstant(dictionary[name], getField.ResultType);
+            }
+            else if (expression is NewRowSet)
+            {
+                return new SqlConstant(new List<object>(), ResultTypes.RowSet);
+            }
+            else if (expression is NewRow)
+            {
+                return new SqlConstant(new Dictionary<string, object>(), ResultTypes.Row);
             }
             else if (expression is SqlUnarExpression unar)
             {
@@ -497,7 +556,22 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             {
                 return GetStrExpression(CalculateExpression(getRowsCount), out isAggregate);
             }
-
+            else if (expression is GetRow getRow)
+            {
+                return GetStrExpression(CalculateExpression(getRow), out isAggregate);
+            }
+            else if (expression is GetField getField)
+            {
+                return GetStrExpression(CalculateExpression(getField), out isAggregate);
+            }
+            else if (expression is NewRowSet newRowSet)
+            {
+                return GetStrExpression(CalculateExpression(newRowSet), out isAggregate);
+            }
+            else if (expression is NewRow newRow)
+            {
+                return GetStrExpression(CalculateExpression(newRow), out isAggregate);
+            }
             else if (expression is SqlUnarExpression unar)
             {
                 string start = string.Empty;

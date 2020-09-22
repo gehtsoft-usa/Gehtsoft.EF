@@ -327,6 +327,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 case SqlParser.ID.VariableRowsCountCall:
                     result = new GetRowsCount(parentStatement, fieldNode, source);
                     break;
+                case SqlParser.ID.VariableGetRowCall:
+                    result = new GetRow(parentStatement, fieldNode, source);
+                    break;
+                case SqlParser.ID.VariableGetFieldCall:
+                    result = new GetField(parentStatement, fieldNode, source);
+                    break;
+                case SqlParser.ID.VariableNewRowsetCall:
+                    result = new NewRowSet();
+                    break;
+                case SqlParser.ID.VariableNewRowCall:
+                    result = new NewRow();
+                    break;
             }
             if (funcName != null)
             {

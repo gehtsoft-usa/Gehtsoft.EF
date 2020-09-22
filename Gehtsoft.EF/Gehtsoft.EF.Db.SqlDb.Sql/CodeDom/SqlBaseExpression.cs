@@ -24,7 +24,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             SelectExpression,
             GlobalParameter,
             GetLastResult,
-            GetRowsCount
+            GetRowsCount,
+            GetRow,
+            GetField,
+            NewRowSet,
+            NewRow
         };
 
         /// <summary>
@@ -42,7 +46,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Unknown
         };
 
-        public Type RealType
+        public Type SystemType
         {
             get
             {

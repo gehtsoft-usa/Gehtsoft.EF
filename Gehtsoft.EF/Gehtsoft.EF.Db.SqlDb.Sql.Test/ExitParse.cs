@@ -43,6 +43,31 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
             result.Equals(target).Should().BeTrue();
         }
+        [Fact]
+        public void ExitParse2()
+        {
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
+            StatementSetEnvironment result = environment.Parse("test",
+                "DECLARE qqq AS ROW;" +
+                "SET qqq = GET_ROW(LAST_RESULT(), 0);" +
+                "EXIT WITH GET_FIELD(?qqq, 'Number', INTEGER)"
+            );
+
+            SetStatement set = new SetStatement(DomBuilder, new SetItemCollection()
+            {
+                new SetItem("qqq", new GetRow(new GetLastResult(), new SqlConstant(0, SqlBaseExpression.ResultTypes.Integer)))
+            });
+
+            ExitStatement exit = new ExitStatement(environment, new GetField(
+                new GlobalParameter("?qqq", SqlBaseExpression.ResultTypes.Row),
+                new SqlConstant("Number", SqlBaseExpression.ResultTypes.String),
+                SqlBaseExpression.ResultTypes.Integer)
+            );
+
+            StatementSetEnvironment target = new StatementSetEnvironment() { set, exit };
+
+            result.Equals(target).Should().BeTrue();
+        }
 
         [Fact]
         public void ExitParseError()
@@ -59,6 +84,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "DECLARE qqq AS INTEGER;" +
                 "SET qqq = ROWS_COUNT(UPPER('sss'));" +
                 "EXIT WITH ?qqq"
+                )
+            );
+            Assert.Throws<SqlParserException>(() =>
+                DomBuilder.Parse("test",
+                "DECLARE qqq AS ROW;" +
+                "SET qqq = GET_ROW(LAST_RESULT(), 0);" +
+                "EXIT WITH GET_FIELD(?qqq, 'Number', GURMUR)"
                 )
             );
         }

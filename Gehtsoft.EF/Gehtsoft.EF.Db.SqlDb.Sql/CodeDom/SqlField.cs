@@ -129,7 +129,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     if (parentStatement.AliasEntrys.Exists(name))
                     {
                         AliasEntry aliasEntry = parentStatement.AliasEntrys.Find(name);
-                        fieldType = aliasEntry.Expression.RealType;
+                        fieldType = aliasEntry.Expression.SystemType;
                         if(aliasEntry.Expression is SqlField aliasField)
                         {
                             EntityDescriptor = aliasField.EntityDescriptor;

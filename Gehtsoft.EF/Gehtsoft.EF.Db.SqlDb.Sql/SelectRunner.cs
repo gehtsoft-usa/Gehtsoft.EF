@@ -177,7 +177,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     string sExpr = GetStrExpression(item.Expression, out isAggregate);
                     if (sExpr == null)
                         throw new SqlParserException(new SqlError(null, 0, 0, $"Unknown expression"));
-                    mMainBuilder.AddExpressionToResultset(sExpr, GetDbType(item.Expression.RealType), isAggregate, item.Alias);
+                    mMainBuilder.AddExpressionToResultset(sExpr, GetDbType(item.Expression.SystemType), isAggregate, item.Alias);
                 }
             }
         }
@@ -276,7 +276,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 SqlStatement.AliasEntry aliasEntry = select.AliasEntrys.Find(name);
                 if (aliasEntry != null)
                 {
-                    toType = select.AliasEntrys.Find(name).Expression.RealType;
+                    toType = select.AliasEntrys.Find(name).Expression.SystemType;
                 }
                 else
                 {

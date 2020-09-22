@@ -32,7 +32,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Break,
             Loop,
             Block,
-            Switch
+            Switch,
+            AddField,
+            AddRow
         };
         /// <summary>
         /// Type of the statement
@@ -283,6 +285,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 retval = IsCalculable(getRowsCount.Parameter);
             }
+            else if (expression is GetRow getRow)
+            {
+                retval = IsCalculable(getRow.RowSetParameter) && IsCalculable(getRow.IndexParameter);
+            }
+            else if (expression is GetField getField)
+            {
+                retval = IsCalculable(getField.RowParameter) && IsCalculable(getField.NameParameter);
+            }
+            else if (expression is NewRowSet)
+            {
+                retval = true;
+            }
+            else if (expression is NewRow)
+            {
+                retval = true;
+            }
+
             else if (expression is SqlSelectExpression)
             {
                 retval = true;

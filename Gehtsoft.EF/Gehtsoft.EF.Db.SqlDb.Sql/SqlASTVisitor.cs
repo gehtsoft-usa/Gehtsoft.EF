@@ -85,6 +85,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         {
                             return new SwitchStatement(builder, statementNode, source);
                         }
+                    case SqlParser.ID.VariableAddFieldTo:
+                        {
+                            return new AddFieldStatement(builder, statementNode, source);
+                        }
+                    case SqlParser.ID.VariableAddRowTo:
+                        {
+                            return new AddRowStatement(builder, statementNode, source);
+                        }
                     case SqlParser.ID.VariableNop:
                         return null;
                 }
