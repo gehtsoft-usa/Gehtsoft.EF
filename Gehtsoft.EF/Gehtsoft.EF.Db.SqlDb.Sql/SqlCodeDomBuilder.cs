@@ -224,6 +224,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         return current.LastStatementResult;
                     current = current.ParentEnvironment;
                 }
+                if (current == null && BlockDescriptors.Count > 0)
+                {
+                    return BlockDescriptors.Peek().LastStatementResult;
+                }
                 return new List<object>();
             }
         }

@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using System.Text;
 using Xunit;
+using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
@@ -36,7 +37,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void SetSuccess()
+        public void SetWithRun()
         {
             object result;
             List<object> array;
@@ -62,6 +63,39 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "GROUP BY Country"
             );
             result = DomBuilder.Run(connection);
+            array = result as List<object>;
+            array.Count.Should().Be(1);
+        }
+
+        [Fact]
+        public void SetWithLinq()
+        {
+            Expression block;
+            object result;
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+            List<object> array;
+
+            block = environment.ParseToLinq("test",
+                "DECLARE qqq AS STRING;" +
+                "SET qqq = 'u';" +
+                "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
+                "FROM Customer " +
+                "WHERE LOWER(Country) LIKE ?qqq || '%' " +
+                "GROUP BY Country"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            array.Count.Should().Be(2);
+
+            block = environment.ParseToLinq("test",
+                "SET qqq = 'u';" +
+                "SET qqq = ?qqq || 'K';" +
+                "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
+                "FROM Customer " +
+                "WHERE LOWER(Country) LIKE LOWER(?qqq) || '%' " +
+                "GROUP BY Country"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             array.Count.Should().Be(1);
         }

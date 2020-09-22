@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using System.Text;
 using Xunit;
+using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
@@ -36,7 +37,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void ExitSuccess()
+        public void ExitWithRun()
         {
             object result;
             List<object> array;
@@ -62,6 +63,39 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "EXIT WITH ?qqq"
             );
             result = environment.Run(connection);
+            int cnt2 = (int)result;
+
+            cnt1.Should().Be(cnt2);
+        }
+
+        [Fact]
+        public void ExitWithLinq()
+        {
+            Expression block;
+            object result;
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+            List<object> array;
+
+            block = environment.ParseToLinq("test",
+                "DECLARE qqq AS STRING;" +
+                "SET qqq = 'u';" +
+                "SELECT COUNT(*) AS Total " +
+                "FROM Customer " +
+                "WHERE LOWER(Country) LIKE ?qqq || '%' "
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            array = result as List<object>;
+            int cnt1 = (int)(array[0] as Dictionary<string, object>)["Total"];
+
+            block = environment.ParseToLinq("test",
+                "DECLARE qqq AS INTEGER;" +
+                "SELECT * " +
+                "FROM Customer " +
+                "WHERE LOWER(Country) LIKE 'u%' " +
+                "SET qqq = ROWS_COUNT(LAST_RESULT());" +
+                "EXIT WITH ?qqq"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             int cnt2 = (int)result;
 
             cnt1.Should().Be(cnt2);
