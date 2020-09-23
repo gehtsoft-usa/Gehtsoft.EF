@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class GetRowsCount : SqlBaseExpression
+    public class Fetch : SqlBaseExpression
     {
         public SqlBaseExpression Parameter { get; }
 
@@ -15,53 +15,53 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             get
             {
-                return ExpressionTypes.GetRowsCount;
+                return ExpressionTypes.Fetch;
             }
         }
         public override ResultTypes ResultType
         {
             get
             {
-                return ResultTypes.Integer;
+                return ResultTypes.Row;
             }
         }
 
-        internal GetRowsCount(Statement parentStatement, ASTNode fieldNode, string source)
+        internal Fetch(Statement parentStatement, ASTNode fieldNode, string source)
         {
             ASTNode expressionNode = fieldNode.Children[0];
             Parameter = SqlExpressionParser.ParseExpression(parentStatement, expressionNode, source);
-            if (Parameter.ResultType != ResultTypes.RowSet)
+            if (Parameter.ResultType != ResultTypes.Cursor)
             {
                 throw new SqlParserException(new SqlError(source,
                     expressionNode.Position.Line,
                     expressionNode.Position.Column,
-                    $"No ROWSET parameter in GET_ROWS function call ({expressionNode.Value ?? "null"})"));
+                    $"No cursor parameter in FETCH function call ({expressionNode.Value ?? "null"})"));
             }
             if (!Statement.IsCalculable(Parameter))
             {
                 throw new SqlParserException(new SqlError(source,
                     expressionNode.Position.Line,
                     expressionNode.Position.Column,
-                    $"Not calculable parameter in GET_ROWS function call ({expressionNode.Value ?? "null"})"));
+                    $"Not calculable parameter in FETCH function call ({expressionNode.Value ?? "null"})"));
             }
         }
 
-        internal GetRowsCount(SqlBaseExpression parameter)
+        internal Fetch(SqlBaseExpression parameter)
         {
             Parameter = parameter;
-            if (Parameter.ResultType != ResultTypes.RowSet)
+            if (Parameter.ResultType != ResultTypes.Cursor)
             {
-                throw new SqlParserException(new SqlError(null,0,0,
-                    $"No ROWSET parameter in GET_ROWS function call"));
+                throw new SqlParserException(new SqlError(null, 0, 0,
+                    $"No cursor parameter in FETCH function call"));
             }
             if (!Statement.IsCalculable(Parameter))
             {
                 throw new SqlParserException(new SqlError(null, 0, 0,
-                    $"Not calculable parameter in GET_ROWS function call"));
+                    $"Not calculable parameter in FETCH function call"));
             }
         }
 
-        public virtual bool Equals(GetRowsCount other)
+        public virtual bool Equals(Fetch other)
         {
             if (other == null)
                 return false;
@@ -72,7 +72,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         public override bool Equals(SqlBaseExpression obj)
         {
-            if (obj is GetRowsCount item)
+            if (obj is Fetch item)
                 return Equals(item);
             return base.Equals(obj);
         }

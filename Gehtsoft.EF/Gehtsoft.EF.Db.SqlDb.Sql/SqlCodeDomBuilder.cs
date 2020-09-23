@@ -325,6 +325,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                                 AddRowStatement addRowStatement = statement as AddRowStatement;
                                 addRowStatement.Run(connection);
                                 break;
+                            case Statement.StatementType.DeclareCursor:
+                                DeclareCursorStatement declareCursorStatement = statement as DeclareCursorStatement;
+                                declareCursorStatement.Run();
+                                break;
+                            case Statement.StatementType.OpenCursor:
+                                OpenCursorStatement openCursorStatement = statement as OpenCursorStatement;
+                                openCursorStatement.Run(connection);
+                                break;
+                            case Statement.StatementType.CloseCursor:
+                                CloseCursorStatement closeCursorStatement = statement as CloseCursorStatement;
+                                closeCursorStatement.Run();
+                                break;
                         }
                     }
                     if (statements.Leave)

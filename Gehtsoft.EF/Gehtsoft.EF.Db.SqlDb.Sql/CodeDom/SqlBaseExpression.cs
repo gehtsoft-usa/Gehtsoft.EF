@@ -28,7 +28,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             GetRow,
             GetField,
             NewRowSet,
-            NewRow
+            NewRow,
+            Fetch
         };
 
         /// <summary>
@@ -43,6 +44,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             String,
             Row,
             RowSet,
+            Cursor,
             Unknown
         };
 
@@ -74,6 +76,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     case ResultTypes.RowSet:
                         retval = typeof(List<object>);
                         break;
+                    case ResultTypes.Cursor:
+                        retval = typeof(SqlSelectStatement);
+                        break;
                 }
                 return retval;
             }
@@ -95,6 +100,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 return ResultTypes.Row;
             if (type == typeof(List<object>))
                 return ResultTypes.RowSet;
+            if (type == typeof(SqlSelectStatement))
+                return ResultTypes.Cursor;
             return ResultTypes.Unknown;
         }
 

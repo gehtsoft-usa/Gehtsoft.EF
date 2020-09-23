@@ -319,6 +319,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     unarOp = SqlUnarExpression.OperationType.IsNotNull;
                     break;
                 case SqlParser.ID.VariableGlobalParameter:
+                case SqlParser.ID.VariableGlobalParameterSimple:
                     result = new GlobalParameter(parentStatement, fieldNode);
                     break;
                 case SqlParser.ID.VariableLastResultCall:
@@ -338,6 +339,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     break;
                 case SqlParser.ID.VariableNewRowCall:
                     result = new NewRow();
+                    break;
+                case SqlParser.ID.VariableFetchCall:
+                    result = new Fetch(parentStatement, fieldNode, source);
                     break;
             }
             if (funcName != null)

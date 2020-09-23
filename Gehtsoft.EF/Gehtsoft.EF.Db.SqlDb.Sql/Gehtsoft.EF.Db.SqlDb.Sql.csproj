@@ -31,9 +31,12 @@
     <Compile Include="CodeDom\AddRowStatement.cs" />
     <Compile Include="CodeDom\BlockStatement.cs" />
     <Compile Include="CodeDom\BreakStatement.cs" />
+    <Compile Include="CodeDom\CloseCursorStatement.cs" />
     <Compile Include="CodeDom\ContinueStatement.cs" />
+    <Compile Include="CodeDom\DeclareCursorStatement.cs" />
     <Compile Include="CodeDom\DeclareStatement.cs" />
     <Compile Include="CodeDom\ExitStatement.cs" />
+    <Compile Include="CodeDom\Fetch.cs" />
     <Compile Include="CodeDom\ForDoStatement.cs" />
     <Compile Include="CodeDom\GetField.cs" />
     <Compile Include="CodeDom\GetRow.cs" />
@@ -43,6 +46,7 @@
     <Compile Include="CodeDom\IfStatement.cs" />
     <Compile Include="CodeDom\NewRow.cs" />
     <Compile Include="CodeDom\NewRowSet.cs" />
+    <Compile Include="CodeDom\OpenCursorStatement.cs" />
     <Compile Include="CodeDom\SetStatement.cs" />
     <Compile Include="CodeDom\SqlAggrFunc.cs" />
     <Compile Include="CodeDom\SqlAutoJoinedTable.cs" />

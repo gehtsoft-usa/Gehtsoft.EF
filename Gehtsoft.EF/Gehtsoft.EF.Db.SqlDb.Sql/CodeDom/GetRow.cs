@@ -90,5 +90,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     $"Not calculable index parameter in GET_ROW function call"));
             }
         }
+
+        public virtual bool Equals(GetRow other)
+        {
+            if (other == null)
+                return false;
+            if (this.GetType() != other.GetType())
+                return false;
+            return (this.RowSetParameter.Equals(other.RowSetParameter) && this.IndexParameter.Equals(other.IndexParameter));
+        }
+
+        public override bool Equals(SqlBaseExpression obj)
+        {
+            if (obj is GetRow item)
+                return Equals(item);
+            return base.Equals(obj);
+        }
     }
 }

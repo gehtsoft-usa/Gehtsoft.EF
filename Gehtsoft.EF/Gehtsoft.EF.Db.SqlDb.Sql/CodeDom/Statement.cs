@@ -34,7 +34,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Block,
             Switch,
             AddField,
-            AddRow
+            AddRow,
+            DeclareCursor,
+            OpenCursor,
+            CloseCursor,
+            Fetch
         };
         /// <summary>
         /// Type of the statement
@@ -300,6 +304,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             else if (expression is NewRow)
             {
                 retval = true;
+            }
+            else if (expression is Fetch fetch)
+            {
+                retval = IsCalculable(fetch.Parameter);
             }
 
             else if (expression is SqlSelectExpression)

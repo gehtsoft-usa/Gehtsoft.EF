@@ -146,6 +146,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             {
                 return new SqlConstant(new Dictionary<string, object>(), ResultTypes.Row);
             }
+            else if (expression is Fetch fetch)
+            {
+                SqlConstant param = CalculateExpression(fetch.Parameter, codeDomBuilder, connection);
+                if (param == null)
+                    return null;
+                Tuple<SqlSelectStatement, SelectRunner> pair = (Tuple<SqlSelectStatement, SelectRunner>)param.Value;
+                if (pair == null)
+                    throw new SqlParserException(new SqlError(null, 0, 0, $"Possibly cursor is not opened"));
+
+                SqlSelectStatement selectStatement = pair.Item1;
+                SelectRunner selectRunner = pair.Item2;
+                return new SqlConstant(selectRunner.ReadNext(selectStatement), ResultTypes.Row);
+            }
             else if (expression is SqlUnarExpression unar)
             {
                 SqlBaseExpression operand = CalculateExpression(unar.Operand, codeDomBuilder, connection);
@@ -571,6 +584,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             else if (expression is NewRow newRow)
             {
                 return GetStrExpression(CalculateExpression(newRow), out isAggregate);
+            }
+            else if (expression is Fetch fetch)
+            {
+                return GetStrExpression(CalculateExpression(fetch), out isAggregate);
             }
             else if (expression is SqlUnarExpression unar)
             {

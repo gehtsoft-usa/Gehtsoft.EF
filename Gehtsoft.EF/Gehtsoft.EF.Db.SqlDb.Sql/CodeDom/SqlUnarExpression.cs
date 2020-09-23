@@ -80,46 +80,57 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 object value = null;
                 ResultTypes type = prepareResultType(operand, operation);
-                switch (constant.ResultType)
+                switch (operation)
                 {
-                    case ResultTypes.Integer:
-                        switch (operation)
-                        {
-                            case OperationType.Plus:
-                                value = (int)constant.Value;
-                                break;
-                            case OperationType.Minus:
-                                value = 0 - (int)constant.Value;
-                                break;
-                        }
+                    case OperationType.IsNull:
+                        value = constant.Value == null;
                         break;
-                    case ResultTypes.Double:
-                        switch (operation)
-                        {
-                            case OperationType.Plus:
-                                value = (double)constant.Value;
-                                break;
-                            case OperationType.Minus:
-                                value = 0.0 - (double)constant.Value;
-                                break;
-                        }
+                    case OperationType.IsNotNull:
+                        value = constant.Value != null;
                         break;
-                    case ResultTypes.Boolean:
-                        switch (operation)
+                    default:
+                        switch (constant.ResultType)
                         {
-                            case OperationType.Not:
-                                value = !((bool)constant.Value);
+                            case ResultTypes.Integer:
+                                switch (operation)
+                                {
+                                    case OperationType.Plus:
+                                        value = (int)constant.Value;
+                                        break;
+                                    case OperationType.Minus:
+                                        value = 0 - (int)constant.Value;
+                                        break;
+                                }
                                 break;
-                        }
-                        break;
-                    case ResultTypes.Unknown:
-                        switch (operation)
-                        {
-                            case OperationType.IsNull:
-                                value = true;
+                            case ResultTypes.Double:
+                                switch (operation)
+                                {
+                                    case OperationType.Plus:
+                                        value = (double)constant.Value;
+                                        break;
+                                    case OperationType.Minus:
+                                        value = 0.0 - (double)constant.Value;
+                                        break;
+                                }
                                 break;
-                            case OperationType.IsNotNull:
-                                value = false;
+                            case ResultTypes.Boolean:
+                                switch (operation)
+                                {
+                                    case OperationType.Not:
+                                        value = !((bool)constant.Value);
+                                        break;
+                                }
+                                break;
+                            case ResultTypes.Unknown:
+                                switch (operation)
+                                {
+                                    case OperationType.IsNull:
+                                        value = true;
+                                        break;
+                                    case OperationType.IsNotNull:
+                                        value = false;
+                                        break;
+                                }
                                 break;
                         }
                         break;

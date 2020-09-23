@@ -68,7 +68,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         public override AQueryBuilder GetQueryBuilder(SqlSelectStatement select)
         {
-            if(MainBuilder == null)
+            if (MainBuilder == null)
             {
                 mSelect = select;
                 if (mConnectionFactory != null)
@@ -146,6 +146,57 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return result;
         }
 
+
+        private SqlDbQuery mOpenedQuery = null;
+
+        internal object ReadNext(SqlSelectStatement select)
+        {
+            if (mOpenedQuery != null && mOpenedQuery.ReadNext())
+            {
+                return bindRecord(mOpenedQuery, select);
+            }
+            return null;
+        }
+
+        internal void Open(SqlSelectStatement select)
+        {
+            mSelect = select;
+            if (mConnectionFactory != null)
+            {
+                mConnection = mConnectionFactory.GetConnection();
+            }
+            try
+            {
+                processSelect(select);
+
+                using (SqlDbQuery query = mConnection.GetQuery(mMainBuilder))
+                {
+                    ApplyBindParams(query);
+
+                    query.ExecuteReader();
+                    mOpenedQuery = query;
+                }
+            }
+            catch
+            {
+                if (mConnectionFactory != null)
+                {
+                    if (mConnectionFactory.NeedDispose)
+                        mConnection.Dispose();
+                }
+            }
+        }
+
+        internal void Close()
+        {
+            mOpenedQuery = null;
+            if (mConnectionFactory != null)
+            {
+                if (mConnectionFactory.NeedDispose)
+                    mConnection.Dispose();
+            }
+        }
+
         private void processGrouping(SqlGroupSpecificationCollection grouping)
         {
             foreach (SqlGroupSpecification group in grouping)
@@ -156,7 +207,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         private void processSorting(SqlSortSpecificationCollection sorting)
         {
-            foreach(SqlSortSpecification sort in sorting)
+            foreach (SqlSortSpecification sort in sorting)
             {
                 mMainBuilder.AddOrderByExpr(GetStrExpression(sort.Expression), sort.Ordering);
             }

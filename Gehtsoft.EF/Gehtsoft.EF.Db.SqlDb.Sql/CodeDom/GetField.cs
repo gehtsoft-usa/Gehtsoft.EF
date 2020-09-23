@@ -94,5 +94,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     $"Not calculable Name parameter in GET_FIELD function call"));
             }
         }
+
+        public virtual bool Equals(GetField other)
+        {
+            if (other == null)
+                return false;
+            if (this.GetType() != other.GetType())
+                return false;
+            return (this.RowParameter.Equals(other.RowParameter) && this.NameParameter.Equals(other.NameParameter) && this.ResultType.Equals(other.ResultType));
+        }
+
+        public override bool Equals(SqlBaseExpression obj)
+        {
+            if (obj is GetField item)
+                return Equals(item);
+            return base.Equals(obj);
+        }
     }
 }

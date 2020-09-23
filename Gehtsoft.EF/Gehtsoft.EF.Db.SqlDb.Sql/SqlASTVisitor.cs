@@ -93,6 +93,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         {
                             return new AddRowStatement(builder, statementNode, source);
                         }
+                    case SqlParser.ID.VariableDeclareCursor:
+                        {
+                            return new DeclareCursorStatement(builder, statementNode, source);
+                        }
+                    case SqlParser.ID.VariableOpenCursor:
+                        {
+                            return new OpenCursorStatement(builder, statementNode, source);
+                        }
+                    case SqlParser.ID.VariableCloseCursor:
+                        {
+                            return new CloseCursorStatement(builder, statementNode, source);
+                        }
                     case SqlParser.ID.VariableNop:
                         return null;
                 }
