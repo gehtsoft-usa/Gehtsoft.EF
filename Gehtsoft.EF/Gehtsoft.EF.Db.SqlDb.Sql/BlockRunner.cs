@@ -43,7 +43,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         public override object Run(BlockStatement blockStatement)
         {
-            return mBuilder.Run(mConnection, blockStatement.Statements);
+            return mBuilder.Run(mConnection, blockStatement.Statements, true);
         }
     }
 }

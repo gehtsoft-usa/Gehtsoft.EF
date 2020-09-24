@@ -39,7 +39,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Statements.Add(builder.ParseNode("FOR Body", node));
             if (builder.WhetherParseToLinq)
             {
-                BlockExpression linqExpression = (BlockExpression)builder.ParseNodeToLinq("FOR Body", node);
+                BlockExpression linqExpression = (BlockExpression)builder.ParseNodeToLinq("FOR Body", node, null);
                 int cnt = linqExpression.Expressions.Count;
                 for (int i = 2; i < cnt - 2; i++)
                 {
@@ -69,7 +69,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             if (builder.WhetherParseToLinq)
             {
                 nextSet = new List<Expression>();
-                BlockExpression linqExpression = (BlockExpression)builder.ParseNodeToLinq("FOR-NEXT Body", node);
+                BlockExpression linqExpression = (BlockExpression)builder.ParseNodeToLinq("FOR-NEXT Body", node, null);
                 int cnt = linqExpression.Expressions.Count;
                 for (int i = 2; i < cnt - 2; i++)
                 {

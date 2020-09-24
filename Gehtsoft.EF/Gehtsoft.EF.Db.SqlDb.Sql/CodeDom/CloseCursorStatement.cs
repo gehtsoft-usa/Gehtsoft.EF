@@ -74,7 +74,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal override Expression ToLinqWxpression()
         {
-            return Expression.Call(Expression.Constant(this), "Run", null, Expression.Constant(CodeDomBuilder.Connection));
+            return Expression.Call(Expression.Constant(this), "Run", null);
         }
     }
 }

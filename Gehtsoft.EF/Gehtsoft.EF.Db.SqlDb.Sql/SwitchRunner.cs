@@ -59,7 +59,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 }
                 if (runCurrent || forceRunAll)
                 {
-                    result = mBuilder.Run(mConnection, item.Statements);
+                    result = mBuilder.Run(mConnection, item.Statements, true);
                     if (item.Statements.Leave)
                         break;
                     forceRunAll = true;

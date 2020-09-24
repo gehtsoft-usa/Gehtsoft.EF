@@ -85,16 +85,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         public Expression ParseToLinq(string name, TextReader source)
         {
             var root = ParseToRawTree(name, source);
-            Expression result = ParseNodeToLinq(name, root);
-            return result;
+            return ParseNodeToLinq(name, root, null, true);
         }
 
-        internal Expression ParseNodeToLinq(string name, ASTNode root, Statement parentStatement = null)
+        internal Expression ParseNodeToLinq(string name, ASTNode root, Statement parentStatement, bool clear = false)
         {
             bool saveWhetherParseToLinq = WhetherParseToLinq;
             WhetherParseToLinq = true;
             var visitor = new SqlASTVisitor();
-            Expression result = visitor.VisitStatementsToLinq(this, name, root, parentStatement?.Type ?? Statement.StatementType.Block, parentStatement?.OnContinue);
+            Expression result = visitor.VisitStatementsToLinq(this, name, root, parentStatement?.Type ?? Statement.StatementType.Block, parentStatement?.OnContinue, clear);
             WhetherParseToLinq = saveWhetherParseToLinq;
             return result;
         }
@@ -210,7 +209,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mLastParse.ParentEnvironment = null;
             mLastParse.ParentStatement = null;
             TopEnvironment = null;
-            return Run(connection, mLastParse);
+            return Run(connection, mLastParse, false);
         }
 
         internal object LastStatementResult
@@ -232,7 +231,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public object Run(SqlDbConnection connection, StatementSetEnvironment statements)
+        public object Run(SqlDbConnection connection, StatementSetEnvironment statements, bool inner = false)
         {
             statements.ClearEnvironment();
             statements.ParentEnvironment = TopEnvironment;
@@ -349,7 +348,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 {
                     if (statements.BeforeContinue != null)
                     {
-                        Run(connection, statements.BeforeContinue);
+                        Run(connection, statements.BeforeContinue, true);
                     }
                     cont = true;
                     statements.Continue = false;
@@ -360,7 +359,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 }
             }
             TopEnvironment = statements.ParentEnvironment;
-            return statements.LastStatementResult;
+            object result = statements.LastStatementResult;
+            if (!inner)
+            {
+                this.ClearOpenedQueries();
+            }
+            return result;
         }
 
         internal IStatementSetEnvironment TopEnvironment { get; set; } = null;
@@ -509,6 +513,27 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 }
                 BlockDescriptors.Pop();
             }
+        }
+
+        private Dictionary<Guid, SqlDbQuery> mOpenedQueries = new Dictionary<Guid, SqlDbQuery>();
+
+        internal void AddOpenedQuery(Guid guid, SqlDbQuery query)
+        {
+            mOpenedQueries.Add(guid, query);
+        }
+
+        internal void RemoveOpenedQuery(Guid guid)
+        {
+            mOpenedQueries.Remove(guid);
+        }
+
+        public void ClearOpenedQueries()
+        {
+            foreach(KeyValuePair<Guid, SqlDbQuery> item in mOpenedQueries)
+            {
+                item.Value.Dispose();
+            }
+            mOpenedQueries = new Dictionary<Guid, SqlDbQuery>();
         }
     }
 

@@ -128,7 +128,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "AUTO JOIN Order " +
                 "AUTO JOIN Customer " +
                 "AUTO JOIN Employee " +
-                "OPEN  CURSOR ?my_cur " +
+                "OPEN CURSOR ?my_cur " +
                 "SET record = FETCH(?my_cur) " +
                 "CLOSE CURSOR ?my_cur " +
                 "EXIT WITH ?record"

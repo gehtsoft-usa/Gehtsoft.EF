@@ -148,6 +148,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
 
         private SqlDbQuery mOpenedQuery = null;
+        private Guid mQueryGuid = Guid.Empty;
 
         internal object ReadNext(SqlSelectStatement select)
         {
@@ -169,13 +170,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             {
                 processSelect(select);
 
-                using (SqlDbQuery query = mConnection.GetQuery(mMainBuilder))
-                {
-                    ApplyBindParams(query);
+                mOpenedQuery = mConnection.GetQuery(mMainBuilder);
+                ApplyBindParams(mOpenedQuery);
 
-                    query.ExecuteReader();
-                    mOpenedQuery = query;
-                }
+                mOpenedQuery.ExecuteReader();
+                mQueryGuid = Guid.NewGuid();
+
+                mBuilder.AddOpenedQuery(mQueryGuid, mOpenedQuery);
             }
             catch
             {
@@ -189,6 +190,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal void Close()
         {
+            if (mOpenedQuery != null)
+            {
+                mOpenedQuery.Dispose();
+                mBuilder.RemoveOpenedQuery(mQueryGuid);
+                mOpenedQuery = null;
+                mQueryGuid = Guid.Empty;
+            }
             mOpenedQuery = null;
             if (mConnectionFactory != null)
             {

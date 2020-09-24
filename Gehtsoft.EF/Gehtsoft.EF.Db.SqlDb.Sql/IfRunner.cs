@@ -54,7 +54,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 bool condition = (bool)resultConstant.Value;
                 if(condition)
                 {
-                    result = mBuilder.Run(mConnection, item.Statements);
+                    result = mBuilder.Run(mConnection, item.Statements, true);
                     break;
                 }
             }

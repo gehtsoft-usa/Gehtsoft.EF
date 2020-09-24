@@ -139,7 +139,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             builder.TopEnvironment = builder.TopEnvironment.ParentEnvironment;
             return initialSet;
         }
-        public Expression VisitStatementsToLinq(SqlCodeDomBuilder builder, string source, ASTNode statementNode, Statement.StatementType statementType, Expression onContinue)
+        public Expression VisitStatementsToLinq(SqlCodeDomBuilder builder, string source, ASTNode statementNode, Statement.StatementType statementType, Expression onContinue, bool clear)
         {
             LabelTarget startLabel = Expression.Label();
             LabelTarget endLabel = Expression.Label();
@@ -159,6 +159,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
             SqlCodeDomBuilder.PopDescriptor(builder);
             initialSet.Add(Expression.Label(endLabel));
+            if (clear)
+            {
+                initialSet.Add(Expression.Call(Expression.Constant(builder), "ClearOpenedQueries", null));
+            }
             initialSet.Add(builder.EndBlock());
             return Expression.Block(initialSet);
         }
