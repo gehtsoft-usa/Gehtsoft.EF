@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding="windows-1252"?>
 <doc>
   <assembly>
     <name>Gehtsoft.EF.Entities</name>
@@ -1028,6 +1028,47 @@ first occurrence of the table in the query will be used.</param>
     <member name="P:Gehtsoft.EF.Entities.EntityCollection`1.Item(System.Int32)">
       <summary>Returns the item by its index.</summary>
       <param name="index" />
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.EntityFinder">
+      <summary>The class which can be used to gather information about the entities.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityFinder.FindEntities(System.Collections.Generic.IEnumerable{System.Reflection.Assembly},System.String,System.Boolean)">
+      <summary>Finds entities in the specified assembly list.</summary>
+      <param name="assemblies">The list of the assemblies to find entities.</param>
+      <param name="scope">The name of the scope or null to take all scopes</param>
+      <param name="includeObsolete">The flag indicating whether the obsolete entities must be also included.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityFinder.ArrageEntities(Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo[])">
+      <summary>Sorts entity by dependencies.</summary>
+      <param name="entities" />
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo">
+      <summary>The information about the entity.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.DoesDependOn(Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo)">
+      <summary>Checks whether the entity depends on another entity.</summary>
+      <param name="info" />
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.Scope">
+      <summary>The name of the entity scope</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.EntityType">
+      <summary>The .NET type of the entity.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.Obsolete">
+      <summary>The flag indicating whether the entity is obsolete.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.Table">
+      <summary>The name of the table associated with the entity.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.NamingPolicy">
+      <summary>The naming policy associated with the entity</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.DependsOn">
+      <summary>Returns the list of types that depends on this type.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.DependsOnInfo">
+      <summary>Returns the list of entity type information of types that depends on this type.</summary>
     </member>
     <member name="T:Gehtsoft.EF.Entities.EntityNamingPolicy">
       <summary>The database naming policy</summary>
@@ -2857,6 +2898,94 @@ as fields are located in the property, not the order in which the fields are inc
       <summary></summary>
     </member>
     <member name="M:Gehtsoft.EF.FTS.FtsWordEntityCollection.#ctor">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder">
+      <summary>The model builder for OData ER model.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder.EntityTypeByName(System.String)">
+      <summary>Returns the entity specification by its OData name.</summary>
+      <param name="odataEntityName">The odata entity name.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder.Build(Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo[],System.String)">
+      <summary>Builds a ER model using the list of the entities and the namespace name</summary>
+      <param name="entities">The list of the entities</param>
+      <param name="ns">The OData namespace name.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder.#ctor">
+      <summary>Constructor</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder.Model">
+      <summary>The model</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor">
+      <summary>The OData query processor</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.#ctor(Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory,Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder,System.String)">
+      <summary>Constructor</summary>
+      <param name="connectionFactory">SQL.Db connection factory.</param>
+      <param name="edmModelBuilder">The ER model</param>
+      <param name="root">The root part of URIs (typically with the protocol and web site name, but may also contains the area name.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.SelectDataAsync(System.Void,System.Object)">
+      <summary>Selects the data asynchronously</summary>
+      <param name="uri">The URI</param>
+      <param name="token">The cancellation token</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.SelectData(System.Uri)">
+      <summary></summary>
+      <param name="uri">The URI</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.GetFormattedDataAsync(System.Void,System.String)">
+      <summary>Selects formatted data asynchronously</summary>
+      <param name="uri">The URI</param>
+      <param name="token">The cancellation token</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.GetFormattedData(System.Uri)">
+      <summary></summary>
+      <param name="uri">The URI</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.RemoveRecordAsync(System.Void,System.String,System.String)">
+      <summary>Removes the record asynchronously</summary>
+      <param name="tableName">The name of the entity</param>
+      <param name="id">The entity identifier</param>
+      <param name="token">Cancellation token</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.RemoveRecord(System.String,System.Int32)">
+      <summary>Removes the record</summary>
+      <param name="tableName">The name of the entity</param>
+      <param name="id">The entity identifier</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.AddNewRecordAsync(System.Void,System.Tuple`2,System.Boolean)">
+      <summary>Adds a new record</summary>
+      <param name="tableName">The name of the table</param>
+      <param name="serializedBody">The body of the entity serialized as Json object.</param>
+      <param name="token" />
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.AddNewRecord(System.String,System.String,System.Boolean@)">
+      <summary></summary>
+      <param name="tableName">The name of the table.</param>
+      <param name="serializedBody">The body of the record serialized into Json</param>
+      <param name="wasError">The output flag indicating whether a error occurred.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.UpdateRecordAsync(System.Void,System.Tuple`2,System.Boolean,System.String)">
+      <summary>The method updates the record asynchronously</summary>
+      <param name="tableName">The name of the table</param>
+      <param name="serializedBody">The method name serialized into json</param>
+      <param name="id">The object identifier.</param>
+      <param name="token">Cancellation token.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.UpdateRecord(System.String,System.String,System.Int32,System.Boolean@)">
+      <summary></summary>
+      <param name="tableName">The name of the table</param>
+      <param name="serializedBody">The object to be updated serialized as json.</param>
+      <param name="id">The object identifier.</param>
+      <param name="wasError">The flag indicating whether there was a error during the operation.</param>
+    </member>
+    <member name="P:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.ODataCountName">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.ODataMetadataName">
       <summary></summary>
     </member>
   </members>
