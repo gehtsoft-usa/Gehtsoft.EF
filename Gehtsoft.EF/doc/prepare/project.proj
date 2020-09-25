@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Gehtsoft.Build.DocGen" Version="0.1.3" IncludeAssets="build" />
+    <PackageReference Include="Gehtsoft.Build.ContentDelivery" Version="0.1.9" IncludeAssets="build" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <RawDir>$(MSBuildProjectDirectory)\src\raw</RawDir>
+  </PropertyGroup>
+
+
+ <ItemGroup>
+    <CurrentRawDir Include="$(RawDir)" />
+ </ItemGroup>
+
+ <Target Name="CleanDoc">
+  <RemoveDir Directories="@(CurrentRawDir)" />
+ </Target>
+
+
+ <ItemGroup>
+    <DocSource Include="$(MSBuildProjectDirectory)\..\..\Gehtsoft.EF.Entities\bin\Debug\netstandard2.0\Gehtsoft.EF.Entities.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)\..\..\Gehtsoft.EF.Utils\bin\Debug\netstandard2.0\Gehtsoft.EF.Utils.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)\..\..\Gehtsoft.EF.Db.SqlDb\bin\Debug\netstandard2.0\Gehtsoft.EF.Db.SqlDb.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)\..\..\Gehtsoft.EF.FTS\bin\Debug\netstandard2.0\Gehtsoft.EF.FTS.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)\..\..\Gehtsoft.EF.Db.SqlDb.Sql\bin\Debug\netstandard2.0\Gehtsoft.EF.Db.SqlDb.Sql.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)\..\..\Gehtsoft.EF.Db.SqlDb.OData\bin\Debug\netstandard2.0\Gehtsoft.EF.Db.SqlDb.OData.dll" />
+ </ItemGroup>
+
+ <Target Name="Scan">
+    <Asm2Xml Assemblies="@(DocSource)" OutputXml="obj/raw.xml" Mode="netcoreapp3.1" />
+ </Target>
+
+ <Target Name="Raw">
+    <RemoveDir Directories="@(CurrentRawDir)"/>
+    <MakeDir Directories="$(RawDir)" />
+    <DocGen Project="prepareproject.xml" />
+ </Target>
+
+</Project>
