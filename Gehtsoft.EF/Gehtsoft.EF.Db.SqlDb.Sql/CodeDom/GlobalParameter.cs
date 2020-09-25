@@ -20,6 +20,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 return ExpressionTypes.GlobalParameter;
             }
         }
+
+        internal void ResetResultType()
+        {
+            mResultType = null;
+        }
         public override ResultTypes ResultType
         {
             get

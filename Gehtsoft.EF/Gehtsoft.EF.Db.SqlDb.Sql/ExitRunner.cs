@@ -53,7 +53,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 SqlConstant resultConstant = CalculateExpression(sourceExpression);
                 if (resultConstant == null)
                 {
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error while SET execution"));
+                    throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error while EXIT execution (maybe unfound global variable)"));
                 }
                 exitValue = resultConstant.Value;
             }

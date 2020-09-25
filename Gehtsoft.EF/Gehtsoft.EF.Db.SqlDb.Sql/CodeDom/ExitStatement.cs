@@ -27,6 +27,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         expressionNode.Position.Column,
                         $"Not calculable expression in EXIT statement"));
                 }
+                if(ExitExpression.ResultType == SqlBaseExpression.ResultTypes.Cursor)
+                {
+                    throw new SqlParserException(new SqlError(currentSource,
+                        expressionNode.Position.Line,
+                        expressionNode.Position.Column,
+                        $"Cursor expression can not be used in EXIT statement"));
+                }
             }
         }
 
@@ -38,6 +45,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 throw new SqlParserException(new SqlError(null, 0, 0,
                     $"Not calculable expression in EXIT statement"));
+            }
+            if (ExitExpression.ResultType == SqlBaseExpression.ResultTypes.Cursor)
+            {
+                throw new SqlParserException(new SqlError(null, 0, 0,
+                    $"Cursor expression can not be used in EXIT statement"));
             }
         }
 

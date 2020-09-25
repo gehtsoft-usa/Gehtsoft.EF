@@ -343,6 +343,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 case SqlParser.ID.VariableFetchCall:
                     result = new Fetch(parentStatement, fieldNode, source);
                     break;
+                case SqlParser.ID.VariableAssignExpr:
+                    result = new AssignExpression(parentStatement, fieldNode.Children[0], fieldNode.Children[1], source);
+                    break;
             }
             if (funcName != null)
             {

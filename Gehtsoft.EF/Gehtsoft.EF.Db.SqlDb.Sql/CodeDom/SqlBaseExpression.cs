@@ -29,7 +29,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             GetField,
             NewRowSet,
             NewRow,
-            Fetch
+            Fetch,
+            Assign
         };
 
         /// <summary>

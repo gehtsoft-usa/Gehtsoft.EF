@@ -336,6 +336,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                                 CloseCursorStatement closeCursorStatement = statement as CloseCursorStatement;
                                 closeCursorStatement.Run();
                                 break;
+                            case Statement.StatementType.Assign:
+                                AssignStatement assignStatement = statement as AssignStatement;
+                                assignStatement.Run();
+                                break;
                         }
                     }
                     if (statements.Leave)

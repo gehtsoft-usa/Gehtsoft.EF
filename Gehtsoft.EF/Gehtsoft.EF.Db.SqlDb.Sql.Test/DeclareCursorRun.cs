@@ -92,6 +92,38 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
+        public void DeclareCursorWithRun3()
+        {
+            object result;
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
+
+            environment.Parse("test",
+                "SET maxQuantity = 0.0;" +
+                "DECLARE my_cur CURSOR FOR " +
+                "SELECT Quantity FROM OrderDetail;" +
+                "OPEN CURSOR ?my_cur;" +
+                "WHILE ?record := FETCH(?my_cur) IS NOT NULL " +
+                "LOOP " +
+                "   ?quantity := GET_FIELD(?record, 'Quantity', DOUBLE);" +
+                "   IF ?quantity > ?maxQuantity THEN ?maxQuantity := ?quantity; END IF;" +
+                "END LOOP;" +
+                "CLOSE CURSOR ?my_cur;" +
+                "EXIT WITH ?maxQuantity;"
+            );
+            result = environment.Run(connection);
+            double max1 = (double)result;
+
+            environment.Parse("test",
+                "SELECT MAX(Quantity) AS Max FROM OrderDetail;" +
+                "EXIT WITH GET_FIELD(GET_ROW(LAST_RESULT(), 0), 'Max', DOUBLE);"
+            );
+            result = environment.Run(connection);
+            double max2 = (double)result;
+
+            max1.Should().Be(max2);
+        }
+
+        [Fact]
         public void DeclareCursorWithLinq1()
         {
             Expression block;
@@ -146,6 +178,39 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             result = Expression.Lambda<Func<object>>(block).Compile()();
             int count = (int)result;
             count.Should().Be(8);
+        }
+
+        [Fact]
+        public void DeclareCursorWithLinq3()
+        {
+            Expression block;
+            object result;
+            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+
+            block = environment.ParseToLinq("test",
+                "SET maxQuantity = 0.0;" +
+                "DECLARE my_cur CURSOR FOR " +
+                "SELECT Quantity FROM OrderDetail;" +
+                "OPEN CURSOR ?my_cur;" +
+                "WHILE ?record := FETCH(?my_cur) IS NOT NULL " +
+                "LOOP " +
+                "   ?quantity := GET_FIELD(?record, 'Quantity', DOUBLE);" +
+                "   IF ?quantity > ?maxQuantity THEN ?maxQuantity := ?quantity; END IF;" +
+                "END LOOP;" +
+                "CLOSE CURSOR ?my_cur;" +
+                "EXIT WITH ?maxQuantity;"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            double max1 = (double)result;
+
+            block = environment.ParseToLinq("test",
+                "SELECT MAX(Quantity) AS Max FROM OrderDetail;" +
+                "EXIT WITH GET_FIELD(GET_ROW(LAST_RESULT(), 0), 'Max', DOUBLE);"
+            );
+            result = Expression.Lambda<Func<object>>(block).Compile()();
+            double max2 = (double)result;
+
+            max1.Should().Be(max2);
         }
     }
 }

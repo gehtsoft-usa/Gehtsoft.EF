@@ -159,6 +159,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 SelectRunner selectRunner = pair.Item2;
                 return new SqlConstant(selectRunner.ReadNext(selectStatement), ResultTypes.Row);
             }
+            else if (expression is AssignExpression assignExpression)
+            {
+                SqlConstant param = CalculateExpression(assignExpression.RightOperand, codeDomBuilder, connection);
+                codeDomBuilder.UpdateGlobalParameter(assignExpression.LeftOperand.Name, param);
+                return param;
+            }
             else if (expression is SqlUnarExpression unar)
             {
                 SqlBaseExpression operand = CalculateExpression(unar.Operand, codeDomBuilder, connection);
@@ -588,6 +594,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             else if (expression is Fetch fetch)
             {
                 return GetStrExpression(CalculateExpression(fetch), out isAggregate);
+            }
+            else if (expression is AssignExpression assignExpression)
+            {
+                return GetStrExpression(CalculateExpression(assignExpression), out isAggregate);
             }
             else if (expression is SqlUnarExpression unar)
             {

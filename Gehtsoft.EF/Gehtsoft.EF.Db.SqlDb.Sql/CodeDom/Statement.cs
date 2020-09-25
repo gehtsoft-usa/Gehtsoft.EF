@@ -38,7 +38,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             DeclareCursor,
             OpenCursor,
             CloseCursor,
-            Fetch
+            Assign
         };
         /// <summary>
         /// Type of the statement
@@ -274,6 +274,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 retval = isCalculableLeft && isCalculableRight;
             }
             else if (expression is SqlConstant)
+            {
+                retval = true;
+            }
+            else if (expression is AssignExpression)
             {
                 retval = true;
             }

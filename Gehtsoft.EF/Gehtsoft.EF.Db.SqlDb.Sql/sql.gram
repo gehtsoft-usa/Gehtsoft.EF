@@ -38,6 +38,7 @@ grammar Sql
         IDENTIFIER  -> [a-zA-Z_] [a-zA-Z0-9_]* ;
         SEPARATOR   -> WHITE_SPACE | COMMENT_LINE | NEW_LINE;
 		GLOBAL_PARAMETER_NAME -> '?' IDENTIFIER;
+        ASSIGN -> ':=';
     }
 
     rules {
@@ -193,7 +194,9 @@ grammar Sql
         OR_BOOL_EXPR -> AND_BOOL_EXPR^ |
                         OR_BOOL_EXPR OR_OP^ AND_BOOL_EXPR;
 
-        EXPR -> OR_BOOL_EXPR^;
+        ASSIGN_EXPR -> GLOBAL_PARAMETER_SIMPLE ASSIGN! EXPR;
+
+        EXPR -> OR_BOOL_EXPR^ | ASSIGN_EXPR^;
 
         BOOL_EXPR -> OR_BOOL_EXPR^;
 
@@ -307,7 +310,7 @@ grammar Sql
 
         SQL_STATEMENT -> SELECT^ | INSERT^ | UPDATE^ | DELETE^;
         STATEMENT -> SQL_STATEMENT | SET | DECLARE | EXIT | IFTHEN | WHILEDO | CONTINUE | BREAK | FORDO | SWITCH |
-                     ADD_FIELD_TO | ADD_ROW_TO | DECLARE_CURSOR | OPEN_CURSOR | CLOSE_CURSOR | NOP;
+                     ADD_FIELD_TO | ADD_ROW_TO | DECLARE_CURSOR | OPEN_CURSOR | CLOSE_CURSOR | ASSIGN_EXPR | NOP;
 
         ROOT -> STATEMENT STATEMENT*;
     }

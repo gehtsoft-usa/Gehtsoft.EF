@@ -105,6 +105,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         {
                             return new CloseCursorStatement(builder, statementNode, source);
                         }
+                    case SqlParser.ID.VariableAssignExpr:
+                        {
+                            return new AssignStatement(builder, statementNode, source);
+                        }
                     case SqlParser.ID.VariableNop:
                         return null;
                 }

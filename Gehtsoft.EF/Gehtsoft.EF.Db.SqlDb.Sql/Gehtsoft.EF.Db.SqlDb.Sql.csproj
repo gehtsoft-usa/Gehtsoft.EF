@@ -29,6 +29,8 @@
     <Compile Include="BreakeRunner.cs" />
     <Compile Include="CodeDom\AddFieldStatement.cs" />
     <Compile Include="CodeDom\AddRowStatement.cs" />
+    <Compile Include="CodeDom\AssignExpression.cs" />
+    <Compile Include="CodeDom\AssignStatement.cs" />
     <Compile Include="CodeDom\BlockStatement.cs" />
     <Compile Include="CodeDom\BreakStatement.cs" />
     <Compile Include="CodeDom\CloseCursorStatement.cs" />
