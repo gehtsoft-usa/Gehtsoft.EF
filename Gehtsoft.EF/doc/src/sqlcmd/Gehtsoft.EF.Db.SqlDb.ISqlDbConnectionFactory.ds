@@ -1,4 +1,4 @@
-﻿@class
+@class
     @name=ISqlDbConnectionFactory
     @key=Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory
     @brief=The universal interface to the connection factory.
@@ -58,7 +58,7 @@
         @sig=M:Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory.GetConnectionAsync(System.Nullable{System.Threading.CancellationToken})
         @visibility=public
         @scope=instance
-        @brief=Gets the connection asynchronously. 
+        @brief=Gets the connection asynchronously.
             @declaration
                 @language=cs
                 @name=GetConnectionAsync

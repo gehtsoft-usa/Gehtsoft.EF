@@ -1,4 +1,4 @@
-﻿@class
+@class
     @name=SqlDbUniversalConnectionFactory
     @key=Gehtsoft.EF.Db.SqlDb.SqlDbUniversalConnectionFactory
     @ingroup=Gehtsoft.EF.Db.SqlDb
