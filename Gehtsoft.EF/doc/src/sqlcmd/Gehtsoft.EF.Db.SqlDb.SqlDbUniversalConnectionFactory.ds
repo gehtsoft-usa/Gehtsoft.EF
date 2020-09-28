@@ -1,0 +1,40 @@
+﻿@class
+    @name=SqlDbUniversalConnectionFactory
+    @key=Gehtsoft.EF.Db.SqlDb.SqlDbUniversalConnectionFactory
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlDbUniversalConnectionFactory
+    @type=class
+    @parent=[link=Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory]Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory[/link]
+    @brief=The basic implementation of a connection factory interface.
+
+    @member
+
+        @type=constructor
+        @name=SqlDbUniversalConnectionFactory
+        @key=.ctor.K22
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbUniversalConnectionFactory.#ctor(System.String,System.String)
+        @visibility=public
+        @scope=instance
+        @brief=Constructor
+
+            @declaration
+                @language=cs
+                @name=SqlDbUniversalConnectionFactory
+                @return=
+                @params=string driver, string connectionString
+            @end
+
+            @param
+                @name=driver
+                The driver name
+                See [clink=Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory]UniversalSqlDbFactory[/clink] for the list of supported drivers.
+            @end
+
+            @param
+                @name=connectionString
+                The connection string.
+            @end
+
+    @end
+@end

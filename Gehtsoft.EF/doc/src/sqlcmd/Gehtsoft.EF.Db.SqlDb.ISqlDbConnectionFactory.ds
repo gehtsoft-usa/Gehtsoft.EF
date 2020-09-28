@@ -1,0 +1,74 @@
+﻿@class
+    @name=ISqlDbConnectionFactory
+    @key=Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory
+    @brief=The universal interface to the connection factory.
+    @type=interface
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory
+
+    You can either implement this class or use the default
+    implementation [clink=Gehtsoft.EF.Db.SqlDb.SqlDbUniversalConnectionFactory]SqlDbUniversalConnectionFactory[/clink]
+
+    @member
+        @type=property
+        @name=NeedDispose
+        @key=NeedDispose.I72
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory.NeedDispose
+        @visibility=public
+        @scope=instance
+        @brief=The flag indicating whether the connections returned by this interface needs to be disposed after use
+
+        Note: Do NOT dispose the connection if this property is [c]false[/c].
+
+            @declaration
+                @language=cs
+                @return=bool
+                @name=NeedDispose
+                @suffix= public get;
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=GetConnection
+        @key=GetConnection.qI8
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory.GetConnection
+        @visibility=public
+        @scope=instance
+        @brief=Gets the connection.
+
+            @declaration
+                @language=cs
+                @name=GetConnection
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]Gehtsoft.EF.Db.SqlDb.SqlDbConnection[/link]
+                @params=
+            @end
+
+    @end
+
+    @member
+        @type=method
+        @name=GetConnectionAsync
+        @key=GetConnectionAsync.tK4
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory.GetConnectionAsync(System.Nullable{System.Threading.CancellationToken})
+        @visibility=public
+        @scope=instance
+        @brief=Gets the connection asynchronously. 
+            @declaration
+                @language=cs
+                @name=GetConnectionAsync
+                @return=System.Threading.Tasks.Task<[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]Gehtsoft.EF.Db.SqlDb.SqlDbConnection[/link]>
+                @params=System.Threading.CancellationToken? token = null
+            @end
+
+            @param
+                @name=token
+            @end
+    @end
+
+@end

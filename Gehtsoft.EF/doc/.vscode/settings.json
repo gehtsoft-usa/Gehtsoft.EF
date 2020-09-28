@@ -1,0 +1,24 @@
+{
+    "cSpell.enableFiletypes": [
+        "docgen"
+    ],
+    "cSpell.maxNumberOfProblems": 300,
+    "cSpell.minWordLength": 3,
+    "cSpell.enabled": true,
+    "cSpell.showStatus": true,
+    "cSpell.words": [
+        "gehtsoft",
+        "namespace",
+        "guid",
+        "accessor",
+    ],
+    "cSpell.ignoreRegExpList": [
+        "/\\[[^\\]]+\\]/",
+        "/^\\s*@ingroup\\s*=.+$/m",
+        "/^\\s*@sig\\s*=.+$/m",
+        "/^\\s*@key\\s*=.+$/m",
+        "/^\\s*@name\\s*=.+$/m",
+        "/^\\s*@parent\\s*=.+$/m",
+        "/^\\s*@\\w+\\s*$/m"
+    ],
+}

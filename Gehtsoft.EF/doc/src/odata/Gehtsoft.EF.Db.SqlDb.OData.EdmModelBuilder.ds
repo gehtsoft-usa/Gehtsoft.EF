@@ -6,6 +6,21 @@
     @ingroup=Gehtsoft.EF.Db.SqlDb.OData
     @sig=T:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder
 
+    You need only one copy of the model builder and the model in your application.
+
+    @example
+        @title=Model builder initialization example
+        @gray=yes
+        @show=yes
+        @highlight=cs
+        !services.AddSingleton<EdmModelBuilder>(sp => {
+        !   EdmModelBuilder edmModelBuilder = new EdmModelBuilder();
+        !   EntityFinder.EntityTypeInfo[] entities = EntityFinder.FindEntities(new Assembly[] { typeof(Program).Assembly }, "northwind", false);
+        !   edmModelBuilder.Build(entities, "northwind");
+        !   return edmModelBuilder;
+        !});
+    @end
+
     @member
         @name=EntityTypeByName
         @sig=M:Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder.EntityTypeByName(System.String)

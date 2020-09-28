@@ -6,6 +6,22 @@
     @ingroup=Gehtsoft.EF.Db.SqlDb.OData
     @sig=T:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor
 
+    @example
+        @title=OData controller creation and use for KendoUI example
+        @gray=yes
+        @show=yes
+        @highlight=cs
+        var processor = new ODataProcessor([clink=Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory]connectionFactory[/clink], [clink=Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder]edmModelBuilder[/clink]);
+        //kendo-specific names
+        processor.ODataCountName = "@odata.count"; 
+        processor.ODataMetadataName = "@odata.context"; 
+        ...
+        processor.Root = $"{Request.Scheme}://{Request.Host.Value}/OData";
+        //get result as formatted OData json
+        var result = [clink=Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.GetFormattedData.0]processor.GetFormattedData[/clink](new Uri($"/Order{Request.QueryString}", UriKind.Relative));
+    @end
+
+
     @member
         @name=ODataProcessor
         @sig=M:Gehtsoft.EF.Db.SqlDb.OData.ODataProcessor.#ctor(Gehtsoft.EF.Db.SqlDb.ISqlDbConnectionFactory,Gehtsoft.EF.Db.SqlDb.OData.EdmModelBuilder,System.String)
