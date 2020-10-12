@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlUnarExpression : SqlBaseExpression
+    internal class SqlUnarExpression : SqlBaseExpression
     {
         private ResultTypes mResultType = ResultTypes.Unknown;
         private SqlBaseExpression mOperand;
@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         /// <summary>
         /// The types of the Operation
         /// </summary>
-        public enum OperationType
+        internal enum OperationType
         {
             Plus,
             Minus,
@@ -25,14 +25,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             IsNotNull
         };
 
-        public override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.Unar;
             }
         }
-        public override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {
@@ -40,7 +40,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlBaseExpression Operand
+        internal SqlBaseExpression Operand
         {
             get
             {
@@ -48,7 +48,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public OperationType Operation
+        internal OperationType Operation
         {
             get
             {
@@ -177,7 +177,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public virtual bool Equals(SqlUnarExpression other)
+        internal virtual bool Equals(SqlUnarExpression other)
         {
             if (other == null)
                 return false;
@@ -186,7 +186,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return (this.Operand.Equals(other.Operand) && this.Operation.Equals(other.Operation));
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is SqlUnarExpression item)
                 return Equals(item);

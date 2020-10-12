@@ -16,21 +16,22 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
-    public interface IStatementRunner<T>
+    internal  interface IStatementRunner<T>
     {
         object Run(T statement);
     }
 
-    public interface IBindParamsOwner
+    internal  interface IBindParamsOwner
     {
         Dictionary<string, object> BindParams { get; }
     }
 
-    public abstract class StatementRunner<T> : StatementRunner, IStatementRunner<T>
+    internal  abstract class StatementRunner<T> : StatementRunner, IStatementRunner<T>
     {
-        public abstract object Run(T statement);
+        object IStatementRunner<T>.Run(T statement) => Run(statement);
+        internal abstract object Run(T statement);
     }
-    public abstract class StatementRunner
+    internal  abstract class StatementRunner
     {
 
         protected abstract SqlDbConnection Connection { get; }
@@ -41,12 +42,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             return CalculateExpression(expression, CodeDomBuilder, Connection);
         }
-        public static T CalculateExpression<T>(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder)
+        internal  static T CalculateExpression<T>(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder)
         {
             object value = CalculateExpression(expression, codeDomBuilder, codeDomBuilder.Connection).Value;
             return (T)Convert.ChangeType(value, typeof(T));
         }
-        public static SqlConstant CalculateExpression(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder, SqlDbConnection connection)
+        internal  static SqlConstant CalculateExpression(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder, SqlDbConnection connection)
         {
             if (expression is SqlField field)
             {
@@ -376,7 +377,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return dtt;
         }
 
-        public static int unixTimeStampUTC(DateTime currentTime)
+        internal  static int unixTimeStampUTC(DateTime currentTime)
         {
             int unixTimeStamp;
             DateTime zuluTime = currentTime.ToUniversalTime();
@@ -385,7 +386,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return unixTimeStamp;
         }
 
-        public enum ArifOp
+        internal  enum ArifOp
         {
             Add,
             Minus,
@@ -405,13 +406,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
     }
 
-    public abstract class SqlStatementRunner<T> : StatementRunner<T>, IBindParamsOwner
+    internal  abstract class SqlStatementRunner<T> : StatementRunner<T>, IBindParamsOwner
     {
         protected IBindParamsOwner BindParamsOwner { get; set; } = null;
 
         private Dictionary<string, object> mBindParams = new Dictionary<string, object>();
 
-        public Dictionary<string, object> BindParams
+        Dictionary<string, object> IBindParamsOwner.BindParams
+        {
+            get
+            {
+                return BindParams;
+            }
+        }
+
+        internal Dictionary<string, object> BindParams
         {
             get
             {
@@ -421,7 +430,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public abstract AQueryBuilder GetQueryBuilder(T statement);
+        internal abstract AQueryBuilder GetQueryBuilder(T statement);
 
         protected abstract SqlStatement SqlStatement { get; }
 
@@ -885,9 +894,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         }
 
     }
-    public static class MyStringExtensions
+    internal  static class MyStringExtensions
     {
-        public static bool Like(this string toSearch, string toFind)
+        internal  static bool Like(this string toSearch, string toFind)
         {
             return new Regex(@"\A" + new Regex(@"\.|\$|\^|\{|\[|\(|\||\)|\*|\+|\?|\\").Replace(toFind, ch => @"\" + ch).Replace('_', '.').Replace("%", ".*") + @"\z", RegexOptions.Singleline).IsMatch(toSearch);
         }

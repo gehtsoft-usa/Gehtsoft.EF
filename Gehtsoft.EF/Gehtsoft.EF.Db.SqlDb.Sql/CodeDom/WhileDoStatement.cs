@@ -10,7 +10,7 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class WhileDoStatement : BlockStatement
+    internal class WhileDoStatement : BlockStatement
     {
         internal WhileDoStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Loop)

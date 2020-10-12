@@ -41,7 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mConnection = connection;
         }
 
-        public override object Run(SetStatement setStatement)
+        internal override object Run(SetStatement setStatement)
         {
             return Run(mBuilder, setStatement);
         }

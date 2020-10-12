@@ -9,28 +9,28 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.Statement;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlField : SqlBaseExpression
+    internal class SqlField : SqlBaseExpression
     {
-        public EntityDescriptor EntityDescriptor { get; private set; } = null;
-        public string Name { get; }
-        public string Prefix { get; }
+        internal EntityDescriptor EntityDescriptor { get; private set; } = null;
+        internal string Name { get; }
+        internal string Prefix { get; }
         private ResultTypes mResultType = ResultTypes.Unknown;
         private string mFieldName = null;
-        public string FieldName
+        internal string FieldName
         {
             get
             {
                 return mFieldName ?? Name;
             }
         }
-        public override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.Field;
             }
         }
-        public override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {
@@ -42,7 +42,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         /// Result type can be determined in semantic analizer only
         /// </summary>
         /// <param name="resultType"></param>
-        public virtual void SetResultType(ResultTypes resultType)
+        internal virtual void SetResultType(ResultTypes resultType)
         {
             mResultType = resultType;
         }
@@ -147,7 +147,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mResultType = GetResultType(fieldType);
         }
 
-        public virtual bool Equals(SqlField other)
+        internal virtual bool Equals(SqlField other)
         {
             if (other == null)
                 return false;
@@ -156,7 +156,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return (this.Name == other.Name && this.Prefix == other.Prefix);
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is SqlField item)
                 return Equals(item);

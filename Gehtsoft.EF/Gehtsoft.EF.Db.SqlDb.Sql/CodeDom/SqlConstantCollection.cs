@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlConstantCollection : IReadOnlyList<SqlConstant>, IEquatable<SqlConstantCollection>
+    internal class SqlConstantCollection : IReadOnlyList<SqlConstant>, IEquatable<SqlConstantCollection>
     {
         private readonly List<SqlConstant> mList = new List<SqlConstant>();
 
@@ -33,7 +33,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mList.Add(fieldAlias);
         }
 
-        public virtual bool Equals(SqlConstantCollection other)
+        bool IEquatable<SqlConstantCollection>.Equals(SqlConstantCollection other) => Equals(other);
+        internal virtual bool Equals(SqlConstantCollection other)
         {
             if (other == null)
                 return false;

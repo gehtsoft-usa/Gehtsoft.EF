@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlFromClause : IEquatable<SqlFromClause>
+    internal class SqlFromClause : IEquatable<SqlFromClause>
     {
-        public SqlTableSpecificationCollection TableCollection { get; } = null;
+        internal SqlTableSpecificationCollection TableCollection { get; } = null;
         internal SqlFromClause(SqlStatement parentStatement, ASTNode statementNode, string source)
         {
             if (statementNode.Children[0].Symbol.ID == SqlParser.ID.VariableTableReferenceList)
@@ -53,7 +53,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             TableCollection = tableCollection;
         }
 
-        public virtual bool Equals(SqlFromClause other)
+        bool IEquatable<SqlFromClause>.Equals(SqlFromClause other) => Equals(other);
+        internal virtual bool Equals(SqlFromClause other)
         {
             if (other == null)
                 return false;

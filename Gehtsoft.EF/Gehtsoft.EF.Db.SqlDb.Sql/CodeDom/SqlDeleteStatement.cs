@@ -13,10 +13,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// <summary>
     /// Delete statement
     /// </summary>
-    public class SqlDeleteStatement : SqlStatement
+    internal class SqlDeleteStatement : SqlStatement
     {
-        public string TableName { get; } = null;
-        public SqlWhereClause WhereClause { get; } = null;
+        internal string TableName { get; } = null;
+        internal SqlWhereClause WhereClause { get; } = null;
 
         internal SqlDeleteStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementId.Delete, currentSource, statementNode.Position.Line, statementNode.Position.Column)
@@ -77,7 +77,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return Expression.Call(Expression.Constant(runner), "RunWithResult", null, Expression.Constant(this));
         }
 
-        public virtual bool Equals(SqlDeleteStatement other)
+        internal virtual bool Equals(SqlDeleteStatement other)
         {
             if (other is SqlDeleteStatement stmt)
             {
@@ -90,7 +90,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(SqlStatement obj)
+        internal override bool Equals(SqlStatement obj)
         {
             if (obj is SqlDeleteStatement item)
                 return Equals(item);

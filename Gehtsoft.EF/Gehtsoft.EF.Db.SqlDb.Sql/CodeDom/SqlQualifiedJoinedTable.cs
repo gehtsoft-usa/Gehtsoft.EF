@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlQualifiedJoinedTable : SqlTableSpecification
+    internal class SqlQualifiedJoinedTable : SqlTableSpecification
     {
         private SqlTableSpecification mLeftTable;
         private SqlPrimaryTable mRightTable;
@@ -50,7 +50,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlTableSpecification LeftTable
+        internal SqlTableSpecification LeftTable
         {
             get
             {
@@ -58,7 +58,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlPrimaryTable RightTable
+        internal SqlPrimaryTable RightTable
         {
             get
             {
@@ -66,7 +66,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public string JoinType
+        internal string JoinType
         {
             get
             {
@@ -74,7 +74,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlBaseExpression JoinCondition
+        internal SqlBaseExpression JoinCondition
         {
             get
             {
@@ -82,7 +82,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public override TableType Type
+        internal override TableType Type
         {
             get
             {
@@ -147,7 +147,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mJoinCondition = joinCondition;
         }
 
-        public virtual bool Equals(SqlQualifiedJoinedTable other)
+        internal virtual bool Equals(SqlQualifiedJoinedTable other)
         {
             if (this.JoinCondition == null)
             {
@@ -163,7 +163,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             );
         }
 
-        public override bool Equals(SqlTableSpecification obj)
+        internal override bool Equals(SqlTableSpecification obj)
         {
             if (obj is SqlQualifiedJoinedTable item)
                 return Equals(item);

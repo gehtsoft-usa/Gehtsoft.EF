@@ -10,9 +10,9 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class AssignStatement : Statement
+    internal  class AssignStatement : Statement
     {
-        public AssignExpression AssignExpression { get; }
+        internal  AssignExpression AssignExpression { get; }
         internal AssignStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Assign)
         {
@@ -25,7 +25,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             AssignExpression = assignExpression;
         }
 
-        public virtual bool Equals(AssignStatement other)
+        internal virtual bool Equals(AssignStatement other)
         {
             if (other is AssignStatement stmt)
             {
@@ -34,7 +34,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(Statement obj)
+        internal override bool Equals(Statement obj)
         {
             if (obj is AssignStatement item)
                 return Equals(item);

@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlAggrFunc : SqlBaseExpression
+    internal  class SqlAggrFunc : SqlBaseExpression
     {
         private ResultTypes mResultType = ResultTypes.Unknown;
-        public string Name { get; } = null;
-        public SqlField Field { get; } = null;
+        internal  string Name { get; } = null;
+        internal  SqlField Field { get; } = null;
 
-        public override ExpressionTypes ExpressionType
+        internal  override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.AggrFuncCall;
             }
         }
-        public override ResultTypes ResultType
+        internal  override ResultTypes ResultType
         {
             get
             {
@@ -41,7 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public virtual bool Equals(SqlAggrFunc other)
+        internal  virtual bool Equals(SqlAggrFunc other)
         {
             if (other == null)
                 return false;
@@ -50,7 +50,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return Field == null ? (other.Field == null) : Field.Equals(other.Field);
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is SqlAggrFunc item)
                 return Equals(item);

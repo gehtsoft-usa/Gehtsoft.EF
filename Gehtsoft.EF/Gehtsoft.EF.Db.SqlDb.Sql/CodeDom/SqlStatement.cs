@@ -11,12 +11,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// <summary>
     /// Base class for all Sql statements
     /// </summary>
-    public abstract class SqlStatement : Statement
+    internal abstract class SqlStatement : Statement
     {
         /// <summary>
         /// The types of the statements
         /// </summary>
-        public enum StatementId
+        internal enum StatementId
         {
             Select,
             Insert,
@@ -62,19 +62,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         /// <summary>
         /// The source where the statement is located
         /// </summary>
-        public string Source { get; set; }
+        internal string Source { get; set; }
         /// <summary>
         /// The first line of the statement
         /// </summary>
-        public int Line { get; set; }
+        internal int Line { get; set; }
         /// <summary>
         /// Position of the statement start in the line
         /// </summary>
-        public int Position { get; set; }
+        internal int Position { get; set; }
         /// <summary>
         /// Type of the statement
         /// </summary>
-        public StatementId Id { get; }
+        internal StatementId Id { get; }
 
         /// <summary>
         /// Constructor
@@ -92,7 +92,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Position = position;
         }
 
-        public virtual bool Equals(SqlStatement other)
+        internal virtual bool Equals(SqlStatement other)
         {
             if (other == null)
                 return false;
@@ -101,7 +101,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return (this.Id == other.Id);
         }
 
-        public override bool Equals(Statement obj)
+        internal override bool Equals(Statement obj)
         {
             if (obj is SqlStatement item)
                 return Equals(item);

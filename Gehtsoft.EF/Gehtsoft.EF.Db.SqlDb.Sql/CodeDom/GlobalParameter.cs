@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class GlobalParameter : SqlBaseExpression
+    internal  class GlobalParameter : SqlBaseExpression
     {
-        public string Name { get; }
+        internal  string Name { get; }
         private Statement mParentStatement = null;
         private ResultTypes? mResultType = null;
 
-        public override ExpressionTypes ExpressionType
+        internal  override ExpressionTypes ExpressionType
         {
             get
             {
@@ -25,7 +25,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mResultType = null;
         }
-        public override ResultTypes ResultType
+        internal  override ResultTypes ResultType
         {
             get
             {
@@ -41,7 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 return mResultType.Value;
             }
         }
-        public SqlConstant InnerExpression
+        internal  SqlConstant InnerExpression
         {
             get
             {
@@ -69,7 +69,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public virtual bool Equals(GlobalParameter other)
+        internal  virtual bool Equals(GlobalParameter other)
         {
             if (other == null)
                 return false;
@@ -78,7 +78,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return (this.Name == other.Name && this.ResultType == other.ResultType);
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is GlobalParameter item)
                 return Equals(item);

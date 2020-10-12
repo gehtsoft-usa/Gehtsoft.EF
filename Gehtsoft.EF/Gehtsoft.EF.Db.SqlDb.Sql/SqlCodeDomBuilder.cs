@@ -116,10 +116,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         protected Dictionary<string, Type> mTypeNameToEntity = new Dictionary<string, Type>();
         protected Dictionary<Type, List<Tuple<string, string, Type>>> mTypeToFields = new Dictionary<Type, List<Tuple<string, string, Type>>>();
 
-        public Type TypeByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item3;
-        public string FieldByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item2;
-        public string NameByField(Type entityType, string fieldName) => mTypeToFields[entityType].Where(t => t.Item2 == fieldName).SingleOrDefault()?.Item1;
-        public Type EntityByName(string name) => mTypeNameToEntity.ContainsKey(name) ? mTypeNameToEntity[name] : null;
+        internal Type TypeByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item3;
+        internal string FieldByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item2;
+        internal string NameByField(Type entityType, string fieldName) => mTypeToFields[entityType].Where(t => t.Item2 == fieldName).SingleOrDefault()?.Item1;
+        internal Type EntityByName(string name) => mTypeNameToEntity.ContainsKey(name) ? mTypeNameToEntity[name] : null;
 
         public void Build(EntityFinder.EntityTypeInfo[] entities, string ns = "NS")
         {
@@ -375,7 +375,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal Stack<BlockDescriptor> BlockDescriptors { get; set; } = new Stack<BlockDescriptor>();
 
-        public static void PushDescriptor(SqlCodeDomBuilder codeDomBuilder, LabelTarget startLabel, LabelTarget endLabel, Statement.StatementType statementType)
+        internal static void PushDescriptor(SqlCodeDomBuilder codeDomBuilder, LabelTarget startLabel, LabelTarget endLabel, Statement.StatementType statementType)
         {
             BlockDescriptor descr = new BlockDescriptor();
             descr.StartLabel = startLabel;
@@ -383,13 +383,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             descr.StatementType = statementType;
             codeDomBuilder.BlockDescriptors.Push(descr);
         }
-        public static object PopDescriptor(SqlCodeDomBuilder codeDomBuilder)
+        internal static object PopDescriptor(SqlCodeDomBuilder codeDomBuilder)
         {
             object retval = codeDomBuilder.BlockDescriptors.Peek().LastStatementResult;
             codeDomBuilder.BlockDescriptors.Pop();
             return retval;
         }
-        public Expression StartBlock(LabelTarget startLabel, LabelTarget endLabel, Statement.StatementType statementType)
+        internal Expression StartBlock(LabelTarget startLabel, LabelTarget endLabel, Statement.StatementType statementType)
         {
             return Expression.Call(typeof(SqlCodeDomBuilder), "PushDescriptor", null,
                 Expression.Constant(this),
@@ -399,7 +399,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 );
         }
 
-        public Expression EndBlock()
+        internal Expression EndBlock()
         {
             return Expression.Call(typeof(SqlCodeDomBuilder), "PopDescriptor", null, Expression.Constant(this));
         }
@@ -461,7 +461,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return null;
         }
 
-        public void ExitRun(SqlBaseExpression exitExpression)
+        internal void ExitRun(SqlBaseExpression exitExpression)
         {
             object exitValue = null;
             if (exitExpression != null)
@@ -493,7 +493,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public void BreakRun()
+        internal void BreakRun()
         {
             while (BlockDescriptors.Count > 0)
             {
@@ -506,7 +506,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public void ContinueRun()
+        internal void ContinueRun()
         {
             while (BlockDescriptors.Count > 0)
             {
@@ -531,7 +531,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mOpenedQueries.Remove(guid);
         }
 
-        public void ClearOpenedQueries()
+        internal void ClearOpenedQueries()
         {
             foreach(KeyValuePair<Guid, SqlDbQuery> item in mOpenedQueries)
             {
@@ -541,7 +541,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         }
     }
 
-    public class BlockDescriptor : IParametersHolder
+    internal class BlockDescriptor : IParametersHolder
     {
         internal Expression OnContinue { get; set; } = null;
         internal LabelTarget StartLabel { get; set; }
@@ -550,7 +550,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         private Dictionary<string, SqlConstant> globalParameters = new Dictionary<string, SqlConstant>();
 
-        public bool AddGlobalParameter(string name, SqlConstant value)
+        bool IParametersHolder.AddGlobalParameter(string name, SqlConstant value) => AddGlobalParameter(name, value);
+        internal bool AddGlobalParameter(string name, SqlConstant value)
         {
             if (globalParameters.ContainsKey(name))
                 return false;
@@ -558,7 +559,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return true;
         }
 
-        public void UpdateGlobalParameter(string name, SqlConstant value)
+        void IParametersHolder.UpdateGlobalParameter(string name, SqlConstant value) => UpdateGlobalParameter(name, value);
+        internal void UpdateGlobalParameter(string name, SqlConstant value)
         {
             if (!globalParameters.ContainsKey(name))
                 globalParameters.Add(name, value);
@@ -566,20 +568,34 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 globalParameters[name] = value;
         }
 
-        public SqlConstant FindGlobalParameter(string name)
+        SqlConstant IParametersHolder.FindGlobalParameter(string name) => FindGlobalParameter(name);
+        internal SqlConstant FindGlobalParameter(string name)
         {
             if (globalParameters.ContainsKey(name))
                 return globalParameters[name];
             return null;
         }
-        public bool ContainsGlobalParameter(string name)
+        bool IParametersHolder.ContainsGlobalParameter(string name) => ContainsGlobalParameter(name);
+        internal bool ContainsGlobalParameter(string name)
         {
             return globalParameters.ContainsKey(name);
         }
 
         private object mLastStatementResult = new List<object>();
 
-        public object LastStatementResult
+        object IParametersHolder.LastStatementResult
+        {
+            get
+            {
+                return LastStatementResult;
+            }
+            set
+            {
+                LastStatementResult = value;
+            }
+        }
+
+        internal object LastStatementResult
         {
             get
             {

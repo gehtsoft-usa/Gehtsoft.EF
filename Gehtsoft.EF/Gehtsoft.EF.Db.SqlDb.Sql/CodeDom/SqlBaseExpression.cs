@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public abstract class SqlBaseExpression : IEquatable<SqlBaseExpression>
+    internal  abstract class SqlBaseExpression : IEquatable<SqlBaseExpression>
     {
         /// <summary>
         /// The types of the Expression
         /// </summary>
-        public enum ExpressionTypes
+        internal  enum ExpressionTypes
         {
             Binary,
             Unar,
@@ -36,7 +36,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         /// <summary>
         /// The types of the output
         /// </summary>
-        public enum ResultTypes
+        internal  enum ResultTypes
         {
             Boolean,
             DateTime,
@@ -49,7 +49,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Unknown
         };
 
-        public Type SystemType
+        internal  Type SystemType
         {
             get
             {
@@ -85,7 +85,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public static ResultTypes GetResultType(Type type)
+        internal  static ResultTypes GetResultType(Type type)
         {
             if (type == typeof(int))
                 return ResultTypes.Integer;
@@ -106,11 +106,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return ResultTypes.Unknown;
         }
 
-        public abstract ExpressionTypes ExpressionType { get; }
+        internal  abstract ExpressionTypes ExpressionType { get; }
 
-        public abstract ResultTypes ResultType { get; }
+        internal  abstract ResultTypes ResultType { get; }
 
-        public virtual bool Equals(SqlBaseExpression other)
+        bool IEquatable<SqlBaseExpression>.Equals(SqlBaseExpression other) => Equals(other);
+        internal virtual bool Equals(SqlBaseExpression other)
         {
             if (other == null)
                 return false;
@@ -134,7 +135,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// A collection of fields with possible alias
     /// </summary>
     [Serializable]
-    public class SqlBaseExpressionCollection : IReadOnlyList<SqlBaseExpression>, IEquatable<SqlBaseExpressionCollection>
+    internal  class SqlBaseExpressionCollection : IReadOnlyList<SqlBaseExpression>, IEquatable<SqlBaseExpressionCollection>
     {
         private readonly List<SqlBaseExpression> mList = new List<SqlBaseExpression>();
 
@@ -167,7 +168,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal void Add(SqlBaseExpression expression) => mList.Add(expression);
 
-        public virtual bool Equals(SqlBaseExpressionCollection other)
+        bool IEquatable<SqlBaseExpressionCollection>.Equals(SqlBaseExpressionCollection other) => Equals(other);
+        internal virtual bool Equals(SqlBaseExpressionCollection other)
         {
             if (other == null)
                 return false;

@@ -44,7 +44,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mStatements = statements;
         }
 
-        public override object Run(ExitStatement setStatement)
+        internal override object Run(ExitStatement setStatement)
         {
             object exitValue = null;
             SqlBaseExpression sourceExpression = setStatement.ExitExpression;

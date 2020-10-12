@@ -13,15 +13,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// <summary>
     /// Insert statement
     /// </summary>
-    public class SqlInsertStatement : SqlStatement
+    internal class SqlInsertStatement : SqlStatement
     {
-        public SqlFieldCollection Fields { get; } = null;
-        public SqlConstantCollection Values { get; } = null;
-        public string TableName { get; } = null;
+        internal SqlFieldCollection Fields { get; } = null;
+        internal SqlConstantCollection Values { get; } = null;
+        internal string TableName { get; } = null;
         private EntityDescriptor mEntityDescriptor = null;
-        public SqlSelectStatement RightSelect { get; } = null;
+        internal SqlSelectStatement RightSelect { get; } = null;
 
-        public EntityDescriptor EntityDescriptor
+        internal EntityDescriptor EntityDescriptor
         {
             get
             {
@@ -161,7 +161,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         }
 
-        public virtual bool Equals(SqlInsertStatement other)
+        internal virtual bool Equals(SqlInsertStatement other)
         {
             if (other is SqlInsertStatement stmt)
             {
@@ -178,7 +178,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(SqlStatement obj)
+        internal override bool Equals(SqlStatement obj)
         {
             if (obj is SqlInsertStatement item)
                 return Equals(item);

@@ -9,9 +9,9 @@ using Hime.Redist;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SetStatement : Statement
+    internal  class SetStatement : Statement
     {
-        public SetItemCollection SetItems { get; }
+        internal  SetItemCollection SetItems { get; }
 
         internal SetStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Set)
@@ -68,7 +68,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 );
         }
 
-        public virtual bool Equals(SetStatement other)
+        internal  virtual bool Equals(SetStatement other)
         {
             if (other is SetStatement stmt)
             {
@@ -81,7 +81,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(Statement obj)
+        internal override bool Equals(Statement obj)
         {
             if (obj is SetStatement item)
                 return Equals(item);
@@ -89,10 +89,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
     }
 
-    public class SetItem : IEquatable<SetItem>
+    internal  class SetItem : IEquatable<SetItem>
     {
-        public string Name { get; }
-        public SqlBaseExpression Expression { get; }
+        internal  string Name { get; }
+        internal  SqlBaseExpression Expression { get; }
 
         internal SetItem(string name, SqlBaseExpression expression)
         {
@@ -106,7 +106,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Expression = new SqlConstant(null, SqlBaseExpression.ResultTypes.Unknown);
         }
 
-        public virtual bool Equals(SetItem other)
+        bool IEquatable<SetItem>.Equals(SetItem other) => Equals(other);
+        internal virtual bool Equals(SetItem other)
         {
             if (other == null)
                 return false;
@@ -126,7 +127,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
     }
 
-    public class SetItemCollection : IReadOnlyList<SetItem>, IEquatable<SetItemCollection>
+    internal  class SetItemCollection : IReadOnlyList<SetItem>, IEquatable<SetItemCollection>
     {
         private readonly List<SetItem> mList = new List<SetItem>();
 
@@ -135,7 +136,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         }
 
-        public SetItem FindByName(string name) => mList.Where(t => t.Name == name).SingleOrDefault();
+        internal  SetItem FindByName(string name) => mList.Where(t => t.Name == name).SingleOrDefault();
 
         public SetItem this[int index] => ((IReadOnlyList<SetItem>)mList)[index];
 
@@ -156,7 +157,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mList.Add(fieldName);
         }
 
-        public virtual bool Equals(SetItemCollection other)
+        bool IEquatable<SetItemCollection>.Equals(SetItemCollection other) => Equals(other);
+        internal virtual bool Equals(SetItemCollection other)
         {
             if (other == null)
                 return false;

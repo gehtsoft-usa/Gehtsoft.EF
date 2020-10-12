@@ -63,7 +63,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public override AQueryBuilder GetQueryBuilder(SqlUpdateStatement update)
+        internal override AQueryBuilder GetQueryBuilder(SqlUpdateStatement update)
         {
             if (mUpdateBuilder == null)
             {
@@ -131,12 +131,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public void RunWithResult(SqlUpdateStatement update)
+        internal void RunWithResult(SqlUpdateStatement update)
         {
             mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(update);
         }
 
-        public override object Run(SqlUpdateStatement update)
+        internal override object Run(SqlUpdateStatement update)
         {
             List<object> result = new List<object>();
             mUpdate = update;

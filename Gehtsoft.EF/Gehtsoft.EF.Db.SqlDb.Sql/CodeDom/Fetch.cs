@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class Fetch : SqlBaseExpression
+    internal  class Fetch : SqlBaseExpression
     {
-        public SqlBaseExpression Parameter { get; }
+        internal  SqlBaseExpression Parameter { get; }
 
-        public override ExpressionTypes ExpressionType
+        internal  override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.Fetch;
             }
         }
-        public override ResultTypes ResultType
+        internal  override ResultTypes ResultType
         {
             get
             {
@@ -61,7 +61,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public virtual bool Equals(Fetch other)
+        internal virtual bool Equals(Fetch other)
         {
             if (other == null)
                 return false;
@@ -70,7 +70,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return this.Parameter.Equals(other.Parameter);
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is Fetch item)
                 return Equals(item);

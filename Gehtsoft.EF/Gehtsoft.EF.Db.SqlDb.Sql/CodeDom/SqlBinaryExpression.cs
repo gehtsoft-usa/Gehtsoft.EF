@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlBinaryExpression : SqlBaseExpression
+    internal  class SqlBinaryExpression : SqlBaseExpression
     {
         private ResultTypes mResultType = ResultTypes.Unknown;
         private SqlBaseExpression mLeftOperand;
@@ -17,7 +17,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         /// <summary>
         /// The types of the Operation
         /// </summary>
-        public enum OperationType
+        internal  enum OperationType
         {
             Or,
             And,
@@ -34,14 +34,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Concat,
         };
 
-        public override ExpressionTypes ExpressionType
+        internal  override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.Binary;
             }
         }
-        public override ResultTypes ResultType
+        internal  override ResultTypes ResultType
         {
             get
             {
@@ -49,7 +49,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlBaseExpression LeftOperand
+        internal  SqlBaseExpression LeftOperand
         {
             get
             {
@@ -57,7 +57,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlBaseExpression RightOperand
+        internal  SqlBaseExpression RightOperand
         {
             get
             {
@@ -65,7 +65,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public OperationType Operation
+        internal  OperationType Operation
         {
             get
             {
@@ -399,7 +399,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return isCorrect;
         }
 
-        public virtual bool Equals(SqlBinaryExpression other)
+        internal  virtual bool Equals(SqlBinaryExpression other)
         {
             if (other == null)
                 return false;
@@ -408,7 +408,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return (this.LeftOperand.Equals(other.LeftOperand) && this.RightOperand.Equals(other.RightOperand) && this.Operation.Equals(other.Operation));
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is SqlBinaryExpression item)
                 return Equals(item);

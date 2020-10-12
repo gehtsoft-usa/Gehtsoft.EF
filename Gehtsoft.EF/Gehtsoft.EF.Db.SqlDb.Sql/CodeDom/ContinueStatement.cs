@@ -11,7 +11,7 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class ContinueStatement : Statement
+    internal  class ContinueStatement : Statement
     {
         internal ContinueStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : this(builder, currentSource, statementNode.Position.Line, statementNode.Position.Column)
@@ -68,7 +68,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return Expression.Block(leaveSet);
         }
 
-        public virtual bool Equals(ContinueStatement other)
+        internal virtual bool Equals(ContinueStatement other)
         {
             if (other is ContinueStatement stmt)
             {
@@ -77,7 +77,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(Statement obj)
+        internal override bool Equals(Statement obj)
         {
             if (obj is ContinueStatement item)
                 return Equals(item);

@@ -63,7 +63,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public override AQueryBuilder GetQueryBuilder(SqlDeleteStatement delete)
+        internal override AQueryBuilder GetQueryBuilder(SqlDeleteStatement delete)
         {
             if (mDeleteBuilder == null)
             {
@@ -102,12 +102,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public void RunWithResult(SqlDeleteStatement delete)
+        internal void RunWithResult(SqlDeleteStatement delete)
         {
             mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(delete);
         }
 
-        public override object Run(SqlDeleteStatement delete)
+        internal override object Run(SqlDeleteStatement delete)
         {
             List<object> result = new List<object>();
             mDelete = delete;

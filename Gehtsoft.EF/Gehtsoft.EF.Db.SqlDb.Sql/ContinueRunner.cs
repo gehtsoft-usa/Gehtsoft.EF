@@ -45,7 +45,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mStatements = statements;
         }
 
-        public override object Run(ContinueStatement continueStatement)
+        internal override object Run(ContinueStatement continueStatement)
         {
             object result = null;
             IStatementSetEnvironment current = mStatements;

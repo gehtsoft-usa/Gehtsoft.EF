@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlCallFuncExpression : SqlBaseExpression
+    internal class SqlCallFuncExpression : SqlBaseExpression
     {
         private ResultTypes mResultType = ResultTypes.Unknown;
         private SqlBaseExpressionCollection mParameters = new SqlBaseExpressionCollection();
         private string mName = string.Empty;
 
-        public override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.Call;
             }
         }
-        public override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {
@@ -28,7 +28,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public string Name
+        internal string Name
         {
             get
             {
@@ -36,7 +36,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlBaseExpressionCollection Parameters
+        internal SqlBaseExpressionCollection Parameters
         {
             get
             {
@@ -51,7 +51,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mParameters = parameters;
         }
 
-        public virtual bool Equals(SqlCallFuncExpression other)
+        internal virtual bool Equals(SqlCallFuncExpression other)
         {
             if (other == null)
                 return false;
@@ -60,7 +60,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return (this.Name.Equals(other.Name) && this.Parameters.Equals(other.Parameters));
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is SqlCallFuncExpression item)
                 return Equals(item);

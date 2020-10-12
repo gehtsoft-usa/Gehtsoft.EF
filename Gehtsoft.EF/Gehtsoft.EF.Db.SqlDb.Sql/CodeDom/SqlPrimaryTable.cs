@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlPrimaryTable : SqlTableSpecification
+    internal class SqlPrimaryTable : SqlTableSpecification
     {
-        public string TableName { get; }
-        public string CorrelationName { get; }
-        public override TableType Type
+        internal string TableName { get; }
+        internal string CorrelationName { get; }
+        internal override TableType Type
         {
             get
             {
@@ -63,14 +63,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             CorrelationName = null;
         }
 
-        public virtual bool Equals(SqlPrimaryTable other)
+        internal virtual bool Equals(SqlPrimaryTable other)
         {
             if (other == null)
                 return false;
             return (this.TableName == other.TableName && this.CorrelationName == other.CorrelationName);
         }
 
-        public override bool Equals(SqlTableSpecification obj)
+        internal override bool Equals(SqlTableSpecification obj)
         {
             if (obj is SqlPrimaryTable item)
                 return Equals(item);

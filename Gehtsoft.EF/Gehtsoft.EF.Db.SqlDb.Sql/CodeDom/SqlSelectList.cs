@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlSelectList : IEquatable<SqlSelectList>
+    internal class SqlSelectList : IEquatable<SqlSelectList>
     {
-        public bool All { get; }
-        public SqlExpressionAliasCollection FieldAliasCollection { get; } = null;
+        internal bool All { get; }
+        internal SqlExpressionAliasCollection FieldAliasCollection { get; } = null;
 
         internal SqlSelectList(SqlStatement parentStatement, ASTNode statementNode, string source)
         {
@@ -47,7 +47,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
 
 
-        public virtual bool Equals(SqlSelectList other)
+        bool IEquatable<SqlSelectList>.Equals(SqlSelectList other) => Equals(other);
+        internal virtual bool Equals(SqlSelectList other)
         {
             if (other == null)
                 return false;

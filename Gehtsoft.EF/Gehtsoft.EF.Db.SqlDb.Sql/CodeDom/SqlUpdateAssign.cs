@@ -7,11 +7,11 @@ using System.Linq;
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     /// <summary>
-    public class SqlUpdateAssign : IEquatable<SqlUpdateAssign>
+    internal class SqlUpdateAssign : IEquatable<SqlUpdateAssign>
     {
-        public SqlField Field { get; } = null;
-        public SqlSelectStatement Select { get; } = null;
-        public SqlBaseExpression Expression { get; } = null;
+        internal SqlField Field { get; } = null;
+        internal SqlSelectStatement Select { get; } = null;
+        internal SqlBaseExpression Expression { get; } = null;
 
         internal SqlUpdateAssign(SqlStatement parentStatement, ASTNode updateAssignNode, string source)
         {
@@ -72,7 +72,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Field = field;
             Select = select;
         }
-        public virtual bool Equals(SqlUpdateAssign other)
+        bool IEquatable<SqlUpdateAssign>.Equals(SqlUpdateAssign other) => Equals(other);
+        internal virtual bool Equals(SqlUpdateAssign other)
         {
             if (other == null)
                 return false;
@@ -97,7 +98,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     }
 
     [Serializable]
-    public class SqlUpdateAssignCollection : IReadOnlyList<SqlUpdateAssign>, IEquatable<SqlUpdateAssignCollection>
+    internal class SqlUpdateAssignCollection : IReadOnlyList<SqlUpdateAssign>, IEquatable<SqlUpdateAssignCollection>
     {
         private readonly List<SqlUpdateAssign> mList = new List<SqlUpdateAssign>();
 
@@ -110,7 +111,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         public int Count => ((IReadOnlyCollection<SqlUpdateAssign>)mList).Count;
 
-        public SqlUpdateAssign FindByFieldName(string name) => mList.Where(t => t.Field.FieldName == name).SingleOrDefault();
+        internal SqlUpdateAssign FindByFieldName(string name) => mList.Where(t => t.Field.FieldName == name).SingleOrDefault();
 
         public IEnumerator<SqlUpdateAssign> GetEnumerator()
         {
@@ -127,7 +128,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mList.Add(updateAssign);
         }
 
-        public virtual bool Equals(SqlUpdateAssignCollection other)
+        bool IEquatable<SqlUpdateAssignCollection>.Equals(SqlUpdateAssignCollection other) => Equals(other);
+        internal virtual bool Equals(SqlUpdateAssignCollection other)
         {
             if (other == null)
                 return false;

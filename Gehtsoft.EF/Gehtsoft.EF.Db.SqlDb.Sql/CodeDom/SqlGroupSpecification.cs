@@ -6,10 +6,10 @@ using System.Collections.Generic;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlGroupSpecification : IEquatable<SqlGroupSpecification>
+    internal class SqlGroupSpecification : IEquatable<SqlGroupSpecification>
     {
 
-        public SqlBaseExpression Expression { get; } = null;
+        internal SqlBaseExpression Expression { get; } = null;
 
         internal SqlGroupSpecification(SqlStatement parentStatement, ASTNode sortSpecificationNode, string source)
         {
@@ -22,7 +22,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Expression = field;
         }
 
-        public virtual bool Equals(SqlGroupSpecification other)
+        bool IEquatable<SqlGroupSpecification>.Equals(SqlGroupSpecification other) => Equals(other);
+        internal virtual bool Equals(SqlGroupSpecification other)
         {
             if (other == null)
                 return false;
@@ -47,7 +48,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     }
 
     [Serializable]
-    public class SqlGroupSpecificationCollection : IReadOnlyList<SqlGroupSpecification>, IEquatable<SqlGroupSpecificationCollection>
+    internal class SqlGroupSpecificationCollection : IReadOnlyList<SqlGroupSpecification>, IEquatable<SqlGroupSpecificationCollection>
     {
         private readonly List<SqlGroupSpecification> mList = new List<SqlGroupSpecification>();
 
@@ -75,7 +76,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mList.Add(fieldAlias);
         }
 
-        public virtual bool Equals(SqlGroupSpecificationCollection other)
+        bool IEquatable<SqlGroupSpecificationCollection>.Equals(SqlGroupSpecificationCollection other) => Equals(other);
+        internal virtual bool Equals(SqlGroupSpecificationCollection other)
         {
             if (other == null)
                 return false;

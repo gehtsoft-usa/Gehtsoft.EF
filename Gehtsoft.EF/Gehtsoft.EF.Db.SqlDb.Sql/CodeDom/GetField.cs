@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class GetField : SqlBaseExpression
+    internal  class GetField : SqlBaseExpression
     {
         private ResultTypes mResultType = ResultTypes.Unknown;
-        public SqlBaseExpression RowParameter { get; }
-        public SqlBaseExpression NameParameter { get; }
+        internal  SqlBaseExpression RowParameter { get; }
+        internal  SqlBaseExpression NameParameter { get; }
 
-        public override ExpressionTypes ExpressionType
+        internal  override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.GetField;
             }
         }
-        public override ResultTypes ResultType
+        internal  override ResultTypes ResultType
         {
             get
             {
@@ -95,7 +95,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public virtual bool Equals(GetField other)
+        internal virtual bool Equals(GetField other)
         {
             if (other == null)
                 return false;
@@ -104,7 +104,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return (this.RowParameter.Equals(other.RowParameter) && this.NameParameter.Equals(other.NameParameter) && this.ResultType.Equals(other.ResultType));
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is GetField item)
                 return Equals(item);

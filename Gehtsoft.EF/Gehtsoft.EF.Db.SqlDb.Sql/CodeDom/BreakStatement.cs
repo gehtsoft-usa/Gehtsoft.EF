@@ -79,7 +79,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             );
         }
 
-        public virtual bool Equals(BreakStatement other)
+        internal virtual bool Equals(BreakStatement other)
         {
             if (other is BreakStatement stmt)
             {
@@ -88,7 +88,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(Statement obj)
+        internal override bool Equals(Statement obj)
         {
             if (obj is BreakStatement item)
                 return Equals(item);

@@ -10,9 +10,9 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class CloseCursorStatement : Statement
+    internal  class CloseCursorStatement : Statement
     {
-        public GlobalParameter CursorParameter { get; }
+        internal  GlobalParameter CursorParameter { get; }
         internal CloseCursorStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.CloseCursor)
         {
@@ -42,7 +42,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             CursorParameter = cursorParameter;
         }
 
-        public virtual bool Equals(CloseCursorStatement other)
+        internal virtual bool Equals(CloseCursorStatement other)
         {
             if (other is CloseCursorStatement stmt)
             {
@@ -51,7 +51,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(Statement obj)
+        internal override bool Equals(Statement obj)
         {
             if (obj is CloseCursorStatement item)
                 return Equals(item);

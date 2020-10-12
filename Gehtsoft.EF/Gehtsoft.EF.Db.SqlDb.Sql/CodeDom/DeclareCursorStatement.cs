@@ -10,10 +10,10 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class DeclareCursorStatement : Statement
+    internal  class DeclareCursorStatement : Statement
     {
-        public string Name { get; }
-        public SqlSelectStatement SelectStatement { get; }
+        internal  string Name { get; }
+        internal  SqlSelectStatement SelectStatement { get; }
         internal DeclareCursorStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.DeclareCursor)
         {
@@ -38,7 +38,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             SelectStatement = selectStatement;
         }
 
-        public virtual bool Equals(DeclareCursorStatement other)
+        internal virtual bool Equals(DeclareCursorStatement other)
         {
             if (other is DeclareCursorStatement stmt)
             {
@@ -47,7 +47,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(Statement obj)
+        internal override bool Equals(Statement obj)
         {
             if (obj is DeclareCursorStatement item)
                 return Equals(item);

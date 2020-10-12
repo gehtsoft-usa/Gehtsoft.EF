@@ -10,9 +10,9 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class IfStatement : Statement
+    internal  class IfStatement : Statement
     {
-        public ConditionalStatementsRunCollection ConditionalRuns { get; }
+        internal  ConditionalStatementsRunCollection ConditionalRuns { get; }
         internal IfStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.If)
         {
@@ -85,7 +85,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             );
         }
 
-        public virtual bool Equals(IfStatement other)
+        internal virtual bool Equals(IfStatement other)
         {
             if (other is IfStatement stmt)
             {
@@ -98,18 +98,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(Statement obj)
+        internal override bool Equals(Statement obj)
         {
             if (obj is IfStatement item)
                 return Equals(item);
             return base.Equals(obj);
         }
     }
-    public class ConditionalStatementsRun : IEquatable<ConditionalStatementsRun>
+    internal  class ConditionalStatementsRun : IEquatable<ConditionalStatementsRun>
     {
-        public StatementSetEnvironment Statements { get; internal set; }
-        public Expression LinqExpression { get; internal set; }
-        public SqlBaseExpression ConditionalExpression { get; internal set; }
+        internal  StatementSetEnvironment Statements { get; set; }
+        internal  Expression LinqExpression { get; set; }
+        internal  SqlBaseExpression ConditionalExpression { get; set; }
 
         internal ConditionalStatementsRun(SqlBaseExpression conditionalExpression, StatementSetEnvironment statements = null)
         {
@@ -117,7 +117,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             ConditionalExpression = conditionalExpression;
         }
 
-        public virtual bool Equals(ConditionalStatementsRun other)
+        bool IEquatable<ConditionalStatementsRun>.Equals(ConditionalStatementsRun other) => Equals(other);
+        internal virtual bool Equals(ConditionalStatementsRun other)
         {
             if (other == null)
                 return false;
@@ -137,7 +138,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
     }
 
-    public class ConditionalStatementsRunCollection : IReadOnlyList<ConditionalStatementsRun>, IEquatable<ConditionalStatementsRunCollection>
+    internal  class ConditionalStatementsRunCollection : IReadOnlyList<ConditionalStatementsRun>, IEquatable<ConditionalStatementsRunCollection>
     {
         private readonly List<ConditionalStatementsRun> mList = new List<ConditionalStatementsRun>();
 
@@ -165,7 +166,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mList.Add(conditionalRun);
         }
 
-        public virtual bool Equals(ConditionalStatementsRunCollection other)
+        bool IEquatable<ConditionalStatementsRunCollection>.Equals(ConditionalStatementsRunCollection other) => Equals(other);
+        internal virtual bool Equals(ConditionalStatementsRunCollection other)
         {
             if (other == null)
                 return false;

@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlAutoJoinedTable : SqlTableSpecification
+    internal class SqlAutoJoinedTable : SqlTableSpecification
     {
         private SqlTableSpecification mLeftTable;
         private SqlPrimaryTable mRightTable;
 
-        public override TableType Type
+        internal override TableType Type
         {
             get
             {
@@ -21,7 +21,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlTableSpecification LeftTable
+        internal SqlTableSpecification LeftTable
         {
             get
             {
@@ -29,7 +29,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlPrimaryTable RightTable
+        internal SqlPrimaryTable RightTable
         {
             get
             {
@@ -81,7 +81,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mRightTable = rightTable;
         }
 
-        public virtual bool Equals(SqlAutoJoinedTable other)
+        internal virtual bool Equals(SqlAutoJoinedTable other)
         {
             if (other == null)
                 return false;
@@ -91,7 +91,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             );
         }
 
-        public override bool Equals(SqlTableSpecification obj)
+        internal override bool Equals(SqlTableSpecification obj)
         {
             if (obj is SqlAutoJoinedTable item)
                 return Equals(item);

@@ -66,7 +66,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public override AQueryBuilder GetQueryBuilder(SqlSelectStatement select)
+        internal override AQueryBuilder GetQueryBuilder(SqlSelectStatement select)
         {
             if (MainBuilder == null)
             {
@@ -107,11 +107,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mMainBuilder.Skip = mSelect.Offset;
         }
 
-        public void RunWithResult(SqlSelectStatement select)
+        internal void RunWithResult(SqlSelectStatement select)
         {
             mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(select);
         }
-        public override object Run(SqlSelectStatement select)
+        internal override object Run(SqlSelectStatement select)
         {
             List<object> result = new List<object>();
             mSelect = select;

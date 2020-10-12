@@ -13,11 +13,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// <summary>
     /// Update statement
     /// </summary>
-    public class SqlUpdateStatement : SqlStatement
+    internal class SqlUpdateStatement : SqlStatement
     {
-        public SqlUpdateAssignCollection UpdateAssigns { get; } = null;
-        public string TableName { get; } = null;
-        public SqlWhereClause WhereClause { get; } = null;
+        internal SqlUpdateAssignCollection UpdateAssigns { get; } = null;
+        internal string TableName { get; } = null;
+        internal SqlWhereClause WhereClause { get; } = null;
 
         internal SqlUpdateStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementId.Update, currentSource, statementNode.Position.Line, statementNode.Position.Column)
@@ -88,7 +88,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return Expression.Call(Expression.Constant(runner), "RunWithResult", null, Expression.Constant(this));
         }
 
-        public virtual bool Equals(SqlUpdateStatement other)
+        internal virtual bool Equals(SqlUpdateStatement other)
         {
             if (other is SqlUpdateStatement stmt)
             {
@@ -105,7 +105,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(SqlStatement obj)
+        internal override bool Equals(SqlStatement obj)
         {
             if (obj is SqlUpdateStatement item)
                 return Equals(item);

@@ -7,7 +7,7 @@ using System.Linq;
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     [Serializable]
-    public class SqlFieldCollection : IReadOnlyList<SqlField>, IEquatable<SqlFieldCollection>
+    internal class SqlFieldCollection : IReadOnlyList<SqlField>, IEquatable<SqlFieldCollection>
     {
         private readonly List<SqlField> mList = new List<SqlField>();
 
@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         }
 
-        public SqlField FindByName(string name) => mList.Where(t => t.FieldName == name).SingleOrDefault();
+        internal SqlField FindByName(string name) => mList.Where(t => t.FieldName == name).SingleOrDefault();
 
         public SqlField this[int index] => ((IReadOnlyList<SqlField>)mList)[index];
 
@@ -37,7 +37,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mList.Add(fieldName);
         }
 
-        public virtual bool Equals(SqlFieldCollection other)
+        bool IEquatable<SqlFieldCollection>.Equals(SqlFieldCollection other) => Equals(other);
+        internal virtual bool Equals(SqlFieldCollection other)
         {
             if (other == null)
                 return false;

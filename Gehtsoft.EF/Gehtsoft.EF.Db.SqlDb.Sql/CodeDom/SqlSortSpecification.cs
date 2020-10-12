@@ -6,11 +6,11 @@ using System.Collections.Generic;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlSortSpecification : IEquatable<SqlSortSpecification>
+    internal class SqlSortSpecification : IEquatable<SqlSortSpecification>
     {
 
-        public SqlBaseExpression Expression { get; } = null;
-        public SortDir Ordering { get; } = SortDir.Asc;
+        internal SqlBaseExpression Expression { get; } = null;
+        internal SortDir Ordering { get; } = SortDir.Asc;
 
         internal SqlSortSpecification(SqlStatement parentStatement, ASTNode sortSpecificationNode, string source)
         {
@@ -27,7 +27,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Ordering = ordering;
         }
 
-        public virtual bool Equals(SqlSortSpecification other)
+        bool IEquatable<SqlSortSpecification>.Equals(SqlSortSpecification other) => Equals(other);
+        internal virtual bool Equals(SqlSortSpecification other)
         {
             if (other == null)
                 return false;
@@ -52,7 +53,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     }
 
     [Serializable]
-    public class SqlSortSpecificationCollection : IReadOnlyList<SqlSortSpecification>, IEquatable<SqlSortSpecificationCollection>
+    internal class SqlSortSpecificationCollection : IReadOnlyList<SqlSortSpecification>, IEquatable<SqlSortSpecificationCollection>
     {
         private readonly List<SqlSortSpecification> mList = new List<SqlSortSpecification>();
 
@@ -80,7 +81,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mList.Add(fieldAlias);
         }
 
-        public virtual bool Equals(SqlSortSpecificationCollection other)
+        bool IEquatable<SqlSortSpecificationCollection>.Equals(SqlSortSpecificationCollection other) => Equals(other);
+        internal virtual bool Equals(SqlSortSpecificationCollection other)
         {
             if (other == null)
                 return false;

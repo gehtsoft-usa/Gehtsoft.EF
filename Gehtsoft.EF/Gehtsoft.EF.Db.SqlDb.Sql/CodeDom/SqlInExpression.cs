@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlInExpression : SqlBaseExpression
+    internal class SqlInExpression : SqlBaseExpression
     {
         private readonly ResultTypes mResultType = ResultTypes.Boolean;
         private SqlBaseExpression mLeftOperand;
@@ -18,20 +18,20 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         /// <summary>
         /// The types of the Operation
         /// </summary>
-        public enum OperationType
+        internal enum OperationType
         {
             In,
             NotIn,
         };
 
-        public override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.In;
             }
         }
-        public override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {
@@ -39,7 +39,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlBaseExpression LeftOperand
+        internal SqlBaseExpression LeftOperand
         {
             get
             {
@@ -47,7 +47,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlBaseExpressionCollection RightOperandAsList
+        internal SqlBaseExpressionCollection RightOperandAsList
         {
             get
             {
@@ -55,7 +55,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlSelectStatement RightOperandAsSelect
+        internal SqlSelectStatement RightOperandAsSelect
         {
             get
             {
@@ -63,7 +63,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public OperationType Operation
+        internal OperationType Operation
         {
             get
             {
@@ -137,7 +137,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mOperation = operation;
         }
 
-        public virtual bool Equals(SqlInExpression other)
+        internal virtual bool Equals(SqlInExpression other)
         {
             if (other == null)
                 return false;
@@ -154,7 +154,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return (this.LeftOperand.Equals(other.LeftOperand) && this.Operation.Equals(other.Operation));
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is SqlInExpression item)
                 return Equals(item);

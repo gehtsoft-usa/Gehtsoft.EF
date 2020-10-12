@@ -9,19 +9,19 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlStatement;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlSelectExpression : SqlBaseExpression
+    internal class SqlSelectExpression : SqlBaseExpression
     {
         private ResultTypes mResultType = ResultTypes.Unknown;
-        public SqlSelectStatement SelectStatement { get; } = null;
+        internal SqlSelectStatement SelectStatement { get; } = null;
 
-        public override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.SelectExpression;
             }
         }
-        public override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {
@@ -43,7 +43,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mResultType = SelectStatement.SelectList.FieldAliasCollection[0].Expression.ResultType;
         }
 
-        public virtual bool Equals(SqlSelectExpression other)
+        internal virtual bool Equals(SqlSelectExpression other)
         {
             if (other == null)
                 return false;
@@ -52,7 +52,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return this.SelectStatement.Equals(other.SelectStatement);
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is SqlSelectExpression item)
                 return Equals(item);

@@ -9,9 +9,9 @@ using Hime.Redist;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class ExitStatement : Statement
+    internal  class ExitStatement : Statement
     {
-        public SqlBaseExpression ExitExpression { get; } = null;
+        internal  SqlBaseExpression ExitExpression { get; } = null;
 
         internal ExitStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Exit)
@@ -62,7 +62,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             );
         }
 
-        public virtual bool Equals(ExitStatement other)
+        internal virtual bool Equals(ExitStatement other)
         {
             if (other is ExitStatement stmt)
             {
@@ -75,7 +75,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(Statement obj)
+        internal override bool Equals(Statement obj)
         {
             if (obj is ExitStatement item)
                 return Equals(item);

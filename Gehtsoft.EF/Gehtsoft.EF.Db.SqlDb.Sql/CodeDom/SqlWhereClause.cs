@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlWhereClause : IEquatable<SqlWhereClause>
+    internal class SqlWhereClause : IEquatable<SqlWhereClause>
     {
 
-        public SqlBaseExpression RootExpression { get; internal set; }
+        internal SqlBaseExpression RootExpression { get; set; }
 
         internal SqlWhereClause(SqlStatement parentStatement, ASTNode statementNode, string source)
         {
@@ -37,7 +37,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
         }
 
-        public virtual bool Equals(SqlWhereClause other)
+        bool IEquatable<SqlWhereClause>.Equals(SqlWhereClause other) => Equals(other);
+        internal virtual bool Equals(SqlWhereClause other)
         {
             if (other == null)
                 return false;

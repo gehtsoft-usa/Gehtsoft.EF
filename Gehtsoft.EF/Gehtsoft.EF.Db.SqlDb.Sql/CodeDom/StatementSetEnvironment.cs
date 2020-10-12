@@ -74,7 +74,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public virtual bool Equals(StatementSetEnvironment other)
+        bool IEquatable<StatementSetEnvironment>.Equals(StatementSetEnvironment other) => Equals(other);
+        internal virtual bool Equals(StatementSetEnvironment other)
         {
             if (other == null)
                 return false;
@@ -110,7 +111,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             InitialGobalParameters = globalParameters;
         }
 
-        public bool AddGlobalParameter(string name, SqlConstant value)
+        bool IParametersHolder.AddGlobalParameter(string name, SqlConstant value)
         {
             if (globalParameters.ContainsKey(name))
                 return false;
@@ -118,7 +119,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return true;
         }
 
-        public void UpdateGlobalParameter(string name, SqlConstant value)
+        void IParametersHolder.UpdateGlobalParameter(string name, SqlConstant value)
         {
             if (!globalParameters.ContainsKey(name))
                 globalParameters.Add(name, value);
@@ -126,18 +127,28 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 globalParameters[name] = value;
         }
 
-        public SqlConstant FindGlobalParameter(string name)
+        SqlConstant IParametersHolder.FindGlobalParameter(string name)
         {
             if (globalParameters.ContainsKey(name))
                 return globalParameters[name];
             return null;
         }
 
-        public IStatementSetEnvironment ParentEnvironment { get; set; } = null;
+        IStatementSetEnvironment IStatementSetEnvironment.ParentEnvironment { get { return ParentEnvironment; } set { ParentEnvironment = value; } }
 
-        public Statement ParentStatement { get; set; } = null;
+        internal IStatementSetEnvironment ParentEnvironment { get; set; } = null;
 
-        public void ClearEnvironment()
+        Statement IStatementSetEnvironment.ParentStatement
+        {
+            get { return ParentStatement; }
+            set { ParentStatement = value; }
+        }
+
+        internal Statement ParentStatement { get; set; } = null;
+
+        void IStatementSetEnvironment.ClearEnvironment() => ClearEnvironment();
+
+        internal void ClearEnvironment()
         {
             if (InitialGobalParameters != null)
             {
@@ -149,17 +160,52 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public bool ContainsGlobalParameter(string name)
+        bool IParametersHolder.ContainsGlobalParameter(string name) => ContainsGlobalParameter(name);
+        internal bool ContainsGlobalParameter(string name)
         {
             return globalParameters.ContainsKey(name);
         }
 
-        public bool Continue { get; set; } = false;
-        public bool Leave { get; set; } = false;
+        bool IStatementSetEnvironment.Continue
+        {
+            get
+            {
+                return Continue;
+            }
+            set
+            {
+                Continue = value;
+            }
+        }
+        internal bool Continue { get; set; } = false;
+        bool IStatementSetEnvironment.Leave
+        {
+            get
+            {
+                return Leave;
+            }
+            set
+            {
+                Leave = value;
+            }
+        }
+        internal bool Leave { get; set; } = false;
 
         private object mLastStatementResult = new List<object>();
 
-        public object LastStatementResult
+        object IParametersHolder.LastStatementResult
+        {
+            get
+            {
+                return LastStatementResult;
+            }
+            set
+            {
+                LastStatementResult = value;
+            }
+        }
+
+        internal object LastStatementResult
         {
             get
             {
@@ -172,7 +218,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
     }
 
-    public interface IStatementSetEnvironment : IParametersHolder
+    internal interface IStatementSetEnvironment : IParametersHolder
     {
         bool Continue { get; set; }
         bool Leave { get; set; }
@@ -181,7 +227,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         void ClearEnvironment();
     }
 
-    public interface IParametersHolder
+    internal interface IParametersHolder
     {
         object LastStatementResult { get; set; }
         bool AddGlobalParameter(string name, SqlConstant value);

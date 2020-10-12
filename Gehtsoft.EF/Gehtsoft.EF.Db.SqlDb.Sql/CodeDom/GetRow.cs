@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class GetRow : SqlBaseExpression
+    internal  class GetRow : SqlBaseExpression
     {
-        public SqlBaseExpression RowSetParameter { get; }
-        public SqlBaseExpression IndexParameter { get; }
+        internal  SqlBaseExpression RowSetParameter { get; }
+        internal  SqlBaseExpression IndexParameter { get; }
 
-        public override ExpressionTypes ExpressionType
+        internal  override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.GetRow;
             }
         }
-        public override ResultTypes ResultType
+        internal  override ResultTypes ResultType
         {
             get
             {
@@ -91,7 +91,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public virtual bool Equals(GetRow other)
+        internal virtual bool Equals(GetRow other)
         {
             if (other == null)
                 return false;
@@ -100,7 +100,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return (this.RowSetParameter.Equals(other.RowSetParameter) && this.IndexParameter.Equals(other.IndexParameter));
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is GetRow item)
                 return Equals(item);

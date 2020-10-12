@@ -17,11 +17,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     public abstract class Statement : IEquatable<Statement>
     {
         internal Expression OnContinue { get; set; } = null;
-        public SqlCodeDomBuilder CodeDomBuilder { get; } = null;
+        internal  SqlCodeDomBuilder CodeDomBuilder { get; } = null;
         /// <summary>
         /// The types of the statements
         /// </summary>
-        public enum StatementType
+        internal protected enum StatementType
         {
             Sql,
             Set,
@@ -43,7 +43,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         /// <summary>
         /// Type of the statement
         /// </summary>
-        public StatementType Type { get; }
+        internal  StatementType Type { get; }
 
         internal class EntityEntry
         {
@@ -59,8 +59,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 mEntityDescriptor = entityDescriptor;
             }
 
-            public Type EntityType { get; }
-            public string ReferenceName
+            internal  Type EntityType { get; }
+            internal  string ReferenceName
             {
                 get
                 {
@@ -68,7 +68,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 }
             }
 
-            public EntityDescriptor EntityDescriptor
+            internal  EntityDescriptor EntityDescriptor
             {
                 get
                 {
@@ -125,8 +125,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 Expression = expression;
             }
 
-            public SqlBaseExpression Expression { get; }
-            public string AliasName
+            internal  SqlBaseExpression Expression { get; }
+            internal  string AliasName
             {
                 get
                 {
@@ -185,13 +185,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal bool IgnoreAlias { get; set; } = false;
 
-        protected Statement(SqlCodeDomBuilder builder, StatementType type)
+        internal protected Statement(SqlCodeDomBuilder builder, StatementType type)
         {
             CodeDomBuilder = builder;
             Type = type;
         }
 
-        public virtual bool Equals(Statement other)
+        bool IEquatable<Statement>.Equals(Statement other) => Equals(other);
+        internal virtual bool Equals(Statement other)
         {
             if (other == null)
                 return false;
@@ -202,19 +203,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal abstract Expression ToLinqWxpression();
 
-        public override bool Equals(object obj)
+        public  override bool Equals(object obj)
         {
             if (obj is Statement item)
                 return Equals(item);
             return base.Equals(obj);
         }
 
-        public override int GetHashCode()
+        public  override int GetHashCode()
         {
             return base.GetHashCode();
         }
 
-        public static bool HasAggregateFunctions(SqlBaseExpression expression)
+        internal  static bool HasAggregateFunctions(SqlBaseExpression expression)
         {
             bool retval = false;
 
@@ -255,7 +256,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return retval;
         }
 
-        public static bool IsCalculable(SqlBaseExpression expression)
+        internal  static bool IsCalculable(SqlBaseExpression expression)
         {
             bool retval = false;
 
@@ -337,7 +338,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return retval;
         }
 
-        public static ResultTypes GetResultTypeByName(string name)
+        internal  static ResultTypes GetResultTypeByName(string name)
         {
             ResultTypes resultType = ResultTypes.Unknown;
             switch (name)

@@ -64,7 +64,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public override AQueryBuilder GetQueryBuilder(SqlInsertStatement insert)
+        internal override AQueryBuilder GetQueryBuilder(SqlInsertStatement insert)
         {
             if (mInsertSimpleBuilder == null && mInsertSelectBuilder == null)
             {
@@ -147,11 +147,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         }
 
 
-        public void RunWithResult(SqlInsertStatement insert)
+        internal void RunWithResult(SqlInsertStatement insert)
         {
             mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(insert);
         }
-        public override object Run(SqlInsertStatement insert)
+        internal override object Run(SqlInsertStatement insert)
         {
             List<object> result = new List<object>();
             mInsert = insert;

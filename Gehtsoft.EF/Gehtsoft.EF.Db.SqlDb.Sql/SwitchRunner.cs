@@ -41,7 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mConnection = connection;
         }
 
-        public override object Run(SwitchStatement switchStatement)
+        internal override object Run(SwitchStatement switchStatement)
         {
             object result = null;
             bool forceRunAll = false;

@@ -41,7 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mConnection = connection;
         }
 
-        public override object Run(BlockStatement blockStatement)
+        internal override object Run(BlockStatement blockStatement)
         {
             return mBuilder.Run(mConnection, blockStatement.Statements, true);
         }

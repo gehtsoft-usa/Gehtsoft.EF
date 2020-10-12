@@ -41,7 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mConnection = connection;
         }
 
-        public override object Run(IfStatement ifStatement)
+        internal override object Run(IfStatement ifStatement)
         {
             object result = null;
             foreach (ConditionalStatementsRun item in ifStatement.ConditionalRuns)

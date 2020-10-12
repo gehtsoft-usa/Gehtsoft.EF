@@ -10,9 +10,9 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SwitchStatement : Statement
+    internal class SwitchStatement : Statement
     {
-        public ConditionalStatementsRunCollection ConditionalRuns { get; }
+        internal ConditionalStatementsRunCollection ConditionalRuns { get; }
         internal SwitchStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Switch)
         {
@@ -102,7 +102,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             );
         }
 
-        public virtual bool Equals(SwitchStatement other)
+        internal virtual bool Equals(SwitchStatement other)
         {
             if (other is SwitchStatement stmt)
             {
@@ -115,7 +115,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(Statement obj)
+        internal override bool Equals(Statement obj)
         {
             if (obj is SwitchStatement item)
                 return Equals(item);

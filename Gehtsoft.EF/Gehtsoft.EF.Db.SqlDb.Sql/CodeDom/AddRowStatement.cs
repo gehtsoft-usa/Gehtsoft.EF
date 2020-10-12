@@ -10,10 +10,10 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class AddRowStatement : Statement
+    internal class AddRowStatement : Statement
     {
-        public SqlBaseExpression ValueExpression { get; }
-        public GlobalParameter RowParameter { get; }
+        internal SqlBaseExpression ValueExpression { get; }
+        internal GlobalParameter RowParameter { get; }
         internal AddRowStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.AddRow)
         {

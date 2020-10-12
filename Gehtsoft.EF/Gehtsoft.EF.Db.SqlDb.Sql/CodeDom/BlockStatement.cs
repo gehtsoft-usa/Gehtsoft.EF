@@ -10,9 +10,9 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class BlockStatement : Statement
+    internal class BlockStatement : Statement
     {
-        public StatementSetEnvironment Statements { get; protected set; }
+        internal StatementSetEnvironment Statements { get; set; }
         protected Expression LinqExpression { get; set; }
 
         internal BlockStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
@@ -46,7 +46,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return LinqExpression;
         }
 
-        public virtual bool Equals(BlockStatement other)
+        internal virtual bool Equals(BlockStatement other)
         {
             if (other is BlockStatement stmt)
             {
@@ -55,7 +55,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(Statement obj)
+        internal override bool Equals(Statement obj)
         {
             if (obj is BlockStatement item)
                 return Equals(item);

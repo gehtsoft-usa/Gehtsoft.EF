@@ -10,7 +10,7 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class ForDoStatement : BlockStatement
+    internal  class ForDoStatement : BlockStatement
     {
         internal ForDoStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Loop)

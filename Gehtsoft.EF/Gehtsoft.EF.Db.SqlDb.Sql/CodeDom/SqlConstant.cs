@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class SqlConstant : SqlBaseExpression
+    internal class SqlConstant : SqlBaseExpression
     {
         private ResultTypes mResultType = ResultTypes.Unknown;
         private object mValue = null;
 
-        public override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.Constant;
             }
         }
-        public override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {
@@ -26,7 +26,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public object Value
+        internal object Value
         {
             get
             {
@@ -40,7 +40,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mResultType = type;
         }
 
-        public virtual bool Equals(SqlConstant other)
+        internal virtual bool Equals(SqlConstant other)
         {
             if (other == null)
                 return false;
@@ -53,7 +53,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return Value.Equals(other.Value);
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is SqlConstant item)
                 return Equals(item);

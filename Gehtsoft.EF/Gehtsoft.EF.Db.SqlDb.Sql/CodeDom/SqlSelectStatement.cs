@@ -11,16 +11,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// <summary>
     /// Select statement
     /// </summary>
-    public class SqlSelectStatement : SqlStatement
+    internal class SqlSelectStatement : SqlStatement
     {
-        public string SetQuantifier { get; } = string.Empty;
-        public SqlSelectList SelectList { get; } = null;
-        public SqlFromClause FromClause { get; } = null;
-        public SqlWhereClause WhereClause { get; } = null;
-        public int Offset { get; internal set; } = 0;
-        public int Limit { get; internal set; } = 0;
-        public SqlSortSpecificationCollection Sorting { get; internal set; } = null;
-        public SqlGroupSpecificationCollection Grouping { get; internal set; } = null;
+        internal string SetQuantifier { get; } = string.Empty;
+        internal SqlSelectList SelectList { get; } = null;
+        internal SqlFromClause FromClause { get; } = null;
+        internal SqlWhereClause WhereClause { get; } = null;
+        internal int Offset { get; set; } = 0;
+        internal int Limit { get; set; } = 0;
+        internal SqlSortSpecificationCollection Sorting { get; set; } = null;
+        internal SqlGroupSpecificationCollection Grouping { get; set; } = null;
 
         internal SqlSelectStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementId.Select, currentSource, statementNode.Position.Line, statementNode.Position.Column)
@@ -121,7 +121,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             SelectRunner runner = new SelectRunner(CodeDomBuilder, CodeDomBuilder.Connection);
             return Expression.Call(Expression.Constant(runner), "RunWithResult", null, Expression.Constant(this));
         }
-        public virtual bool Equals(SqlSelectStatement other)
+        internal virtual bool Equals(SqlSelectStatement other)
         {
             if (other is SqlSelectStatement stmt)
             {
@@ -140,7 +140,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return base.Equals(other);
         }
 
-        public override bool Equals(SqlStatement obj)
+        internal override bool Equals(SqlStatement obj)
         {
             if (obj is SqlSelectStatement item)
                 return Equals(item);

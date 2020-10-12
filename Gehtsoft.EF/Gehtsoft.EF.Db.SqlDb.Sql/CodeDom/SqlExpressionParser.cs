@@ -9,9 +9,9 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public static class SqlExpressionParser
+    internal  static class SqlExpressionParser
     {
-        public static SqlBaseExpression ParseExpression(Statement parentStatement, ASTNode fieldNode, string source)
+        internal  static SqlBaseExpression ParseExpression(Statement parentStatement, ASTNode fieldNode, string source)
         {
             SqlBaseExpression result = null;
             string operation = string.Empty;

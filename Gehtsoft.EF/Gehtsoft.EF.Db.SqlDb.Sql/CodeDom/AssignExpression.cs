@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class AssignExpression : SqlBaseExpression
+    internal  class AssignExpression : SqlBaseExpression
     {
         private ResultTypes mResultType = ResultTypes.Unknown;
         private GlobalParameter mLeftOperand;
         private SqlBaseExpression mRightOperand;
 
-        public override ExpressionTypes ExpressionType
+        internal  override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.Assign;
             }
         }
-        public override ResultTypes ResultType
+        internal  override ResultTypes ResultType
         {
             get
             {
@@ -28,7 +28,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public GlobalParameter LeftOperand
+        internal  GlobalParameter LeftOperand
         {
             get
             {
@@ -36,7 +36,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public SqlBaseExpression RightOperand
+        internal  SqlBaseExpression RightOperand
         {
             get
             {
@@ -97,7 +97,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public virtual bool Equals(AssignExpression other)
+        internal virtual bool Equals(AssignExpression other)
         {
             if (other == null)
                 return false;
@@ -106,7 +106,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return LeftOperand.Equals(other.LeftOperand) && RightOperand.Equals(other.RightOperand);
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is AssignExpression item)
                 return Equals(item);

@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class GetRowsCount : SqlBaseExpression
+    internal  class GetRowsCount : SqlBaseExpression
     {
-        public SqlBaseExpression Parameter { get; }
+        internal  SqlBaseExpression Parameter { get; }
 
-        public override ExpressionTypes ExpressionType
+        internal  override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.GetRowsCount;
             }
         }
-        public override ResultTypes ResultType
+        internal  override ResultTypes ResultType
         {
             get
             {
@@ -61,7 +61,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        public virtual bool Equals(GetRowsCount other)
+        internal  virtual bool Equals(GetRowsCount other)
         {
             if (other == null)
                 return false;
@@ -70,7 +70,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return this.Parameter.Equals(other.Parameter);
         }
 
-        public override bool Equals(SqlBaseExpression obj)
+        internal override bool Equals(SqlBaseExpression obj)
         {
             if (obj is GetRowsCount item)
                 return Equals(item);

@@ -7,21 +7,22 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public abstract class SqlTableSpecification : IEquatable<SqlTableSpecification>
+    internal abstract class SqlTableSpecification : IEquatable<SqlTableSpecification>
     {
         /// <summary>
         /// The types of the table
         /// </summary>
-        public enum TableType
+        internal enum TableType
         {
             Primary,
             QualifiedJoin,
             AutoJoin
         };
 
-        public abstract TableType Type { get; }
+        internal abstract TableType Type { get; }
 
-        public virtual bool Equals(SqlTableSpecification other)
+        bool IEquatable<SqlTableSpecification>.Equals(SqlTableSpecification other) => Equals(other);
+        internal virtual bool Equals(SqlTableSpecification other)
         {
             if (other == null)
                 return false;
@@ -46,7 +47,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// A collection of tables
     /// </summary>
     [Serializable]
-    public class SqlTableSpecificationCollection : IReadOnlyList<SqlTableSpecification>
+    internal class SqlTableSpecificationCollection : IReadOnlyList<SqlTableSpecification>
     {
         private readonly List<SqlTableSpecification> mList = new List<SqlTableSpecification>();
 

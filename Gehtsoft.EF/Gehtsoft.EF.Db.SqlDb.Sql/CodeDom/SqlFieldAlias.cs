@@ -8,10 +8,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// <summary>
     /// Field or aggr func calls with possible alias
     /// </summary>
-    public class SqlExpressionAlias : IEquatable<SqlExpressionAlias>
+    internal class SqlExpressionAlias : IEquatable<SqlExpressionAlias>
     {
-        public SqlBaseExpression Expression { get; } = null;
-        public string Alias { get; private set; } = null;
+        internal SqlBaseExpression Expression { get; } = null;
+        internal string Alias { get; private set; } = null;
         internal void SetAlias(string alias) => Alias = alias;
         internal SqlExpressionAlias(SqlStatement parentStatement, ASTNode fieldAliasNode, string source)
         {
@@ -53,7 +53,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Alias = parentStatement.AddAliasEntry(Alias, Expression);
         }
 
-        public virtual bool Equals(SqlExpressionAlias other)
+        bool IEquatable<SqlExpressionAlias>.Equals(SqlExpressionAlias other) => Equals(other);
+        internal virtual bool Equals(SqlExpressionAlias other)
         {
             if (other == null)
                 return false;
@@ -81,7 +82,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// A collection of fields or aggr func calls with possible alias
     /// </summary>
     [Serializable]
-    public class SqlExpressionAliasCollection : IReadOnlyList<SqlExpressionAlias>
+    internal class SqlExpressionAliasCollection : IReadOnlyList<SqlExpressionAlias>
     {
         private readonly List<SqlExpressionAlias> mList = new List<SqlExpressionAlias>();
 
