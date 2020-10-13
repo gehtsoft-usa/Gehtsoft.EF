@@ -10,7 +10,7 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class DeclareStatement : Statement
+    internal class DeclareStatement : Statement
     {
         private Dictionary<string, ResultTypes> variables = new Dictionary<string, ResultTypes>();
         internal DeclareStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)

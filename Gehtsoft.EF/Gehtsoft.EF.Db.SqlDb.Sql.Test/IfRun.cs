@@ -37,141 +37,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void IfSuccessWithRun1()
-        {
-            object result;
-
-            DomBuilder.Parse("test",
-                "SET q=4, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "ELSIF ?q = 4 THEN" +
-                "   SET m = 4" +
-                "ELSE" +
-                "   SET m = 1" +
-                "END IF " +
-                "EXIT WITH ?m"
-            );
-            result = DomBuilder.Run(connection);
-            ((int)result).Should().Be(4);
-
-            DomBuilder.Parse("test",
-                "SET q=3, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "ELSIF ?q = 4 THEN" +
-                "   SET m = 4" +
-                "ELSE" +
-                "   SET m = 1" +
-                "END IF " +
-                "EXIT WITH ?m"
-            );
-            result = DomBuilder.Run(connection);
-            ((int)result).Should().Be(3);
-
-            DomBuilder.Parse("test",
-                "SET q=2, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "ELSIF ?q = 4 THEN" +
-                "   SET m = 4" +
-                "ELSE" +
-                "   SET m = 1" +
-                "END IF " +
-                "EXIT WITH ?m"
-            );
-            result = DomBuilder.Run(connection);
-            ((int)result).Should().Be(2);
-
-            DomBuilder.Parse("test",
-                "SET q=1, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "ELSIF ?q = 4 THEN" +
-                "   SET m = 4" +
-                "ELSE" +
-                "   SET m = 1" +
-                "END IF " +
-                "EXIT WITH ?m"
-            );
-            result = DomBuilder.Run(connection);
-            ((int)result).Should().Be(1);
-
-            DomBuilder.Parse("test",
-                "SET q=0, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "ELSIF ?q = 4 THEN" +
-                "   SET m = 4" +
-                "ELSE" +
-                "   SET m = 1" +
-                "END IF " +
-                "EXIT WITH ?m"
-            );
-            result = DomBuilder.Run(connection);
-            ((int)result).Should().Be(1);
-        }
-
-        [Fact]
-        public void IfSuccessWithRun2()
-        {
-            object result;
-
-            DomBuilder.Parse("test",
-                "SET q=2, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "END IF " +
-                "EXIT WITH ?m"
-            );
-            result = DomBuilder.Run(connection);
-            ((int)result).Should().Be(2);
-
-            DomBuilder.Parse("test",
-                "SET q=3, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "END IF " +
-                "EXIT WITH ?m"
-            );
-            result = DomBuilder.Run(connection);
-            ((int)result).Should().Be(3);
-
-            DomBuilder.Parse("test",
-                "SET q=4, m=0" +
-                "IF ?q = 2 THEN" +
-                "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
-                "   SET m = 3" +
-                "END IF " +
-                "EXIT WITH ?m"
-            );
-            result = DomBuilder.Run(connection);
-            ((int)result).Should().Be(0);
-        }
-
-        [Fact]
-        public void IfSuccessWithLinq1()
+        public void IfSuccess1()
         {
             Expression block;
             object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET q=4, m=0" +
                 "IF ?q = 2 THEN" +
                 "   SET m = 2;" +
@@ -187,7 +59,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             result = Expression.Lambda<Func<object>>(block).Compile()();
             ((int)result).Should().Be(4);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET q=3, m=0" +
                 "IF ?q = 2 THEN" +
                 "   SET m = 2;" +
@@ -203,7 +75,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             result = Expression.Lambda<Func<object>>(block).Compile()();
             ((int)result).Should().Be(3);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET q=2, m=0" +
                 "IF ?q = 2 THEN" +
                 "   SET m = 2;" +
@@ -219,7 +91,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             result = Expression.Lambda<Func<object>>(block).Compile()();
             ((int)result).Should().Be(2);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET q=1, m=0" +
                 "IF ?q = 2 THEN" +
                 "   SET m = 2;" +
@@ -235,7 +107,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             result = Expression.Lambda<Func<object>>(block).Compile()();
             ((int)result).Should().Be(1);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET q=0, m=0" +
                 "IF ?q = 2 THEN" +
                 "   SET m = 2;" +
@@ -253,13 +125,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void IfSuccessWithLinq2()
+        public void IfSuccess2()
         {
             Expression block;
             object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET q=2, m=0" +
                 "IF ?q = 2 THEN" +
                 "   SET m = 2;" +
@@ -271,7 +143,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             result = Expression.Lambda<Func<object>>(block).Compile()();
             ((int)result).Should().Be(2);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET q=3, m=0" +
                 "IF ?q = 2 THEN" +
                 "   SET m = 2;" +
@@ -283,7 +155,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             result = Expression.Lambda<Func<object>>(block).Compile()();
             ((int)result).Should().Be(3);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET q=4, m=0" +
                 "IF ?q = 2 THEN" +
                 "   SET m = 2;" +
@@ -294,6 +166,66 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             );
             result = Expression.Lambda<Func<object>>(block).Compile()();
             ((int)result).Should().Be(0);
+        }
+
+        [Fact]
+        public void IfParseError()
+        {
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                "SET q=3, m=0" +
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "ELSE" +
+                "   SET m = 4" +
+                "ELSE" +
+                "   SET m = 1" +
+                "END IF"
+                )
+            );
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                "SET q=3, m=0" +
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "ELSIF ?q = 4 THEN" +
+                "   SET m = 4" +
+                "ELSE" +
+                "   SET m = 1"
+                )
+            );
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "ELSIF ?q = 4 THEN" +
+                "   SET m = 4" +
+                "ELSE" +
+                "   SET m = 1" +
+                "END IF"
+                )
+            );
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                "SET q=3, m=0" +
+                "IF ?q = 2 THEN" +
+                "   SET m = 2;" +
+                "ELSIF ?q = 3 THEN" +
+                "   SET m = 3" +
+                "ELSIF 4 THEN" +
+                "   SET m = 4" +
+                "ELSE" +
+                "   SET m = 1" +
+                "END IF"
+                )
+            );
         }
     }
 }

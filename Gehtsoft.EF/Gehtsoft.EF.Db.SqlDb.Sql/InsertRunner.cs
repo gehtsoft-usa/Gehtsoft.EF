@@ -149,9 +149,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal void RunWithResult(SqlInsertStatement insert)
         {
-            mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(insert);
+            mBuilder.BlockDescriptors.Peek().LastStatementResult = run(insert);
         }
-        internal override object Run(SqlInsertStatement insert)
+        private object run(SqlInsertStatement insert)
         {
             List<object> result = new List<object>();
             mInsert = insert;

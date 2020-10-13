@@ -37,24 +37,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void ExitWithRun()
+        public void Exit()
         {
+            Expression block;
             object result;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
             List<object> array;
 
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
-            environment.Parse("test",
+            block = environment.Parse("test",
                 "DECLARE qqq AS STRING;" +
                 "SET qqq = 'u';" +
                 "SELECT COUNT(*) AS Total " +
                 "FROM Customer " +
                 "WHERE LOWER(Country) LIKE ?qqq || '%' "
             );
-            result = environment.Run(connection);
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             int cnt1 = (int)(array[0] as Dictionary<string, object>)["Total"];
 
-            environment.Parse("test",
+            block = environment.Parse("test",
                 "DECLARE qqq AS INTEGER;" +
                 "SELECT * " +
                 "FROM Customer " +
@@ -62,43 +63,37 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "SET qqq = ROWS_COUNT(LAST_RESULT());" +
                 "EXIT WITH ?qqq"
             );
-            result = environment.Run(connection);
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             int cnt2 = (int)result;
 
             cnt1.Should().Be(cnt2);
         }
 
         [Fact]
-        public void ExitWithLinq()
+        public void ExitParseError()
         {
-            Expression block;
-            object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
-            List<object> array;
-
-            block = environment.ParseToLinq("test",
-                "DECLARE qqq AS STRING;" +
-                "SET qqq = 'u';" +
-                "SELECT COUNT(*) AS Total " +
-                "FROM Customer " +
-                "WHERE LOWER(Country) LIKE ?qqq || '%' "
-            );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
-            array = result as List<object>;
-            int cnt1 = (int)(array[0] as Dictionary<string, object>)["Total"];
-
-            block = environment.ParseToLinq("test",
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
                 "DECLARE qqq AS INTEGER;" +
-                "SELECT * " +
-                "FROM Customer " +
-                "WHERE LOWER(Country) LIKE 'u%' " +
                 "SET qqq = ROWS_COUNT(LAST_RESULT());" +
-                "EXIT WITH ?qqq"
+                "EXIT WITH Low"
+                )
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
-            int cnt2 = (int)result;
-
-            cnt1.Should().Be(cnt2);
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                "DECLARE qqq AS INTEGER;" +
+                "SET qqq = ROWS_COUNT(UPPER('sss'));" +
+                "EXIT WITH ?qqq"
+                )
+            );
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                "DECLARE qqq AS ROW;" +
+                "SET qqq = GET_ROW(LAST_RESULT(), 0);" +
+                "EXIT WITH GET_FIELD(?qqq, 'Number', GURMUR)"
+                )
+            );
         }
     }
 }

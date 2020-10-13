@@ -111,7 +111,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(select);
         }
-        internal override object Run(SqlSelectStatement select)
+        internal object Run(SqlSelectStatement select)
         {
             List<object> result = new List<object>();
             mSelect = select;

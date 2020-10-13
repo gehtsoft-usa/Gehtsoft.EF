@@ -17,7 +17,7 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 using System.Linq.Expressions;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.Statement;
 
-[assembly: InternalsVisibleTo("Gehtsoft.EF.Db.SqlDb.Sql.Test")]
+//[assembly: InternalsVisibleTo("Gehtsoft.EF.Db.SqlDb.Sql.Test")]
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
@@ -44,72 +44,39 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return result.Root;
         }
 
-        private StatementSetEnvironment mLastParse = null;
+        internal Expression ParseNodeToLinq(string name, ASTNode root, Statement parentStatement, bool clear = false)
+        {
+            var visitor = new SqlASTVisitor();
+                Expression result = visitor.VisitStatementsToLinq(this, name, root, parentStatement?.Type ?? Statement.StatementType.Block, parentStatement?.OnContinue, clear);
+                return result;
+        }
 
-        internal bool WhetherParseToLinq {get; set;} = false;
-        public StatementSetEnvironment Parse(string name, TextReader source)
+        internal Expression Parse(string name, TextReader source)
         {
             var root = ParseToRawTree(name, source);
-            TopEnvironment = null;
-            mLastParse = ParseNode(name, root); // for possible run later
-            return mLastParse;
+            try
+            {
+                return ParseNodeToLinq(name, root, null, true);
+            }
+            catch
+            {
+                while (this.BlockDescriptors.Count > 0) this.BlockDescriptors.Pop();
+                throw;
+            }
         }
 
-        internal StatementSetEnvironment ParseNode(string name, ASTNode root, Statement parentStatement = null)
-        {
-            bool saveWhetherParseToLinq = WhetherParseToLinq;
-            WhetherParseToLinq = false;
-            var visitor = new SqlASTVisitor();
-            StatementSetEnvironment initialSet = new StatementSetEnvironment();
-            initialSet.ParentStatement = parentStatement;
-            StatementSetEnvironment result = visitor.VisitStatements(this, name, root, initialSet);
-            WhetherParseToLinq = saveWhetherParseToLinq;
-            return result;
-        }
-
-        public StatementSetEnvironment Parse(string name, string source)
+        internal Expression Parse(string name, string source)
         {
             using (var reader = new StringReader(source))
             {
                 return Parse(name, reader);
             }
         }
-        public StatementSetEnvironment Parse(string fileName, Encoding encoding = null)
+        internal Expression Parse(string fileName, Encoding encoding = null)
         {
             using (StreamReader sr = new StreamReader(fileName, encoding ?? Encoding.UTF8, true))
             {
                 return Parse(fileName, sr);
-            }
-        }
-
-        public Expression ParseToLinq(string name, TextReader source)
-        {
-            var root = ParseToRawTree(name, source);
-            return ParseNodeToLinq(name, root, null, true);
-        }
-
-        internal Expression ParseNodeToLinq(string name, ASTNode root, Statement parentStatement, bool clear = false)
-        {
-            bool saveWhetherParseToLinq = WhetherParseToLinq;
-            WhetherParseToLinq = true;
-            var visitor = new SqlASTVisitor();
-            Expression result = visitor.VisitStatementsToLinq(this, name, root, parentStatement?.Type ?? Statement.StatementType.Block, parentStatement?.OnContinue, clear);
-            WhetherParseToLinq = saveWhetherParseToLinq;
-            return result;
-        }
-
-        public Expression ParseToLinq(string name, string source)
-        {
-            using (var reader = new StringReader(source))
-            {
-                return ParseToLinq(name, reader);
-            }
-        }
-        public Expression ParseToLinq(string fileName, Encoding encoding = null)
-        {
-            using (StreamReader sr = new StreamReader(fileName, encoding ?? Encoding.UTF8, true))
-            {
-                return ParseToLinq(fileName, sr);
             }
         }
 
@@ -167,211 +134,36 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        public SqlCodeDomBuilder NewEnvironment()
-        {
-            SqlCodeDomBuilder retval = new SqlCodeDomBuilder();
-            retval.mTypeNameToEntity = mTypeNameToEntity;
-            retval.mTypeToFields = mTypeToFields;
-
-            return retval;
-        }
-
         public SqlDbConnection Connection { get; private set; } = null;
-        public SqlCodeDomBuilder NewEnvironment(SqlDbConnection connection)
+
+        public SqlCodeDomEnvironment NewEnvironment()
         {
-            SqlCodeDomBuilder retval = NewEnvironment();
-            retval.Connection = connection;
+            SqlCodeDomEnvironment retval = new SqlCodeDomEnvironment();
+            retval.SqlCodeDomBuilder.mTypeNameToEntity = mTypeNameToEntity;
+            retval.SqlCodeDomBuilder.mTypeToFields = mTypeToFields;
 
             return retval;
         }
 
-        public object Run(ISqlDbConnectionFactory connectionFactory)
+        public SqlCodeDomEnvironment NewEnvironment(SqlDbConnection connection)
         {
-            object result = null;
-            SqlDbConnection connection = connectionFactory.GetConnection();
-            try
-            {
-                result = Run(connection);
-            }
-            finally
-            {
-                if (connectionFactory.NeedDispose)
-                    connection.Dispose();
-            }
-            return result;
-        }
+            SqlCodeDomEnvironment retval = NewEnvironment();
+            retval.SqlCodeDomBuilder.Connection = connection;
 
-        public object Run(SqlDbConnection connection)
-        {
-            if (mLastParse == null)
-                throw new ArgumentException("Nothing parsed yet");
-
-            mLastParse.ParentEnvironment = null;
-            mLastParse.ParentStatement = null;
-            TopEnvironment = null;
-            return Run(connection, mLastParse, false);
+            return retval;
         }
 
         internal object LastStatementResult
         {
             get
             {
-                IStatementSetEnvironment current = TopEnvironment;
-                while (current != null)
-                {
-                    if (current.LastStatementResult != null)
-                        return current.LastStatementResult;
-                    current = current.ParentEnvironment;
-                }
-                if (current == null && BlockDescriptors.Count > 0)
+                if (BlockDescriptors.Count > 0)
                 {
                     return BlockDescriptors.Peek().LastStatementResult;
                 }
                 return new List<object>();
             }
         }
-
-        public object Run(SqlDbConnection connection, StatementSetEnvironment statements, bool inner = false)
-        {
-            statements.ClearEnvironment();
-            statements.ParentEnvironment = TopEnvironment;
-            TopEnvironment = statements;
-            statements.LastStatementResult = null;
-            bool cont = true;
-            while (cont)
-            {
-                statements.Leave = false;
-                foreach (Statement statement in statements)
-                {
-                    if (statement is SqlStatement sqlStatement)
-                    {
-                        switch (sqlStatement.Id)
-                        {
-                            case SqlStatement.StatementId.Select:
-                                SelectRunner selectRunner = new SelectRunner(this, connection);
-                                statements.LastStatementResult = selectRunner.Run(sqlStatement as SqlSelectStatement);
-                                break;
-
-                            case SqlStatement.StatementId.Insert:
-                                InsertRunner insertRunner = new InsertRunner(this, connection);
-                                statements.LastStatementResult = insertRunner.Run(sqlStatement as SqlInsertStatement);
-                                break;
-
-                            case SqlStatement.StatementId.Update:
-                                UpdateRunner updateRunner = new UpdateRunner(this, connection);
-                                statements.LastStatementResult = updateRunner.Run(sqlStatement as SqlUpdateStatement);
-                                break;
-
-                            case SqlStatement.StatementId.Delete:
-                                DeleteRunner deleteRunner = new DeleteRunner(this, connection);
-                                statements.LastStatementResult = deleteRunner.Run(sqlStatement as SqlDeleteStatement);
-                                break;
-
-                            default:
-                                throw new Exception($"Unknown statement '{sqlStatement.Id}'");
-                        }
-                    }
-                    else
-                    {
-                        switch (statement.Type)
-                        {
-                            case Statement.StatementType.Set:
-                                SetRunner setRunner = new SetRunner(this, connection);
-                                setRunner.Run(statement as SetStatement);
-                                break;
-                            case Statement.StatementType.Exit:
-                                ExitRunner exitRunner = new ExitRunner(this, connection, statements);
-                                exitRunner.Run(statement as ExitStatement);
-                                break;
-                            case Statement.StatementType.If:
-                                IfRunner ifRunner = new IfRunner(this, connection);
-                                object ifResult = ifRunner.Run(statement as IfStatement);
-                                if (ifResult != null)
-                                {
-                                    statements.LastStatementResult = ifResult;
-                                }
-                                break;
-                            case Statement.StatementType.Continue:
-                                ContinueRunner continueRunner = new ContinueRunner(this, connection, statements);
-                                continueRunner.Run(statement as ContinueStatement);
-                                break;
-                            case Statement.StatementType.Break:
-                                BreakRunner breakRunner = new BreakRunner(this, connection, statements);
-                                breakRunner.Run(statement as BreakStatement);
-                                break;
-                            case Statement.StatementType.Loop:
-                            case Statement.StatementType.Block:
-                                BlockRunner blockRunner = new BlockRunner(this, connection);
-                                object blockDoResult = blockRunner.Run(statement as BlockStatement);
-                                if (blockDoResult != null)
-                                {
-                                    statements.LastStatementResult = blockDoResult;
-                                }
-                                break;
-                            case Statement.StatementType.Switch:
-                                SwitchRunner switchRunner = new SwitchRunner(this, connection);
-                                object switchResult = switchRunner.Run(statement as SwitchStatement);
-                                if (switchResult != null)
-                                {
-                                    statements.LastStatementResult = switchResult;
-                                }
-                                break;
-                            case Statement.StatementType.AddField:
-                                AddFieldStatement addFieldStatement = statement as AddFieldStatement;
-                                addFieldStatement.Run(connection);
-                                break;
-                            case Statement.StatementType.AddRow:
-                                AddRowStatement addRowStatement = statement as AddRowStatement;
-                                addRowStatement.Run(connection);
-                                break;
-                            case Statement.StatementType.DeclareCursor:
-                                DeclareCursorStatement declareCursorStatement = statement as DeclareCursorStatement;
-                                declareCursorStatement.Run();
-                                break;
-                            case Statement.StatementType.OpenCursor:
-                                OpenCursorStatement openCursorStatement = statement as OpenCursorStatement;
-                                openCursorStatement.Run(connection);
-                                break;
-                            case Statement.StatementType.CloseCursor:
-                                CloseCursorStatement closeCursorStatement = statement as CloseCursorStatement;
-                                closeCursorStatement.Run();
-                                break;
-                            case Statement.StatementType.Assign:
-                                AssignStatement assignStatement = statement as AssignStatement;
-                                assignStatement.Run();
-                                break;
-                        }
-                    }
-                    if (statements.Leave)
-                    {
-                        break;
-                    }
-                }
-
-                if (statements.Continue)
-                {
-                    if (statements.BeforeContinue != null)
-                    {
-                        Run(connection, statements.BeforeContinue, true);
-                    }
-                    cont = true;
-                    statements.Continue = false;
-                }
-                else
-                {
-                    cont = false;
-                }
-            }
-            TopEnvironment = statements.ParentEnvironment;
-            object result = statements.LastStatementResult;
-            if (!inner)
-            {
-                this.ClearOpenedQueries();
-            }
-            return result;
-        }
-
-        internal IStatementSetEnvironment TopEnvironment { get; set; } = null;
 
         internal Stack<BlockDescriptor> BlockDescriptors { get; set; } = new Stack<BlockDescriptor>();
 
@@ -386,7 +178,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         internal static object PopDescriptor(SqlCodeDomBuilder codeDomBuilder)
         {
             object retval = codeDomBuilder.BlockDescriptors.Peek().LastStatementResult;
-            codeDomBuilder.BlockDescriptors.Pop();
+            BlockDescriptor descr = codeDomBuilder.BlockDescriptors.Pop();
+            if (descr.StatementType == StatementType.DummyPersist)
+            {
+                if (codeDomBuilder.BlockDescriptors.Count > 0)
+                {
+                    foreach (var item in descr.All)
+                    {
+                        codeDomBuilder.AddGlobalParameter(item.Key, item.Value.ResultType, true);
+                    }
+                }
+
+            }
             return retval;
         }
         internal Expression StartBlock(LabelTarget startLabel, LabelTarget endLabel, Statement.StatementType statementType)
@@ -406,15 +209,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         private IParametersHolder findEnvironmentWithParameter(string name, bool local = false)
         {
-            IStatementSetEnvironment current = TopEnvironment;
-            while (current != null)
-            {
-                if (current.ContainsGlobalParameter(name))
-                    return current;
-                current = current.ParentEnvironment;
-                if (local) break;
-            }
-            if (current == null && BlockDescriptors.Count > 0)
+            if (BlockDescriptors.Count > 0)
             {
                 BlockDescriptor[] array = BlockDescriptors.ToArray();
                 for (int i = array.Length - 1; i >= 0; i--)
@@ -432,8 +227,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             IParametersHolder found = findEnvironmentWithParameter(name, local);
             if (found != null)
                 return false;
-            if (TopEnvironment != null)
-                TopEnvironment.AddGlobalParameter(name, new SqlConstant(null, resultType));
             if (BlockDescriptors.Count > 0)
                 BlockDescriptors.Peek().AddGlobalParameter(name, new SqlConstant(null, resultType));
             return true;
@@ -444,8 +237,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             IParametersHolder found = findEnvironmentWithParameter(name);
             if (found == null)
             {
-                if (TopEnvironment != null)
-                    TopEnvironment.AddGlobalParameter(name, value);
                 if (BlockDescriptors.Count > 0)
                     BlockDescriptors.Peek().AddGlobalParameter(name, value);
             }
@@ -533,11 +324,33 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal void ClearOpenedQueries()
         {
-            foreach(KeyValuePair<Guid, SqlDbQuery> item in mOpenedQueries)
+            foreach (KeyValuePair<Guid, SqlDbQuery> item in mOpenedQueries)
             {
                 item.Value.Dispose();
             }
             mOpenedQueries = new Dictionary<Guid, SqlDbQuery>();
+        }
+    }
+
+    public class SqlCodeDomEnvironment
+    {
+        internal SqlCodeDomBuilder SqlCodeDomBuilder { get; }
+        public SqlCodeDomEnvironment()
+        {
+            SqlCodeDomBuilder = new SqlCodeDomBuilder();
+        }
+        public Expression Parse(string name, TextReader source)
+        {
+            return SqlCodeDomBuilder.Parse(name, source);
+        }
+
+        public Expression Parse(string name, string source)
+        {
+            return SqlCodeDomBuilder.Parse(name, source);
+        }
+        public Expression Parse(string fileName, Encoding encoding = null)
+        {
+            return SqlCodeDomBuilder.Parse(fileName, encoding);
         }
     }
 
@@ -549,6 +362,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         internal Statement.StatementType StatementType { get; set; }
 
         private Dictionary<string, SqlConstant> globalParameters = new Dictionary<string, SqlConstant>();
+
+        internal IDictionary<string, SqlConstant> All => globalParameters;
 
         bool IParametersHolder.AddGlobalParameter(string name, SqlConstant value) => AddGlobalParameter(name, value);
         internal bool AddGlobalParameter(string name, SqlConstant value)

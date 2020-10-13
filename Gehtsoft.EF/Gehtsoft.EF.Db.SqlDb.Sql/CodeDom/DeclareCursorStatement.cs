@@ -38,22 +38,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             SelectStatement = selectStatement;
         }
 
-        internal virtual bool Equals(DeclareCursorStatement other)
-        {
-            if (other is DeclareCursorStatement stmt)
-            {
-                return Name == stmt.Name && SelectStatement.Equals(stmt.SelectStatement);
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(Statement obj)
-        {
-            if (obj is DeclareCursorStatement item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
         internal void Run()
         {
             CodeDomBuilder.UpdateGlobalParameter(Name, new SqlConstant(SelectStatement, ResultTypes.Cursor));

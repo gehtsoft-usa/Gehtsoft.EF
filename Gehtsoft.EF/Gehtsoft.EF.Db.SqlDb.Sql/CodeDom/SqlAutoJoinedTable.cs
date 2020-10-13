@@ -80,22 +80,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mLeftTable = leftTable;
             mRightTable = rightTable;
         }
-
-        internal virtual bool Equals(SqlAutoJoinedTable other)
-        {
-            if (other == null)
-                return false;
-            return (
-                this.LeftTable.Equals(other.LeftTable) &&
-                this.RightTable.Equals(other.RightTable)
-            );
-        }
-
-        internal override bool Equals(SqlTableSpecification obj)
-        {
-            if (obj is SqlAutoJoinedTable item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

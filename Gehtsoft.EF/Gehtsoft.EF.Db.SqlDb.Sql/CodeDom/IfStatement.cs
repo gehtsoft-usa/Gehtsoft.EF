@@ -10,9 +10,9 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  class IfStatement : Statement
+    internal class IfStatement : Statement
     {
-        internal  ConditionalStatementsRunCollection ConditionalRuns { get; }
+        internal ConditionalStatementsRunCollection ConditionalRuns { get; }
         internal IfStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.If)
         {
@@ -20,18 +20,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             ConditionalStatementsRun currentConditionalRun = null;
             foreach (ASTNode node in statementNode.Children)
             {
-                if(node.Symbol.ID == SqlParser.ID.VariableRoot)
+                if (node.Symbol.ID == SqlParser.ID.VariableRoot)
                 {
-                    StatementSetEnvironment inner = builder.ParseNode("IF-ELSE Body", node, this);
                     if (currentConditionalRun == null)
                     {
                         currentConditionalRun = new ConditionalStatementsRun(new SqlConstant(true, ResultTypes.Boolean));
                     }
-                    currentConditionalRun.Statements = inner;
-                    if (builder.WhetherParseToLinq)
-                    {
-                        currentConditionalRun.LinqExpression = builder.ParseNodeToLinq("IF-ELSE Body", node, this);
-                    }
+                    currentConditionalRun.LinqExpression = builder.ParseNodeToLinq("IF-ELSE Body", node, this);
                     ConditionalRuns.Add(currentConditionalRun);
                     currentConditionalRun = null;
                 }
@@ -45,7 +40,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             $"Unexpected condition expression in IF statement {node.Symbol.Name} ({node.Value ?? "null"})"));
                     }
                     SqlBaseExpression conditionalExpression = SqlExpressionParser.ParseExpression(this, node, currentSource);
-                    if(!Statement.IsCalculable(conditionalExpression))
+                    if (!Statement.IsCalculable(conditionalExpression))
                     {
                         throw new SqlParserException(new SqlError(currentSource,
                             node.Position.Line,
@@ -84,61 +79,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 cases.ToArray()
             );
         }
-
-        internal virtual bool Equals(IfStatement other)
-        {
-            if (other is IfStatement stmt)
-            {
-                if (ConditionalRuns == null && stmt.ConditionalRuns != null)
-                    return false;
-                if (ConditionalRuns != null && !ConditionalRuns.Equals(stmt.ConditionalRuns))
-                    return false;
-                return true;
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(Statement obj)
-        {
-            if (obj is IfStatement item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
-    internal  class ConditionalStatementsRun : IEquatable<ConditionalStatementsRun>
+    internal class ConditionalStatementsRun
     {
-        internal  StatementSetEnvironment Statements { get; set; }
-        internal  Expression LinqExpression { get; set; }
-        internal  SqlBaseExpression ConditionalExpression { get; set; }
+        internal Expression LinqExpression { get; set; }
+        internal SqlBaseExpression ConditionalExpression { get; set; }
 
-        internal ConditionalStatementsRun(SqlBaseExpression conditionalExpression, StatementSetEnvironment statements = null)
+        internal ConditionalStatementsRun(SqlBaseExpression conditionalExpression)
         {
-            Statements = statements;
             ConditionalExpression = conditionalExpression;
         }
-
-        bool IEquatable<ConditionalStatementsRun>.Equals(ConditionalStatementsRun other) => Equals(other);
-        internal virtual bool Equals(ConditionalStatementsRun other)
-        {
-            if (other == null)
-                return false;
-            return this.ConditionalExpression.Equals(other.ConditionalExpression) && this.Statements.Equals(other.Statements);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is ConditionalStatementsRun item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
     }
 
-    internal  class ConditionalStatementsRunCollection : IReadOnlyList<ConditionalStatementsRun>, IEquatable<ConditionalStatementsRunCollection>
+    internal class ConditionalStatementsRunCollection : IReadOnlyList<ConditionalStatementsRun>
     {
         private readonly List<ConditionalStatementsRun> mList = new List<ConditionalStatementsRun>();
 
@@ -165,37 +118,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mList.Add(conditionalRun);
         }
-
-        bool IEquatable<ConditionalStatementsRunCollection>.Equals(ConditionalStatementsRunCollection other) => Equals(other);
-        internal virtual bool Equals(ConditionalStatementsRunCollection other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            if (this.Count != other.Count)
-                return false;
-            for (int i = 0; i < Count; i++)
-            {
-                if (!this[i].Equals(other[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is ConditionalStatementsRunCollection item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
     }
 }

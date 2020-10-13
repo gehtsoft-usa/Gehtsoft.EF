@@ -50,21 +50,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mName = name;
             mParameters = parameters;
         }
-
-        internal virtual bool Equals(SqlCallFuncExpression other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            return (this.Name.Equals(other.Name) && this.Parameters.Equals(other.Parameters));
-        }
-
-        internal override bool Equals(SqlBaseExpression obj)
-        {
-            if (obj is SqlCallFuncExpression item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

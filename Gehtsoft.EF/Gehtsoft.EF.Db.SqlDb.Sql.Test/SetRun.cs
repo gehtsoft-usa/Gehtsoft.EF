@@ -37,12 +37,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void SetWithRun()
+        public void Set()
         {
+            Expression block;
             object result;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
             List<object> array;
 
-            DomBuilder.Parse("test",
+            block = environment.Parse("test",
                 "DECLARE qqq AS STRING;" +
                 "SET qqq = 'u';" +
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
@@ -50,11 +52,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "WHERE LOWER(Country) LIKE ?qqq || '%' " +
                 "GROUP BY Country"
             );
-            result = DomBuilder.Run(connection);
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             array.Count.Should().Be(2);
 
-            DomBuilder.Parse("test",
+            block = environment.Parse("test",
                 "SET qqq = 'u';" +
                 "SET qqq = ?qqq || 'K';" +
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
@@ -62,42 +64,41 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "WHERE LOWER(Country) LIKE LOWER(?qqq) || '%' " +
                 "GROUP BY Country"
             );
-            result = DomBuilder.Run(connection);
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             array.Count.Should().Be(1);
         }
 
         [Fact]
-        public void SetWithLinq()
+        public void SetParseError()
         {
-            Expression block;
-            object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
-            List<object> array;
-
-            block = environment.ParseToLinq("test",
-                "DECLARE qqq AS STRING;" +
-                "SET qqq = 'u';" +
-                "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
-                "FROM Customer " +
-                "WHERE LOWER(Country) LIKE ?qqq || '%' " +
-                "GROUP BY Country"
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                "SET qqq = UPPER(field) = 'WWWWW'"
+                )
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
-            array = result as List<object>;
-            array.Count.Should().Be(2);
-
-            block = environment.ParseToLinq("test",
-                "SET qqq = 'u';" +
-                "SET qqq = ?qqq || 'K';" +
-                "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
-                "FROM Customer " +
-                "WHERE LOWER(Country) LIKE LOWER(?qqq) || '%' " +
-                "GROUP BY Country"
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                "SET qqq = COUNT(*) + 1"
+                )
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
-            array = result as List<object>;
-            array.Count.Should().Be(1);
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                "SET qqq = UPPER(?mmm AS INTEGER) = 'WWWWW'"
+                )
+            );
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                "SET qqq = UPPER(?mmm) = 'WWWWW'"
+                )
+            );
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                "DECLARE qqq AS STRING, mmm AS STRING;" +
+                "SET qqq = UPPER(?mmm) = 'WWWWW';"
+                )
+            );
         }
     }
 }

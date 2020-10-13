@@ -21,18 +21,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal ContinueStatement(SqlCodeDomBuilder builder, string currentSource = null, int line=0, int column=0)
             : base(builder, StatementType.Continue)
         {
-            IStatementSetEnvironment current = builder.TopEnvironment;
-            bool found = false;
-            while (current != null)
+            BlockDescriptor[] array = CodeDomBuilder.BlockDescriptors.ToArray();
+            BlockDescriptor foundDescr = null;
+            for (int i = array.Length - 1; i >= 0; i--)
             {
-                if (current.ParentStatement != null && current.ParentStatement.Type == StatementType.Loop)
+                BlockDescriptor descr = array[i];
+                if (descr.StatementType == StatementType.Loop)
                 {
-                    found = true;
+                    foundDescr = descr;
                     break;
                 }
-                current = current.ParentEnvironment;
             }
-            if (!found)
+            if (foundDescr == null)
             {
                 throw new SqlParserException(new SqlError(currentSource, line, column, $"Unexpected operator CONTINUE (out of LOOP)"));
             }
@@ -66,22 +66,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             leaveSet.Add(Expression.Call(Expression.Constant(CodeDomBuilder), "ContinueRun", null));
             leaveSet.Add(Expression.Goto(foundDescr.StartLabel));
             return Expression.Block(leaveSet);
-        }
-
-        internal virtual bool Equals(ContinueStatement other)
-        {
-            if (other is ContinueStatement stmt)
-            {
-                return true;
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(Statement obj)
-        {
-            if (obj is ContinueStatement item)
-                return Equals(item);
-            return base.Equals(obj);
         }
     }
 }

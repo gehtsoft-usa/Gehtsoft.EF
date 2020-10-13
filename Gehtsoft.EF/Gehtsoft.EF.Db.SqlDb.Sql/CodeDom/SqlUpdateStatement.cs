@@ -87,29 +87,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             UpdateRunner runner = new UpdateRunner(CodeDomBuilder, CodeDomBuilder.Connection);
             return Expression.Call(Expression.Constant(runner), "RunWithResult", null, Expression.Constant(this));
         }
-
-        internal virtual bool Equals(SqlUpdateStatement other)
-        {
-            if (other is SqlUpdateStatement stmt)
-            {
-                if (UpdateAssigns == null && stmt.UpdateAssigns != null)
-                    return false;
-                if (UpdateAssigns != null && !UpdateAssigns.Equals(stmt.UpdateAssigns))
-                    return false;
-                if (WhereClause == null && stmt.WhereClause != null)
-                    return false;
-                if (WhereClause != null && !WhereClause.Equals(stmt.WhereClause))
-                    return false;
-                return TableName.Equals(stmt.TableName);
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(SqlStatement obj)
-        {
-            if (obj is SqlUpdateStatement item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

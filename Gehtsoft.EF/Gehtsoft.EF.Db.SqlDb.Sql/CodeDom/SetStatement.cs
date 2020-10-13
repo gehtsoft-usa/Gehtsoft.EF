@@ -61,35 +61,28 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             SetItems = setItems;
         }
 
+        internal void Run()
+        {
+            foreach (SetItem item in this.SetItems)
+            {
+                string name = item.Name;
+                SqlBaseExpression sourceExpression = item.Expression;
+                SqlConstant resultConstant = StatementRunner.CalculateExpression(sourceExpression, CodeDomBuilder, CodeDomBuilder.Connection);
+                if (resultConstant == null)
+                {
+                    throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error while SET execution"));
+                }
+                CodeDomBuilder.UpdateGlobalParameter($"?{name}", resultConstant);
+            }
+        }
+
         internal override Expression ToLinqWxpression()
         {
-            return Expression.Call(typeof(SetRunner), "Run", null,
-                Expression.Constant(CodeDomBuilder), Expression.Constant(this)
-                );
-        }
-
-        internal  virtual bool Equals(SetStatement other)
-        {
-            if (other is SetStatement stmt)
-            {
-                if (SetItems == null && stmt.SetItems != null)
-                    return false;
-                if (SetItems != null && !SetItems.Equals(stmt.SetItems))
-                    return false;
-                return true;
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(Statement obj)
-        {
-            if (obj is SetStatement item)
-                return Equals(item);
-            return base.Equals(obj);
+            return Expression.Call(Expression.Constant(this), "Run", null);
         }
     }
 
-    internal  class SetItem : IEquatable<SetItem>
+    internal  class SetItem
     {
         internal  string Name { get; }
         internal  SqlBaseExpression Expression { get; }
@@ -105,29 +98,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Name = name;
             Expression = new SqlConstant(null, SqlBaseExpression.ResultTypes.Unknown);
         }
-
-        bool IEquatable<SetItem>.Equals(SetItem other) => Equals(other);
-        internal virtual bool Equals(SetItem other)
-        {
-            if (other == null)
-                return false;
-            return (this.Expression.Equals(other.Expression) && this.Name == other.Name);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SetItem item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
     }
 
-    internal  class SetItemCollection : IReadOnlyList<SetItem>, IEquatable<SetItemCollection>
+    internal  class SetItemCollection : IReadOnlyList<SetItem>
     {
         private readonly List<SetItem> mList = new List<SetItem>();
 
@@ -156,37 +129,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mList.Add(fieldName);
         }
-
-        bool IEquatable<SetItemCollection>.Equals(SetItemCollection other) => Equals(other);
-        internal virtual bool Equals(SetItemCollection other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            if (this.Count != other.Count)
-                return false;
-            for (int i = 0; i < Count; i++)
-            {
-                if (!this[i].Equals(other[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SetItemCollection item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
     }
 }

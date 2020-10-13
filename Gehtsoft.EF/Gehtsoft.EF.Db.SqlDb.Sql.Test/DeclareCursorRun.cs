@@ -37,100 +37,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void DeclareCursorWithRun1()
-        {
-            object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
-
-            environment.Parse("test",
-                "SET maxQuantity = 0.0;" +
-                "DECLARE my_cur CURSOR FOR " +
-                "SELECT Quantity FROM OrderDetail;" +
-                "OPEN CURSOR ?my_cur " +
-                "SET record = FETCH(?my_cur) " +
-                "WHILE ?record IS NOT NULL " +
-                "LOOP " +
-                "   SET quantity = GET_FIELD(?record, 'Quantity', DOUBLE);" +
-                "   IF ?quantity > ?maxQuantity THEN SET maxQuantity = ?quantity; END IF;" +
-                "   SET record = FETCH(?my_cur);" +
-                "END LOOP;" +
-                "CLOSE CURSOR ?my_cur;" +
-                "EXIT WITH ?maxQuantity;"
-            );
-            result = environment.Run(connection);
-            double max1 = (double)result;
-
-            environment.Parse("test",
-                "SELECT MAX(Quantity) AS Max FROM OrderDetail;" +
-                "EXIT WITH GET_FIELD(GET_ROW(LAST_RESULT(), 0), 'Max', DOUBLE);"
-            );
-            result = environment.Run(connection);
-            double max2 = (double)result;
-
-            max1.Should().Be(max2);
-        }
-
-        [Fact]
-        public void DeclareCursorWithRun2()
-        {
-            object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
-
-            environment.Parse("test",
-                "SET maxQuantity = 0.0;" +
-                "DECLARE my_cur CURSOR FOR " +
-                "SELECT COUNT(*) AS Total FROM Category;" +
-                "OPEN CURSOR ?my_cur;" +
-                "SET record = FETCH(?my_cur);" +
-                "SET cnt = GET_FIELD(?record, 'Total', INTEGER);" +
-                "CLOSE CURSOR ?my_cur;" +
-                "EXIT WITH ?cnt;"
-            );
-            result = environment.Run(connection);
-            int count = (int)result;
-            count.Should().Be(8);
-        }
-
-        [Fact]
-        public void DeclareCursorWithRun3()
-        {
-            object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
-
-            environment.Parse("test",
-                "SET maxQuantity = 0.0;" +
-                "DECLARE my_cur CURSOR FOR " +
-                "SELECT Quantity FROM OrderDetail;" +
-                "OPEN CURSOR ?my_cur;" +
-                "WHILE ?record := FETCH(?my_cur) IS NOT NULL " +
-                "LOOP " +
-                "   ?quantity := GET_FIELD(?record, 'Quantity', DOUBLE);" +
-                "   IF ?quantity > ?maxQuantity THEN ?maxQuantity := ?quantity; END IF;" +
-                "END LOOP;" +
-                "CLOSE CURSOR ?my_cur;" +
-                "EXIT WITH ?maxQuantity;"
-            );
-            result = environment.Run(connection);
-            double max1 = (double)result;
-
-            environment.Parse("test",
-                "SELECT MAX(Quantity) AS Max FROM OrderDetail;" +
-                "EXIT WITH GET_FIELD(GET_ROW(LAST_RESULT(), 0), 'Max', DOUBLE);"
-            );
-            result = environment.Run(connection);
-            double max2 = (double)result;
-
-            max1.Should().Be(max2);
-        }
-
-        [Fact]
-        public void DeclareCursorWithLinq1()
+        public void DeclareCursor1()
         {
             Expression block;
             object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET maxQuantity = 0.0;" +
                 "DECLARE my_cur CURSOR FOR " +
                 "SELECT Quantity FROM OrderDetail;" +
@@ -148,7 +61,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             result = Expression.Lambda<Func<object>>(block).Compile()();
             double max1 = (double)result;
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SELECT MAX(Quantity) AS Max FROM OrderDetail;" +
                 "EXIT WITH GET_FIELD(GET_ROW(LAST_RESULT(), 0), 'Max', DOUBLE);"
             );
@@ -159,13 +72,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void DeclareCursorWithLinq2()
+        public void DeclareCursor2()
         {
             Expression block;
             object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET maxQuantity = 0.0;" +
                 "DECLARE my_cur CURSOR FOR " +
                 "SELECT COUNT(*) AS Total FROM Category;" +
@@ -181,13 +94,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void DeclareCursorWithLinq3()
+        public void DeclareCursor3()
         {
             Expression block;
             object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET maxQuantity = 0.0;" +
                 "DECLARE my_cur CURSOR FOR " +
                 "SELECT Quantity FROM OrderDetail;" +
@@ -203,7 +116,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             result = Expression.Lambda<Func<object>>(block).Compile()();
             double max1 = (double)result;
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SELECT MAX(Quantity) AS Max FROM OrderDetail;" +
                 "EXIT WITH GET_FIELD(GET_ROW(LAST_RESULT(), 0), 'Max', DOUBLE);"
             );

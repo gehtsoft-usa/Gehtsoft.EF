@@ -42,21 +42,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             mResultType = SelectStatement.SelectList.FieldAliasCollection[0].Expression.ResultType;
         }
-
-        internal virtual bool Equals(SqlSelectExpression other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            return this.SelectStatement.Equals(other.SelectStatement);
-        }
-
-        internal override bool Equals(SqlBaseExpression obj)
-        {
-            if (obj is SqlSelectExpression item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

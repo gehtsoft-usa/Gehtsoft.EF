@@ -7,7 +7,7 @@ using System.Linq;
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     [Serializable]
-    internal class SqlFieldCollection : IReadOnlyList<SqlField>, IEquatable<SqlFieldCollection>
+    internal class SqlFieldCollection : IReadOnlyList<SqlField>
     {
         private readonly List<SqlField> mList = new List<SqlField>();
 
@@ -36,37 +36,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mList.Add(fieldName);
         }
-
-        bool IEquatable<SqlFieldCollection>.Equals(SqlFieldCollection other) => Equals(other);
-        internal virtual bool Equals(SqlFieldCollection other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            if (this.Count != other.Count)
-                return false;
-            for(int i=0; i < Count; i++)
-            {
-                if(!this[i].Equals(other[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlFieldCollection item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
     }
 }

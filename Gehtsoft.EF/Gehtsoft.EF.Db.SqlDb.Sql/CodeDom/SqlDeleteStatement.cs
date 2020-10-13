@@ -76,25 +76,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             DeleteRunner runner = new DeleteRunner(CodeDomBuilder, CodeDomBuilder.Connection);
             return Expression.Call(Expression.Constant(runner), "RunWithResult", null, Expression.Constant(this));
         }
-
-        internal virtual bool Equals(SqlDeleteStatement other)
-        {
-            if (other is SqlDeleteStatement stmt)
-            {
-                if (WhereClause == null && stmt.WhereClause != null)
-                    return false;
-                if (WhereClause != null && !WhereClause.Equals(stmt.WhereClause))
-                    return false;
-                return TableName.Equals(stmt.TableName);
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(SqlStatement obj)
-        {
-            if (obj is SqlDeleteStatement item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

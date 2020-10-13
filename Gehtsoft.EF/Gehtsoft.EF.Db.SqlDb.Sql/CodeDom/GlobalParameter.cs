@@ -68,21 +68,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 ResultTypes rType = ResultType;
             }
         }
-
-        internal  virtual bool Equals(GlobalParameter other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            return (this.Name == other.Name && this.ResultType == other.ResultType);
-        }
-
-        internal override bool Equals(SqlBaseExpression obj)
-        {
-            if (obj is GlobalParameter item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

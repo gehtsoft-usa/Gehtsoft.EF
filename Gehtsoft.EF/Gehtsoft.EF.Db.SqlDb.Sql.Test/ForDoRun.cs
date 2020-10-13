@@ -36,36 +36,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 connection.Dispose();
         }
 
-        [Fact]
-        public void ForDoWithRun()
-        {
-            object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment();
-
-            environment.Parse("test",
-                "SET factorial = 1 " +
-                "FOR SET n=0 WHILE ?n <= 5 NEXT SET n=?n+1 LOOP " +
-                "   IF ?n = 0 THEN CONTINUE; END IF " +
-                "   SET factorial = ?factorial * ?n " +
-                "END LOOP " +
-                "EXIT WITH ?factorial"
-            );
-            result = environment.Run(connection);
-            ((int)result).Should().Be(120);
-        }
 
         [Fact]
-        public void ForDoWithLinq()
+        public void ForDo()
         {
             Expression block;
             object result;
-            SqlCodeDomBuilder environment = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.ParseToLinq("test",
+            block = environment.Parse("test",
                 "SET factorial = 1 " +
-                "FOR SET n=0 WHILE ?n <= 5 NEXT SET n=?n+1 LOOP " +
+                "FOR ?n := 0 WHILE ?n <= 5 NEXT ?n := ?n+1 LOOP " +
                 "   IF ?n = 0 THEN CONTINUE; END IF " +
-                "   SET factorial = ?factorial * ?n " +
+                "   ?factorial := ?factorial * ?n " +
                 "END LOOP " +
                 "EXIT WITH ?factorial"
             );

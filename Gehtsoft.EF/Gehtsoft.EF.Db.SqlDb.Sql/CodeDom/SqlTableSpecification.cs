@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal abstract class SqlTableSpecification : IEquatable<SqlTableSpecification>
+    internal abstract class SqlTableSpecification
     {
         /// <summary>
         /// The types of the table
@@ -20,26 +20,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         };
 
         internal abstract TableType Type { get; }
-
-        bool IEquatable<SqlTableSpecification>.Equals(SqlTableSpecification other) => Equals(other);
-        internal virtual bool Equals(SqlTableSpecification other)
-        {
-            if (other == null)
-                return false;
-            return (this.Type == other.Type);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlTableSpecification item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
     }
 
 

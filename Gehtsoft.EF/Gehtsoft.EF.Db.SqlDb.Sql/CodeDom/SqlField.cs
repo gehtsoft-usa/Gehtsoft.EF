@@ -146,21 +146,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             mResultType = GetResultType(fieldType);
         }
-
-        internal virtual bool Equals(SqlField other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            return (this.Name == other.Name && this.Prefix == other.Prefix);
-        }
-
-        internal override bool Equals(SqlBaseExpression obj)
-        {
-            if (obj is SqlField item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

@@ -45,36 +45,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     $"Not calculable parameter in GET_ROWS function call ({expressionNode.Value ?? "null"})"));
             }
         }
-
-        internal GetRowsCount(SqlBaseExpression parameter)
-        {
-            Parameter = parameter;
-            if (Parameter.ResultType != ResultTypes.RowSet)
-            {
-                throw new SqlParserException(new SqlError(null,0,0,
-                    $"No ROWSET parameter in GET_ROWS function call"));
-            }
-            if (!Statement.IsCalculable(Parameter))
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    $"Not calculable parameter in GET_ROWS function call"));
-            }
-        }
-
-        internal  virtual bool Equals(GetRowsCount other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            return this.Parameter.Equals(other.Parameter);
-        }
-
-        internal override bool Equals(SqlBaseExpression obj)
-        {
-            if (obj is GetRowsCount item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

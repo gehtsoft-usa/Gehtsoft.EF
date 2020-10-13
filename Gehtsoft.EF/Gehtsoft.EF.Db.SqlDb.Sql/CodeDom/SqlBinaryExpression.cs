@@ -398,22 +398,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
             return isCorrect;
         }
-
-        internal  virtual bool Equals(SqlBinaryExpression other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            return (this.LeftOperand.Equals(other.LeftOperand) && this.RightOperand.Equals(other.RightOperand) && this.Operation.Equals(other.Operation));
-        }
-
-        internal override bool Equals(SqlBaseExpression obj)
-        {
-            if (obj is SqlBinaryExpression item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
     }
 }

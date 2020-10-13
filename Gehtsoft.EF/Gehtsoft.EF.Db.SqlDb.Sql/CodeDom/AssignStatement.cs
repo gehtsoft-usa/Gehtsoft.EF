@@ -25,22 +25,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             AssignExpression = assignExpression;
         }
 
-        internal virtual bool Equals(AssignStatement other)
-        {
-            if (other is AssignStatement stmt)
-            {
-                return AssignExpression.Equals(stmt.AssignExpression);
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(Statement obj)
-        {
-            if (obj is AssignStatement item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
         internal void Run()
         {
             SqlConstant param = StatementRunner.CalculateExpression(AssignExpression.RightOperand, CodeDomBuilder, CodeDomBuilder.Connection);

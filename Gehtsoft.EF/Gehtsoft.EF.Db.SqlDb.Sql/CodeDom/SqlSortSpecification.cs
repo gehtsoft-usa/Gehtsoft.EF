@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal class SqlSortSpecification : IEquatable<SqlSortSpecification>
+    internal class SqlSortSpecification
     {
 
         internal SqlBaseExpression Expression { get; } = null;
@@ -26,34 +26,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Expression = expr;
             Ordering = ordering;
         }
-
-        bool IEquatable<SqlSortSpecification>.Equals(SqlSortSpecification other) => Equals(other);
-        internal virtual bool Equals(SqlSortSpecification other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-
-            return Expression.Equals(other.Expression) && Ordering == other.Ordering;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlSortSpecification item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
     }
 
     [Serializable]
-    internal class SqlSortSpecificationCollection : IReadOnlyList<SqlSortSpecification>, IEquatable<SqlSortSpecificationCollection>
+    internal class SqlSortSpecificationCollection : IReadOnlyList<SqlSortSpecification>
     {
         private readonly List<SqlSortSpecification> mList = new List<SqlSortSpecification>();
 
@@ -79,41 +55,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal void Add(SqlSortSpecification fieldAlias)
         {
             mList.Add(fieldAlias);
-        }
-
-        bool IEquatable<SqlSortSpecificationCollection>.Equals(SqlSortSpecificationCollection other) => Equals(other);
-        internal virtual bool Equals(SqlSortSpecificationCollection other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            if (this.Count != other.Count)
-                return false;
-
-            foreach (SqlSortSpecification thisFld in this)
-            {
-                foreach (SqlSortSpecification otherFld in other)
-                {
-                    if (!thisFld.Equals(otherFld))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlSortSpecificationCollection item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
     }
 

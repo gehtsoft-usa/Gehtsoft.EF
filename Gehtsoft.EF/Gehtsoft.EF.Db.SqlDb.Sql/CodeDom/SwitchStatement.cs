@@ -32,23 +32,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 ASTNode node = statementNode.Children[i];
                 if (node.Symbol.ID == SqlParser.ID.VariableRoot)
                 {
-                    StatementSetEnvironment inner = builder.ParseNode("SWITCH CASE", node, this);
-                    inner.ParentEnvironment = builder.TopEnvironment;
-                    builder.TopEnvironment = inner;
-                    builder.TopEnvironment.ParentStatement = this;
-                    inner.Add(new BreakStatement(builder));
                     if (conditionalRun == null)
                     {
                         conditionalRun = new ConditionalStatementsRun(new SqlConstant(true, ResultTypes.Boolean));
                     }
-                    conditionalRun.Statements = inner;
-                    if (builder.WhetherParseToLinq)
-                    {
-                        conditionalRun.LinqExpression = builder.ParseNodeToLinq("SWITCH CASE", node, this);
-                    }
+                    conditionalRun.LinqExpression = builder.ParseNodeToLinq("SWITCH CASE", node, this);
                     ConditionalRuns.Add(conditionalRun);
                     conditionalRun = null;
-                    builder.TopEnvironment = inner.ParentEnvironment;
                 }
                 else
                 {
@@ -90,7 +80,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal override Expression ToLinqWxpression()
         {
             List<SwitchCase> cases = new List<SwitchCase>();
-            foreach(ConditionalStatementsRun item in ConditionalRuns)
+            foreach (ConditionalStatementsRun item in ConditionalRuns)
             {
                 cases.Add(Expression.SwitchCase(item.LinqExpression, StatementRunner.CalculateExpressionValue<bool>(item.ConditionalExpression, CodeDomBuilder)));
             }
@@ -100,26 +90,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 Expression.Constant(null),
                 cases.ToArray()
             );
-        }
-
-        internal virtual bool Equals(SwitchStatement other)
-        {
-            if (other is SwitchStatement stmt)
-            {
-                if (ConditionalRuns == null && stmt.ConditionalRuns != null)
-                    return false;
-                if (ConditionalRuns != null && !ConditionalRuns.Equals(stmt.ConditionalRuns))
-                    return false;
-                return true;
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(Statement obj)
-        {
-            if (obj is SwitchStatement item)
-                return Equals(item);
-            return base.Equals(obj);
         }
     }
 }

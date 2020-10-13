@@ -39,25 +39,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mValue = value;
             mResultType = type;
         }
-
-        internal virtual bool Equals(SqlConstant other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            bool sameTypes = ResultType.Equals(other.ResultType);
-            if (!sameTypes)
-                return false;
-
-            return Value.Equals(other.Value);
-        }
-
-        internal override bool Equals(SqlBaseExpression obj)
-        {
-            if (obj is SqlConstant item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

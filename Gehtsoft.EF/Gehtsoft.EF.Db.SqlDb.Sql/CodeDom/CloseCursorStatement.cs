@@ -42,22 +42,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             CursorParameter = cursorParameter;
         }
 
-        internal virtual bool Equals(CloseCursorStatement other)
-        {
-            if (other is CloseCursorStatement stmt)
-            {
-                return CursorParameter.Equals(stmt.CursorParameter);
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(Statement obj)
-        {
-            if (obj is CloseCursorStatement item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
         internal void Run()
         {
             string globalVariableName = CursorParameter.Name;

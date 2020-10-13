@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal class SqlWhereClause : IEquatable<SqlWhereClause>
+    internal class SqlWhereClause
     {
 
         internal SqlBaseExpression RootExpression { get; set; }
@@ -22,41 +22,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     statementNode.Position.Column,
                     $"Unexpected or incorrect expression node {statementNode.Symbol.Name}({statementNode.Value ?? "null"})"));
             }
-        }
-
-        internal SqlWhereClause(SqlBaseExpression rootExpression)
-        {
-            RootExpression = rootExpression;
-            if (RootExpression == null)
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Incorrect expression node"));
-            }
-        }
-
-        internal SqlWhereClause()
-        {
-        }
-
-        bool IEquatable<SqlWhereClause>.Equals(SqlWhereClause other) => Equals(other);
-        internal virtual bool Equals(SqlWhereClause other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            return this.RootExpression.Equals(other.RootExpression);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlWhereClause item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
     }
 }

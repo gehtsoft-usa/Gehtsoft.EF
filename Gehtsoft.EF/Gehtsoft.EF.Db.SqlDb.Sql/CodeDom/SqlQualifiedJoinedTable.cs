@@ -146,28 +146,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mJoinType = joinType;
             mJoinCondition = joinCondition;
         }
-
-        internal virtual bool Equals(SqlQualifiedJoinedTable other)
-        {
-            if (this.JoinCondition == null)
-            {
-                this.TryExpression();
-            }
-            if (other == null)
-                return false;
-            return (
-                this.LeftTable.Equals(other.LeftTable) &&
-                this.RightTable.Equals(other.RightTable) &&
-                this.JoinCondition.Equals(other.JoinCondition) &&
-                this.JoinType == other.JoinType
-            );
-        }
-
-        internal override bool Equals(SqlTableSpecification obj)
-        {
-            if (obj is SqlQualifiedJoinedTable item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

@@ -25,8 +25,6 @@
    <ItemGroup>
     <EmbeddedResource Include="SqlLexer.bin" />
     <EmbeddedResource Include="SqlParser.bin" />
-    <Compile Include="BlockRunner.cs" />
-    <Compile Include="BreakeRunner.cs" />
     <Compile Include="CodeDom\AddFieldStatement.cs" />
     <Compile Include="CodeDom\AddRowStatement.cs" />
     <Compile Include="CodeDom\AssignExpression.cs" />
@@ -74,22 +72,18 @@
     <Compile Include="CodeDom\SqlSelectStatement.cs" />
     <Compile Include="CodeDom\SqlSortSpecification.cs" />
     <Compile Include="CodeDom\SqlStatement.cs" />
-    <Compile Include="CodeDom\StatementSetEnvironment.cs" />
     <Compile Include="CodeDom\SqlTableSpecification.cs" />
     <Compile Include="CodeDom\SqlUnarExpression.cs" />
     <Compile Include="CodeDom\SqlUpdateAssign.cs" />
     <Compile Include="CodeDom\SqlWhereClause.cs" />
     <Compile Include="CodeDom\Statement.cs" />
+    <Compile Include="CodeDom\IParametersHolder.cs" />
     <Compile Include="CodeDom\SwitchStatement.cs" />
     <Compile Include="CodeDom\WhileDoStatement.cs" />
-    <Compile Include="ContinueRunner.cs" />
     <Compile Include="DeleteRunner.cs" />
-    <Compile Include="ExitRunner.cs" />
-    <Compile Include="IfRunner.cs" />
     <Compile Include="InsertRunner.cs" />
-    <Compile Include="IStatementRunner.cs" />
+    <Compile Include="StatementRunners.cs" />
     <Compile Include="SelectRunner.cs" />
-    <Compile Include="SetRunner.cs" />
     <Compile Include="SqlASTVisitor.cs" />
     <Compile Include="SqlCodeDomBuilder.cs" />
     <Compile Include="SqlError.cs" />
@@ -97,7 +91,6 @@
     <Compile Include="SqlLexer.cs" />
     <Compile Include="SqlParser.cs" />
     <Compile Include="SqlParserException.cs" />
-    <Compile Include="SwitchRunner.cs" />
     <Compile Include="UpdateRunner.cs" />
   </ItemGroup>
 

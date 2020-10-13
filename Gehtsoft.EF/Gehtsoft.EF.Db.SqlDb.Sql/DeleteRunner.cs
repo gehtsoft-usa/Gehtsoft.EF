@@ -104,10 +104,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal void RunWithResult(SqlDeleteStatement delete)
         {
-            mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(delete);
+            mBuilder.BlockDescriptors.Peek().LastStatementResult = run(delete);
         }
 
-        internal override object Run(SqlDeleteStatement delete)
+        private object run(SqlDeleteStatement delete)
         {
             List<object> result = new List<object>();
             mDelete = delete;

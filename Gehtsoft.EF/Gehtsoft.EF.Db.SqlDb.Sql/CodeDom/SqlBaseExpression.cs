@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  abstract class SqlBaseExpression : IEquatable<SqlBaseExpression>
+    internal  abstract class SqlBaseExpression
     {
         /// <summary>
         /// The types of the Expression
@@ -109,33 +109,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal  abstract ExpressionTypes ExpressionType { get; }
 
         internal  abstract ResultTypes ResultType { get; }
-
-        bool IEquatable<SqlBaseExpression>.Equals(SqlBaseExpression other) => Equals(other);
-        internal virtual bool Equals(SqlBaseExpression other)
-        {
-            if (other == null)
-                return false;
-            return (this.ExpressionType == other.ExpressionType && this.ResultType == other.ResultType);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlBaseExpression item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
     }
 
     /// <summary>
     /// A collection of fields with possible alias
     /// </summary>
     [Serializable]
-    internal  class SqlBaseExpressionCollection : IReadOnlyList<SqlBaseExpression>, IEquatable<SqlBaseExpressionCollection>
+    internal  class SqlBaseExpressionCollection : IReadOnlyList<SqlBaseExpression>
     {
         private readonly List<SqlBaseExpression> mList = new List<SqlBaseExpression>();
 
@@ -167,30 +147,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
 
         internal void Add(SqlBaseExpression expression) => mList.Add(expression);
-
-        bool IEquatable<SqlBaseExpressionCollection>.Equals(SqlBaseExpressionCollection other) => Equals(other);
-        internal virtual bool Equals(SqlBaseExpressionCollection other)
-        {
-            if (other == null)
-                return false;
-            if (Count != other.Count)
-                return false;
-            for (int i = 0; i < Count; i++)
-                if (!this[i].Equals(other[i]))
-                    return false;
-            return true;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlBaseExpressionCollection item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
     }
 }

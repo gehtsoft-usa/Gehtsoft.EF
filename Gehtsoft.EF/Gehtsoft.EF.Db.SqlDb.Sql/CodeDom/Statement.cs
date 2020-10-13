@@ -14,7 +14,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// <summary>
     /// Base class for all statements
     /// </summary>
-    public abstract class Statement : IEquatable<Statement>
+    internal abstract class Statement
     {
         internal Expression OnContinue { get; set; } = null;
         internal  SqlCodeDomBuilder CodeDomBuilder { get; } = null;
@@ -38,7 +38,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             DeclareCursor,
             OpenCursor,
             CloseCursor,
-            Assign
+            Assign,
+            DummyPersist
         };
         /// <summary>
         /// Type of the statement
@@ -191,29 +192,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Type = type;
         }
 
-        bool IEquatable<Statement>.Equals(Statement other) => Equals(other);
-        internal virtual bool Equals(Statement other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            return (this.Type == other.Type);
-        }
-
         internal abstract Expression ToLinqWxpression();
-
-        public  override bool Equals(object obj)
-        {
-            if (obj is Statement item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public  override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
 
         internal  static bool HasAggregateFunctions(SqlBaseExpression expression)
         {

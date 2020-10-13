@@ -136,29 +136,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mRightSelect = rightOperand;
             mOperation = operation;
         }
-
-        internal virtual bool Equals(SqlInExpression other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            if (RightOperandAsList != null)
-            {
-                if (!RightOperandAsList.Equals(other.RightOperandAsList)) return false;
-            }
-            else if (RightOperandAsSelect != null)
-            {
-                if (!RightOperandAsSelect.Equals(other.RightOperandAsSelect)) return false;
-            }
-            return (this.LeftOperand.Equals(other.LeftOperand) && this.Operation.Equals(other.Operation));
-        }
-
-        internal override bool Equals(SqlBaseExpression obj)
-        {
-            if (obj is SqlInExpression item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

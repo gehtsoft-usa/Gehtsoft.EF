@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using System.Text;
 using Xunit;
+using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
@@ -38,8 +39,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectAll()
         {
-            DomBuilder.Parse("test", "SELECT * FROM Category");
-            object result = DomBuilder.Run(connection);
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test", "SELECT * FROM Category");
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             array.Count().Should().Be(8);
             (array[0] as Dictionary<string, object>).ContainsKey("CategoryID").Should().BeTrue();
@@ -50,8 +54,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectFields()
         {
-            DomBuilder.Parse("test", "SELECT CategoryID AS Id, CategoryName FROM Category");
-            object result = DomBuilder.Run(connection);
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test", "SELECT CategoryID AS Id, CategoryName FROM Category");
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             array.Count().Should().Be(8);
             (array[0] as Dictionary<string, object>).ContainsKey("Id").Should().BeTrue();
@@ -61,8 +68,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectCount()
         {
-            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Category");
-            object result = DomBuilder.Run(connection);
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Category");
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             ((int)(array[0] as Dictionary<string, object>)["Total"]).Should().Be(8);
         }
@@ -70,8 +80,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectAgg()
         {
-            DomBuilder.Parse("test", "SELECT MAX(OrderDate) AS Max, MIN(OrderDate) AS Min FROM Order");
-            object result = DomBuilder.Run(connection);
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test", "SELECT MAX(OrderDate) AS Max, MIN(OrderDate) AS Min FROM Order");
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             DateTime max = (DateTime)(array[0] as Dictionary<string, object>)["Max"];
             DateTime min = (DateTime)(array[0] as Dictionary<string, object>)["Min"];
@@ -81,8 +94,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectAggExpr()
         {
-            DomBuilder.Parse("test", "SELECT MAX(Freight) AS Max, MAX(Freight) + 2.0 AS MaxIncreased FROM Order");
-            object result = DomBuilder.Run(connection);
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test", "SELECT MAX(Freight) AS Max, MAX(Freight) + 2.0 AS MaxIncreased FROM Order");
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             double max = (double)(array[0] as Dictionary<string, object>)["Max"];
             double maxIncreased = (double)(array[0] as Dictionary<string, object>)["MaxIncreased"];
@@ -92,20 +108,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectConcatExpr()
         {
-            DomBuilder.Parse("test", "SELECT CompanyName || ' ' || ContactName AS Concatted, CompanyName, ContactName FROM Customer");
-            object result = DomBuilder.Run(connection);
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test", "SELECT CompanyName || ' ' || ContactName AS Concatted, CompanyName, ContactName FROM Customer");
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             string concatted = (string)(array[0] as Dictionary<string, object>)["Concatted"];
             string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
             string contactName = (string)(array[0] as Dictionary<string, object>)["ContactName"];
-            (companyName + " "+ contactName == concatted).Should().BeTrue();
+            (companyName + " " + contactName == concatted).Should().BeTrue();
         }
 
         [Fact]
         public void SimpleSelectTrimExpr()
         {
-            DomBuilder.Parse("test", "SELECT TRIM(' ' || CompanyName || ' ') AS Trimmed, CompanyName FROM Customer");
-            object result = DomBuilder.Run(connection);
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test", "SELECT TRIM(' ' || CompanyName || ' ') AS Trimmed, CompanyName FROM Customer");
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             string trimmed = (string)(array[0] as Dictionary<string, object>)["Trimmed"];
             string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
@@ -115,7 +137,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleJoinedSelect()
         {
-            DomBuilder.Parse("test",
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test",
                 "SELECT OrderID AS ID, Quantity, " +
                 "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
                 "FROM OrderDetail " +
@@ -123,7 +148,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "INNER JOIN Customer ON Order.Customer = Customer.CustomerID " +
                 "INNER JOIN Employee ON Order.Employee = Employee.EmployeeID"
                 );
-            object result = DomBuilder.Run(connection);
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
 
             int orderID = (int)(array[0] as Dictionary<string, object>)["ID"];
@@ -141,7 +166,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void InnerJoinedSelectWithWhere()
         {
-            DomBuilder.Parse("test",
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test",
                 "SELECT OrderID AS ID, Quantity, " +
                 "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
                 "FROM OrderDetail " +
@@ -150,7 +178,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "INNER JOIN Employee ON Order.Employee = Employee.EmployeeID " +
                 "WHERE Quantity > 100"
                 );
-            object result = DomBuilder.Run(connection);
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
 
             foreach (object obj in array)
@@ -163,7 +191,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void AutoJoinedSelectWithWhere()
         {
-            DomBuilder.Parse("test",
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test",
                 "SELECT OrderID AS ID, Quantity, " +
                 "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
                 "FROM OrderDetail " +
@@ -172,7 +203,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "AUTO JOIN Employee " +
                 "WHERE Quantity > 100"
                 );
-            object result = DomBuilder.Run(connection);
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
 
             int orderID = (int)(array[0] as Dictionary<string, object>)["ID"];
@@ -196,12 +227,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectWithOffsetLimit()
         {
-            DomBuilder.Parse("test",
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test",
                 "SELECT * " +
                 "FROM OrderDetail " +
                 "OFFSET 20 LIMIT 10"
                 );
-            object result = DomBuilder.Run(connection);
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
 
             array.Count.Should().Be(10);
@@ -212,7 +246,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void AutoJoinedSelectWithOrdering()
         {
-            DomBuilder.Parse("test",
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test",
                 "SELECT OrderID AS ID, Quantity+1 AS Q, " +
                 "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
                 "FROM OrderDetail " +
@@ -222,7 +259,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "WHERE Q > 10 " +
                 "ORDER BY Quantity DESC, Order.OrderDate DESC"
                 );
-            object result = DomBuilder.Run(connection);
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
 
             int orderID = (int)(array[0] as Dictionary<string, object>)["ID"];
@@ -248,14 +285,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectWithGroupAndOrder()
         {
-            DomBuilder.Parse("test",
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test",
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
                 "FROM Customer " +
                 "WHERE LOWER(Country) LIKE 'u' || '%' " +
                 "GROUP BY Country " +
                 "ORDER BY COUNT(CustomerID) DESC"
                 );
-            object result = DomBuilder.Run(connection);
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
 
             int cstmCounter = (int)(array[0] as Dictionary<string, object>)["CustomersInCountry"];
@@ -271,8 +311,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 max = count;
                 string countryName = (string)(obj as Dictionary<string, object>)["Country"];
                 countryName.ToLower().StartsWith("u");
-                DomBuilder.Parse("test", $"SELECT COUNT(*) AS q FROM Customer WHERE UPPER(Country) = UPPER('{countryName}')");
-                object resultInner = DomBuilder.Run(connection);
+                block = environment.Parse("test", $"SELECT COUNT(*) AS q FROM Customer WHERE UPPER(Country) = UPPER('{countryName}')");
+                object resultInner = Expression.Lambda<Func<object>>(block).Compile()();
                 List<object> arrayInner = resultInner as List<object>;
                 int countFound = (int)(arrayInner[0] as Dictionary<string, object>)["q"];
                 countFound.Should().Be(count);
@@ -282,7 +322,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void AutoJoinedSelectWithAbs()
         {
-            DomBuilder.Parse("test",
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test",
                 "SELECT OrderID AS ID, Quantity AS Q, " +
                 "Order.OrderDate, Customer.CompanyName, Employee.FirstName " +
                 "FROM OrderDetail " +
@@ -292,7 +335,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "WHERE ABS(-Q) > 100 " +
                 "ORDER BY Q DESC"
                 );
-            object result = DomBuilder.Run(connection);
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
 
             int orderID = (int)(array[0] as Dictionary<string, object>)["ID"];
@@ -319,14 +362,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectWithStartsWith()
         {
-            DomBuilder.Parse("test",
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test",
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
                 "FROM Customer " +
                 "WHERE STARTSWITH(LOWER(Country), 'u') " +
                 "GROUP BY Country " +
                 "ORDER BY COUNT(CustomerID) DESC"
                 );
-            object result = DomBuilder.Run(connection);
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             array.Count.Should().BeGreaterThan(0);
 
@@ -340,14 +386,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectWithEndsWith()
         {
-            DomBuilder.Parse("test",
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test",
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
                 "FROM Customer " +
                 "WHERE ENDSWITH(LOWER(Country), 'a') " +
                 "GROUP BY Country " +
                 "ORDER BY COUNT(CustomerID) DESC"
                 );
-            object result = DomBuilder.Run(connection);
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             array.Count.Should().BeGreaterThan(0);
 
@@ -361,14 +410,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectWithContains()
         {
-            DomBuilder.Parse("test",
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test",
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
                 "FROM Customer " +
                 "WHERE CONTAINS(LOWER(Country), 'gent') " +
                 "GROUP BY Country " +
                 "ORDER BY COUNT(CustomerID) DESC"
                 );
-            object result = DomBuilder.Run(connection);
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             array.Count.Should().BeGreaterThan(0);
 
@@ -382,20 +434,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectIn1()
         {
-            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
-            object result = DomBuilder.Run(connection);
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             int total = (int)(array[0] as Dictionary<string, object>)["Total"];
             total.Should().BeGreaterThan(0);
 
-            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Country IN (SELECT Country FROM Supplier)");
-            result = DomBuilder.Run(connection);
+            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Country IN (SELECT Country FROM Supplier)");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             int totalIn = (int)(array[0] as Dictionary<string, object>)["Total"];
             totalIn.Should().BeGreaterThan(0);
 
-            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Country NOT IN (SELECT Country FROM Supplier)");
-            result = DomBuilder.Run(connection);
+            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Country NOT IN (SELECT Country FROM Supplier)");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             int totalNotIn = (int)(array[0] as Dictionary<string, object>)["Total"];
             totalNotIn.Should().BeGreaterThan(0);
@@ -406,20 +461,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectIn2()
         {
-            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
-            object result = DomBuilder.Run(connection);
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             int total = (int)(array[0] as Dictionary<string, object>)["Total"];
             total.Should().BeGreaterThan(0);
 
-            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE UPPER(Country) IN ('USA', 'AUSTRALIA')");
-            result = DomBuilder.Run(connection);
+            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE UPPER(Country) IN ('USA', 'AUSTRALIA')");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             int totalIn = (int)(array[0] as Dictionary<string, object>)["Total"];
             totalIn.Should().BeGreaterThan(0);
 
-            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE UPPER(Country) NOT IN ('USA', 'AUSTRALIA')");
-            result = DomBuilder.Run(connection);
+            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE UPPER(Country) NOT IN ('USA', 'AUSTRALIA')");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             int totalNotIn = (int)(array[0] as Dictionary<string, object>)["Total"];
             totalNotIn.Should().BeGreaterThan(0);
@@ -430,26 +488,29 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectIsNull()
         {
-            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
-            object result = DomBuilder.Run(connection);
+            Expression block;
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+
+            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
+            object result = Expression.Lambda<Func<object>>(block).Compile()();
             List<object> array = result as List<object>;
             int total = (int)(array[0] as Dictionary<string, object>)["Total"];
             total.Should().BeGreaterThan(0);
 
-            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Region IS NULL");
-            result = DomBuilder.Run(connection);
+            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Region IS NULL");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             int totalNull = (int)(array[0] as Dictionary<string, object>)["Total"];
             totalNull.Should().BeGreaterThan(0);
 
-            DomBuilder.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Region IS NOT NULL");
-            result = DomBuilder.Run(connection);
+            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Region IS NOT NULL");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             int totalNotNull = (int)(array[0] as Dictionary<string, object>)["Total"];
             totalNotNull.Should().BeGreaterThan(0);
 
-            DomBuilder.Parse("test", "SELECT COUNT(Region) AS Total FROM Customer");
-            result = DomBuilder.Run(connection);
+            block = environment.Parse("test", "SELECT COUNT(Region) AS Total FROM Customer");
+            result = Expression.Lambda<Func<object>>(block).Compile()();
             array = result as List<object>;
             int totalCountNotNull = (int)(array[0] as Dictionary<string, object>)["Total"];
             totalCountNotNull.Should().BeGreaterThan(0);

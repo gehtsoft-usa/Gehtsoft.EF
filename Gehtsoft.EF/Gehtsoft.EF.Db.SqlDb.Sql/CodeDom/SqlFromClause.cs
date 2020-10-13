@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal class SqlFromClause : IEquatable<SqlFromClause>
+    internal class SqlFromClause
     {
         internal SqlTableSpecificationCollection TableCollection { get; } = null;
         internal SqlFromClause(SqlStatement parentStatement, ASTNode statementNode, string source)
@@ -51,49 +51,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal SqlFromClause(SqlTableSpecificationCollection tableCollection)
         {
             TableCollection = tableCollection;
-        }
-
-        bool IEquatable<SqlFromClause>.Equals(SqlFromClause other) => Equals(other);
-        internal virtual bool Equals(SqlFromClause other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            if (this.TableCollection != null && other.TableCollection != null)
-            {
-                if (this.TableCollection.Count != other.TableCollection.Count)
-                    return false;
-
-                foreach (SqlTableSpecification thisTbl in this.TableCollection)
-                {
-                    bool found = false;
-                    foreach (SqlTableSpecification otherTbl in other.TableCollection)
-                    {
-                        if (thisTbl.Equals(otherTbl))
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
-                        return false;
-                }
-                return true;
-            }
-            return this.TableCollection == null && other.TableCollection == null;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlFromClause item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
     }
 }

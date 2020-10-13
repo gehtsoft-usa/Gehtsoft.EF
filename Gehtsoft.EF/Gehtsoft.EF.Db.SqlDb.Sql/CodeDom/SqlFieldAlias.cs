@@ -8,7 +8,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     /// <summary>
     /// Field or aggr func calls with possible alias
     /// </summary>
-    internal class SqlExpressionAlias : IEquatable<SqlExpressionAlias>
+    internal class SqlExpressionAlias
     {
         internal SqlBaseExpression Expression { get; } = null;
         internal string Alias { get; private set; } = null;
@@ -51,30 +51,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             Expression = expression;
             Alias = parentStatement.AddAliasEntry(Alias, Expression);
-        }
-
-        bool IEquatable<SqlExpressionAlias>.Equals(SqlExpressionAlias other) => Equals(other);
-        internal virtual bool Equals(SqlExpressionAlias other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            if (!(this.Expression == null ? (other.Expression == null) : Expression.Equals(other.Expression)))
-                return false;
-            return this.Alias == null ? (other.Alias == null) : this.Alias == other.Alias;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlExpressionAlias item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
     }
 

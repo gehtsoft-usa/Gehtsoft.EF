@@ -160,29 +160,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
 
         }
-
-        internal virtual bool Equals(SqlInsertStatement other)
-        {
-            if (other is SqlInsertStatement stmt)
-            {
-                if (RightSelect == null && stmt.RightSelect != null)
-                    return false;
-                if (RightSelect != null && !RightSelect.Equals(stmt.RightSelect))
-                    return false;
-                if (Values == null && stmt.Values != null)
-                    return false;
-                if (Values != null && !Values.Equals(stmt.Values))
-                    return false;
-                return TableName.Equals(stmt.TableName) && Fields.Equals(stmt.Fields);
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(SqlStatement obj)
-        {
-            if (obj is SqlInsertStatement item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

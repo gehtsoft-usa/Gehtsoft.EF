@@ -176,21 +176,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 throw new SqlParserException(new SqlError(source, line, column, $"Type of operand doesn't match the operation"));
             }
         }
-
-        internal virtual bool Equals(SqlUnarExpression other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            return (this.Operand.Equals(other.Operand) && this.Operation.Equals(other.Operation));
-        }
-
-        internal override bool Equals(SqlBaseExpression obj)
-        {
-            if (obj is SqlUnarExpression item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

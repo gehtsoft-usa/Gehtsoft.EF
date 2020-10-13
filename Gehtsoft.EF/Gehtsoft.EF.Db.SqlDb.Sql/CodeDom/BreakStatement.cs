@@ -11,7 +11,7 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    public class BreakStatement : Statement
+    internal class BreakStatement : Statement
     {
         internal BreakStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : this(builder, currentSource, statementNode.Position.Line, statementNode.Position.Column)
@@ -22,17 +22,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             : base(builder, StatementType.Break)
         {
             bool found = false;
-            IStatementSetEnvironment current = builder.TopEnvironment;
-            while (current != null)
-            {
-                if (current.ParentStatement != null && (current.ParentStatement.Type == StatementType.Loop || current.ParentStatement.Type == StatementType.Switch))
-                {
-                    found = true;
-                    break;
-                }
-                current = current.ParentEnvironment;
-            }
-            if (current == null && builder.BlockDescriptors.Count > 0)
+            if (builder.BlockDescriptors.Count > 0)
             {
                 BlockDescriptor[] array = builder.BlockDescriptors.ToArray();
                 for (int i = array.Length - 1; i >= 0; i--)
@@ -77,22 +67,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 Expression.Call(Expression.Constant(CodeDomBuilder), "BreakRun", null),
                 Expression.Goto(foundDescr.EndLabel)
             );
-        }
-
-        internal virtual bool Equals(BreakStatement other)
-        {
-            if (other is BreakStatement stmt)
-            {
-                return true;
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(Statement obj)
-        {
-            if (obj is BreakStatement item)
-                return Equals(item);
-            return base.Equals(obj);
         }
     }
 }

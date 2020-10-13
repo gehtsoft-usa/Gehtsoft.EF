@@ -17,7 +17,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         /// <param name="source"></param>
         /// <param name="statementNode"></param>
         /// <returns></returns>
-        public Statement VisitStatement(SqlCodeDomBuilder builder, string source, ASTNode statementNode)
+        private Statement visitStatement(SqlCodeDomBuilder builder, string source, ASTNode statementNode)
         {
             if (statementNode.Symbol.ID == SqlParser.ID.VariableStatement)
             {
@@ -118,32 +118,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 statementNode.Position.Column,
                 $"Unexpected or incorrect node {statementNode.Symbol.Name}({statementNode.Value ?? "null"})"));
         }
-
-        /// <summary>
-        /// Visit and process a sequence of the statements
-        /// </summary>
-        /// <param name="builder"></param>
-        /// <param name="source"></param>
-        /// <param name="statementNode"></param>
-        /// <returns></returns>
-        public StatementSetEnvironment VisitStatements(SqlCodeDomBuilder builder, string source, ASTNode statementNode, StatementSetEnvironment initialSet)
-        {
-            if (statementNode.Children.Count == 0)
-                return null;
-            initialSet.ParentEnvironment = builder.TopEnvironment;
-            builder.TopEnvironment = initialSet;
-            for (int i = 0; i < statementNode.Children.Count; i++)
-            {
-                var stmt = VisitStatement(builder, source, statementNode.Children[i]);
-                if (stmt != null && !(stmt is DeclareStatement))
-                    initialSet.Add(stmt);
-            }
-
-            initialSet.FixInitialGobalParameters();
-            builder.TopEnvironment = builder.TopEnvironment.ParentEnvironment;
-            return initialSet;
-        }
-        public Expression VisitStatementsToLinq(SqlCodeDomBuilder builder, string source, ASTNode statementNode, Statement.StatementType statementType, Expression onContinue, bool clear)
+        internal Expression VisitStatementsToLinq(SqlCodeDomBuilder builder, string source, ASTNode statementNode, Statement.StatementType statementType, Expression onContinue, bool clear)
         {
             LabelTarget startLabel = Expression.Label();
             LabelTarget endLabel = Expression.Label();
@@ -156,7 +131,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             builder.BlockDescriptors.Peek().OnContinue = onContinue;
             for (int i = 0; i < statementNode.Children.Count; i++)
             {
-                var stmt = VisitStatement(builder, source, statementNode.Children[i]);
+                var stmt = visitStatement(builder, source, statementNode.Children[i]);
                 if (stmt != null)
                     initialSet.Add(stmt.ToLinqWxpression());
             }

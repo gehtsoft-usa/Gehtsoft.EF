@@ -40,22 +40,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 mResultType = Field.ResultType;
             }
         }
-
-        internal  virtual bool Equals(SqlAggrFunc other)
-        {
-            if (other == null)
-                return false;
-            if(Name != other.Name)
-                return false;
-            return Field == null ? (other.Field == null) : Field.Equals(other.Field);
-        }
-
-        internal override bool Equals(SqlBaseExpression obj)
-        {
-            if (obj is SqlAggrFunc item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
     }
 }

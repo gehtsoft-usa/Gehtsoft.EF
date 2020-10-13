@@ -37,22 +37,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal ExitStatement(SqlCodeDomBuilder builder, SqlBaseExpression exitExpression)
-            : base(builder, StatementType.Exit)
-        {
-            ExitExpression = exitExpression;
-            if (!Statement.IsCalculable(ExitExpression))
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    $"Not calculable expression in EXIT statement"));
-            }
-            if (ExitExpression.ResultType == SqlBaseExpression.ResultTypes.Cursor)
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    $"Cursor expression can not be used in EXIT statement"));
-            }
-        }
-
         internal override Expression ToLinqWxpression()
         {
             BlockDescriptor descr =  CodeDomBuilder.BlockDescriptors.ToArray()[0];
@@ -60,26 +44,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 Expression.Call(Expression.Constant(CodeDomBuilder), "ExitRun", null, Expression.Constant(this.ExitExpression)),
                 Expression.Goto(descr.EndLabel)
             );
-        }
-
-        internal virtual bool Equals(ExitStatement other)
-        {
-            if (other is ExitStatement stmt)
-            {
-                if (ExitExpression == null && stmt.ExitExpression != null)
-                    return false;
-                if (ExitExpression != null && !ExitExpression.Equals(stmt.ExitExpression))
-                    return false;
-                return true;
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(Statement obj)
-        {
-            if (obj is ExitStatement item)
-                return Equals(item);
-            return base.Equals(obj);
         }
     }
 }

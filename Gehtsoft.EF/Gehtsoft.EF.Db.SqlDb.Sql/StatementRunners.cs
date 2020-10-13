@@ -16,32 +16,12 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
-    internal  interface IStatementRunner<T>
-    {
-        object Run(T statement);
-    }
-
     internal  interface IBindParamsOwner
     {
         Dictionary<string, object> BindParams { get; }
     }
-
-    internal  abstract class StatementRunner<T> : StatementRunner, IStatementRunner<T>
+    internal  static class StatementRunner
     {
-        object IStatementRunner<T>.Run(T statement) => Run(statement);
-        internal abstract object Run(T statement);
-    }
-    internal  abstract class StatementRunner
-    {
-
-        protected abstract SqlDbConnection Connection { get; }
-
-        protected abstract SqlCodeDomBuilder CodeDomBuilder { get; }
-
-        protected SqlConstant CalculateExpression(SqlBaseExpression expression)
-        {
-            return CalculateExpression(expression, CodeDomBuilder, Connection);
-        }
         internal  static T CalculateExpression<T>(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder)
         {
             object value = CalculateExpression(expression, codeDomBuilder, codeDomBuilder.Connection).Value;
@@ -377,7 +357,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return dtt;
         }
 
-        internal  static int unixTimeStampUTC(DateTime currentTime)
+        private static int unixTimeStampUTC(DateTime currentTime)
         {
             int unixTimeStamp;
             DateTime zuluTime = currentTime.ToUniversalTime();
@@ -386,28 +366,33 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return unixTimeStamp;
         }
 
-        internal  enum ArifOp
+        internal static Expression CalculateExpressionValue<T>(SqlBaseExpression expression, SqlCodeDomBuilder builder)
+        {
+            Expression callExpr = Expression.Call(typeof(StatementRunner), "CalculateExpression", new Type[] { typeof(T)},
+                    Expression.Constant(expression), Expression.Constant(builder)
+            );
+            return callExpr;
+        }
+
+    }
+
+    internal  abstract class SqlStatementRunner<T> : IBindParamsOwner
+    {
+        internal enum ArifOp
         {
             Add,
             Minus,
             Divide,
             Multiply
         }
+        protected abstract SqlCodeDomBuilder CodeDomBuilder { get; }
+        protected abstract SqlDbConnection Connection { get; }
 
-        internal static Expression CalculateExpressionValue<T>(SqlBaseExpression expression, SqlCodeDomBuilder builder)
+        protected SqlConstant CalculateExpression(SqlBaseExpression expression)
         {
-            //return Expression.Constant(CalculateExpression(expression, builder, builder.Connection).Value);
-            Expression callExpr = Expression.Call(typeof(StatementRunner), "CalculateExpression", new Type[] { typeof(T)},
-                    Expression.Constant(expression), Expression.Constant(builder)
-            );
-            return callExpr;
-            //return Expression.Lambda<Func<object>>(callExpr);
+            return StatementRunner.CalculateExpression(expression, CodeDomBuilder, Connection);
         }
 
-    }
-
-    internal  abstract class SqlStatementRunner<T> : StatementRunner<T>, IBindParamsOwner
-    {
         protected IBindParamsOwner BindParamsOwner { get; set; } = null;
 
         private Dictionary<string, object> mBindParams = new Dictionary<string, object>();

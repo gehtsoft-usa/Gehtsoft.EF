@@ -62,19 +62,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             TableName = tableName;
             CorrelationName = null;
         }
-
-        internal virtual bool Equals(SqlPrimaryTable other)
-        {
-            if (other == null)
-                return false;
-            return (this.TableName == other.TableName && this.CorrelationName == other.CorrelationName);
-        }
-
-        internal override bool Equals(SqlTableSpecification obj)
-        {
-            if (obj is SqlPrimaryTable item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

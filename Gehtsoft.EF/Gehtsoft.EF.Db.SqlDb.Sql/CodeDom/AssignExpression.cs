@@ -96,22 +96,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     throw new SqlParserException(new SqlError(source, line, column, $"Types of operands don't match"));
             }
         }
-
-        internal virtual bool Equals(AssignExpression other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            return LeftOperand.Equals(other.LeftOperand) && RightOperand.Equals(other.RightOperand);
-        }
-
-        internal override bool Equals(SqlBaseExpression obj)
-        {
-            if (obj is AssignExpression item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
     }
 }

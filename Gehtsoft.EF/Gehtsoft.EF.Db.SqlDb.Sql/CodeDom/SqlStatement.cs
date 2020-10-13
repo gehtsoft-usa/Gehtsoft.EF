@@ -91,21 +91,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Line = line;
             Position = position;
         }
-
-        internal virtual bool Equals(SqlStatement other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            return (this.Id == other.Id);
-        }
-
-        internal override bool Equals(Statement obj)
-        {
-            if (obj is SqlStatement item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

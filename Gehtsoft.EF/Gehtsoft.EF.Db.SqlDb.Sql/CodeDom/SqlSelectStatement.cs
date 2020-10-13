@@ -121,30 +121,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             SelectRunner runner = new SelectRunner(CodeDomBuilder, CodeDomBuilder.Connection);
             return Expression.Call(Expression.Constant(runner), "RunWithResult", null, Expression.Constant(this));
         }
-        internal virtual bool Equals(SqlSelectStatement other)
-        {
-            if (other is SqlSelectStatement stmt)
-            {
-                return SelectList.Equals(stmt.SelectList) &&
-                       SetQuantifier.Equals(stmt.SetQuantifier) &&
-                       FromClause.Equals(stmt.FromClause) &&
-                       Limit == stmt.Limit &&
-                       Offset == stmt.Offset &&
-                       (WhereClause == null && stmt.WhereClause == null ||
-                        WhereClause != null && WhereClause.Equals(stmt.WhereClause)) &&
-                       (Sorting == null && stmt.Sorting == null ||
-                        Sorting != null && Sorting.Equals(stmt.Sorting)) &&
-                       (Grouping == null && stmt.Grouping == null ||
-                        Grouping != null && Grouping.Equals(stmt.Grouping));
-            }
-            return base.Equals(other);
-        }
-
-        internal override bool Equals(SqlStatement obj)
-        {
-            if (obj is SqlSelectStatement item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
     }
 }

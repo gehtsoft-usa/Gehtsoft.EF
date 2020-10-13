@@ -7,7 +7,7 @@ using System.Linq;
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     /// <summary>
-    internal class SqlUpdateAssign : IEquatable<SqlUpdateAssign>
+    internal class SqlUpdateAssign
     {
         internal SqlField Field { get; } = null;
         internal SqlSelectStatement Select { get; } = null;
@@ -72,33 +72,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Field = field;
             Select = select;
         }
-        bool IEquatable<SqlUpdateAssign>.Equals(SqlUpdateAssign other) => Equals(other);
-        internal virtual bool Equals(SqlUpdateAssign other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            if (!(this.Expression == null ? (other.Expression == null) : Expression.Equals(other.Expression)))
-                return false;
-            return this.Select == null ? (other.Select == null) : this.Select.Equals(other.Select);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlUpdateAssign item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
     }
 
     [Serializable]
-    internal class SqlUpdateAssignCollection : IReadOnlyList<SqlUpdateAssign>, IEquatable<SqlUpdateAssignCollection>
+    internal class SqlUpdateAssignCollection : IReadOnlyList<SqlUpdateAssign>
     {
         private readonly List<SqlUpdateAssign> mList = new List<SqlUpdateAssign>();
 
@@ -126,37 +103,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal void Add(SqlUpdateAssign updateAssign)
         {
             mList.Add(updateAssign);
-        }
-
-        bool IEquatable<SqlUpdateAssignCollection>.Equals(SqlUpdateAssignCollection other) => Equals(other);
-        internal virtual bool Equals(SqlUpdateAssignCollection other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            if (this.Count != other.Count)
-                return false;
-            for (int i = 0; i < Count; i++)
-            {
-                if (!this[i].Equals(other[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlUpdateAssignCollection item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
     }
 }

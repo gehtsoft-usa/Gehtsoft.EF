@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal class SqlConstantCollection : IReadOnlyList<SqlConstant>, IEquatable<SqlConstantCollection>
+    internal class SqlConstantCollection : IReadOnlyList<SqlConstant>
     {
         private readonly List<SqlConstant> mList = new List<SqlConstant>();
 
@@ -32,37 +32,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mList.Add(fieldAlias);
         }
-
-        bool IEquatable<SqlConstantCollection>.Equals(SqlConstantCollection other) => Equals(other);
-        internal virtual bool Equals(SqlConstantCollection other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            if (this.Count != other.Count)
-                return false;
-            for (int i = 0; i < Count; i++)
-            {
-                if (!this[i].Equals(other[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlConstantCollection item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
     }
 }

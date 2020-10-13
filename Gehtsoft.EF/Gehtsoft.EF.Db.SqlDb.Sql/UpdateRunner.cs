@@ -133,10 +133,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal void RunWithResult(SqlUpdateStatement update)
         {
-            mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(update);
+            mBuilder.BlockDescriptors.Peek().LastStatementResult = run(update);
         }
 
-        internal override object Run(SqlUpdateStatement update)
+        private object run(SqlUpdateStatement update)
         {
             List<object> result = new List<object>();
             mUpdate = update;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal class SqlSelectList : IEquatable<SqlSelectList>
+    internal class SqlSelectList
     {
         internal bool All { get; }
         internal SqlExpressionAliasCollection FieldAliasCollection { get; } = null;
@@ -44,52 +44,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             All = false;
             FieldAliasCollection = fieldAliasCollection;
-        }
-
-
-        bool IEquatable<SqlSelectList>.Equals(SqlSelectList other) => Equals(other);
-        internal virtual bool Equals(SqlSelectList other)
-        {
-            if (other == null)
-                return false;
-            if (this.GetType() != other.GetType())
-                return false;
-            if (this.All != other.All)
-                return false;
-            if (this.FieldAliasCollection != null && other.FieldAliasCollection != null)
-            {
-                if (this.FieldAliasCollection.Count != other.FieldAliasCollection.Count)
-                    return false;
-
-                foreach(SqlExpressionAlias thisFld in this.FieldAliasCollection)
-                {
-                    bool found = false;
-                    foreach (SqlExpressionAlias otherFld in other.FieldAliasCollection)
-                    {
-                        if(thisFld.Equals(otherFld))
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if(!found)
-                        return false;
-                }
-                return true;
-            }
-            return this.FieldAliasCollection == null && other.FieldAliasCollection == null;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SqlSelectList item)
-                return Equals(item);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
     }
 }

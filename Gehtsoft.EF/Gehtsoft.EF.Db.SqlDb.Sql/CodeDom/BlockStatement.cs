@@ -12,28 +12,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class BlockStatement : Statement
     {
-        internal StatementSetEnvironment Statements { get; set; }
         protected Expression LinqExpression { get; set; }
 
         internal BlockStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Block)
         {
             ASTNode node = statementNode.Children[0];
-            Statements = builder.ParseNode("Block Body", node, this);
-            //Statements.ParentEnvironment = builder.TopEnvironment;
-            //builder.TopEnvironment = Statements;
-            if (builder.WhetherParseToLinq)
-            {
-                LinqExpression = builder.ParseNodeToLinq("Block Body", node, this);
-            }
-        }
-
-        internal BlockStatement(SqlCodeDomBuilder builder, StatementSetEnvironment statements)
-            : base(builder, StatementType.Block)
-        {
-            Statements = statements;
-            //Statements.ParentEnvironment = builder.TopEnvironment;
-            //builder.TopEnvironment = Statements;
+            LinqExpression = builder.ParseNodeToLinq("Block Body", node, this);
         }
         protected BlockStatement(SqlCodeDomBuilder builder, StatementType type)
             : base(builder, type)
@@ -45,21 +30,20 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             return LinqExpression;
         }
+    }
 
-        internal virtual bool Equals(BlockStatement other)
+    internal class DummyPersistBlock : Statement
+    {
+        internal DummyPersistBlock(SqlCodeDomBuilder builder)
+            : base(builder, StatementType.DummyPersist)
         {
-            if (other is BlockStatement stmt)
-            {
-                return Statements.Equals(stmt.Statements) && Type == stmt.Type;
-            }
-            return base.Equals(other);
         }
 
-        internal override bool Equals(Statement obj)
+
+        internal override Expression ToLinqWxpression()
         {
-            if (obj is BlockStatement item)
-                return Equals(item);
-            return base.Equals(obj);
+            return null;
         }
     }
+
 }
