@@ -200,7 +200,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                             break;
                         case "TOSTRING":
                             resultType = ResultTypes.String;
-                            value = ((string)pars[0].Value).ToString();
+                            value = pars[0].Value.ToString();
                             break;
                         case "TOINTEGER":
                             int intRes;

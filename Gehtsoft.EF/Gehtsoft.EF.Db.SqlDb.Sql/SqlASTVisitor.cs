@@ -57,6 +57,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         {
                             return new DeclareStatement(builder, statementNode, source);
                         }
+                    case SqlParser.ID.VariableImport:
+                        {
+                            return new ImportStatement(builder, statementNode, source);
+                        }
                     case SqlParser.ID.VariableExit:
                         {
                             return new ExitStatement(builder, statementNode, source);

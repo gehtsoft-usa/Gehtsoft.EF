@@ -44,6 +44,7 @@
     <Compile Include="CodeDom\GlobalParameter.cs" />
     <Compile Include="CodeDom\GetLastResult.cs" />
     <Compile Include="CodeDom\IfStatement.cs" />
+    <Compile Include="CodeDom\ImportStatement.cs" />
     <Compile Include="CodeDom\NewRow.cs" />
     <Compile Include="CodeDom\NewRowSet.cs" />
     <Compile Include="CodeDom\OpenCursorStatement.cs" />

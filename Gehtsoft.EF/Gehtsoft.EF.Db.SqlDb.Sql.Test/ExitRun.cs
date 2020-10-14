@@ -39,23 +39,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void Exit()
         {
-            Expression block;
+            Func<IDictionary<string, object>, object> func;
             object result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
             List<object> array;
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "DECLARE qqq AS STRING;" +
                 "SET qqq = 'u';" +
                 "SELECT COUNT(*) AS Total " +
                 "FROM Customer " +
                 "WHERE LOWER(Country) LIKE ?qqq || '%' "
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             array = result as List<object>;
             int cnt1 = (int)(array[0] as Dictionary<string, object>)["Total"];
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "DECLARE qqq AS INTEGER;" +
                 "SELECT * " +
                 "FROM Customer " +
@@ -63,7 +63,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "SET qqq = ROWS_COUNT(LAST_RESULT());" +
                 "EXIT WITH ?qqq"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             int cnt2 = (int)result;
 
             cnt1.Should().Be(cnt2);

@@ -40,54 +40,54 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void DeleteSuccess()
         {
-            Expression block;
+            Func<IDictionary<string, object>, object> func;
             object result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
             List<object> array;
 
-            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
+            result = func(null);
             array = result as List<object>;
             int countBefore = (int)(array[0] as Dictionary<string, object>)["Total"];
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "INSERT INTO Supplier " +
                 "(CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country) " +
                 "VALUES " +
                 "('Gehtsoft', 'Just Gehtsoft', 'Wow', '1-st street 1', 'Moscow', 'Siberia', '644000', 'Russia')"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             array = result as List<object>;
             Int64 insertedID = (Int64)(array[0] as Dictionary<string, object>)["LastInsertedId"];
 
-            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
+            result = func(null);
             array = result as List<object>;
             int countAfterInsert = (int)(array[0] as Dictionary<string, object>)["Total"];
             countAfterInsert.Should().Be(countBefore + 1);
 
-            block = environment.Parse("test", $"DELETE FROM Supplier " +
+            func = environment.Parse("test", $"DELETE FROM Supplier " +
                 $"WHERE SupplierID={insertedID}");
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             array = result as List<object>;
             int deleted = (int)(array[0] as Dictionary<string, object>)["Deleted"];
             deleted.Should().Be(1);
 
-            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
+            result = func(null);
             array = result as List<object>;
             int countAfterDelete = (int)(array[0] as Dictionary<string, object>)["Total"];
             countAfterDelete.Should().Be(countBefore);
 
-            block = environment.Parse("test", $"DELETE FROM Supplier " +
+            func = environment.Parse("test", $"DELETE FROM Supplier " +
                 $"WHERE SupplierID={insertedID}");
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             array = result as List<object>;
             deleted = (int)(array[0] as Dictionary<string, object>)["Deleted"];
             deleted.Should().Be(0);
 
-            block = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
+            result = func(null);
             array = result as List<object>;
             int countAfterDelete1 = (int)(array[0] as Dictionary<string, object>)["Total"];
             countAfterDelete1.Should().Be(countBefore);

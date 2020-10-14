@@ -550,77 +550,81 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			/// </summary>
 			public const int VariableSetItem = 0x0090;
 			/// <summary>
+			/// The unique identifier for variable IMPORT
+			/// </summary>
+			public const int VariableImport = 0x0091;
+			/// <summary>
 			/// The unique identifier for variable DECLARE
 			/// </summary>
-			public const int VariableDeclare = 0x0091;
+			public const int VariableDeclare = 0x0092;
 			/// <summary>
 			/// The unique identifier for variable DECLARE_LIST
 			/// </summary>
-			public const int VariableDeclareList = 0x0092;
+			public const int VariableDeclareList = 0x0093;
 			/// <summary>
 			/// The unique identifier for variable DECLARE_ITEM
 			/// </summary>
-			public const int VariableDeclareItem = 0x0093;
+			public const int VariableDeclareItem = 0x0094;
 			/// <summary>
 			/// The unique identifier for variable EXIT
 			/// </summary>
-			public const int VariableExit = 0x0094;
+			public const int VariableExit = 0x0095;
 			/// <summary>
 			/// The unique identifier for variable IFTHEN
 			/// </summary>
-			public const int VariableIfthen = 0x0095;
+			public const int VariableIfthen = 0x0096;
 			/// <summary>
 			/// The unique identifier for variable WHILEDO
 			/// </summary>
-			public const int VariableWhiledo = 0x0096;
+			public const int VariableWhiledo = 0x0097;
 			/// <summary>
 			/// The unique identifier for variable BREAK
 			/// </summary>
-			public const int VariableBreak = 0x0097;
+			public const int VariableBreak = 0x0098;
 			/// <summary>
 			/// The unique identifier for variable CONTINUE
 			/// </summary>
-			public const int VariableContinue = 0x0098;
+			public const int VariableContinue = 0x0099;
 			/// <summary>
 			/// The unique identifier for variable FORDO
 			/// </summary>
-			public const int VariableFordo = 0x0099;
+			public const int VariableFordo = 0x009A;
 			/// <summary>
 			/// The unique identifier for variable SWITCH
 			/// </summary>
-			public const int VariableSwitch = 0x009A;
+			public const int VariableSwitch = 0x009B;
 			/// <summary>
 			/// The unique identifier for variable ADD_FIELD_TO
 			/// </summary>
-			public const int VariableAddFieldTo = 0x009B;
+			public const int VariableAddFieldTo = 0x009C;
 			/// <summary>
 			/// The unique identifier for variable ADD_ROW_TO
 			/// </summary>
-			public const int VariableAddRowTo = 0x009C;
+			public const int VariableAddRowTo = 0x009D;
 			/// <summary>
 			/// The unique identifier for variable DECLARE_CURSOR
 			/// </summary>
-			public const int VariableDeclareCursor = 0x009D;
+			public const int VariableDeclareCursor = 0x009E;
 			/// <summary>
 			/// The unique identifier for variable OPEN_CURSOR
 			/// </summary>
-			public const int VariableOpenCursor = 0x009E;
+			public const int VariableOpenCursor = 0x009F;
 			/// <summary>
 			/// The unique identifier for variable CLOSE_CURSOR
 			/// </summary>
-			public const int VariableCloseCursor = 0x009F;
+			public const int VariableCloseCursor = 0x00A0;
 			/// <summary>
 			/// The unique identifier for variable SQL_STATEMENT
 			/// </summary>
-			public const int VariableSqlStatement = 0x00A0;
+			public const int VariableSqlStatement = 0x00A1;
 			/// <summary>
 			/// The unique identifier for variable STATEMENT
 			/// </summary>
-			public const int VariableStatement = 0x00A1;
+			public const int VariableStatement = 0x00A2;
 			/// <summary>
 			/// The unique identifier for variable ROOT
 			/// </summary>
-			public const int VariableRoot = 0x00A2;
+			public const int VariableRoot = 0x00A3;
 		}
 		/// <summary>
 		/// The collection of variables matched by this parser
@@ -761,41 +765,42 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			new Symbol(0x008E, "SET"), 
 			new Symbol(0x008F, "SET_LIST"), 
 			new Symbol(0x0090, "SET_ITEM"), 
-			new Symbol(0x0091, "DECLARE"), 
-			new Symbol(0x0092, "DECLARE_LIST"), 
-			new Symbol(0x0093, "DECLARE_ITEM"), 
-			new Symbol(0x0094, "EXIT"), 
-			new Symbol(0x0095, "IFTHEN"), 
-			new Symbol(0x0096, "WHILEDO"), 
-			new Symbol(0x0097, "BREAK"), 
-			new Symbol(0x0098, "CONTINUE"), 
-			new Symbol(0x0099, "FORDO"), 
-			new Symbol(0x009A, "SWITCH"), 
-			new Symbol(0x009B, "ADD_FIELD_TO"), 
-			new Symbol(0x009C, "ADD_ROW_TO"), 
-			new Symbol(0x009D, "DECLARE_CURSOR"), 
-			new Symbol(0x009E, "OPEN_CURSOR"), 
-			new Symbol(0x009F, "CLOSE_CURSOR"), 
-			new Symbol(0x00A0, "SQL_STATEMENT"), 
-			new Symbol(0x00A1, "STATEMENT"), 
-			new Symbol(0x00A2, "ROOT"), 
-			new Symbol(0x00A9, "__V169"), 
-			new Symbol(0x00BA, "__V186"), 
-			new Symbol(0x00DC, "__V220"), 
-			new Symbol(0x00E7, "__V231"), 
-			new Symbol(0x00EB, "__V235"), 
-			new Symbol(0x00F6, "__V246"), 
-			new Symbol(0x00FA, "__V250"), 
-			new Symbol(0x00FF, "__V255"), 
+			new Symbol(0x0091, "IMPORT"), 
+			new Symbol(0x0092, "DECLARE"), 
+			new Symbol(0x0093, "DECLARE_LIST"), 
+			new Symbol(0x0094, "DECLARE_ITEM"), 
+			new Symbol(0x0095, "EXIT"), 
+			new Symbol(0x0096, "IFTHEN"), 
+			new Symbol(0x0097, "WHILEDO"), 
+			new Symbol(0x0098, "BREAK"), 
+			new Symbol(0x0099, "CONTINUE"), 
+			new Symbol(0x009A, "FORDO"), 
+			new Symbol(0x009B, "SWITCH"), 
+			new Symbol(0x009C, "ADD_FIELD_TO"), 
+			new Symbol(0x009D, "ADD_ROW_TO"), 
+			new Symbol(0x009E, "DECLARE_CURSOR"), 
+			new Symbol(0x009F, "OPEN_CURSOR"), 
+			new Symbol(0x00A0, "CLOSE_CURSOR"), 
+			new Symbol(0x00A1, "SQL_STATEMENT"), 
+			new Symbol(0x00A2, "STATEMENT"), 
+			new Symbol(0x00A3, "ROOT"), 
+			new Symbol(0x00AA, "__V170"), 
+			new Symbol(0x00BB, "__V187"), 
+			new Symbol(0x00DD, "__V221"), 
+			new Symbol(0x00E8, "__V232"), 
+			new Symbol(0x00EC, "__V236"), 
+			new Symbol(0x00F7, "__V247"), 
+			new Symbol(0x00FB, "__V251"), 
 			new Symbol(0x0100, "__V256"), 
-			new Symbol(0x0104, "__V260"), 
-			new Symbol(0x0106, "__V262"), 
-			new Symbol(0x0108, "__V264"), 
-			new Symbol(0x010B, "__V267"), 
-			new Symbol(0x010F, "__V271"), 
-			new Symbol(0x011B, "__V283"), 
-			new Symbol(0x0123, "__V291"), 
-			new Symbol(0x0124, "__VAxiom") };
+			new Symbol(0x0101, "__V257"), 
+			new Symbol(0x0105, "__V261"), 
+			new Symbol(0x0107, "__V263"), 
+			new Symbol(0x010A, "__V266"), 
+			new Symbol(0x010D, "__V269"), 
+			new Symbol(0x0111, "__V273"), 
+			new Symbol(0x011D, "__V285"), 
+			new Symbol(0x0125, "__V293"), 
+			new Symbol(0x0126, "__VAxiom") };
 		/// <summary>
 		/// The collection of virtuals matched by this parser
 		/// </summary>
@@ -959,6 +964,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 			public virtual void OnVariableSet(ASTNode node) {}
 			public virtual void OnVariableSetList(ASTNode node) {}
 			public virtual void OnVariableSetItem(ASTNode node) {}
+			public virtual void OnVariableImport(ASTNode node) {}
 			public virtual void OnVariableDeclare(ASTNode node) {}
 			public virtual void OnVariableDeclareList(ASTNode node) {}
 			public virtual void OnVariableDeclareItem(ASTNode node) {}
@@ -1142,24 +1148,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 				case 0x008E: visitor.OnVariableSet(node); break;
 				case 0x008F: visitor.OnVariableSetList(node); break;
 				case 0x0090: visitor.OnVariableSetItem(node); break;
-				case 0x0091: visitor.OnVariableDeclare(node); break;
-				case 0x0092: visitor.OnVariableDeclareList(node); break;
-				case 0x0093: visitor.OnVariableDeclareItem(node); break;
-				case 0x0094: visitor.OnVariableExit(node); break;
-				case 0x0095: visitor.OnVariableIfthen(node); break;
-				case 0x0096: visitor.OnVariableWhiledo(node); break;
-				case 0x0097: visitor.OnVariableBreak(node); break;
-				case 0x0098: visitor.OnVariableContinue(node); break;
-				case 0x0099: visitor.OnVariableFordo(node); break;
-				case 0x009A: visitor.OnVariableSwitch(node); break;
-				case 0x009B: visitor.OnVariableAddFieldTo(node); break;
-				case 0x009C: visitor.OnVariableAddRowTo(node); break;
-				case 0x009D: visitor.OnVariableDeclareCursor(node); break;
-				case 0x009E: visitor.OnVariableOpenCursor(node); break;
-				case 0x009F: visitor.OnVariableCloseCursor(node); break;
-				case 0x00A0: visitor.OnVariableSqlStatement(node); break;
-				case 0x00A1: visitor.OnVariableStatement(node); break;
-				case 0x00A2: visitor.OnVariableRoot(node); break;
+				case 0x0091: visitor.OnVariableImport(node); break;
+				case 0x0092: visitor.OnVariableDeclare(node); break;
+				case 0x0093: visitor.OnVariableDeclareList(node); break;
+				case 0x0094: visitor.OnVariableDeclareItem(node); break;
+				case 0x0095: visitor.OnVariableExit(node); break;
+				case 0x0096: visitor.OnVariableIfthen(node); break;
+				case 0x0097: visitor.OnVariableWhiledo(node); break;
+				case 0x0098: visitor.OnVariableBreak(node); break;
+				case 0x0099: visitor.OnVariableContinue(node); break;
+				case 0x009A: visitor.OnVariableFordo(node); break;
+				case 0x009B: visitor.OnVariableSwitch(node); break;
+				case 0x009C: visitor.OnVariableAddFieldTo(node); break;
+				case 0x009D: visitor.OnVariableAddRowTo(node); break;
+				case 0x009E: visitor.OnVariableDeclareCursor(node); break;
+				case 0x009F: visitor.OnVariableOpenCursor(node); break;
+				case 0x00A0: visitor.OnVariableCloseCursor(node); break;
+				case 0x00A1: visitor.OnVariableSqlStatement(node); break;
+				case 0x00A2: visitor.OnVariableStatement(node); break;
+				case 0x00A3: visitor.OnVariableRoot(node); break;
 			}
 		}
 	}

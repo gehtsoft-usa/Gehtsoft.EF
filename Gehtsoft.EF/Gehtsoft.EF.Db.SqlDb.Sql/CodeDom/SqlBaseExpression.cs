@@ -36,7 +36,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         /// <summary>
         /// The types of the output
         /// </summary>
-        internal  enum ResultTypes
+        internal enum ResultTypes
         {
             Boolean,
             DateTime,
@@ -49,39 +49,44 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Unknown
         };
 
-        internal  Type SystemType
+        static internal Type GetSystemType(ResultTypes type)
+        {
+            Type retval = null;
+            switch (type)
+            {
+                case ResultTypes.Integer:
+                    retval = typeof(int);
+                    break;
+                case ResultTypes.Boolean:
+                    retval = typeof(bool);
+                    break;
+                case ResultTypes.DateTime:
+                    retval = typeof(DateTime);
+                    break;
+                case ResultTypes.Double:
+                    retval = typeof(double);
+                    break;
+                case ResultTypes.String:
+                    retval = typeof(string);
+                    break;
+                case ResultTypes.Row:
+                    retval = typeof(Dictionary<string, object>);
+                    break;
+                case ResultTypes.RowSet:
+                    retval = typeof(List<object>);
+                    break;
+                case ResultTypes.Cursor:
+                    retval = typeof(SqlSelectStatement);
+                    break;
+            }
+            return retval;
+        }
+
+        internal Type SystemType
         {
             get
             {
-                Type retval = null;
-                switch (ResultType)
-                {
-                    case ResultTypes.Integer:
-                        retval = typeof(int);
-                        break;
-                    case ResultTypes.Boolean:
-                        retval = typeof(bool);
-                        break;
-                    case ResultTypes.DateTime:
-                        retval = typeof(DateTime);
-                        break;
-                    case ResultTypes.Double:
-                        retval = typeof(double);
-                        break;
-                    case ResultTypes.String:
-                        retval = typeof(string);
-                        break;
-                    case ResultTypes.Row:
-                        retval = typeof(Dictionary<string, object>);
-                        break;
-                    case ResultTypes.RowSet:
-                        retval = typeof(List<object>);
-                        break;
-                    case ResultTypes.Cursor:
-                        retval = typeof(SqlSelectStatement);
-                        break;
-                }
-                return retval;
+                return GetSystemType(ResultType);
             }
         }
 

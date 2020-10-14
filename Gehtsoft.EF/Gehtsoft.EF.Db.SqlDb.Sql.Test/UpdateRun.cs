@@ -40,45 +40,45 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void UpdateSuccess()
         {
-            Expression block;
+            Func<IDictionary<string, object>, object> func;
             object result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
             List<object> array;
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "INSERT INTO Supplier " +
                 "(CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country) " +
                 "VALUES " +
                 "('Gehtsoft', 'Just Gehtsoft', 'Wow', '1-st street 1', 'Moscow', 'Siberia', '644000', 'Russia')"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             array = result as List<object>;
             Int64 insertedID = (Int64)(array[0] as Dictionary<string, object>)["LastInsertedId"];
 
-            block = environment.Parse("test", $"SELECT * FROM Shipper LIMIT 1");
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            func = environment.Parse("test", $"SELECT * FROM Shipper LIMIT 1");
+            result = func(null);
             array = result as List<object>;
             string shipperCompanyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
             string shipperPhone = (string)(array[0] as Dictionary<string, object>)["Phone"];
 
-            block = environment.Parse("test", $"SELECT * FROM Employee WHERE PostalCode= '98122'");
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            func = environment.Parse("test", $"SELECT * FROM Employee WHERE PostalCode= '98122'");
+            result = func(null);
             array = result as List<object>;
             string emploeeRegion = (string)(array[0] as Dictionary<string, object>)["Region"];
 
-            block = environment.Parse("test", $"UPDATE Supplier SET " +
+            func = environment.Parse("test", $"UPDATE Supplier SET " +
                 $"ContactTitle = ContactTitle || ' SUPER', " +
                 $"City = 'Omsk', " +
                 $"Phone = (SELECT Phone FROM Shipper WHERE CompanyName='{shipperCompanyName}'), " +
                 $"Region = 'was here: ' || (SELECT Region FROM Employee WHERE PostalCode= '98122') " +
                 $"WHERE SupplierID={insertedID}");
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             array = result as List<object>;
             int updated = (int)(array[0] as Dictionary<string, object>)["Updated"];
             updated.Should().Be(1);
 
-            block = environment.Parse("test", $"SELECT * FROM Supplier WHERE SupplierID={insertedID}");
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            func = environment.Parse("test", $"SELECT * FROM Supplier WHERE SupplierID={insertedID}");
+            result = func(null);
             array = result as List<object>;
 
             string contactTitle = (string)(array[0] as Dictionary<string, object>)["ContactTitle"];

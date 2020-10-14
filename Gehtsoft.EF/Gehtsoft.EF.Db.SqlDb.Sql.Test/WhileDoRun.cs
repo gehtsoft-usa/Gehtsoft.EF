@@ -13,37 +13,23 @@ using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
-    public class WhileDoRun : IDisposable
+    public class WhileDoRun
     {
         private SqlCodeDomBuilder DomBuilder { get; }
-        private ISqlDbConnectionFactory connectionFactory;
-        private SqlDbConnection connection;
 
         public WhileDoRun()
         {
-            connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:"); ;
-            Snapshot snapshot = new Snapshot();
-            connection = connectionFactory.GetConnection();
-            snapshot.CreateAsync(connection).ConfigureAwait(true).GetAwaiter().GetResult();
-            EntityFinder.EntityTypeInfo[] entities = EntityFinder.FindEntities(new Assembly[] { typeof(Snapshot).Assembly }, "northwind", false);
             DomBuilder = new SqlCodeDomBuilder();
-            DomBuilder.Build(entities, "entities");
-        }
-
-        public void Dispose()
-        {
-            if (connectionFactory.NeedDispose)
-                connection.Dispose();
         }
 
         [Fact]
         public void WhileDo()
         {
-            Expression block;
+            Func<IDictionary<string, object>, object> func;
             object result;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment();
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET factorial=1, n=1" +
                 "WHILE ?n <= 5 LOOP" +
                 "   SET factorial = ?factorial * ?n" +
@@ -51,10 +37,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "END LOOP " +
                 "EXIT WITH ?factorial"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             ((int)result).Should().Be(120);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET factorial=1, n=0" +
                 "WHILE ?n <= 5 LOOP" +
                 "   IF ?n = 0 THEN SET n = 1; CONTINUE; END IF " +
@@ -64,11 +50,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "END LOOP " +
                 "EXIT WITH ?factorial"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             ((int)result).Should().Be(24);
 
-            block = environment.Parse("test",
-                "SET factorial=1, n=1" +
+            func = environment.Parse("test",
+                "SET factorial=1, n=1;" +
                 "WHILE TRUE LOOP" +
                 "   SET factorial = ?factorial * ?n" +
                 "   SET n = ?n + 1" +
@@ -76,14 +62,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "END LOOP " +
                 "EXIT WITH ?factorial"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             ((int)result).Should().Be(120);
         }
 
         [Fact]
         public void WhileDoParseError()
         {
-            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment();
             Assert.Throws<SqlParserException>(() =>
                 environment.Parse("test",
                 "CONTINUE"

@@ -136,6 +136,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         public SqlDbConnection Connection { get; private set; } = null;
 
+        internal IDictionary<string, object> ParametersDictionary;
+
         public SqlCodeDomEnvironment NewEnvironment()
         {
             SqlCodeDomEnvironment retval = new SqlCodeDomEnvironment();
@@ -339,18 +341,36 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             SqlCodeDomBuilder = new SqlCodeDomBuilder();
         }
-        public Expression Parse(string name, TextReader source)
+        public Func<IDictionary<string, object>, object> Parse(string name, TextReader source)
         {
-            return SqlCodeDomBuilder.Parse(name, source);
+            Func<object> compiled = Expression.Lambda<Func<object>>(SqlCodeDomBuilder.Parse(name, source)).Compile();
+            Func<IDictionary<string, object>, object> func = arg =>
+            {
+                SqlCodeDomBuilder.ParametersDictionary = arg;
+                return compiled();
+            };
+            return func;
         }
 
-        public Expression Parse(string name, string source)
+        public Func<IDictionary<string, object>, object> Parse(string name, string source)
         {
-            return SqlCodeDomBuilder.Parse(name, source);
+            Func<object> compiled = Expression.Lambda<Func<object>>(SqlCodeDomBuilder.Parse(name, source)).Compile();
+            Func<IDictionary<string, object>, object> func = arg =>
+            {
+                SqlCodeDomBuilder.ParametersDictionary = arg;
+                return compiled();
+            };
+            return func;
         }
-        public Expression Parse(string fileName, Encoding encoding = null)
+        public Func<IDictionary<string, object>, object> Parse(string fileName, Encoding encoding = null)
         {
-            return SqlCodeDomBuilder.Parse(fileName, encoding);
+            Func<object> compiled = Expression.Lambda<Func<object>>(SqlCodeDomBuilder.Parse(fileName, encoding)).Compile();
+            Func<IDictionary<string, object>, object> func = arg =>
+            {
+                SqlCodeDomBuilder.ParametersDictionary = arg;
+                return compiled();
+            };
+            return func;
         }
     }
 

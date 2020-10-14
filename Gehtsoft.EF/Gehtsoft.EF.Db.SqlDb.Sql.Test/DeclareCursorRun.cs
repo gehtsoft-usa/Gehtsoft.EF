@@ -39,11 +39,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void DeclareCursor1()
         {
-            Expression block;
+            Func<IDictionary<string, object>, object> func;
             object result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET maxQuantity = 0.0;" +
                 "DECLARE my_cur CURSOR FOR " +
                 "SELECT Quantity FROM OrderDetail;" +
@@ -58,14 +58,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "CLOSE CURSOR ?my_cur;" +
                 "EXIT WITH ?maxQuantity;"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             double max1 = (double)result;
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SELECT MAX(Quantity) AS Max FROM OrderDetail;" +
                 "EXIT WITH GET_FIELD(GET_ROW(LAST_RESULT(), 0), 'Max', DOUBLE);"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             double max2 = (double)result;
 
             max1.Should().Be(max2);
@@ -74,11 +74,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void DeclareCursor2()
         {
-            Expression block;
             object result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.Parse("test",
+            var func = environment.Parse("test",
                 "SET maxQuantity = 0.0;" +
                 "DECLARE my_cur CURSOR FOR " +
                 "SELECT COUNT(*) AS Total FROM Category;" +
@@ -88,7 +87,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "CLOSE CURSOR ?my_cur;" +
                 "EXIT WITH ?cnt;"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             int count = (int)result;
             count.Should().Be(8);
         }
@@ -96,11 +95,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void DeclareCursor3()
         {
-            Expression block;
+            Func<IDictionary<string, object>, object> func;
             object result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET maxQuantity = 0.0;" +
                 "DECLARE my_cur CURSOR FOR " +
                 "SELECT Quantity FROM OrderDetail;" +
@@ -113,14 +112,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "CLOSE CURSOR ?my_cur;" +
                 "EXIT WITH ?maxQuantity;"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             double max1 = (double)result;
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SELECT MAX(Quantity) AS Max FROM OrderDetail;" +
                 "EXIT WITH GET_FIELD(GET_ROW(LAST_RESULT(), 0), 'Max', DOUBLE);"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             double max2 = (double)result;
 
             max1.Should().Be(max2);

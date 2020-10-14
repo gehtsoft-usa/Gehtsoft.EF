@@ -44,26 +44,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void AddRowField()
         {
-            Expression block;
+            Func<IDictionary<string, object>, object> func;
             object result;
             Dictionary<string, object> dict;
             List<object> array;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SELECT Quantity FROM OrderDetail LIMIT 1;" +
                 "SET record = GET_ROW(LAST_RESULT(), 0);" +
                 "ADD FIELD 'Test' WITH 'testing' TO ?record;" +
                 "EXIT WITH ?record"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             dict = result as Dictionary<string, object>;
             dict.ContainsKey("Test").Should().BeTrue();
             dict.ContainsKey("Quantity").Should().BeTrue();
             string test = (string)dict["Test"];
             test.Should().Be("testing");
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET recordset = NEW_ROWSET();" +
                 "SET record1 = NEW_ROW(), record2 = NEW_ROW();" +
                 "ADD FIELD 'Test' WITH 'testing' TO ?record1;" +
@@ -74,7 +74,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "ADD ROW ?record2 TO ?recordset;" +
                 "EXIT WITH ?recordset"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             array = result as List<object>;
             array.Count.Should().Be(2);
             dict = array[0] as Dictionary<string, object>;
@@ -96,11 +96,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void GetRowField()
         {
-            Expression block;
+            Func<IDictionary<string, object>, object> func;
             object result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET maxQuantity = 0.0;" +
                 "SELECT Quantity FROM OrderDetail;" +
                 "SET qqq = LAST_RESULT(), count = ROWS_COUNT(?qqq);" +
@@ -111,14 +111,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "END LOOP " +
                 "EXIT WITH ?maxQuantity"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             double max1 = (double)result;
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SELECT MAX(Quantity) AS Max FROM OrderDetail;" +
                 "EXIT WITH GET_FIELD(GET_ROW(LAST_RESULT(), 0), 'Max', DOUBLE)"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             double max2 = (double)result;
 
             max1.Should().Be(max2);

@@ -39,12 +39,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void Set()
         {
-            Expression block;
+            Func<IDictionary<string, object>, object> func;
             object result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
             List<object> array;
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "DECLARE qqq AS STRING;" +
                 "SET qqq = 'u';" +
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
@@ -52,11 +52,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "WHERE LOWER(Country) LIKE ?qqq || '%' " +
                 "GROUP BY Country"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             array = result as List<object>;
             array.Count.Should().Be(2);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET qqq = 'u';" +
                 "SET qqq = ?qqq || 'K';" +
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
@@ -64,7 +64,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "WHERE LOWER(Country) LIKE LOWER(?qqq) || '%' " +
                 "GROUP BY Country"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             array = result as List<object>;
             array.Count.Should().Be(1);
         }

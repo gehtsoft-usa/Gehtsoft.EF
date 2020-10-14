@@ -39,7 +39,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             OpenCursor,
             CloseCursor,
             Assign,
-            DummyPersist
+            DummyPersist,
+            Import
         };
         /// <summary>
         /// Type of the statement

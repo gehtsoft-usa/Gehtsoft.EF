@@ -39,11 +39,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SwitchSuccess()
         {
-            Expression block;
+            Func<IDictionary<string, object>, object> func;
             object result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "DECLARE q AS INTEGER, m AS INTEGER;" +
                 "SET q=4, m=0" +
                 "SWITCH ?q " +
@@ -60,10 +60,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "EXIT WITH ?m"
             );
 
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             ((int)result).Should().Be(4);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET q=3, m=0" +
                 "SWITCH ?q " +
                 "   CASE 2 :" +
@@ -80,10 +80,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "END SWITCH " +
                 "EXIT WITH ?m"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             ((int)result).Should().Be(3);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET q=2, m=0" +
                 "SWITCH ?q " +
                 "   CASE 2 :" +
@@ -97,10 +97,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "END SWITCH " +
                 "EXIT WITH ?m"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             ((int)result).Should().Be(2);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET q=2, m=0" +
                 "SWITCH ?q " +
                 "   CASE 2 :" +
@@ -114,10 +114,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "END SWITCH " +
                 "EXIT WITH ?m"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             ((int)result).Should().Be(3);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET q=1, m=0" +
                 "SWITCH ?q " +
                 "   CASE 2 :" +
@@ -134,10 +134,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "END SWITCH " +
                 "EXIT WITH ?m"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             ((int)result).Should().Be(1);
 
-            block = environment.Parse("test",
+            func = environment.Parse("test",
                 "SET q=0, m=0" +
                 "SWITCH ?q " +
                 "   CASE 2 :" +
@@ -154,7 +154,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "END SWITCH " +
                 "EXIT WITH ?m"
             );
-            result = Expression.Lambda<Func<object>>(block).Compile()();
+            result = func(null);
             ((int)result).Should().Be(1);
         }
 
