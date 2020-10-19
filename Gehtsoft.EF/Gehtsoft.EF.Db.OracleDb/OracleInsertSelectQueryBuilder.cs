@@ -10,6 +10,27 @@ namespace Gehtsoft.EF.Db.OracleDb
         {
         }
 
+        protected override string BuildQuery(StringBuilder leftSide, TableDescriptor.ColumnInfo autoIncrement)
+        {
+            StringBuilder builder = new StringBuilder();
+            if (autoIncrement != null)
+            {
+                builder.Append("BEGIN \r\n");
+            }
+            builder.Append(base.BuildQuery(leftSide, autoIncrement));
+            if (autoIncrement != null)
+            {
+                builder.Append(";\r\n");
+                builder.Append($"SELECT {mTable.Name}_{autoIncrement.Name}.currval");
+                builder.Append(" INTO :");
+                builder.Append(autoIncrement.Name);
+                builder.Append($" FROM dual");
+                builder.Append(";\r\n");
+                builder.Append("END; \r\n");
+            }
+            return builder.ToString();
+        }
+
         protected override bool HasExpressionForAutoincrement => true;
 
         protected override string ExpressionForAutoincrement(TableDescriptor.ColumnInfo autoIncrement)

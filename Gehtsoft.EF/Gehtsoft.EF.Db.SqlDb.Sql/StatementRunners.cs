@@ -445,7 +445,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 {
                     if (SqlStatement.AliasEntrys.Exists(field.Name))
                     {
-                        result = field.Name;
+                        // In Oracle, for example, alias name can not be used in expression of WHERE etc.
+                        //result = field.Name;
+                        result = GetStrExpression(SqlStatement.AliasEntrys.Find(field.Name).Expression, out isAggregate);
                     }
                     else
                     {
@@ -553,7 +555,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (expression is SqlConstant constant)
             {
-                string paramName = $"$param${BindParams.Count}";
+                string paramName = $"p_param${BindParams.Count}";
                 BindParams.Add(paramName, constant.Value);
                 return GetParameter(paramName);
             }

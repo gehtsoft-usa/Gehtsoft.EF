@@ -16,6 +16,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Db.OracleDb\Gehtsoft.EF.Db.OracleDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.SqlDb.Sql\Gehtsoft.EF.Db.SqlDb.Sql.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.SqliteDb\Gehtsoft.EF.Db.SqliteDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Northwind\Gehtsoft.EF.Northwind.csproj" />

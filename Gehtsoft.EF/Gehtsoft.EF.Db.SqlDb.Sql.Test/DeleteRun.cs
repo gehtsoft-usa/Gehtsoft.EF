@@ -21,11 +21,24 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
         public DeleteRun()
         {
-            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=d:\testsql.db"); ;
+            //string tns = "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.1.4)(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)(SID = XE)))";
+            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.ORACLE, $"Data Source={tns};user id=C##TEST;password=test;");
             connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:"); ;
-            Snapshot snapshot = new Snapshot();
             connection = connectionFactory.GetConnection();
+            Snapshot snapshot = new Snapshot();
             snapshot.CreateAsync(connection).ConfigureAwait(true).GetAwaiter().GetResult();
+
+            //// trick Oracle's 'nextval'
+            ////----------------------------------------------------------------------------
+            //bool prot = SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries;
+            //SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries = false;
+            //using (SqlDbQuery q1 = connection.GetQuery("BEGIN \r\nEXECUTE IMMEDIATE 'DROP SEQUENCE nw_suppliers_supplierID';\r\nEXECUTE IMMEDIATE 'CREATE SEQUENCE nw_suppliers_supplierID START WITH 100';\r\nEND; \r\n"))
+            //{
+            //    q1.ExecuteNoData();
+            //}
+            //SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries = prot;
+            ////----------------------------------------------------------------------------
+
             EntityFinder.EntityTypeInfo[] entities = EntityFinder.FindEntities(new Assembly[] { typeof(Snapshot).Assembly }, "northwind", false);
             DomBuilder = new SqlCodeDomBuilder();
             DomBuilder.Build(entities, "entities");

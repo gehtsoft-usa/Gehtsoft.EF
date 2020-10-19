@@ -85,7 +85,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal Type TypeByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item3;
         internal string FieldByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item2;
-        internal string NameByField(Type entityType, string fieldName) => mTypeToFields[entityType].Where(t => t.Item2 == fieldName).SingleOrDefault()?.Item1;
+        internal string NameByField(Type entityType, string fieldName) => mTypeToFields[entityType].Where(t => t.Item2.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)).SingleOrDefault()?.Item1;
         internal Type EntityByName(string name) => mTypeNameToEntity.ContainsKey(name) ? mTypeNameToEntity[name] : null;
 
         public void Build(EntityFinder.EntityTypeInfo[] entities, string ns = "NS")

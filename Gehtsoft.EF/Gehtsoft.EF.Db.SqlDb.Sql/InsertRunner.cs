@@ -89,12 +89,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return (AQueryBuilder)mInsertSimpleBuilder ?? (AQueryBuilder)mInsertSelectBuilder;
         }
 
+        TableDescriptor.ColumnInfo autoIncrement = null;
         private void processInsert(SqlInsertStatement insert)
         {
             Type entityType = mBuilder.EntityByName(insert.TableName);
             if (entityType == null)
                 throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{insert.TableName}'"));
             EntityDescriptor entityDescriptor = AllEntities.Inst[entityType];
+
+            foreach (TableDescriptor.ColumnInfo column in entityDescriptor.TableDescriptor)
+            {
+                if (column.Autoincrement == true && column.PrimaryKey == true)
+                {
+                    autoIncrement = column;
+                    break;
+                }
+            }
+
             if (insert.Values != null)
             {
                 mInsertSimpleBuilder = mConnection.GetInsertQueryBuilder(entityDescriptor.TableDescriptor);
@@ -166,12 +177,36 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 using (SqlDbQuery query = mConnection.GetQuery(mInsertSimpleBuilder != null ? (AQueryBuilder)mInsertSimpleBuilder : (AQueryBuilder)mInsertSelectBuilder))
                 {
                     ApplyBindParams(query);
-
-                    query.ExecuteReader();
-                    while (query.ReadNext())
+                    bool executeNoData = false;
+                    if (autoIncrement != null)
                     {
-                        object o = bindRecord(query);
-                        result.Add(o);
+                        if (query.LanguageSpecifics.AutoincrementReturnedAs == SqlDbLanguageSpecifics.AutoincrementReturnStyle.Parameter)
+                        {
+                            query.BindOutputParam(autoIncrement.Name, autoIncrement.DbType);
+                            executeNoData = true;
+                        }
+                    }
+
+                    if (executeNoData)
+                    {
+                        query.ExecuteNoData();
+                        object v = query.GetParamValue(autoIncrement.Name, autoIncrement.PropertyAccessor.PropertyType);
+                        if(v is Int32)
+                        {
+                            v = Convert.ChangeType(v, typeof(Int64));
+                        }
+                        Dictionary<string, object> res = new Dictionary<string, object>();
+                        res.Add("LastInsertedId", v);
+                        result.Add(res);
+                    }
+                    else
+                    {
+                        query.ExecuteReader();
+                        while (query.ReadNext())
+                        {
+                            object o = bindRecord(query);
+                            result.Add(o);
+                        }
                     }
                 }
             }

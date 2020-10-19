@@ -172,7 +172,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             internal bool Exists(string aliasName) => mList.Where(t => t.AliasName == aliasName).SingleOrDefault() != null;
 
-            internal AliasEntry Find(string aliasName) => mList.Where(t => t.AliasName == aliasName).SingleOrDefault();
+            internal AliasEntry Find(string aliasName) => mList.Where(t => t.AliasName.Equals(aliasName, StringComparison.InvariantCultureIgnoreCase)).SingleOrDefault();
         }
 
         /// <summary>

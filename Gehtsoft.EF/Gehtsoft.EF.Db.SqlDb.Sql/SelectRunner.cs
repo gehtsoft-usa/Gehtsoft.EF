@@ -335,7 +335,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 SqlStatement.AliasEntry aliasEntry = select.AliasEntrys.Find(name);
                 if (aliasEntry != null)
                 {
-                    toType = select.AliasEntrys.Find(name).Expression.SystemType;
+                    name = aliasEntry.AliasName;
+                    toType = aliasEntry.Expression.SystemType;
                 }
                 else
                 {

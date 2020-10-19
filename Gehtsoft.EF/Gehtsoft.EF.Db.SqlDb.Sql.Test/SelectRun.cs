@@ -21,10 +21,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
         public SelectRun()
         {
-            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=d:\testsql.db"); ;
+            //string tns = "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.1.4)(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)(SID = XE)))";
+            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.ORACLE, $"Data Source={tns};user id=C##TEST;password=test;");
             connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:"); ;
-            Snapshot snapshot = new Snapshot();
             connection = connectionFactory.GetConnection();
+            Snapshot snapshot = new Snapshot();
             snapshot.CreateAsync(connection).ConfigureAwait(true).GetAwaiter().GetResult();
             EntityFinder.EntityTypeInfo[] entities = EntityFinder.FindEntities(new Assembly[] { typeof(Snapshot).Assembly }, "northwind", false);
             DomBuilder = new SqlCodeDomBuilder();
@@ -222,14 +223,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             var func = environment.Parse("test",
                 "SELECT * " +
                 "FROM OrderDetail " +
-                "OFFSET 20 LIMIT 10"
+                "OFFSET 0 LIMIT 1"
                 );
             object result = func(null);
             List<object> array = result as List<object>;
 
+            array.Count.Should().Be(1);
+            int idFirst = (int)(array[0] as Dictionary<string, object>)["Id"];
+
+            func = environment.Parse("test",
+                "SELECT * " +
+                "FROM OrderDetail " +
+                "OFFSET 20 LIMIT 10"
+                );
+            result = func(null);
+            array = result as List<object>;
+
             array.Count.Should().Be(10);
             int id = (int)(array[0] as Dictionary<string, object>)["Id"];
-            id.Should().Be(21);
+            id.Should().Be(idFirst + 20);
         }
 
         [Fact]
