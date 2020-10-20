@@ -67,6 +67,20 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             else if (statementNode.Children[2].Symbol.ID == SqlParser.ID.VariableSelect)
             {
                 RightSelect = new SqlSelectStatement(this.CodeDomBuilder, statementNode.Children[2], currentSource);
+                if(RightSelect.Grouping != null)
+                {
+                    throw new SqlParserException(new SqlError(currentSource,
+                        statementNode.Children[2].Position.Line,
+                        statementNode.Children[2].Position.Column,
+                        $"GROUP BY can not be used in SELECT part of INSERT operator"));
+                }
+                if (RightSelect.Sorting != null)
+                {
+                    throw new SqlParserException(new SqlError(currentSource,
+                        statementNode.Children[2].Position.Line,
+                        statementNode.Children[2].Position.Column,
+                        $"SORT BY can not be used in SELECT part of INSERT operator"));
+                }
             }
             else
             {

@@ -21,6 +21,7 @@
     <Compile Include="MysqlDbLanguageSpecifics.cs" />
     <Compile Include="MysqlHierarchicalSelectQueryBuilder.cs" />
     <Compile Include="MysqlInsertQueryBuilder.cs" />
+    <Compile Include="MysqlInsertSelectQueryBuilder.cs" />
     <Compile Include="MysqlQuery.cs" />
     <Compile Include="MysqlTransaction.cs" />
   </ItemGroup>

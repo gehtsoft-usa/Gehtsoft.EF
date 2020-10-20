@@ -34,7 +34,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
             if (autoIncrement != null)
                 builder.Append($"; SELECT last_value from {mTable.Name}_{autoIncrement.Name}_seq;");
             else if (mHasAutoId)
-                builder.Append($"; SELECT pg_catalog.setval(pg_get_serial_sequence('{mTable.Name}', 'id'), (SELECT MAX(id) FROM {mTable.Name})+1);");
+                builder.Append($"; SELECT pg_catalog.setval(pg_get_serial_sequence('{mTable.Name}', '{mTable.PrimaryKey.Name.ToLower()}'), (SELECT MAX({mTable.PrimaryKey.Name.ToLower()}) FROM {mTable.Name}));");
             return builder.ToString();
         }
     }

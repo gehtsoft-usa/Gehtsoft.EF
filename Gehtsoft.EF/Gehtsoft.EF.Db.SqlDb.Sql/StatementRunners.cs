@@ -555,7 +555,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (expression is SqlConstant constant)
             {
-                string paramName = $"p_param${BindParams.Count}";
+                string paramName = $"p_param_p_{BindParams.Count}";
                 BindParams.Add(paramName, constant.Value);
                 return GetParameter(paramName);
             }

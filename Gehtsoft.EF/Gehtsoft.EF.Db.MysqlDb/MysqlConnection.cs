@@ -60,6 +60,11 @@ namespace Gehtsoft.EF.Db.MysqlDb
             return new MysqlInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);
         }
 
+        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement)
+        {
+            return new MysqlInsertSelectQueryBuilder(gSpecifics, descriptor, selectQuery, ignoreAutoIncrement);
+        }
+
         public override HierarchicalSelectQueryBuilder GetHierarchicalSelectQueryBuilder(TableDescriptor descriptor, TableDescriptor.ColumnInfo parentReferenceColumn, string rootParameter = null)
         {
             return new MysqlHierarchicalSelectQueryBuilder(gSpecifics, descriptor, parentReferenceColumn, rootParameter);

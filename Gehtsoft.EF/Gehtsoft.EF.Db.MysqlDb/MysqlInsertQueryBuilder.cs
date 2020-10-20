@@ -34,7 +34,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
                 builder.Append("; SELECT LAST_INSERT_ID();");
             else if (mHasAutoId)
             {
-                builder.Append($"; SET @max = (SELECT MAX({mTable.PrimaryKey.Name})+2 FROM {mTable.Name})");
+                builder.Append($"; SET @max = (SELECT MAX({mTable.PrimaryKey.Name})+1 FROM {mTable.Name})");
                 builder.Append($"; SET @query = CONCAT('ALTER TABLE {mTable.Name} AUTO_INCREMENT = ', @max)");
                 builder.Append($"; PREPARE stmt FROM @query");
                 builder.Append($"; EXECUTE stmt");

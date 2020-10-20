@@ -191,7 +191,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     {
                         query.ExecuteNoData();
                         object v = query.GetParamValue(autoIncrement.Name, autoIncrement.PropertyAccessor.PropertyType);
-                        if(v is Int32)
+                        if(v is Int32 || v is UInt32 || v is UInt64)
                         {
                             v = Convert.ChangeType(v, typeof(Int64));
                         }
@@ -224,7 +224,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         private object bindRecord(SqlDbQuery query)
         {
             Dictionary<string, object> result = new Dictionary<string, object>();
-            if (query.FieldCount > 0) result.Add("LastInsertedId", query.GetValue(0));
+            object v = query.GetValue(0);
+            if (v is Int32 || v is UInt32 || v is UInt64)
+            {
+                v = Convert.ChangeType(v, typeof(Int64));
+            }
+            if (query.FieldCount > 0) result.Add("LastInsertedId", v);
             return result;
         }
     }

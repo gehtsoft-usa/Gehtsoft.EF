@@ -21,6 +21,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
         public InsertRun()
         {
+            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.POSTGRES, @"server=127.0.0.1;database=test;user id=postgres;password=hurnish1962;"); ;
+            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.MYSQL, @"server=127.0.0.1;Database=test;Uid=root;Pwd=root;port=3306;AllowUserVariables=True;default command timeout=0"); ;
             //string tns = "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.1.4)(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)(SID = XE)))";
             //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.ORACLE, $"Data Source={tns};user id=C##TEST;password=test;");
             connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:"); ;
@@ -32,7 +34,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             ////----------------------------------------------------------------------------
             //bool prot = SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries;
             //SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries = false;
-            //using (SqlDbQuery q1 = connection.GetQuery("BEGIN \r\nEXECUTE IMMEDIATE 'DROP SEQUENCE nw_suppliers_supplierID';\r\nEXECUTE IMMEDIATE 'CREATE SEQUENCE nw_suppliers_supplierID START WITH 100';\r\nEND; \r\n"))
+
+            //int start = 0;
+            //using (SqlDbQuery q1 = connection.GetQuery("SELECT MAX(supplierID) FROM nw_suppliers"))
+            //{
+            //    q1.ExecuteReader();
+            //    while (q1.ReadNext())
+            //    {
+            //        object v = q1.GetValue(0);
+            //        start = (int)Convert.ChangeType(v, typeof(int));
+            //    }
+            //}
+            //using (SqlDbQuery q1 = connection.GetQuery($"BEGIN \r\nEXECUTE IMMEDIATE 'DROP SEQUENCE nw_suppliers_supplierID';\r\nEXECUTE IMMEDIATE 'CREATE SEQUENCE nw_suppliers_supplierID START WITH {start+1}';\r\nEND; \r\n"))
             //{
             //    q1.ExecuteNoData();
             //}
@@ -104,7 +117,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             array = result as List<object>;
             int countBefore = (int)(array[0] as Dictionary<string, object>)["Total"];
 
-            func = environment.Parse("test", "SELECT * FROM Customer WHERE PostalCode LIKE '80%'");
+            func = environment.Parse("test", "SELECT * FROM Customer WHERE PostalCode LIKE '80%' ORDER BY CustomerID");
             result = func(null);
             array = result as List<object>;
             int countShoulfBeAdded = array.Count;
@@ -174,6 +187,24 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                     "(CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax, HomePage) " +
                     "VALUES " +
                     "('Gehtsoft', 'Just Gehtsoft', 'Wow', '1-st street 1', 'Omsk', 'Siberia', '644000')"
+                )
+            );
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                    "INSERT INTO Supplier " +
+                    "(CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax) " +
+                    "SELECT " +
+                    "CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax " +
+                    "FROM Customer WHERE PostalCode LIKE '80%' SORT BY CompanyName"
+                )
+            );
+            Assert.Throws<SqlParserException>(() =>
+                environment.Parse("test",
+                    "INSERT INTO Supplier " +
+                    "(CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax) " +
+                    "SELECT " +
+                    "CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax " +
+                    "FROM Customer WHERE PostalCode LIKE '80%' GROUP BY CompanyName"
                 )
             );
         }
