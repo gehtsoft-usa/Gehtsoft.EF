@@ -91,6 +91,11 @@ namespace Gehtsoft.EF.Db.MssqlDb
             return new MssqlSelectQueryBuilder(gSpecifics, descriptor);
         }
 
+        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement)
+        {
+            return new MssqlInsertSelectQueryBuilder(gSpecifics, descriptor, selectQuery, ignoreAutoIncrement);
+        }
+
         protected override async Task<TableDescriptor[]> SchemaCore(bool sync, CancellationToken? token)
         {
             List<TableDescriptor> tables = new List<TableDescriptor>();

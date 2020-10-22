@@ -205,6 +205,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         while (query.ReadNext())
                         {
                             object o = bindRecord(query);
+                            // MSSql Insert from Select returns IDs of all inserted records, but we need only the last one
+                            if (result.Count > 0) 
+                                result.Clear();
                             result.Add(o);
                         }
                     }

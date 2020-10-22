@@ -21,6 +21,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
         public SelectRun()
         {
+            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.MSSQL, @"server=.\SQLEXPRESSTEO;Connection Lifetime=900;Load Balance Timeout=60;Max Pool Size=25;Pooling=true;Integrated Security=SSPI;"); ;
             //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.POSTGRES, @"server=127.0.0.1;database=test;user id=postgres;password=hurnish1962;"); ;
             //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.MYSQL, @"server=127.0.0.1;Database=test;Uid=root;Pwd=root;port=3306;AllowUserVariables=True;default command timeout=0"); ;
             //string tns = "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.1.4)(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)(SID = XE)))";

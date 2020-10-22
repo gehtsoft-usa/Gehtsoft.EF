@@ -16,6 +16,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Db.MssqlDb\Gehtsoft.EF.Db.MssqlDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.MysqlDb\Gehtsoft.EF.Db.MysqlDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.OracleDb\Gehtsoft.EF.Db.OracleDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.PostgresDb\Gehtsoft.EF.Db.PostgresDb.csproj" />
