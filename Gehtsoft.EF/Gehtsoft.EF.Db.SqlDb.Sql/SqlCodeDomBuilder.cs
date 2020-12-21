@@ -341,10 +341,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             SqlCodeDomBuilder = new SqlCodeDomBuilder();
         }
-        public Func<IDictionary<string, object>, object> Parse(string name, TextReader source)
+        public Func<IDictionary<string, object>, dynamic> Parse(string name, TextReader source)
         {
-            Func<object> compiled = Expression.Lambda<Func<object>>(SqlCodeDomBuilder.Parse(name, source)).Compile();
-            Func<IDictionary<string, object>, object> func = arg =>
+            Func<object> compiled = Expression.Lambda<Func<dynamic>>(SqlCodeDomBuilder.Parse(name, source)).Compile();
+            Func<IDictionary<string, object>, dynamic> func = arg =>
             {
                 SqlCodeDomBuilder.ParametersDictionary = arg;
                 return compiled();
@@ -352,25 +352,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return func;
         }
 
-        public Func<IDictionary<string, object>, object> Parse(string name, string source)
+        public Func<IDictionary<string, object>, dynamic> Parse(string name, string source)
         {
-            Func<object> compiled = Expression.Lambda<Func<object>>(SqlCodeDomBuilder.Parse(name, source)).Compile();
-            Func<IDictionary<string, object>, object> func = arg =>
-            {
-                SqlCodeDomBuilder.ParametersDictionary = arg;
-                return compiled();
-            };
-            return func;
+            using (TextReader tr = new StringReader(source))
+                return Parse(name, tr);
         }
-        public Func<IDictionary<string, object>, object> Parse(string fileName, Encoding encoding = null)
+
+        public Func<IDictionary<string, object>, dynamic> Parse(string fileName, Encoding encoding = null)
         {
-            Func<object> compiled = Expression.Lambda<Func<object>>(SqlCodeDomBuilder.Parse(fileName, encoding)).Compile();
-            Func<IDictionary<string, object>, object> func = arg =>
-            {
-                SqlCodeDomBuilder.ParametersDictionary = arg;
-                return compiled();
-            };
-            return func;
+            using (TextReader tr = new StreamReader(fileName, encoding))
+                return Parse(fileName, tr);
         }
     }
 

@@ -39,8 +39,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void DeclareCursor1()
         {
-            Func<IDictionary<string, object>, object> func;
-            object result;
+            Func<IDictionary<string, object>, dynamic> func;
+            dynamic result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test",
@@ -74,7 +74,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void DeclareCursor2()
         {
-            object result;
+            dynamic result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
@@ -95,8 +95,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void DeclareCursor3()
         {
-            Func<IDictionary<string, object>, object> func;
-            object result;
+            Func<IDictionary<string, object>, dynamic> func;
+            dynamic result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test",

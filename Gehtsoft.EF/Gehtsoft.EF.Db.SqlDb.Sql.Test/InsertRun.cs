@@ -67,15 +67,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleInsert()
         {
-            Func<IDictionary<string, object>, object> func;
-            object result;
+            Func<IDictionary<string, object>, dynamic> func;
+            dynamic result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
-            List<object> array;
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = func(null);
-            array = result as List<object>;
-            int countBefore = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int countBefore = (int)(result[0].Total);
 
             func = environment.Parse("test",
                 "INSERT INTO Supplier " +
@@ -84,45 +82,40 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "('Gehtsoft', 'Just Gehtsoft', 'Wow', '1-st street 1', 'Omsk', 'Siberia', '644000', 'Russia')"
             );
             result = func(null);
-            array = result as List<object>;
 
-            Int64 insertedID = (Int64)(array[0] as Dictionary<string, object>)["LastInsertedId"];
+            Int64 insertedID = (Int64)result[0].LastInsertedId;
             insertedID.Should().BeGreaterThan(0);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = func(null);
-            array = result as List<object>;
-            int countAfter = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int countAfter = (int)(result[0].Total);
 
             countAfter.Should().Be(countBefore + 1);
 
             func = environment.Parse("test", $"SELECT * FROM Supplier WHERE SupplierID={insertedID}");
             result = func(null);
-            array = result as List<object>;
-            array.Count().Should().Be(1);
+            ((int)result.Count).Should().Be(1);
 
-            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            string companyName = (string)(result[0].CompanyName);
             companyName.Should().Be("Gehtsoft");
         }
 
         [Fact]
         public void InsertFromSelect()
         {
-            Func<IDictionary<string, object>, object> func;
-            object result;
+            Func<IDictionary<string, object>, dynamic> func;
+            dynamic result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
             List<object> array;
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = func(null);
-            array = result as List<object>;
-            int countBefore = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int countBefore = (int)(result[0].Total);
 
             func = environment.Parse("test", "SELECT * FROM Customer WHERE PostalCode LIKE '80%' ORDER BY CustomerID");
             result = func(null);
-            array = result as List<object>;
-            int countShoulfBeAdded = array.Count;
-            string shouldBeCompanyName = (string)(array[array.Count - 1] as Dictionary<string, object>)["CompanyName"];
+            int countShoulfBeAdded = result.Count;
+            string shouldBeCompanyName = (string)(result[result.Count - 1].CompanyName);
 
             func = environment.Parse("test",
                 "INSERT INTO Supplier " +
@@ -133,24 +126,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             );
 
             result = func(null);
-            array = result as List<object>;
 
-            Int64 lastInsertedID = (Int64)(array[0] as Dictionary<string, object>)["LastInsertedId"];
+            Int64 lastInsertedID = (Int64)(result[0].LastInsertedId);
             lastInsertedID.Should().BeGreaterThan(0);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = func(null);
-            array = result as List<object>;
-            int countAfter = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int countAfter = (int)result[0].Total;
 
             countAfter.Should().Be(countBefore + countShoulfBeAdded);
 
             func = environment.Parse("test", $"SELECT * FROM Supplier WHERE SupplierID={lastInsertedID}");
             result = func(null);
-            array = result as List<object>;
-            array.Count().Should().Be(1);
+            ((int)result.Count).Should().Be(1);
 
-            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            string companyName = (string)(result[0].CompanyName);
             companyName.Should().Be(shouldBeCompanyName);
         }
 

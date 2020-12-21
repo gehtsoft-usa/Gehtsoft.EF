@@ -5,6 +5,7 @@ using Gehtsoft.EF.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -162,9 +163,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             mBuilder.BlockDescriptors.Peek().LastStatementResult = run(insert);
         }
-        private object run(SqlInsertStatement insert)
+        private dynamic run(SqlInsertStatement insert)
         {
-            List<object> result = new List<object>();
+            List<dynamic> result = new List<dynamic>();
             mInsert = insert;
             if (mConnectionFactory != null)
             {
@@ -195,8 +196,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         {
                             v = Convert.ChangeType(v, typeof(Int64));
                         }
-                        Dictionary<string, object> res = new Dictionary<string, object>();
-                        res.Add("LastInsertedId", v);
+                        var res = new ExpandoObject();
+                        (res as IDictionary<string, object>).Add("LastInsertedId", v);
                         result.Add(res);
                     }
                     else
@@ -226,13 +227,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         private object bindRecord(SqlDbQuery query)
         {
-            Dictionary<string, object> result = new Dictionary<string, object>();
+            var result = new ExpandoObject();
+            IDictionary<string, object> _result = result as IDictionary<string, object>;
             object v = query.GetValue(0);
             if (v is Int32 || v is UInt32 || v is UInt64)
             {
                 v = Convert.ChangeType(v, typeof(Int64));
             }
-            if (query.FieldCount > 0) result.Add("LastInsertedId", v);
+            if (query.FieldCount > 0) _result.Add("LastInsertedId", v);
             return result;
         }
     }

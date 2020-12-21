@@ -237,7 +237,11 @@ namespace TestApp
             insert1Select.Where.Property(gCreateDropTable["vint_pk"]).Eq().Value(2);
             InsertSelectQueryBuilder insert1FromSelect = connection.GetInsertSelectQueryBuilder(gCreateDropTable1, insert1Select, false);
             using (query = connection.GetQuery(insert1FromSelect))
+            {
+                if (query.LanguageSpecifics.AutoincrementReturnedAs == SqlDbLanguageSpecifics.AutoincrementReturnStyle.Parameter)
+                    query.BindOutput("vint_pk", DbType.Int32);
                 query.ExecuteNoData();
+            }
 
             using (query = connection.GetQuery($"select * from {gCreateDropTable1.Name}"))
             {

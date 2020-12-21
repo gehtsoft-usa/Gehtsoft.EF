@@ -5,6 +5,7 @@ using Gehtsoft.EF.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -111,9 +112,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(select);
         }
-        internal object Run(SqlSelectStatement select)
+        internal dynamic Run(SqlSelectStatement select)
         {
-            List<object> result = new List<object>();
+            List<dynamic> result = new List<dynamic>();
+            
             mSelect = select;
             if (mConnectionFactory != null)
             {
@@ -130,7 +132,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     query.ExecuteReader();
                     while (query.ReadNext())
                     {
-                        object o = bindRecord(query, select);
+                        dynamic o = bindRecord(query, select);
                         result.Add(o);
                     }
                 }
@@ -321,9 +323,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return mConnection.GetSelectQueryBuilder(entityDescriptor.TableDescriptor);
         }
 
-        private object bindRecord(SqlDbQuery query, SqlSelectStatement select)
+        private dynamic bindRecord(SqlDbQuery query, SqlSelectStatement select)
         {
-            Dictionary<string, object> result = new Dictionary<string, object>();
+
+            ExpandoObject result = new ExpandoObject();
+            var _result = result as IDictionary<string, object>;
             int fieldCount = query.FieldCount;
 
             for (int i = 0; i < fieldCount; i++)
@@ -373,7 +377,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
                 try
                 {
-                    result.Add(name, value);
+                    _result.Add(name, value);
                 }
                 catch
                 {

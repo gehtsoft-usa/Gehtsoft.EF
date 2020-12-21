@@ -66,15 +66,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void DeleteSuccess()
         {
-            Func<IDictionary<string, object>, object> func;
-            object result;
+            Func<IDictionary<string, object>, dynamic> func;
+            dynamic result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
-            List<object> array;
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = func(null);
-            array = result as List<object>;
-            int countBefore = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int countBefore = (int)(result[0].Total);
 
             func = environment.Parse("test",
                 "INSERT INTO Supplier " +
@@ -83,39 +81,33 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "('Gehtsoft', 'Just Gehtsoft', 'Wow', '1-st street 1', 'Moscow', 'Siberia', '644000', 'Russia')"
             );
             result = func(null);
-            array = result as List<object>;
-            Int64 insertedID = (Int64)(array[0] as Dictionary<string, object>)["LastInsertedId"];
+            Int64 insertedID = (Int64)(result[0].LastInsertedId);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = func(null);
-            array = result as List<object>;
-            int countAfterInsert = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int countAfterInsert = (int)(result[0].Total);
             countAfterInsert.Should().Be(countBefore + 1);
 
             func = environment.Parse("test", $"DELETE FROM Supplier " +
                 $"WHERE SupplierID={insertedID}");
             result = func(null);
-            array = result as List<object>;
-            int deleted = (int)(array[0] as Dictionary<string, object>)["Deleted"];
+            int deleted = (int)(result.Deleted);
             deleted.Should().Be(1);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = func(null);
-            array = result as List<object>;
-            int countAfterDelete = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int countAfterDelete = (int)(result[0].Total);
             countAfterDelete.Should().Be(countBefore);
 
             func = environment.Parse("test", $"DELETE FROM Supplier " +
                 $"WHERE SupplierID={insertedID}");
             result = func(null);
-            array = result as List<object>;
-            deleted = (int)(array[0] as Dictionary<string, object>)["Deleted"];
+            deleted = (int)(result.Deleted);
             deleted.Should().Be(0);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = func(null);
-            array = result as List<object>;
-            int countAfterDelete1 = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int countAfterDelete1 = (int)(result[0].Total);
             countAfterDelete1.Should().Be(countBefore);
         }
 

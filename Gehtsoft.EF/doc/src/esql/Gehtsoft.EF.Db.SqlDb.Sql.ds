@@ -1,0 +1,7 @@
+@group
+    @title=Namespace Gehtsoft.EF.Db.SqlDb.Sql
+    @key=Gehtsoft.EF.Db.SqlDb.Sql
+    @ingroup=index
+    @brief=The namespace consists of classes to execute SQL queries on the entities
+
+@end

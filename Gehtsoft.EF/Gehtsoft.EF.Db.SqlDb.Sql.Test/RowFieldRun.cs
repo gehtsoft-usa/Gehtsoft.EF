@@ -44,10 +44,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void AddRowField()
         {
-            Func<IDictionary<string, object>, object> func;
-            object result;
-            Dictionary<string, object> dict;
-            List<object> array;
+            Func<IDictionary<string, object>, dynamic> func;
+            dynamic result;
+            IDictionary<string, object> dict;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test",
@@ -57,11 +56,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "EXIT WITH ?record"
             );
             result = func(null);
-            dict = result as Dictionary<string, object>;
+            dict = result as IDictionary<string, object>;
             dict.ContainsKey("Test").Should().BeTrue();
             dict.ContainsKey("Quantity").Should().BeTrue();
             string test = (string)dict["Test"];
             test.Should().Be("testing");
+
 
             func = environment.Parse("test",
                 "SET recordset = NEW_ROWSET();" +
@@ -75,18 +75,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "EXIT WITH ?recordset"
             );
             result = func(null);
-            array = result as List<object>;
-            array.Count.Should().Be(2);
-            dict = array[0] as Dictionary<string, object>;
+            ((int)result.Count).Should().Be(2);
+            dict = result[0] as IDictionary<string, object>;
             dict.ContainsKey("Test").Should().BeTrue();
             dict.ContainsKey("Total").Should().BeTrue();
             string test1 = (string)dict["Test"];
             test1.Should().Be("testing");
             int total1 = (int)dict["Total"];
             total1.Should().Be(1);
-            dict = array[1] as Dictionary<string, object>;
+            dict = result[1] as IDictionary<string, object>;
             dict.ContainsKey("Test").Should().BeTrue();
             dict.ContainsKey("Total").Should().BeTrue();
+           
             string test2 = (string)dict["Test"];
             test2.Should().Be("testing");
             int total2 = (int)dict["Total"];

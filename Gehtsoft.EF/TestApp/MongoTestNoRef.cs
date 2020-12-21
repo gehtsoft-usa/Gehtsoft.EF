@@ -85,7 +85,7 @@ namespace TestApp
         [Test]
         public void TestPlainQuery()
         {
-            using (MongoConnection connection = MongoConnectionFactory.Create("mongodb://test:test@192.168.1.11:27017/test"))
+            using (MongoConnection connection = MongoConnectionFactory.Create(Config.Instance.Mongo))
             {
                 EntityFinder.EntityTypeInfo[] infos = EntityFinder.FindEntities(new Assembly[] { typeof(MongoTestNoRef).GetTypeInfo().Assembly }, "mongo0", false);
                 EntityFinder.ArrageEntities(infos);
@@ -208,7 +208,7 @@ namespace TestApp
         [Test]
         public void TestEntityQuery()
         {
-            using (MongoConnection connection = MongoConnectionFactory.Create("mongodb://test:test@192.168.1.11:27017/test"))
+            using (MongoConnection connection = MongoConnectionFactory.Create(Config.Instance.Mongo))
             {
                 //create lists
 
@@ -403,7 +403,7 @@ namespace TestApp
         [Test]
         public void TestEntityQuery1()
         {
-            using (MongoConnection connection = MongoConnectionFactory.Create("mongodb://test:test@192.168.1.11:27017/test"))
+            using (MongoConnection connection = MongoConnectionFactory.Create(Config.Instance.Mongo))
             {
                 EntityFinder.EntityTypeInfo[] infos = EntityFinder.FindEntities(new Assembly[] { typeof(MongoTestNoRef).GetTypeInfo().Assembly }, "mongo2", false);
                 EntityFinder.ArrageEntities(infos);

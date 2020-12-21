@@ -1,0 +1,64 @@
+@class
+    @name=SqlCodeDomBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomBuilder
+    @ingroup=Gehtsoft.EF.Db.SqlDb.Sql
+    @sig=T:Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomBuilder
+    @type=class
+    @parent=object
+    @brief=The basic class for Entity SQL processing.
+
+    @member
+        @type=method
+        @name=Build
+        @key=Build.Vs5
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomBuilder.Build(Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo[],System.String)
+        @visibility=public
+        @scope=instance
+        @brief=Parse entity information
+
+            @declaration
+                @language=cs
+                @name=Build
+                @return=void
+                @params=[link=Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo]EntityTypeInfo[][/link] entities, string ns = "NS"
+            @end
+
+            @param
+                @name=entities
+                The list of the entities.
+
+                You may use [clink=Gehtsoft.EF.Entities.EntityFinder.FindEntities.0]EntityFinder.FindEntities()[/clink]
+                to get all entities defined in the application.
+            @end
+
+            @param
+                @name=ns
+                The namespace of entity declaration.
+            @end
+    @end
+
+    @member
+        @type=method
+        @name=NewEnvironment
+        @key=NewEnvironment.COC
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomBuilder.NewEnvironment(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @visibility=public
+        @scope=instance
+        @brief=Creates a new parsing/execution environment.
+
+            @declaration
+                @language=cs
+                @name=NewEnvironment
+                @return=[link=Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomEnvironment]SqlCodeDomEnvironment[/link]
+                @params=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection
+            @end
+
+            @param
+                @name=connection
+
+            @end
+
+    @end
+@end

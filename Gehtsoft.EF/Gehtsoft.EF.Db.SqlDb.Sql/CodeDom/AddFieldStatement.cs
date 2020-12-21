@@ -70,7 +70,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             string fieldName = (string)StatementRunner.CalculateExpression(FieldNameExpression, CodeDomBuilder, connection).Value;
             object value = StatementRunner.CalculateExpression(ValueExpression, CodeDomBuilder, connection).Value;
             string globalVariableName = RowParameter.Name;
-            Dictionary<string, object> record = (Dictionary<string, object>)CodeDomBuilder.FindGlobalParameter(globalVariableName).Value;
+            IDictionary<string, object> record = (IDictionary<string, object>)CodeDomBuilder.FindGlobalParameter(globalVariableName).Value;
             if (record.ContainsKey(fieldName))
                 record[fieldName] = value;
             else

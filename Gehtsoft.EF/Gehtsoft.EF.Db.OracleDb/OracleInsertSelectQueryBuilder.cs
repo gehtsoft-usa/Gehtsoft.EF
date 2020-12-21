@@ -16,6 +16,9 @@ namespace Gehtsoft.EF.Db.OracleDb
             if (autoIncrement != null)
             {
                 builder.Append("BEGIN \r\n");
+                var expr = $"{mTable.Name}_{autoIncrement.Name}.nextval";
+                if (mSelect.Resultset[mSelect.Resultset.Count - 1].Expression != expr)
+                    mSelect.AddExpressionToResultset(expr, System.Data.DbType.Int32, false);
             }
             builder.Append(base.BuildQuery(leftSide, autoIncrement));
             if (autoIncrement != null)

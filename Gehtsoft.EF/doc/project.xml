@@ -13,6 +13,7 @@
   <dg:folder name="src\mongo" encoding="windows-1252" />
   <dg:folder name="src\fts" encoding="windows-1252" />
   <dg:folder name="src\odata" encoding="windows-1252" />
+  <dg:folder name="src\esql" encoding="windows-1252" />
  </dg:source>
  <dg:output template="%docgen%\template\html\main.xsl" file="dst/null-file" encoding="windows-1252">
   <dg:define name="text-language" value="en" />

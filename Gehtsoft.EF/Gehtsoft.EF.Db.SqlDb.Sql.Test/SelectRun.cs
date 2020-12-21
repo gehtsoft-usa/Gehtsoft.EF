@@ -46,12 +46,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT * FROM Category");
-            object result = func(null);
-            List<object> array = result as List<object>;
-            array.Count().Should().Be(8);
-            (array[0] as Dictionary<string, object>).ContainsKey("CategoryID").Should().BeTrue();
-            (array[0] as Dictionary<string, object>).ContainsKey("CategoryName").Should().BeTrue();
-            (array[0] as Dictionary<string, object>).ContainsKey("Description").Should().BeTrue();
+            dynamic result = func(null);
+            ((int)result.Count).Should().Be(8);
+            (result[0] as IDictionary<string, object>).ContainsKey("CategoryID").Should().BeTrue();
+            (result[0] as IDictionary<string, object>).ContainsKey("CategoryName").Should().BeTrue();
+            (result[0] as IDictionary<string, object>).ContainsKey("Description").Should().BeTrue();
         }
 
         [Fact]
@@ -60,11 +59,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT CategoryID AS Id, CategoryName FROM Category");
-            object result = func(null);
-            List<object> array = result as List<object>;
-            array.Count().Should().Be(8);
-            (array[0] as Dictionary<string, object>).ContainsKey("Id").Should().BeTrue();
-            (array[0] as Dictionary<string, object>).ContainsKey("CategoryName").Should().BeTrue();
+            dynamic result = func(null);
+            ((int)result.Count).Should().Be(8);
+            (result[0] as IDictionary<string, object>).ContainsKey("Id").Should().BeTrue();
+            (result[0] as IDictionary<string, object>).ContainsKey("CategoryName").Should().BeTrue();
         }
 
         [Fact]
@@ -73,9 +71,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Category");
-            object result = func(null);
-            List<object> array = result as List<object>;
-            ((int)(array[0] as Dictionary<string, object>)["Total"]).Should().Be(8);
+            dynamic result = func(null);
+            ((int)(result[0].Total)).Should().Be(8);
         }
 
         [Fact]
@@ -84,10 +81,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT MAX(OrderDate) AS Max, MIN(OrderDate) AS Min FROM Order");
-            object result = func(null);
-            List<object> array = result as List<object>;
-            DateTime max = (DateTime)(array[0] as Dictionary<string, object>)["Max"];
-            DateTime min = (DateTime)(array[0] as Dictionary<string, object>)["Min"];
+            dynamic result = func(null);
+            DateTime max = (DateTime)(result[0].Max);
+            DateTime min = (DateTime)(result[0].Min);
             (max > min).Should().BeTrue();
         }
 
@@ -97,10 +93,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT MAX(Freight) AS Max, MAX(Freight) + 2.0 AS MaxIncreased FROM Order");
-            object result = func(null);
-            List<object> array = result as List<object>;
-            double max = (double)(array[0] as Dictionary<string, object>)["Max"];
-            double maxIncreased = (double)(array[0] as Dictionary<string, object>)["MaxIncreased"];
+            dynamic result = func(null);
+            double max = (double)(result[0].Max);
+            double maxIncreased = (double)(result[0].MaxIncreased);
             (maxIncreased - max == 2.0).Should().BeTrue();
         }
 
@@ -110,11 +105,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT CompanyName || ' ' || ContactName AS Concatted, CompanyName, ContactName FROM Customer");
-            object result = func(null);
-            List<object> array = result as List<object>;
-            string concatted = (string)(array[0] as Dictionary<string, object>)["Concatted"];
-            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
-            string contactName = (string)(array[0] as Dictionary<string, object>)["ContactName"];
+            dynamic result = func(null);
+            string concatted = (string)(result[0].Concatted);
+            string companyName = (string)(result[0].CompanyName);
+            string contactName = (string)(result[0].ContactName);
             (companyName + " " + contactName == concatted).Should().BeTrue();
         }
 
@@ -124,10 +118,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT TRIM(' ' || CompanyName || ' ') AS Trimmed, CompanyName FROM Customer");
-            object result = func(null);
-            List<object> array = result as List<object>;
-            string trimmed = (string)(array[0] as Dictionary<string, object>)["Trimmed"];
-            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            dynamic result = func(null);
+            string trimmed = (string)(result[0].Trimmed);
+            string companyName = (string)(result[0].CompanyName);
             (companyName == trimmed).Should().BeTrue();
         }
 
@@ -144,18 +137,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "INNER JOIN Customer ON Order.Customer = Customer.CustomerID " +
                 "INNER JOIN Employee ON Order.Employee = Employee.EmployeeID"
                 );
-            object result = func(null);
-            List<object> array = result as List<object>;
+            dynamic result = func(null);
 
-            int orderID = (int)(array[0] as Dictionary<string, object>)["ID"];
+            int orderID = (int)(result[0].ID);
             (orderID > 0).Should().BeTrue();
-            double quantity = (double)(array[0] as Dictionary<string, object>)["Quantity"];
+            double quantity = (double)(result[0].Quantity);
             (quantity > 0.0).Should().BeTrue();
-            DateTime orderDate = (DateTime)(array[0] as Dictionary<string, object>)["OrderDate"];
+            DateTime orderDate = (DateTime)(result[0].OrderDate);
             (orderDate > DateTime.MinValue).Should().BeTrue();
-            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            string companyName = (string)(result[0].CompanyName);
             string.IsNullOrWhiteSpace(companyName).Should().BeFalse();
-            string firstName = (string)(array[0] as Dictionary<string, object>)["FirstName"];
+            string firstName = (string)(result[0].FirstName);
             string.IsNullOrWhiteSpace(firstName).Should().BeFalse();
         }
 
@@ -173,12 +165,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "INNER JOIN Employee ON Order.Employee = Employee.EmployeeID " +
                 "WHERE Quantity > 100"
                 );
-            object result = func(null);
-            List<object> array = result as List<object>;
+            dynamic result = func(null);
 
-            foreach (object obj in array)
+            foreach (object obj in result)
             {
-                double quantity = (double)(obj as Dictionary<string, object>)["Quantity"];
+                double quantity = (double)(obj as IDictionary<string, object>)["Quantity"];
                 (quantity > 100.0).Should().BeTrue();
             }
         }
@@ -197,23 +188,22 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "AUTO JOIN Employee " +
                 "WHERE Quantity > 100"
                 );
-            object result = func(null);
-            List<object> array = result as List<object>;
+            dynamic result = func(null);
 
-            int orderID = (int)(array[0] as Dictionary<string, object>)["ID"];
+            int orderID = (int)(result[0].ID);
             (orderID > 0).Should().BeTrue();
-            double quantity1 = (double)(array[0] as Dictionary<string, object>)["Quantity"];
+            double quantity1 = (double)(result[0].Quantity);
             (quantity1 > 0.0).Should().BeTrue();
-            DateTime orderDate = (DateTime)(array[0] as Dictionary<string, object>)["OrderDate"];
+            DateTime orderDate = (DateTime)(result[0].OrderDate);
             (orderDate > DateTime.MinValue).Should().BeTrue();
-            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            string companyName = (string)(result[0].CompanyName);
             string.IsNullOrWhiteSpace(companyName).Should().BeFalse();
-            string firstName = (string)(array[0] as Dictionary<string, object>)["FirstName"];
+            string firstName = (string)(result[0].FirstName);
             string.IsNullOrWhiteSpace(firstName).Should().BeFalse();
 
-            foreach (object obj in array)
+            foreach (object obj in result)
             {
-                double quantity = (double)(obj as Dictionary<string, object>)["Quantity"];
+                double quantity = (double)(obj as IDictionary<string, object>)["Quantity"];
                 (quantity > 100.0).Should().BeTrue();
             }
         }
@@ -228,11 +218,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "FROM OrderDetail " +
                 "OFFSET 0 LIMIT 1"
                 );
-            object result = func(null);
-            List<object> array = result as List<object>;
+            dynamic result = func(null);
 
-            array.Count.Should().Be(1);
-            int idFirst = (int)(array[0] as Dictionary<string, object>)["Id"];
+            ((int)result.Count).Should().Be(1);
+            int idFirst = (int)(result[0].Id);
 
             func = environment.Parse("test",
                 "SELECT * " +
@@ -240,10 +229,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "OFFSET 20 LIMIT 10"
                 );
             result = func(null);
-            array = result as List<object>;
-
-            array.Count.Should().Be(10);
-            int id = (int)(array[0] as Dictionary<string, object>)["Id"];
+            ((int)result.Count).Should().Be(10);
+            int id = (int)(result[0].Id);
             id.Should().Be(idFirst + 20);
         }
 
@@ -262,24 +249,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "WHERE Q > 10 " +
                 "ORDER BY Quantity DESC, Order.OrderDate DESC"
                 );
-            object result = func(null);
-            List<object> array = result as List<object>;
+            dynamic result = func(null);
 
-            int orderID = (int)(array[0] as Dictionary<string, object>)["ID"];
+            int orderID = (int)(result[0].ID);
             (orderID > 0).Should().BeTrue();
-            double quantity1 = (double)(array[0] as Dictionary<string, object>)["Q"];
+            double quantity1 = (double)(result[0].Q);
             (quantity1 > 0.0).Should().BeTrue();
-            DateTime orderDate = (DateTime)(array[0] as Dictionary<string, object>)["OrderDate"];
+            DateTime orderDate = (DateTime)(result[0].OrderDate);
             (orderDate > DateTime.MinValue).Should().BeTrue();
-            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            string companyName = (string)(result[0].CompanyName);
             string.IsNullOrWhiteSpace(companyName).Should().BeFalse();
-            string firstName = (string)(array[0] as Dictionary<string, object>)["FirstName"];
+            string firstName = (string)(result[0].FirstName);
             string.IsNullOrWhiteSpace(firstName).Should().BeFalse();
 
             double max = double.MaxValue;
-            foreach (object obj in array)
+            foreach (dynamic obj in result)
             {
-                double quantity = (double)(obj as Dictionary<string, object>)["Q"];
+                double quantity = (double)(obj as IDictionary<string, object>)["Q"];
                 (quantity <= max).Should().BeTrue();
                 max = quantity;
             }
@@ -297,26 +283,24 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "GROUP BY Country " +
                 "ORDER BY COUNT(CustomerID) DESC"
                 );
-            object result = func(null);
-            List<object> array = result as List<object>;
+            dynamic result = func(null);
 
-            int cstmCounter = (int)(array[0] as Dictionary<string, object>)["CustomersInCountry"];
+            int cstmCounter = (int)(result[0].CustomersInCountry);
             (cstmCounter > 0).Should().BeTrue();
-            string country = (string)(array[0] as Dictionary<string, object>)["Country"];
+            string country = (string)(result[0].Country);
             string.IsNullOrWhiteSpace(country).Should().BeFalse();
 
             int max = int.MaxValue;
-            foreach (object obj in array)
+            foreach (dynamic obj in result)
             {
-                int count = (int)(obj as Dictionary<string, object>)["CustomersInCountry"];
+                int count = (int)(obj as IDictionary<string, object>)["CustomersInCountry"];
                 (count <= max).Should().BeTrue();
                 max = count;
-                string countryName = (string)(obj as Dictionary<string, object>)["Country"];
+                string countryName = (string)(obj as IDictionary<string, object>)["Country"];
                 countryName.ToLower().StartsWith("u");
                 func = environment.Parse("test", $"SELECT COUNT(*) AS q FROM Customer WHERE UPPER(Country) = UPPER('{countryName}')");
-                object resultInner = func(null);
-                List<object> arrayInner = resultInner as List<object>;
-                int countFound = (int)(arrayInner[0] as Dictionary<string, object>)["q"];
+                dynamic resultInner = func(null);
+                int countFound = (int)(resultInner[0] as IDictionary<string, object>)["q"];
                 countFound.Should().Be(count);
             }
         }
@@ -336,24 +320,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "WHERE ABS(-Q) > 100 " +
                 "ORDER BY Q DESC"
                 );
-            object result = func(null);
-            List<object> array = result as List<object>;
+            dynamic result = func(null);
 
-            int orderID = (int)(array[0] as Dictionary<string, object>)["ID"];
+            int orderID = (int)(result[0].ID);
             (orderID > 0).Should().BeTrue();
-            double quantity1 = (double)(array[0] as Dictionary<string, object>)["Q"];
+            double quantity1 = (double)(result[0].Q);
             (quantity1 > 0.0).Should().BeTrue();
-            DateTime orderDate = (DateTime)(array[0] as Dictionary<string, object>)["OrderDate"];
+            DateTime orderDate = (DateTime)(result[0].OrderDate);
             (orderDate > DateTime.MinValue).Should().BeTrue();
-            string companyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
+            string companyName = (string)(result[0].CompanyName);
             string.IsNullOrWhiteSpace(companyName).Should().BeFalse();
-            string firstName = (string)(array[0] as Dictionary<string, object>)["FirstName"];
+            string firstName = (string)(result[0].FirstName);
             string.IsNullOrWhiteSpace(firstName).Should().BeFalse();
 
             double max = double.MaxValue;
-            foreach (object obj in array)
+            foreach (dynamic obj in result)
             {
-                double quantity = (double)(obj as Dictionary<string, object>)["Q"];
+                double quantity = (double)(obj as IDictionary<string, object>)["Q"];
                 (quantity > 100.0).Should().BeTrue();
                 (quantity <= max).Should().BeTrue();
                 max = quantity;
@@ -372,13 +355,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "GROUP BY Country " +
                 "ORDER BY COUNT(CustomerID) DESC"
                 );
-            object result = func(null);
-            List<object> array = result as List<object>;
-            array.Count.Should().BeGreaterThan(0);
+            dynamic result = func(null);
+            ((int)result.Count).Should().BeGreaterThan(0);
 
-            foreach (object obj in array)
+            foreach (dynamic obj in result)
             {
-                string countryName = (string)(obj as Dictionary<string, object>)["Country"];
+                string countryName = (string)(obj as IDictionary<string, object>)["Country"];
                 countryName.ToLower().StartsWith("u");
             }
         }
@@ -395,13 +377,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "GROUP BY Country " +
                 "ORDER BY COUNT(CustomerID) DESC"
                 );
-            object result = func(null);
-            List<object> array = result as List<object>;
-            array.Count.Should().BeGreaterThan(0);
+            dynamic result = func(null);
+            ((int)result.Count).Should().BeGreaterThan(0);
 
-            foreach (object obj in array)
+            foreach (dynamic obj in result)
             {
-                string countryName = (string)(obj as Dictionary<string, object>)["Country"];
+                string countryName = (string)(obj as IDictionary<string, object>)["Country"];
                 countryName.ToLower().EndsWith("a");
             }
         }
@@ -418,13 +399,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "GROUP BY Country " +
                 "ORDER BY COUNT(CustomerID) DESC"
                 );
-            object result = func(null);
-            List<object> array = result as List<object>;
-            array.Count.Should().BeGreaterThan(0);
+            dynamic result = func(null);
+            ((int)result.Count).Should().BeGreaterThan(0);
 
-            foreach (object obj in array)
+            foreach (dynamic obj in result)
             {
-                string countryName = (string)(obj as Dictionary<string, object>)["Country"];
+                string countryName = (string)(obj as IDictionary<string, object>)["Country"];
                 countryName.ToLower().Contains("gent");
             }
         }
@@ -436,21 +416,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
-            object result = func(null);
-            List<object> array = result as List<object>;
-            int total = (int)(array[0] as Dictionary<string, object>)["Total"];
+            dynamic result = func(null);
+            int total = (int)(result[0].Total);
             total.Should().BeGreaterThan(0);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Country IN (SELECT Country FROM Supplier)");
             result = func(null);
-            array = result as List<object>;
-            int totalIn = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int totalIn = (int)(result[0].Total);
             totalIn.Should().BeGreaterThan(0);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Country NOT IN (SELECT Country FROM Supplier)");
             result = func(null);
-            array = result as List<object>;
-            int totalNotIn = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int totalNotIn = (int)(result[0].Total);
             totalNotIn.Should().BeGreaterThan(0);
 
             total.Should().Be(totalIn + totalNotIn);
@@ -463,21 +440,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
-            object result = func(null);
-            List<object> array = result as List<object>;
-            int total = (int)(array[0] as Dictionary<string, object>)["Total"];
+            dynamic result = func(null);
+            int total = (int)(result[0].Total);
             total.Should().BeGreaterThan(0);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE UPPER(Country) IN ('USA', 'AUSTRALIA')");
             result = func(null);
-            array = result as List<object>;
-            int totalIn = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int totalIn = (int)(result[0].Total);
             totalIn.Should().BeGreaterThan(0);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE UPPER(Country) NOT IN ('USA', 'AUSTRALIA')");
             result = func(null);
-            array = result as List<object>;
-            int totalNotIn = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int totalNotIn = (int)(result[0].Total);
             totalNotIn.Should().BeGreaterThan(0);
 
             total.Should().Be(totalIn + totalNotIn);
@@ -490,27 +464,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
-            object result = func(null);
-            List<object> array = result as List<object>;
-            int total = (int)(array[0] as Dictionary<string, object>)["Total"];
+            dynamic result = func(null);
+            int total = (int)(result[0].Total);
             total.Should().BeGreaterThan(0);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Region IS NULL");
             result = func(null);
-            array = result as List<object>;
-            int totalNull = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int totalNull = (int)(result[0].Total);
             totalNull.Should().BeGreaterThan(0);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer WHERE Region IS NOT NULL");
             result = func(null);
-            array = result as List<object>;
-            int totalNotNull = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int totalNotNull = (int)(result[0].Total);
             totalNotNull.Should().BeGreaterThan(0);
 
             func = environment.Parse("test", "SELECT COUNT(Region) AS Total FROM Customer");
             result = func(null);
-            array = result as List<object>;
-            int totalCountNotNull = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int totalCountNotNull = (int)(result[0].Total);
             totalCountNotNull.Should().BeGreaterThan(0);
             totalCountNotNull.Should().BeLessOrEqualTo(totalNotNull);
 

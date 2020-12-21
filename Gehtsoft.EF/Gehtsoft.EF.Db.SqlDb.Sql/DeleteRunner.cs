@@ -5,6 +5,7 @@ using Gehtsoft.EF.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -107,9 +108,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mBuilder.BlockDescriptors.Peek().LastStatementResult = run(delete);
         }
 
-        private object run(SqlDeleteStatement delete)
+        private dynamic run(SqlDeleteStatement delete)
         {
-            List<object> result = new List<object>();
+            dynamic result = null;
             mDelete = delete;
             if (mConnectionFactory != null)
             {
@@ -123,9 +124,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 {
                     ApplyBindParams(query);
                     int deleted = query.ExecuteNoData();
-                    Dictionary<string, object> subResult = new Dictionary<string, object>();
-                    subResult.Add("Deleted", deleted);
-                    result.Add(subResult);
+                    ExpandoObject subResult = new ExpandoObject();
+                    (subResult as IDictionary<string, object>).Add("Deleted", deleted);
+                    result = subResult;
                 }
             }
             finally

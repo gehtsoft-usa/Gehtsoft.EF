@@ -39,10 +39,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void Exit()
         {
-            Func<IDictionary<string, object>, object> func;
-            object result;
+            Func<IDictionary<string, object>, dynamic> func;
+            dynamic result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
-            List<object> array;
 
             func = environment.Parse("test",
                 "DECLARE qqq AS STRING;" +
@@ -52,8 +51,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "WHERE LOWER(Country) LIKE ?qqq || '%' "
             );
             result = func(null);
-            array = result as List<object>;
-            int cnt1 = (int)(array[0] as Dictionary<string, object>)["Total"];
+            int cnt1 = (int)(result[0].Total);
 
             func = environment.Parse("test",
                 "DECLARE qqq AS INTEGER;" +

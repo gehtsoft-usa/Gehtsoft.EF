@@ -5,6 +5,7 @@ using Gehtsoft.EF.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -136,9 +137,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             mBuilder.BlockDescriptors.Peek().LastStatementResult = run(update);
         }
 
-        private object run(SqlUpdateStatement update)
+        private dynamic run(SqlUpdateStatement update)
         {
-            List<object> result = new List<object>();
+            dynamic result = null;
             mUpdate = update;
             if (mConnectionFactory != null)
             {
@@ -153,9 +154,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     ApplyBindParams(query);
 
                     int updated = query.ExecuteNoData();
-                    Dictionary<string, object> subResult = new Dictionary<string, object>();
-                    subResult.Add("Updated", updated);
-                    result.Add(subResult);
+                    ExpandoObject subResult = new ExpandoObject();
+                    (subResult as IDictionary<string, object>).Add("Updated", updated);
+                    result = subResult;
                 }
             }
             finally

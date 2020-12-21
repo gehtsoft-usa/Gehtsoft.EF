@@ -1,0 +1,59 @@
+
+@class
+    @name=SqlCodeDomEnvironment
+    @key=Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomEnvironment
+    @ingroup=Gehtsoft.EF.Db.SqlDb.Sql
+    @sig=T:Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomEnvironment
+    @type=class
+    @parent=object
+    @brief=The parsing/execution environment
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomBuilder.NewEnvironment.COC]SqlCodeDomBuilder.NewEnvironment()[/clink]
+    to get an instance of this class.
+
+    @member
+        @type=method
+        @name=Parse
+        @key=Parse.qW5
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomEnvironment.Parse(System.String,System.String)
+        @visibility=public
+        @scope=instance
+        @brief=Parses a query and returns a function to be executed.
+
+            @declaration
+                @language=cs
+                @name=Parse
+                @return=Func<IDictionary<string,object>,dynamic>
+                @params=string name, string source
+            @end
+            @declaration
+                @language=cs
+                @name=Parse
+                @return=Func<IDictionary<string,object>,dynamic>
+                @params=string name, TextReader source
+            @end
+            @declaration
+                @language=cs
+                @name=Parse
+                @return=Func<IDictionary<string,object>,dynamic>
+                @params=string fileName, Encoding encoding
+            @end
+
+            @param
+                @name=name
+                The function name.
+            @end
+
+            @param
+                @name=source
+                The entity SQL source.
+            @end
+
+            The method returns pointer to a function which accepts a dictionary with the parameter(s) names and values
+            and returns the value.
+
+            The value returned depends on the
+
+    @end
+@end

@@ -95,7 +95,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 if (rowParam == null)
                     return null;
 
-                Dictionary<string, object> dictionary = rowParam.Value as Dictionary<string, object>;
+                dynamic dictionary = rowParam.Value;
                 if(dictionary == null)
                 {
                     throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error in getting ROW"));
@@ -107,17 +107,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
                 string name = (string)nameParam.Value;
 
-                if (!dictionary.ContainsKey(name))
+                if (!(dictionary as IDictionary<string, object>).ContainsKey(name))
                 {
                     throw new SqlParserException(new SqlError(null, 0, 0, $"ROW doesn't contain field '{name}'"));
                 }
 
-                if(SqlBaseExpression.GetResultType(dictionary[name].GetType()) != getField.ResultType)
+                if(SqlBaseExpression.GetResultType((dictionary as IDictionary<string, object>)[name].GetType()) != getField.ResultType)
                 {
                     throw new SqlParserException(new SqlError(null, 0, 0, $"Field '{name}' is not of type '{getField.ResultType}'"));
                 }
 
-                return new SqlConstant(dictionary[name], getField.ResultType);
+                return new SqlConstant((dictionary as IDictionary<string, object>)[name], getField.ResultType);
             }
             else if (expression is NewRowSet)
             {

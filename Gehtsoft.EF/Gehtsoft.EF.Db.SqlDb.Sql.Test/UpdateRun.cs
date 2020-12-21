@@ -66,10 +66,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void UpdateSuccess()
         {
-            Func<IDictionary<string, object>, object> func;
-            object result;
+            Func<IDictionary<string, object>, dynamic> func;
+            dynamic result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
-            List<object> array;
 
             func = environment.Parse("test",
                 "INSERT INTO Supplier " +
@@ -78,19 +77,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 "('Gehtsoft', 'Just Gehtsoft', 'Wow', '1-st street 1', 'Moscow', 'Siberia', '644000', 'Russia')"
             );
             result = func(null);
-            array = result as List<object>;
-            Int64 insertedID = (Int64)(array[0] as Dictionary<string, object>)["LastInsertedId"];
+            Int64 insertedID = (Int64)result[0].LastInsertedId;
 
             func = environment.Parse("test", $"SELECT * FROM Shipper LIMIT 1");
             result = func(null);
-            array = result as List<object>;
-            string shipperCompanyName = (string)(array[0] as Dictionary<string, object>)["CompanyName"];
-            string shipperPhone = (string)(array[0] as Dictionary<string, object>)["Phone"];
+            string shipperCompanyName = (string)(result[0].CompanyName);
+            string shipperPhone = (string)(result[0].Phone);
 
             func = environment.Parse("test", $"SELECT * FROM Employee WHERE PostalCode= '98122'");
             result = func(null);
-            array = result as List<object>;
-            string emploeeRegion = (string)(array[0] as Dictionary<string, object>)["Region"];
+            string emploeeRegion = (string)(result[0].Region);
 
             func = environment.Parse("test", $"UPDATE Supplier SET " +
                 $"ContactTitle = ContactTitle || ' SUPER', " +
@@ -99,21 +95,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 $"Region = 'was here: ' || (SELECT Region FROM Employee WHERE PostalCode= '98122') " +
                 $"WHERE SupplierID={insertedID}");
             result = func(null);
-            array = result as List<object>;
-            int updated = (int)(array[0] as Dictionary<string, object>)["Updated"];
+            int updated = (int)(result.Updated);
             updated.Should().Be(1);
 
             func = environment.Parse("test", $"SELECT * FROM Supplier WHERE SupplierID={insertedID}");
             result = func(null);
-            array = result as List<object>;
 
-            string contactTitle = (string)(array[0] as Dictionary<string, object>)["ContactTitle"];
+            string contactTitle = (string)(result[0].ContactTitle);
             contactTitle.Should().Be("Wow SUPER");
-            string city = (string)(array[0] as Dictionary<string, object>)["City"];
+            string city = (string)(result[0].City);
             city.Should().Be("Omsk");
-            string phone = (string)(array[0] as Dictionary<string, object>)["Phone"];
+            string phone = (string)(result[0].Phone);
             phone.Should().Be(shipperPhone);
-            string region = (string)(array[0] as Dictionary<string, object>)["Region"];
+            string region = (string)(result[0].Region);
             region.Should().Be("was here: " + emploeeRegion);
         }
 
