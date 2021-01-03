@@ -68,7 +68,7 @@ namespace TestApp
             TestTasksImpl.Test(mConnection);
         }
 
-        [Test]
+        //[Test]
         public void TestNorthwind()
         {
             NorthwindTest t = new NorthwindTest();

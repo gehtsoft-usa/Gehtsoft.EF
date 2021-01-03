@@ -284,15 +284,31 @@ namespace TestApp
             using (query = connection.GetQuery())
             {
                 query.CommandText = "select vblob from createdroptest where vint_pk = 2";
+                query.ExecuteReader();
+                Assert.IsTrue(query.ReadNext());
+                var arr = query.GetValue<byte[]>(0);
+                Assert.AreEqual(arr.Length, gBlob.Length);
+                Assert.AreEqual(arr, gBlob);
+            }
+
+
+            using (query = connection.GetQuery())
+            {
+                query.CommandText = "select vblob from createdroptest where vint_pk = 2";
                 query.ReadBlobAsStream = true;
                 query.ExecuteReader();
                 Assert.IsTrue(query.ReadNext());
                 using (Stream s = query.GetStream(0))
                 {
-                    MemoryStream copy = new MemoryStream();
-                    s.CopyTo(copy);
-                    Assert.AreEqual(copy.Length, gBlob.Length);
-                    Assert.AreEqual(copy.ToArray(), gBlob);
+                    using (MemoryStream copy = new MemoryStream())
+                    {
+                        s.CopyTo(copy);
+                        copy.Flush();
+                        
+                        var arr = copy.ToArray();
+                        Assert.AreEqual(arr.Length, gBlob.Length);
+                        Assert.AreEqual(arr, gBlob);
+                    }
                 }
             }
 
