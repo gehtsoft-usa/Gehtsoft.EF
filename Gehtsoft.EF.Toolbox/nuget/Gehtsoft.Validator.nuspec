@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<nuget:package xmlns:nuget="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <nuget:metadata>
+    <nuget:dependencies>
+      <nuget:dependency id="Gehtsoft.ExpressionToJs" version="0.2.1" />
+      <nuget:dependency id="Gehtsoft.Tools.TypeUtils" version="1.1.8" />
+    </nuget:dependencies>
+    <nuget:id>Gehtsoft.Validator</nuget:id>
+    <nuget:version>1.4.2</nuget:version>
+    <nuget:authors>Gehtsoft</nuget:authors>
+    <nuget:owners>Gehtsoft</nuget:owners>
+    <nuget:licenseUrl>http://asp.gehtsoftusa.com/doc/privatelicense.html</nuget:licenseUrl>
+    <nuget:projectUrl>http://asp.gehtsoftusa.com/doc/ef/toolbox/</nuget:projectUrl>
+    <nuget:requireLicenseAcceptance>false</nuget:requireLicenseAcceptance>
+    <nuget:description>Basic Validation Framework</nuget:description>
+    <nuget:releaseNotes>- Update dependencies</nuget:releaseNotes>
+  </nuget:metadata>
+  <nuget:files>
+    <nuget:file src="D:\develop\components\DB\Gehtsoft.EF.Toolbox\Gehtsoft.Validator\bin/Release/netstandard2.0/Gehtsoft.Validator.dll" target="lib/netstandard2.0" />
+  </nuget:files>
+</nuget:package>

@@ -5,9 +5,9 @@
     <Version>$(VersionMajor)</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.4.2" />
-    <PackageReference Include="Gehtsoft.EF.Entities" Version="1.4.2" />
-    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.7" />
+    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.5.1" />
+    <PackageReference Include="Gehtsoft.EF.Entities" Version="1.5.1" />
+    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.8" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gehtsoft.Validator\Gehtsoft.Validator.csproj" />

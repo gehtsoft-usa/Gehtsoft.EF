@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<nuget:package xmlns:nuget="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <nuget:metadata>
+    <nuget:dependencies>
+      <nuget:dependency id="Gehtsoft.EF.Db.SqlDb" version="1.5.1" />
+      <nuget:dependency id="Gehtsoft.EF.Entities" version="1.5.1" />
+    </nuget:dependencies>
+    <nuget:id>Gehtsoft.EF.Serialization</nuget:id>
+    <nuget:version>1.4.2</nuget:version>
+    <nuget:authors>Gehtsoft</nuget:authors>
+    <nuget:owners>Gehtsoft</nuget:owners>
+    <nuget:licenseUrl>http://asp.gehtsoftusa.com/doc/privatelicense.html</nuget:licenseUrl>
+    <nuget:projectUrl>http://asp.gehtsoftusa.com/doc/ef/toolbox/</nuget:projectUrl>
+    <nuget:requireLicenseAcceptance>false</nuget:requireLicenseAcceptance>
+    <nuget:description>Implementation of sequental readers and writers for all entities for DB and XML</nuget:description>
+    <nuget:releaseNotes>- Update dependencies</nuget:releaseNotes>
+  </nuget:metadata>
+  <nuget:files>
+    <nuget:file src="D:\develop\components\DB\Gehtsoft.EF.Toolbox\Gehtsoft.EF.Serialization\bin/Release/netstandard2.0/Gehtsoft.EF.Serialization.dll" target="lib/netstandard2.0" />
+  </nuget:files>
+</nuget:package>
