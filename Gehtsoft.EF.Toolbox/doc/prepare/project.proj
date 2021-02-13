@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Gehtsoft.Build.DocGen" Version="0.1.11" IncludeAssets="build" />
+    <PackageReference Include="Gehtsoft.Build.ContentDelivery" Version="0.1.10" IncludeAssets="build" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <RawDir>$(MSBuildProjectDirectory)/src/raw</RawDir>
+  </PropertyGroup>
+
+
+ <ItemGroup>
+    <CurrentRawDir Include="$(RawDir)" />
+ </ItemGroup>
+
+ <Target Name="CleanDoc">
+  <RemoveDir Directories="@(CurrentRawDir)" />
+ </Target>
+
+
+ <ItemGroup>
+    <DocSource Include="$(MSBuildProjectDirectory)/../../Gehtsoft.Mapper/bin/Release/netstandard2.0/Gehtsoft.Mapper.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../../Gehtsoft.EF.Mapper/bin/Release/netstandard2.0/Gehtsoft.EF.Mapper.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../../Gehtsoft.Validator/bin/Release/netstandard2.0/Gehtsoft.Validator.dll" />
+ </ItemGroup>
+
+ <Target Name="Scan">
+    <Asm2Xml Assemblies="@(DocSource)" OutputXml="obj/raw.xml" Mode="net50" />
+ </Target>
+
+ <Target Name="Raw">
+    <RemoveDir Directories="@(CurrentRawDir)"/>
+    <MakeDir Directories="$(RawDir)" />
+    <DocGen Project="prepareproject.xml" />
+ </Target>
+
+</Project>

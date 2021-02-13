@@ -1,0 +1,20 @@
+﻿<settings >
+  <strip-namespace name="System" />
+  <strip-namespace name="System.Collections" />
+  <strip-namespace name="System.Collections.Generic" />
+  <strip-namespace name="System.Linq" />
+  <strip-namespace name="System.Data" />
+  <strip-namespace name="System.Linq.Expressions" />
+  <strip-namespace name="Microsoft.Extensions.DependencyInjection" />
+  <strip-namespace name="System.Threading.Tasks" />
+  <strip-namespace name="System.Runtime.Serialization" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.Sql" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.OData" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.EntityAccessor" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.EntityQueries" />
+  <strip-namespace name="Gehtsoft.EF.Entities" />
+  <strip-namespace name="Gehtsoft.Mapper" />
+  <strip-namespace name="Gehtsoft.EF.Mapper" />
+  <strip-namespace name="Gehtsoft.Validator" />
+</settings >
