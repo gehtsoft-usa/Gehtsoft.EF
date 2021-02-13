@@ -5,6 +5,8 @@
 bin/
 obj/
 TestResults/
+packagedoc/ef/
+packagedoc/ef.toolbox/
 *.csproj.user
 *.nupkg
 *.nuspec

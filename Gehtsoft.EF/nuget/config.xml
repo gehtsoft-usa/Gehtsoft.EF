@@ -28,7 +28,7 @@
  </versions>
  <properties>
   <owner>Gehtsoft</owner>
-  <projectUrl>http://docs.gehtsoftusa.com/ef/web-content.html#index.html</projectUrl>
+  <projectUrl>http://docs.gehtsoftusa.com/Gehtsoft.EF/ef/web-content#index.html</projectUrl>
   <license type="file">license.txt</license>
   <copyright>Gehtsoft USA LLC 2016-2019</copyright>
  </properties>
