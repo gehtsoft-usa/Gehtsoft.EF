@@ -109,7 +109,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.8" />
+    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.9" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
 

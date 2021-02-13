@@ -3,7 +3,7 @@
    <Import Project="$(MSBuildProjectDirectory)\..\version.proj" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <Version>$(VersionMajor)</Version>
   </PropertyGroup>
@@ -18,7 +18,7 @@
 
    <ItemGroup>
      <PackageReference Include="Oracle.ManagedDataAccess.Core">
-        <Version>2.19.100</Version>
+        <Version>3.21.1</Version>
     </PackageReference>
    </ItemGroup>
 
