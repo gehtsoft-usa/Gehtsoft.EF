@@ -1,0 +1,582 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>Gehtsoft.EF.Entities</name>
+  </assembly>
+  <members>
+    <member name="T:Gehtsoft.EF.Entities.AggFn">
+      <summary>The list of aggregate functions</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.AggFn.Count">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.AggFn.Sum">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.AggFn.Avg">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.AggFn.Min">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.AggFn.Max">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.CmpOp">
+      <summary>The list of comparison operations</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.Eq">
+      <summary>a is equal to b</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.Neq">
+      <summary>a is not equal to b</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.Ls">
+      <summary>A is less than B</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.Le">
+      <summary>A is less than or equal to B</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.Gt">
+      <summary>A is greater than B</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.Ge">
+      <summary>A is greater than or equal to B</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.Like">
+      <summary>A is like B</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.In">
+      <summary>A is IN (subquery)</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.NotIn">
+      <summary>A is not IN (subquery)</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.IsNull">
+      <summary>A is null</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.NotNull">
+      <summary>A is not null</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.Exists">
+      <summary>exists/is not empty (subquery)</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.CmpOp.NotExists">
+      <summary>not exists/is empty (subquery)</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.EntityAttribute">
+      <summary>The entity markup attribute.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityAttribute.Table">
+      <summary>The name of the associated table.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityAttribute.Scope">
+      <summary>The scope of the entity.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityAttribute.NamingPolicy">
+      <summary>The database object naming policy.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.ObsoleteEntityAttribute">
+      <summary>The obsolete entity markup attribute.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.ObsoleteEntityAttribute.Table">
+      <summary>The name of the associated table.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.ObsoleteEntityAttribute.Scope">
+      <summary>The scope of the entity.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.EntityCollection`1">
+      <summary>Collection of entities</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityCollection`1.Find(`0,System.Collections.Generic.IEqualityComparer{`0})">
+      <summary>Finds an entity in the collection using specified comparer.</summary>
+      <param name="entity" />
+      <param name="comparer" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityCollection`1.Find(`0)">
+      <summary>Finds an entity in the collection using the default comparer.</summary>
+      <param name="entity" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityCollection`1.Contains(`0)">
+      <summary>Checks whether collection consists of the the entity specified using default comparer.</summary>
+      <param name="entity" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityCollection`1.Contains(`0,System.Collections.Generic.IEqualityComparer{`0})">
+      <summary>Checks whether collection consists of the the entity specified using the specified comparer.</summary>
+      <param name="entity" />
+      <param name="comparer" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityCollection`1.Add(`0)">
+      <summary>Adds a new item into the collection.</summary>
+      <param name="entity" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityCollection`1.AddRange(System.Collections.Generic.IEnumerable{`0})">
+      <summary>Add the range of the items into the collection.</summary>
+      <param name="entities" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityCollection`1.Insert(System.Int32,`0)">
+      <summary>Inserts and item at the specified position.</summary>
+      <param name="index" />
+      <param name="entity" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityCollection`1.RemoveAt(System.Int32)">
+      <summary>Removes the item at the specified position.</summary>
+      <param name="index" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityCollection`1.Clear">
+      <summary>Removes all items.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityCollection`1.#ctor">
+      <summary>Constructor.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityCollection`1.Count">
+      <summary>Returns the number of the items in the collection.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityCollection`1.Item(System.Int32)">
+      <summary>Returns the item by its index.</summary>
+      <param name="index" />
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.EntityFinder">
+      <summary>The class which can be used to gather information about the entities.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityFinder.FindEntities(System.Collections.Generic.IEnumerable{System.Reflection.Assembly},System.String,System.Boolean)">
+      <summary>Finds entities in the specified assembly list.</summary>
+      <param name="assemblies">The list of the assemblies to find entities.</param>
+      <param name="scope">The name of the scope or null to take all scopes</param>
+      <param name="includeObsolete">The flag indicating whether the obsolete entities must be also included.</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityFinder.ArrageEntities(Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo[])">
+      <summary>Sorts entity by dependencies.</summary>
+      <param name="entities" />
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo">
+      <summary>The information about the entity.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.DoesDependOn(Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo)">
+      <summary>Checks whether the entity depends on another entity.</summary>
+      <param name="info" />
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.Scope">
+      <summary>The name of the entity scope</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.EntityType">
+      <summary>The .NET type of the entity.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.Obsolete">
+      <summary>The flag indicating whether the entity is obsolete.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.Table">
+      <summary>The name of the table associated with the entity.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.NamingPolicy">
+      <summary>The naming policy associated with the entity</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.DependsOn">
+      <summary>Returns the list of types that depends on this type.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityFinder.EntityTypeInfo.DependsOnInfo">
+      <summary>Returns the list of entity type information of types that depends on this type.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.EntityNamingPolicy">
+      <summary>The database naming policy</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.EntityNamingPolicy.Default">
+      <summary>Use default policy set in entities manager.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.EntityNamingPolicy.BackwardCompatibility">
+      <summary>Name the properties according the rules used before 1.1.3.3 release.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.EntityNamingPolicy.AsIs">
+      <summary>The name of the property or class is used as is.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.EntityNamingPolicy.LowerCase">
+      <summary>The name of the property is used in lower case.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.EntityNamingPolicy.UpperCase">
+      <summary>The name of the property is used in upper case.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.EntityNamingPolicy.LowerFirstCharacter">
+      <summary>The first character of the property is used in lower case, the rest is as is.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.EntityNamingPolicy.UpperFirstCharacter">
+      <summary>The first character of the property is used in upper case, the rest is as is.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.EntityNamingPolicy.LowerCaseWithUnderscores">
+      <summary>All characters of the name is converted to the lower case. The uppercase characters are prefixed with underscore.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.EntityNamingPolicy.UpperCaseWithUnderscopes">
+      <summary>All characters of the name is converted to the upper case. The uppercase characters are prefixed with underscore.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.EntityObjectExtension">
+      <summary>The class provides extensions for an object to get an entity primary key</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityObjectExtension.IsEfEntity(System.Object,System.Type)">
+      <summary>The extension method returns true if the object is an entity of the specified type</summary>
+      <param name="entity" />
+      <param name="type" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityObjectExtension.GetEfEntityId``1(System.Object)">
+      <summary>The extension method that returns the primary key value</summary>
+      <param name="T">The data type of the primary key.</param>
+      <param name="entity" />
+      <param name="desiredType">The expected type of the primary key</param>
+      <param name="entityType">The expected type of the entity</param>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityObjectExtension.GetEfPrimaryKey(System.Type)">
+      <summary>The extension method that returns the property that is the primary key for the entity</summary>
+      <param name="type">The type of the entity</param>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.EntityPropertyAttribute">
+      <summary>The mark up of entity property attribute.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.EntityPropertyAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Field">
+      <summary>The name of the table field.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.DbType">
+      <summary>The database type of the table field.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Size">
+      <summary>The size of the field.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Precision">
+      <summary>The precision (accuracy) of the numeric data.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.AutoId">
+      <summary>Marks the field is an automatic identifier.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.PrimaryKey">
+      <summary>The field is a primary key.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Autoincrement">
+      <summary>The field is an autoincrement field.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.ForeignKey">
+      <summary>The field is a reference to another table.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Sorted">
+      <summary>The field shall be indexed.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Unique">
+      <summary>The field is unique.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.Nullable">
+      <summary>The field can accept null values.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.EntityPropertyAttribute.IgnoreRead">
+      <summary>The field should be ignored by default in select entity queries</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute">
+      <summary>The mark up of obsolete entity property attribute.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute.#ctor">
+      <summary></summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute.Field">
+      <summary>The name of the table field.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute.ForeignKey">
+      <summary>The field is a reference to another table.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.LogOp">
+      <summary>The list of logical operators.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.LogOp.Not">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.LogOp.And">
+      <summary></summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.LogOp.Or">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.OpBracket">
+      <summary>The class which is used to automatically close bracket during the query generation.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.SortDir">
+      <summary>The list of sorting directions.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.SortDir.Asc">
+      <summary>Ascending (A-&gt;Z)</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.SortDir.Desc">
+      <summary>Descending (Z-&gt;A)</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.TableJoinType">
+      <summary>Type of table joins</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.TableJoinType.None">
+      <summary>No join.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.TableJoinType.Inner">
+      <summary>Inner join.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.TableJoinType.Left">
+      <summary>Left outer join.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.TableJoinType.Right">
+      <summary>Right outer join.</summary>
+    </member>
+    <member name="F:Gehtsoft.EF.Entities.TableJoinType.Outer">
+      <summary>Full outer join.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.EntityContextExtension">
+      <summary>The extension methods for a context and context queries.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.DropEntity``1(Gehtsoft.EF.Entities.Context.IEntityContext)">
+      <summary>Gets a query to drop an entity (i.e. table or list) in the context.</summary>
+      <param name="context" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.CreateEntity``1(Gehtsoft.EF.Entities.Context.IEntityContext)">
+      <summary>Gets a query to create an entity (i.e. table or list) in the context.</summary>
+      <param name="context" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.InsertEntity``1(Gehtsoft.EF.Entities.Context.IEntityContext,System.Boolean)">
+      <summary>Gets a query to insert an entity object into the context.</summary>
+      <param name="context" />
+      <param name="createKey" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.UpdateEntity``1(Gehtsoft.EF.Entities.Context.IEntityContext)">
+      <summary>Gets a query to update an entity object in the context.</summary>
+      <param name="context" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.DeleteEntity``1(Gehtsoft.EF.Entities.Context.IEntityContext)">
+      <summary>Gets a query to delete an entity object from the context.</summary>
+      <param name="context" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.DeleteMultiple``1(Gehtsoft.EF.Entities.Context.IEntityContext)">
+      <summary>Gets a query to delete multiple entity objects from the context.</summary>
+      <param name="context" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.Select``1(Gehtsoft.EF.Entities.Context.IEntityContext)">
+      <summary>Gets a query to select entity objects from the context.</summary>
+      <param name="context" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.Count``1(Gehtsoft.EF.Entities.Context.IEntityContext)">
+      <summary>Gets a query to count entity objects from the context.</summary>
+      <param name="context" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.ReadOne``1(Gehtsoft.EF.Entities.Context.IContextSelect)">
+      <summary>Reads one entity from a select query.</summary>
+      <param name="query" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.ReadAll``2(Gehtsoft.EF.Entities.Context.IContextSelect)">
+      <summary>Reads all objects from a select query.</summary>
+      <param name="query" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.Get``1(Gehtsoft.EF.Entities.Context.IEntityContext,System.Object)">
+      <summary>Gets an object from the context by its identifier</summary>
+      <param name="context" />
+      <param name="key" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.Exists``1(Gehtsoft.EF.Entities.Context.IEntityContext,System.Object)">
+      <summary>Checks whether the object exists in the context.</summary>
+      <param name="context" />
+      <param name="key" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityContextExtension.Save``1(Gehtsoft.EF.Entities.Context.IEntityContext,``0)">
+      <summary>Saves (inserts new, updates existing) entity in the context.</summary>
+      <param name="context" />
+      <param name="entity" />
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension">
+      <summary>The extension methods for a filter.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.And(Gehtsoft.EF.Entities.Context.IContextFilter)">
+      <summary>Add another condition to the filter and join it using AND</summary>
+      <param name="builder" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Or(Gehtsoft.EF.Entities.Context.IContextFilter)">
+      <summary>Add another condition to filter and join it using OR</summary>
+      <param name="builder" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Property(Gehtsoft.EF.Entities.Context.IContextFilter,System.String)">
+      <summary>Add comparison of the property specified to the filter and join to using AND</summary>
+      <param name="builder" />
+      <param name="name" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.IsNull(Gehtsoft.EF.Entities.Context.IContextFilter,System.String)">
+      <summary>Add IsNull check to the filter and join it using AND</summary>
+      <param name="builder" />
+      <param name="name" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.IsNull(Gehtsoft.EF.Entities.Context.IContextFilterCondition)">
+      <summary>Add IsNull operator to a condition</summary>
+      <param name="condition" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.NotNull(Gehtsoft.EF.Entities.Context.IContextFilter,System.String)">
+      <summary>Add not null operator to the filter and join it using AND</summary>
+      <param name="builder" />
+      <param name="name" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.NotNull(Gehtsoft.EF.Entities.Context.IContextFilterCondition)">
+      <summary>Add not null operator to a condition</summary>
+      <param name="condition" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Eq(Gehtsoft.EF.Entities.Context.IContextFilterCondition)">
+      <summary>Add equals to operator to a condition</summary>
+      <param name="condition" />
+      <param name="value" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Neq(Gehtsoft.EF.Entities.Context.IContextFilterCondition)">
+      <summary>Add not equals to operator to a condition</summary>
+      <param name="condition" />
+      <param name="value" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Gt(Gehtsoft.EF.Entities.Context.IContextFilterCondition)">
+      <summary>Add greater than operator to a condition</summary>
+      <param name="condition" />
+      <param name="value" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Ge(Gehtsoft.EF.Entities.Context.IContextFilterCondition)">
+      <summary>Add greater than or equals to operator to a condition</summary>
+      <param name="condition" />
+      <param name="value" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Ls(Gehtsoft.EF.Entities.Context.IContextFilterCondition)">
+      <summary>Add less than operator to a condition</summary>
+      <param name="condition" />
+      <param name="value" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Le(Gehtsoft.EF.Entities.Context.IContextFilterCondition)">
+      <summary>Add less than or equals to operator to a condition</summary>
+      <param name="condition" />
+      <param name="value" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.EntityFilterBuilderExtension.Like(Gehtsoft.EF.Entities.Context.IContextFilterCondition)">
+      <summary>Add like operator to a condition</summary>
+      <param name="condition" />
+      <param name="value" />
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.IContextCount">
+      <summary>The query that gets a count of rows</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IContextCount.GetCount">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.IContextFilter">
+      <summary>The definition of a query filter</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IContextFilter.AddGroup(Gehtsoft.EF.Entities.LogOp)">
+      <summary>Start a group (multiple queries in brackets) of the condition.</summary>
+      <param name="logOp" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IContextFilter.Add(Gehtsoft.EF.Entities.LogOp)">
+      <summary>Add a single condition to the filter.</summary>
+      <param name="op" />
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.IContextFilterCondition">
+      <summary>A single condition of the filter.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IContextFilterCondition.Property(System.String)">
+      <summary>Sets the property name.</summary>
+      <param name="name" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IContextFilterCondition.Is(Gehtsoft.EF.Entities.CmpOp)">
+      <summary>Sets the operator.</summary>
+      <param name="op" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IContextFilterCondition.Value(System.Object)">
+      <summary>Sets the value (may be used as the second operand only).</summary>
+      <param name="value" />
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.IContextOrder">
+      <summary>The order specification for a select query.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IContextOrder.Add(System.String,Gehtsoft.EF.Entities.SortDir)">
+      <summary>Adds another field into a sort order.</summary>
+      <param name="name" />
+      <param name="sortDir" />
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.IContextQueryWithCondition">
+      <summary>A query with filter condition.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.Context.IContextQueryWithCondition.Where">
+      <summary>The filter.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.IContextSelect">
+      <summary>The query to select entities.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IContextSelect.ReadOne">
+      <summary>Reads one entity.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.Context.IContextSelect.Order">
+      <summary>Sets the order of the query result set.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.Context.IContextSelect.Take">
+      <summary>Sets maximum number of entities to be select.</summary>
+    </member>
+    <member name="P:Gehtsoft.EF.Entities.Context.IContextSelect.Skip">
+      <summary>Sets the number of entities to skip.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.IEntityContext">
+      <summary></summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityContext.DropEntity(System.Type)">
+      <summary></summary>
+      <param name="type" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityContext.CreateEntity(System.Type)">
+      <summary></summary>
+      <param name="type" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityContext.InsertEntity(System.Type,System.Boolean)">
+      <summary></summary>
+      <param name="type" />
+      <param name="createKey" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityContext.UpdateEntity(System.Type)">
+      <summary></summary>
+      <param name="type" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityContext.DeleteEntity(System.Type)">
+      <summary></summary>
+      <param name="type" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityContext.DeleteMultiple(System.Type)">
+      <summary></summary>
+      <param name="type" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityContext.Select(System.Type)">
+      <summary></summary>
+      <param name="type" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityContext.Count(System.Type)">
+      <summary></summary>
+      <param name="type" />
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityContext.BeginTransaction">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.IEntityContextTransaction">
+      <summary>A transaction.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityContextTransaction.Commit">
+      <summary></summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityContextTransaction.Rollback">
+      <summary></summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.IEntityQuery">
+      <summary>A query to the entities in the context.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IEntityQuery.Execute">
+      <summary>Executes the query.</summary>
+    </member>
+    <member name="T:Gehtsoft.EF.Entities.Context.IModifyEntityQuery">
+      <summary>A query that modifies a single entity in the context.</summary>
+    </member>
+    <member name="M:Gehtsoft.EF.Entities.Context.IModifyEntityQuery.Execute(System.Object)">
+      <summary>Executes the query for an entity specified.</summary>
+      <param name="entity" />
+    </member>
+  </members>
+</doc>

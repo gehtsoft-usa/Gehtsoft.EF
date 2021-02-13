@@ -4,7 +4,7 @@
   <TargetFramework>net46</TargetFramework>
  </PropertyGroup>
  <ItemGroup>
-  <PackageReference Include="Gehtsoft.Build.Nuget" Version="0.1.2" PrivateAssets="All" />
+  <PackageReference Include="Gehtsoft.Build.Nuget" Version="0.1.5" PrivateAssets="All" />
  </ItemGroup>
  <Target Name="Prepare">
   <Exec Command="nuget restore nuget.proj" />

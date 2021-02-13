@@ -24,4 +24,16 @@
   <dg:define name="default-transform" value="yes" />
   <dg:define name="enable-highlighter" value="yes" />
  </dg:output>
+ <dg:output template="%docgen%/template/xmldoc/main.xsl" file="Gehtsoft.EF.Entities.xml" encoding="utf-8">
+  <dg:define name="assembly" value="Gehtsoft.EF.Entities" />
+  <dg:define name="namespace" value="Gehtsoft.EF.Entities" />
+ </dg:output>
+ <dg:output template="%docgen%/template/xmldoc/main.xsl" file="Gehtsoft.EF.Db.SqlDb.xml" encoding="utf-8">
+  <dg:define name="assembly" value="Gehtsoft.EF.Db.SqlDb" />
+  <dg:define name="namespace" value="Gehtsoft.EF.Db.SqlDb.+" />
+ </dg:output>
+ <dg:output template="%docgen%/template/xmldoc/main.xsl" file="Gehtsoft.EF.FTS.xml" encoding="utf-8">
+  <dg:define name="assembly" value="Gehtsoft.EF.FTS" />
+  <dg:define name="namespace" value="Gehtsoft.EF.FTS" />
+ </dg:output>
 </dg:help-project>

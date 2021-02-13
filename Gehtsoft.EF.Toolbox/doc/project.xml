@@ -18,8 +18,14 @@
  </dg:output>
  <dg:output template="%docgen%/template/xmldoc/main.xsl" file="Gehtsoft.EF.Mapper.xml" encoding="utf-8">
   <dg:define name="assembly" value="Gehtsoft.EF.Mapper" />
+  <dg:define name="namespace" value="Gehtsoft(\.EF)?\.Mapper" />
  </dg:output>
  <dg:output template="%docgen%/template/xmldoc/main.xsl" file="Gehtsoft.Validator.xml" encoding="utf-8">
   <dg:define name="assembly" value="Gehtsoft.Validator" />
+  <dg:define name="namespace" value="Gehtsoft.Validator" />
+ </dg:output>
+ <dg:output template="%docgen%/template/xmldoc/main.xsl" file="Gehtsoft.EF.Validator.xml" encoding="utf-8">
+  <dg:define name="assembly" value="Gehtsoft.EF.Validator" />
+  <dg:define name="namespace" value="Gehtsoft.EF.Validator" />
  </dg:output>
 </dg:help-project>
