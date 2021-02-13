@@ -7,6 +7,7 @@ obj/
 TestResults/
 *.csproj.user
 *.nupkg
+*.nuspec
 *.bak
 *.~*
 *.zip
