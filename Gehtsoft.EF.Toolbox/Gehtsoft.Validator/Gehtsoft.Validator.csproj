@@ -7,6 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Gehtsoft.ExpressionToJs" Version="0.2.1" />
-    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.8" />
+    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.9" />
   </ItemGroup>
 </Project>
