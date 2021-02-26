@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 
@@ -14,14 +15,39 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return connection.GetCreateTableBuilder(AllEntities.Inst[type].TableDescriptor);
         }
 
+        public static AQueryBuilder GetCreateViewQueryBuilder(this SqlDbConnection connection, Type type)
+        {
+            var entityDescriptor = AllEntities.Inst[type];
+            if (!entityDescriptor.TableDescriptor.View)
+                throw new ArgumentException($"Type {type.FullName} is not attributed as a view", nameof(type));
+            if (entityDescriptor.TableDescriptor.Metadata is IViewCreationMetadata vcm)
+                return connection.GetCreateViewBuilder(entityDescriptor.TableDescriptor.Name, vcm.GetSelectQuery(connection));
+            throw new ArgumentException($"Type {type.FullName} does not have view creation meta data", nameof(type));
+        }
+             
+
         public static AQueryBuilder GetCreateEntityQueryBuilder<T>(this SqlDbConnection connection) => GetCreateEntityQueryBuilder(connection, typeof(T));
+
+        public static AQueryBuilder GetCreateViewQueryBuilder<T>(this SqlDbConnection connection) => GetCreateViewQueryBuilder(connection, typeof(T));
 
         public static AQueryBuilder GetDropEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
             return connection.GetDropTableBuilder(AllEntities.Inst[type].TableDescriptor);
         }
-
+        
         public static AQueryBuilder GetDropEntityQueryBuilder<T>(this SqlDbConnection connection) => GetDropEntityQueryBuilder(connection, typeof(T));
+
+        public static AQueryBuilder GetDropViewQueryBuilder(this SqlDbConnection connection, Type type)
+        {
+            var entityDescriptor = AllEntities.Inst[type];
+            if (!entityDescriptor.TableDescriptor.View)
+                throw new ArgumentException($"Type {type.FullName} is not attributed as a view", nameof(type));
+            if (entityDescriptor.TableDescriptor.Metadata is IViewCreationMetadata)
+                return connection.GetDropViewBuilder(entityDescriptor.TableDescriptor.Name);
+            throw new ArgumentException($"Type {type.FullName} does not have view creation meta data", nameof(type));
+        }
+
+        public static AQueryBuilder GetDropViewQueryBuilder<T>(this SqlDbConnection connection) => GetDropViewQueryBuilder(connection, typeof(T));
 
         public static InsertEntityQueryBuilder GetInsertEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
@@ -32,6 +58,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
             return new InsertEntityQueryBuilder(type, connection, ignoreAutoIncrement);
         }
+
+
 
         public static DeleteEntityQueryBuilder GetDeleteEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
@@ -58,9 +86,19 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return new EntityQuery(connection.GetQuery(), new EntityQueryBuilder(connection.GetLanguageSpecifics(), type, connection.GetCreateEntityQueryBuilder(type)));
         }
 
+        public static EntityQuery GetCreateViewQuery(this SqlDbConnection connection, Type type)
+        {
+            return new EntityQuery(connection.GetQuery(), new EntityQueryBuilder(connection.GetLanguageSpecifics(), type, connection.GetCreateViewQueryBuilder(type)));
+        }
+
         public static EntityQuery GetDropEntityQuery(this SqlDbConnection connection, Type type)
         {
             return new EntityQuery(connection.GetQuery(), new EntityQueryBuilder(connection.GetLanguageSpecifics(), type, connection.GetDropEntityQueryBuilder(type)));
+        }
+
+        public static EntityQuery GetDropViewQuery(this SqlDbConnection connection, Type type)
+        {
+            return new EntityQuery(connection.GetQuery(), new EntityQueryBuilder(connection.GetLanguageSpecifics(), type, connection.GetDropViewQueryBuilder(type)));
         }
 
         public static ModifyEntityQuery GetInsertEntityQuery(this SqlDbConnection connection, Type type)

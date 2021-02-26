@@ -212,7 +212,7 @@ namespace TestApp
             foreach (object item in array)
             {
                 data = item as Dictionary<string, object>;
-                ((string)data["Name"]).ToLower().StartsWith("br").Should().BeTrue();
+                ((string)data["Name"]).StartsWith("br", StringComparison.OrdinalIgnoreCase).Should().BeTrue();
             }
 
             result = mPocessor.SelectData(new Uri($"/Good?$filter=endswith(tolower(Name), 'ad') eq true", UriKind.Relative));
@@ -222,7 +222,7 @@ namespace TestApp
             foreach (object item in array)
             {
                 data = item as Dictionary<string, object>;
-                ((string)data["Name"]).ToLower().EndsWith("ad").Should().BeTrue();
+                ((string)data["Name"]).EndsWith("ad", StringComparison.OrdinalIgnoreCase).Should().BeTrue();
             }
 
             result = mPocessor.SelectData(new Uri($"/Good?$filter=ID in (2,3)", UriKind.Relative));

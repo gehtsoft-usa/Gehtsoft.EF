@@ -15,10 +15,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public Type EntityType { get; internal set; }
         public TableDescriptor TableDescriptor { get; internal set; }
         public TableDescriptor.ColumnInfo SelfReference { get; internal set; }
-
         public TableDescriptor.ColumnInfo this[string id] => TableDescriptor[id];
         public TableDescriptor.ColumnInfo PrimaryKey => TableDescriptor.PrimaryKey;
-
         private Dictionary<Type, object> mTags = null;
 
         public object this[Type type]
@@ -222,13 +220,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 }
 
                 tableScope = obsoleteTypeAttribute.Scope;
-                descriptor = new TableDescriptor(obsoleteTypeAttribute.Table) {Obsolete = true};
+                descriptor = new TableDescriptor(obsoleteTypeAttribute.Table) {Obsolete = true, View = obsoleteTypeAttribute.View};              
+                if (obsoleteTypeAttribute.Metadata != null)
+                    descriptor.Metadata = Activator.CreateInstance(obsoleteTypeAttribute.Metadata);
             }
             else
             {
                 tableScope = typeAttribute.Scope;
                 namingPolicy = typeAttribute.NamingPolicy;
-                descriptor = new TableDescriptor(typeAttribute.Table);
+                descriptor = new TableDescriptor(typeAttribute.Table) { View = typeAttribute.View };
+                if (typeAttribute.Metadata != null)
+                    descriptor.Metadata = Activator.CreateInstance(typeAttribute.Metadata);
             }
 
             namingPolicy = (namingPolicy == EntityNamingPolicy.Default ? NamingPolicy[tableScope] : namingPolicy);

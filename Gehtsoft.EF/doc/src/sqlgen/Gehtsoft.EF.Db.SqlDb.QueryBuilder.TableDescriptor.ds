@@ -134,6 +134,26 @@
     @end
 
     @member
+        @name=View
+        @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.View
+        @key=View.0
+        @divisor=.
+        @brief=The flag indicating whether the table is a view
+        @scope=instance
+        @visibility=public
+
+        @type=property
+
+        @declaration
+            @language=cs
+            @name=View
+            @return=bool
+            @suffix= get; set;
+        @end
+
+    @end
+
+    @member
         @name=PrimaryKey
         @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.PrimaryKey
         @key=PrimaryKey.0

@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Compile Include="AlterTableQueryBuilder.cs" />
+    <Compile Include="MssqlDropViewBuilder.cs" />
     <Compile Include="MssqlConnection.cs" />
     <Compile Include="MssqlCreateTableBuilder.cs" />
     <Compile Include="MssqlDbLanguageSpecifics.cs" />

@@ -116,6 +116,10 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public ColumnInfo PrimaryKey { get; private set; } = null;
 
+        public bool View { get; set; }
+
+        public object Metadata { get; set; }
+
         public int Count => mColumns.Count;
 
         public ColumnInfo this[int index] => mColumns[index];
@@ -259,6 +263,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public static bool Contains(this TableDescriptor[] schema, string tableName)
         {
             return Find(schema, tableName) != null;
+        }
+
+        public static bool ContainsView(this TableDescriptor[] schema, string tableName)
+        {
+            var f = Find(schema, tableName);
+            return f?.View == true;
         }
 
 

@@ -18,7 +18,7 @@
 
     * [clink=Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory]UniversalSqlDbFactory[/clink] ([c]Create[/c] and [c]CreateAsync[/c])
 
-    * [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuer]SqlDbQuery[/clink] ([c]ExecuteReader[/c], [c]ExecuteReaderAsync[/c], [c]ExecuteNoData[/c],
+    * [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery]SqlDbQuery[/clink] ([c]ExecuteReader[/c], [c]ExecuteReaderAsync[/c], [c]ExecuteNoData[/c],
       [c]ExecuteNoDataAsync[/c], [c]ReadNext[/c], [c]ReadNextAsync[/c], [c]NextReaderResult[/c], [c]NextReaderResultAsync[/c].
 
     Correspondingly, all methods that are based on these method, e.g. all methods related to entity queries or generic accessors, will

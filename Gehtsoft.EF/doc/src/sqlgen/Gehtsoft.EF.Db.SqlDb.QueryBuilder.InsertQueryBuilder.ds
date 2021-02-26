@@ -8,7 +8,7 @@
     @parent=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink]
 
     Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetInsertQueryBuilder.0]SqlDbConnection.GetCreateInsertBuilder()[/clink] to get an instance
-    if the object.
+    of the object.
 
     The generator creates parameters for all columns of the table.
 

@@ -157,7 +157,7 @@
 
         @declaration
             @language=cs
-            @name=Table
+            @name=Scope
             @return=string
             @suffix= get; set;
         @end
@@ -165,8 +165,30 @@
         The scope is used to group multiple entities for performing create, drop and update operations at once.
     @end
 
+    @member
+        @name=Metadata
+        @sig=P:Gehtsoft.EF.Entities.ObsoleteEntityAttribute.Metadata
+        @key=Metadata.0
+        @divisor=.
+        @brief=The metadata for the entity
+        @scope=instance
+        @visibility=public
 
+        @type=property
 
+        @declaration
+            @language=cs
+            @name=Metadata
+            @return=string
+            @suffix= get; set;
+        @end
+
+        The metadata is the reference to a class that can contain DB-type and/or driver-specific meta data about the type.
+
+        Please refer to appropriate module for the particular interface that metadata class must implement.
+
+        Note: Metadata class must have default constructor!
+    @end
 
     The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
     The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].

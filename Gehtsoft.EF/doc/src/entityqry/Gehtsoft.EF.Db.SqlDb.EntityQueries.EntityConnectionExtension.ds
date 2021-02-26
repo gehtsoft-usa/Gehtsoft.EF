@@ -39,6 +39,39 @@
     @end
 
     @member
+        @name=GetCreateViewQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetCreateViewQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetCreateViewQuery.0
+        @divisor=.
+        @brief=Gets the query that creates the table associated with the entity if the table does not exist.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetCreateViewQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery]EntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+
+        @declaration
+            @language=cs
+            @name=GetCreateViewQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery]EntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        See also [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateViewController]CreateViewController[/clink] for more sophisticated
+        approach to create tables.
+
+        Please note that the [clink=Gehtsoft.EF.Entities.EntityAttribute]EntityAttribute[/clink] of the type specified
+        must define metadata that implements [clink=Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata]IViewCreationMetadata[/clink]
+        interface.
+    @end
+
+    @member
         @name=GetDropEntityQuery
         @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetDropEntityQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
         @key=GetDropEntityQuery.0
@@ -71,6 +104,46 @@
             @name=type
 
         @end
+
+    @end
+
+    @member
+        @name=GetDropViewQuery
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetDropViewQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Type)
+        @key=GetDropViewQuery.0
+        @divisor=.
+        @brief=Gets the query that drops the table associated with the entity.
+        @scope=class
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDropViewQuery<T>
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery]EntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection
+        @end
+        @declaration
+            @language=cs
+            @name=GetDropViewQuery
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery]EntityQuery[/clink]
+            @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
+        @end
+
+        @param
+            @name=connection
+
+        @end
+
+        @param
+            @name=type
+
+        @end
+
+        Please note that the [clink=Gehtsoft.EF.Entities.EntityAttribute]EntityAttribute[/clink] of the type specified
+        must define metadata that implements [clink=Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata]IViewCreationMetadata[/clink]
+        interface.
 
     @end
 

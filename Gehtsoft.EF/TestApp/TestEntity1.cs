@@ -21,7 +21,7 @@ using NUnit.Framework.Internal.Commands;
 
 namespace TestApp
 {
-    public class TestEntity1
+    public static class TestEntity1
     {
         #region Static entity
 

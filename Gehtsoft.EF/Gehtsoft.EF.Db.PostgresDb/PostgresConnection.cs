@@ -91,6 +91,22 @@ namespace Gehtsoft.EF.Db.PostgresDb
                 }
             }
 
+            using (SqlDbQuery query = GetQuery("select viewname from pg_catalog.pg_views where schemaname=current_schema()"))
+            {
+                if (sync)
+                {
+                    query.ExecuteReader();
+                    while (query.ReadNext())
+                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = true });
+                }
+                else
+                {
+                    await query.ExecuteReaderAsync(token);
+                    while (await query.ReadNextAsync(token))
+                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = true });
+                }
+            }
+
             foreach (TableDescriptor descriptor in tables)
             {
                 using (SqlDbQuery query = GetQuery($"select * from {descriptor.Name} where false"))

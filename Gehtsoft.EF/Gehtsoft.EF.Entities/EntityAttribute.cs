@@ -26,7 +26,11 @@ namespace Gehtsoft.EF.Entities
 
         public bool View { get; set; }
 
+        public Type Metadata { get; set; }
+
         public EntityNamingPolicy NamingPolicy { get; set; } = EntityNamingPolicy.Default;
+
+
 
         public EntityAttribute() : base()
         {
@@ -44,6 +48,10 @@ namespace Gehtsoft.EF.Entities
         public string Table { get; set; }
 
         public EntityNamingPolicy NamingPolicy { get; set; } = EntityNamingPolicy.Default;
+
+        public bool View { get; set; }
+
+        public Type Metadata { get; set; }
 
         public ObsoleteEntityAttribute() : base()
         {

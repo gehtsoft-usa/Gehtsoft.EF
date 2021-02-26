@@ -18,6 +18,8 @@ namespace Gehtsoft.EF.Entities
             public EntityNamingPolicy NamingPolicy { get; set; }
             public List<Type> DependsOn { get; } = new List<Type>();
             public List<EntityTypeInfo> DependsOnInfo { get; } = new List<EntityTypeInfo>();
+            public bool View { get; set; }
+            public Type Metadata { get; set;  } 
 
             public int CompareTo(object obj)
             {
@@ -29,12 +31,24 @@ namespace Gehtsoft.EF.Entities
             {
                 if (other == null)
                     return 1;
-                if (this.DoesDependOn(other))
+
+                if (View && !other.View)
+                    return 1;
+                if (!View && other.View)
+                    return -1;
+                
+                if (View && other.View)
+                    return CompareNames(other); 
+                
+                if (DoesDependOn(other))
                     return 1;
                 if (other.DoesDependOn(this))
                     return -1;
-                return string.Compare(Table ?? EntityType.Name, other.Table ?? EntityType.Name, StringComparison.OrdinalIgnoreCase);
+
+                return CompareNames(other);
             }
+
+            private int CompareNames(EntityTypeInfo other) => string.Compare(Table ?? EntityType.Name, other.Table ?? EntityType.Name, StringComparison.OrdinalIgnoreCase);
 
             public bool DoesDependOn(EntityTypeInfo info)
             {
@@ -65,7 +79,7 @@ namespace Gehtsoft.EF.Entities
                     ObsoleteEntityAttribute obsoleteEntityAttribute;
 
                     entityAttribute = type.GetTypeInfo().GetCustomAttribute<EntityAttribute>();
-                    if (entityAttribute != null && !entityAttribute.View && (scope == null || scope == entityAttribute.Scope))
+                    if (entityAttribute != null && (scope == null || scope == entityAttribute.Scope))
                     {
                         EntityTypeInfo eti = new EntityTypeInfo()
                         {
@@ -74,6 +88,8 @@ namespace Gehtsoft.EF.Entities
                             Scope = entityAttribute.Scope,
                             NamingPolicy = entityAttribute.NamingPolicy,
                             Obsolete = false,
+                            View = entityAttribute.View,
+                            Metadata = entityAttribute.Metadata,
                         };
 
                         types.Add(eti);
@@ -94,6 +110,8 @@ namespace Gehtsoft.EF.Entities
                                     Table = obsoleteEntityAttribute.Table,
                                     NamingPolicy = obsoleteEntityAttribute.NamingPolicy,
                                     Obsolete = true,
+                                    View = obsoleteEntityAttribute.View,
+                                    Metadata = obsoleteEntityAttribute.Metadata,
                                 };
                                 FindDependencies(eti);
                                 types.Add(eti);
@@ -147,7 +165,9 @@ namespace Gehtsoft.EF.Entities
         public static void ArrageEntities(EntityTypeInfo[] entities)
         {
             List<EntityTypeInfo> output = new List<EntityTypeInfo>();
-            foreach (EntityTypeInfo info in entities)
+            foreach (EntityTypeInfo info in entities.Where(e => !e.View))
+                InsertIntoList(output, info);
+            foreach (EntityTypeInfo info in entities.Where(e => e.View))
                 InsertIntoList(output, info);
             if (output.Count != entities.Length)
                 throw new InvalidOperationException();

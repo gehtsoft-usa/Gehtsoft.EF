@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
@@ -164,6 +165,25 @@ namespace TestApp
             public string Code { get; set; }
         }
 
+        [Entity(Scope = "v1", Table = "view1", View = true, Metadata = typeof(View1Metadata))]
+        public class View1
+        {
+            [EntityProperty(Field = "id", AutoId = true)]
+            public int ID { get; set; }
+
+            [EntityProperty(Field = "code", DbType = DbType.String, Size = 32, Sorted = true)]
+            public string Code { get; set; }
+        }
+
+        public class View1Metadata : IViewCreationMetadata
+        {
+            public SelectQueryBuilder GetSelectQuery(SqlDbConnection connection)
+            {
+                var builder = connection.GetSelectEntityQueryBuilder<Entity1>();
+                return builder.SelectQueryBuilder;
+            }
+        }
+
         [Entity(Scope = "v1", Table = "entity2")]
         public class Entity2
         {
@@ -187,6 +207,25 @@ namespace TestApp
             [OnEntityPropertyCreate(typeof(TestDbUpdate), nameof(TestDbUpdate.OnEntity1ColCreated))]
             [EntityProperty(Field = "name", DbType = DbType.String, Size = 32, Sorted = true, Nullable = true)]
             public string Name { get; set; }
+        }
+
+        [Entity(Scope = "v2", Table = "view1", View = true, Metadata = typeof(View1_2Metadata))]
+        public class View1_2
+        {
+            [EntityProperty(Field = "id", AutoId = true)]
+            public int ID { get; set; }
+
+            [EntityProperty(Field = "code", DbType = DbType.String, Size = 32, Sorted = true)]
+            public string Code { get; set; }
+        }
+
+        public class View1_2Metadata : IViewCreationMetadata
+        {
+            public SelectQueryBuilder GetSelectQuery(SqlDbConnection connection)
+            {
+                var builder = connection.GetSelectEntityQueryBuilder<Entity1_2>();
+                return builder.SelectQueryBuilder;
+            }
         }
 
         [Entity(Scope = "v2", Table = "entity2")]
@@ -263,6 +302,7 @@ namespace TestApp
             Assert.IsTrue(schema.Contains("entity1", "name"), "name");
             Assert.IsFalse(schema.Contains("entity2", "e1"), "e1");
             Assert.IsTrue(schema.Contains("entity2", "e3"), "e3");
+            Assert.IsTrue(schema.ContainsView("view1"), "view");
             Assert.IsTrue(f1, "f1");
             Assert.IsTrue(f2, "f2");
             Assert.IsTrue(f3, "f3");

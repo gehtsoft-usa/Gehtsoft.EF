@@ -106,7 +106,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             Func<IDictionary<string, object>, dynamic> func;
             dynamic result;
             SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
-            List<object> array;
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = func(null);

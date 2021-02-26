@@ -156,6 +156,15 @@ namespace Gehtsoft.EF.Db.SqlDb
             throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
         }
 
+        public virtual CreateViewBuilder GetCreateViewBuilder(string name, SelectQueryBuilder selectBuilder)
+        {
+            return new CreateViewBuilder(GetLanguageSpecifics(), name, selectBuilder);
+        }
+        public virtual DropViewBuilder GetDropViewBuilder(string name)
+        {
+            return new DropViewBuilder(GetLanguageSpecifics(), name);
+        }
+
         private Dictionary<object, object> mTags = null;
 
         public object GetTag(object key)

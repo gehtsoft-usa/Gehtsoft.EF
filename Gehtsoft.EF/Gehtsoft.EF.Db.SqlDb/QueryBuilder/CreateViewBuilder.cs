@@ -1,0 +1,31 @@
+﻿using System.Collections.Generic;
+using System.Text;
+using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+
+namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
+{
+    public class CreateViewBuilder : AQueryBuilder
+    {
+        protected readonly string mName;
+        protected readonly SelectQueryBuilder mSelectQuery;
+        protected string mQuery;
+        override public string Query => mQuery;
+
+        public CreateViewBuilder(SqlDbLanguageSpecifics specifics, string name, SelectQueryBuilder selectQuery) : base(specifics)
+        {
+            mSpecifics = specifics;
+            mName = name;
+            mSelectQuery = selectQuery;
+        }
+
+        public override void PrepareQuery()
+        {
+            if (mQuery != null)
+                return;
+
+            mSelectQuery.PrepareQuery();
+
+            mQuery = $"CREATE VIEW {mName} AS {mSelectQuery.Query}";
+        }
+    }
+}

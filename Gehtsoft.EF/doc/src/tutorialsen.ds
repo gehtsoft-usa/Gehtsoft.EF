@@ -331,6 +331,11 @@
 
     Of course, in case when you want to recreate all the entity tables, always drop entities first.
 
+    Please note that if you want your view automatically created and dropped, don't forget to
+    provide metadata type in the [clink=Gehtsoft.EF.Entities.EntityAttribute]EntityAttribute[/clink]
+    that implements [clink=Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata]IViewCreationMetadata[/clink]
+    interface.
+
     @example
         @title=Example
         @show=yes

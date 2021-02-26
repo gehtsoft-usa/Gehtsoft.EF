@@ -83,7 +83,10 @@
     <Compile Include="EntityQueries\EntityQuery\SelectEntitiesQuery.cs" />
     <Compile Include="EntityQueries\EntityQuery\SelectEntitiesQueryBase.cs" />
     <Compile Include="EntityQueries\EntityQuery\UpdateEntityQuery.cs" />
+    <Compile Include="QueryBuilder\CreateViewBuilder.cs" />
+    <Compile Include="QueryBuilder\DropViewBuilder.cs" />
     <Compile Include="ISqlDbConnectionFactory.cs" />
+    <Compile Include="Metadata\IViewCreationMetadata.cs" />
     <Compile Include="QueryBuilder\AlterTableQueryBuilder.cs" />
     <Compile Include="QueryBuilder\ConditionBuilder.cs" />
     <Compile Include="QueryBuilder\CreateTableBuilder.cs" />

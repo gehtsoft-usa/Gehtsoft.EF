@@ -28,6 +28,7 @@
     <Compile Include="OracleCreateTableBuilder.cs" />
     <Compile Include="OracleDbLanguageSpecifics.cs" />
     <Compile Include="OracleDropTableBuilder.cs" />
+    <Compile Include="OracleDropViewBuilder.cs" />
     <Compile Include="OracleHierarchicalSelectQueryBuilder.cs" />
     <Compile Include="OracleInsertQueryBuilder.cs" />
     <Compile Include="OracleInsertSelectQueryBuilder.cs" />

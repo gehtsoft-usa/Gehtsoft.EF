@@ -81,6 +81,23 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 }
             }
 
+            using (SqlDbQuery query = GetQuery("select NAME from SQLITE_MASTER where TYPE=@type"))
+            {
+                query.BindParam("type", "view");
+                if (sync)
+                {
+                    query.ExecuteReader();
+                    while (query.ReadNext())
+                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = true } );
+                }
+                else
+                {
+                    await query.ExecuteReaderAsync(token);
+                    while (await query.ReadNextAsync(token))
+                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = true });
+                }
+            }
+
             foreach (TableDescriptor descriptor in tables)
             {
                 using (SqlDbQuery query = GetQuery($"pragma table_info({descriptor.Name})"))

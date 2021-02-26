@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Entities;
 using NUnit.Framework;
+using FluentAssertions;
 
 namespace TestApp
 {
@@ -101,7 +102,7 @@ namespace TestApp
             }
         }
 
-        public class UserStatusUtil
+        public static class UserStatusUtil
         {
             public static string ToCode(UserStatus status)
             {
@@ -1410,7 +1411,7 @@ namespace TestApp
 
             public StateInspector() { }
         }
-        public class StateSampleTool
+        public static class StateSampleTool
         {
             public static int ToJdn(DateTime date)
             {
@@ -2044,7 +2045,7 @@ namespace TestApp
           Ripe = 1000
         }
 
-        public class BeanTypeUtil
+        public static class BeanTypeUtil
         {
             public static string BeanTypeToCode(BeanType type)
             {
@@ -2113,13 +2114,19 @@ namespace TestApp
         {
             EntityFinder.EntityTypeInfo[] types = EntityFinder.FindEntities(new Assembly[] {typeof(TestEntityResolver).GetTypeInfo().Assembly}, "mzc", true);
             EntityFinder.ArrageEntities(types);
-            bool viewTaken = false;
 
             int sc = 0;
             for (int i = 0; i < types.Length; i++)
             {
                 if (types[i].EntityType == typeof(MetalCrateBase))
-                    viewTaken = true;
+                {
+                    types[i].View.Should().BeTrue();
+                    i.Should().Be(types.Length - 1);
+                }
+                else
+                    types[i].View.Should().BeFalse();
+
+
 
                 PropertyInfo[] props = types[i].EntityType.GetTypeInfo().GetProperties();
                 foreach (PropertyInfo pi in props)
@@ -2141,7 +2148,6 @@ namespace TestApp
                 }
             }
             Assert.AreNotEqual(0, sc);
-            Assert.IsFalse(viewTaken);
         }
     }
 }

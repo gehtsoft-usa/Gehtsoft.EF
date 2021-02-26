@@ -76,6 +76,11 @@ namespace Gehtsoft.EF.Db.MssqlDb
             return new MssqlDropQueryBuilder(gSpecifics, descriptor);
         }
 
+        public override DropViewBuilder GetDropViewBuilder(string name)
+        {
+            return new MssqlDropViewBuilder(gSpecifics, name);
+        }
+
         public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoincrement)
         {
             return new MssqlInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoincrement);
@@ -100,19 +105,19 @@ namespace Gehtsoft.EF.Db.MssqlDb
         {
             List<TableDescriptor> tables = new List<TableDescriptor>();
 
-            using (SqlDbQuery query = GetQuery("select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA = (select SCHEMA_NAME())"))
+            using (SqlDbQuery query = GetQuery("select TABLE_NAME, TABLE_TYPE from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA = (select SCHEMA_NAME())"))
             {
                 if (sync)
                 {
                     query.ExecuteReader();
                     while (query.ReadNext())
-                        tables.Add(new TableDescriptor(query.GetValue<string>(0)));
+                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = query.GetValue<string>(1) == "VIEW" });
                 }
                 else
                 {
                     await query.ExecuteReaderAsync(token);
                     while (await query.ReadNextAsync(token))
-                        tables.Add(new TableDescriptor(query.GetValue<string>(0)));
+                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = query.GetValue<string>(1) == "VIEW" });
                 }
             }
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 
@@ -35,6 +36,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
     public delegate void CreateEntityControllerEventDelegate(object sender, CreateEntityControllerEventArgs args);
 
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
     public abstract class OnEntityActionAttribute : Attribute
     {
         private Type mType;
@@ -213,7 +215,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
         }
 
-        public void DropTables(SqlDbConnection connection)
+        protected async ValueTask DropTablesCore(SqlDbConnection connection, bool async)
         {
             LoadTypes();
             foreach (EntityFinder.EntityTypeInfo info in mTypes.Reverse())
@@ -222,71 +224,69 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 if (attribute != null)
                 {
                     RaiseProcessing(info.Table);
-                    attribute.Invoke(connection);
+                    if (async)
+                        await attribute.InvokeAsync(connection);
+                    else
+                        attribute.Invoke(connection);
                 }
-                using (EntityQuery drop = connection.GetDropEntityQuery(info.EntityType))
+
+                bool view = info.View && info.Metadata != null && typeof(IViewCreationMetadata).IsAssignableFrom(info.Metadata);
+
+                if (info.View && !view)
+                    continue;
+
+                using (EntityQuery drop = view ? connection.GetDropViewQuery(info.EntityType) : 
+                                                 connection.GetDropEntityQuery(info.EntityType))
                 {
                     RaiseDrop(info.Table);
-                    drop.Execute();
+                    if (async)
+                        await drop.ExecuteAsync();
+                    else
+                        drop.Execute();
                 }
             }
         }
 
-        public void CreateTables(SqlDbConnection connection)
+        public void DropTables(SqlDbConnection connection) => DropTablesCore(connection, false).GetAwaiter().GetResult();
+
+        public Task DropTablesAsync(SqlDbConnection connection) => DropTablesCore(connection, true).AsTask();
+
+        private async ValueTask CreateTablesCore(SqlDbConnection connection, bool async)
         {
             LoadTypes();
             foreach (EntityFinder.EntityTypeInfo info in mTypes)
             {
-                using (EntityQuery create = connection.GetCreateEntityQuery(info.EntityType))
+                bool view = info.View && info.Metadata != null && typeof(IViewCreationMetadata).IsAssignableFrom(info.Metadata);
+
+                if (info.View && !view)
+                    continue;
+
+                using (EntityQuery create = view ? connection.GetCreateViewQuery(info.EntityType) :
+                                                    connection.GetCreateEntityQuery(info.EntityType))
                 {
                     RaiseCreate(info.Table);
-                    create.Execute();
+                    if (async)
+                        await create.ExecuteAsync();
+                    else
+                        create.Execute();
                 }
+                
                 OnEntityCreateAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityCreateAttribute>();
                 if (attribute != null)
                 {
                     RaiseProcessing(info.Table);
-                    attribute.Invoke(connection);
-                }
-            }
-        }
-        public async Task DropTablesAsync(SqlDbConnection connection)
-        {
-            LoadTypes();
-            foreach (EntityFinder.EntityTypeInfo info in mTypes.Reverse())
-            {
-                OnEntityDropAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityDropAttribute>();
-                if (attribute != null)
-                {
-                    RaiseProcessing(info.Table);
-                    await attribute.InvokeAsync(connection);
-                }
-                using (EntityQuery drop = connection.GetDropEntityQuery(info.EntityType))
-                {
-                    RaiseDrop(info.Table);
-                    await drop.ExecuteAsync();
+                    if (async)
+                        await attribute.InvokeAsync(connection);
+                    else
+                        attribute.Invoke(connection);
                 }
             }
         }
 
-        public async Task CreateTablesAsync(SqlDbConnection connection)
-        {
-            LoadTypes();
-            foreach (EntityFinder.EntityTypeInfo info in mTypes)
-            {
-                using (EntityQuery create = connection.GetCreateEntityQuery(info.EntityType))
-                {
-                    RaiseCreate(info.Table);
-                    await create.ExecuteAsync();
-                }
-                OnEntityCreateAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityCreateAttribute>();
-                if (attribute != null)
-                {
-                    RaiseProcessing(info.Table);
-                    await attribute.InvokeAsync(connection);
-                }
-            }
-        }
+        public void CreateTables(SqlDbConnection connection) => CreateTablesCore(connection, false).GetAwaiter().GetResult();
+
+        public Task CreateTablesAsync(SqlDbConnection connection) => CreateTablesCore(connection, true).AsTask();
+
 
         public enum UpdateMode
         {
@@ -310,8 +310,34 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             else
                 schema = await connection.SchemaAsync();
 
+            foreach (EntityFinder.EntityTypeInfo info in mTypes.Where(info => info.View))
+            {
+                if (info.Metadata != null && typeof(IViewCreationMetadata).IsAssignableFrom(info.Metadata))
+                {
+                    OnEntityDropAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityDropAttribute>();
+                    if (attribute != null)
+                    {
+                        RaiseProcessing(info.Table);
+                        if (sync)
+                            attribute.Invoke(connection);
+                        else
+                            await attribute.InvokeAsync(connection);
+                    }
+                    using (EntityQuery drop = connection.GetDropViewQuery(info.EntityType))
+                    {
+                        RaiseDrop(info.Table);
+                        if (sync)
+                            drop.Execute();
+                        else
+                            await drop.ExecuteAsync();
+                    }
+
+                }
+
+            }
+
             //drop obsolete tables and/or columns and tables which are forced to be recreated
-            foreach (EntityFinder.EntityTypeInfo info in mTypes.Reverse())
+            foreach (EntityFinder.EntityTypeInfo info in mTypes.Reverse().Where(info => !info.View))
             {
                 if (schema.Contains(info.Table))
                 {
@@ -393,7 +419,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
 
             //create and/or update tables
-            foreach (EntityFinder.EntityTypeInfo info in mTypes)
+            foreach (EntityFinder.EntityTypeInfo info in mTypes.Where(info => !info.View))
             {
                 if (info.Obsolete)
                     continue;
@@ -418,7 +444,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                             attribute.Invoke(connection);
                         else
                             await attribute.InvokeAsync(connection);
-
                     }
                 }
                 else
@@ -471,6 +496,30 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         }
                     }
                 }
+            }
+
+            foreach (EntityFinder.EntityTypeInfo info in mTypes.Where(info => info.View))
+            {
+                using (EntityQuery create = connection.GetCreateViewQuery(info.EntityType))
+                {
+                    RaiseCreate(info.Table);
+                    if (sync)
+                        create.Execute();
+                    else
+                        await create.ExecuteAsync();
+                }
+
+                OnEntityCreateAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityCreateAttribute>();
+                if (attribute != null)
+                {
+                    RaiseProcessing(info.Table);
+                    if (sync)
+                        attribute.Invoke(connection);
+                    else
+                        await attribute.InvokeAsync(connection);
+
+                }
+
             }
         }
 

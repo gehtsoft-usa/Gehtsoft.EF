@@ -52,6 +52,11 @@ namespace Gehtsoft.EF.Db.OracleDb
             return new OracleDropTableBuilder(gSpecifics, descriptor);
         }
 
+        public override DropViewBuilder GetDropViewBuilder(string name)
+        {
+            return new OracleDropViewBuilder(gSpecifics, name);
+        }
+
         public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement)
         {
             return new OracleInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);
@@ -93,7 +98,23 @@ namespace Gehtsoft.EF.Db.OracleDb
                         tables.Add(new TableDescriptor(query.GetValue<string>(0)));
                 }
             }
-
+            using (SqlDbQuery query = GetQuery("SELECT view_name FROM all_views WHERE OWNER IN (select sys_context(:p1, :p2) from dual) order by view_name"))
+            {
+                query.BindParam("p1", "userenv");
+                query.BindParam("p2", "current_schema");
+                if (sync)
+                {
+                    query.ExecuteReader();
+                    while (query.ReadNext())
+                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = true });
+                }
+                else
+                {
+                    await query.ExecuteReaderAsync(token);
+                    while (await query.ReadNextAsync(token))
+                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = true });
+                }
+            }
             foreach (TableDescriptor descriptor in tables)
             {
                 using (SqlDbQuery query = GetQuery($"select * from {descriptor.Name} where 1 < 0"))

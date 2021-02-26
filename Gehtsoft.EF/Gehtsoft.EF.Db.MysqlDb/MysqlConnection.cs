@@ -74,19 +74,19 @@ namespace Gehtsoft.EF.Db.MysqlDb
         {
             List<TableDescriptor> tables = new List<TableDescriptor>();
 
-            using (SqlDbQuery query = GetQuery("show tables"))
+            using (SqlDbQuery query = GetQuery("show full tables"))
             {
                 if (sync)
                 {
                     query.ExecuteReader();
                     while (query.ReadNext())
-                        tables.Add(new TableDescriptor(query.GetValue<string>(0)));
+                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = query.GetValue<string>(1) == "VIEW" });
                 }
                 else
                 {
                     await query.ExecuteReaderAsync(token);
                     while (await query.ReadNextAsync(token))
-                        tables.Add(new TableDescriptor(query.GetValue<string>(0)));
+                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = query.GetValue<string>(1) == "VIEW" });
                 }
             }
 

@@ -1,0 +1,34 @@
+@class
+    @name=IViewCreationMetadata
+    @key=Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata
+    @ingroup=Gehtsoft.EF.Db.SqlDb.Metadata
+    @sig=T:Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata
+    @type=interface
+    @brief=The interface to implement metadata for view creation
+
+    @member
+
+        @type=method
+        @name=GetSelectQuery
+        @key=GetSelectQuery.I4F
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata.GetSelectQuery(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @visibility=public
+        @scope=instance
+        @brief=The method returns a select query to create the view
+
+            @declaration
+                @language=cs
+                @name=GetSelectQuery
+                @return=[link=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder]SelectQueryBuilder[/link]
+                @params=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection
+            @end
+
+            @param
+                @name=connection
+
+            @end
+
+    @end
+
+@end

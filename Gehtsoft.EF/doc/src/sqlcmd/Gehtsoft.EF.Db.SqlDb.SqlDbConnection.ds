@@ -170,6 +170,37 @@
     @end
 
     @member
+        @name=GetCreateViewBuilder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetCreateViewBuilder(System.String,Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder)
+        @key=GetCreateViewBuilder.0
+        @divisor=.
+        @brief=Gets query builder for create View operation
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetCreateViewBuilder
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateViewBuilder]CreateViewBuilder[/clink]
+            @params=string name, [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder]SelectQueryBuilder[/clink] viewDefinition
+        @end
+
+        @param
+            @name=name
+            The name of the view
+
+        @end
+
+        @param
+            @name=viewDefinition
+            The query that defines the view
+        @end
+
+    @end
+
+    @member
         @name=GetDropTableBuilder
         @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetDropTableBuilder(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor)
         @key=GetDropTableBuilder.0
@@ -189,6 +220,31 @@
 
         @param
             @name=descriptor
+
+        @end
+
+    @end
+
+    @member
+        @name=GetDropViewBuilder
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetDropViewBuilder(System.String)
+        @key=GetDropViewBuilder.0
+        @divisor=.
+        @brief=Gets query builder for drop view operation
+        @scope=instance
+        @visibility=public
+
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=GetDropViewBuilder
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.DropViewBuilder]DropViewBuilder[/clink]
+            @params=string name
+        @end
+
+        @param
+            @name=name
 
         @end
 

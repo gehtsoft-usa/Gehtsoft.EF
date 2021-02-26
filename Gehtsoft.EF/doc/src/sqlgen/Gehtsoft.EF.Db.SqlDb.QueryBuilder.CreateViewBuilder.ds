@@ -1,13 +1,13 @@
 @class
-    @name=CreateTableBuilder
-    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateTableBuilder
+    @name=CreateViewBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateViewBuilder
     @brief=The query builder that generates a create table query.
     @type=class
     @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
-    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateTableBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateViewBuilder
     @parent=[clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/clink]
 
-    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetCreateTableBuilder.0]SqlDbConnection.GetCreateTableBuilder()[/clink] to get an instance
+    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetCreateViewBuilder.0]SqlDbConnection.GetCreateViewBuilder()[/clink] to get an instance
     of the object.
 
     The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.

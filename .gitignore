@@ -4,9 +4,9 @@
 .nuget/
 bin/
 obj/
-TestResults/
 packagedoc/ef/
 packagedoc/ef.toolbox/
+TestResults/
 *.csproj.user
 *.nupkg
 *.nuspec
@@ -18,9 +18,6 @@ packagedoc/ef.toolbox/
 *.chm
 *.chw
 
-**/prepare/src/
-**/prepare/dst/
-**/doc/dst/
 
 /gehtsoft.ef/archive/
 /gehtsoft.ef/Gehtsoft.EF.Db.SqlDb.Sql/*.bin

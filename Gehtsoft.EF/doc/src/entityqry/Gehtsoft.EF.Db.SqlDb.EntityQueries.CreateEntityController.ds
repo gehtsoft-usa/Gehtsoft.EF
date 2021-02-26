@@ -5,6 +5,7 @@
     @type=class
     @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
     @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController
+
     @member
         @name=CreateEntityController
         @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.#ctor(System.Type,System.String)
