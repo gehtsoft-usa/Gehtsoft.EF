@@ -1,0 +1,107 @@
+@class
+    @name=CompositeIndex
+    @key=Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex
+    @ingroup=Gehtsoft.EF.Db.SqlDb.Metadata
+    @sig=T:Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex
+    @type=class
+        
+    @parent=object
+    @brief=The class defining the information about a composite index. 
+
+    @member
+        @type=constructor
+        @name=CompositeIndex
+        @key=.ctor.X07
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex.#ctor(System.Type,System.String)
+        @visibility=public
+        @scope=instance
+        @brief=
+                
+            @declaration
+                @language=cs
+                @name=CompositeIndex
+                @params=Type entityType, string name
+            @end
+
+            @param
+                @name=entityType
+                The type of the entity.
+            @end
+            
+            @param
+                @name=name
+                The name of the index. 
+
+                When index is created, DB object name
+                will be the name of the entity concatenated with the 
+                name of the index, e.g. "EntityName_IndexName".
+            @end
+        
+    @end
+    
+    @member
+        
+        @type=method
+        @name=Add
+        @key=Add.aD5
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex.Add(System.String)
+        @visibility=public
+        @scope=instance
+        @brief=
+                
+            @declaration
+                @language=cs
+                @name=Add
+                @return=void
+                @params=string name
+            @end
+            
+            @param
+                @name=name
+
+            @end
+        
+    @end
+    
+    @member
+        
+        @type=method
+        @name=Add
+        @key=Add.3x8
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex.Add(System.String,Gehtsoft.EF.Entities.SortDir)
+        @visibility=public
+        @scope=instance
+        @brief=Adds a column to the index definition
+
+        @declaration
+            @language=cs
+            @name=Add
+            @return=void
+            @params=string name
+        @end
+            
+        @declaration
+            @language=cs
+            @name=Add
+            @return=void
+            @params=string name, [link=Gehtsoft.EF.Entities.SortDir]SortDir[/link] direction
+        @end
+
+            
+            @param
+                @name=name
+                The name of of the column or the name of the entity property 
+            @end
+        
+            @param
+                @name=direction
+                The sorting direction (default is ascending)
+            @end
+        
+    @end
+    
+@end
+    

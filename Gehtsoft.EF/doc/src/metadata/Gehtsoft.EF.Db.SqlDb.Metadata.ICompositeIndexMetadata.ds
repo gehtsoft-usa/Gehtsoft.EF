@@ -1,0 +1,32 @@
+@class
+    @name=ICompositeIndexMetadata
+    @key=Gehtsoft.EF.Db.SqlDb.Metadata.ICompositeIndexMetadata
+    @ingroup=Gehtsoft.EF.Db.SqlDb.Metadata
+    @sig=T:Gehtsoft.EF.Db.SqlDb.Metadata.ICompositeIndexMetadata
+    @type=interface
+    @brief=The interface to implement metadata for composite index creation.
+                
+    @member
+        
+        @type=property
+        @name=Indexes
+        @key=Indexes.Bg2
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.Metadata.ICompositeIndexMetadata.Indexes
+        @visibility=public
+            
+        @scope=instance
+        @brief=Returns the enumeration of the indexes.
+                
+            @declaration
+                @language=cs
+                
+                @return=IEnumerable<[link=Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex]CompositeIndex[/link]>
+                @name=Indexes
+                @suffix= public get; 
+            @end
+            
+    @end
+    
+@end
+    

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
+using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
@@ -51,6 +53,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             foreach (TableDescriptor.ColumnInfo column in mDescriptor)
                 HandleAfterQuery(builder, column);
 
+            if (mDescriptor.Metadata != null && mDescriptor.Metadata is ICompositeIndexMetadata compositeIndex)
+            {
+                foreach (var index in compositeIndex.Indexes)
+                    HandleCompositeIndex(builder, index);
+            }
+
             builder.Append(mSpecifics.PostBlock);
 
             mQuery = builder.ToString();
@@ -92,6 +100,33 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     builder.Append(';');
 
                 builder.Append(mSpecifics.PostQueryInBlock);
+            }
+        }
+
+        protected virtual void HandleCompositeIndex(StringBuilder builder, CompositeIndex index)
+        {
+            builder.Append("\r\n");
+            builder.Append(mSpecifics.PreQueryInBlock);
+
+            builder.Append($"CREATE INDEX {mDescriptor.Name}_{index.Name} ON {mDescriptor.Name}(");
+            HandleCompositeIndexColumns(builder, index);
+            builder.Append(")");
+            if (mSpecifics.TerminateWithSemicolon)
+                builder.Append(';');
+            builder.Append(mSpecifics.PostQueryInBlock);
+
+        }
+
+        protected virtual void HandleCompositeIndexColumns(StringBuilder builder, CompositeIndex index)
+        {
+            for (int i = 0; i < index.Fields.Count; i++)
+            {
+                var field = index.Fields[i];
+                if (i > 0)
+                    builder.Append(", ");
+                builder.Append(field.Name);
+                if (field.Direction == SortDir.Desc)
+                    builder.Append(" DESC");
             }
         }
     }

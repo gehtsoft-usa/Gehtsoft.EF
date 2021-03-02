@@ -5,7 +5,7 @@
     <Version>$(VersionMajor)</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.5.2" />
+    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.6.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gehtsoft.Mapper\Gehtsoft.Mapper.csproj" />

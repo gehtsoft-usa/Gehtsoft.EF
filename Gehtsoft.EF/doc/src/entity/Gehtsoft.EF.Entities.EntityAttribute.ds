@@ -80,7 +80,7 @@
         @visibility=public
         @type=property
 
-    The default naming policy is to use what is set in [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities]AllEntities[/clink] class.
+        The default naming policy is to use what is set in [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities]AllEntities[/clink] class.
 
         @declaration
             @language=cs
@@ -90,6 +90,62 @@
         @end
 
     @end
+
+    @member
+        
+        @type=property
+        @name=View
+        @key=View.JiB
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Entities.EntityAttribute.View
+        @visibility=public
+            
+        @scope=instance
+        @brief=The flag indicating that the entity is a view
+
+        By default view woudn't be created or dropped unless appropriate
+        [clink=Gehtsoft.EF.Entities.EntityAttribute.Metadata.Ok6]metadata[/clink]
+        is set. 
+                
+            @declaration
+                @language=cs
+                
+                @return=bool
+                @name=View
+                @suffix= public get; public set;
+            @end
+            
+    @end
+    
+    @member
+        
+        @type=property
+        @name=Metadata
+        @key=Metadata.Ok6
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Entities.EntityAttribute.Metadata
+        @visibility=public
+            
+        @scope=instance
+        @brief=The type of the metadata class associated with the entity
+
+        The metadata class allows to provide additional 
+        information about the entity, for example an SQL query to be used to create a view or
+        a specification for a composite indexes associated with the entity. 
+
+        To provide the metadata for SQL databases, implement interfaces from 
+        [clink=Gehtsoft.EF.Db.SqlDb.Metadata]Gehtsoft.EF.Db.SqlDb.Metadata[/clink] namespace. 
+                
+            @declaration
+                @language=cs
+                
+                @return=Type
+                @name=Metadata
+                @suffix= public get; public set;
+            @end
+            
+    @end
+
 
     The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
     The namespace is [clink=Gehtsoft.EF.Entities]Gehtsoft.EF.Entities[/clink].
@@ -183,11 +239,7 @@
             @suffix= get; set;
         @end
 
-        The metadata is the reference to a class that can contain DB-type and/or driver-specific meta data about the type.
-
-        Please refer to appropriate module for the particular interface that metadata class must implement.
-
-        Note: Metadata class must have default constructor!
+        See also [clink=Gehtsoft.EF.Entities.EntityAttribute.Metadata.Ok6]EntityAttribute.Metadata[/clink] property. 
     @end
 
     The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.

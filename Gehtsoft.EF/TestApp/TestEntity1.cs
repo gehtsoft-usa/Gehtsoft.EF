@@ -10,6 +10,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.OData;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
@@ -207,7 +208,7 @@ namespace TestApp
         private static GenericEntitySortOrder[] goodOrder = new GenericEntitySortOrder[] { new GenericEntitySortOrder(nameof(Good.Name)) };
         private static GenericEntitySortOrder[] goodOrderRev = new GenericEntitySortOrder[] { new GenericEntitySortOrder(nameof(Good.Name), SortDir.Desc) };
 
-        [Entity(Scope = "entities", Table = "tsale")]
+        [Entity(Scope = "entities", Table = "tsale", Metadata = typeof(SalesMetadata))]
         [PagingLimit(10)]
         public class Sale
         {
@@ -253,6 +254,20 @@ namespace TestApp
             public override string ToString()
             {
                 return $"[{ID}]{SalesDate} - {Good.Name} @ {Total} by {SalesPerson.Name}";
+            }
+        }
+
+        public class SalesMetadata : ICompositeIndexMetadata
+        {
+            public IEnumerable<CompositeIndex> Indexes
+            {
+                get
+                {
+                    CompositeIndex index = new CompositeIndex(typeof(Sale), "Index1");
+                    index.Add(nameof(Sale.SalesDate));
+                    index.Add("salesperson", SortDir.Desc);
+                    yield return index;
+                }
             }
         }
 

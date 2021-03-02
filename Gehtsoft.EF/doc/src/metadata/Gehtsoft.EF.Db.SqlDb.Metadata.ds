@@ -1,0 +1,19 @@
+@group
+    @title=Namespace Gehtsoft.EF.Db.SqlDb.Metadata
+    @key=Gehtsoft.EF.Db.SqlDb.Metadata
+    @ingroup=index
+    @brief=The interfaces for metadata
+
+    The namespace defines the interfaces and data classes for defining the entity metadata. 
+
+    The metadata object may be either specified via
+    [clink=Gehtsoft.EF.Entities.EntityAttribute.Metadata.Ok6]EntityAttribute.Metadata[/clink]
+    property or [clink=TableDescriptor.Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.Metadata.Gs1]TableDescriptor.Metadata[/clink]
+    property. 
+
+    To provide additional information implement one of the interfaces specified 
+    in this namespace. 
+
+    Please note that the metadata class MUST have a default constructor 
+    in order to be used in [c]EntityAttribute[/c].
+@end
