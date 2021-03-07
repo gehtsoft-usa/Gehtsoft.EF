@@ -1,4 +1,5 @@
-﻿using Gehtsoft.EF.Db.SqlDb;
+﻿using FluentAssertions;
+using Gehtsoft.EF.Db.SqlDb;
 using NUnit.Framework;
 
 namespace TestApp

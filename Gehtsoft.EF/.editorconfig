@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# S2699: Tests should include assertions
+dotnet_diagnostic.S2699.severity = none
+
+# IDE0063: Use simple 'using' statement
+dotnet_diagnostic.IDE0063.severity = none

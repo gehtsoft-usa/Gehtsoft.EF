@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using FluentAssertions;
 using Gehtsoft.EF.Db.OracleDb;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor;
@@ -54,7 +55,7 @@ namespace TestApp
         [Entity(Table = "tcallback")]
         public class SerializationCallback : IEntitySerializationCallback
         {
-            private static string[] names = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen" };
+            private readonly static string[] names = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen" };
 
             private static string ToName(int? value)
             {
@@ -68,8 +69,10 @@ namespace TestApp
                 if (name == null)
                     return null;
                 for (int i = 0; i < names.Length; i++)
+                {
                     if (names[i] == name)
                         return i;
+                }
                 return null;
             }
 
@@ -205,8 +208,8 @@ namespace TestApp
             }
         }
 
-        private static GenericEntitySortOrder[] goodOrder = new GenericEntitySortOrder[] { new GenericEntitySortOrder(nameof(Good.Name)) };
-        private static GenericEntitySortOrder[] goodOrderRev = new GenericEntitySortOrder[] { new GenericEntitySortOrder(nameof(Good.Name), SortDir.Desc) };
+        private static readonly GenericEntitySortOrder[] goodOrder = new GenericEntitySortOrder[] { new GenericEntitySortOrder(nameof(Good.Name)) };
+        private static readonly GenericEntitySortOrder[] goodOrderRev = new GenericEntitySortOrder[] { new GenericEntitySortOrder(nameof(Good.Name), SortDir.Desc) };
 
         [Entity(Scope = "entities", Table = "tsale", Metadata = typeof(SalesMetadata))]
         [PagingLimit(10)]
@@ -294,9 +297,9 @@ namespace TestApp
             public double AdjustedTotal { get; set; }
         }
 
-        private static GenericEntitySortOrder[] saleOrder = new GenericEntitySortOrder[] { new GenericEntitySortOrder($"{nameof(Sale.SalesPerson)}.{nameof(Employee.Name)}"),
-                                                                                   new GenericEntitySortOrder($"{nameof(Sale.SalesDate)}", SortDir.Desc),
-                                                                                   new GenericEntitySortOrder($"{nameof(Sale.ID)}")};
+        private static readonly GenericEntitySortOrder[] saleOrder = new GenericEntitySortOrder[] { new GenericEntitySortOrder($"{nameof(Sale.SalesPerson)}.{nameof(Employee.Name)}"),
+                                                                                   new GenericEntitySortOrder(nameof(Sale.SalesDate), SortDir.Desc),
+                                                                                   new GenericEntitySortOrder(nameof(Sale.ID))};
 
         public class SalesFilter : GenericEntityAccessorFilter
         {
@@ -320,14 +323,13 @@ namespace TestApp
 
         public class SumOfSalesCollection : IEnumerable<SumOfSales>
         {
-            private Dictionary<int, SumOfSales> mDictionary = new Dictionary<int, SumOfSales>();
+            private readonly Dictionary<int, SumOfSales> mDictionary = new Dictionary<int, SumOfSales>();
 
             public SumOfSales this[int id]
             {
                 get
                 {
-                    SumOfSales s;
-                    if (mDictionary.TryGetValue(id, out s))
+                    if (mDictionary.TryGetValue(id, out SumOfSales s))
                         return s;
                     s = new SumOfSales() { ID = id, Checked = false, Total = 0 };
                     mDictionary[id] = s;
@@ -1219,50 +1221,35 @@ namespace TestApp
                 query.Where.Expression<Employee>(o => SqlFunction.Like(o.Name, "dummy%"));
                 Assert.AreEqual(6, query.RowCount);
             }
-            /*
-            using (MultiDeleteEntityQuery query = connection.GetMultiDeleteEntityQuery<Employee>())
-            {
-                query.Where.Expression<Employee>(o => SqlFunction.Like(o.Name, "dummy%"));
-                query.Execute();
-            }
-
-            using (SelectEntitiesCountQuery query = connection.GetSelectEntitiesCountQuery<Employee>())
-            {
-                query.Where.Expression<Employee>(o => SqlFunction.Like(o.Name, "dummy%"));
-                Assert.AreEqual(0, query.RowCount);
-            }
-            */
 
             #endregion Test autoincrement flags for insert
 
             #region Test Reader
 
+            using (var query = connection.GetGenericSelectEntityQuery<Sale>())
             {
-                using (var query = connection.GetGenericSelectEntityQuery<Sale>())
+                query.AddEntity(typeof(Employee), nameof(Sale.SalesPerson));
+                query.AddEntity(typeof(Good));
+                query.AddToResultset(nameof(Sale.ID), nameof(CustomSaleTargetClass.ID));
+                query.AddToResultset(nameof(Sale.SalesDate), nameof(CustomSaleTargetClass.SalesDate));
+                query.AddToResultset(typeof(Employee), nameof(Employee.Name), nameof(CustomSaleTargetClass.SalesPersonName));
+                query.AddToResultset(typeof(Good), nameof(Good.Name), nameof(CustomSaleTargetClass.GoodName));
+                query.AddToResultset(nameof(Sale.Total), nameof(CustomSaleTargetClass.Total));
+
+                SelectEntityQueryReader<CustomSaleTargetClass> reader = new SelectEntityQueryReader<CustomSaleTargetClass>(query);
+                reader.Bind(m => m.AdjustedTotal, q => q.GetValue<double>(nameof(CustomSaleTargetClass.Total)) * 0.3);
+                reader.Bind((m, q) =>
                 {
-                    query.AddEntity(typeof(Employee), nameof(Sale.SalesPerson));
-                    query.AddEntity(typeof(Good));
-                    query.AddToResultset(nameof(Sale.ID), nameof(CustomSaleTargetClass.ID));
-                    query.AddToResultset(nameof(Sale.SalesDate), nameof(CustomSaleTargetClass.SalesDate));
-                    query.AddToResultset(typeof(Employee), nameof(Employee.Name), nameof(CustomSaleTargetClass.SalesPersonName));
-                    query.AddToResultset(typeof(Good), nameof(Good.Name), nameof(CustomSaleTargetClass.GoodName));
-                    query.AddToResultset(nameof(Sale.Total), nameof(CustomSaleTargetClass.Total));
+                    DateTime saleDate = q.GetValue<DateTime>(nameof(CustomSaleTargetClass.SalesDate));
+                    m.SaleDay = saleDate.Day;
+                    m.SaleMonth = saleDate.Month;
+                    m.SaleYear = saleDate.Year;
+                    m.SaleDayOfWeek = saleDate.DayOfWeek;
+                });
 
-                    SelectEntityQueryReader<CustomSaleTargetClass> reader = new SelectEntityQueryReader<CustomSaleTargetClass>(query);
-                    reader.Bind(m => m.AdjustedTotal, q => q.GetValue<double>(nameof(CustomSaleTargetClass.Total)) * 0.3);
-                    reader.Bind((m, q) =>
-                    {
-                        DateTime saleDate = q.GetValue<DateTime>(nameof(CustomSaleTargetClass.SalesDate));
-                        m.SaleDay = saleDate.Day;
-                        m.SaleMonth = saleDate.Month;
-                        m.SaleYear = saleDate.Year;
-                        m.SaleDayOfWeek = saleDate.DayOfWeek;
-                    });
-
-                    query.Execute();
-                    List<CustomSaleTargetClass> list = reader.ReadAll<List<CustomSaleTargetClass>>();
-                    ;
-                }
+                query.Execute();
+                List<CustomSaleTargetClass> list = reader.ReadAll<List<CustomSaleTargetClass>>();
+                list.Should().NotBeEmpty();
             }
 
             #endregion Test Reader
@@ -1350,7 +1337,7 @@ namespace TestApp
 
             using (SelectEntitiesQueryBase query = connection.GetGenericSelectEntityQuery<Sale>())
             {
-                query.AddToResultset<Sale, int>(sale => SqlFunction.Count(), "count");
+                query.AddToResultset<Sale, int>(_ => SqlFunction.Count(), "count");
                 query.AddToResultset<Sale, double>(sale => SqlFunction.Sum(sale.Total), "sum");
                 query.AddToResultset<Sale, double>(sale => SqlFunction.Min(sale.Total), "min");
                 query.AddToResultset<Sale, double>(sale => SqlFunction.Max(sale.Total), "max");
@@ -1360,14 +1347,21 @@ namespace TestApp
                 dynamic r = query.ReadOneDynamic();
 
                 Assert.AreEqual(sales.Count, (double)r.count);
-                double min, max, sum, avg;
-                Assert.AreEqual(sum = sales.Sum(o => o.Total), (double)r.sum);
-                Assert.AreEqual(min = sales.Min(o => o.Total), (double)r.min);
-                Assert.AreEqual(max = sales.Max(o => o.Total), (double)r.max);
-                Assert.AreEqual(avg = sales.Average(o => o.Total), (double)r.avg);
-                Assert.AreEqual((max - min) / avg, (double)r.fn, 1e-5);
+                double min, max, sum, avg, fn;
+                min = sales.Min(o => o.Total);
+                max = sales.Max(o => o.Total);
+                sum = sales.Sum(o => o.Total);
+                avg = sales.Average(o => o.Total);
 
-                v = (double)r.avg;
+                min.Should().Be(r.min);
+                max.Should().Be(r.max);
+                sum.Should().Be(r.sum);
+                avg.Should().Be(r.avg);
+                fn = (max - min) / avg;
+
+                fn.Should().BeApproximately((double)r.fn, 1e-5);
+
+                v = sales.Average(o => o.Total);
             }
 
             using (SelectEntitiesQueryBase query = connection.GetGenericSelectEntityQuery<Sale>())
@@ -1381,6 +1375,7 @@ namespace TestApp
                     query.AddToResultset<Sale, bool>(sale => sale.Good.Name == sale.Good.Category.Name, "booleanFlag");
                 query.AddOrderBy<Good>(good => good.Name);
                 dynamic result = query.ReadAllDynamic();
+                (result as object)?.Should().NotBeNull();
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Sale>())
@@ -1399,7 +1394,7 @@ namespace TestApp
                 {
                     query1.AddWholeTree();
                     query1.AddToResultset<Good, int>(good => good.ID);
-                    int category = 100;
+                    const int category = 100;
                     query1.Where.Expression<Good>(good => good.Category.ID == category);
                     query.Where.Expression<Sale>(sale => SqlFunction.In(sale.Good, query1));
                     query.AddOrderBy<Sale>(sale => sale.SalesDate);
@@ -1422,7 +1417,7 @@ namespace TestApp
                 {
                     query1.AddWholeTree();
                     query1.AddToResultset<Good, int>(good => good.ID);
-                    int category = 100;
+                    const int category = 100;
                     query1.Where.Expression<Good>(good => good.Category.ID == category);
                     query.Where.Expression<Sale>(sale => SqlFunction.NotIn(sale.Good, query1));
                     query.AddOrderBy<Sale>(sale => sale.SalesDate);
@@ -1446,17 +1441,11 @@ namespace TestApp
                     query1.AddWholeTree();
                     query1.AddToResultset<Good, int>(good => good.ID);
                     query1.Where.Expression<Good>(good => good.ID == SqlFunction.Value<int>(query.GetReference(nameof(Sale.Good))));
-                    query.Where.Expression<Sale>(sale => SqlFunction.Exists(query1));
+                    query.Where.Expression<Sale>(_ => SqlFunction.Exists(query1));
                     query.AddOrderBy<Sale>(sale => sale.SalesDate);
                     query.Execute();
                     dynamic res = query.ReadAllDynamic();
-                    bool atLeastOne = false;
-                    foreach (var sale in res)
-                    {
-                        atLeastOne = true;
-                        break;
-                    }
-
+                    var atLeastOne = (res as IEnumerable)?.GetEnumerator().MoveNext();
                     Assert.IsTrue(atLeastOne);
                 }
             }
@@ -1469,17 +1458,11 @@ namespace TestApp
                     query1.AddToResultset<Good, int>(good => good.ID);
                     query1.Where.Expression<Good>(good => good.ID == SqlFunction.Value<int>(query.GetReference(nameof(Sale.Good))));
 
-                    query.Where.Expression<Sale>(sale => SqlFunction.NotExists(query1));
+                    query.Where.Expression<Sale>(_ => SqlFunction.NotExists(query1));
                     query.AddOrderBy<Sale>(sale => sale.SalesDate);
                     query.Execute();
                     dynamic res = query.ReadAllDynamic();
-                    bool atLeastOne = false;
-                    foreach (var sale in res)
-                    {
-                        atLeastOne = true;
-                        break;
-                    }
-
+                    var atLeastOne = (res as IEnumerable)?.GetEnumerator().MoveNext();
                     Assert.IsFalse(atLeastOne);
                 }
             }
@@ -1523,7 +1506,7 @@ namespace TestApp
                 query.Where.Expression<Sale>(sale => sale.ID == 50);
                 EntityCollection<Sale> res = query.ReadAll<Sale>();
                 foreach (Sale sale in res)
-                    Assert.AreEqual(sale.ID, 50);
+                    Assert.AreEqual(50, sale.ID);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Sale>())
@@ -1531,7 +1514,7 @@ namespace TestApp
                 query.Where.Expression<Sale>(sale => sale.ID != 50);
                 EntityCollection<Sale> res = query.ReadAll<Sale>();
                 foreach (Sale sale in res)
-                    Assert.AreNotEqual(sale.ID, 50);
+                    Assert.AreNotEqual(50, sale.ID);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Sale>())
@@ -1653,7 +1636,6 @@ namespace TestApp
         private static void TestLinqQueryable(SqlDbConnection connection)
         {
             QueryableEntityProvider provider = new QueryableEntityProvider(new QueryableEntityProviderConnection(connection));
-            QueryableEntity<Good> goods = provider.Entities<Good>();
             QueryableEntity<Sale> sales = provider.Entities<Sale>();
             Sale[] allSales, tempSales;
             int[] ids;
@@ -1673,14 +1655,19 @@ namespace TestApp
             foreach (Sale sale in allSales)
             {
                 if (prevSale != null)
-                    Assert.IsTrue(string.Compare(sale.Good.Name, prevSale.Good.Name) > 0 || string.Compare(sale.Good.Name, prevSale.Good.Name) == 0 && sale.SalesDate > prevSale.SalesDate);
+                {
+                    Assert.IsTrue(string.Compare(sale.Good.Name, prevSale.Good.Name) > 0 ||
+                        (string.Compare(sale.Good.Name, prevSale.Good.Name) == 0 &&
+                         sale.SalesDate > prevSale.SalesDate));
+                }
+
                 prevSale = sale;
             }
 
             tempSales = sales.OrderBy(sale => new { sale.Good.Name, sale.SalesDate }).Take(5).Skip(10).ToArray();
-            Assert.AreEqual(tempSales.Length, 5);
+            Assert.AreEqual(5, tempSales.Length);
             for (int i = 0; i < tempSales.Length; i++)
-                Assert.AreEqual(tempSales[i].ID, allSales[i + 10].ID);
+                Assert.AreEqual(allSales[i + 10].ID, tempSales[i].ID);
 
             ids = sales.OrderBy(sale => new { sale.Good.Name, sale.SalesDate }).Select(sale => sale.ID).ToArray();
             dates = sales.OrderBy(sale => new { sale.Good.Name, sale.SalesDate }).Select(sale => sale.SalesDate).ToArray();
@@ -1698,9 +1685,13 @@ namespace TestApp
                 Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Max(o => o.SalesDate), v.LastTransaction);
             }
 
-            foreach (var v in sales.GroupBy(sale => new { Good = sale.Good.ID, Person = sale.SalesPerson.ID }).Select(r => new { Good = r.Key.Good, Person = r.Key.Person, CountOf = r.Count(), FirstTransaction = r.Min(o => o.SalesDate) }))
+            foreach (var v in sales.GroupBy(sale => new { Good = sale.Good.ID, Person = sale.SalesPerson.ID }).Select(r => new { r.Key.Good, r.Key.Person, CountOf = r.Count(), FirstTransaction = r.Min(o => o.SalesDate) }))
             {
+#pragma warning disable S2971 // "IEnumerable" LINQs should be simplified
+#pragma warning disable RCS1077 // Optimize LINQ method call.
                 Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good && o.SalesPerson.ID == v.Person).Count(), v.CountOf);
+#pragma warning restore RCS1077 // Optimize LINQ method call.
+#pragma warning restore S2971 // "IEnumerable" LINQs should be simplified
                 Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good && o.SalesPerson.ID == v.Person).Min(o => o.SalesDate), v.FirstTransaction);
             }
 
@@ -1709,7 +1700,7 @@ namespace TestApp
                 Assert.IsTrue(v.Total > 60);
             }
 
-            foreach (var v in sales.Where(sale => sale.Good.Name.StartsWith("T") && sale.Total > 60).Select(r => new { Id = r.Good.ID, Name = r.Good.Name, Total = r.Total }))
+            foreach (var v in sales.Where(sale => sale.Good.Name.StartsWith("T") && sale.Total > 60).Select(r => new { Id = r.Good.ID, r.Good.Name, r.Total }))
             {
                 Assert.IsTrue(v.Total > 60);
                 Assert.IsTrue(v.Name.StartsWith("T"));
@@ -1719,11 +1710,8 @@ namespace TestApp
         private static void TestLinqQueryable1(SqlDbConnection connection)
         {
             QueryableEntityProvider provider = new QueryableEntityProvider(new QueryableEntityProviderConnection(connection));
-            QueryableEntity<Good> goods = provider.Entities<Good>();
             QueryableEntity<Sale> sales = provider.Entities<Sale>();
-            Sale[] allSales;
-
-            allSales = (from s in sales orderby s.SalesDate select s).ToArray();
+            Sale[] allSales = (from s in sales orderby s.SalesDate select s).ToArray();
             Sale prevSale = null;
             foreach (Sale sale in allSales)
             {
@@ -1737,7 +1725,12 @@ namespace TestApp
             foreach (Sale sale in allSales)
             {
                 if (prevSale != null)
-                    Assert.IsTrue(string.Compare(sale.Good.Name, prevSale.Good.Name) > 0 || string.Compare(sale.Good.Name, prevSale.Good.Name) == 0 && sale.SalesDate > prevSale.SalesDate);
+                {
+                    Assert.IsTrue(string.Compare(sale.Good.Name, prevSale.Good.Name) > 0 ||
+                        (string.Compare(sale.Good.Name, prevSale.Good.Name) == 0 &&
+                         sale.SalesDate > prevSale.SalesDate));
+                }
+
                 prevSale = sale;
             }
 
@@ -1745,7 +1738,11 @@ namespace TestApp
             foreach (var v in query)
             {
                 Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Sum(o => o.Total), v.Total, 1e-5);
+#pragma warning disable S2971 // "IEnumerable" LINQs should be simplified
+#pragma warning disable RCS1077 // Optimize LINQ method call.
                 Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Count(), v.Count, 1e-5);
+#pragma warning restore RCS1077 // Optimize LINQ method call.
+#pragma warning restore S2971 // "IEnumerable" LINQs should be simplified
                 Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Average(o => o.Total), v.Avg, 1e-5);
                 Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Max(o => o.SalesDate), v.LastTransaction);
             }
@@ -1757,7 +1754,7 @@ namespace TestApp
 
         public class DynamicDictionary : DynamicEntity
         {
-            private static DynamicEntityProperty[] mFields = new DynamicEntityProperty[]
+            private static readonly DynamicEntityProperty[] mFields = new DynamicEntityProperty[]
             {
                 new DynamicEntityProperty() {Name = "ID", PropertyType = typeof(int), EntityPropertyAttribute = new EntityPropertyAttribute() {AutoId = true}},
                 new DynamicEntityProperty() {Name = "Name", PropertyType = typeof(string), EntityPropertyAttribute = new EntityPropertyAttribute() {Field = "name", Size = 32, Sorted = true}},
@@ -1765,7 +1762,7 @@ namespace TestApp
 
             protected override IEnumerable<IDynamicEntityProperty> InitializeProperties() => mFields;
 
-            private static EntityAttribute mEntityAttribute = new EntityAttribute() { Table = "dyndict" };
+            private static readonly EntityAttribute mEntityAttribute = new EntityAttribute() { Table = "dyndict" };
 
             public override EntityAttribute EntityAttribute => mEntityAttribute;
         }

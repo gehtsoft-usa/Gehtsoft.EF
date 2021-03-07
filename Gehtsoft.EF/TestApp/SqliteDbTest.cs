@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
@@ -11,13 +12,15 @@ namespace TestApp
     internal class SqliteTest
     {
         private SqlDbConnection mConnection;
+        private readonly bool mMemory = true;
 
         [OneTimeSetUp]
         public void Setup()
         {
-            bool memory = true;
-            if (memory)
-                mConnection = UniversalSqlDbFactory.CreateAsync(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:").Result;
+            if (mMemory)
+            {
+                mConnection = UniversalSqlDbFactory.CreateAsync(UniversalSqlDbFactory.SQLITE, "Data Source=:memory:").Result;
+            }
             else
             {
                 if (File.Exists(@"d:\test.db"))
@@ -117,7 +120,9 @@ namespace TestApp
                     query.ExecuteReader();
                     query.ReadNext();
                     object v1 = query.GetValue("lastchange");
+                    v1.Should().BeOfType(typeof(DateTime));
                     DateTime v2 = query.GetValue<DateTime>("lastchange");
+                    v1.Should().Be(v2);
                 }
             }
         }
