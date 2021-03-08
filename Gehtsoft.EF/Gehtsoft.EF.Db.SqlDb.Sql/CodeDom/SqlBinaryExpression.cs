@@ -350,6 +350,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         private static void checkOperands(SqlBaseExpression leftOperand, OperationType operation, SqlBaseExpression rightOperand,
             string source = null, int line = 0, int column = 0)
         {
+            if (leftOperand.ExpressionType == ExpressionTypes.GlobalParameter ||
+                rightOperand.ExpressionType == ExpressionTypes.GlobalParameter)
+                return;
+
             if (leftOperand.ResultType != rightOperand.ResultType)
             {
                 if (!((leftOperand.ResultType == ResultTypes.Integer || leftOperand.ResultType == ResultTypes.Double) &&

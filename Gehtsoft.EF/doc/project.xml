@@ -6,7 +6,7 @@
   <dg:file name="src/tutorialsen.ds" encoding="windows-1252" />
   <dg:folder name="src/sqlcmd" encoding="windows-1252" />
   <dg:folder name="src/sqlgen" encoding="windows-1252" />
-  <dg:folder name="src/esql" encoding="windows-1252" />
+  <!-- <dg:folder name="src/esql" encoding="windows-1252" /> -->
   <dg:folder name="src/metadata" encoding="windows-1252" />
   <dg:folder name="src/entity" encoding="windows-1252" />
   <dg:folder name="src/context" encoding="windows-1252" />

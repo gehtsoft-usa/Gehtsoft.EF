@@ -5,5 +5,5 @@ inside of the projects performed by Gehtsoft USA LLC and its subsidiaries.
 
 Any use of the packages obtained from this repository for other purposes or in
 other projects is strictly prohibited. All packages in the repository that are
-approved for public use are also published on nuget.org. Please use public
-repository for these projects.
+approved for public use are also published on nuget.org. Please download public
+packages from nuget.org

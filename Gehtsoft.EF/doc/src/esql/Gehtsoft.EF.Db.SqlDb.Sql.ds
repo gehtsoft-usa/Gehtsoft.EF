@@ -4,4 +4,79 @@
     @ingroup=index
     @brief=The namespace consists of classes to execute SQL queries on the entities
 
+    [b]What is it for?[/b]
+
+    The namespace allows you to execute generalized SQL'92 queries on the entities without taking care
+    about the SQL language specific of the particular database.
+
+    This method is alternative to use [link=tutorialsen]entity query classes[/link].
+
+    The benefits of this approach is that you don't have to learn the new class model to create the queries and sometimes
+    you can create queries that aren't easy to or even possible to create using entity query classes.
+
+    The disadvantage of is this approach is that direct specification of the select query may result mistakes
+    that can be detected only during the application execution. Also, the select quires always create [c]dynamic[/c]
+    objects. If you are looking to select a an instance of entity types, use entity query classes.
+
+    Both approaches can be perfectly mixed with each other.
+
+    [b]How to start using the library?[/b]
+
+    1) Add [c]Gehtsoft.EF.Db.SqlDb.Sql[/c] package to your project
+
+    2) Get the list of the entities using [clink=Gehtsoft.EF.Entities.EntityFinder.FindEntities.0]EntityFinder.FindEntities()[/clink]
+       method.
+
+    3) Create an instance of [clink=Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomBuilder]SqlCodeDomBuilder[/clink]
+       and initialize it using the list of the entities by calling
+       [clink=Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomBuilder.Build.Vs5]SqlCodeDomBuilder.Build()[/clink]
+       method.
+
+    4) To parse and execute a query get an instance of
+       [clink=Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomEnvironment]SqlCodeDomEnvironment[/clink] object using
+       [clink=Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomBuilder.NewEnvironment.COC]SqlCodeDomBuilder.NewEnvironment()[/clink]
+       method. Then parse the query using [clink=Gehtsoft.EF.Db.SqlDb.Sql.SqlCodeDomEnvironment.Parse.qW5]SqlCodeDomEnvironment.Parse()[/clink]
+       method.
+
+       The parsing method will return a delegate to the function that executes the query.
+
+       The function gets a dictionary of objects with string key to pass the parameter values to the query and returns
+       dynamic value. The value type will depend on query executed.
+
+     5) Execute query by calling the function.
+
+     6) Note: all examples below uses Northwind database. 
+
+     [b]Simple Select[/b]
+
+     
+
+    @example
+        @show=yes
+        @title=Selecting an entity
+        @highlight=cs
+
+        var environment  = myDomBuilder.NewEnvironment(connection);
+        var func = environment.Parse("test", "SELECT * FROM MyEntity");
+        dynamic entities = func(null);
+        foreach (var entity in entities)
+            Console.WriteLine("{0} {1}", entity.Code, entity.Name);
+    @end
+
+    @example
+      @show=yes
+      @title=Selecting an entity
+      @highlight=cs
+      var environment  = myDomBuilder.NewEnvironment(connection);
+      var func = environment.Parse("test", "SELECT * FROM MyEntity WHERE Name LIKE ?Mask");
+      dynamic entities = func(null);
+      foreach (var entity in entities)
+          Console.WriteLine("{0} {1}", entity.Code, entity.Name);
+    @end
+  @end
+
+
+
+
+
 @end
