@@ -60,7 +60,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mOperand = SqlExpressionParser.ParseExpression(parentStatement, operand, source);
             mOperation = operation;
-            checkOperationAndType(operation, mOperand.ResultType, source, operand.Position.Line, operand.Position.Column);
+            CheckOperationAndType(operation, mOperand, source, operand.Position.Line, operand.Position.Column);
             mResultType = prepareResultType(mOperand, operation);
         }
 
@@ -68,14 +68,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mOperand = operand;
             mOperation = operation;
-            checkOperationAndType(operation, mOperand.ResultType);
+            CheckOperationAndType(operation, mOperand);
             mResultType = prepareResultType(operand, operation);
         }
         internal static SqlConstant TryGetConstant(SqlBaseExpression operand, OperationType operation)
         {
             SqlConstant result = null;
 
-            checkOperationAndType(operation, operand.ResultType);
+            CheckOperationAndType(operation, operand);
             if (operand is SqlConstant constant)
             {
                 object value = null;
@@ -153,9 +153,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        private static void checkOperationAndType(OperationType operation, ResultTypes resultType,
-            string source = null, int line = 0, int column = 0)
+        internal static void CheckOperationAndType(OperationType operation, SqlBaseExpression operand,
+            string source = null, int line = 0, int column = 0, bool checkGlobalParameters = false)
         {
+            if (!checkGlobalParameters)
+                if (operand.ExpressionType == ExpressionTypes.GlobalParameter)
+                    return;
+
+            ResultTypes resultType = operand.ResultType;
+
             bool isCorrect = false;
             switch (operation)
             {

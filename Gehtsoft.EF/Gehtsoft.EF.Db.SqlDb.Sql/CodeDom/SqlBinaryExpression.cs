@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  class SqlBinaryExpression : SqlBaseExpression
+    internal class SqlBinaryExpression : SqlBaseExpression
     {
         private ResultTypes mResultType = ResultTypes.Unknown;
         private SqlBaseExpression mLeftOperand;
@@ -17,7 +17,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         /// <summary>
         /// The types of the Operation
         /// </summary>
-        internal  enum OperationType
+        internal enum OperationType
         {
             Or,
             And,
@@ -34,14 +34,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Concat,
         };
 
-        internal  override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.Binary;
             }
         }
-        internal  override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {
@@ -49,7 +49,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal  SqlBaseExpression LeftOperand
+        internal SqlBaseExpression LeftOperand
         {
             get
             {
@@ -57,7 +57,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal  SqlBaseExpression RightOperand
+        internal SqlBaseExpression RightOperand
         {
             get
             {
@@ -65,7 +65,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal  OperationType Operation
+        internal OperationType Operation
         {
             get
             {
@@ -78,7 +78,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mLeftOperand = SqlExpressionParser.ParseExpression(parentStatement, leftOperand, source);
             mRightOperand = SqlExpressionParser.ParseExpression(parentStatement, rightOperand, source);
 
-            checkOperands(mLeftOperand, operation, mRightOperand, source, rightOperand.Position.Line, rightOperand.Position.Column);
+            CheckOperands(mLeftOperand, operation, mRightOperand, source, rightOperand.Position.Line, rightOperand.Position.Column);
             mResultType = getResultType(operation, mLeftOperand.ResultType);
             mOperation = operation;
         }
@@ -87,7 +87,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mLeftOperand = leftOperand;
             mRightOperand = rightOperand;
-            checkOperands(mLeftOperand, operation, mRightOperand);
+            CheckOperands(mLeftOperand, operation, mRightOperand);
             mResultType = getResultType(operation, mLeftOperand.ResultType);
             mOperation = operation;
         }
@@ -96,7 +96,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             SqlConstant result = null;
 
-            checkOperands(leftOperand, operation, rightOperand);
+            CheckOperands(leftOperand, operation, rightOperand);
             if (leftOperand is SqlConstant leftConstant && rightOperand is SqlConstant rightConstant)
             {
                 object value = null;
@@ -340,19 +340,20 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     }
 
                 }
-                if(value != null)
+                if (value != null)
                     result = new SqlConstant(value, type);
             }
 
             return result;
         }
 
-        private static void checkOperands(SqlBaseExpression leftOperand, OperationType operation, SqlBaseExpression rightOperand,
-            string source = null, int line = 0, int column = 0)
+        internal static void CheckOperands(SqlBaseExpression leftOperand, OperationType operation, SqlBaseExpression rightOperand,
+            string source = null, int line = 0, int column = 0, bool checkGlobalParameters = false)
         {
-            if (leftOperand.ExpressionType == ExpressionTypes.GlobalParameter ||
-                rightOperand.ExpressionType == ExpressionTypes.GlobalParameter)
-                return;
+            if (!checkGlobalParameters)
+                if (leftOperand.ExpressionType == ExpressionTypes.GlobalParameter ||
+                    rightOperand.ExpressionType == ExpressionTypes.GlobalParameter)
+                    return;
 
             if (leftOperand.ResultType != rightOperand.ResultType)
             {

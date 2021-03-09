@@ -16,18 +16,18 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
-    internal  interface IBindParamsOwner
+    internal interface IBindParamsOwner
     {
         Dictionary<string, object> BindParams { get; }
     }
-    internal  static class StatementRunner
+    internal static class StatementRunner
     {
-        internal  static T CalculateExpression<T>(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder)
+        internal static T CalculateExpression<T>(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder)
         {
             object value = CalculateExpression(expression, codeDomBuilder, codeDomBuilder.Connection).Value;
             return (T)Convert.ChangeType(value, typeof(T));
         }
-        internal  static SqlConstant CalculateExpression(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder, SqlDbConnection connection)
+        internal static SqlConstant CalculateExpression(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder, SqlDbConnection connection)
         {
             if (expression is SqlField field)
             {
@@ -82,7 +82,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
                 int index = (int)indexParam.Value;
 
-                if(index < 0 || index >= array.Count)
+                if (index < 0 || index >= array.Count)
                 {
                     throw new SqlParserException(new SqlError(null, 0, 0, $"Index out of range"));
                 }
@@ -96,7 +96,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     return null;
 
                 dynamic dictionary = rowParam.Value;
-                if(dictionary == null)
+                if (dictionary == null)
                 {
                     throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error in getting ROW"));
                 }
@@ -112,7 +112,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     throw new SqlParserException(new SqlError(null, 0, 0, $"ROW doesn't contain field '{name}'"));
                 }
 
-                if(SqlBaseExpression.GetResultType((dictionary as IDictionary<string, object>)[name].GetType()) != getField.ResultType)
+                if (SqlBaseExpression.GetResultType((dictionary as IDictionary<string, object>)[name].GetType()) != getField.ResultType)
                 {
                     throw new SqlParserException(new SqlError(null, 0, 0, $"Field '{name}' is not of type '{getField.ResultType}'"));
                 }
@@ -368,7 +368,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal static Expression CalculateExpressionValue<T>(SqlBaseExpression expression, SqlCodeDomBuilder builder)
         {
-            Expression callExpr = Expression.Call(typeof(StatementRunner), "CalculateExpression", new Type[] { typeof(T)},
+            Expression callExpr = Expression.Call(typeof(StatementRunner), "CalculateExpression", new Type[] { typeof(T) },
                     Expression.Constant(expression), Expression.Constant(builder)
             );
             return callExpr;
@@ -376,7 +376,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
     }
 
-    internal  abstract class SqlStatementRunner<T> : IBindParamsOwner
+    internal abstract class SqlStatementRunner<T> : IBindParamsOwner
     {
         internal enum ArifOp
         {
@@ -494,10 +494,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             {
                 bool isAggregateLeft;
                 bool isAggregateRight;
-                string leftOperand = GetStrExpression(binaryExpression.LeftOperand, out isAggregateLeft);
-                if(leftOperand == null)
+
+                if (binaryExpression.LeftOperand is GlobalParameter || binaryExpression.RightOperand is GlobalParameter)
                 {
-                    if(binaryExpression.LeftOperand is GlobalParameter globalParameter)
+                    SqlBinaryExpression.CheckOperands(binaryExpression.LeftOperand, binaryExpression.Operation, binaryExpression.RightOperand, null, 0, 0, true);
+                }
+                string leftOperand = GetStrExpression(binaryExpression.LeftOperand, out isAggregateLeft);
+                if (leftOperand == null)
+                {
+                    if (binaryExpression.LeftOperand is GlobalParameter globalParameter)
                     {
                         throw new SqlParserException(new SqlError(null, 0, 0, $"Not found global parameter {globalParameter.Name}, not declared in IMPORT, DECLARE or SET statement"));
                     }
@@ -518,6 +523,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         throw new SqlParserException(new SqlError(null, 0, 0, $"Right operand missed"));
                     }
                 }
+
                 isAggregate = isAggregateLeft || isAggregateRight;
 
                 CmpOp? op = null;
@@ -619,6 +625,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (expression is SqlUnarExpression unar)
             {
+                if (unar.Operand is GlobalParameter)
+                {
+                    SqlUnarExpression.CheckOperationAndType(unar.Operation, unar.Operand, null, 0, 0, true);
+                }
                 string start = string.Empty;
                 string end = string.Empty;
                 switch (unar.Operation)
@@ -926,9 +936,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         }
 
     }
-    internal  static class MyStringExtensions
+    internal static class MyStringExtensions
     {
-        internal  static bool Like(this string toSearch, string toFind)
+        internal static bool Like(this string toSearch, string toFind)
         {
             return new Regex(@"\A" + new Regex(@"\.|\$|\^|\{|\[|\(|\||\)|\*|\+|\?|\\").Replace(toFind, ch => @"\" + ch).Replace('_', '.').Replace("%", ".*") + @"\z", RegexOptions.Singleline).IsMatch(toSearch);
         }
