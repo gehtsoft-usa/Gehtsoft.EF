@@ -203,7 +203,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 environment.Parse("test",
                 "IF ?q = 2 THEN" +
                 "   SET m = 2;" +
-                "ELSIF ?q = 3 THEN" +
+                "ELSIF ?q = 3 = 3 THEN" +
                 "   SET m = 3" +
                 "ELSIF ?q = 4 THEN" +
                 "   SET m = 4" +

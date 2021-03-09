@@ -495,7 +495,29 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 bool isAggregateLeft;
                 bool isAggregateRight;
                 string leftOperand = GetStrExpression(binaryExpression.LeftOperand, out isAggregateLeft);
+                if(leftOperand == null)
+                {
+                    if(binaryExpression.LeftOperand is GlobalParameter globalParameter)
+                    {
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Not found global parameter {globalParameter.Name}, not declared in IMPORT, DECLARE or SET statement"));
+                    }
+                    else
+                    {
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Left operand missed"));
+                    }
+                }
                 string rightOperand = GetStrExpression(binaryExpression.RightOperand, out isAggregateRight);
+                if (rightOperand == null)
+                {
+                    if (binaryExpression.RightOperand is GlobalParameter globalParameter)
+                    {
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Not found global parameter {globalParameter.Name}, not declared in IMPORT, DECLARE or SET statement"));
+                    }
+                    else
+                    {
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Right operand missed"));
+                    }
+                }
                 isAggregate = isAggregateLeft || isAggregateRight;
 
                 CmpOp? op = null;
@@ -616,7 +638,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         return $"({Connection.GetLanguageSpecifics().GetOp(CmpOp.NotNull, GetStrExpression(unar.Operand, out isAggregate), null)})";
                 }
                 if (start.Contains("(")) end = ")";
-                return $"{start}{GetStrExpression(unar.Operand, out isAggregate)}{end}";
+                string leftOperand = GetStrExpression(unar.Operand, out isAggregate);
+                if (leftOperand == null)
+                {
+                    if (unar.Operand is GlobalParameter gp)
+                    {
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Not found global parameter {gp.Name}, not declared in IMPORT, DECLARE or SET statement"));
+                    }
+                    else
+                    {
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Operand missed"));
+                    }
+                }
+                return $"{start}{leftOperand}{end}";
             }
             else if (expression is SqlCallFuncExpression callFunc)
             {
@@ -732,6 +766,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 bool isAggregateLeft;
                 bool isAggregateRight = false;
                 string leftOperand = GetStrExpression(inExpression.LeftOperand, out isAggregateLeft);
+                if (leftOperand == null)
+                {
+                    if (inExpression.LeftOperand is GlobalParameter gp)
+                    {
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Not found global parameter {gp.Name}, not declared in IMPORT, DECLARE or SET statement"));
+                    }
+                    else
+                    {
+                        throw new SqlParserException(new SqlError(null, 0, 0, $"Left operand missed"));
+                    }
+                }
                 string rightOperand = null;
                 if (inExpression.RightOperandAsList != null)
                 {

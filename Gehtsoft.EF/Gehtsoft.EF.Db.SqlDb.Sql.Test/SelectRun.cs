@@ -486,5 +486,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
             total.Should().Be(totalNull + totalNotNull);
         }
+
+        [Fact]
+        public void SelectFailed1()
+        {
+            var env = DomBuilder.NewEnvironment(connection);
+            var statement = env.Parse("query", "SELECT * FROM Category WHERE CategoryID > ?CategoryID");
+            // nit declared ?CategoryID anyway
+            Assert.Throws<SqlParserException>(() =>
+                statement(new Dictionary<string, object> { { "CategoryID", 3 } })
+            );
+        }
     }
 }
