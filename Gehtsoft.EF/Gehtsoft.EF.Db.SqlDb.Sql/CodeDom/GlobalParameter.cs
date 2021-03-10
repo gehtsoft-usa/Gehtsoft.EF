@@ -12,6 +12,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal  string Name { get; }
         private Statement mParentStatement = null;
         private ResultTypes? mResultType = null;
+        private SqlConstant mInnerExpression = null;
 
         internal  override ExpressionTypes ExpressionType
         {
@@ -45,9 +46,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             get
             {
+                if (mInnerExpression != null) return mInnerExpression;
                 if (mParentStatement == null) return null;
                 return mParentStatement.CodeDomBuilder.FindGlobalParameter(Name);
             }
+        }
+
+        internal void SetInnerExpression(SqlConstant innerExpression)
+        {
+            ResetResultType();
+            mInnerExpression = innerExpression;
         }
         internal GlobalParameter(string name, ResultTypes? resultType = null)
         {

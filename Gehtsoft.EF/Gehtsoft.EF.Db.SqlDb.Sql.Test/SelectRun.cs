@@ -361,7 +361,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             foreach (dynamic obj in result)
             {
                 string countryName = (string)(obj as IDictionary<string, object>)["Country"];
-                countryName.ToLower().StartsWith("u");
+                countryName.ToLower().StartsWith("u").Should().BeTrue();
             }
         }
 
@@ -383,7 +383,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             foreach (dynamic obj in result)
             {
                 string countryName = (string)(obj as IDictionary<string, object>)["Country"];
-                countryName.ToLower().EndsWith("a");
+                countryName.ToLower().EndsWith("a").Should().BeTrue();
             }
         }
 
@@ -405,7 +405,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             foreach (dynamic obj in result)
             {
                 string countryName = (string)(obj as IDictionary<string, object>)["Country"];
-                countryName.ToLower().Contains("gent");
+                countryName.ToLower().Contains("gent").Should().BeTrue();
             }
         }
 
@@ -488,14 +488,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         }
 
         [Fact]
-        public void SelectFailed1()
+        public void SelectWithNotDeclaredParameter()
         {
             var env = DomBuilder.NewEnvironment(connection);
             var statement = env.Parse("query", "SELECT * FROM Category WHERE CategoryID > ?CategoryID");
-            // nit declared ?CategoryID anyway
-            Assert.Throws<SqlParserException>(() =>
-                statement(new Dictionary<string, object> { { "CategoryID", 3 } })
-            );
+            // not declared ?CategoryID anyway
+            dynamic result = statement(new Dictionary<string, object> { { "CategoryID", 3 } });
+            ((int)result.Count).Should().BeGreaterThan(0);
+
+            foreach (dynamic obj in result)
+            {
+                int categoryID = (int)(obj as IDictionary<string, object>)["CategoryID"];
+                (categoryID > 3).Should().BeTrue();
+            }
         }
     }
 }

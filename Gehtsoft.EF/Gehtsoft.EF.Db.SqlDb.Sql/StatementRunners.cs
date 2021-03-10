@@ -495,10 +495,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 bool isAggregateLeft;
                 bool isAggregateRight;
 
-                if (binaryExpression.LeftOperand is GlobalParameter || binaryExpression.RightOperand is GlobalParameter)
-                {
-                    SqlBinaryExpression.CheckOperands(binaryExpression.LeftOperand, binaryExpression.Operation, binaryExpression.RightOperand, null, 0, 0, true);
-                }
                 string leftOperand = GetStrExpression(binaryExpression.LeftOperand, out isAggregateLeft);
                 if (leftOperand == null)
                 {
@@ -522,6 +518,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     {
                         throw new SqlParserException(new SqlError(null, 0, 0, $"Right operand missed"));
                     }
+                }
+                if (binaryExpression.LeftOperand is GlobalParameter || binaryExpression.RightOperand is GlobalParameter)
+                {
+                    SqlBinaryExpression.CheckOperands(binaryExpression.LeftOperand, binaryExpression.Operation, binaryExpression.RightOperand, null, 0, 0, true);
                 }
 
                 isAggregate = isAggregateLeft || isAggregateRight;
@@ -589,7 +589,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (expression is GlobalParameter globalParameter)
             {
-                return GetStrExpression(globalParameter.InnerExpression, out isAggregate);
+                SqlConstant cnst = globalParameter.InnerExpression;
+                if(cnst == null)
+                {
+                    IDictionary<string, object> dict = this.CodeDomBuilder.ParametersDictionary;
+                    if (dict != null)
+                    {
+                        string name = globalParameter.Name.Substring(1);
+                        if (dict.ContainsKey(name))
+                        {
+                            cnst = new SqlConstant(dict[name], SqlBaseExpression.GetResultType(dict[name].GetType()));
+                            globalParameter.SetInnerExpression(cnst);
+                        }
+                    }
+                }
+                return GetStrExpression(cnst, out isAggregate);
             }
             else if (expression is GetLastResult getLastResult)
             {
@@ -625,10 +639,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (expression is SqlUnarExpression unar)
             {
-                if (unar.Operand is GlobalParameter)
-                {
-                    SqlUnarExpression.CheckOperationAndType(unar.Operation, unar.Operand, null, 0, 0, true);
-                }
                 string start = string.Empty;
                 string end = string.Empty;
                 switch (unar.Operation)
@@ -660,6 +670,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         throw new SqlParserException(new SqlError(null, 0, 0, $"Operand missed"));
                     }
                 }
+                if (unar.Operand is GlobalParameter)
+                {
+                    SqlUnarExpression.CheckOperationAndType(unar.Operation, unar.Operand, null, 0, 0, true);
+                }
+
                 return $"{start}{leftOperand}{end}";
             }
             else if (expression is SqlCallFuncExpression callFunc)
