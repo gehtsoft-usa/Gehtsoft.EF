@@ -48,10 +48,10 @@
     <additional-file file="../../license.txt" target="" />
     <additional-file file="../doc/Gehtsoft.EF.Db.SqlDb.xml" target="*"></additional-file>
    </project>
-   <!-- <project id="Gehtsoft.EF.Db.SqlDb.Sql">
+   <project id="Gehtsoft.EF.Db.SqlDb.Sql">
     <description>Implementation of SQL 92 queries to be executed via SqlDb package.</description>
     <additional-file file="../../license.txt" target="" />
-   </project> -->
+   </project>
    <project id="Gehtsoft.EF.Db.SqlDb.OData">
     <description>OData supoirt for GS.EF entity framework.</description>
     <additional-file file="../../license.txt" target="" />

@@ -45,16 +45,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             mNorthwind = northwind;
         }
 
+        [Fact]
         public void SampleSelect1()
         {
             var env = CreateEnvironment();
             var statement = env.Parse("query", "SELECT * FROM Category");
             var categories = statement(null);
-            categories.Should().NotBeNull();
             foreach (var category in categories)
                 Console.WriteLine("{0} {1}", category.CategoryID, category.CategoryName, category.Description);
         }
 
+        [Fact]
         public void SampleSelect2()
         {
             var env = CreateEnvironment();
@@ -64,13 +65,36 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 Console.WriteLine("{0} {1}", category.CategoryID, category.CategoryName, category.Description);
         }
 
+        [Fact]
         public void SampleSelect3()
         {
             var env = CreateEnvironment();
-            var statement = env.Parse("query", "SELECT * FROM Category WHERE CategoryID > ?CategoryID");
-            var categories = statement(new Dictionary<string, object> { { "CategoryID", 3 } });
+            var statement = env.Parse("query", "SELECT * FROM Category WHERE CategoryID > ?categoryID");
+            var categories = statement(new Dictionary<string, object> { { "categoryID", 3 } });
             foreach (var category in categories)
                 Console.WriteLine("{0} {1}", category.CategoryID, category.CategoryName, category.Description);
+
+        }
+
+        [Fact]
+        public void SampleSelect4()
+        {
+            var env = CreateEnvironment();
+            var statement = env.Parse("query", "SELECT * FROM OrderDetail AUTO JOIN Order AUTO JOIN Product");
+            var orderDetails = statement(null);
+            foreach (var orderDetail in orderDetails)
+                Console.WriteLine("{0} {1} {2}", orderDetail.Order, orderDetail.Product, orderDetail.Product_ProductName);
+
+        }
+
+        [Fact]
+        public void SampleSelect5()
+        {
+            var env = CreateEnvironment();
+            var statement = env.Parse("query", "SELECT Order.OrderID, COUNT(*) AS DetailsCount FROM Order LEFT JOIN OrderDetail ON Order.OrderID = OrderDetail.Order GROUP BY Order.OrderID");
+            var orderDetails = statement(null);
+            foreach (var orderDetail in orderDetails)
+                Console.WriteLine("{0} {1}", orderDetail.Order, orderDetail.Product);
         }
     }
 }

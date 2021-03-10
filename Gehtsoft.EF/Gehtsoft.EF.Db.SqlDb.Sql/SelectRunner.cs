@@ -344,15 +344,20 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 }
                 else
                 {
+                    var key = name;
+                    bool first = true;
                     foreach (SqlStatement.EntityEntry entityEntry in select.EntityEntrys)
                     {
                         EntityDescriptor entityDescriptor = entityEntry.EntityDescriptor;
-                        name = mBuilder.NameByField(entityDescriptor.EntityType, name);
+                        name = mBuilder.NameByField(entityDescriptor.EntityType, key);
                         if (name != null)
                         {
+                            if (!first)
+                                name = entityEntry.EntityType.Name + "_" + name;
                             toType = mBuilder.TypeByName(entityDescriptor.EntityType, name);
                             break;
                         }
+                        first = false;
                     }
                     if (name == null)
                     {
@@ -375,14 +380,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     }
                 }
 
-                try
-                {
+                if (!_result.ContainsKey(name))
                     _result.Add(name, value);
-                }
-                catch
-                {
-
-                }
             }
             return result;
         }
