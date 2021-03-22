@@ -1,4 +1,4 @@
-@class  
+@class
     @name=IContextQueryWithCondition
     @key=Gehtsoft.EF.Entities.Context.IContextQueryWithCondition
     @brief=A query with filter condition.
@@ -15,19 +15,18 @@
         @brief=The filter.
         @scope=instance
         @visibility=public
-            
+
         @type=property
-            
+
         @declaration
             @language=cs
             @name=Where
             @return=[clink=Gehtsoft.EF.Entities.Context.IContextFilter]IContextFilter[/clink]
             @suffix= get;
         @end
-    
+
     @end
-    
+
     The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
     The namespace is [clink=Gehtsoft.EF.Entities.Context]Gehtsoft.EF.Entities.Context[/clink].
 @end
-    

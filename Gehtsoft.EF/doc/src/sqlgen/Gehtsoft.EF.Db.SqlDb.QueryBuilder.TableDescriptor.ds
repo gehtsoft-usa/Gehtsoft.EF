@@ -173,32 +173,32 @@
 
     @end
 
-    @member       
+    @member
         @type=property
         @name=Metadata
         @key=Metadata.Gs1
         @divisor=.
         @sig=P:Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.Metadata
         @visibility=public
-            
+
         @scope=instance
-        @brief=An instance of the metadata object. 
+        @brief=An instance of the metadata object.
 
-        The metadata object provides additional information 
-        about the entity. 
+        The metadata object provides additional information
+        about the entity.
 
-        To read more about metadata objects refer to 
+        To read more about metadata objects refer to
         [clink=Gehtsoft.EF.Db.SqlDb.Metadata]Gehtsoft.EF.Db.SqlDb.Metadata[/clink]
         namespace documentation.
-                
+
             @declaration
                 @language=cs
-                
+
                 @return=object
                 @name=Metadata
                 @suffix= public get; public set;
             @end
-            
+
     @end
 
     @member

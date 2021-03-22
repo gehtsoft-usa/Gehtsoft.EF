@@ -94,7 +94,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             var statement = env.Parse("query", "SELECT Order.OrderID, COUNT(*) AS DetailsCount FROM Order LEFT JOIN OrderDetail ON Order.OrderID = OrderDetail.Order GROUP BY Order.OrderID");
             var orderDetails = statement(null);
             foreach (var orderDetail in orderDetails)
-                Console.WriteLine("{0} {1}", orderDetail.Order, orderDetail.Product);
+                Console.WriteLine("{0} {1}", orderDetail.OrderID, orderDetail.DetailsCount);
         }
     }
 }

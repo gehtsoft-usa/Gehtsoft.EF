@@ -2,6 +2,7 @@
     "cSpell.enableFiletypes": [
         "docgen"
     ],
+
     "cSpell.maxNumberOfProblems": 300,
     "cSpell.minWordLength": 3,
     "cSpell.enabled": true,
@@ -12,6 +13,7 @@
         "guid",
         "accessor",
     ],
+
     "cSpell.ignoreRegExpList": [
         "/\\[[^\\]]+\\]/",
         "/^\\s*@ingroup\\s*=.+$/m",
@@ -21,4 +23,6 @@
         "/^\\s*@parent\\s*=.+$/m",
         "/^\\s*@\\w+\\s*$/m"
     ],
+
+    "files.trimTrailingWhitespace" : true,
 }

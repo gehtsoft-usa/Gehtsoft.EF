@@ -1,5 +1,4 @@
-
-@class   
+@class
     @name=EntityContextExtension
     @key=Gehtsoft.EF.Entities.Context.EntityContextExtension
     @brief=The extension methods for a context and context queries.
@@ -14,23 +13,23 @@
         @brief=Gets a query to drop an entity (i.e. table or list) in the context.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=DropEntity<T>
             @return=[clink=Gehtsoft.EF.Entities.Context.IEntityQuery]IEntityQuery[/clink]
             @params=this [clink=Gehtsoft.EF.Entities.Context.IEntityContext]IEntityContext[/clink] context
         @end
-    
+
         @param
             @name=context
 
         @end
-        
+
     @end
-    
+
     @member
         @name=CreateEntity
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.CreateEntity``1(Gehtsoft.EF.Entities.Context.IEntityContext)
@@ -39,23 +38,23 @@
         @brief=Gets a query to create an entity (i.e. table or list) in the context.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=CreateEntity<T>
             @return=[clink=Gehtsoft.EF.Entities.Context.IEntityQuery]IEntityQuery[/clink]
             @params=this [clink=Gehtsoft.EF.Entities.Context.IEntityContext]IEntityContext[/clink] context
         @end
-    
+
         @param
             @name=context
 
         @end
-        
+
     @end
-    
+
     @member
         @name=InsertEntity
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.InsertEntity``1(Gehtsoft.EF.Entities.Context.IEntityContext,System.Boolean)
@@ -64,28 +63,28 @@
         @brief=Gets a query to insert an entity object into the context.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=InsertEntity<T>
             @return=[clink=Gehtsoft.EF.Entities.Context.IModifyEntityQuery]IModifyEntityQuery[/clink]
             @params=this [clink=Gehtsoft.EF.Entities.Context.IEntityContext]IEntityContext[/clink] context, bool createKey = true
         @end
-    
+
         @param
             @name=context
 
         @end
-        
+
         @param
             @name=createKey
 
         @end
-        
+
     @end
-    
+
     @member
         @name=UpdateEntity
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.UpdateEntity``1(Gehtsoft.EF.Entities.Context.IEntityContext)
@@ -94,23 +93,23 @@
         @brief=Gets a query to update an entity object in the context.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=UpdateEntity<T>
             @return=[clink=Gehtsoft.EF.Entities.Context.IModifyEntityQuery]IModifyEntityQuery[/clink]
             @params=this [clink=Gehtsoft.EF.Entities.Context.IEntityContext]IEntityContext[/clink] context
         @end
-    
+
         @param
             @name=context
 
         @end
-        
+
     @end
-    
+
     @member
         @name=DeleteEntity
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.DeleteEntity``1(Gehtsoft.EF.Entities.Context.IEntityContext)
@@ -119,23 +118,23 @@
         @brief=Gets a query to delete an entity object from the context.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=DeleteEntity<T>
             @return=[clink=Gehtsoft.EF.Entities.Context.IModifyEntityQuery]IModifyEntityQuery[/clink]
             @params=this [clink=Gehtsoft.EF.Entities.Context.IEntityContext]IEntityContext[/clink] context
         @end
-    
+
         @param
             @name=context
 
         @end
-        
+
     @end
-    
+
     @member
         @name=DeleteMultiple
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.DeleteMultiple``1(Gehtsoft.EF.Entities.Context.IEntityContext)
@@ -144,23 +143,23 @@
         @brief=Gets a query to delete multiple entity objects from the context.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=DeleteMultiple<T>
             @return=[clink=Gehtsoft.EF.Entities.Context.IContextQueryWithCondition]IContextQueryWithCondition[/clink]
             @params=this [clink=Gehtsoft.EF.Entities.Context.IEntityContext]IEntityContext[/clink] context
         @end
-    
+
         @param
             @name=context
 
         @end
-        
+
     @end
-    
+
     @member
         @name=Select
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.Select``1(Gehtsoft.EF.Entities.Context.IEntityContext)
@@ -169,23 +168,23 @@
         @brief=Gets a query to select entity objects from the context.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=Select<T>
             @return=[clink=Gehtsoft.EF.Entities.Context.IContextSelect]IContextSelect[/clink]
             @params=this [clink=Gehtsoft.EF.Entities.Context.IEntityContext]IEntityContext[/clink] context
         @end
-    
+
         @param
             @name=context
 
         @end
-        
+
     @end
-    
+
     @member
         @name=Count
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.Count``1(Gehtsoft.EF.Entities.Context.IEntityContext)
@@ -194,23 +193,23 @@
         @brief=Gets a query to count entity objects from the context.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=Count<T>
             @return=[clink=Gehtsoft.EF.Entities.Context.IContextCount]IContextCount[/clink]
             @params=this [clink=Gehtsoft.EF.Entities.Context.IEntityContext]IEntityContext[/clink] context
         @end
-    
+
         @param
             @name=context
 
         @end
-        
+
     @end
-    
+
     @member
         @name=ReadOne
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.ReadOne``1(Gehtsoft.EF.Entities.Context.IContextSelect)
@@ -219,9 +218,9 @@
         @brief=Reads one entity from a select query.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=ReadOne<T>
@@ -234,26 +233,26 @@
             @return=Task<T>
             @params=this [clink=Gehtsoft.EF.Entities.Context.IContextSelect]IContextSelect[/clink] query, CancellationToken? token = null
         @end
-    
+
         @param
             @name=query
 
         @end
-        
+
     @end
-    
-    
+
+
     @member
         @name=ReadAll
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.ReadAll``2(Gehtsoft.EF.Entities.Context.IContextSelect)
         @key=ReadAll.0
         @divisor=.
-        @brief=Reads all objects from a select query. 
+        @brief=Reads all objects from a select query.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=ReadAll<TC,T>
@@ -266,15 +265,15 @@
             @return=Task<TC>
             @params=this [clink=Gehtsoft.EF.Entities.Context.IContextSelect]IContextSelect[/clink] query, CancellationToken? token = null
         @end
-    
+
         @param
             @name=query
 
         @end
-        
+
     @end
-    
-   
+
+
     @member
         @name=Get
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.Get``1(Gehtsoft.EF.Entities.Context.IEntityContext,System.Object)
@@ -283,9 +282,9 @@
         @brief=Gets an object from the context by its identifier
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=Get<T>
@@ -298,20 +297,20 @@
             @return=Task<T>
             @params=this [clink=Gehtsoft.EF.Entities.Context.IEntityContext]IEntityContext[/clink] context, object key, CancellationToken? token = null
         @end
-    
+
         @param
             @name=context
 
         @end
-        
+
         @param
             @name=key
 
         @end
-        
+
     @end
-    
-    
+
+
     @member
         @name=Exists
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.Exists``1(Gehtsoft.EF.Entities.Context.IEntityContext,System.Object)
@@ -320,9 +319,9 @@
         @brief=Checks whether the object exists in the context.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=Exists<T>
@@ -335,20 +334,20 @@
             @return=Task<bool>
             @params=this [clink=Gehtsoft.EF.Entities.Context.IEntityContext]IEntityContext[/clink] context, object key, CancellationToken? token = null
         @end
-    
+
         @param
             @name=context
 
         @end
-        
+
         @param
             @name=key
 
         @end
-        
+
     @end
-    
-   
+
+
     @member
         @name=Save
         @sig=M:Gehtsoft.EF.Entities.Context.EntityContextExtension.Save``1(Gehtsoft.EF.Entities.Context.IEntityContext,``0)
@@ -357,9 +356,9 @@
         @brief=Saves (inserts new, updates existing) entity in the context.
         @scope=class
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=Save<T>
@@ -372,20 +371,19 @@
             @return=.Task
             @params=this [clink=Gehtsoft.EF.Entities.Context.IEntityContext]IEntityContext[/clink] context, T entity, CancellationToken? token = null
         @end
-    
+
         @param
             @name=context
 
         @end
-        
+
         @param
             @name=entity
 
         @end
-        
+
     @end
-    
+
     The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
     The namespace is [clink=Gehtsoft.EF.Entities.Context]Gehtsoft.EF.Entities.Context[/clink].
 @end
-    

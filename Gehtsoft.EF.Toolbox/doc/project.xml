@@ -15,6 +15,7 @@
   <dg:define name="advanced-web-content" value="yes" />
   <dg:define name="default-transform" value="yes" />
   <dg:define name="enable-highlighter" value="yes" />
+  <dg:define name="external-resources" value="yes" />
  </dg:output>
  <dg:output template="%docgen%/template/xmldoc/main.xsl" file="Gehtsoft.EF.Mapper.xml" encoding="utf-8">
   <dg:define name="assembly" value="Gehtsoft.EF.Mapper" />

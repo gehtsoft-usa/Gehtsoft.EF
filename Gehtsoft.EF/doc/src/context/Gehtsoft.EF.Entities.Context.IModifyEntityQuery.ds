@@ -1,4 +1,4 @@
-@class   
+@class
     @name=IModifyEntityQuery
     @key=Gehtsoft.EF.Entities.Context.IModifyEntityQuery
     @brief=A query that modifies a single entity in the context.
@@ -11,17 +11,17 @@
         @sig=M:Gehtsoft.EF.Entities.Context.IModifyEntityQuery.Execute(System.Object)
         @key=Execute.0
         @divisor=.
-        @brief=Executes the query for an entity specified. 
+        @brief=Executes the query for an entity specified.
         @scope=instance
         @visibility=public
-            
+
         @type=method
-            
+
         @declaration
             @language=cs
             @name=Execute
             @return=void
-            
+
             @params=object entity
         @end
         @declaration
@@ -30,15 +30,14 @@
             @return=Task
             @params=object entity, CancellationToken? token = null
         @end
-    
+
         @param
             @name=entity
 
         @end
-        
+
     @end
-   
+
     The type defined in the [c]Gehtsoft.EF.Entities.dll[/c] assembly.
     The namespace is [clink=Gehtsoft.EF.Entities.Context]Gehtsoft.EF.Entities.Context[/clink].
 @end
-    

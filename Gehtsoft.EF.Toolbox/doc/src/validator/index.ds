@@ -93,6 +93,7 @@
 
     @example
         @title=Example: Attribute-base validation
+        @highlight=csharp
         @show=yes
        !public class TestEntity4
        !{
@@ -139,6 +140,7 @@
 
     @example
         @title=Example: Rule-base validation
+        @highlight=csharp
         @show=yes
     !   public class TestEntity4
     !   {
@@ -175,6 +177,7 @@
 
     @example
         @title=Example: Conditional validation
+        @highlight=csharp
         @show=yes
     !   public class TestEntity4
     !   {

@@ -4,8 +4,6 @@
     @ingroup=index
     @brief=The namespace consists of classes to execute SQL queries on the entities
 
-    [b]What is it for?[/b]
-
     The namespace allows you to execute generalized SQL'92 queries on the entities without taking care
     about the SQL language specific of the particular database.
 
@@ -19,6 +17,13 @@
     objects. If you are looking to select a an instance of entity types, use entity query classes.
 
     Both approaches can be perfectly mixed with each other.
+@end
+
+@article
+   @title=How to start?
+   @brief=Article describes how to start using the package
+   @key=EfSql_howtostart
+   @ingroup=Gehtsoft.EF.Db.SqlDb.Sql
 
     [b]How to start using the library?[/b]
 
@@ -45,38 +50,14 @@
 
      5) Execute query by calling the function.
 
-     6) Note: all examples below uses Northwind database. 
-
-     [b]Simple Select[/b]
-
-     
-
-    @example
-        @show=yes
-        @title=Selecting an entity
-        @highlight=cs
-
-        var environment  = myDomBuilder.NewEnvironment(connection);
-        var func = environment.Parse("test", "SELECT * FROM MyEntity");
-        dynamic entities = func(null);
-        foreach (var entity in entities)
-            Console.WriteLine("{0} {1}", entity.Code, entity.Name);
-    @end
-
-    @example
-      @show=yes
-      @title=Selecting an entity
-      @highlight=cs
-      var environment  = myDomBuilder.NewEnvironment(connection);
-      var func = environment.Parse("test", "SELECT * FROM MyEntity WHERE Name LIKE ?Mask");
-      dynamic entities = func(null);
-      foreach (var entity in entities)
-          Console.WriteLine("{0} {1}", entity.Code, entity.Name);
-    @end
-  @end
+     6) Note: all examples in this station use Northwind database.
+@end
 
 
-
-
+@article
+   @title=How to Select Data
+   @brief=Article describes how to select entities using SQL
+   @key=EfSql_select
+   @ingroup=Gehtsoft.EF.Db.SqlDb.Sql
 
 @end

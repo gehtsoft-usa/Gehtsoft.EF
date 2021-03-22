@@ -45,6 +45,7 @@
 
     @example
         @title=Example: A simple map example
+        @highlight=csharp
         @show=yes
        ![Entity]
        !public class Entity2
@@ -97,6 +98,7 @@
 
     @example
         @title=Example: Creating a custom map
+        @highlight=csharp
         @show=yes
        !public class Class1
        !{
