@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
-
     /// <summary>
     /// Error occurred during parsing the lua
     /// </summary>
@@ -14,19 +12,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         /// <summary>
         /// The name of the source
         /// </summary>
-        public string SourceName { get; private set; }
+        public string SourceName { get; }
         /// <summary>
         /// The line number inside the source
         /// </summary>
-        public int SourceLine { get; private set; }
+        public int SourceLine { get; }
         /// <summary>
         /// The position within the line
         /// </summary>
-        public int SourcePosition { get; private set; }
+        public int SourcePosition { get; }
         /// <summary>
         /// The error message
         /// </summary>
-        public string ErrorMessage { get; private set; }
+        public string ErrorMessage { get; }
 
         internal SqlError(string sourceName, int sourceLine, int sourcePosition, string errorMessage)
         {

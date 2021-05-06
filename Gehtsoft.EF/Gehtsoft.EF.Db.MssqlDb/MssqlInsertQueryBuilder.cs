@@ -5,9 +5,9 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.MssqlDb
 {
-    class MssqlInsertQueryBuilder : InsertQueryBuilder
+    internal class MssqlInsertQueryBuilder : InsertQueryBuilder
     {
-        private bool mHasAutoId = false;
+        private readonly bool mHasAutoId = false;
 
         public MssqlInsertQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor descriptor, bool ignoreAutoincrement) : base(specifics, descriptor, ignoreAutoincrement)
         {
@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
                 bool hasAutoId = false;
                 foreach (TableDescriptor.ColumnInfo column in descriptor)
                 {
-                    if (column.Autoincrement == true && column.PrimaryKey == true)
+                    if (column.Autoincrement && column.PrimaryKey)
                     {
                         hasAutoId = true;
                         break;
@@ -32,9 +32,13 @@ namespace Gehtsoft.EF.Db.MssqlDb
             if (mHasAutoId && mIgnoreAutoIncrement)
             {
                 StringBuilder builder = new StringBuilder();
-                builder.AppendLine($"SET IDENTITY_INSERT {mTable.Name} ON;");
-                builder.AppendLine($"{base.BuildQuery(leftSide, rightSide, autoIncrement)};");
-                builder.AppendLine($"SET IDENTITY_INSERT {mTable.Name} OFF;");
+                builder
+                    .Append("SET IDENTITY_INSERT ")
+                    .Append(mTable.Name)
+                    .AppendLine(" ON;")
+                    .Append(base.BuildQuery(leftSide, rightSide, autoIncrement))
+                    .AppendLine(";")
+                    .Append("SET IDENTITY_INSERT ").Append(mTable.Name).AppendLine(" OFF;");
                 return builder.ToString();
             }
             else

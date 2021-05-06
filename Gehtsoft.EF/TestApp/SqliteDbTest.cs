@@ -38,24 +38,28 @@ namespace TestApp
         [Test]
         public void TestDropCreate()
         {
+            mConnection.Should().NotBeNull();
             TestCreateAndDrop.Do(mConnection);
         }
 
         [Test]
         public void TestHierarchicalQuery()
         {
+            mConnection.Should().NotBeNull();
             TestHierarchical.Do(mConnection);
         }
 
         [Test]
         public void TestEntities()
         {
+            mConnection.Should().NotBeNull();
             TestEntity1.TestEntities(mConnection);
         }
 
         [Test]
         public void TestDynamicEntities()
         {
+            mConnection.Should().NotBeNull();
             TestEntity1.TestDynamicEntity(mConnection);
         }
 
@@ -63,48 +67,56 @@ namespace TestApp
         [Explicit]
         public void PerformanceTest()
         {
+            mConnection.Should().NotBeNull();
             TestPerformance.DoTest(mConnection);
         }
 
         [Test]
         public void TestFts1()
         {
+            mConnection.Should().NotBeNull();
             TestFts.DoTestFts(mConnection);
         }
 
         [Test]
         public void TestFts2()
         {
+            mConnection.Should().NotBeNull();
             TestFts.DoTestFtsAsync(mConnection).Wait();
         }
 
         [Test]
         public void TestAlterTables()
         {
+            mConnection.Should().NotBeNull();
             TestDbUpdate.TestAlterTable(mConnection);
         }
 
         [Test]
         public void TestAlterEntities()
         {
+            mConnection.Should().NotBeNull();
             TestDbUpdate.TestEntityUpdate(mConnection);
         }
 
         [Test]
         public void TestNestedTransactions()
         {
+            mConnection.Should().NotBeNull();
             NestedTransactionsTest.Do(mConnection);
         }
 
         [Test]
         public void TestAggregatingAccessor()
         {
+            mConnection.Should().NotBeNull();
             AggregatesTest.Do(mConnection);
         }
 
         [Test]
         public void TestTasks()
         {
+            mConnection.Should().NotBeNull();
             TestTasksImpl.Test(mConnection);
         }
 
@@ -130,6 +142,7 @@ namespace TestApp
         [Test]
         public void TestNorthwind()
         {
+            mConnection.Should().NotBeNull();
             NorthwindTest t = new NorthwindTest();
             t.Test(mConnection);
         }
@@ -137,12 +150,14 @@ namespace TestApp
         [Test]
         public void TestEntityContext()
         {
+            mConnection.Should().NotBeNull();
             EntityContextTest.Test(mConnection);
         }
 
         [Test]
         public void TestInjections()
         {
+            mConnection.Should().NotBeNull();
             TestSqlInjections.Do(mConnection);
         }
     }

@@ -13,20 +13,15 @@ using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
-    public class SelectRun : IDisposable
+    public sealed class SelectRun : IDisposable
     {
         private SqlCodeDomBuilder DomBuilder { get; }
-        private ISqlDbConnectionFactory connectionFactory;
-        private SqlDbConnection connection;
+        private readonly ISqlDbConnectionFactory connectionFactory;
+        private readonly SqlDbConnection connection;
 
         public SelectRun()
         {
-            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.MSSQL, @"server=.\SQLEXPRESSTEO;Connection Lifetime=900;Load Balance Timeout=60;Max Pool Size=25;Pooling=true;Integrated Security=SSPI;"); ;
-            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.POSTGRES, @"server=127.0.0.1;database=test;user id=postgres;password=hurnish1962;"); ;
-            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.MYSQL, @"server=127.0.0.1;Database=test;Uid=root;Pwd=root;port=3306;AllowUserVariables=True;default command timeout=0"); ;
-            //string tns = "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.1.4)(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)(SID = XE)))";
-            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.ORACLE, $"Data Source={tns};user id=C##TEST;password=test;");
-            connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:"); ;
+            connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, "Data Source=:memory:");
             connection = connectionFactory.GetConnection();
             Snapshot snapshot = new Snapshot();
             snapshot.CreateAsync(connection).ConfigureAwait(true).GetAwaiter().GetResult();
@@ -43,7 +38,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectAll()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT * FROM Category");
             dynamic result = func(null);
@@ -56,7 +51,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectFields()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT CategoryID AS Id, CategoryName FROM Category");
             dynamic result = func(null);
@@ -68,7 +63,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectCount()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Category");
             dynamic result = func(null);
@@ -78,7 +73,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectAgg()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT MAX(OrderDate) AS Max, MIN(OrderDate) AS Min FROM Order");
             dynamic result = func(null);
@@ -90,7 +85,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectAggExpr()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT MAX(Freight) AS Max, MAX(Freight) + 2.0 AS MaxIncreased FROM Order");
             dynamic result = func(null);
@@ -102,7 +97,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectConcatExpr()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT CompanyName || ' ' || ContactName AS Concatted, CompanyName, ContactName FROM Customer");
             dynamic result = func(null);
@@ -115,7 +110,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleSelectTrimExpr()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test", "SELECT TRIM(' ' || CompanyName || ' ') AS Trimmed, CompanyName FROM Customer");
             dynamic result = func(null);
@@ -127,7 +122,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SimpleJoinedSelect()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
                 "SELECT OrderID AS ID, Quantity, " +
@@ -154,7 +149,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void InnerJoinedSelectWithWhere()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
                 "SELECT OrderID AS ID, Quantity, " +
@@ -177,7 +172,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void AutoJoinedSelectWithWhere()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
                 "SELECT OrderID AS ID, Quantity, " +
@@ -211,7 +206,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectWithOffsetLimit()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
                 "SELECT * " +
@@ -237,7 +232,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void AutoJoinedSelectWithOrdering()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
                 "SELECT OrderID AS ID, Quantity+1 AS Q, " +
@@ -274,7 +269,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectWithGroupAndOrder()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
@@ -297,7 +292,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 (count <= max).Should().BeTrue();
                 max = count;
                 string countryName = (string)(obj as IDictionary<string, object>)["Country"];
-                countryName.ToLower().StartsWith("u");
+                countryName.StartsWith("u", StringComparison.OrdinalIgnoreCase);
                 func = environment.Parse("test", $"SELECT COUNT(*) AS q FROM Customer WHERE UPPER(Country) = UPPER('{countryName}')");
                 dynamic resultInner = func(null);
                 int countFound = (int)(resultInner[0] as IDictionary<string, object>)["q"];
@@ -308,7 +303,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void AutoJoinedSelectWithAbs()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
                 "SELECT OrderID AS ID, Quantity AS Q, " +
@@ -346,7 +341,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SelectWithStartsWith()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
@@ -361,14 +356,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             foreach (dynamic obj in result)
             {
                 string countryName = (string)(obj as IDictionary<string, object>)["Country"];
-                countryName.ToLower().StartsWith("u").Should().BeTrue();
+                countryName.StartsWith("u", StringComparison.OrdinalIgnoreCase).Should().BeTrue();
             }
         }
 
         [Fact]
         public void SelectWithEndsWith()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
@@ -383,14 +378,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             foreach (dynamic obj in result)
             {
                 string countryName = (string)(obj as IDictionary<string, object>)["Country"];
-                countryName.ToLower().EndsWith("a").Should().BeTrue();
+                countryName.EndsWith("a", StringComparison.OrdinalIgnoreCase).Should().BeTrue();
             }
         }
 
         [Fact]
         public void SelectWithContains()
         {
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
                 "SELECT COUNT(CustomerID) AS CustomersInCountry, Country " +
@@ -405,7 +400,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             foreach (dynamic obj in result)
             {
                 string countryName = (string)(obj as IDictionary<string, object>)["Country"];
-                countryName.ToLower().Contains("gent").Should().BeTrue();
+                countryName.Contains("gent", StringComparison.OrdinalIgnoreCase).Should().BeTrue();
             }
         }
 
@@ -413,7 +408,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         public void SelectIn1()
         {
             Func<IDictionary<string, object>, object> func;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
             dynamic result = func(null);
@@ -437,7 +432,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         public void SelectIn2()
         {
             Func<IDictionary<string, object>, object> func;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
             dynamic result = func(null);
@@ -461,7 +456,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         public void SelectIsNull()
         {
             Func<IDictionary<string, object>, object> func;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Customer");
             dynamic result = func(null);

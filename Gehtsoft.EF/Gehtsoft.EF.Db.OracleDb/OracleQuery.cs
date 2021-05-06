@@ -23,26 +23,23 @@ namespace Gehtsoft.EF.Db.OracleDb
             base.BindNull(name, type);
         }
 
-
         public override object GetValue(int column)
         {
-                if (mReader.GetFieldType(column) == typeof(decimal))
+            if (mReader.GetFieldType(column) == typeof(decimal))
+            {
+                if (mReader.IsDBNull(column))
+                    return default(decimal);
+
+                try
                 {
-                    if (mReader.IsDBNull(column))
-                        return default(decimal);
-
-                    try
-                    {
-                        return mReader.GetDecimal(column);
-                    }
-                    catch (InvalidCastException)
-                    {
-                        return mReader.GetDouble(column);
-                    }
+                    return mReader.GetDecimal(column);
                 }
-                return base.GetValue(column);
-           
+                catch (InvalidCastException)
+                {
+                    return mReader.GetDouble(column);
+                }
+            }
+            return base.GetValue(column);
         }
-
     }
 }

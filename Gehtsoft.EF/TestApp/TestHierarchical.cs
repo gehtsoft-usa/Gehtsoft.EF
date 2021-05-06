@@ -5,9 +5,9 @@ using NUnit.Framework;
 
 namespace TestApp
 {
-    static class TestHierarchical
+    internal static class TestHierarchical
     {
-        static TableDescriptor gHierarchicalTable = new TableDescriptor
+        private static readonly TableDescriptor gHierarchicalTable = new TableDescriptor
             (
                 "hierarchicaltest",
                 new TableDescriptor.ColumnInfo[]
@@ -200,7 +200,7 @@ namespace TestApp
                             break;
                     }
                 }
-                Assert.AreEqual(rc, 4);
+                Assert.AreEqual(4, rc);
             }
         }
     }

@@ -9,7 +9,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlWhereClause
     {
-
         internal SqlBaseExpression RootExpression { get; set; }
 
         internal SqlWhereClause(SqlStatement parentStatement, ASTNode statementNode, string source)

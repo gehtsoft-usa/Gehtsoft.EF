@@ -6,7 +6,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
     public class UpdateQueryBuilder : SingleTableQueryWithWhereBuilder
     {
-        private StringBuilder mFieldSet = new StringBuilder();
+        private readonly StringBuilder mFieldSet = new StringBuilder();
 
         public UpdateQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table) : base(specifics, table)
         {
@@ -22,7 +22,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                         throw new ArgumentException("The query must not contain string scalars", nameof(parameterName));
             if (mFieldSet.Length > 0)
                 mFieldSet.Append(", ");
-            mFieldSet.Append($"{column.Name}={mSpecifics.ParameterInQueryPrefix}{parameterName ?? column.Name}");
+            mFieldSet
+                .Append(column.Name)
+                .Append('=')
+                .Append(mSpecifics.ParameterInQueryPrefix)
+                .Append(parameterName ?? column.Name);
         }
 
         public void AddUpdateColumnExpression(TableDescriptor.ColumnInfo column, string rawExpression, string parameterDelimiter = "@")
@@ -34,7 +38,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 mFieldSet.Append(", ");
             if (parameterDelimiter != null && parameterDelimiter != mSpecifics.ParameterInQueryPrefix)
                 rawExpression = rawExpression.Replace(parameterDelimiter, mSpecifics.ParameterInQueryPrefix);
-            mFieldSet.Append($"{column.Name}={rawExpression}");
+            mFieldSet.Append(column.Name).Append('=').Append(rawExpression);
         }
 
         public void AddUpdateColumnSubquery(TableDescriptor.ColumnInfo column, AQueryBuilder builder)
@@ -42,7 +46,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (mFieldSet.Length > 0)
                 mFieldSet.Append(", ");
             builder.PrepareQuery();
-            mFieldSet.Append($"{column.Name}=({builder.Query})");
+            mFieldSet.Append(column.Name).Append("=(").Append(builder.Query).Append(')');
         }
 
         public void AddUpdateAllColumns()

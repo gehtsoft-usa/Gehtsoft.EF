@@ -9,9 +9,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlCallFuncExpression : SqlBaseExpression
     {
-        private ResultTypes mResultType = ResultTypes.Unknown;
-        private SqlBaseExpressionCollection mParameters = new SqlBaseExpressionCollection();
-        private string mName = string.Empty;
+        private readonly ResultTypes mResultType;
 
         internal override ExpressionTypes ExpressionType
         {
@@ -28,27 +26,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal string Name
-        {
-            get
-            {
-                return mName;
-            }
-        }
+        internal string Name { get; }
 
-        internal SqlBaseExpressionCollection Parameters
-        {
-            get
-            {
-                return mParameters;
-            }
-        }
+        internal SqlBaseExpressionCollection Parameters { get; }
 
         internal SqlCallFuncExpression(ResultTypes resultType, string name, SqlBaseExpressionCollection parameters)
         {
             mResultType = resultType;
-            mName = name;
-            mParameters = parameters;
+            Name = name;
+            Parameters = parameters;
         }
     }
 }

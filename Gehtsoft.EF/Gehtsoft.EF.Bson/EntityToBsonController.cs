@@ -96,7 +96,7 @@ namespace Gehtsoft.EF.Bson
                 return value.AsInt32;
             }
             if (value.IsInt64)
-            { 
+            {
                 if (fieldInfo != null && fieldInfo.PropertyElementType.GetTypeInfo().IsEnum)
                     return Enum.ToObject(fieldInfo.PropertyElementType, value.AsInt64);
                 return value.AsInt64;
@@ -120,8 +120,8 @@ namespace Gehtsoft.EF.Bson
             {
                 BsonArray arrSrc = value.AsBsonArray;
                 int length = arrSrc.Count;
-                object arrDst = Activator.CreateInstance(fieldInfo.PropertyAccessor.PropertyType, new object[] {length});
-                Array arrDest1 = (Array) arrDst;
+                object arrDst = Activator.CreateInstance(fieldInfo.PropertyAccessor.PropertyType, new object[] { length });
+                Array arrDest1 = (Array)arrDst;
                 for (int i = 0; i < length; i++)
                 {
                     object v = DeserializeValue(arrSrc[i], fieldInfo);
@@ -139,55 +139,48 @@ namespace Gehtsoft.EF.Bson
         {
             if (value == null)
                 return BsonNull.Value;
-            else if (value is int)
-                return new BsonInt32((int)value);
-            else if (value is long)
-                return new BsonInt64((long)value);
-            else if (value is double)
-                return new BsonDouble((double)value);
-            else if (value is decimal)
-                return new BsonDecimal128((decimal)value);
-            else if (value is DateTime)
+            else if (value is int iv)
+                return new BsonInt32(iv);
+            else if (value is long lv)
+                return new BsonInt64(lv);
+            else if (value is double dbl)
+                return new BsonDouble(dbl);
+            else if (value is decimal dcml)
+                return new BsonDecimal128(dcml);
+            else if (value is DateTime dt)
             {
-                DateTime v = (DateTime) value;
-                if (v.Kind == DateTimeKind.Unspecified)
+                if (dt.Kind == DateTimeKind.Unspecified)
                 {
                     if (UnspecifiedTypeIsLocalByDefault)
-                        v = new DateTime(v.Ticks, DateTimeKind.Local);
+                        dt = new DateTime(dt.Ticks, DateTimeKind.Local);
                     else
-                        v = new DateTime(v.Ticks, DateTimeKind.Utc);
+                        dt = new DateTime(dt.Ticks, DateTimeKind.Utc);
                 }
-                if (v.Kind == DateTimeKind.Utc)
-                    return new BsonDateTime(((DateTime)value));
-                else if (v.Kind == DateTimeKind.Local)
-                    return new BsonDateTime(((DateTime)value).ToUniversalTime());
+                if (dt.Kind == DateTimeKind.Utc)
+                    return new BsonDateTime(dt);
+                else if (dt.Kind == DateTimeKind.Local)
+                    return new BsonDateTime(dt.ToUniversalTime());
 
-
-                return new BsonDateTime(new DateTime(((DateTime) value).Ticks, DateTimeKind.Utc));
+                return new BsonDateTime(new DateTime(((DateTime)value).Ticks, DateTimeKind.Utc));
             }
-            else if (value is bool)
-                return new BsonBoolean((bool)value);
-            else if (value is byte[])
-                return new BsonBinaryData((byte[]) value);
-            else if (value is string)
-                return new BsonString((string)value);
+            else if (value is bool b)
+                return new BsonBoolean(b);
+            else if (value is byte[] bt)
+                return new BsonBinaryData(bt);
+            else if (value is string s)
+                return new BsonString(s);
             else if (value.GetType().GetTypeInfo().IsEnum)
                 return new BsonInt32((int?)Convert.ChangeType(value, typeof(int)) ?? 0);
-            else if (value is ObjectId)
-                return new BsonObjectId((ObjectId)value);
-            else if (value.GetType().GetTypeInfo().IsEnum)
+            else if (value is ObjectId oid)
+                return new BsonObjectId(oid);
+            else if (value is Guid g)
             {
-                value = Convert.ChangeType(value, typeof(int));
-                return new BsonInt32((int) value);
-            }
-            else if (value is Guid)
-            {
-                return new BsonString(((Guid)value).ToString());
+                return new BsonString(g.ToString());
             }
             else if (value.GetType().IsArray)
             {
                 BsonArray rarray = new BsonArray();
-                Array sarray = (Array) value;
+                Array sarray = (Array)value;
                 for (int i = 0; i < sarray.Length; i++)
                     rarray.Add(SerializeValue(sarray.GetValue(i), fieldInfo));
                 return rarray;
@@ -195,7 +188,7 @@ namespace Gehtsoft.EF.Bson
             else
             {
                 BsonEntityDescription refDescription = AllEntities.Inst.FindType(fieldInfo.PropertyElementType);
-                if (fieldInfo != null && fieldInfo.IsReference)
+                if (fieldInfo.IsReference)
                 {
                     BsonEntityField pk = refDescription.PrimaryKey;
                     if (pk == null)

@@ -30,13 +30,10 @@ namespace Gehtsoft.EF.Entities
 
         public EntityNamingPolicy NamingPolicy { get; set; } = EntityNamingPolicy.Default;
 
-
-
         public EntityAttribute() : base()
         {
             Scope = null;
             View = false;
-
         }
     }
 
@@ -78,7 +75,7 @@ namespace Gehtsoft.EF.Entities
         public bool IgnoreRead { get; set; }
         public object DefaultValue { get; set; }
         public bool IgnoreSerialization { get; set; }
-        
+
         public EntityPropertyAttribute()
         {
             View = false;
@@ -104,7 +101,6 @@ namespace Gehtsoft.EF.Entities
             PrimaryKey = true;
         }
     }
-
 
     [AttributeUsage(AttributeTargets.Property, Inherited = true)]
     public class ForeignKeyAttribute : EntityPropertyAttribute

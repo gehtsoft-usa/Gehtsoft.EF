@@ -29,14 +29,14 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             Multiply
         }
 
-        private static readonly string DELIMETER = "$$$";
-        internal static readonly string ARRMARKER = "_$0_$1_$2_";
+        private const string DELIMETER = "$$$";
+        public static readonly string ARRMARKER = "_$0_$1_$2_";
 
         private readonly ODataUri mUri;
         private readonly SqlDbConnection mConnection;
         private readonly EdmModelBuilder mModelBuilder;
         private EntityDescriptor mLastEntityDescriptor = null;
-        private Dictionary<string, EntityDescriptor> entityDescriptors = new Dictionary<string, EntityDescriptor>();
+        private readonly Dictionary<string, EntityDescriptor> entityDescriptors = new Dictionary<string, EntityDescriptor>();
 
         internal ResultType ResultMode { get; private set; } = ResultType.Array;
         internal bool OneToMany { get; private set; } = false;
@@ -60,15 +60,15 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             EntityDescriptor entityDescriptor = null;
 
             int i = 0;
-
+#pragma warning disable S2259 // Null pointers should not be dereferenced 
+            // false positive - they don't know that mUri.Path cannot be empty
             foreach (ODataPathSegment segment in mUri.Path)
             {
                 if (i == 0)
                 {
-                    EntitySetSegment firstSegment = segment as EntitySetSegment;
-                    if (firstSegment == null)
+                    if (!(segment is EntitySetSegment firstSegment))
                         throw new EfODataException(EfODataExceptionCode.BadPath);
-                    mainBuilder = builder = createBuilder(firstSegment.EntitySet.Name + "_Type", out entityDescriptor);
+                    mainBuilder = builder = CreateBuilder(firstSegment.EntitySet.Name + "_Type", out entityDescriptor);
                     mLastEntityDescriptor = entityDescriptor;
                     ResultMode = ResultType.Array;
                 }
@@ -103,7 +103,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                             string name = entytyType.Name;
 
                             SelectQueryBuilder builderOld = builder;
-                            SelectQueryBuilder builderNew = createBuilder(name, out entityDescriptor);
+                            SelectQueryBuilder builderNew = CreateBuilder(name, out entityDescriptor);
                             builderNew.Where.And().Property(entityDescriptor.TableDescriptor.PrimaryKey).Is(CmpOp.In).Query(builderOld);
 
                             mainBuilder = builder = builderNew;
@@ -120,14 +120,13 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                                 string name = innerEntytyType.Name;
 
                                 SelectQueryBuilder builderOld = builder;
-                                SelectQueryBuilder builderNew = createBuilder(name, out entityDescriptor);
+                                SelectQueryBuilder builderNew = CreateBuilder(name, out entityDescriptor);
                                 builderNew.Where.And().Property(entityDescriptor.TableDescriptor[referFieldName]).Is(CmpOp.In).Query(builderOld);
 
                                 mainBuilder = builder = builderNew;
                                 mLastEntityDescriptor = entityDescriptor;
 
                                 ResultMode = ResultType.Array;
-
                             }
                         }
                     }
@@ -142,7 +141,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
             if (mUri.SelectAndExpand != null)
             {
-                processSelectAndExpand(builder, entityDescriptor, mUri.SelectAndExpand);
+                ProcessSelectAndExpand(builder, entityDescriptor, mUri.SelectAndExpand);
                 if (!mUri.SelectAndExpand.AllSelected)
                 {
                     int pagingLimit = mModelBuilder.EntityPagingLimitByName(entityDescriptor.EntityType.Name + "_Type");
@@ -159,7 +158,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         }
                         if (primaryKeyName != null)
                         {
-                            string primaryKeyAlias = mainBuilder.GetAlias(entityDescriptor.TableDescriptor[primaryKeyName]);
+                            string primaryKeyAlias = mainBuilder.GetAlias(entityDescriptor.TableDescriptor[primaryKeyName], null);
                             bool found = false;
                             foreach (SelectQueryBuilderResultsetItem item in mainBuilder.Resultset)
                             {
@@ -180,7 +179,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
             if (mUri.Filter != null)
             {
-                processFilter(builder, entityDescriptor, mUri.Filter);
+                ProcessFilter(builder, entityDescriptor, mUri.Filter);
             }
 
             if (mUri.OrderBy != null && !withoutSorting)
@@ -189,7 +188,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 {
                     throw new EfODataException(EfODataExceptionCode.QueryOptionsFault);
                 }
-                processOrderBy(builder, entityDescriptor, mUri.OrderBy);
+                ProcessOrderBy(builder, entityDescriptor, mUri.OrderBy);
             }
 
             if (mUri.Skip.HasValue)
@@ -230,11 +229,11 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 string expression = builder.Where.InfoProvider.Specifics.GetOp(CmpOp.Gt, pKey, mUri.SkipToken);
                 builder.Where.Add(LogOp.And, expression);
             }
-
+#pragma warning restore S2259 // Null pointers should not be dereferenced 
             return mainBuilder;
         }
 
-        private void processOrderBy(QueryBuilder.SelectQueryBuilder builder, EntityDescriptor entityDescriptor, OrderByClause clause)
+        private void ProcessOrderBy(QueryBuilder.SelectQueryBuilder builder, EntityDescriptor entityDescriptor, OrderByClause clause)
         {
             if (clause.Expression is SingleValuePropertyAccessNode node)
             {
@@ -248,7 +247,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     if (navNode.EntityTypeReference.Definition is EdmEntityType edmType)
                     {
                         string name = edmType.Name;
-                        createBuilder(name, out localEntityDescriptor);
+                        CreateBuilder(name, out localEntityDescriptor);
                         tableDescriptor = localEntityDescriptor.TableDescriptor;
                     }
                     else
@@ -257,12 +256,9 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     }
                 }
 
-                TableDescriptor.ColumnInfo column = null;
-                try
-                {
-                    column = tableDescriptor[propertyName];
-                }
-                catch { }
+                if (!tableDescriptor.TryGetValue(propertyName, out TableDescriptor.ColumnInfo column))
+                    column = null;
+
                 if (column == null)
                 {
                     try
@@ -298,7 +294,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     }
                 }
                 // if not added
-                if(columnEntity == null && localEntityDescriptor != null)
+                if (columnEntity == null && localEntityDescriptor != null)
                 {
                     // then just add it without select fields
                     builder.AddTable(localEntityDescriptor.TableDescriptor, true);
@@ -307,7 +303,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 builder.AddOrderBy(column, sortDir);
 
                 if (clause.ThenBy != null)
-                    processOrderBy(builder, entityDescriptor, clause.ThenBy);
+                    ProcessOrderBy(builder, entityDescriptor, clause.ThenBy);
             }
             else
             {
@@ -315,9 +311,9 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             }
         }
 
-        private void processFilter(QueryBuilder.SelectQueryBuilder builder, EntityDescriptor entityDescriptor, FilterClause clause)
+        private void ProcessFilter(QueryBuilder.SelectQueryBuilder builder, EntityDescriptor entityDescriptor, FilterClause clause)
         {
-            string expression = getStrExpression(clause.Expression, builder.Where, entityDescriptor);
+            string expression = GetStrExpression(clause.Expression, builder.Where, entityDescriptor);
             if (!builder.Where.IsEmpty)
             {
                 expression = $"{expression}";
@@ -325,48 +321,40 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             builder.Where.Add(LogOp.And, expression);
         }
 
-        private SqlFunctionId? getFunctionId(string name)
+        private SqlFunctionId? GetFunctionId(string name)
         {
-            SqlFunctionId? retval = null;
-
             switch (name)
             {
                 case "matchesPattern":
                 case "contains":
                 case "endswith":
                 case "startswith":
-                    retval = SqlFunctionId.Like;
-                    break;
+                    return SqlFunctionId.Like;
                 case "toupper":
-                    retval = SqlFunctionId.Upper;
-                    break;
+                    return SqlFunctionId.Upper;
                 case "tolower":
-                    retval = SqlFunctionId.Lower;
-                    break;
+                    return SqlFunctionId.Lower;
                 case "trim":
-                    retval = SqlFunctionId.Trim;
-                    break;
+                    return SqlFunctionId.Trim;
                 case "trimleft":
-                    retval = SqlFunctionId.TrimLeft;
-                    break;
+                    return SqlFunctionId.TrimLeft;
                 case "concat":
-                    retval = SqlFunctionId.Concat;
-                    break;
+                    return SqlFunctionId.Concat;
             }
 
-            return retval;
+            return null;
         }
 
-        private string buildFunctionCall(SingleValueFunctionCallNode func, ConditionBuilder where, EntityDescriptor entityDescriptor)
+        private string BuildFunctionCall(SingleValueFunctionCallNode func, ConditionBuilder where, EntityDescriptor entityDescriptor)
         {
             string retval = null;
-            SqlFunctionId? funcId = getFunctionId(func.Name);
+            SqlFunctionId? funcId = GetFunctionId(func.Name);
             if (funcId.HasValue)
             {
                 List<string> pars = new List<string>();
                 foreach (QueryNode node in func.Parameters)
                 {
-                    pars.Add(getStrExpression(node, where, entityDescriptor));
+                    pars.Add(GetStrExpression(node, where, entityDescriptor));
                 }
                 if (func.Name == "contains")
                 {
@@ -405,11 +393,11 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             return retval;
         }
 
-        private string getStrExpression(QueryNode node, ConditionBuilder where, EntityDescriptor entityDescriptor)
+        private string GetStrExpression(QueryNode node, ConditionBuilder where, EntityDescriptor entityDescriptor)
         {
             if (node is SingleValueFunctionCallNode func)
             {
-                return buildFunctionCall(func, where, entityDescriptor);
+                return BuildFunctionCall(func, where, entityDescriptor);
             }
             else if (node is UnaryOperatorNode unar)
             {
@@ -425,18 +413,18 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         break;
                 }
                 if (start.Contains("(")) end = ")";
-                return $"{start}{getStrExpression(unar.Operand, where, entityDescriptor)}{end}";
+                return $"{start}{GetStrExpression(unar.Operand, where, entityDescriptor)}{end}";
             }
             else if (node is InNode inNode)
             {
-                string leftOperand = getStrExpression(inNode.Left, where, entityDescriptor);
-                string rightOperand = getStrExpression(inNode.Right, where, entityDescriptor);
+                string leftOperand = GetStrExpression(inNode.Left, where, entityDescriptor);
+                string rightOperand = GetStrExpression(inNode.Right, where, entityDescriptor);
                 return where.InfoProvider.Specifics.GetOp(CmpOp.In, leftOperand, rightOperand);
             }
             else if (node is BinaryOperatorNode binaryNode)
             {
-                string leftOperand = getStrExpression(binaryNode.Left, where, entityDescriptor);
-                string rightOperand = getStrExpression(binaryNode.Right, where, entityDescriptor);
+                string leftOperand = GetStrExpression(binaryNode.Left, where, entityDescriptor);
+                string rightOperand = GetStrExpression(binaryNode.Right, where, entityDescriptor);
 
                 CmpOp? op = null;
                 LogOp? logOp = null;
@@ -464,9 +452,6 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     case BinaryOperatorKind.Or:
                         logOp = LogOp.Or;
                         break;
-                    //case BinaryOperatorKind.In:
-                    //    logOp = LogOp.Or;
-                    //    break;
                     case BinaryOperatorKind.And:
                         logOp = LogOp.And;
                         break;
@@ -490,7 +475,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     return $"({where.InfoProvider.Specifics.GetOp(op.Value, leftOperand, rightOperand)})";
                 else if (logOp.HasValue)
                     return $"({leftOperand}{where.InfoProvider.Specifics.GetLogOp(logOp.Value)}{rightOperand})";
-                else if (arifOp.HasValue)
+                else
                     return $"({GetArifOp(arifOp.Value, leftOperand, rightOperand)})";
             }
             else if (node is SingleValuePropertyAccessNode prop)
@@ -539,12 +524,12 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             }
             else if (node is ConvertNode convertNode)
             {
-                return getStrExpression(convertNode.Source, where, entityDescriptor);
+                return GetStrExpression(convertNode.Source, where, entityDescriptor);
             }
             throw new EfODataException(EfODataExceptionCode.UnknownOperator);
         }
 
-        private void processSelectAndExpand(QueryBuilder.SelectQueryBuilder builder, EntityDescriptor entityDescriptor, SelectExpandClause clause, string prefix = "")
+        private void ProcessSelectAndExpand(SelectQueryBuilder builder, EntityDescriptor entityDescriptor, SelectExpandClause clause, string prefix = "")
         {
             bool allSelected = clause.AllSelected;
             foreach (SelectItem item in clause.SelectedItems)
@@ -586,9 +571,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         if (navigationPropertySegment.EdmType is IEdmEntityType entytyType)
                         {
                             string name = entytyType.Name;
-                            EntityDescriptor localEntityDescriptor = null;
-                            createBuilder(name, out localEntityDescriptor);
-                            //builder.AddTable(localEntityDescriptor.TableDescriptor, true);
+                            CreateBuilder(name, out EntityDescriptor localEntityDescriptor);
                             QueryBuilderEntity found = null;
                             foreach (QueryBuilderEntity qitem in builder.Entities)
                             {
@@ -606,15 +589,14 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                             {
                                 builder.AddToResultset(localEntityDescriptor.TableDescriptor, newPrefix);
                             }
-                            processSelectAndExpand(builder, localEntityDescriptor, navigationSelectItem.SelectAndExpand, newPrefix);
+                            ProcessSelectAndExpand(builder, localEntityDescriptor, navigationSelectItem.SelectAndExpand, newPrefix);
                         }
                         else if (navigationPropertySegment.EdmType is EdmCollectionType collection)
                         {
                             if (collection.ElementType.Definition is IEdmEntityType innerEntytyType)
                             {
                                 string name = innerEntytyType.Name;
-                                EntityDescriptor localEntityDescriptor = null;
-                                createBuilder(name, out localEntityDescriptor);
+                                CreateBuilder(name, out EntityDescriptor localEntityDescriptor);
                                 builder.AddTable(localEntityDescriptor.TableDescriptor, true);
                                 string newPrefix = $"{prefix}{ARRMARKER}{identifier}{DELIMETER}";
 
@@ -628,22 +610,21 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
                                 if (navigationSelectItem.FilterOption != null)
                                 {
-                                    processFilter(builder, localEntityDescriptor, navigationSelectItem.FilterOption);
+                                    ProcessFilter(builder, localEntityDescriptor, navigationSelectItem.FilterOption);
                                 }
                                 if (navigationSelectItem.OrderByOption != null)
                                 {
-                                    processOrderBy(builder, localEntityDescriptor, navigationSelectItem.OrderByOption);
+                                    ProcessOrderBy(builder, localEntityDescriptor, navigationSelectItem.OrderByOption);
                                 }
-                                processSelectAndExpand(builder, localEntityDescriptor, navigationSelectItem.SelectAndExpand, newPrefix);
+                                ProcessSelectAndExpand(builder, localEntityDescriptor, navigationSelectItem.SelectAndExpand, newPrefix);
                             }
                         }
                     }
                 }
             }
-
         }
 
-        private SelectQueryBuilder createBuilder(string edmName, out EntityDescriptor entityDescriptor)
+        private SelectQueryBuilder CreateBuilder(string edmName, out EntityDescriptor entityDescriptor)
         {
             Type entityType = mModelBuilder.EntityTypeByName(edmName);
             if (entityType == null)
@@ -746,7 +727,6 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 }
                 catch
                 {
-
                 }
             }
             return result;
@@ -771,6 +751,5 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     throw new EfODataException(EfODataExceptionCode.UnknownOperator);
             }
         }
-
     }
 }

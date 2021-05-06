@@ -12,7 +12,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
     public class FilterPropertyAttribute : Attribute
     {
         /// <summary>
-        /// The name of the entity property. By default - the same name as the filter property. 
+        /// The name of the entity property. By default - the same name as the filter property.
         /// </summary>
         public string PropertyName { get; set; }
         /// <summary>
@@ -22,17 +22,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
     }
 
     /// <summary>
-    /// Generic filter class for the generic accessor.
-    /// 
+    /// <para>Generic filter class for the generic accessor.</para>
+    /// <para>
     /// The whole idea of generic filter is that the developer just derives type-specific filter class from this one
     /// and just defines a set of properties making them up using FilterProperty attribute.
-    /// 
-    /// All filters are joined by AND
-    /// 
-    /// 1) The filter properties types must be equal to entity property types in their nullable version, i.e. if the field is 
+    /// </para>
+    /// <para>All filters are joined by AND</para>
+    /// <para>
+    /// 1) The filter properties types must be equal to entity property types in their nullable version, i.e. if the field is
     ///    int, the filter type shall be int?. the null value will mean that filter is not used.
-    /// 
-    /// 2) Should IsNull comparison be made, the filter property should be bool?. Null means that filter is inactive, true means IsNull and false means IsNotNull. 
+    /// </para>
+    /// <para>2) Should IsNull comparison be made, the filter property should be bool?. Null means that filter is inactive, true means IsNull and false means IsNotNull.</para>
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class GenericEntityAccessorFilter
@@ -42,9 +42,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         internal class FieldInfo
         {
-            internal string EntityPath { get; private set; }
-            internal PropertyInfo FilterProperty { get; private set; }
-            internal CmpOp CompareOperation { get; private set; }
+            internal string EntityPath { get; }
+            internal PropertyInfo FilterProperty { get; }
+            internal CmpOp CompareOperation { get; }
 
             internal FieldInfo(PropertyInfo filterProperty, string entityPath, CmpOp compareOperation)
             {
@@ -144,16 +144,16 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
                 //special handling
                 if (op == CmpOp.IsNull && (value is bool?))
                 {
-                    bool v = (bool) (bool?) value;
+                    bool v = (bool)(bool?)value;
                     query.Where.Property(fieldInfo.EntityPath).Is(v ? CmpOp.IsNull : CmpOp.NotNull);
                     continue;
                 }
 
                 if (op == CmpOp.NotNull && (value is bool?))
                 {
-                    bool v = (bool) (bool?) value;
+                    bool v = (bool)(bool?)value;
                     query.Where.Property(fieldInfo.EntityPath).Is(v ? CmpOp.NotNull : CmpOp.IsNull);
-                   
+
                     continue;
                 }
 
@@ -161,7 +161,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             }
         }
 
-        private static Dictionary<Type, List<FieldInfo>> mCache = new Dictionary<Type, List<FieldInfo>>();
+        private static readonly Dictionary<Type, List<FieldInfo>> mCache = new Dictionary<Type, List<FieldInfo>>();
 
         public GenericEntityAccessorFilter(Type t)
         {

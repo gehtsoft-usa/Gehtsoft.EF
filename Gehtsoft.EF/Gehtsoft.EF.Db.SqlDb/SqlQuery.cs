@@ -53,13 +53,10 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public IDataReader Reader => mReader;
 
-
         protected SqlDbLanguageSpecifics mSpecifics;
         public bool CanRead { get; protected set; }
 
-        private SqlDbConnection mConnection;
-
-        public SqlDbConnection Connection => mConnection;
+        public SqlDbConnection Connection { get; }
 
         public StringBuilder CommandTextBuilder { get; private set; } = new StringBuilder();
 
@@ -67,11 +64,11 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public bool IsInsert => CommandText.StartsWith("INSERT ", StringComparison.OrdinalIgnoreCase);
 
-        private IResiliencyPolicy mResiliency;
+        private readonly IResiliencyPolicy mResiliency;
 
         public SqlDbQuery(SqlDbConnection connection, DbCommand command, SqlDbLanguageSpecifics specifics)
         {
-            mConnection = connection;
+            Connection = connection;
             mSpecifics = specifics;
             mCommand = command;
             mReader = null;
@@ -100,14 +97,12 @@ namespace Gehtsoft.EF.Db.SqlDb
                 mReader.Dispose();
                 mReader = null;
             }
-
-            if (disposing)
-                GC.SuppressFinalize(this);
         }
 
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         ~SqlDbQuery()
@@ -142,7 +137,6 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public void BindParam<T>(string name, T value)
         {
-            DbType type;
             object _value = value;
             Type t = typeof(T);
 
@@ -152,13 +146,10 @@ namespace Gehtsoft.EF.Db.SqlDb
                 if (ed != null && ed.TableDescriptor.PrimaryKey != null)
                 {
                     t = ed.TableDescriptor.PrimaryKey.PropertyAccessor.PropertyType;
-                    if (_value != null)
-                        _value = ed.TableDescriptor.PrimaryKey.PropertyAccessor.GetValue(_value);
-                    if (_value == null)
-                        _value = DBNull.Value;
+                    _value = ed.TableDescriptor.PrimaryKey.PropertyAccessor.GetValue(_value) ?? DBNull.Value;
                 }
             }
-            mSpecifics.ToDbValue(ref _value, t, out type);
+            mSpecifics.ToDbValue(ref _value, t, out DbType type);
             BindParam(name, type, ParameterDirection.Input, _value);
         }
 
@@ -167,7 +158,6 @@ namespace Gehtsoft.EF.Db.SqlDb
             foreach (Param param in query.Parameters)
                 BindParam(param.Name, param.DbType, param.Direction, param.Value);
         }
-
 
         public virtual void BindParam(string name, DbType type, object value)
         {
@@ -181,9 +171,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                     EntityDescriptor ed = AllEntities.Inst[value.GetType(), false];
                     if (ed != null && ed.TableDescriptor.PrimaryKey != null)
                     {
-                        value = ed.TableDescriptor.PrimaryKey.PropertyAccessor.GetValue(value);
-                        if (value == null)
-                            value = DBNull.Value;
+                        value = ed.TableDescriptor.PrimaryKey.PropertyAccessor.GetValue(value) ?? DBNull.Value;
                     }
                 }
 
@@ -200,17 +188,14 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public virtual void BindParam(string name, ParameterDirection direction, object value, Type valueType)
         {
-            DbType type;
             object _value = value;
-            mSpecifics.ToDbValue(ref _value, valueType, out type);
+            mSpecifics.ToDbValue(ref _value, valueType, out DbType type);
             BindParam(name, type, direction, _value);
-
         }
 
         protected virtual void BindParam(string name, DbType type, ParameterDirection direction, object value = null)
         {
-            Param param;
-            if (ParametersDictionary.TryGetValue(name, out param))
+            if (ParametersDictionary.TryGetValue(name, out Param param))
             {
                 param.DbType = type;
                 param.Direction = direction;
@@ -218,7 +203,7 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
             else
             {
-                param = new Param() { Name = name, DbType = type, Value = value ?? DBNull.Value, Direction = direction};
+                param = new Param() { Name = name, DbType = type, Value = value ?? DBNull.Value, Direction = direction };
                 Parameters.Add(param);
                 ParametersDictionary[name] = param;
             }
@@ -226,8 +211,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public virtual object GetParamValue(string name)
         {
-            SqlDbQuery.Param param;
-            if (ParametersDictionary.TryGetValue(name, out param))
+            if (ParametersDictionary.TryGetValue(name, out Param param))
             {
                 if (param.DbParameter != null)
                 {
@@ -255,7 +239,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public T GetParamValue<T>(string name)
         {
-            return (T) GetParamValue(name, typeof(T));
+            return (T)GetParamValue(name, typeof(T));
         }
 
         public virtual void BindNull(string name, DbType type)
@@ -407,7 +391,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
 
         protected const string READER_IS_NOT_INIT = "Reader is not initialized";
-        protected const string FIELD_NOT_FOUNT = "Field is not found";
+        protected const string FIELD_NOT_FOUND = "Field is not found";
 
         public class FieldInfo
         {
@@ -427,7 +411,6 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         protected virtual void HandleFieldName(ref string name)
         {
-            ;
         }
 
         public virtual FieldInfo Field(int column)
@@ -458,8 +441,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                 }
             }
 
-            FieldInfo rc;
-            if (mFields.TryGetValue(name, out rc))
+            if (mFields.TryGetValue(name, out FieldInfo rc))
                 return rc;
             else
                 return null;
@@ -556,7 +538,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public T GetValue<T>(int column)
         {
-            return (T) GetValue(column, typeof(T));
+            return (T)GetValue(column, typeof(T));
         }
 
         protected int GetColumn(string column)
@@ -567,13 +549,13 @@ namespace Gehtsoft.EF.Db.SqlDb
                 throw new ArgumentNullException(nameof(column));
             FieldInfo fi = Field(column);
             if (fi == null)
-                throw new ArgumentNullException(FIELD_NOT_FOUNT);
+                throw new ArgumentException(FIELD_NOT_FOUND, nameof(column));
             return fi.Index;
         }
 
-        public bool IsNull(string field)
+        public bool IsNull(string column)
         {
-            return IsNull(GetColumn(field));
+            return IsNull(GetColumn(column));
         }
 
         public object GetValue(string field)
@@ -585,14 +567,14 @@ namespace Gehtsoft.EF.Db.SqlDb
             return GetStream(GetColumn(field));
         }
 
-        public object GetValue(string field, Type type)
+        public object GetValue(string column, Type type)
         {
-            return GetValue(GetColumn(field), type);
+            return GetValue(GetColumn(column), type);
         }
 
-        public T GetValue<T>(string field)
+        public T GetValue<T>(string column)
         {
-            return GetValue<T>(GetColumn(field));
+            return GetValue<T>(GetColumn(column));
         }
 
         protected internal static bool EndsWithSemicolon(StringBuilder s)
@@ -601,9 +583,7 @@ namespace Gehtsoft.EF.Db.SqlDb
             {
                 if (Char.IsWhiteSpace(s[i]))
                     continue;
-                if (s[i] == ';')
-                    return true;
-                return false;
+                return s[i] == ';';
             }
             return false;
         }

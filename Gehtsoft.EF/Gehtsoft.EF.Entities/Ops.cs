@@ -15,6 +15,7 @@ namespace Gehtsoft.EF.Entities
     [Flags]
     public enum LogOp
     {
+        None = 0,
         Not = 1,
         And = 2,
         Or = 4,
@@ -51,10 +52,10 @@ namespace Gehtsoft.EF.Entities
         void BracketClosed(OpBracket op);
     }
 
-    public class OpBracket : IDisposable
+    public sealed class OpBracket : IDisposable
     {
         private IOpBracketAcceptor mAcceptor;
-        public LogOp LogOp { get; private set; }
+        public LogOp LogOp { get; }
 
         public OpBracket(IOpBracketAcceptor acceptor, LogOp op)
         {

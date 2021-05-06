@@ -195,16 +195,20 @@ namespace Gehtsoft.EF.Db.OracleDb
     {
         public static SqlDbConnection Create(string connectionString)
         {
-            OracleConnection connection = new OracleConnection();
-            connection.ConnectionString = connectionString;
+            OracleConnection connection = new OracleConnection
+            {
+                ConnectionString = connectionString
+            };
             connection.Open();
             return new OracleDbConnection(connection);
         }
 
         public static async Task<SqlDbConnection> CreateAsync(string connectionString, CancellationToken? token)
         {
-            OracleConnection connection = new OracleConnection();
-            connection.ConnectionString = connectionString;
+            OracleConnection connection = new OracleConnection
+            {
+                ConnectionString = connectionString
+            };
             if (token == null)
                 await connection.OpenAsync();
             else

@@ -9,10 +9,9 @@ namespace Gehtsoft.EF.Db.SqliteDb
         private static int gSavepointId = 1;
         private bool mFinalized = false;
 
-        private SqliteDbConnection mConnection;
-        internal bool IsSavePoint { get; private set; }
-        internal string SavePoint { get; private set; }
-        
+        private readonly SqliteDbConnection mConnection;
+        internal bool IsSavePoint { get; }
+        internal string SavePoint { get; }
 
         internal SqliteDbTransaction(SqliteDbConnection db, DbTransaction transaction) : base(transaction)
         {

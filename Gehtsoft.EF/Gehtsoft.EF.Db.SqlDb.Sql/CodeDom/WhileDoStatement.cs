@@ -22,7 +22,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 throw new SqlParserException(new SqlError(currentSource,
                     node.Position.Line,
                     node.Position.Column,
-                    $"Not calculable expression in WHILE statement"));
+                    "Not calculable expression in WHILE statement"));
             }
             if (whileExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
             {
@@ -33,7 +33,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
 
             node = statementNode.Children[1];
-            ConditionalStatementsRun condition = new ConditionalStatementsRun(new SqlUnarExpression(whileExpression, SqlUnarExpression.OperationType.Not));
+            ConditionalStatementsRun condition = new ConditionalStatementsRun(new SqlUnaryExpression(whileExpression, SqlUnaryExpression.OperationType.Not));
             IfStatement ifStatement = new IfStatement(builder, new ConditionalStatementsRunCollection() { condition });
 
             BlockExpression linqExpression = (BlockExpression)builder.ParseNodeToLinq("WHILE-LOOP Body", node, this);

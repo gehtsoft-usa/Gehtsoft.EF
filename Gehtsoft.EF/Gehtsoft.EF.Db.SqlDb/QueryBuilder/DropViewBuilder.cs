@@ -4,7 +4,6 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
-
     public class DropViewBuilder : AQueryBuilder
     {
         protected readonly string mName;

@@ -26,18 +26,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
 
         public Type EntityType { get; }
 
-        public string Name { get;  }
+        public string Name { get; }
 
         private readonly List<Field> mFields = new List<Field>();
 
-
-        private EntityDescriptor mEntityInfo;
+        private readonly EntityDescriptor mEntityInfo;
 
         public IReadOnlyList<Field> Fields => mFields;
 
         public CompositeIndex(string name) : this(null, name)
         {
-
         }
 
         public CompositeIndex(Type entityType, string name)

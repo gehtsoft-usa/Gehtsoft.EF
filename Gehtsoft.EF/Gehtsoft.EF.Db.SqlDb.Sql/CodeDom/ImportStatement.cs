@@ -12,7 +12,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class ImportStatement : Statement
     {
-        private Dictionary<string, ResultTypes> variables = new Dictionary<string, ResultTypes>();
+        private readonly Dictionary<string, ResultTypes> variables = new Dictionary<string, ResultTypes>();
         internal ImportStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Import)
         {
@@ -21,7 +21,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 string name = $"?{node.Children[0].Value}";
                 ResultTypes resultType = GetResultTypeByName(node.Children[1].Value);
 
-                if (!builder.AddGlobalParameter(name, resultType, true))
+                if (!builder.AddGlobalParameter(name, resultType))
                 {
                     throw new SqlParserException(new SqlError(currentSource,
                         node.Children[0].Position.Line,
@@ -29,14 +29,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         $"Duplicate imported name ({name})"));
                 }
 
-                if (variables.ContainsKey(name))
-                {
-                    variables[name] = resultType;
-                }
-                else
-                {
-                    variables.Add(name, resultType);
-                }
+                variables[name] = resultType;
             }
         }
 
@@ -44,18 +37,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             foreach (KeyValuePair<string, ResultTypes> item in variables)
             {
-                if (!CodeDomBuilder.AddGlobalParameter(item.Key, item.Value, true))
+                if (!CodeDomBuilder.AddGlobalParameter(item.Key, item.Value))
                 {
                     throw new SqlParserException(new SqlError(null, 0, 0, $"Duplicate imported name ({item.Key})"));
                 }
                 //new SqlConstant(null, item.Value).SystemType)
                 string name = item.Key.Substring(1);
                 IDictionary<string, object> dict = this.CodeDomBuilder.ParametersDictionary;
-                if(dict == null)
+                if (dict == null)
                 {
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"No parameters list in call"));
+                    throw new SqlParserException(new SqlError(null, 0, 0, "No parameters list in call"));
                 }
-                if(!dict.ContainsKey(name))
+                if (!dict.ContainsKey(name))
                 {
                     throw new SqlParserException(new SqlError(null, 0, 0, $"No parameter with name ({name}) in parameters list"));
                 }
@@ -65,9 +58,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     result = Convert.ChangeType(dict[name], SqlBaseExpression.GetSystemType(item.Value));
                 }
                 catch { }
-                if(result == null)
+                if (result == null)
                 {
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Parameter with name ({name}) can not be coverted to '{item.Value.ToString()}'"));
+                    throw new SqlParserException(new SqlError(null, 0, 0, $"Parameter with name ({name}) can not be converted to '{item.Value}'"));
                 }
                 CodeDomBuilder.UpdateGlobalParameter(item.Key, new SqlConstant(result, item.Value));
             }

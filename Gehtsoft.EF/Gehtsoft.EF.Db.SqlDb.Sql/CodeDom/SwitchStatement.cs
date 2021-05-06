@@ -23,7 +23,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 throw new SqlParserException(new SqlError(currentSource,
                     statementNode.Children[0].Position.Line,
                     statementNode.Children[0].Position.Column,
-                    $"Not calculable expression in SWITCH statement"));
+                    "Not calculable expression in SWITCH statement"));
             }
             ConditionalStatementsRun conditionalRun = null;
 
@@ -48,7 +48,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         throw new SqlParserException(new SqlError(currentSource,
                             node.Position.Line,
                             node.Position.Column,
-                            $"Not calculable expression in CASE statement"));
+                            "Not calculable expression in CASE statement"));
                     }
                     if (rightOperand.ResultType != leftOperand.ResultType)
                     {

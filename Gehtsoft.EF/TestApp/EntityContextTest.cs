@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace TestApp
 {
-    public class EntityContextTest
+    public static class EntityContextTest
     {
         [Entity]
         public class TestContextEntity
@@ -27,7 +27,7 @@ namespace TestApp
             public double Value { get; set; }
         }
 
-        public static void Test(IEntityContext context)
+        public static bool Test(IEntityContext context)
         {
             try
             {
@@ -170,6 +170,7 @@ namespace TestApp
                 using (var query = context.DropEntity<TestContextEntity>())
                     query.Execute();
             }
+            return true;
         }
     }
 }

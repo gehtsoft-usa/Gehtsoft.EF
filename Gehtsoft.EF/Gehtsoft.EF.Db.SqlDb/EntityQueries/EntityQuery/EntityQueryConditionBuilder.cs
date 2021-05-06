@@ -7,31 +7,21 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     public class SingleEntityQueryConditionBuilder
     {
-        private LogOp mLogOp;
-        private EntityQueryConditionBuilder mBuilder;
-        private string mLeft, mRight;
+        private readonly LogOp mLogOp;
         private DbType? mParameterType = null;
         private CmpOp? mCmpOp;
 
-        internal string Left
-        {
-            get => mLeft;
-            set => mLeft = value;
-        }
+        internal string Left { get; set; }
 
-        internal string Right
-        {
-            get => mRight;
-            set => mRight = value;
-        }
+        internal string Right { get; set; }
 
-        public EntityQueryConditionBuilder Builder => mBuilder;
+        public EntityQueryConditionBuilder Builder { get; }
 
         public SingleEntityQueryConditionBuilder(LogOp logop, EntityQueryConditionBuilder builder)
         {
-            mBuilder = builder;
+            Builder = builder;
             mLogOp = logop;
-            mLeft = mRight = null;
+            Left = Right = null;
         }
 
         public string ParameterName { get; private set; }
@@ -45,20 +35,20 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             if (mCmpOp == null)
             {
-                if (mLeft != null)
+                if (Left != null)
                     throw new InvalidOperationException("Left side is already set");
 
                 if (columnType != null)
                     mParameterType = columnType;
 
-                mLeft = raw;
+                Left = raw;
             }
             else
             {
-                if (mRight != null)
+                if (Right != null)
                     throw new InvalidOperationException("Right side is already set");
 
-                mRight = raw;
+                Right = raw;
                 Push();
             }
 
@@ -78,19 +68,19 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             if (propertyPath == null)
                 return Raw(null);
 
-            string raw = mBuilder.BaseQuery.Where.BaseWhere.EntityInfoProvider.Alias(propertyPath, out DbType columnType);
+            string raw = Builder.BaseQuery.Where.BaseWhere.EntityInfoProvider.Alias(propertyPath, out DbType columnType);
             return Raw(raw, columnType);
         }
 
         public virtual SingleEntityQueryConditionBuilder PropertyOf(string name, Type type = null, int occurrence = 0)
         {
-            string raw = mBuilder.BaseQuery.Where.BaseWhere.EntityInfoProvider.Alias(type, occurrence, name, out DbType columnType);
+            string raw = Builder.BaseQuery.Where.BaseWhere.EntityInfoProvider.Alias(type, occurrence, name, out DbType columnType);
             return Raw(raw, columnType);
         }
 
         public SingleEntityQueryConditionBuilder PropertyOf<T>(string name, int occurrence = 0)
         {
-            string raw = mBuilder.BaseQuery.Where.BaseWhere.EntityInfoProvider.Alias(typeof(T), occurrence, name, out DbType columnType);
+            string raw = Builder.BaseQuery.Where.BaseWhere.EntityInfoProvider.Alias(typeof(T), occurrence, name, out DbType columnType);
             return Raw(raw, columnType);
         }
 
@@ -102,29 +92,29 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public SingleEntityQueryConditionBuilder Parameter(string name)
         {
-            return Raw(mBuilder.Parameter(name));
+            return Raw(Builder.Parameter(name));
         }
 
         public SingleEntityQueryConditionBuilder Parameters(string[] name)
         {
-            return Raw(mBuilder.Parameters(name));
+            return Raw(Builder.Parameters(name));
         }
 
         public SingleEntityQueryConditionBuilder Query(AQueryBuilder builder, DbType? columnType = null)
         {
-            return Raw(mBuilder.Query(builder), columnType);
+            return Raw(Builder.Query(builder), columnType);
         }
 
         public SingleEntityQueryConditionBuilder Query(SelectEntitiesQueryBase query)
         {
-            mBuilder.BaseQuery.CopyParametersFrom(query);
+            Builder.BaseQuery.CopyParametersFrom(query);
             SelectQueryBuilderResultsetItem firstColumn = query.ResultColumn(0);
-            return Raw(mBuilder.Query(query.Builder.QueryBuilder), firstColumn.DbType);
+            return Raw(Builder.Query(query.Builder.QueryBuilder), firstColumn.DbType);
         }
 
         public SingleEntityQueryConditionBuilder Value(object value, DbType? valueDbType = null)
         {
-            if (mLeft == null)
+            if (Left == null)
                 throw new InvalidOperationException("Value cannot be used at the left");
 
             if (mParameterType == null && valueDbType != null)
@@ -133,22 +123,22 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             if (mParameterType == null)
                 throw new InvalidOperationException("If parameter value is used, the parameter type must be either specified implicitly or be discoverable from the left side of the expression");
 
-            string raw = mBuilder.BaseQuery.NextParam;
+            string raw = Builder.BaseQuery.NextParam;
             if (value == null)
-                mBuilder.BaseQuery.Query.BindNull(raw, (DbType)mParameterType);
+                Builder.BaseQuery.Query.BindNull(raw, (DbType)mParameterType);
             else
-                mBuilder.BaseQuery.Query.BindParam(raw, (DbType)mParameterType, value);
+                Builder.BaseQuery.Query.BindParam(raw, (DbType)mParameterType, value);
 
             ParameterName = raw;
 
-            return Raw(mBuilder.Parameter(raw));
+            return Raw(Builder.Parameter(raw));
         }
 
         public SingleEntityQueryConditionBuilder Values(params object[] values) => Values(null, values);
 
         public SingleEntityQueryConditionBuilder Values(DbType? valueDbType, params object[] values)
         {
-            if (mLeft == null)
+            if (Left == null)
                 throw new InvalidOperationException("Values cannot be used at the left");
 
             if (mParameterType == null && valueDbType != null)
@@ -161,77 +151,75 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             for (int i = 0; i < values.Length; i++)
             {
-                names[i] = mBuilder.BaseQuery.NextParam;
+                names[i] = Builder.BaseQuery.NextParam;
 
                 if (values[i] == null)
-                    mBuilder.BaseQuery.Query.BindNull(names[i], (DbType)mParameterType);
+                    Builder.BaseQuery.Query.BindNull(names[i], (DbType)mParameterType);
                 else
-                    mBuilder.BaseQuery.Query.BindParam(names[i], (DbType)mParameterType, values[i]);
+                    Builder.BaseQuery.Query.BindParam(names[i], (DbType)mParameterType, values[i]);
             }
 
             ParameterNames = names;
 
-            return Raw(mBuilder.Parameters(names));
+            return Raw(Builder.Parameters(names));
         }
 
         protected void Push()
         {
-            mBuilder.Add(mLogOp, mLeft, mCmpOp ?? CmpOp.Eq, mRight);
+            Builder.Add(mLogOp, Left, mCmpOp ?? CmpOp.Eq, Right);
         }
     }
 
     public class EntityQueryConditionBuilder
     {
-        private EntityConditionBuilder mWhere;
-        private ConditionEntityQueryBase mQuery;
-        public ConditionEntityQueryBase BaseQuery => mQuery;
-        public EntityConditionBuilder BaseWhere => mWhere;
+        public ConditionEntityQueryBase BaseQuery { get; }
+        public EntityConditionBuilder BaseWhere { get; }
 
         public EntityQueryConditionBuilder(ConditionEntityQueryBase query, EntityConditionBuilder builder)
         {
-            mQuery = query;
-            mWhere = builder;
+            BaseQuery = query;
+            BaseWhere = builder;
         }
 
         public SingleEntityQueryConditionBuilder Add(LogOp logOp = LogOp.And) => new SingleEntityQueryConditionBuilder(logOp, this);
 
-        public virtual void Add(LogOp logOp, string rawExpression) => mWhere.Add(logOp, rawExpression);
+        public virtual void Add(LogOp logOp, string rawExpression) => BaseWhere.Add(logOp, rawExpression);
 
-        public virtual void Add(LogOp logOp, string left, CmpOp op, string right) => mWhere.Add(logOp, left, op, right);
+        public virtual void Add(LogOp logOp, string left, CmpOp op, string right) => BaseWhere.Add(logOp, left, op, right);
 
-        public virtual string PropertyName(string propertyPath) => propertyPath == null ? null : mWhere.PropertyName(propertyPath);
+        public virtual string PropertyName(string propertyPath) => propertyPath == null ? null : BaseWhere.PropertyName(propertyPath);
 
-        public virtual string PropertyOfName(string name, Type type = null, int occurrence = 0) => mWhere.PropertyOfName(name, type, occurrence);
+        public virtual string PropertyOfName(string name, Type type = null, int occurrence = 0) => BaseWhere.PropertyOfName(name, type, occurrence);
 
-        public virtual string PropertyOfName<T>(string name, int occurrence = 0) => mWhere.PropertyOfName<T>(name, occurrence);
+        public virtual string PropertyOfName<T>(string name, int occurrence = 0) => BaseWhere.PropertyOfName<T>(name, occurrence);
 
         public virtual string ReferenceName(ConditionEntityQueryBase.InQueryName reference) => $"{reference.Item.QueryEntity.Alias}.{reference.Item.Column.Name}";
 
         public virtual string Value(object parameterValue, DbType dbType)
         {
-            string name = mQuery.NextParam;
+            string name = BaseQuery.NextParam;
             if (parameterValue == null)
-                mQuery.BindNull(name, dbType);
+                BaseQuery.BindNull(name, dbType);
             else
-                mQuery.Query.BindParam(name, dbType, parameterValue);
+                BaseQuery.Query.BindParam(name, dbType, parameterValue);
             return Parameter(name);
         }
 
-        public virtual string Parameter(string parameterName) => mWhere.Parameter(parameterName);
+        public virtual string Parameter(string parameterName) => BaseWhere.Parameter(parameterName);
 
-        public virtual string Parameters(string[] parameterNames) => mWhere.Parameters(parameterNames);
+        public virtual string Parameters(string[] parameterNames) => BaseWhere.Parameters(parameterNames);
 
-        public virtual string Query(AQueryBuilder queryBuilder) => mWhere.Query(queryBuilder);
+        public virtual string Query(AQueryBuilder queryBuilder) => BaseWhere.Query(queryBuilder);
 
         public virtual string Query(SelectEntitiesQueryBase query)
         {
-            mQuery.CopyParametersFrom(query);
+            BaseQuery.CopyParametersFrom(query);
             return Query(query.Builder.QueryBuilder);
         }
 
-        public virtual OpBracket AddGroup(LogOp logOp = LogOp.And) => mWhere.AddGroup(logOp);
+        public virtual OpBracket AddGroup(LogOp logOp = LogOp.And) => BaseWhere.AddGroup(logOp);
 
-        public override string ToString() => mWhere.ToString();
+        public override string ToString() => BaseWhere.ToString();
     }
 
     public static class EntityQueryConditionBuilderExtension

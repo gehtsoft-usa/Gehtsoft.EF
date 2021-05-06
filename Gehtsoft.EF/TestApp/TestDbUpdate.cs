@@ -64,9 +64,7 @@ namespace TestApp
                 builder1.PrepareQuery();
                 query.CommandText = builder1.Query;
                 query.ExecuteNoData();
-
             }
-
 
             using (SqlDbQuery query = connection.GetQuery())
             {
@@ -79,9 +77,9 @@ namespace TestApp
                 builder2.PrepareQuery();
                 query.CommandText = builder2.Query;
                 query.ExecuteNoData();
-
             }
 
+            using (SqlDbQuery query1 = connection.GetQuery())
             {
                 TableDescriptor.ColumnInfo[] add = new TableDescriptor.ColumnInfo[]
                 {
@@ -238,7 +236,7 @@ namespace TestApp
             public Entity1_2 E1 { get; set; }
 
             [EntityProperty(Field = "e3", ForeignKey = true, Nullable = true)]
-            public Entity3  E3 { get; set; }
+            public Entity3 E3 { get; set; }
         }
 
         [Entity(Scope = "v2", Table = "entity3")]
@@ -246,7 +244,6 @@ namespace TestApp
         {
             [EntityProperty(Field = "id", AutoId = true)]
             public int ID { get; set; }
-
         }
 
         [OnEntityDrop(typeof(TestDbUpdate), nameof(TestDbUpdate.OnEntity0Dropped))]
@@ -255,7 +252,6 @@ namespace TestApp
         {
             [EntityProperty(Field = "id", AutoId = true)]
             public int ID { get; set; }
-
         }
 
         private static bool f1, f2, f3, f4;
@@ -290,8 +286,10 @@ namespace TestApp
             Dictionary<Type, CreateEntityController.UpdateMode> modes = null;
             if (!connection.GetLanguageSpecifics().DropColumnSupported)
             {
-                modes = new Dictionary<Type, CreateEntityController.UpdateMode>();
-                modes[typeof(Entity2_2)] = CreateEntityController.UpdateMode.Recreate;
+                modes = new Dictionary<Type, CreateEntityController.UpdateMode>
+                {
+                    [typeof(Entity2_2)] = CreateEntityController.UpdateMode.Recreate
+                };
             }
             controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update, modes);
 
@@ -308,7 +306,6 @@ namespace TestApp
             Assert.IsTrue(f3, "f3");
             Assert.AreEqual(connection.GetLanguageSpecifics().DropColumnSupported, f4, "f4");
         }
-
     }
 }
 

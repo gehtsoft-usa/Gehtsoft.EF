@@ -88,7 +88,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 {
                     query.ExecuteReader();
                     while (query.ReadNext())
-                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = true } );
+                        tables.Add(new TableDescriptor(query.GetValue<string>(0)) { View = true });
                 }
                 else
                 {
@@ -179,7 +179,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
 #endif
 
             if (password != null)
-                connectionString.Append($"Password={password};");
+                connectionString.Append("Password=").Append(password).Append(';');
 
             return Create(connectionString.ToString());
         }

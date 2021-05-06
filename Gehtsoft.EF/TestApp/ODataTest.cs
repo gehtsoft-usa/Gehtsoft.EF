@@ -55,11 +55,10 @@ namespace TestApp
             {
                 using (var writer = XmlWriter.Create(stringWriter))
                 {
-                    IEnumerable<EdmError> errors;
-                    CsdlWriter.TryWriteCsdl(model, writer, CsdlTarget.OData, out errors);
+                    CsdlWriter.TryWriteCsdl(model, writer, CsdlTarget.OData, out IEnumerable<EdmError> errors);
                 }
                 var csdl = stringWriter.ToString();
-                ;
+                Console.Write("{0}", csdl);
             }
 
             //check that model is enough to parse OData queries
@@ -67,41 +66,51 @@ namespace TestApp
             //entity
             ODataUriParser odataUriParser = new ODataUriParser(model, new Uri(nameof(TestEntity1.Employee), UriKind.Relative));
             ODataUri odataUri = odataUriParser.ParseUri();
+            odataUri.Should().NotBeNull();
 
             //count of entities
-            odataUriParser = new ODataUriParser(model, new Uri($"/Employee/$count", UriKind.Relative));
+            odataUriParser = new ODataUriParser(model, new Uri("/Employee/$count", UriKind.Relative));
             odataUri = odataUriParser.ParseUri();
+            odataUri.Should().NotBeNull();
 
             //expand (*) to (1) relationship
-            odataUriParser = new ODataUriParser(model, new Uri($"/Sale(1)/Good", UriKind.Relative));
+            odataUriParser = new ODataUriParser(model, new Uri("/Sale(1)/Good", UriKind.Relative));
             odataUri = odataUriParser.ParseUri();
+            odataUri.Should().NotBeNull();
 
             //expand (*) to (1) relationship
-            odataUriParser = new ODataUriParser(model, new Uri($"/Good(1)/Category", UriKind.Relative));
+            odataUriParser = new ODataUriParser(model, new Uri("/Good(1)/Category", UriKind.Relative));
             odataUri = odataUriParser.ParseUri();
+            odataUri.Should().NotBeNull();
 
             //expand entity property
-            odataUriParser = new ODataUriParser(model, new Uri($"/Good(1)/Name", UriKind.Relative));
+            odataUriParser = new ODataUriParser(model, new Uri("/Good(1)/Name", UriKind.Relative));
             odataUri = odataUriParser.ParseUri();
+            odataUri.Should().NotBeNull();
 
             //expand (*) to (1) relationship and then (*) to (1) relationship again
-            odataUriParser = new ODataUriParser(model, new Uri($"Sale(1)/Good/Category", UriKind.Relative));
+            odataUriParser = new ODataUriParser(model, new Uri("Sale(1)/Good/Category", UriKind.Relative));
             odataUri = odataUriParser.ParseUri();
+            odataUri.Should().NotBeNull();
 
             //expand (1) to (*) relationship
-            odataUriParser = new ODataUriParser(model, new Uri($"/Good(1)/Sale", UriKind.Relative));
+            odataUriParser = new ODataUriParser(model, new Uri("/Good(1)/Sale", UriKind.Relative));
             odataUri = odataUriParser.ParseUri();
+            odataUri.Should().NotBeNull();
 
             //expand (*) to (1) relationship and then (1) to (*) relationship
-            odataUriParser = new ODataUriParser(model, new Uri($"/Sale(1)/Good/Sale", UriKind.Relative));
+            odataUriParser = new ODataUriParser(model, new Uri("/Sale(1)/Good/Sale", UriKind.Relative));
             odataUri = odataUriParser.ParseUri();
+            odataUri.Should().NotBeNull();
 
-            odataUriParser = new ODataUriParser(model, new Uri($"/Sale?$select=ID,SalesDate&$expand=Good", UriKind.Relative));
+            odataUriParser = new ODataUriParser(model, new Uri("/Sale?$select=ID,SalesDate&$expand=Good", UriKind.Relative));
             odataUri = odataUriParser.ParseUri();
+            odataUri.Should().NotBeNull();
 
             //expand operator
-            odataUriParser = new ODataUriParser(model, new Uri($"/Good?$expand=Sale", UriKind.Relative));
+            odataUriParser = new ODataUriParser(model, new Uri("/Good?$expand=Sale", UriKind.Relative));
             odataUri = odataUriParser.ParseUri();
+            odataUri.Should().NotBeNull();
 
             //check incorrect queries
             odataUriParser = new ODataUriParser(model, new Uri(nameof(TestEntity1.Employee) + "1", UriKind.Relative));
@@ -116,9 +125,9 @@ namespace TestApp
             builder.Build(entities, "entities");
             IEdmModel model = builder.Model;
 
-
             ODataUriParser odataUriParser = new ODataUriParser(model, new Uri("/Good/$count", UriKind.Relative));
             ODataUri odataUri = odataUriParser.ParseUri();
+            odataUri.Should().NotBeNull();
         }
     }
 }

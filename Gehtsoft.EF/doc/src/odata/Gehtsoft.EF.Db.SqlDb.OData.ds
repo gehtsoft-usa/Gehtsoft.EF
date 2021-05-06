@@ -1,7 +1,7 @@
 @group
     @title=Namespace Gehtsoft.EF.Db.SqlDb.OData
     @key=Gehtsoft.EF.Db.SqlDb.OData
-    @ingroup=index
+    @ingroup=main
     @brief=The classes related to process OData queries.
 
     OData is URI-based protocol to select and modify relational data.
@@ -16,5 +16,5 @@
 
     Please note that only entities with AutoId primary key are supported!
 
-    
+
 @end

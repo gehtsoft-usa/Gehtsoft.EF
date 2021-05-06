@@ -6,67 +6,67 @@ namespace Gehtsoft.EF.Db.PostgresDb
 {
     public class PostgresDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
-        public override string TypeName(DbType dbtype, int size, int precision, bool autoincrement)
+        public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
-            string type;
-            switch (dbtype)
+            string typeName;
+            switch (type)
             {
                 case DbType.String:
                     if (size == 0)
-                        type = "text";
+                        typeName = "text";
                     else
-                        type = $"varchar({size})";
+                        typeName = $"varchar({size})";
                     break;
                 case DbType.Int16:
-                    type = "smallint";
+                    typeName = "smallint";
                     break;
                 case DbType.Int32:
                     if (autoincrement)
-                        type = "serial";
+                        typeName = "serial";
                     else
-                        type = "integer";
+                        typeName = "integer";
                     break;
                 case DbType.Int64:
                     if (autoincrement)
-                        type = "bigserial";
+                        typeName = "bigserial";
                     else
-                        type = "bigint";
+                        typeName = "bigint";
                     break;
                 case DbType.Date:
-                    type = "date";
+                    typeName = "date";
                     break;
                 case DbType.DateTime:
-                    type = "timestamp";
+                    typeName = "timestamp";
                     break;
                 case DbType.Double:
                     if (size == 0 && precision == 0)
-                        type = "double precision";
+                        typeName = "double precision";
                     else if (size == 0 && precision != 0)
-                        type = $"numeric(32, {precision})";
+                        typeName = $"numeric(32, {precision})";
                     else
-                        type = $"numeric({size}, {precision})";
+                        typeName = $"numeric({size}, {precision})";
                     break;
                 case DbType.Binary:
-                    type = "bytea";
+                    typeName = "bytea";
                     break;
                 case DbType.Boolean:
-                    type = "boolean";
+                    typeName = "boolean";
                     break;
                 case DbType.Guid:
-                    type = "uuid";
+                    typeName = "uuid";
                     break;
                 case DbType.Decimal:
                     if (size == 0 && precision == 0)
-                        type = "double precision";
+                        typeName = "double precision";
                     else if (size == 0 && precision != 0)
-                        type = $"numeric(32, {precision})";
+                        typeName = $"numeric(32, {precision})";
                     else
-                        type = $"numeric({size}, {precision})";
+                        typeName = $"numeric({size}, {precision})";
                     break;
                 default:
                     throw new InvalidOperationException("The type is not supported");
             }
-            return type;
+            return typeName;
         }
 
         public override TransactionSupport SupportsTransactions => TransactionSupport.Nested;
@@ -94,14 +94,10 @@ namespace Gehtsoft.EF.Db.PostgresDb
 
         public override string FormatValue(object value)
         {
-            if (value is bool)
-                return (bool) value ? "TRUE" : "FALSE";
-            if (value is DateTime)
-            {
-                DateTime dt = (DateTime) value;
+            if (value is bool b)
+                return b ? "TRUE" : "FALSE";
+            if (value is DateTime dt)
                 return $"CAST('{dt.Year:0000}-{dt.Month:00}-{dt.Day:00}' AS DATE) ";
-            }
-
             return base.FormatValue(value);
         }
 
@@ -109,7 +105,5 @@ namespace Gehtsoft.EF.Db.PostgresDb
         public override DateTime? MaxDate => new DateTime(9999, 12, 31);
         public override DateTime? MinTimestamp => new DateTime(-4713, 1, 1);
         public override DateTime? MaxTimestamp => new DateTime(9999, 12, 31);
-
-
     }
 }

@@ -14,26 +14,25 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 {
     public class GenericEntityAccessor<T, TKey> where T : class
     {
-        private readonly SqlDbConnection mConnection;
         private readonly EntityDescriptor mDescriptor;
 
-        public SqlDbConnection Connection => mConnection;
+        public SqlDbConnection Connection { get; }
 
-        enum KeyType
+        private enum KeyType
         {
             keyint,
             keystring,
             keyguid
         }
 
-        private KeyType mKeyType;
+        private readonly KeyType mKeyType;
 
         public GenericEntityAccessor(SqlDbConnection connection)
         {
-            mConnection = connection;
+            Connection = connection;
             mDescriptor = AllEntities.Inst[typeof(T)];
             if (mDescriptor == null)
-                throw new Exception("The type is on an entity");
+                throw new InvalidOperationException("The type is on an entity");
             if (typeof(TKey) == typeof(int))
                 mKeyType = KeyType.keyint;
             else if (typeof(TKey) == typeof(string))
@@ -41,7 +40,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             else if (typeof(TKey) == typeof(Guid))
                 mKeyType = KeyType.keyguid;
             else
-                throw new Exception("The key type is not supported by generic accessor");
+                throw new InvalidOperationException("The key type is not supported by generic accessor");
         }
 
         protected virtual bool IsNew(T value)
@@ -49,16 +48,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             object key = mDescriptor.TableDescriptor.PrimaryKey.PropertyAccessor.GetValue(value);
             if (key == null)
                 return true;
-            if (mKeyType == KeyType.keyint && key is int)
+            if (mKeyType == KeyType.keyint && key is int ikey)
             {
-                int ikey = (int)key;
                 if (ikey < 1)
                     return true;
             }
-            else if (mKeyType == KeyType.keyguid && key is Guid)
+            else if (mKeyType == KeyType.keyguid && key is Guid guid)
             {
-                Guid ikey = (Guid)key;
-                if (ikey == Guid.Empty)
+                if (guid == Guid.Empty)
                     return false;
             }
             return false;
@@ -75,7 +72,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             int attempt = 0;
             while (attempt++ < 100)
             {
-                using (SelectEntitiesCountQuery query = mConnection.GetSelectEntitiesCountQuery<T>())
+                using (SelectEntitiesCountQuery query = Connection.GetSelectEntitiesCountQuery<T>())
                 {
                     Guid guid = Guid.NewGuid();
                     query.Where.Property(mDescriptor.TableDescriptor.PrimaryKey.PropertyAccessor.Name).Is(CmpOp.Eq).Value(guid);
@@ -100,7 +97,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            using (ModifyEntityQuery query = IsNew(value) ? mConnection.GetInsertEntityQuery<T>() : mConnection.GetUpdateEntityQuery<T>())
+            using (ModifyEntityQuery query = IsNew(value) ? Connection.GetInsertEntityQuery<T>() : Connection.GetUpdateEntityQuery<T>())
             {
                 if (mKeyType == KeyType.keyguid && IsNew(value))
                 {
@@ -128,7 +125,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            using (ModifyEntityQuery query = mConnection.GetDeleteEntityQuery<T>())
+            using (ModifyEntityQuery query = Connection.GetDeleteEntityQuery<T>())
             {
                 if (sync)
                     query.Execute(value);
@@ -143,17 +140,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         public virtual void Delete(T value) => DeleteCore(true, value, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
-        public virtual bool CanDelete(T value) => mConnection.CanDelete<T>(value, null);
+        public virtual bool CanDelete(T value) => Connection.CanDelete<T>(value, null);
 
         public Task<bool> CanDeleteAsync(T value) => CanDeleteAsync(value, null, null);
 
-        public virtual Task<bool> CanDeleteAsync(T value, CancellationToken? token) => mConnection.CanDeleteAsync<T>(value, null, token);
+        public virtual Task<bool> CanDeleteAsync(T value, CancellationToken? token) => Connection.CanDeleteAsync<T>(value, null, token);
 
-        public virtual bool CanDelete(T value, Type[] exceptTypes) => mConnection.CanDelete<T>(value, exceptTypes);
+        public virtual bool CanDelete(T value, Type[] exceptTypes) => Connection.CanDelete<T>(value, exceptTypes);
 
         public Task<bool> CanDeleteAsync(T value, Type[] exceptTypes) => CanDeleteAsync(value, exceptTypes, null);
 
-        public virtual Task<bool> CanDeleteAsync(T value, Type[] exceptTypes, CancellationToken? token) => mConnection.CanDeleteAsync<T>(value, exceptTypes, token);
+        public virtual Task<bool> CanDeleteAsync(T value, Type[] exceptTypes, CancellationToken? token) => Connection.CanDeleteAsync<T>(value, exceptTypes, token);
 
         public virtual int DeleteMultiple(GenericEntityAccessorFilter filter) => DeleteMultipleCore(true, filter, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -165,7 +162,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
 
-            using (MultiDeleteEntityQuery query = mConnection.GetMultiDeleteEntityQuery<T>())
+            using (MultiDeleteEntityQuery query = Connection.GetMultiDeleteEntityQuery<T>())
             {
                 filter.BindToQuery(query);
                 if (sync)
@@ -183,7 +180,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             if (update == null)
                 throw new ArgumentNullException(nameof(update));
 
-            using (MultiUpdateEntityQuery query = mConnection.GetMultiUpdateEntityQuery<T>())
+            using (MultiUpdateEntityQuery query = Connection.GetMultiUpdateEntityQuery<T>())
             {
                 filter.BindToQuery(query);
                 update.BindToQuery(query);
@@ -207,7 +204,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             if (property == null)
                 throw new ArgumentNullException(nameof(property));
 
-            using (MultiUpdateEntityQuery query = mConnection.GetMultiUpdateEntityQuery<T>())
+            using (MultiUpdateEntityQuery query = Connection.GetMultiUpdateEntityQuery<T>())
             {
                 filter.BindToQuery(query);
                 query.AddUpdateColumn(property, value);
@@ -219,15 +216,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             }
         }
 
-
         public virtual int UpdateMultiple(GenericEntityAccessorFilter filter, string property, object value) => UpdateMultipleCore(true, filter, property, value, null).ConfigureAwait(false).GetAwaiter().GetResult();
-        
+
         public Task<int> UpdateMultipleAsync(GenericEntityAccessorFilter filter, string property, object value) => UpdateMultipleAsync(filter, property, value, null);
         public virtual Task<int> UpdateMultipleAsync(GenericEntityAccessorFilter filter, string property, object value, CancellationToken? token) => UpdateMultipleCore(false, filter, property, value, token);
 
         protected virtual async Task<T> GetCore(bool sync, TKey id, CancellationToken? token)
         {
-            using (SelectEntitiesQuery query = mConnection.GetSelectEntitiesQuery<T>())
+            using (SelectEntitiesQuery query = Connection.GetSelectEntitiesQuery<T>())
             {
                 query.Where.Property(mDescriptor.TableDescriptor.PrimaryKey.PropertyAccessor.Name).Is(CmpOp.Eq).Value(id);
                 if (sync)
@@ -238,14 +234,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         }
 
         public virtual T Get(TKey id) => GetCore(true, id, null).ConfigureAwait(false).GetAwaiter().GetResult();
-        
+
         public virtual Task<T> GetAsync(TKey id) => GetAsync(id, null);
-        
+
         public virtual Task<T> GetAsync(TKey id, CancellationToken? token) => GetCore(false, id, token);
 
         protected virtual async Task<TC> ReadCore<TC>(bool sync, GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion, CancellationToken? token) where TC : EntityCollection<T>, new()
         {
-            using (SelectEntitiesQuery query = mConnection.GetSelectEntitiesQuery<T>(propertiesExclusion))
+            using (SelectEntitiesQuery query = Connection.GetSelectEntitiesQuery<T>(propertiesExclusion))
             {
                 if (filter != null)
                     filter.BindToQuery(query);
@@ -271,10 +267,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         public virtual TC Read<TC>(GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion = null) where TC : EntityCollection<T>, new()
             => ReadCore<TC>(true, filter, sortOrder, skip, limit, propertiesExclusion, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
-
         public Task<TC> ReadAsync<TC>(GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit) where TC : EntityCollection<T>, new()
             => ReadAsync<TC>(filter, sortOrder, skip, limit, null, null);
-        public Task<TC> ReadAsync<TC>(GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion = null) where TC : EntityCollection<T>, new()
+
+        public Task<TC> ReadAsync<TC>(GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion) where TC : EntityCollection<T>, new()
             => ReadAsync<TC>(filter, sortOrder, skip, limit, propertiesExclusion, null);
 
         public virtual Task<TC> ReadAsync<TC>(GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion, CancellationToken? token) where TC : EntityCollection<T>, new()
@@ -282,7 +278,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         protected virtual async Task<int> CountCore(bool sync, GenericEntityAccessorFilter filter, CancellationToken? token)
         {
-            using (SelectEntitiesCountQuery query = mConnection.GetSelectEntitiesCountQuery<T>())
+            using (SelectEntitiesCountQuery query = Connection.GetSelectEntitiesCountQuery<T>())
             {
                 filter?.BindToQuery(query);
                 if (!sync)
@@ -291,11 +287,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             }
         }
 
-
         public virtual int Count(GenericEntityAccessorFilter filter) => CountCore(true, filter, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
         public Task<int> CountAsync(GenericEntityAccessorFilter filter) => CountAsync(filter, null);
-        public virtual Task<int> CountAsync(GenericEntityAccessorFilter filter, CancellationToken? token = null) => CountCore(false, filter, token);
+
+        public virtual Task<int> CountAsync(GenericEntityAccessorFilter filter, CancellationToken? token) => CountCore(false, filter, token);
 
         private void PrepareNextEntity(SelectEntitiesQuery query, T entity, IEnumerable<GenericEntitySortOrder> sortOrder, GenericEntityAccessorFilter filter, bool reverseDirection = false)
         {
@@ -323,7 +319,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
                             {
                                 for (int j = 0; j < i; j++)
                                 {
-                                    CmpOp op = j == (i - 1) ? (sortOrderArr[j].GetDirection(reverseDirection) == SortDir.Asc ? CmpOp.Gt : CmpOp.Ls) : CmpOp.Eq;
+                                    CmpOp op;
+                                    if (j == (i - 1))
+                                    {
+                                        if (sortOrderArr[j].GetDirection(reverseDirection) == SortDir.Asc)
+                                            op = CmpOp.Gt;
+                                        else
+                                            op = CmpOp.Ls;
+                                    }
+                                    else
+                                        op = CmpOp.Eq;
+
                                     query.Where.Property(sortOrderArr[j].Path).Is(op).Value(EntityPathAccessor.ReadData(entity, sortOrderArr[j].Path));
                                 }
                             }
@@ -335,7 +341,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
                 query.AddOrderBy(order.Path, order.GetDirection(reverseDirection));
 
             query.Limit = 1;
-
         }
 
         protected virtual async Task<T> NextEntityCore(bool sync, T entity, IEnumerable<GenericEntitySortOrder> sortOrder, GenericEntityAccessorFilter filter, bool reverseDirection, SelectEntityQueryFilter[] propertiesExclusion, CancellationToken? token)
@@ -343,11 +348,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             if (sortOrder == null)
                 throw new ArgumentException("Sort order is required for the operation", nameof(sortOrder));
 
-            using (SelectEntitiesQuery query = mConnection.GetSelectEntitiesQuery<T>(propertiesExclusion))
+            using (SelectEntitiesQuery query = Connection.GetSelectEntitiesQuery<T>(propertiesExclusion))
             {
                 PrepareNextEntity(query, entity, sortOrder, filter, reverseDirection);
                 if (sync)
-                    return  query.ReadOne<T>();
+                    return query.ReadOne<T>();
                 else
                     return await query.ReadOneAsync<T>(token);
             }
@@ -358,7 +363,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         public virtual Task<T> NextEntityAsync(T entity, IEnumerable<GenericEntitySortOrder> sortOrder, GenericEntityAccessorFilter filter, bool reverseDirection = false, SelectEntityQueryFilter[] propertiesExclusion = null, CancellationToken? token = null)
             => NextEntityCore(false, entity, sortOrder, filter, reverseDirection, propertiesExclusion, token);
-
 
         private SelectEntityQueryFilter[] gIDOnly = null;
 
@@ -386,7 +390,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             if (sortOrder == null)
                 throw new ArgumentException("Sort order is required for the operation", nameof(sortOrder));
 
-            using (SelectEntitiesQuery query = mConnection.GetSelectEntitiesQuery<T>(IDOnly))
+            using (SelectEntitiesQuery query = Connection.GetSelectEntitiesQuery<T>(IDOnly))
             {
                 PrepareNextEntity(query, entity, sortOrder, filter, reverseDirection);
                 bool rc;
@@ -402,12 +406,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
                 }
 
                 if (!rc)
-                    return default(TKey);
+                    return default;
                 else
                     return query.GetValue<TKey>(0);
             }
         }
-
 
         public virtual TKey NextKey(T entity, IEnumerable<GenericEntitySortOrder> sortOrder, GenericEntityAccessorFilter filter, bool reverseDirection = false)
             => NextKeyCore(true, entity, sortOrder, filter, reverseDirection, null).ConfigureAwait(false).GetAwaiter().GetResult();

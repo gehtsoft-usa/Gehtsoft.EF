@@ -7,61 +7,61 @@ namespace Gehtsoft.EF.Db.MysqlDb
 {
     public class MysqlDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
-        public override string TypeName(DbType dbtype, int size, int precision, bool autoincrement)
+        public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
-            string type;
-            switch (dbtype)
+            string typeName;
+            switch (type)
             {
                 case DbType.String:
                     if (size == 0)
-                        type = "text";
+                        typeName = "text";
                     else
-                        type = $"varchar({size})";
+                        typeName = $"varchar({size})";
                     break;
                 case DbType.Int16:
-                    type = "smallint";
+                    typeName = "smallint";
                     break;
                 case DbType.Int32:
-                    type = "int";
+                    typeName = "int";
                     break;
                 case DbType.Int64:
-                    type = "bigint";
+                    typeName = "bigint";
                     break;
                 case DbType.Date:
-                    type = "date";
+                    typeName = "date";
                     break;
                 case DbType.DateTime:
-                    type = "datetime";
+                    typeName = "datetime";
                     break;
                 case DbType.Double:
                     if (size == 0 && precision == 0)
-                        type = "double";
+                        typeName = "double";
                     else if (size == 0 && precision != 0)
-                        type = $"numeric(32, {precision})";
+                        typeName = $"numeric(32, {precision})";
                     else
-                        type = $"numeric({size}, {precision})";
+                        typeName = $"numeric({size}, {precision})";
                     break;
                 case DbType.Binary:
-                    type = "blob";
+                    typeName = "blob";
                     break;
                 case DbType.Boolean:
-                    type = "smallint";
+                    typeName = "smallint";
                     break;
                 case DbType.Guid:
-                    type = "varchar(40)";
+                    typeName = "varchar(40)";
                     break;
                 case DbType.Decimal:
                     if (size == 0 && precision == 0)
-                        type = "double";
+                        typeName = "double";
                     else if (size == 0 && precision != 0)
-                        type = $"numeric(32, {precision})";
+                        typeName = $"numeric(32, {precision})";
                     else
-                        type = $"numeric({size}, {precision})";
+                        typeName = $"numeric({size}, {precision})";
                     break;
                 default:
                     throw new InvalidOperationException("The type is not supported");
             }
-            return type;
+            return typeName;
         }
 
         public override void ToDbValue(ref object value, Type type, out DbType dbtype)
@@ -102,23 +102,22 @@ namespace Gehtsoft.EF.Db.MysqlDb
             {
                 if (value == null)
                     return default(bool);
-                short t = (short) TranslateValue(value, typeof(short));
+                short t = (short)TranslateValue(value, typeof(short));
                 return t != 0;
             }
             else if (type == typeof(bool?))
             {
                 if (value == null)
-                    return (bool?) null;
-                short t = (short) TranslateValue(value, typeof(short));
-                return (bool?) (t != 0);
+                    return (bool?)null;
+                short t = (short)TranslateValue(value, typeof(short));
+                return (bool?)(t != 0);
             }
             else if (type == typeof(Guid))
             {
                 string s = (string)TranslateValue(value, typeof(string));
                 if (s == null)
                     return Guid.Empty;
-                Guid guid;
-                if (!Guid.TryParse(s, out guid))
+                if (!Guid.TryParse(s, out Guid guid))
                     return Guid.Empty;
                 else
                     return guid;
@@ -128,8 +127,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
                 string s = (string)TranslateValue(value, typeof(string));
                 if (s == null)
                     return (Guid?)null;
-                Guid guid;
-                if (!Guid.TryParse(s, out guid))
+                if (!Guid.TryParse(s, out Guid guid))
                     return (Guid?)Guid.Empty;
                 else
                     return (Guid?)guid;
@@ -153,21 +151,20 @@ namespace Gehtsoft.EF.Db.MysqlDb
                 case SqlFunctionId.ToTimestamp:
                     return $"CAST({args[0]} AS DATETIME)";
                 case SqlFunctionId.Concat:
-                {
-                    StringBuilder builder = new StringBuilder("CONCAT(");
-                    bool first = true;
-                    foreach (string arg in args)
                     {
-                        if (!first)
-                            builder.Append(", ");
-                        else
-                            first = false;
-                        builder.Append(arg);
+                        StringBuilder builder = new StringBuilder("CONCAT(");
+                        bool first = true;
+                        foreach (string arg in args)
+                        {
+                            if (!first)
+                                builder.Append(", ");
+                            else
+                                first = false;
+                            builder.Append(arg);
+                        }
+                        builder.Append(")");
+                        return builder.ToString();
                     }
-                    builder.Append(")");
-                    return builder.ToString();
-
-                }
 
                 default:
                     return base.GetSqlFunction(function, args);
@@ -176,13 +173,10 @@ namespace Gehtsoft.EF.Db.MysqlDb
 
         public override string FormatValue(object value)
         {
-            if (value is bool)
-                return FormatValue((bool) value ? (int)1 : (int)0);
-            if (value is DateTime)
-            {
-                DateTime dt = (DateTime) value;
+            if (value is bool b)
+                return FormatValue(b ? 1 : 0);
+            if (value is DateTime dt)
                 return $"'{dt.Year:0000}-{dt.Month:00}-{dt.Day:00}'";
-            }
 
             return base.FormatValue(value);
         }
@@ -193,6 +187,5 @@ namespace Gehtsoft.EF.Db.MysqlDb
         public override DateTime? MaxDate => new DateTime(9999, 12, 31);
         public override DateTime? MinTimestamp => new DateTime(1000, 1, 1);
         public override DateTime? MaxTimestamp => new DateTime(9999, 12, 31);
-
     }
 }

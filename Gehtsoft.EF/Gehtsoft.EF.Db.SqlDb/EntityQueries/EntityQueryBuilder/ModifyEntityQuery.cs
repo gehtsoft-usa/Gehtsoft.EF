@@ -21,7 +21,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         protected void PrepareBinder()
         {
-             foreach (TableDescriptor.ColumnInfo columnInfo in mEntityDescriptor.TableDescriptor)
+            foreach (TableDescriptor.ColumnInfo columnInfo in mEntityDescriptor.TableDescriptor)
                 mBinder.AddBinding(columnInfo.Name, columnInfo.PropertyAccessor, columnInfo.ForeignKey ? columnInfo.ForeignTable.PrimaryKey.PropertyAccessor : null, columnInfo.DbType, columnInfo.Size, columnInfo.Autoincrement && columnInfo.PrimaryKey && !mIgnoreAutoIncrement);
         }
     }

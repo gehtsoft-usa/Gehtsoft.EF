@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Gehtsoft.EF.Entities
 {
-    public interface IEntityAccessor<T> : IEnumerable<T>, ICollection<T>
+    public interface IEntityAccessor<T> : ICollection<T>
     {
         T this[int index] { get; }
 
@@ -13,8 +13,6 @@ namespace Gehtsoft.EF.Entities
         int Find(T entity);
 
         bool Contains(T entity, IEqualityComparer<T> comparer);
-
-        bool Equals(IEntityAccessor<T> other);
 
         T[] ToArray();
     }
@@ -30,7 +28,7 @@ namespace Gehtsoft.EF.Entities
     /// <typeparam name="T">The type of the entity</typeparam>
     public class EntityCollection<T> : IEntityCollection<T>
     {
-        private List<T> mList = new List<T>();
+        private readonly List<T> mList = new List<T>();
 
         /// <summary>
         /// Returns the flag indicating whether the collection is readonly
@@ -48,9 +46,8 @@ namespace Gehtsoft.EF.Entities
         }
 
         /// <summary>
-        /// Removes element for the collection.
-        ///
-        /// The method generates no error if there is no such element
+        /// <para>Removes element for the collection.</para>
+        /// <para>The method generates no error if there is no such element</para>
         /// </summary>
         /// <param name="item">The item to be removed</param>
         /// <returns></returns>
@@ -89,9 +86,9 @@ namespace Gehtsoft.EF.Entities
             return -1;
         }
 
-        public bool Contains(T entity)
+        public bool Contains(T item)
         {
-            return Find(entity, COMPARER) >= 0;
+            return Find(item, COMPARER) >= 0;
         }
 
         public void CopyTo(T[] array, int arrayIndex) => mList.CopyTo(array, arrayIndex);
@@ -106,19 +103,6 @@ namespace Gehtsoft.EF.Entities
         public int Find(T entity)
         {
             return Find(entity, COMPARER);
-        }
-
-        public bool Equals(IEntityAccessor<T> other)
-        {
-            if (other == null)
-                return false;
-            if (other.Count != Count)
-                return false;
-
-            for (int i = 0; i < Count; i++)
-                if (!EntityComparerHelper.Equals(mList[i], other[i]))
-                    return false;
-            return true;
         }
 
         /// <summary>
@@ -137,9 +121,9 @@ namespace Gehtsoft.EF.Entities
             }
         }
 
-        public void Add(T entity)
+        public void Add(T item)
         {
-            mList.Add(entity);
+            mList.Add(item);
             AfterInsert?.Invoke(this, this.Count - 1);
         }
 
@@ -151,9 +135,9 @@ namespace Gehtsoft.EF.Entities
 
         public int IndexOf(T item) => Find(item);
 
-        public void Insert(int index, T entity)
+        public void Insert(int index, T item)
         {
-            mList.Insert(index, entity);
+            mList.Insert(index, item);
             AfterInsert?.Invoke(this, index);
         }
 
@@ -204,6 +188,54 @@ namespace Gehtsoft.EF.Entities
             EntityCollection<T> rv = new EntityCollection<T>();
             rv.mList.AddRange(mList);
             return rv;
+        }
+
+        public bool Equals(T x, T y)
+        {
+            if (x is IEquatable<T> eq)
+                return eq.Equals(y);
+            return object.ReferenceEquals(x, y);
+        }
+
+        public int GetHashCode(T obj)
+        {
+            return obj?.GetHashCode() ?? 0;
+        }
+
+        new public bool Equals(object x, object y)
+        {
+            if (x == y)
+            {
+                return true;
+            }
+
+            if (x == null || y == null)
+            {
+                return false;
+            }
+
+            if (x is EntityCollection<T> a
+                && y is EntityCollection<T> b)
+            {
+                return Equals(a, b);
+            }
+
+            throw new ArgumentException("", nameof(x));
+        }
+
+        public int GetHashCode(object obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+
+            if (obj is EntityCollection<T> x)
+            {
+                return GetHashCode(x);
+            }
+
+            throw new ArgumentException("", nameof(obj));
         }
     }
 }

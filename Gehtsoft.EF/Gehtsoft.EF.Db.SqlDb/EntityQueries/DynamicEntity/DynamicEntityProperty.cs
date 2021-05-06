@@ -12,7 +12,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public DynamicEntityProperty()
         {
-
         }
 
         public DynamicEntityProperty(Type propertyType, string name, EntityPropertyAttribute attribute)

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-    internal class ContextTransaction : IEntityContextTransaction
+    internal sealed class ContextTransaction : IEntityContextTransaction
     {
         private readonly SqlDbTransaction mTransaction;
 

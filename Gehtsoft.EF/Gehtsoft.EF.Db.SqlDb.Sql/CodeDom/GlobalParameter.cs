@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  class GlobalParameter : SqlBaseExpression
+    internal class GlobalParameter : SqlBaseExpression
     {
-        internal  string Name { get; }
-        private Statement mParentStatement = null;
+        internal string Name { get; }
+        private readonly Statement mParentStatement = null;
         private ResultTypes? mResultType = null;
         private SqlConstant mInnerExpression = null;
 
-        internal  override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
@@ -26,23 +26,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             mResultType = null;
         }
-        internal  override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {
-                if (mResultType.HasValue) return mResultType.Value;
-                if (InnerExpression == null)
-                {
-                    mResultType = mResultType.HasValue ? mResultType.Value : ResultTypes.Unknown;
-                }
-                else
-                {
-                    mResultType = InnerExpression.ResultType;
-                }
-                return mResultType.Value;
+                if (mResultType.HasValue)
+                    return mResultType.Value;
+                if (InnerExpression != null)
+                    return InnerExpression.ResultType;
+                return ResultTypes.Unknown;
             }
         }
-        internal  SqlConstant InnerExpression
+        internal SqlConstant InnerExpression
         {
             get
             {
@@ -60,21 +55,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal GlobalParameter(string name, ResultTypes? resultType = null)
         {
             Name = name;
-            mResultType = resultType.HasValue ? resultType.Value : ResultTypes.Unknown;
+            mResultType = resultType ?? ResultTypes.Unknown;
         }
         internal GlobalParameter(Statement parentStatement, ASTNode node)
         {
             Name = node.Children[0].Value;
             mParentStatement = parentStatement;
             if (node.Children.Count > 1)
-            {
                 mResultType = Statement.GetResultTypeByName(node.Children[1].Value);
-            }
-            else
-            {
-                // try find declared
-                ResultTypes rType = ResultType;
-            }
         }
     }
 }

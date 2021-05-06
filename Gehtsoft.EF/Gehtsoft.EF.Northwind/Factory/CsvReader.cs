@@ -30,7 +30,7 @@ namespace Gehtsoft.EF.Northwind.Factory
         {
             EntityAttribute typeAttribute = typeof(T).GetCustomAttribute<EntityAttribute>();
             if (typeAttribute == null)
-                throw new ArgumentException("Type is not an entity", nameof(T));
+                throw new InvalidOperationException($"Type T({typeof(T).FullName}) is not an entity type");
 
             Dictionary<string, ColumnInfo> properties = new Dictionary<string, ColumnInfo>();
             foreach (PropertyInfo propertyInfo in typeof(T).GetProperties())
@@ -87,14 +87,14 @@ namespace Gehtsoft.EF.Northwind.Factory
             object data;
             if (column.Attribute.Nullable && value == "NULL")
                 data = null;
-            else if (column.Attribute.ForeignKey == true)
+            else if (column.Attribute.ForeignKey)
             {
                 if (column.Reference == null)
                 {
                     foreach (PropertyInfo propertyInfo in column.Property.PropertyType.GetProperties())
                     {
                         EntityPropertyAttribute propertyAttribute = propertyInfo.GetCustomAttribute<EntityPropertyAttribute>();
-                        if (propertyAttribute != null && propertyAttribute.PrimaryKey == true || propertyAttribute.AutoId == true)
+                        if (propertyAttribute != null && (propertyAttribute.PrimaryKey || propertyAttribute.AutoId))
                         {
                             column.Reference = new ColumnInfo() { Attribute = propertyAttribute, Property = propertyInfo };
                             break;

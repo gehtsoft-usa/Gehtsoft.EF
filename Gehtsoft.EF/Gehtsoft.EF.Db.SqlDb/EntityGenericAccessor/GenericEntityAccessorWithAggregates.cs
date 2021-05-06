@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
@@ -16,15 +18,38 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         Exception,
     }
 
+    internal class ColumnReferences
+    {
+        private readonly ConcurrentDictionary<Tuple<Type, Type>, TableDescriptor.ColumnInfo> gReferringColumn = new ConcurrentDictionary<Tuple<Type, Type>, TableDescriptor.ColumnInfo>();
+
+        private static ColumnReferences gInst;
+
+        public static ColumnReferences Inst => gInst ?? (gInst = new ColumnReferences());
+
+        public TableDescriptor.ColumnInfo this[Tuple<Type, Type> key]
+        {
+            get
+            {
+                if (!gReferringColumn.TryGetValue(key, out TableDescriptor.ColumnInfo value))
+                    throw new ArgumentOutOfRangeException(nameof(key), "The key is not found");
+                return value;
+            }
+            set
+            {
+                gReferringColumn.AddOrUpdate(key, value, (k, v) => value);
+            }
+        }
+
+        public bool ContainsKey(Tuple<Type, Type> key) => gReferringColumn.ContainsKey(key);
+    }
+
     public class GenericEntityAccessorWithAggregates<T, TKey> : GenericEntityAccessor<T, TKey> where T : class
     {
-        private static readonly Dictionary<Tuple<Type, Type>, TableDescriptor.ColumnInfo> gReferringColumn = new Dictionary<Tuple<Type, Type>, TableDescriptor.ColumnInfo>();
         private readonly TableDescriptor.ColumnInfo mPK;
         private readonly Type[] mAggregates;
 
-        public GenericEntityAccessorWithAggregates(SqlDbConnection connection, Type aggregate) : this(connection, new Type[] {aggregate})
+        public GenericEntityAccessorWithAggregates(SqlDbConnection connection, Type aggregate) : this(connection, new Type[] { aggregate })
         {
-
         }
 
         public GenericEntityAccessorWithAggregates(SqlDbConnection connection, IEnumerable<Type> aggregates) : base(connection)
@@ -47,13 +72,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
                 EntityDescriptor descriptor1 = AllEntities.Inst[type];
                 Tuple<Type, Type> key = new Tuple<Type, Type>(typeof(T), type);
 
-                if (!gReferringColumn.ContainsKey(key))
+                if (!ColumnReferences.Inst.ContainsKey(key))
                 {
                     foreach (TableDescriptor.ColumnInfo column in descriptor1.TableDescriptor)
                     {
                         if (column.ForeignKey && column.ForeignTable.Name == descriptor.TableDescriptor.Name)
                         {
-                            gReferringColumn[key] = column;
+                            ColumnReferences.Inst[key] = column;
                             break;
                         }
                     }
@@ -62,8 +87,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         }
 
         public virtual TAC GetAggregates<TAC, TA>(T entity, GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion = null)
-            where TA : class, new()
             where TAC : EntityCollection<TA>, new()
+            where TA : class, new()
         {
             return GetAggregatesCore<TAC, TA>(true, entity, filter, sortOrder, skip, limit, propertiesExclusion)
                 .ConfigureAwait(false)
@@ -72,21 +97,21 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         }
 
         public virtual Task<TAC> GetAggregatesAsync<TAC, TA>(T entity, GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion = null)
-            where TA : class, new()
             where TAC : EntityCollection<TA>, new()
+            where TA : class, new()
         {
             return GetAggregatesCore<TAC, TA>(false, entity, filter, sortOrder, skip, limit, propertiesExclusion);
         }
 
         protected virtual async Task<TAC> GetAggregatesCore<TAC, TA>(bool sync, T entity, GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion = null)
-            where TA : class, new()
             where TAC : EntityCollection<TA>, new()
+            where TA : class, new()
         {
             Tuple<Type, Type> key = new Tuple<Type, Type>(typeof(T), typeof(TA));
 
             using (SelectEntitiesQuery query = Connection.GetSelectEntitiesQuery<TA>(propertiesExclusion))
             {
-                query.Where.Property(gReferringColumn[key].ID).Is(CmpOp.Eq).Value(mPK.PropertyAccessor.GetValue(entity));
+                query.Where.Property(ColumnReferences.Inst[key].ID).Is(CmpOp.Eq).Value(mPK.PropertyAccessor.GetValue(entity));
                 filter?.BindToQuery(query);
                 if (sortOrder != null)
                 {
@@ -125,7 +150,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
             using (SelectEntitiesCountQuery query = Connection.GetSelectEntitiesCountQuery<TA>())
             {
-                query.Where.Property(gReferringColumn[key].ID).Is(CmpOp.Eq).Value(mPK.PropertyAccessor.GetValue(entity));
+                query.Where.Property(ColumnReferences.Inst[key].ID).Is(CmpOp.Eq).Value(mPK.PropertyAccessor.GetValue(entity));
                 filter?.BindToQuery(query);
                 if (!sync)
                     await query.ExecuteAsync(token);
@@ -133,14 +158,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             }
         }
 
-        protected override async Task DeleteCore(bool sync, T entity, CancellationToken? token)
+        protected override async Task DeleteCore(bool sync, T value, CancellationToken? token)
         {
             foreach (Type type in mAggregates)
             {
                 using (MultiDeleteEntityQuery query = Connection.GetMultiDeleteEntityQuery(type))
                 {
                     Tuple<Type, Type> key = new Tuple<Type, Type>(typeof(T), type);
-                    query.Where.Property(gReferringColumn[key].ID).Is(CmpOp.Eq).Value(mPK.PropertyAccessor.GetValue(entity));
+                    query.Where.Property(ColumnReferences.Inst[key].ID).Is(CmpOp.Eq).Value(mPK.PropertyAccessor.GetValue(value));
                     if (sync)
                         query.Execute();
                     else
@@ -149,10 +174,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             }
 
             if (sync)
-                base.DeleteCore(true, entity, token).ConfigureAwait(false).GetAwaiter().GetResult();
+                base.DeleteCore(true, value, token).ConfigureAwait(false).GetAwaiter().GetResult();
             else
-                await base.DeleteCore(false, entity, token);
-
+                await base.DeleteCore(false, value, token);
         }
 
         public override bool CanDelete(T value) => Connection.CanDelete<T>(value, mAggregates);
@@ -164,7 +188,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
 
-
             using (SelectEntitiesQuery subquery = Connection.GetSelectEntitiesQuery<T>(IDOnly))
             {
                 subquery.WhereParamPrefix = "autoparamsq";
@@ -175,7 +198,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
                     using (MultiDeleteEntityQuery query = Connection.GetMultiDeleteEntityQuery(type))
                     {
                         Tuple<Type, Type> key = new Tuple<Type, Type>(typeof(T), type);
-                        query.Where.Property(gReferringColumn[key].ID).Is(CmpOp.In).Query(subquery);
+                        query.Where.Property(ColumnReferences.Inst[key].ID).Is(CmpOp.In).Query(subquery);
                         if (sync)
                             query.Execute();
                         else
@@ -219,7 +242,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         protected virtual async Task<int> SaveAggregatesCore<TA>(bool sync, T entity, IEnumerable<TA> originalAggregates, IEnumerable<TA> newAggregates, Func<TA, TA, bool> areDataEqual, Func<TA, TA, bool> areIDEqual, Func<TA, bool> isDefined, Func<TA, bool> isNew, OnWidowNextContentAction widowAction, CancellationToken? token) where TA : class
         {
             Tuple<Type, Type> key = new Tuple<Type, Type>(typeof(T), typeof(TA));
-            TableDescriptor.ColumnInfo refColumn = gReferringColumn[key];
+            TableDescriptor.ColumnInfo refColumn = ColumnReferences.Inst[key];
 
             ModifyEntityQuery insertQuery = Connection.GetInsertEntityQuery<TA>();
             ModifyEntityQuery saveQuery = Connection.GetUpdateEntityQuery<TA>();
@@ -274,7 +297,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
                                 count++;
                                 continue;
                         }
-                        throw new Exception("An attempt to update the aggregate that does not exists");
+                        throw new InvalidOperationException("An attempt to update the aggregate that does not exists");
                     }
 
                     if (areDataEqual(content, orgContent))

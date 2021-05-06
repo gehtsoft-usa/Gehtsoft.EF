@@ -21,7 +21,7 @@ namespace TestApp
         }
 
         [Entity(Table = "test1dicttable")]
-        public class EntityTestDict : IEquatable<EntityTestDict>
+        public sealed class EntityTestDict : IEquatable<EntityTestDict>
         {
             [EntityProperty(AutoId = true)]
             public ObjectId ID { get; set; }
@@ -31,14 +31,14 @@ namespace TestApp
 
             public bool Equals(EntityTestDict other)
             {
-                if (ReferenceEquals(null, other)) return false;
+                if (other is null) return false;
                 if (ReferenceEquals(this, other)) return true;
                 return ID.Equals(other.ID) && string.Equals(Name, other.Name);
             }
 
             public override bool Equals(object obj)
             {
-                if (ReferenceEquals(null, obj)) return false;
+                if (obj is null) return false;
                 if (ReferenceEquals(this, obj)) return true;
                 if (obj.GetType() != this.GetType()) return false;
                 return Equals((EntityTestDict)obj);
@@ -48,7 +48,7 @@ namespace TestApp
             {
                 unchecked
                 {
-                    return (ID.GetHashCode() * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+                    return (ID.GetHashCode() * 397) ^ ((Name?.GetHashCode()) ?? 0);
                 }
             }
         }
@@ -155,7 +155,7 @@ namespace TestApp
             public EntityTestDict[] DictValue { get; set; }
         }
 
-        private EntityTestDict d1 = new EntityTestDict() { ID = ObjectId.GenerateNewId(), Name = "Name 1" },
+        private readonly EntityTestDict d1 = new EntityTestDict() { ID = ObjectId.GenerateNewId(), Name = "Name 1" },
             d2 = new EntityTestDict() { ID = ObjectId.GenerateNewId(), Name = "Name 2" },
             d3 = new EntityTestDict() { ID = ObjectId.GenerateNewId(), Name = "Name 3" },
             d4 = new EntityTestDict() { ID = ObjectId.GenerateNewId(), Name = "Name 4" };
@@ -167,22 +167,24 @@ namespace TestApp
             DateTime dt = DateTime.Now;
             dt = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
 
-            EntityTestAll test1 = new EntityTestAll(), test2;
-            test1.StringValue = "S1";
-            test1.BoolValue = true;
-            test1.IntValue = 123;
-            test1.LongValue = 345;
-            test1.DoubleValue = 789.12;
-            test1.DecimalValue = 678.91m;
-            test1.GuidValue = Guid.NewGuid();
-            test1.DateTimeValue = DateTime.Now;
+            EntityTestAll test1 = new EntityTestAll
+            {
+                StringValue = "S1",
+                BoolValue = true,
+                IntValue = 123,
+                LongValue = 345,
+                DoubleValue = 789.12,
+                DecimalValue = 678.91m,
+                GuidValue = Guid.NewGuid(),
+                DateTimeValue = DateTime.Now
+            }, test2;
             test1.DateTimeValue = dt;
             test1.BinaryValue = binary;
             test1.DictValue = d1;
             test1.DictValueRef = d2;
 
             BsonDocument doc = test1.ConvertToBson();
-            test2 = EntityToBsonController.ToEntity(doc, typeof(EntityTestAll)) as EntityTestAll;
+            test2 = doc.ToEntity(typeof(EntityTestAll)) as EntityTestAll;
 
             Assert.AreEqual(test1.StringValue, test2.StringValue);
             Assert.AreEqual(test1.BoolValue, test2.BoolValue);
@@ -207,7 +209,7 @@ namespace TestApp
             test1.EnumValue = TestEnum.Value5;
 
             doc = test1.ConvertToBson();
-            test2 = EntityToBsonController.ToEntity(doc, typeof(EntityTestAll)) as EntityTestAll;
+            test2 = doc.ToEntity(typeof(EntityTestAll)) as EntityTestAll;
             Assert.IsNull(test2.StringValue);
             Assert.IsNull(test2.BinaryValue);
             Assert.IsNull(test2.DictValue);
@@ -222,18 +224,20 @@ namespace TestApp
             DateTime dt = DateTime.Now;
             dt = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
 
-            EntityTestAllNullable test1 = new EntityTestAllNullable(), test2;
-            test1.BoolValue = true;
-            test1.IntValue = 123;
-            test1.LongValue = 345;
-            test1.DoubleValue = 789.12;
-            test1.DecimalValue = 678.91m;
-            test1.GuidValue = Guid.NewGuid();
-            test1.DateTimeValue = dt;
-            test1.EnumValue = TestEnum.Value3;
+            EntityTestAllNullable test1 = new EntityTestAllNullable
+            {
+                BoolValue = true,
+                IntValue = 123,
+                LongValue = 345,
+                DoubleValue = 789.12,
+                DecimalValue = 678.91m,
+                GuidValue = Guid.NewGuid(),
+                DateTimeValue = dt,
+                EnumValue = TestEnum.Value3
+            }, test2;
 
             BsonDocument doc = test1.ConvertToBson();
-            test2 = EntityToBsonController.ToEntity(doc, typeof(EntityTestAllNullable)) as EntityTestAllNullable;
+            test2 = doc.ToEntity(typeof(EntityTestAllNullable)) as EntityTestAllNullable;
 
             Assert.AreEqual(test1.BoolValue, test2.BoolValue);
             Assert.AreEqual(test1.IntValue, test2.IntValue);
@@ -254,7 +258,7 @@ namespace TestApp
             test1.EnumValue = null;
 
             doc = test1.ConvertToBson();
-            test2 = EntityToBsonController.ToEntity(doc, typeof(EntityTestAllNullable)) as EntityTestAllNullable;
+            test2 = doc.ToEntity(typeof(EntityTestAllNullable)) as EntityTestAllNullable;
 
             Assert.AreEqual(test1.BoolValue, test2.BoolValue);
             Assert.AreEqual(test1.IntValue, test2.IntValue);
@@ -286,7 +290,7 @@ namespace TestApp
             test1.EnumValue = null;
 
             doc = test1.ConvertToBson();
-            test2 = EntityToBsonController.ToEntity(doc, typeof(EntityTestAllArr)) as EntityTestAllArr;
+            test2 = doc.ToEntity(typeof(EntityTestAllArr)) as EntityTestAllArr;
 
             Assert.AreEqual(test1.StringValue, test2.StringValue);
             Assert.AreEqual(test1.BoolValue, test2.BoolValue);
@@ -311,7 +315,7 @@ namespace TestApp
             test1.EnumValue = new TestEnum[] { };
 
             doc = test1.ConvertToBson();
-            test2 = EntityToBsonController.ToEntity(doc, typeof(EntityTestAllArr)) as EntityTestAllArr;
+            test2 = doc.ToEntity(typeof(EntityTestAllArr)) as EntityTestAllArr;
 
             Assert.AreEqual(test1.StringValue, test2.StringValue);
             Assert.AreEqual(test1.BoolValue, test2.BoolValue);
@@ -336,7 +340,7 @@ namespace TestApp
             test1.EnumValue = new TestEnum[] { TestEnum.Value3, TestEnum.Value4, TestEnum.Value1 };
 
             doc = test1.ConvertToBson();
-            test2 = EntityToBsonController.ToEntity(doc, typeof(EntityTestAllArr)) as EntityTestAllArr;
+            test2 = doc.ToEntity(typeof(EntityTestAllArr)) as EntityTestAllArr;
 
             Assert.AreEqual(test1.StringValue, test2.StringValue);
             Assert.AreEqual(test1.BoolValue, test2.BoolValue);

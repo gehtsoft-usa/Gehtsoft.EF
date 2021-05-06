@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  class Fetch : SqlBaseExpression
+    internal class Fetch : SqlBaseExpression
     {
-        internal  SqlBaseExpression Parameter { get; }
+        internal SqlBaseExpression Parameter { get; }
 
-        internal  override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.Fetch;
             }
         }
-        internal  override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {
@@ -52,12 +52,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             if (Parameter.ResultType != ResultTypes.Cursor)
             {
                 throw new SqlParserException(new SqlError(null, 0, 0,
-                    $"No cursor parameter in FETCH function call"));
+                    "No cursor parameter in FETCH function call"));
             }
             if (!Statement.IsCalculable(Parameter))
             {
                 throw new SqlParserException(new SqlError(null, 0, 0,
-                    $"Not calculable parameter in FETCH function call"));
+                    "Not calculable parameter in FETCH function call"));
             }
         }
     }

@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace TestApp
 {
-    public class TestPerformance
+    public static class TestPerformance
     {
         [Entity(Table = "tperf")]
         public class TestTable
@@ -57,7 +57,7 @@ namespace TestApp
                 {
                     for (int i = 0; i < 1000; i++)
                     {
-                        query.BindParam<string>("name", $"name {i : 000}");
+                        query.BindParam<string>("name", $"name {i: 000}");
                         query.ExecuteNoData();
                     }
                 }
@@ -93,7 +93,7 @@ namespace TestApp
                     query.ExecuteReader();
                     while (query.ReadNext())
                     {
-                        t.Add(new TestTable() {ID = query.GetValue<int>("id"), Name = query.GetValue<string>("name")});
+                        t.Add(new TestTable() { ID = query.GetValue<int>("id"), Name = query.GetValue<string>("name") });
                     }
                 }
                 Assert.AreNotEqual(0, t.Count);

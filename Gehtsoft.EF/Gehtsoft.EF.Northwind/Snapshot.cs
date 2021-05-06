@@ -44,15 +44,15 @@ namespace Gehtsoft.EF.Northwind
                 (typeof(OrderDetail), this.OrderDetails),
             };
 
-            foreach (var t in types.Reverse())
+            foreach (var (type, list) in types.Reverse())
             {
-                using (var query = context.DropEntity(t.type))
+                using (var query = context.DropEntity(type))
                     await query.ExecuteAsync();
             }
 
-            foreach (var t in types)
+            foreach (var (type, list) in types)
             {
-                using (var query = context.CreateEntity(t.type))
+                using (var query = context.CreateEntity(type))
                     await query.ExecuteAsync();
             }
 
@@ -60,12 +60,12 @@ namespace Gehtsoft.EF.Northwind
 
             try
             {
-                foreach (var t in types)
+                foreach (var (type, list) in types)
                 {
-                    bool createKey = t.type == typeof(OrderDetail) || t.type == typeof(EmployeeTerritory);
-                    using (var query = context.InsertEntity(t.type, createKey))
+                    bool createKey = type == typeof(OrderDetail) || type == typeof(EmployeeTerritory);
+                    using (var query = context.InsertEntity(type, createKey))
                     {
-                        foreach (var v in t.list)
+                        foreach (var v in list)
                             await query.ExecuteAsync(v);
                     }
                 }

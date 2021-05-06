@@ -3,11 +3,10 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.SqliteDb
 {
-    class SqliteHierarchicalSelectQueryBuilder : HierarchicalSelectQueryBuilder
+    internal class SqliteHierarchicalSelectQueryBuilder : HierarchicalSelectQueryBuilder
     {
         internal SqliteHierarchicalSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, TableDescriptor.ColumnInfo parentReferenceColumn, string rootParameterName) : base(specifics, table, parentReferenceColumn, rootParameterName)
         {
-
         }
 
         public override void PrepareQuery()

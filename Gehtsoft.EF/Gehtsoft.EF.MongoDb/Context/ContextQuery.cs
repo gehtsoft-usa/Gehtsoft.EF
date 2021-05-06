@@ -21,14 +21,19 @@ namespace Gehtsoft.EF.MongoDb.Context
 
         ~ContextQuery()
         {
-            Dispose();
+            Dispose(false);
         }
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             Query?.Dispose();
             Query = null;
-            GC.SuppressFinalize(this);
         }
 
         public int Execute()
@@ -37,7 +42,7 @@ namespace Gehtsoft.EF.MongoDb.Context
             return 0;
         }
 
-        public async Task<int> ExecuteAsync(CancellationToken? token)
+        public async Task<int> ExecuteAsync(CancellationToken? token = null)
         {
             await Query.ExecuteAsync(token);
             return 0;
@@ -50,23 +55,23 @@ namespace Gehtsoft.EF.MongoDb.Context
         {
         }
 
-        public void Execute(object v)
+        public void Execute(object entity)
         {
-            Query.Execute(v);
+            Query.Execute(entity);
         }
 
-        public async Task ExecuteAsync(object v, CancellationToken? token)
+        public async Task ExecuteAsync(object entity, CancellationToken? token = null)
         {
             if (token == null)
-                await Query.ExecuteAsync(v);
+                await Query.ExecuteAsync(entity);
             else
-                await Query.ExecuteAsync(v, token.Value);
+                await Query.ExecuteAsync(entity, token.Value);
         }
     }
 
     internal class ContextCondition : IContextFilterCondition
     {
-        protected MongoQuerySingleConditionBuilder Builder { get; private set; }
+        protected MongoQuerySingleConditionBuilder Builder { get; }
 
         public ContextCondition(MongoQuerySingleConditionBuilder builder)
         {
@@ -94,7 +99,7 @@ namespace Gehtsoft.EF.MongoDb.Context
 
     internal class ContextFilter : IContextFilter
     {
-        protected MongoQueryCondition Builder { get; private set; }
+        protected MongoQueryCondition Builder { get; }
 
         public ContextFilter(MongoQueryCondition builder)
         {
@@ -106,7 +111,7 @@ namespace Gehtsoft.EF.MongoDb.Context
             return Builder.AddGroup(logOp);
         }
 
-        public IContextFilterCondition Add(LogOp op)
+        public IContextFilterCondition Add(LogOp op = LogOp.And)
         {
             return new ContextCondition(Builder.Add(op));
         }
@@ -114,7 +119,7 @@ namespace Gehtsoft.EF.MongoDb.Context
 
     internal class ContextQueryWithCondition : ContextQuery, IContextQueryWithCondition
     {
-        public IContextFilter Where { get; private set; }
+        public IContextFilter Where { get; }
 
         public ContextQueryWithCondition(MongoQueryWithCondition query) : base(query)
         {
@@ -124,7 +129,7 @@ namespace Gehtsoft.EF.MongoDb.Context
 
     internal class ContextOrder : IContextOrder
     {
-        protected MongoSelectQuery SelectQuery { get; private set; }
+        protected MongoSelectQuery SelectQuery { get; }
 
         public ContextOrder(MongoSelectQuery query)
         {
@@ -140,13 +145,13 @@ namespace Gehtsoft.EF.MongoDb.Context
 
     internal class ContextSelect : ContextQuery, IContextSelect
     {
-        protected MongoSelectQuery SelectQuery { get; private set; }
+        protected MongoSelectQuery SelectQuery { get; }
 
-        public IContextOrder Order { get; private set; }
+        public IContextOrder Order { get; }
 
-        public IContextFilter Where { get; private set; }
+        public IContextFilter Where { get; }
 
-        protected Type EntityType { get; private set; }
+        protected Type EntityType { get; }
 
         public int? Take
         {
@@ -185,9 +190,9 @@ namespace Gehtsoft.EF.MongoDb.Context
 
     internal class ContextCount : ContextQuery, IContextCount
     {
-        protected MongoCountQuery SelectQuery { get; private set; }
+        protected MongoCountQuery SelectQuery { get; }
 
-        public IContextFilter Where { get; private set; }
+        public IContextFilter Where { get; }
 
         public ContextCount(MongoCountQuery query) : base(query)
         {

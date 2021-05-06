@@ -29,11 +29,10 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
         public static bool CanDelete(this SqlDbConnection connection, object entity) => connection.CanDeleteCore(true, entity, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
-        public static Task<bool> CanDeleteAsync<T>(this SqlDbConnection connection, object entity, CancellationToken? token)
+        public static Task<bool> CanDeleteAsync<T>(this SqlDbConnection connection, T entity, CancellationToken? token)
         {
             return connection.CanDeleteCore(false, entity, token);
         }
-
 
         internal static async Task<bool> CanDeleteCore(this SqlDbConnection connection, bool sync, object entity, CancellationToken? token)
         {

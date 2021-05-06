@@ -49,8 +49,10 @@ namespace TestApp
                     {
                         for (int i = 0; i < 10000; i++)
                         {
-                            Employee e = new Employee();
-                            e.Code = r.Next(1, 10);
+                            Employee e = new Employee
+                            {
+                                Code = r.Next(1, 10)
+                            };
                             query.Execute(e);
                         }
                     }
@@ -58,12 +60,13 @@ namespace TestApp
                     t.Commit();
                 }
 
+                SelectQueryBuilder builder;
                 int count = 0;
                 using (SelectEntitiesQueryBase q1 = connection.GetGenericSelectEntityQuery<Employee>())
                 {
                     q1.Distinct = true;
                     q1.AddToResultset(nameof(Employee.Code), "code");
-                    SelectQueryBuilder builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), q1.SelectBuilder.SelectQueryBuilder.QueryTableDescriptor);
+                    builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), q1.SelectBuilder.SelectQueryBuilder.QueryTableDescriptor);
                     builder.AddToResultset(AggFn.Count);
                     using (SqlDbQuery q2 = connection.GetQuery(builder))
                     {
@@ -74,35 +77,33 @@ namespace TestApp
                             count = q2.GetValue<int>(0);
                     }
                 }
-                ;
+                Console.Write("{0}", count);
 
+                var entity = AllEntities.Inst[typeof(Employee)];
+                builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), entity.TableDescriptor);
+                builder.AddExpressionToResultset($"count (distinct {entity[nameof(Employee.Code)].Name})", DbType.Int32, true, "mycount");
+                using (SqlDbQuery q2 = connection.GetQuery(builder))
                 {
-                    var entity = AllEntities.Inst[typeof(Employee)];
-                    SelectQueryBuilder builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), entity.TableDescriptor);
-                    builder.AddExpressionToResultset($"count (distinct {entity[nameof(Employee.Code)].Name})", DbType.Int32, true, "mycount");
-                    using (SqlDbQuery q2 = connection.GetQuery(builder))
-                    {
-                        q2.ExecuteReader();
-                        if (!q2.ReadNext())
-                            count = 0;
-                        else
-                            count = q2.GetValue<int>(0);
-                    }
+                    q2.ExecuteReader();
+                    if (!q2.ReadNext())
+                        count = 0;
+                    else
+                        count = q2.GetValue<int>(0);
                 }
 
-                {
-                    using (SqlDbQuery q1 = connection.GetQuery("select count(distinct code) from employee"))
-                    {
-                        q1.ExecuteReader();
-                        q1.ReadNext();
-                        if (!q1.ReadNext())
-                            count = 0;
-                        else
-                            count = q1.GetValue<int>(0);
+                Console.Write("{0}", count);
 
-                    }
+                using (SqlDbQuery q1 = connection.GetQuery("select count(distinct code) from employee"))
+                {
+                    q1.ExecuteReader();
+                    q1.ReadNext();
+                    if (!q1.ReadNext())
+                        count = 0;
+                    else
+                        count = q1.GetValue<int>(0);
                 }
 
+                Console.Write("{0}", count);
             }
         }
     }

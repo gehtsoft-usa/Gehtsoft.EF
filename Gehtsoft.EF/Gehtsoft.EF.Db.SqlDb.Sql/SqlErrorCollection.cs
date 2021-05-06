@@ -16,7 +16,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal SqlErrorCollection()
         {
-
         }
 
         /// <summary>
@@ -63,7 +62,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             int count = (int)info.GetValue("count", typeof(int));
             for (int i = 0; i < count; i++)
                 mList.Add((SqlError)info.GetValue($"item{i}", typeof(SqlError)));
-
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -73,5 +71,4 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 info.AddValue($"item{i}", this[i]);
         }
     }
-
 }

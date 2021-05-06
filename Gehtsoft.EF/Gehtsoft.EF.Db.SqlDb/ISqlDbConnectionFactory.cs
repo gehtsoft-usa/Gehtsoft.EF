@@ -30,6 +30,6 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public SqlDbConnection GetConnection() => UniversalSqlDbFactory.Create(mDriver, mConnectionString);
 
-        public Task<SqlDbConnection> GetConnectionAsync(CancellationToken? token) => UniversalSqlDbFactory.CreateAsync(mDriver, mConnectionString, token ?? CancellationToken.None);
+        public Task<SqlDbConnection> GetConnectionAsync(CancellationToken? token = null) => UniversalSqlDbFactory.CreateAsync(mDriver, mConnectionString, token ?? CancellationToken.None);
     }
 }

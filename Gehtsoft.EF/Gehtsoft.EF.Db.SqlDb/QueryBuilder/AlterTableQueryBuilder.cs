@@ -41,7 +41,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         protected virtual void Prepare()
         {
-
             if (mDropColumns != null)
             {
                 foreach (TableDescriptor.ColumnInfo column in mDropColumns)
@@ -51,7 +50,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     HandleDropColumn(column);
                 }
             }
-
 
             if (mAddColumns != null)
             {
@@ -68,47 +66,47 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         protected virtual void HandleAddColumn(TableDescriptor.ColumnInfo column)
         {
-            HandleCreateQuery(column);   
+            HandleCreateQuery(column);
             HandleAfterCreateQuery(column);
-
         }
 
         protected virtual void HandleDropColumn(TableDescriptor.ColumnInfo column)
         {
             HandlePreDropQuery(column);
             HandleDropQuery(column);
-            
         }
 
         protected virtual string GetDDL(TableDescriptor.ColumnInfo column)
         {
             StringBuilder builder = new StringBuilder();
             string type = mSpecifics.TypeName(column.DbType, column.Size, column.Precision, column.Autoincrement);
-            builder.Append($"{column.Name} {type}");
+            builder.Append(column.Name).Append(' ').Append(type);
             if (column.PrimaryKey)
-                builder.Append($" PRIMARY KEY");
+                builder.Append(" PRIMARY KEY");
             if (!column.Nullable)
-                builder.Append($" NOT NULL");
+                builder.Append(" NOT NULL");
             if (column.Unique)
-                builder.Append($" UNIQUE");
+                builder.Append(" UNIQUE");
             if (column.DefaultValue != null)
-                builder.Append($" DEFAULT {mSpecifics.FormatValue(column.DefaultValue)}");
+                builder.Append(" DEFAULT ").Append(mSpecifics.FormatValue(column.DefaultValue));
             if (column.ForeignKey && column.ForeignTable != column.Table)
-                builder.Append($" FOREIGN KEY REFERENCES {column.ForeignTable.Name}({column.ForeignTable.PrimaryKey.Name})");
-            
-            
-            return builder.ToString();
+                builder
+                    .Append(" FOREIGN KEY REFERENCES ")
+                    .Append(column.ForeignTable.Name)
+                    .Append('(')
+                    .Append(column.ForeignTable.PrimaryKey.Name)
+                    .Append(')');
 
+            return builder.ToString();
         }
 
         protected virtual bool NeedIndex(TableDescriptor.ColumnInfo column)
         {
-            return (column.Sorted || (column.ForeignKey && column.ForeignTable == column.Table));
+            return column.Sorted || (column.ForeignKey && column.ForeignTable == column.Table);
         }
 
         protected virtual void HandlePreDropQuery(TableDescriptor.ColumnInfo column)
         {
-            return ;
         }
 
         protected virtual void HandleDropQuery(TableDescriptor.ColumnInfo column)

@@ -12,13 +12,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
     {
         public static string ToString(object value) => value?.ToString() ?? "null";
 
-        public static DateTime ToDate(object value) => (DateTime) Convert.ChangeType(value, typeof(DateTime));
+        public static DateTime ToDate(object value) => (DateTime)Convert.ChangeType(value, typeof(DateTime));
 
-        public static DateTime ToTimestamp(object value) => (DateTime) Convert.ChangeType(value, typeof(DateTime));
+        public static DateTime ToTimestamp(object value) => (DateTime)Convert.ChangeType(value, typeof(DateTime));
 
-        public static int ToInteger(object value) => (int) Convert.ChangeType(value, typeof(int));
+        public static int ToInteger(object value) => (int)Convert.ChangeType(value, typeof(int));
 
-        public static double ToDouble(object value) => (double) Convert.ChangeType(value, typeof(double));
+        public static double ToDouble(object value) => (double)Convert.ChangeType(value, typeof(double));
 
         public static bool Like(object value, string mask)
         {

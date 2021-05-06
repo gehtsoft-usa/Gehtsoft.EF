@@ -131,7 +131,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     else if (groupByLambda.Body.NodeType == ExpressionType.Constant)
                     {
                         //omit group by
-                        ;
                     }
                     else
                         throw new ArgumentException("Only member access is supported in group by key");

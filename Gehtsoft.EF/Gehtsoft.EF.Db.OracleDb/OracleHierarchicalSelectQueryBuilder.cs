@@ -3,11 +3,10 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.OracleDb
 {
-    class OracleHierarchicalSelectQueryBuilder : HierarchicalSelectQueryBuilder
+    internal class OracleHierarchicalSelectQueryBuilder : HierarchicalSelectQueryBuilder
     {
         internal OracleHierarchicalSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, TableDescriptor.ColumnInfo parentReferenceColumn, string rootParameterName) : base(specifics, table, parentReferenceColumn, rootParameterName)
         {
-
         }
 
         public override void PrepareQuery()

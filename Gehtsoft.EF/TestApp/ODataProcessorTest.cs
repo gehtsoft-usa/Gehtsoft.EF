@@ -29,21 +29,20 @@ namespace TestApp
     {
         private EdmModelBuilder mModelBuilder;
         private ODataProcessor mPocessor;
-        private ISqlDbConnectionFactory mConnectionFactory;
 
-        public ISqlDbConnectionFactory MConnectionFactory { get => mConnectionFactory; set => mConnectionFactory = value; }
+        public ISqlDbConnectionFactory ConnectionFactory { get; set; }
 
         [OneTimeSetUp]
         public void Setup()
         {
-            MConnectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=d:\test.db");
+            ConnectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=d:\test.db");
             EntityFinder.EntityTypeInfo[] entities = EntityFinder.FindEntities(new Assembly[] { this.GetType().Assembly }, "entities", false);
             EdmModelBuilder builder = new EdmModelBuilder();
             builder.Build(entities, "entities");
             mModelBuilder = builder;
 
-            mPocessor = new ODataProcessor(MConnectionFactory, builder, "https://services.odata.org/V3/OData/OData.svc");
-            using (SqlDbConnection connection = MConnectionFactory.GetConnection())
+            mPocessor = new ODataProcessor(ConnectionFactory, builder, "https://services.odata.org/V3/OData/OData.svc");
+            using (SqlDbConnection connection = ConnectionFactory.GetConnection())
             {
                 TestEntity1.TestEntities(connection);
             }
@@ -52,36 +51,34 @@ namespace TestApp
         [Test]
         public void TestSelectData()
         {
-            object result;
-
-            result = mPocessor.SelectData(new Uri($"/Employee/$count", UriKind.Relative));
+            object result = mPocessor.SelectData(new Uri("/Employee/$count", UriKind.Relative));
             result.Should().NotBeNull();
             result.Should().BeOfType(typeof(Int64));
 
             long count = (long)result;
 
-            result = mPocessor.SelectData(new Uri($"/Employee", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Employee", UriKind.Relative));
             IEnumerable<object> array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             ((long)array.Count()).Should().Be(count);
 
-            result = mPocessor.SelectData(new Uri($"/Employee(1)", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Employee(1)", UriKind.Relative));
             Dictionary<string, object> data = result as Dictionary<string, object>;
             data["ID"].Should().Be(1);
 
-            result = mPocessor.SelectData(new Uri($"/Sale?$skip=1&$top=2", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale?$skip=1&$top=2", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             ((long)array.Count()).Should().Be(2);
 
-            result = mPocessor.SelectData(new Uri($"/Sale(19)/Good", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale(19)/Good", UriKind.Relative));
             data = result as Dictionary<string, object>;
             data.Should().NotBeNull();
 
             string goodName = (string)data["Name"];
             Dictionary<string, object> dataItem;
 
-            result = mPocessor.SelectData(new Uri($"/Sale(19)/Good/Sale?$expand=Good", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale(19)/Good/Sale?$expand=Good", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             foreach (object entity in array)
@@ -91,16 +88,16 @@ namespace TestApp
                 dataItem["Name"].Should().Be(goodName);
             }
 
-            result = mPocessor.SelectData(new Uri($"/Sale(19)/Good/Sale(19)?$expand=Good", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale(19)/Good/Sale(19)?$expand=Good", UriKind.Relative));
             data = result as Dictionary<string, object>;
             data["ID"].Should().Be(19);
             dataItem = data["Good"] as Dictionary<string, object>;
             dataItem["Name"].Should().Be(goodName);
 
-            result = mPocessor.SelectData(new Uri($"/Sale(1)/SalesDate", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale(1)/SalesDate", UriKind.Relative));
             result.Should().BeOfType(typeof(DateTime));
 
-            result = mPocessor.SelectData(new Uri($"/Sale?$select=ID,SalesDate&$expand=Good", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale?$select=ID,SalesDate&$expand=Good", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             data = array.FirstOrDefault() as Dictionary<string, object>;
@@ -108,7 +105,7 @@ namespace TestApp
             dataItem.Should().NotBeNull();
             dataItem["Name"].Should().NotBeNull();
 
-            result = mPocessor.SelectData(new Uri($"/Sale?$expand=Good($select=Name;$expand=Category($select=Name))", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale?$expand=Good($select=Name;$expand=Category($select=Name))", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             data = array.FirstOrDefault() as Dictionary<string, object>;
@@ -118,7 +115,7 @@ namespace TestApp
             dataItem.Should().NotBeNull();
             dataItem["Name"].Should().NotBeNull();
 
-            result = mPocessor.SelectData(new Uri($"/Sale?$expand=Good($expand=Category),SalesPerson", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale?$expand=Good($expand=Category),SalesPerson", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             data = array.FirstOrDefault() as Dictionary<string, object>;
@@ -128,19 +125,7 @@ namespace TestApp
             dataItem.Should().NotBeNull();
             dataItem["Name"].Should().NotBeNull();
 
-            result = mPocessor.SelectData(new Uri($"/Category?$top=1&$expand=Good($filter=Name eq 'Bread')", UriKind.Relative));
-            //using (StringWriter writer = new StringWriter())
-            //{
-            //    using (JsonTextWriter jswriter = new JsonTextWriter(writer))
-            //    {
-            //        JsonSerializer sr = JsonSerializer.Create();
-            //        sr.Formatting = Newtonsoft.Json.Formatting.None;
-            //        sr.NullValueHandling = NullValueHandling.Ignore;
-            //        sr.StringEscapeHandling = StringEscapeHandling.Default;
-            //        sr.Serialize(jswriter, result);
-            //    }
-            //    string qqq = writer.ToString();
-            //}
+            result = mPocessor.SelectData(new Uri("/Category?$top=1&$expand=Good($filter=Name eq 'Bread')", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             data = array.FirstOrDefault() as Dictionary<string, object>;
@@ -153,13 +138,9 @@ namespace TestApp
                 (sub["Name"] as string).Should().Be("Bread");
             }
 
-            int categoryId = 0;
-            foreach (object item in array)
-            {
-                data = item as Dictionary<string, object>;
-                categoryId = (int)data["ID"];
-                break;
-            }
+            var item1 = array.First();
+            data = item1 as Dictionary<string, object>;
+            var categoryId = (int)data["ID"];
 
             result = mPocessor.SelectData(new Uri($"/Category({categoryId})?$expand=Good", UriKind.Relative));
             data = result as Dictionary<string, object>;
@@ -167,7 +148,7 @@ namespace TestApp
             dataList = data["Good"] as IEnumerable<object>;
             dataList.Should().NotBeNull();
 
-            result = mPocessor.SelectData(new Uri($"/Good?$expand=Sale($filter=SalesDate gt 2010-01-31;$orderby=SalesDate desc)&$filter=Name eq 'Bread' or ID ne 5", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Good?$expand=Sale($filter=SalesDate gt 2010-01-31;$orderby=SalesDate desc)&$filter=Name eq 'Bread' or ID ne 5", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             foreach (object item in array)
@@ -185,7 +166,7 @@ namespace TestApp
                 }
             }
 
-            result = mPocessor.SelectData(new Uri($"/Good?$filter=not contains(tolower(Name),'e')", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Good?$filter=not contains(tolower(Name),'e')", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             foreach (object item in array)
@@ -194,18 +175,18 @@ namespace TestApp
                 (!((string)data["Name"]).ToLower().Contains('e')).Should().BeTrue();
             }
 
-            result = mPocessor.SelectData(new Uri($"/Good/$count", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Good/$count", UriKind.Relative));
             result.Should().NotBeNull();
             result.Should().BeOfType(typeof(Int64));
 
             count = (long)result;
 
-            result = mPocessor.SelectData(new Uri($"/Good?$filter=trimleft(concat(' ', Name)) eq Name", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Good?$filter=trimleft(concat(' ', Name)) eq Name", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             ((long)array.Count()).Should().Be(count);
 
-            result = mPocessor.SelectData(new Uri($"/Good?$filter=startswith(tolower(Name), 'br')", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Good?$filter=startswith(tolower(Name), 'br')", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             ((long)array.Count()).Should().BeGreaterThan(0);
@@ -215,7 +196,7 @@ namespace TestApp
                 ((string)data["Name"]).StartsWith("br", StringComparison.OrdinalIgnoreCase).Should().BeTrue();
             }
 
-            result = mPocessor.SelectData(new Uri($"/Good?$filter=endswith(tolower(Name), 'ad') eq true", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Good?$filter=endswith(tolower(Name), 'ad') eq true", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             ((long)array.Count()).Should().BeGreaterThan(0);
@@ -225,7 +206,7 @@ namespace TestApp
                 ((string)data["Name"]).EndsWith("ad", StringComparison.OrdinalIgnoreCase).Should().BeTrue();
             }
 
-            result = mPocessor.SelectData(new Uri($"/Good?$filter=ID in (2,3)", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Good?$filter=ID in (2,3)", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             foreach (object item in array)
@@ -235,7 +216,7 @@ namespace TestApp
                 (id == 2 || id == 3).Should().BeTrue();
             }
 
-            result = mPocessor.SelectData(new Uri($"/Good?$filter=Name in ('Bread', 'Milk')", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Good?$filter=Name in ('Bread', 'Milk')", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             foreach (object item in array)
@@ -245,19 +226,19 @@ namespace TestApp
                 (name == "Bread" || name == "Milk").Should().BeTrue();
             }
 
-            result = mPocessor.SelectData(new Uri($"/Sale?$select=SalesDate,Total&&$inlinecount=allpages&$filter=SalesDate ge 2010-04-04", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale?$select=SalesDate,Total&&$inlinecount=allpages&$filter=SalesDate ge 2010-04-04", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
             array.Count().Should().BeGreaterThan(0);
 
-            result = mPocessor.SelectData(new Uri($"/Sale/$count?$expand=Good($expand=Category),SalesPerson", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale/$count?$expand=Good($expand=Category),SalesPerson", UriKind.Relative));
             result.Should().NotBeNull();
             result.Should().BeOfType(typeof(Int64));
 
             count = (long)result;
 
             int salePagingLimit = mModelBuilder.EntityPagingLimitByName("Sale_Type");
-            result = mPocessor.SelectData(new Uri($"/Sale?$select=SalesDate,Total&$expand=Good($expand=Category),SalesPerson&$orderby=SalesDate desc,Total,Good/Name&$inlinecount=allpages", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale?$select=SalesDate,Total&$expand=Good($expand=Category),SalesPerson&$orderby=SalesDate desc,Total,Good/Name&$inlinecount=allpages", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             if (salePagingLimit > 0)
             {
@@ -309,18 +290,16 @@ namespace TestApp
                 }
             }
 
-            result = mPocessor.SelectData(new Uri($"/Sale(9999)", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Sale(9999)", UriKind.Relative));
             (result as Dictionary<string, object>).ContainsKey("odata.error").Should().BeTrue();
 
-            string str = mPocessor.GetFormattedData(new Uri($"/Employee/$count?$format=json", UriKind.Relative));
-            int testi = 0;
-            int.TryParse(str, out testi).Should().BeTrue();
+            string str = mPocessor.GetFormattedData(new Uri("/Employee/$count?$format=json", UriKind.Relative));
+            int.TryParse(str, out int _).Should().BeTrue();
 
-            str = mPocessor.GetFormattedData(new Uri($"/Sale(1)/SalesDate", UriKind.Relative));
-            DateTime testd;
-            DateTime.TryParse(str, out testd).Should().BeTrue();
+            str = mPocessor.GetFormattedData(new Uri("/Sale(1)/SalesDate", UriKind.Relative));
+            DateTime.TryParse(str, out DateTime _).Should().BeTrue();
 
-            str = mPocessor.GetFormattedData(new Uri($"/Sale?$select=ID,SalesDate&$expand=Good($select=Name)", UriKind.Relative));
+            str = mPocessor.GetFormattedData(new Uri("/Sale?$select=ID,SalesDate&$expand=Good($select=Name)", UriKind.Relative));
             using (StringReader reader = new StringReader(str))
             {
                 using (JsonTextReader jsreader = new JsonTextReader(reader))
@@ -341,11 +320,10 @@ namespace TestApp
                     {
                         value.Count().Should().BeGreaterThan(0);
                     }
-                    DateTime dt = DateTime.MinValue;
                     string dateStr = value[0]["SalesDate"].Value<string>();
                     dateStr.Should().NotBeNull();
 
-                    (DateTime.TryParse(dateStr, out dt)).Should().BeTrue();
+                    (DateTime.TryParse(dateStr, out DateTime dt)).Should().BeTrue();
 
                     JValue next = (JValue)obj["odata.nextLink"];
                     ((IEnumerable<JToken>)next).Should().NotBeNull();
@@ -356,7 +334,7 @@ namespace TestApp
                 }
             }
 
-            str = mPocessor.GetFormattedData(new Uri($"/Sale?$format=atom", UriKind.Relative));
+            str = mPocessor.GetFormattedData(new Uri("/Sale?$format=atom", UriKind.Relative));
             using (StringReader reader = new StringReader(str))
             {
                 using (JsonTextReader jsreader = new JsonTextReader(reader))
@@ -370,11 +348,11 @@ namespace TestApp
                     JObject error = (JObject)obj["odata.error"];
                     error.Should().NotBeNull();
                     JValue code = (JValue)error["code"];
-                    code.Value.ToString().Should().Be(EfODataExceptionCode.UnsupportedFormat.ToString());
+                    code.Value.ToString().Should().Be(nameof(EfODataExceptionCode.UnsupportedFormat));
                 }
             }
 
-            str = mPocessor.GetFormattedData(new Uri($"/Sale?$expand=Good($select=Name)&$inlinecount=allpages&$format=xml", UriKind.Relative));
+            str = mPocessor.GetFormattedData(new Uri("/Sale?$expand=Good($select=Name)&$inlinecount=allpages&$format=xml", UriKind.Relative));
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(str);
             XmlNode rootNode = doc.DocumentElement;
@@ -395,22 +373,20 @@ namespace TestApp
                 saleDate.Should().NotBeNull();
                 XmlAttribute dateAttr = saleDate.Attributes["value"];
                 dateAttr.Should().NotBeNull();
-                DateTime dt = DateTime.MinValue;
                 string dateStr = dateAttr.Value;
                 dateStr.Should().NotBeNull();
-                DateTime.TryParse(dateStr, out dt).Should().BeTrue();
+                DateTime.TryParse(dateStr, out DateTime _).Should().BeTrue();
 
                 XmlNode saleTotal = node.SelectSingleNode("item[@key='Total']");
                 saleTotal.Should().NotBeNull();
                 XmlAttribute totalAttr = saleTotal.Attributes["value"];
                 totalAttr.Should().NotBeNull();
-                double ttl = 0;
                 string totalStr = totalAttr.Value;
                 totalStr.Should().NotBeNull();
-                double.TryParse(totalStr, out ttl).Should().BeTrue();
+                double.TryParse(totalStr, out double ttl).Should().BeTrue();
                 ttl.Should().BeGreaterThan(0);
 
-                XmlNode saleGood= node.SelectSingleNode("item[@key='Good']");
+                XmlNode saleGood = node.SelectSingleNode("item[@key='Good']");
                 saleGood.Should().NotBeNull();
                 saleGood.Attributes["value"].Should().BeNull();
                 XmlNodeList setsGood = saleGood.SelectNodes("set");
@@ -427,12 +403,11 @@ namespace TestApp
             //
 
             // get number of goods before
-            result = mPocessor.SelectData(new Uri($"/Good/$count", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Good/$count", UriKind.Relative));
             long goodCount = (long)result;
 
             // Add a new Good
-            bool wasError;
-            string crudResult = mPocessor.AddNewRecord("Good", "{Category:100,Name:'MyGood'}", out wasError);
+            string crudResult = mPocessor.AddNewRecord("Good", "{Category:100,Name:'MyGood'}", out bool wasError);
             wasError.Should().BeFalse();
 
             int newGoodId = 0;
@@ -454,8 +429,7 @@ namespace TestApp
 
                     JValue categoryValue = (JValue)obj["Category"];
                     ((IEnumerable<JToken>)categoryValue).Should().NotBeNull();
-                    int category;
-                    (Int32.TryParse(categoryValue.Value.ToString(), out category)).Should().BeTrue();
+                    (Int32.TryParse(categoryValue.Value.ToString(), out int category)).Should().BeTrue();
                     (category == 100).Should().BeTrue();
 
                     JValue nameValue = (JValue)obj["Name"];
@@ -466,10 +440,11 @@ namespace TestApp
 
             // Try to add the same new Good
             crudResult = mPocessor.AddNewRecord("Good", "{Category:100,Name:'MyGood'}", out wasError);
+            crudResult.Should().NotBeNull();
             wasError.Should().BeTrue();
 
             // get number of goods after
-            result = mPocessor.SelectData(new Uri($"/Good/$count", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Good/$count", UriKind.Relative));
             (goodCount + 1 == (long)result).Should().BeTrue();
 
             // Edit the new added Good
@@ -488,14 +463,12 @@ namespace TestApp
 
                     JValue idValue = (JValue)obj["ID"];
                     ((IEnumerable<JToken>)idValue).Should().NotBeNull();
-                    int id;
-                    (Int32.TryParse(idValue.Value.ToString(), out id)).Should().BeTrue();
+                    (Int32.TryParse(idValue.Value.ToString(), out int id)).Should().BeTrue();
                     (newGoodId == id).Should().BeTrue();
 
                     JValue categoryValue = (JValue)obj["Category"];
                     ((IEnumerable<JToken>)categoryValue).Should().NotBeNull();
-                    int category;
-                    (Int32.TryParse(categoryValue.Value.ToString(), out category)).Should().BeTrue();
+                    (Int32.TryParse(categoryValue.Value.ToString(), out int category)).Should().BeTrue();
                     (category == 100).Should().BeTrue();
 
                     JValue nameValue = (JValue)obj["Name"];
@@ -518,14 +491,14 @@ namespace TestApp
             crudResult.Should().BeNull();
 
             // get number of goods after
-            result = mPocessor.SelectData(new Uri($"/Good/$count", UriKind.Relative));
+            result = mPocessor.SelectData(new Uri("/Good/$count", UriKind.Relative));
             (goodCount == (long)result).Should().BeTrue();
         }
 
         [OneTimeTearDown]
         public void TearDown()
         {
-            using (SqlDbConnection connection = MConnectionFactory.GetConnection())
+            using (SqlDbConnection connection = ConnectionFactory.GetConnection())
             {
                 Drop(connection, typeof(Sale));
                 Drop(connection, typeof(Good));
@@ -542,6 +515,5 @@ namespace TestApp
             using (query = connection.GetDropEntityQuery(type))
                 query.Execute();
         }
-
     }
 }

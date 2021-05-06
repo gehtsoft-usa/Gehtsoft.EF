@@ -13,45 +13,18 @@ using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
-    public class DeleteRun : IDisposable
+    public sealed class DeleteRun : IDisposable
     {
         private SqlCodeDomBuilder DomBuilder { get; }
-        private ISqlDbConnectionFactory connectionFactory;
-        private SqlDbConnection connection;
+        private readonly ISqlDbConnectionFactory connectionFactory;
+        private readonly SqlDbConnection connection;
 
         public DeleteRun()
         {
-            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.MSSQL, @"server=.\SQLEXPRESSTEO;Connection Lifetime=900;Load Balance Timeout=60;Max Pool Size=25;Pooling=true;Integrated Security=SSPI;"); ;
-            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.POSTGRES, @"server=127.0.0.1;database=test;user id=postgres;password=hurnish1962;"); ;
-            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.MYSQL, @"server=127.0.0.1;Database=test;Uid=root;Pwd=root;port=3306;AllowUserVariables=True;default command timeout=0"); ;
-            //string tns = "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.1.4)(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)(SID = XE)))";
-            //connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.ORACLE, $"Data Source={tns};user id=C##TEST;password=test;");
-            connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:"); ;
+            connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, "Data Source=:memory:");
             connection = connectionFactory.GetConnection();
             Snapshot snapshot = new Snapshot();
             snapshot.CreateAsync(connection).ConfigureAwait(true).GetAwaiter().GetResult();
-
-            //// trick Oracle's 'nextval'
-            ////----------------------------------------------------------------------------
-            //bool prot = SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries;
-            //SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries = false;
-
-            //int start = 0;
-            //using (SqlDbQuery q1 = connection.GetQuery("SELECT MAX(supplierID) FROM nw_suppliers"))
-            //{
-            //    q1.ExecuteReader();
-            //    while (q1.ReadNext())
-            //    {
-            //        object v = q1.GetValue(0);
-            //        start = (int)Convert.ChangeType(v, typeof(int));
-            //    }
-            //}
-            //using (SqlDbQuery q1 = connection.GetQuery($"BEGIN \r\nEXECUTE IMMEDIATE 'DROP SEQUENCE nw_suppliers_supplierID';\r\nEXECUTE IMMEDIATE 'CREATE SEQUENCE nw_suppliers_supplierID START WITH {start+1}';\r\nEND; \r\n"))
-            //{
-            //    q1.ExecuteNoData();
-            //}
-            //SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries = prot;
-            ////----------------------------------------------------------------------------
             EntityFinder.EntityTypeInfo[] entities = EntityFinder.FindEntities(new Assembly[] { typeof(Snapshot).Assembly }, "northwind", false);
             DomBuilder = new SqlCodeDomBuilder();
             DomBuilder.Build(entities, "entities");
@@ -68,7 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         {
             Func<IDictionary<string, object>, dynamic> func;
             dynamic result;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier");
             result = func(null);
@@ -88,7 +61,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             int countAfterInsert = (int)(result[0].Total);
             countAfterInsert.Should().Be(countBefore + 1);
 
-            func = environment.Parse("test", $"DELETE FROM Supplier " +
+            func = environment.Parse("test", "DELETE FROM Supplier " +
                 $"WHERE SupplierID={insertedID}");
             result = func(null);
             int deleted = (int)(result.Deleted);
@@ -99,7 +72,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             int countAfterDelete = (int)(result[0].Total);
             countAfterDelete.Should().Be(countBefore);
 
-            func = environment.Parse("test", $"DELETE FROM Supplier " +
+            func = environment.Parse("test", "DELETE FROM Supplier " +
                 $"WHERE SupplierID={insertedID}");
             result = func(null);
             deleted = (int)(result.Deleted);
@@ -110,7 +83,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             int countAfterDelete1 = (int)(result[0].Total);
             countAfterDelete1.Should().Be(countBefore);
         }
-
 
         [Fact]
         public void DeleteParseError()

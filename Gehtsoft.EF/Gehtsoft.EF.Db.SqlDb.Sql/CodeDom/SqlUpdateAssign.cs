@@ -6,7 +6,6 @@ using System.Linq;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    /// <summary>
     internal class SqlUpdateAssign
     {
         internal SqlField Field { get; } = null;
@@ -28,40 +27,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         operand.Position.Column,
                         $"Expected 1 column in inner SELECT {operand.Symbol.Name} ({operand.Value ?? "null"})"));
                 }
-
-                //SqlUpdateStatement parent = (SqlUpdateStatement)parentStatement;
-                //foreach (SqlTableSpecification currentTable in Select.FromClause.TableCollection)
-                //{
-                //    if (tableInUse(currentTable, parent.TableName))
-                //    {
-                //        throw new SqlParserException(new SqlError(source,
-                //            operand.Position.Line,
-                //            operand.Position.Column,
-                //            $"Table '{parent.TableName}' is used both in UPDATE and in inner SELECT"));
-                //    }
-                //}
             }
             else
             {
                 Expression = SqlExpressionParser.ParseExpression(parentStatement, operand, source);
             }
         }
-
-        //private bool tableInUse(SqlTableSpecification table, string tableName)
-        //{
-        //    bool retval = false;
-
-        //    if (table is SqlPrimaryTable primaryTable)
-        //    {
-        //        retval = primaryTable.TableName == tableName;
-        //    }
-        //    else if (table is SqlQualifiedJoinedTable joinedTable)
-        //    {
-        //        retval = tableInUse(joinedTable.LeftTable, tableName);
-        //    }
-        //    return retval;
-        //}
-
         internal SqlUpdateAssign(SqlField field, SqlBaseExpression expression)
         {
             Field = field;
@@ -81,14 +52,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal SqlUpdateAssignCollection()
         {
-
         }
 
         public SqlUpdateAssign this[int index] => ((IReadOnlyList<SqlUpdateAssign>)mList)[index];
 
         public int Count => ((IReadOnlyCollection<SqlUpdateAssign>)mList).Count;
 
-        internal SqlUpdateAssign FindByFieldName(string name) => mList.Where(t => t.Field.FieldName == name).SingleOrDefault();
+        internal SqlUpdateAssign FindByFieldName(string name) => mList.SingleOrDefault(t => t.Field.FieldName == name);
 
         public IEnumerator<SqlUpdateAssign> GetEnumerator()
         {

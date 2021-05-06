@@ -64,7 +64,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal SqlExpressionAliasCollection()
         {
-
         }
 
         /// <summary>
@@ -94,5 +93,4 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mList.Add(fieldAlias);
         }
     }
-
 }

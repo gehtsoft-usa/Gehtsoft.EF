@@ -4,9 +4,9 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.MysqlDb
 {
-    class MysqlInsertQueryBuilder : InsertQueryBuilder
+    internal class MysqlInsertQueryBuilder : InsertQueryBuilder
     {
-        private bool mHasAutoId = false;
+        private readonly bool mHasAutoId = false;
 
         public MysqlInsertQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor descriptor, bool ignoreAutoIncrement) : base(specifics, descriptor, ignoreAutoIncrement)
         {
@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
                 bool hasAutoId = false;
                 foreach (TableDescriptor.ColumnInfo column in descriptor)
                 {
-                    if (column.Autoincrement == true && column.PrimaryKey == true)
+                    if (column.Autoincrement && column.PrimaryKey)
                     {
                         hasAutoId = true;
                         break;
@@ -34,11 +34,22 @@ namespace Gehtsoft.EF.Db.MysqlDb
                 builder.Append("; SELECT LAST_INSERT_ID();");
             else if (mHasAutoId)
             {
-                builder.Append($"; SET @max = (SELECT MAX({mTable.PrimaryKey.Name})+1 FROM {mTable.Name})");
-                builder.Append($"; SET @query = CONCAT('ALTER TABLE {mTable.Name} AUTO_INCREMENT = ', @max)");
-                builder.Append($"; PREPARE stmt FROM @query");
-                builder.Append($"; EXECUTE stmt");
-                builder.Append($"; DEALLOCATE PREPARE stmt;");
+                builder
+                    .Append("; SET @max = (SELECT MAX(")
+                    .Append(mTable.PrimaryKey.Name)
+                    .Append(")+1 FROM ")
+                    .Append(mTable.Name)
+                    .Append(')');
+
+                builder
+                    .Append("; SET @query = CONCAT('ALTER TABLE ")
+                    .Append(mTable.Name)
+                    .Append(" AUTO_INCREMENT = ', @max)");
+
+                builder
+                    .Append("; PREPARE stmt FROM @query")
+                    .Append("; EXECUTE stmt")
+                    .Append("; DEALLOCATE PREPARE stmt;");
             }
             return builder.ToString();
         }

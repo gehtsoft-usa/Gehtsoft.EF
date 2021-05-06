@@ -21,7 +21,7 @@ using NUnit.Framework.Internal.Commands;
 
 namespace TestApp
 {
-    public class TestSqlInjections
+    public static class TestSqlInjections
     {
         [Entity(Table = "tgoodsqi")]
         public class Good
@@ -58,50 +58,50 @@ namespace TestApp
 
             var goodDescriptor = AllEntities.Inst[typeof(Good)].TableDescriptor;
 
-            ((Action)(() => { connection.GetQuery($"select * from {goodDescriptor.Name} where good = ';  -- '"); })).Should().Throw<ArgumentException>();
-            ((Action)(() => { connection.GetQuery($"select * from {goodDescriptor.Name} where good = \";  -- \""); })).Should().Throw<ArgumentException>();
+            ((Action)(() => connection.GetQuery($"select * from {goodDescriptor.Name} where good = ';  -- '"))).Should().Throw<ArgumentException>();
+            ((Action)(() => connection.GetQuery($"select * from {goodDescriptor.Name} where good = \";  -- \""))).Should().Throw<ArgumentException>();
 
             //check delete query
             {
                 var builder = new DeleteQueryBuilder(connection.GetLanguageSpecifics(), goodDescriptor);
-                ((Action)(() => { builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("a"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("'"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("\""); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.Where.And().Property(goodDescriptor["ID"]).Eq().Value(1); })).Should().NotThrow<ArgumentException>();
+                ((Action)(() => builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("a"))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("'"))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("\""))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.Where.And().Property(goodDescriptor["ID"]).Eq().Value(1))).Should().NotThrow<ArgumentException>();
             }
 
             //check update query
             {
                 var builder = new UpdateQueryBuilder(connection.GetLanguageSpecifics(), goodDescriptor);
 
-                ((Action)(() => { builder.AddUpdateColumn(goodDescriptor["Name"], "'; -- '"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("a"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("'"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("\""); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.Where.And().Property(goodDescriptor["ID"]).Eq().Value(1); })).Should().NotThrow<ArgumentException>();
+                ((Action)(() => builder.AddUpdateColumn(goodDescriptor["Name"], "'; -- '"))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("a"))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("'"))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("\""))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.Where.And().Property(goodDescriptor["ID"]).Eq().Value(1))).Should().NotThrow<ArgumentException>();
             }
 
             //check select query
             {
                 var builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), goodDescriptor);
-                ((Action)(() => { builder.AddExpressionToResultset("'; --", DbType.String); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.AddExpressionToResultset("; --", DbType.String); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.AddToResultset(goodDescriptor["Name"], "';--"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.AddToResultset(goodDescriptor["Name"], ";--"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("a"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { builder.Having.And().Property(goodDescriptor["Name"]).Eq().Value("a"); })).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.AddExpressionToResultset("'; --", DbType.String))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.AddExpressionToResultset("; --", DbType.String))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.AddToResultset(goodDescriptor["Name"], "';--"))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.AddToResultset(goodDescriptor["Name"], ";--"))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("a"))).Should().Throw<ArgumentException>();
+                ((Action)(() => builder.Having.And().Property(goodDescriptor["Name"]).Eq().Value("a"))).Should().Throw<ArgumentException>();
             }
 
             using (var query = connection.GetGenericSelectEntityQuery<Good>())
             {
-                ((Action)(() => { query.AddExpressionToResultset("'; --", DbType.String, "hack"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { query.AddExpressionToResultset("; --", DbType.String, "hack"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { query.AddExpressionToResultset("Name", DbType.String, "hack;--"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { query.AddToResultset("Name", "hack;--"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { query.AddToResultset(AggFn.Avg, "Name", "hack;--"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { query.Where.Property("Name").Eq().Raw("hack;--"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { query.Where.Property("Name").Eq().Raw("'hack;--"); })).Should().Throw<ArgumentException>();
-                ((Action)(() => { query.AddOrderByExpr("Name;"); })).Should().Throw<ArgumentException>();
+                ((Action)(() => query.AddExpressionToResultset("'; --", DbType.String, "hack"))).Should().Throw<ArgumentException>();
+                ((Action)(() => query.AddExpressionToResultset("; --", DbType.String, "hack"))).Should().Throw<ArgumentException>();
+                ((Action)(() => query.AddExpressionToResultset("Name", DbType.String, "hack;--"))).Should().Throw<ArgumentException>();
+                ((Action)(() => query.AddToResultset("Name", "hack;--"))).Should().Throw<ArgumentException>();
+                ((Action)(() => query.AddToResultset(AggFn.Avg, "Name", "hack;--"))).Should().Throw<ArgumentException>();
+                ((Action)(() => query.Where.Property("Name").Eq().Raw("hack;--"))).Should().Throw<ArgumentException>();
+                ((Action)(() => query.Where.Property("Name").Eq().Raw("'hack;--"))).Should().Throw<ArgumentException>();
+                ((Action)(() => query.AddOrderByExpr("Name;"))).Should().Throw<ArgumentException>();
             }
         }
     }

@@ -10,9 +10,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlAutoJoinedTable : SqlTableSpecification
     {
-        private SqlTableSpecification mLeftTable;
-        private SqlPrimaryTable mRightTable;
-
         internal override TableType Type
         {
             get
@@ -21,21 +18,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlTableSpecification LeftTable
-        {
-            get
-            {
-                return mLeftTable;
-            }
-        }
+        internal SqlTableSpecification LeftTable { get; }
 
-        internal SqlPrimaryTable RightTable
-        {
-            get
-            {
-                return mRightTable;
-            }
-        }
+        internal SqlPrimaryTable RightTable { get; }
 
         internal SqlAutoJoinedTable(SqlStatement parentStatement, ASTNode fieldNode, string source)
         {
@@ -44,15 +29,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             if (node1.Symbol.ID == SqlParser.ID.VariableTablePrimary)
             {
-                mLeftTable = new SqlPrimaryTable(parentStatement, node1, source);
+                LeftTable = new SqlPrimaryTable(parentStatement, node1, source);
             }
             else if (node1.Symbol.ID == SqlParser.ID.VariableQualifiedJoin)
             {
-                mLeftTable = new SqlQualifiedJoinedTable(parentStatement, node1, source);
+                LeftTable = new SqlQualifiedJoinedTable(parentStatement, node1, source);
             }
             else if (node1.Symbol.ID == SqlParser.ID.VariableAutoJoin)
             {
-                mLeftTable = new SqlAutoJoinedTable(parentStatement, node1, source);
+                LeftTable = new SqlAutoJoinedTable(parentStatement, node1, source);
             }
             else
             {
@@ -64,7 +49,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             if (node2.Symbol.ID == SqlParser.ID.VariableTablePrimary)
             {
-                mRightTable = new SqlPrimaryTable(parentStatement, node2, source);
+                RightTable = new SqlPrimaryTable(parentStatement, node2, source);
             }
             else
             {
@@ -77,8 +62,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal SqlAutoJoinedTable(SqlTableSpecification leftTable, SqlPrimaryTable rightTable)
         {
-            mLeftTable = leftTable;
-            mRightTable = rightTable;
+            LeftTable = leftTable;
+            RightTable = rightTable;
         }
     }
 }

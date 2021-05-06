@@ -27,7 +27,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         protected EntityQueryWithWhereBuilder(SqlDbLanguageSpecifics languageSpecifics, Type type) : base(languageSpecifics, type)
         {
-
         }
 
         protected EntityQueryWithWhereBuilder(SqlDbLanguageSpecifics languageSpecifics, Type type, QueryWithWhereBuilder builder) : base(languageSpecifics, type, builder)
@@ -67,7 +66,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         internal EntityQueryItem FindItem(string propertyName, Type type, int typeOccurrence = 0)
         {
-            EntityQueryItem item = null;
+            EntityQueryItem item;
 
             if (type == null)
                 mItemIndex.TryGetValue(propertyName, out item);
@@ -80,11 +79,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return item;
         }
 
-
         internal EntityQueryItem FindPath(string path)
         {
-            EntityQueryItem item = null;
-            mItemIndex.TryGetValue(path, out item);
+            mItemIndex.TryGetValue(path, out EntityQueryItem item);
             return item;
         }
 
@@ -92,21 +89,19 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public string Alias(string path, out DbType columnType)
         {
-            EntityQueryItem item = null;
             columnType = DbType.Object;
-            if (!mItemIndex.TryGetValue(path, out item))
+            if (!mItemIndex.TryGetValue(path, out EntityQueryItem item))
                 throw new EfSqlException(EfExceptionCode.ColumnNotFound, path);
             columnType = item.Column.DbType;
             return GetAlias(item);
         }
-        
+
         public string Alias(Type type, int occurrence, string propertyName, out DbType columnType)
         {
-            EntityQueryItem item = null;
             columnType = DbType.Object;
             if (type == null)
                 type = mEntityDescriptor.EntityType;
-            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, occurrence, propertyName), out item))
+            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, occurrence, propertyName), out EntityQueryItem item))
                 throw new EfSqlException(EfExceptionCode.ColumnNotFound, propertyName);
             columnType = item.Column.DbType;
             return GetAlias(item);

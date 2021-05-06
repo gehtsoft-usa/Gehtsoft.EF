@@ -48,7 +48,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             set { mSelectBuilder.Limit = value; }
         }
 
-        private List<Type> mResultsetTypes = new List<Type>();
+        private readonly List<Type> mResultsetTypes = new List<Type>();
 
         public void AddToResultset(string property, string alias = null)
         {

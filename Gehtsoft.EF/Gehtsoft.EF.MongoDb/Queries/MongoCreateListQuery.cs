@@ -16,7 +16,6 @@ namespace Gehtsoft.EF.MongoDb
     {
         internal MongoCreateListQuery(MongoConnection connection, Type entityType) : base(connection, entityType)
         {
-
         }
 
         public override Task ExecuteAsync() => ExecuteAsyncCore(null);
@@ -24,7 +23,7 @@ namespace Gehtsoft.EF.MongoDb
 
         private async Task ExecuteAsyncCore(CancellationToken? token)
         {
-            if (!(await Connection.Database.ListCollectionNamesAsync(new ListCollectionNamesOptions {Filter = new BsonDocument() {new BsonElement("name", new BsonString(CollectionName))}})).Any())
+            if (!(await Connection.Database.ListCollectionNamesAsync(new ListCollectionNamesOptions { Filter = new BsonDocument() { new BsonElement("name", new BsonString(CollectionName)) } })).Any())
             {
                 if (token == null)
                     await Connection.Database.CreateCollectionAsync(CollectionName);

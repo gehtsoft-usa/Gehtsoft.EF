@@ -7,7 +7,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     {
         public DeleteQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table) : base(specifics, table)
         {
-            
         }
 
         public void DeleteById()

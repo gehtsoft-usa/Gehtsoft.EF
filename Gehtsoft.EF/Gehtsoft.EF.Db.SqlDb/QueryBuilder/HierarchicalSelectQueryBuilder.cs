@@ -11,7 +11,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected string mRootParameterName;
 
         private static int gAlias = 0;
-        private static object gAliasMutex = new object();
+        private static readonly object gAliasMutex = new object();
 
         protected static string NextAlias
         {
@@ -33,8 +33,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             get { return mQuery; }
         }
 
-
-        public HierarchicalSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, TableDescriptor.ColumnInfo parentReferenceColumn, string rootParameterName) : base(specifics)
+        protected HierarchicalSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, TableDescriptor.ColumnInfo parentReferenceColumn, string rootParameterName) : base(specifics)
         {
             mReferenceColumn = parentReferenceColumn;
             mPrimaryKey = table.PrimaryKey;
@@ -52,12 +51,14 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             {
                 if (Query == null)
                     PrepareQuery();
-                mQueryTableDescriptor = new TableDescriptor($"({Query})");
-                mQueryTableDescriptor.Add(new TableDescriptor.ColumnInfo() { Name = "id", DbType = mPrimaryKey.DbType });
+                mQueryTableDescriptor = new TableDescriptor($"({Query})")
+                {
+                    new TableDescriptor.ColumnInfo() { Name = "id", DbType = mPrimaryKey.DbType }
+                };
                 if (!IdOnlyMode)
                 {
-                    mQueryTableDescriptor.Add(new TableDescriptor.ColumnInfo() {Name = "parent", DbType = mReferenceColumn.DbType});
-                    mQueryTableDescriptor.Add(new TableDescriptor.ColumnInfo() {Name = "level", DbType = DbType.Int32});
+                    mQueryTableDescriptor.Add(new TableDescriptor.ColumnInfo() { Name = "parent", DbType = mReferenceColumn.DbType });
+                    mQueryTableDescriptor.Add(new TableDescriptor.ColumnInfo() { Name = "level", DbType = DbType.Int32 });
                 }
             }
             return mQueryTableDescriptor;

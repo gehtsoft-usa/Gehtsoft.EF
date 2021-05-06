@@ -5,7 +5,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
 {
     public class MssqlQuery : SqlDbQuery
     {
-        private SqlCommand mSqlCommand;
+        private readonly SqlCommand mSqlCommand;
 
         protected internal MssqlQuery(MssqlDbConnection connection, SqlCommand command, SqlDbLanguageSpecifics specifics) : base(connection, command, specifics)
         {

@@ -6,17 +6,16 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     public class SelectEntityTreeQueryBuilder : SelectEntityQueryBuilderBase
     {
-        private HierarchicalSelectQueryBuilder mHierarchicalSelectQueryBuilder;
         private static int mRootID;
-        private string mRootParameter;
 
-        public string RootParameter => mRootParameter;
+        public string RootParameter { get; }
 
         public SelectEntityTreeQueryBuilder(Type type, SqlDbConnection connection, bool isRooted) : base(type, connection)
         {
             if (mEntityDescriptor.SelfReference == null)
                 throw new ArgumentException("Entity type is not self-referenced", nameof(type));
-            mHierarchicalSelectQueryBuilder = connection.GetHierarchicalSelectQueryBuilder(mEntityDescriptor.TableDescriptor, mEntityDescriptor.SelfReference, mRootParameter = (isRooted ? $"treeRoot{mRootID++}" : null));
+            RootParameter = isRooted ? $"treeRoot{mRootID++}" : null;
+            var mHierarchicalSelectQueryBuilder = connection.GetHierarchicalSelectQueryBuilder(mEntityDescriptor.TableDescriptor, mEntityDescriptor.SelfReference, RootParameter);
             mHierarchicalSelectQueryBuilder.IdOnlyMode = true;
             mHierarchicalSelectQueryBuilder.PrepareQuery();
             mSelectQueryBuilder.Where.And().Property(mEntityDescriptor.TableDescriptor.PrimaryKey).Is(CmpOp.In).Query(mHierarchicalSelectQueryBuilder);

@@ -49,7 +49,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             public Result(SqlDbLanguageSpecifics specifics, string name, object value)
             {
                 IsParameterExpression = true;
-                Expression.Append($"{specifics.ParameterInQueryPrefix}{name}");
+                Expression.Append(specifics.ParameterInQueryPrefix).Append(name);
                 Params.Add(new ExpressionParameter() { Name = $"{specifics.ParameterPrefix}{name}", Value = value });
             }
 
@@ -79,19 +79,20 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
         public void ThrowUnknowPropertyOfType(Type type, string property, string parameterName) => throw new ArgumentException($"Unknown property {property} of {type.Name}", parameterName);
 
+#pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one 
         public void ThrowQueryArgument() => throw new ArgumentException("The operation requires a sub query as an argument", "subquery");
 
         public void ThrowReferenceArgument() => throw new ArgumentException("The operation requires a reference as an argument", "reference");
+#pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one 
 
         public Result Visit(Expression node)
         {
-            if (node is ConstantExpression)
+            if (node is ConstantExpression constantExpression)
             {
-                return new Result(mSpecifics, "leq" + NextLeqParam, ((ConstantExpression)node).Value);
+                return new Result(mSpecifics, "leq" + NextLeqParam, (constantExpression).Value);
             }
-            else if (node is UnaryExpression)
+            else if (node is UnaryExpression unaryExpression)
             {
-                UnaryExpression unaryExpression = (UnaryExpression)node;
                 if (unaryExpression.NodeType == ExpressionType.Quote)
                 {
                     LambdaExpression expression = (LambdaExpression)unaryExpression.Operand;
@@ -111,14 +112,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     }
                 }
             }
-            else if (node is MemberExpression)
+            else if (node is MemberExpression memberExpression)
             {
-                EntityQueryWithWhereBuilder.EntityQueryItem queryPath = IsQueryPath((MemberExpression)(node));
+                EntityQueryWithWhereBuilder.EntityQueryItem queryPath = IsQueryPath(memberExpression);
                 Result res = new Result();
                 if (queryPath != null)
                 {
                     ConditionEntityQueryBase.InQueryName n = mQuery.GetReference(queryPath);
-                    res.Expression.Append($"{n.Alias}");
+                    res.Expression.Append(n.Alias);
                     return res;
                 }
                 else
@@ -126,10 +127,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     return new Result(mSpecifics, "leq" + NextLeqParam, node);
                 }
             }
-            else if (node is BinaryExpression)
+            else if (node is BinaryExpression binaryExpression)
             {
-                Result left = Visit(((BinaryExpression)node).Left);
-                Result right = Visit(((BinaryExpression)node).Right);
+                Result left = Visit(binaryExpression.Left);
+                Result right = Visit(binaryExpression.Right);
                 if (left.IsParameterExpression && right.IsParameterExpression)
                 {
                     left.Params[0].Value = node;
@@ -137,12 +138,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 }
                 else
                 {
-                    return ProcessBinary((BinaryExpression)node, left, right);
+                    return ProcessBinary(binaryExpression, left, right);
                 }
             }
-            else if (node is MethodCallExpression)
+            else if (node is MethodCallExpression methodCallExpression)
             {
-                return ProcessCall((MethodCallExpression)node);
+                return ProcessCall(methodCallExpression);
             }
             else if (node.NodeType == ExpressionType.Parameter)
             {
@@ -152,7 +153,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 if (r == null)
                     ThrowExpressionType(node.Type, nameof(node));
                 Result res = new Result();
-                res.Expression.Append($"{r.QueryEntity.Alias}.{r.Column.Name}");
+                if (r != null)
+                    res.Expression.Append(r.QueryEntity.Alias ?? "").Append('.').Append(r.Column.Name);
                 return res;
             }
             else
@@ -221,7 +223,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         {
             Result result = new Result();
             result.Expression.Append("(");
-            result.HasAggregates = left.HasAggregates | right.HasAggregates;
+            result.HasAggregates = left.HasAggregates || right.HasAggregates;
             result.Add(left);
 
             string op;
@@ -352,7 +354,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 else if (node.Expression.Type == typeof(ConditionEntityQueryBase.InQueryName))
                 {
                     object value = Expression.Lambda(node).Compile().DynamicInvoke();
-                    return (((ConditionEntityQueryBase.InQueryName)value).Item);
+                    return ((ConditionEntityQueryBase.InQueryName)value).Item;
                 }
                 else
                     return null;
@@ -417,7 +419,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         object value = Expression.Lambda(argumentResults[0].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
                         query.SelectBuilder.PrepareQuery();
-                        res.Expression.Append($"({query.SelectBuilder.Query})");
+                        res.Expression.Append('(').Append(query.SelectBuilder.Query).Append(')');
                         res.Params.Add(new ExpressionParameter() { Value = query });
                         return res;
                     }
@@ -440,7 +442,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         object value = Expression.Lambda(argumentResults[1].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
                         query.SelectBuilder.PrepareQuery();
-                        res.Expression.Append($" {argumentResults[0].Expression.ToString()} IN ({query.SelectBuilder.Query})");
+                        res
+                            .Expression
+                            .Append(' ')
+                            .Append(argumentResults[0].Expression)
+                            .Append(" IN (")
+                            .Append(query.SelectBuilder.Query)
+                            .Append(')');
                         res.Params.Add(new ExpressionParameter() { Value = query });
                         return res;
                     }
@@ -449,7 +457,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         object value = Expression.Lambda(argumentResults[1].Params[0].Value as Expression).Compile().DynamicInvoke();
                         AQueryBuilder query = value as AQueryBuilder;
                         query.PrepareQuery();
-                        res.Expression.Append($" {argumentResults[0].Expression.ToString()} IN ({query.Query})");
+                        res
+                            .Expression
+                            .Append(' ')
+                            .Append(argumentResults[0].Expression)
+                            .Append(" IN (")
+                            .Append(query.Query)
+                            .Append(')');
                         return res;
                     }
                     else
@@ -471,7 +485,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         object value = Expression.Lambda(argumentResults[1].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
                         query.SelectBuilder.PrepareQuery();
-                        res.Expression.Append($" {argumentResults[0].Expression.ToString()} NOT IN ({query.SelectBuilder.Query})");
+                        res
+                            .Expression
+                            .Append(' ')
+                            .Append(argumentResults[0].Expression)
+                            .Append(" NOT IN (")
+                            .Append(query.SelectBuilder.Query)
+                            .Append(')');
                         res.Params.Add(new ExpressionParameter() { Value = query });
                         return res;
                     }
@@ -480,7 +500,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         object value = Expression.Lambda(argumentResults[1].Params[0].Value as Expression).Compile().DynamicInvoke();
                         AQueryBuilder query = value as AQueryBuilder;
                         query.PrepareQuery();
-                        res.Expression.Append($" {argumentResults[0].Expression.ToString()} NOT IN ({query.Query})");
+                        res
+                            .Expression
+                            .Append(' ')
+                            .Append(argumentResults[0].Expression)
+                            .Append(" NOT IN (")
+                            .Append(query.Query)
+                            .Append(')');
                         return res;
                     }
                     else
@@ -502,7 +528,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         object value = Expression.Lambda(argumentResults[0].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
                         query.SelectBuilder.PrepareQuery();
-                        res.Expression.Append($" EXISTS ({query.SelectBuilder.Query})");
+                        res
+                            .Expression
+                            .Append(" EXISTS (")
+                            .Append(query.SelectBuilder.Query)
+                            .Append(')');
                         res.Params.Add(new ExpressionParameter() { Value = query });
                         return res;
                     }
@@ -511,7 +541,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         object value = Expression.Lambda(argumentResults[0].Params[0].Value as Expression).Compile().DynamicInvoke();
                         AQueryBuilder query = value as AQueryBuilder;
                         query.PrepareQuery();
-                        res.Expression.Append($" EXISTS ({query.Query})");
+                        res
+                            .Expression
+                            .Append(" EXISTS (")
+                            .Append(query.Query)
+                            .Append(')');
                         return res;
                     }
                     else
@@ -533,7 +567,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         object value = Expression.Lambda(argumentResults[0].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
                         query.SelectBuilder.PrepareQuery();
-                        res.Expression.Append($" NOT EXISTS ({query.SelectBuilder.Query})");
+                        res
+                            .Expression
+                            .Append(" NOT EXISTS (")
+                            .Append(query.SelectBuilder.Query)
+                            .Append(')');
                         res.Params.Add(new ExpressionParameter() { Value = query });
                         return res;
                     }
@@ -542,7 +580,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         object value = Expression.Lambda(argumentResults[0].Params[0].Value as Expression).Compile().DynamicInvoke();
                         AQueryBuilder query = value as AQueryBuilder;
                         query.PrepareQuery();
-                        res.Expression.Append($" NOT EXISTS ({query.Query})");
+                        res.Expression.Append(" NOT EXISTS (").Append(query.Query).Append(')');
                         return res;
                     }
                     else
@@ -649,9 +687,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             }
             else if (callNode.Method.DeclaringType == typeof(string) && callNode.Method.Name == nameof(string.ToUpper))
             {
-                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Lower, stringResults));
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Upper, stringResults));
             }
-            else if (callNode.Method.DeclaringType == typeof(string) && callNode.Method.Name == nameof(string.ToUpper))
+            else if (callNode.Method.DeclaringType == typeof(string) && callNode.Method.Name == nameof(string.ToLower))
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Lower, stringResults));
             }
@@ -668,7 +706,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.TrimRight, stringResults));
             }
             else
-                throw new Exception("Unknown function");
+                throw new ArgumentException($"Function {callNode.Method.DeclaringType.Name}.{callNode.Method.Name} is not supported", nameof(callNode));
 
             return res;
         }

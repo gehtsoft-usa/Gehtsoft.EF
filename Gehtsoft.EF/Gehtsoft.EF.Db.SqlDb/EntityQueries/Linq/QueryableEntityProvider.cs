@@ -54,7 +54,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
         public TResult Execute<TResult>(Expression expression)
         {
-            object r = Execute(expression, (typeof(TResult).Name == "IEnumerable`1"));
+            object r = Execute(expression, typeof(TResult).Name == "IEnumerable`1");
             if (r != null && typeof(TResult).IsValueType)
             {
                 if (r.GetType() != typeof(TResult))
@@ -118,13 +118,19 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
             public void Dispose()
             {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
                 Query?.Dispose();
                 Query = EntityQuery = null;
             }
 
             ~CompiledQuery()
             {
-                Dispose();
+                Dispose(false);
             }
         }
 
@@ -187,9 +193,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
             if (compiler.Select != null)
             {
-                Type returnType = compiler.Select.ReturnType;
-                TypeInfo returnTypeInfo = returnType.GetTypeInfo();
-
                 if (compiler.Select.Body.NodeType == ExpressionType.New)
                 {
                     //create a custom result set
@@ -199,19 +202,22 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         if (groupByKeyType != null && newExpression.Arguments[i].NodeType == ExpressionType.MemberAccess)
                         {
                             MemberExpression memberExpression = (MemberExpression)newExpression.Arguments[i];
-                            if (grouping.Length == 1 && memberExpression.Type == groupByKeyType)
+                            if (grouping?.Length == 1 && memberExpression.Type == groupByKeyType)
                             {
                                 query.Query.AddToResultset(grouping[0].Item2, newExpression.Members[i].Name);
                                 continue;
                             }
                             else if (memberExpression.Expression.Type == groupByKeyType)
                             {
-                                foreach (var v in grouping)
+                                if (grouping != null)
                                 {
-                                    if (v.Item1 == memberExpression.Member.Name)
+                                    foreach (var v in grouping)
                                     {
-                                        query.Query.AddToResultset(v.Item2, newExpression.Members[i].Name);
-                                        break;
+                                        if (v.Item1 == memberExpression.Member.Name)
+                                        {
+                                            query.Query.AddToResultset(v.Item2, newExpression.Members[i].Name);
+                                            break;
+                                        }
                                     }
                                 }
                                 continue;
@@ -271,7 +277,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                             }
                             else
                             {
-                                throw new ArgumentException($"Unsupported type {(callExpression.Arguments.Count > 0 ? callExpression.Arguments[0] : null)} in call", nameof(Expression));
+                                throw new ArgumentException($"Unsupported type {(callExpression.Arguments.Count > 0 ? callExpression.Arguments[0] : null)} in call", nameof(expression));
                             }
                         }
 
@@ -316,11 +322,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             }
             object returnValue = Activator.CreateInstance(type, args);
             return returnValue;
-        }
-
-        private static object CreateDynamic(SelectEntitiesQueryBase query)
-        {
-            return query.ReadOneDynamic();
         }
 
         protected object Execute(Expression expression, bool isEnumerable)
@@ -423,7 +424,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
     public class QueryableEntityProviderConnection : QueryableEntityProvider.IConnectionProvider
     {
-        public SqlDbConnection Connection { get; private set; }
+        public SqlDbConnection Connection { get; }
         public bool NeedToDispose => false;
 
         public QueryableEntityProviderConnection(SqlDbConnection connection)
@@ -434,8 +435,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
     public class QueryableEntityProviderConnectionFactory : QueryableEntityProvider.IConnectionProvider
     {
-        private SqlDbConnectionFactory mFactory;
-        private string mConnectionString;
+        private readonly SqlDbConnectionFactory mFactory;
+        private readonly string mConnectionString;
         public SqlDbConnection Connection => mFactory(mConnectionString);
         public bool NeedToDispose => true;
 

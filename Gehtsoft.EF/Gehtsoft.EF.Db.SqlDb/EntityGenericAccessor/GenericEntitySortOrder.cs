@@ -4,11 +4,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 {
     public class GenericEntitySortOrder
     {
-        public string Path { get; private set; }
-        public SortDir Direction { get; private set; }
-        
+        public string Path { get; }
+        public SortDir Direction { get; }
+
         public SortDir ReversDirection => Direction == SortDir.Asc ? SortDir.Desc : SortDir.Asc;
-        
+
         public SortDir GetDirection(bool reverse = false) => reverse ? ReversDirection : Direction;
 
         public GenericEntitySortOrder(string path)

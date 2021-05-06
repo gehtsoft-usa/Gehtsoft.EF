@@ -74,7 +74,7 @@
     <Compile Include="CodeDom\SqlSortSpecification.cs" />
     <Compile Include="CodeDom\SqlStatement.cs" />
     <Compile Include="CodeDom\SqlTableSpecification.cs" />
-    <Compile Include="CodeDom\SqlUnarExpression.cs" />
+    <Compile Include="CodeDom\SqlUnaryExpression.cs" />
     <Compile Include="CodeDom\SqlUpdateAssign.cs" />
     <Compile Include="CodeDom\SqlWhereClause.cs" />
     <Compile Include="CodeDom\Statement.cs" />
@@ -85,7 +85,7 @@
     <Compile Include="InsertRunner.cs" />
     <Compile Include="StatementRunners.cs" />
     <Compile Include="SelectRunner.cs" />
-    <Compile Include="SqlASTVisitor.cs" />
+    <Compile Include="SqlAstVisitor.cs" />
     <Compile Include="SqlCodeDomBuilder.cs" />
     <Compile Include="SqlError.cs" />
     <Compile Include="SqlErrorCollection.cs" />

@@ -53,7 +53,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         $"WHERE expression should not contain calls of aggregate functions ({whereNode.Value ?? "null"})"));
                 }
             }
-
         }
 
         internal SqlDeleteStatement(SqlCodeDomBuilder builder, string tableName, SqlWhereClause whereClause = null)

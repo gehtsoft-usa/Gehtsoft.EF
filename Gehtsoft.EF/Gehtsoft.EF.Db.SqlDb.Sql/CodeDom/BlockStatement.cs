@@ -25,7 +25,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
         }
 
-
         internal override Expression ToLinqWxpression()
         {
             return LinqExpression;
@@ -39,11 +38,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
         }
 
-
         internal override Expression ToLinqWxpression()
         {
             return null;
         }
     }
-
 }

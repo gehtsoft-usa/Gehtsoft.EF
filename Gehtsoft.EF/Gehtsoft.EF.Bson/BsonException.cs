@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Bson
 
     public class BsonException : Exception
     {
-        public BsonExceptionCode Code { get; private set; }
+        public BsonExceptionCode Code { get; }
 
         public override string Message
         {

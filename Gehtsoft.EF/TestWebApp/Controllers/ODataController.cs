@@ -15,21 +15,22 @@ namespace TestWebApp.Controllers
     [ApiController]
     public class ODataController : Controller
     {
-        private ODataProcessor mPocessor;
+        private readonly ODataProcessor mProcessor;
 
         public ODataController(EdmModelBuilder edmModelBuilder, ISqlDbConnectionFactory connectionFactory)
         {
-            mPocessor = new ODataProcessor(connectionFactory, edmModelBuilder);
-            mPocessor.ODataCountName = "@odata.count"; // Kendo specific
-            //mPocessor.ODataCountName = "__count"; // Kendo specific
-            mPocessor.ODataMetadataName = "@odata.context"; // Kendo specific
+            mProcessor = new ODataProcessor(connectionFactory, edmModelBuilder)
+            {
+                ODataCountName = "@odata.count", // Kendo specific
+                ODataMetadataName = "@odata.context" // Kendo specific
+            };
         }
 
         [HttpGet("Order")]
         public string Order()
         {
-            mPocessor.Root = $"{Request.Scheme}://{Request.Host.Value}/OData";
-            string result = mPocessor.GetFormattedData(new Uri($"/Order{Request.QueryString}", UriKind.Relative));
+            mProcessor.Root = $"{Request.Scheme}://{Request.Host.Value}/OData";
+            string result = mProcessor.GetFormattedData(new Uri($"/Order{Request.QueryString}", UriKind.Relative));
 
             return result;
         }
@@ -37,17 +38,15 @@ namespace TestWebApp.Controllers
         [HttpGet("Product({key}")]
         public string GetProduct(int key)
         {
-            mPocessor.Root = $"{Request.Scheme}://{Request.Host.Value}/OData";
-            string result = mPocessor.GetFormattedData(new Uri($"/Product(){Request.QueryString}", UriKind.Relative));
-
-            return result;
+            mProcessor.Root = $"{Request.Scheme}://{Request.Host.Value}/OData";
+            return mProcessor.GetFormattedData(new Uri($"/Product(){Request.QueryString}", UriKind.Relative));
         }
 
         [HttpGet("Product")]
         public string Product()
         {
-            mPocessor.Root = $"{Request.Scheme}://{Request.Host.Value}/OData";
-            string result = mPocessor.GetFormattedData(new Uri($"/Product{Request.QueryString}", UriKind.Relative));
+            mProcessor.Root = $"{Request.Scheme}://{Request.Host.Value}/OData";
+            string result = mProcessor.GetFormattedData(new Uri($"/Product{Request.QueryString}", UriKind.Relative));
 
             return result;
         }
@@ -55,8 +54,7 @@ namespace TestWebApp.Controllers
         [HttpPut("Product({key})")]
         public IActionResult UpdateProduct(int key)
         {
-            bool wasError;
-            string result = mPocessor.UpdateRecord("Product", BodyContent, key, out wasError);
+            string result = mProcessor.UpdateRecord("Product", BodyContent, key, out bool wasError);
             if (wasError)
                 return StatusCode((int)HttpStatusCode.InternalServerError, result);
             else
@@ -66,8 +64,7 @@ namespace TestWebApp.Controllers
         [HttpPost("Product")]
         public IActionResult NewProduct()
         {
-            bool wasError;
-            string result = mPocessor.AddNewRecord("Product", BodyContent, out wasError);
+            string result = mProcessor.AddNewRecord("Product", BodyContent, out bool wasError);
             if (wasError)
                 return StatusCode((int)HttpStatusCode.InternalServerError, result);
             else
@@ -77,7 +74,7 @@ namespace TestWebApp.Controllers
         [HttpDelete("Product({key})")]
         public IActionResult DeleteProduct(int key)
         {
-            string result = mPocessor.RemoveRecord("Product", key);
+            string result = mProcessor.RemoveRecord("Product", key);
             if (string.IsNullOrEmpty(result))
                 return StatusCode((int)HttpStatusCode.NoContent);
             else
@@ -87,8 +84,8 @@ namespace TestWebApp.Controllers
         [HttpGet("Category")]
         public string Category()
         {
-            mPocessor.Root = $"{Request.Scheme}://{Request.Host.Value}/OData";
-            string result = mPocessor.GetFormattedData(new Uri($"/Category{Request.QueryString}", UriKind.Relative));
+            mProcessor.Root = $"{Request.Scheme}://{Request.Host.Value}/OData";
+            string result = mProcessor.GetFormattedData(new Uri($"/Category{Request.QueryString}", UriKind.Relative));
 
             return result;
         }
@@ -96,8 +93,8 @@ namespace TestWebApp.Controllers
         [HttpGet("Supplier")]
         public string Supplier()
         {
-            mPocessor.Root = $"{Request.Scheme}://{Request.Host.Value}/OData";
-            string result = mPocessor.GetFormattedData(new Uri($"/Supplier{Request.QueryString}", UriKind.Relative));
+            mProcessor.Root = $"{Request.Scheme}://{Request.Host.Value}/OData";
+            string result = mProcessor.GetFormattedData(new Uri($"/Supplier{Request.QueryString}", UriKind.Relative));
 
             return result;
         }
@@ -108,7 +105,7 @@ namespace TestWebApp.Controllers
             {
                 using (Stream receiveStream = Request.Body)
                 {
-                    using (StreamReader readStream = new StreamReader(receiveStream))
+                    using (var readStream = new StreamReader(receiveStream))
                     {
                         return readStream.ReadToEnd();
                     }

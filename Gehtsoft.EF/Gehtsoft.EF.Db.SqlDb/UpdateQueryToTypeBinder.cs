@@ -44,40 +44,39 @@ namespace Gehtsoft.EF.Db.SqlDb
             if (type == DbType.Double && size > 0 && TruncateNumbers)
             {
                 double d;
-                if (value is double)
-                    d = (double)value;
+                if (value is double x)
+                    d = x;
                 else
-                    d = (double)Convert.ToDouble(value);
+                    d = Convert.ToDouble(value);
                 double m = Math.Pow(10.0, size) - 1;
                 if (d > m)
-                    d = m;
+                    return m;
                 else if (d < -m)
-                    d = -m;
+                    return -m;
                 return d;
             }
 
             if (type == DbType.Decimal && size > 0 && TruncateNumbers)
             {
                 decimal d;
-                if (value is decimal)
-                    d = (decimal)value;
+                if (value is decimal x)
+                    d = x;
                 else
-                    d = (decimal)Convert.ToDecimal(value);
+                    d = Convert.ToDecimal(value);
                 decimal m = (decimal)Math.Pow(10.0, size) - 1;
                 if (d > m)
-                    d = m;
+                    return m;
                 else if (d < -m)
-                    d = -m;
+                    return -m;
                 return d;
             }
 
-            if ((type == DbType.DateTime || type == DbType.Date || type == DbType.DateTime2) && (value is DateTime) && TruncateDates)
+            if ((type == DbType.DateTime || type == DbType.Date || type == DbType.DateTime2) && (value is DateTime dt) && TruncateDates)
             {
-                DateTime dt = (DateTime)value;
                 if (dt > MaximumDate)
-                    dt = MaximumDate;
+                    return MaximumDate;
                 else if (dt < MinimumDate)
-                    dt = MinimumDate;
+                    return MinimumDate;
                 return dt;
             }
             return value;
@@ -86,8 +85,8 @@ namespace Gehtsoft.EF.Db.SqlDb
 
     public class UpdateQueryToTypeBinder
     {
-        private Type mType;
-        private List<UpdateQueryToTypeBinderRule> mRules = new List<UpdateQueryToTypeBinderRule>();
+        private readonly Type mType;
+        private readonly List<UpdateQueryToTypeBinderRule> mRules = new List<UpdateQueryToTypeBinderRule>();
         private UpdateQueryToTypeBinderRule mAutoPkRule = null;
 
         public UpdateQueryToTypeBinder(Type type)
@@ -138,7 +137,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                 if (dbprefix != null && name.StartsWith(dbprefix))
                     name = name.Substring(dbprefix.Length);
                 if (typeprefix != null)
-                    name = name + typeprefix;
+                    name += typeprefix;
                 PropertyInfo propertyInfo = mType.GetProperty(name);
                 AddBinding(column.Name, name, new PropertyAccessor(propertyInfo), null, column.DbType, column.Size, column.Autoincrement && column.PrimaryKey);
             }
@@ -229,7 +228,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 
             if (isInsert && mAutoPkRule != null)
             {
-                object v = null;
+                object v;
                 if (query.LanguageSpecifics.AutoincrementReturnedAs == SqlDbLanguageSpecifics.AutoincrementReturnStyle.Parameter)
                 {
                     v = query.GetParamValue(mAutoPkRule.ParameterName, mAutoPkRule.PropertyInfo.PropertyType);

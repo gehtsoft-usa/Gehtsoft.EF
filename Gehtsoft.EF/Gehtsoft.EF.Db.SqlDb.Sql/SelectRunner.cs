@@ -14,11 +14,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
     internal class SelectRunner : SqlStatementRunner<SqlSelectStatement>
     {
-        private SqlCodeDomBuilder mBuilder;
+        private readonly SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;
         private readonly ISqlDbConnectionFactory mConnectionFactory = null;
         private SelectQueryBuilder mMainBuilder = null;
-        private EntityDescriptor mMainEntityDescriptor = null;
         private SqlSelectStatement mSelect;
 
         internal SelectRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory, IBindParamsOwner bindParamsOwner = null)
@@ -67,18 +66,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        internal override AQueryBuilder GetQueryBuilder(SqlSelectStatement select)
+        internal override AQueryBuilder GetQueryBuilder(SqlSelectStatement statement)
         {
             if (MainBuilder == null)
             {
-                mSelect = select;
+                mSelect = statement;
                 if (mConnectionFactory != null)
                 {
                     mConnection = mConnectionFactory.GetConnection();
                 }
                 try
                 {
-                    processSelect(select);
+                    ProcessSelect(statement);
                 }
                 finally
                 {
@@ -92,14 +91,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return MainBuilder;
         }
 
-        private void processSelect(SqlSelectStatement select)
+        private void ProcessSelect(SqlSelectStatement select)
         {
-            processFrom(select.FromClause);
-            processSelectList(select.SelectList);
-            reProcessFrom(select.FromClause);
-            if (select.WhereClause != null) processWhereClause(select.WhereClause);
-            if (select.Sorting != null) processSorting(select.Sorting);
-            if (select.Grouping != null) processGrouping(select.Grouping);
+            ProcessFrom(select.FromClause);
+            ProcessSelectList(select.SelectList);
+            ReProcessFrom(select.FromClause);
+            if (select.WhereClause != null) ProcessWhereClause(select.WhereClause);
+            if (select.Sorting != null) ProcessSorting(select.Sorting);
+            if (select.Grouping != null) ProcessGrouping(select.Grouping);
 
             if (select.SetQuantifier == "DISTINCT")
                 mMainBuilder.Distinct = true;
@@ -115,7 +114,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         internal dynamic Run(SqlSelectStatement select)
         {
             List<dynamic> result = new List<dynamic>();
-            
+
             mSelect = select;
             if (mConnectionFactory != null)
             {
@@ -123,7 +122,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             try
             {
-                processSelect(select);
+                ProcessSelect(select);
 
                 using (SqlDbQuery query = mConnection.GetQuery(mMainBuilder))
                 {
@@ -132,7 +131,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     query.ExecuteReader();
                     while (query.ReadNext())
                     {
-                        dynamic o = bindRecord(query, select);
+                        dynamic o = BindRecord(query, select);
                         result.Add(o);
                     }
                 }
@@ -148,7 +147,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return result;
         }
 
-
         private SqlDbQuery mOpenedQuery = null;
         private Guid mQueryGuid = Guid.Empty;
 
@@ -156,7 +154,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             if (mOpenedQuery != null && mOpenedQuery.ReadNext())
             {
-                return bindRecord(mOpenedQuery, select);
+                return BindRecord(mOpenedQuery, select);
             }
             return null;
         }
@@ -170,7 +168,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             try
             {
-                processSelect(select);
+                ProcessSelect(select);
 
                 mOpenedQuery = mConnection.GetQuery(mMainBuilder);
                 ApplyBindParams(mOpenedQuery);
@@ -207,7 +205,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        private void processGrouping(SqlGroupSpecificationCollection grouping)
+        private void ProcessGrouping(SqlGroupSpecificationCollection grouping)
         {
             foreach (SqlGroupSpecification group in grouping)
             {
@@ -215,7 +213,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        private void processSorting(SqlSortSpecificationCollection sorting)
+        private void ProcessSorting(SqlSortSpecificationCollection sorting)
         {
             foreach (SqlSortSpecification sort in sorting)
             {
@@ -223,33 +221,32 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        private void processWhereClause(SqlWhereClause whereClause)
+        private void ProcessWhereClause(SqlWhereClause whereClause)
         {
             mMainBuilder.Where.Add(LogOp.And, GetStrExpression(whereClause.RootExpression));
         }
 
-        private void processSelectList(SqlSelectList selectList)
+        private void ProcessSelectList(SqlSelectList selectList)
         {
             if (!selectList.All)
             {
                 foreach (SqlExpressionAlias item in selectList.FieldAliasCollection)
                 {
-                    bool isAggregate;
-                    string sExpr = GetStrExpression(item.Expression, out isAggregate);
+                    string sExpr = GetStrExpression(item.Expression, out bool isAggregate);
                     if (sExpr == null)
-                        throw new SqlParserException(new SqlError(null, 0, 0, $"Unknown expression"));
+                        throw new SqlParserException(new SqlError(null, 0, 0, "Unknown expression"));
                     mMainBuilder.AddExpressionToResultset(sExpr, GetDbType(item.Expression.SystemType), isAggregate, item.Alias);
                 }
             }
         }
 
-        private void diveTableSpecification(SqlTableSpecification table)
+        private void DiveTableSpecification(SqlTableSpecification table)
         {
             if (table is SqlPrimaryTable primaryTable)
             {
                 if (mMainBuilder == null)
                 {
-                    mMainBuilder = createBuilder(primaryTable.TableName, out mMainEntityDescriptor);
+                    mMainBuilder = CreateBuilder(primaryTable.TableName, out _);
                 }
                 else
                 {
@@ -258,7 +255,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (table is SqlQualifiedJoinedTable joinedTable)
             {
-                diveTableSpecification(joinedTable.LeftTable);
+                DiveTableSpecification(joinedTable.LeftTable);
 
                 TableJoinType joinType = TableJoinType.None;
                 switch (joinedTable.JoinType)
@@ -281,40 +278,40 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (table is SqlAutoJoinedTable autoJoinedTable)
             {
-                diveTableSpecification(autoJoinedTable.LeftTable);
+                DiveTableSpecification(autoJoinedTable.LeftTable);
 
                 mMainBuilder.AddTable(FindTableDescriptor(autoJoinedTable.RightTable.TableName), true);
             }
         }
 
-        private void reDiveTableSpecification(SqlTableSpecification table)
+        private void ReDiveTableSpecification(SqlTableSpecification table)
         {
             if (table is SqlQualifiedJoinedTable joinedTable)
             {
-                reDiveTableSpecification(joinedTable.LeftTable);
+                ReDiveTableSpecification(joinedTable.LeftTable);
 
                 joinedTable.TryExpression();
                 joinedTable.BuilderEntity.On.Add(LogOp.And, GetStrExpression(joinedTable.JoinCondition));
             }
         }
 
-        private void reProcessFrom(SqlFromClause fromClause)
+        private void ReProcessFrom(SqlFromClause fromClause)
         {
             foreach (SqlTableSpecification table in fromClause.TableCollection)
             {
-                reDiveTableSpecification(table);
+                ReDiveTableSpecification(table);
             }
         }
 
-        private void processFrom(SqlFromClause fromClause)
+        private void ProcessFrom(SqlFromClause fromClause)
         {
             foreach (SqlTableSpecification table in fromClause.TableCollection)
             {
-                diveTableSpecification(table);
+                DiveTableSpecification(table);
             }
         }
 
-        private SelectQueryBuilder createBuilder(string entityName, out EntityDescriptor entityDescriptor)
+        private SelectQueryBuilder CreateBuilder(string entityName, out EntityDescriptor entityDescriptor)
         {
             Type entityType = mBuilder.EntityByName(entityName);
             if (entityType == null)
@@ -323,9 +320,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return mConnection.GetSelectQueryBuilder(entityDescriptor.TableDescriptor);
         }
 
-        private dynamic bindRecord(SqlDbQuery query, SqlSelectStatement select)
+        private dynamic BindRecord(SqlDbQuery query, SqlSelectStatement select)
         {
-
             ExpandoObject result = new ExpandoObject();
             var _result = result as IDictionary<string, object>;
             int fieldCount = query.FieldCount;

@@ -1,7 +1,7 @@
 @group
     @title=Namespace Gehtsoft.EF.Db.SqlDb.Sql
     @key=Gehtsoft.EF.Db.SqlDb.Sql
-    @ingroup=index
+    @ingroup=main
     @brief=The namespace consists of classes to execute SQL queries on the entities
 
     The namespace allows you to execute generalized SQL'92 queries on the entities without taking care

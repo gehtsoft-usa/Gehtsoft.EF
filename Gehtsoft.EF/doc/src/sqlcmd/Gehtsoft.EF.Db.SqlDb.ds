@@ -1,7 +1,7 @@
 @group
     @title=Namespace Gehtsoft.EF.Db.SqlDb
     @key=Gehtsoft.EF.Db.SqlDb
-    @ingroup=index
+    @ingroup=main
     @brief=The namespace consists of basic classes to operate with SQL DB
 
 @end

@@ -43,17 +43,17 @@ namespace Gehtsoft.EF.Db.SqlDb
 
     public class SelectQueryTypeBinder
     {
-        private Type mType;
-        private List<SelectQueryTypeBinderRule> mRules = new List<SelectQueryTypeBinderRule>();
+        private readonly Type mType;
+        private readonly List<SelectQueryTypeBinderRule> mRules = new List<SelectQueryTypeBinderRule>();
 
         public SelectQueryTypeBinder(Type type)
         {
             mType = type;
         }
-    
+
         public void AddBinding(string columnName, string property, bool pk = false)
         {
-            mRules.Add(new SelectQueryTypeBinderRule(columnName, property) {PrimaryKey = pk});
+            mRules.Add(new SelectQueryTypeBinderRule(columnName, property) { PrimaryKey = pk });
         }
 
         public void AddBinding(string columnName, IPropertyAccessor property, bool pk = false)
@@ -84,7 +84,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         public void AutoBind(string prefix = null)
         {
             foreach (PropertyInfo propertyInfo in mType.GetProperties())
-                mRules.Add(new SelectQueryTypeBinderRule((prefix == null ? propertyInfo.Name : prefix + propertyInfo.Name), propertyInfo.Name, new PropertyAccessor(propertyInfo)) {PrimaryKey = false});
+                mRules.Add(new SelectQueryTypeBinderRule(prefix == null ? propertyInfo.Name : prefix + propertyInfo.Name, propertyInfo.Name, new PropertyAccessor(propertyInfo)) { PrimaryKey = false });
         }
 
         public object Read(IDbQuery query)
@@ -127,7 +127,7 @@ namespace Gehtsoft.EF.Db.SqlDb
             if (mRules.Count == 0)
                 AutoBind();
 
-            IDictionary<string, object> dict = (IDictionary<string, object>) expandoObject;
+            IDictionary<string, object> dict = (IDictionary<string, object>)expandoObject;
 
             foreach (SelectQueryTypeBinderRule rule in mRules)
             {

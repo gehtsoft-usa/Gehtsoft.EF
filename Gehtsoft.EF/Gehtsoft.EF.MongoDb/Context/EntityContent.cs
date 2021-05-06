@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.MongoDb
 {
-    public partial class MongoConnection : IEntityContext, IDisposable
+    public sealed partial class MongoConnection : IEntityContext
     {
         IEntityContextTransaction IEntityContext.BeginTransaction()
         {

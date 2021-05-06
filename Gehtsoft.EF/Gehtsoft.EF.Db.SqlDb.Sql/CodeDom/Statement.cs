@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 using System.Linq.Expressions;
 
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     /// <summary>
@@ -17,7 +16,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     internal abstract class Statement
     {
         internal Expression OnContinue { get; set; } = null;
-        internal  SqlCodeDomBuilder CodeDomBuilder { get; } = null;
+        internal SqlCodeDomBuilder CodeDomBuilder { get; } = null;
         /// <summary>
         /// The types of the statements
         /// </summary>
@@ -45,24 +44,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         /// <summary>
         /// Type of the statement
         /// </summary>
-        internal  StatementType Type { get; }
+        internal StatementType Type { get; }
 
         internal class EntityEntry
         {
-            private string mEntityName;
-            private string mAlias;
-            private EntityDescriptor mEntityDescriptor;
+            private readonly string mEntityName;
+            private readonly string mAlias;
 
             internal EntityEntry(string entityName, Type entityType, string alias, EntityDescriptor entityDescriptor)
             {
                 mEntityName = entityName;
                 EntityType = entityType;
                 mAlias = alias;
-                mEntityDescriptor = entityDescriptor;
+                EntityDescriptor = entityDescriptor;
             }
 
-            internal  Type EntityType { get; }
-            internal  string ReferenceName
+            internal Type EntityType { get; }
+            internal string ReferenceName
             {
                 get
                 {
@@ -70,13 +68,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 }
             }
 
-            internal  EntityDescriptor EntityDescriptor
-            {
-                get
-                {
-                    return mEntityDescriptor;
-                }
-            }
+            internal EntityDescriptor EntityDescriptor { get; }
         }
 
         internal class EntityEntrysCollection : IReadOnlyList<EntityEntry>
@@ -85,7 +77,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             internal EntityEntrysCollection()
             {
-
             }
 
             /// <summary>
@@ -112,29 +103,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             internal void Add(EntityEntry entity) => mList.Add(entity);
 
-            internal bool Exists(string name) => mList.Where(t => t.ReferenceName == name).SingleOrDefault() != null;
+            internal bool Exists(string name) => mList.SingleOrDefault(t => t.ReferenceName == name) != null;
 
-            internal EntityEntry Find(string name) => mList.Where(t => t.ReferenceName == name).SingleOrDefault();
+            internal EntityEntry Find(string name) => mList.SingleOrDefault(t => t.ReferenceName == name);
         }
 
         internal class AliasEntry
         {
-            private string mAliasName;
-
             internal AliasEntry(string aliasName, SqlBaseExpression expression)
             {
-                mAliasName = aliasName;
+                AliasName = aliasName;
                 Expression = expression;
             }
 
-            internal  SqlBaseExpression Expression { get; }
-            internal  string AliasName
-            {
-                get
-                {
-                    return mAliasName;
-                }
-            }
+            internal SqlBaseExpression Expression { get; }
+            internal string AliasName { get; }
         }
 
         internal class AliasEntrysCollection : IReadOnlyList<AliasEntry>
@@ -143,7 +126,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             internal AliasEntrysCollection()
             {
-
             }
 
             /// <summary>
@@ -170,9 +152,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             internal void Add(AliasEntry alias) => mList.Add(alias);
 
-            internal bool Exists(string aliasName) => mList.Where(t => t.AliasName == aliasName).SingleOrDefault() != null;
+            internal bool Exists(string aliasName) => mList.SingleOrDefault(t => t.AliasName == aliasName) != null;
 
-            internal AliasEntry Find(string aliasName) => mList.Where(t => t.AliasName.Equals(aliasName, StringComparison.InvariantCultureIgnoreCase)).SingleOrDefault();
+            internal AliasEntry Find(string aliasName) => mList.SingleOrDefault(t => t.AliasName.Equals(aliasName, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -187,7 +169,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal bool IgnoreAlias { get; set; } = false;
 
-        internal protected Statement(SqlCodeDomBuilder builder, StatementType type)
+        private protected Statement(SqlCodeDomBuilder builder, StatementType type)
         {
             CodeDomBuilder = builder;
             Type = type;
@@ -195,15 +177,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal abstract Expression ToLinqWxpression();
 
-        internal  static bool HasAggregateFunctions(SqlBaseExpression expression)
+        internal static bool HasAggregateFunctions(SqlBaseExpression expression)
         {
             bool retval = false;
 
-            if (expression is SqlField field)
+            if (expression is SqlField)
             {
                 retval = false;
             }
-            else if (expression is SqlAggrFunc aggrFunc)
+            else if (expression is SqlAggrFunc)
             {
                 retval = true;
             }
@@ -213,11 +195,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 bool isAggregateRight = HasAggregateFunctions(binaryExpression.RightOperand);
                 retval = isAggregateLeft || isAggregateRight;
             }
-            else if (expression is SqlConstant constant)
+            else if (expression is SqlConstant)
             {
                 retval = false;
             }
-            else if (expression is SqlUnarExpression unar)
+            else if (expression is SqlUnaryExpression unar)
             {
                 retval = HasAggregateFunctions(unar.Operand);
             }
@@ -236,7 +218,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return retval;
         }
 
-        internal  static bool IsCalculable(SqlBaseExpression expression)
+        internal static bool IsCalculable(SqlBaseExpression expression)
         {
             bool retval = false;
 
@@ -294,12 +276,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 retval = IsCalculable(fetch.Parameter);
             }
-
             else if (expression is SqlSelectExpression)
             {
                 retval = true;
             }
-            else if (expression is SqlUnarExpression unar)
+            else if (expression is SqlUnaryExpression unar)
             {
                 retval = IsCalculable(unar.Operand);
             }
@@ -318,34 +299,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return retval;
         }
 
-        internal  static ResultTypes GetResultTypeByName(string name)
+        internal static ResultTypes GetResultTypeByName(string name)
         {
-            ResultTypes resultType = ResultTypes.Unknown;
             switch (name)
             {
                 case "STRING":
-                    resultType = ResultTypes.String;
-                    break;
+                    return ResultTypes.String;
                 case "INTEGER":
-                    resultType = ResultTypes.Integer;
-                    break;
+                    return ResultTypes.Integer;
                 case "DOUBLE":
-                    resultType = ResultTypes.Double;
-                    break;
+                    return ResultTypes.Double;
                 case "BOOLEAN":
-                    resultType = ResultTypes.Boolean;
-                    break;
+                    return ResultTypes.Boolean;
                 case "DATETIME":
-                    resultType = ResultTypes.DateTime;
-                    break;
+                    return ResultTypes.DateTime;
                 case "ROW":
-                    resultType = ResultTypes.Row;
-                    break;
+                    return ResultTypes.Row;
                 case "ROWSET":
-                    resultType = ResultTypes.RowSet;
-                    break;
+                    return ResultTypes.RowSet;
             }
-            return resultType;
+            return ResultTypes.Unknown;
         }
     }
 }

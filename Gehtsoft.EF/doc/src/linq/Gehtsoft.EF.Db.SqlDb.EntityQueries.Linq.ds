@@ -1,7 +1,7 @@
 @group
     @title=Namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
     @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
-    @ingroup=index
+    @ingroup=main
     @brief=The namespace consists of classes to work with SQL entities using LINQ
 
 

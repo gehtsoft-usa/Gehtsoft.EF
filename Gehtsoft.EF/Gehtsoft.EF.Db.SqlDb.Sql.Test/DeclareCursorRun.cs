@@ -13,15 +13,15 @@ using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
-    public class DeclareCursorRun : IDisposable
+    public sealed class DeclareCursorRun : IDisposable
     {
         private SqlCodeDomBuilder DomBuilder { get; }
-        private ISqlDbConnectionFactory connectionFactory;
-        private SqlDbConnection connection;
+        private readonly ISqlDbConnectionFactory connectionFactory;
+        private readonly SqlDbConnection connection;
 
         public DeclareCursorRun()
         {
-            connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:"); ;
+            connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, "Data Source=:memory:");
             Snapshot snapshot = new Snapshot();
             connection = connectionFactory.GetConnection();
             snapshot.CreateAsync(connection).ConfigureAwait(true).GetAwaiter().GetResult();
@@ -41,7 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         {
             Func<IDictionary<string, object>, dynamic> func;
             dynamic result;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test",
                 "SET maxQuantity = 0.0;" +
@@ -75,7 +75,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         public void DeclareCursor2()
         {
             dynamic result;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             var func = environment.Parse("test",
                 "SET maxQuantity = 0.0;" +
@@ -97,7 +97,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         {
             Func<IDictionary<string, object>, dynamic> func;
             dynamic result;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test",
                 "SET maxQuantity = 0.0;" +

@@ -45,7 +45,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
                 if (info.Autoincrement)
                     autoIncrement = info;
-
             }
             if (!mIgnoreAutoIncrement && HasExpressionForAutoincrement && autoIncrement != null)
             {

@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
@@ -16,11 +16,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Gehtsoft.EF.Db.MssqlDb\Gehtsoft.EF.Db.MssqlDb.csproj" />
-    <ProjectReference Include="..\Gehtsoft.EF.Db.MysqlDb\Gehtsoft.EF.Db.MysqlDb.csproj" />
-    <ProjectReference Include="..\Gehtsoft.EF.Db.OracleDb\Gehtsoft.EF.Db.OracleDb.csproj" />
-    <ProjectReference Include="..\Gehtsoft.EF.Db.PostgresDb\Gehtsoft.EF.Db.PostgresDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.SqlDb.Sql\Gehtsoft.EF.Db.SqlDb.Sql.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.SqlDb\Gehtsoft.EF.Db.SqlDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.SqliteDb\Gehtsoft.EF.Db.SqliteDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Northwind\Gehtsoft.EF.Northwind.csproj" />
   </ItemGroup>

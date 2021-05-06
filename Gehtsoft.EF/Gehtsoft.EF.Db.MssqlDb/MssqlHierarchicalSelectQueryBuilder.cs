@@ -3,7 +3,7 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.MssqlDb
 {
-    class MssqlHierarchicalSelectQueryBuilder : HierarchicalSelectQueryBuilder
+    internal class MssqlHierarchicalSelectQueryBuilder : HierarchicalSelectQueryBuilder
     {
         private string mWith;
         private string mSelect;
@@ -13,7 +13,6 @@ namespace Gehtsoft.EF.Db.MssqlDb
 
         internal MssqlHierarchicalSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, TableDescriptor.ColumnInfo parentReferenceColumn, string rootParameterName) : base(specifics, table, parentReferenceColumn, rootParameterName)
         {
-            
         }
 
         public override void PrepareQuery()
@@ -22,7 +21,6 @@ namespace Gehtsoft.EF.Db.MssqlDb
             string keyfield = mPrimaryKey.Name;
             string parentreference = mReferenceColumn.Name;
             string table = mDescriptor.Name;
-
 
             string anchor = rootParameterName != null ? $"{keyfield}={mSpecifics.ParameterInQueryPrefix}{rootParameterName}" : $"{parentreference} IS NULL";
 
@@ -45,7 +43,6 @@ namespace Gehtsoft.EF.Db.MssqlDb
                           )";
                 mSelect = $"SELECT distinct id FROM {alias1}";
                 mQuery = mWith + " " + mSelect;
-
             }
             else
             {

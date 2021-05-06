@@ -24,9 +24,11 @@ namespace Gehtsoft.EF.Bson
 
         private static BsonEntityDescription CreateBsonEntityDescription(EntityDescriptor descriptor)
         {
-            BsonEntityDescription description = new BsonEntityDescription();
-            description.EntityType = description.EntityType;
-            description.Table = descriptor.TableDescriptor.Name;
+            BsonEntityDescription description = new BsonEntityDescription
+            {
+                EntityType = descriptor.EntityType,
+                Table = descriptor.TableDescriptor.Name
+            };
 
             List<BsonEntityField> fields = new List<BsonEntityField>(descriptor.TableDescriptor.Count);
 
@@ -103,7 +105,7 @@ namespace Gehtsoft.EF.Bson
                         bsonElementType = BsonType.Binary;
                     else if (elementType == typeof(ObjectId))
                         bsonElementType = BsonType.ObjectId;
-                    else 
+                    else
                     {
                         bsonElementType = BsonType.Document;
                         field.IsReference = columnInfo.ForeignKey;
@@ -132,7 +134,6 @@ namespace Gehtsoft.EF.Bson
             }
 
             description.Fields = fields.ToArray();
-
 
             return description;
         }

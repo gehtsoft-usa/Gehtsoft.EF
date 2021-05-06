@@ -29,11 +29,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         }
         internal static SqlConstant CalculateExpression(SqlBaseExpression expression, SqlCodeDomBuilder codeDomBuilder, SqlDbConnection connection)
         {
-            if (expression is SqlField field)
+            if (expression is SqlField)
             {
                 return null;
             }
-            else if (expression is SqlAggrFunc aggrFunc)
+            else if (expression is SqlAggrFunc)
             {
                 return null;
             }
@@ -84,7 +84,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
                 if (index < 0 || index >= array.Count)
                 {
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Index out of range"));
+                    throw new SqlParserException(new SqlError(null, 0, 0, "Index out of range"));
                 }
 
                 return new SqlConstant(array[index], ResultTypes.Row);
@@ -98,7 +98,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 dynamic dictionary = rowParam.Value;
                 if (dictionary == null)
                 {
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error in getting ROW"));
+                    throw new SqlParserException(new SqlError(null, 0, 0, "Runtime error in getting ROW"));
                 }
 
                 SqlConstant nameParam = CalculateExpression(getField.NameParameter, codeDomBuilder, connection);
@@ -134,7 +134,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     return null;
                 Tuple<SqlSelectStatement, SelectRunner> pair = (Tuple<SqlSelectStatement, SelectRunner>)param.Value;
                 if (pair == null)
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Possibly cursor is not opened"));
+                    throw new SqlParserException(new SqlError(null, 0, 0, "Possibly cursor is not opened"));
 
                 SqlSelectStatement selectStatement = pair.Item1;
                 SelectRunner selectRunner = pair.Item2;
@@ -146,14 +146,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 codeDomBuilder.UpdateGlobalParameter(assignExpression.LeftOperand.Name, param);
                 return param;
             }
-            else if (expression is SqlUnarExpression unar)
+            else if (expression is SqlUnaryExpression unar)
             {
                 SqlBaseExpression operand = CalculateExpression(unar.Operand, codeDomBuilder, connection);
 
-                if (operand == null || !(operand is SqlConstant))
+                if (!(operand is SqlConstant))
                     return null;
 
-                return SqlUnarExpression.TryGetConstant(operand, unar.Operation);
+                return SqlUnaryExpression.TryGetConstant(operand, unar.Operation);
             }
             else if (expression is SqlCallFuncExpression callFunc)
             {
@@ -219,7 +219,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                             }
                             break;
                         case "TODATE":
-                            DateTime? dtt = tryParseDateTime((string)pars[0].Value);
+                            DateTime? dtt = TryParseDateTime((string)pars[0].Value);
                             if (dtt.HasValue)
                             {
                                 resultType = ResultTypes.DateTime;
@@ -227,11 +227,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                             }
                             break;
                         case "TOTIMESTAMP":
-                            DateTime? dtt1 = tryParseDateTime((string)pars[0].Value);
+                            DateTime? dtt1 = TryParseDateTime((string)pars[0].Value);
                             if (dtt1.HasValue)
                             {
                                 resultType = ResultTypes.Integer;
-                                value = unixTimeStampUTC(dtt1.Value);
+                                value = UnixTimeStampUTC(dtt1.Value);
                             }
                             break;
                         case "ABS":
@@ -252,23 +252,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                             break;
                         case "LIKE":
                             resultType = ResultTypes.Boolean;
-                            value = ((string)pars[0].Value).Like(((string)pars[1].Value));
+                            value = ((string)pars[0].Value).Like((string)pars[1].Value);
                             break;
                         case "NOTLIKE":
                             resultType = ResultTypes.Boolean;
-                            value = !((string)pars[0].Value).Like(((string)pars[1].Value));
+                            value = !((string)pars[0].Value).Like((string)pars[1].Value);
                             break;
                         case "STARTSWITH":
                             resultType = ResultTypes.Boolean;
-                            value = !((string)pars[0].Value).StartsWith(((string)pars[1].Value));
+                            value = !((string)pars[0].Value).StartsWith((string)pars[1].Value);
                             break;
                         case "ENDSWITH":
                             resultType = ResultTypes.Boolean;
-                            value = !((string)pars[0].Value).EndsWith(((string)pars[1].Value));
+                            value = !((string)pars[0].Value).EndsWith((string)pars[1].Value);
                             break;
                         case "CONTAINS":
                             resultType = ResultTypes.Boolean;
-                            value = !((string)pars[0].Value).Contains(((string)pars[1].Value));
+                            value = !((string)pars[0].Value).Contains((string)pars[1].Value);
                             break;
                     }
                 }
@@ -285,7 +285,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 if (leftOperand == null)
                     return null;
 
-                SqlBaseExpression rightOperand = null;
+                SqlBaseExpression rightOperand;
                 if (inExpression.RightOperandAsList != null)
                 {
                     foreach (SqlBaseExpression expr in inExpression.RightOperandAsList)
@@ -334,11 +334,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return null;
         }
 
-        private static DateTime? tryParseDateTime(string strDateTime)
+        private static DateTime? TryParseDateTime(string strDateTime)
         {
-            DateTime dtt;
             if (!DateTime.TryParseExact(strDateTime,
-                "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
+                "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dtt))
             {
                 if (!DateTime.TryParseExact(strDateTime,
                     "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
@@ -357,13 +356,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return dtt;
         }
 
-        private static int unixTimeStampUTC(DateTime currentTime)
+        private static int UnixTimeStampUTC(DateTime currentTime)
         {
-            int unixTimeStamp;
             DateTime zuluTime = currentTime.ToUniversalTime();
             DateTime unixEpoch = new DateTime(1970, 1, 1);
-            unixTimeStamp = (Int32)(zuluTime.Subtract(unixEpoch)).TotalSeconds;
-            return unixTimeStamp;
+            return (Int32)(zuluTime.Subtract(unixEpoch)).TotalSeconds;
         }
 
         internal static Expression CalculateExpressionValue<T>(SqlBaseExpression expression, SqlCodeDomBuilder builder)
@@ -373,7 +370,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             );
             return callExpr;
         }
-
     }
 
     internal abstract class SqlStatementRunner<T> : IBindParamsOwner
@@ -395,7 +391,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         protected IBindParamsOwner BindParamsOwner { get; set; } = null;
 
-        private Dictionary<string, object> mBindParams = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> mBindParams = new Dictionary<string, object>();
 
         Dictionary<string, object> IBindParamsOwner.BindParams
         {
@@ -423,8 +419,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         protected string GetStrExpression(SqlBaseExpression expression)
         {
-            bool isAggregate;
-            return GetStrExpression(expression, out isAggregate);
+            return GetStrExpression(expression, out bool _);
         }
 
         protected string GetStrExpression(SqlBaseExpression expression, out bool isAggregate)
@@ -446,7 +441,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     if (SqlStatement.AliasEntrys.Exists(field.Name))
                     {
                         // In Oracle, for example, alias name can not be used in expression of WHERE etc.
-                        //result = field.Name;
                         result = GetStrExpression(SqlStatement.AliasEntrys.Find(field.Name).Expression, out isAggregate);
                     }
                     else
@@ -492,10 +486,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (expression is SqlBinaryExpression binaryExpression)
             {
-                bool isAggregateLeft;
-                bool isAggregateRight;
-
-                string leftOperand = GetStrExpression(binaryExpression.LeftOperand, out isAggregateLeft);
+                string leftOperand = GetStrExpression(binaryExpression.LeftOperand, out bool isAggregateLeft);
                 if (leftOperand == null)
                 {
                     if (binaryExpression.LeftOperand is GlobalParameter globalParameter)
@@ -504,10 +495,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     }
                     else
                     {
-                        throw new SqlParserException(new SqlError(null, 0, 0, $"Left operand missed"));
+                        throw new SqlParserException(new SqlError(null, 0, 0, "Left operand missed"));
                     }
                 }
-                string rightOperand = GetStrExpression(binaryExpression.RightOperand, out isAggregateRight);
+                string rightOperand = GetStrExpression(binaryExpression.RightOperand, out bool isAggregateRight);
                 if (rightOperand == null)
                 {
                     if (binaryExpression.RightOperand is GlobalParameter globalParameter)
@@ -516,7 +507,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     }
                     else
                     {
-                        throw new SqlParserException(new SqlError(null, 0, 0, $"Right operand missed"));
+                        throw new SqlParserException(new SqlError(null, 0, 0, "Right operand missed"));
                     }
                 }
                 if (binaryExpression.LeftOperand is GlobalParameter || binaryExpression.RightOperand is GlobalParameter)
@@ -571,7 +562,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         List<string> pars = new List<string>() { leftOperand, rightOperand };
                         return $"({Connection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.Concat, pars.ToArray())})";
                     default:
-                        throw new SqlParserException(new SqlError(null, 0, 0, $"Unknown operation"));
+                        throw new SqlParserException(new SqlError(null, 0, 0, "Unknown operation"));
                 }
 
                 if (op.HasValue)
@@ -590,7 +581,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             else if (expression is GlobalParameter globalParameter)
             {
                 SqlConstant cnst = globalParameter.InnerExpression;
-                if(cnst == null)
+                if (cnst == null)
                 {
                     IDictionary<string, object> dict = this.CodeDomBuilder.ParametersDictionary;
                     if (dict != null)
@@ -637,24 +628,24 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             {
                 return GetStrExpression(CalculateExpression(assignExpression), out isAggregate);
             }
-            else if (expression is SqlUnarExpression unar)
+            else if (expression is SqlUnaryExpression unar)
             {
                 string start = string.Empty;
                 string end = string.Empty;
                 switch (unar.Operation)
                 {
-                    case SqlUnarExpression.OperationType.Minus:
+                    case SqlUnaryExpression.OperationType.Minus:
                         start = " -(";
                         break;
-                    case SqlUnarExpression.OperationType.Plus:
+                    case SqlUnaryExpression.OperationType.Plus:
                         start = " -(";
                         break;
-                    case SqlUnarExpression.OperationType.Not:
+                    case SqlUnaryExpression.OperationType.Not:
                         start = Connection.GetLanguageSpecifics().GetLogOp(LogOp.Not);
                         break;
-                    case SqlUnarExpression.OperationType.IsNull:
+                    case SqlUnaryExpression.OperationType.IsNull:
                         return $"({Connection.GetLanguageSpecifics().GetOp(CmpOp.IsNull, GetStrExpression(unar.Operand, out isAggregate), null)})";
-                    case SqlUnarExpression.OperationType.IsNotNull:
+                    case SqlUnaryExpression.OperationType.IsNotNull:
                         return $"({Connection.GetLanguageSpecifics().GetOp(CmpOp.NotNull, GetStrExpression(unar.Operand, out isAggregate), null)})";
                 }
                 if (start.Contains("(")) end = ")";
@@ -667,12 +658,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     }
                     else
                     {
-                        throw new SqlParserException(new SqlError(null, 0, 0, $"Operand missed"));
+                        throw new SqlParserException(new SqlError(null, 0, 0, "Operand missed"));
                     }
                 }
                 if (unar.Operand is GlobalParameter)
                 {
-                    SqlUnarExpression.CheckOperationAndType(unar.Operation, unar.Operand, null, 0, 0, true);
+                    SqlUnaryExpression.CheckOperationAndType(unar.Operation, unar.Operand, null, 0, 0, true);
                 }
 
                 return $"{start}{leftOperand}{end}";
@@ -727,8 +718,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     case "STARTSWITH":
                         funcId = SqlFunctionId.Like;
                         SqlBaseExpression par2 = callFunc.Parameters[1];
-                        collection = new SqlBaseExpressionCollection();
-                        collection.Add(callFunc.Parameters[0]);
+                        collection = new SqlBaseExpressionCollection
+                        {
+                            callFunc.Parameters[0]
+                        };
 
                         SqlBaseExpression newpar2 = new SqlBinaryExpression(par2,
                             SqlBinaryExpression.OperationType.Concat,
@@ -739,8 +732,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     case "ENDSWITH":
                         funcId = SqlFunctionId.Like;
                         SqlBaseExpression epar2 = callFunc.Parameters[1];
-                        collection = new SqlBaseExpressionCollection();
-                        collection.Add(callFunc.Parameters[0]);
+                        collection = new SqlBaseExpressionCollection
+                        {
+                            callFunc.Parameters[0]
+                        };
 
                         SqlBaseExpression enewpar2 = new SqlBinaryExpression(new SqlConstant("%", SqlBaseExpression.ResultTypes.String),
                             SqlBinaryExpression.OperationType.Concat,
@@ -751,8 +746,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     case "CONTAINS":
                         funcId = SqlFunctionId.Like;
                         SqlBaseExpression cpar2 = callFunc.Parameters[1];
-                        collection = new SqlBaseExpressionCollection();
-                        collection.Add(callFunc.Parameters[0]);
+                        collection = new SqlBaseExpressionCollection
+                        {
+                            callFunc.Parameters[0]
+                        };
 
                         SqlBaseExpression cnewpar2 = new SqlBinaryExpression(new SqlConstant("%", SqlBaseExpression.ResultTypes.String),
                             SqlBinaryExpression.OperationType.Concat,
@@ -773,8 +770,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     List<string> pars = new List<string>();
                     foreach (SqlBaseExpression paramExpression in collection)
                     {
-                        bool isAggregateLocal;
-                        pars.Add(GetStrExpression(paramExpression, out isAggregateLocal));
+                        pars.Add(GetStrExpression(paramExpression, out bool isAggregateLocal));
                         isAggregate = isAggregate || isAggregateLocal;
                     }
                     string retval = $"({Connection.GetLanguageSpecifics().GetSqlFunction(funcId.Value, pars.ToArray())})";
@@ -788,9 +784,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             else if (expression is SqlInExpression inExpression)
             {
-                bool isAggregateLeft;
                 bool isAggregateRight = false;
-                string leftOperand = GetStrExpression(inExpression.LeftOperand, out isAggregateLeft);
+                string leftOperand = GetStrExpression(inExpression.LeftOperand, out bool isAggregateLeft);
                 if (leftOperand == null)
                 {
                     if (inExpression.LeftOperand is GlobalParameter gp)
@@ -799,7 +794,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     }
                     else
                     {
-                        throw new SqlParserException(new SqlError(null, 0, 0, $"Left operand missed"));
+                        throw new SqlParserException(new SqlError(null, 0, 0, "Left operand missed"));
                     }
                 }
                 string rightOperand = null;
@@ -808,9 +803,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     StringBuilder rightBuilder = new StringBuilder();
                     foreach (SqlBaseExpression expr in inExpression.RightOperandAsList)
                     {
-                        bool isAggregateRightLocal;
                         rightBuilder.Append(rightBuilder.Length == 0 ? "(" : ",");
-                        rightBuilder.Append(GetStrExpression(expr, out isAggregateRightLocal));
+                        rightBuilder.Append(GetStrExpression(expr, out bool isAggregateRightLocal));
                         isAggregateRight = isAggregateRight || isAggregateRightLocal;
                     }
                     rightBuilder.Append(")");
@@ -868,7 +862,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 case ArifOp.Divide:
                     return $"{leftSide} / {rightSide}";
                 default:
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Unknown arifmetic operation"));
+                    throw new SqlParserException(new SqlError(null, 0, 0, "Unknown arifmetic operation"));
             }
         }
 
@@ -893,7 +887,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 }
                 else
                 {
-                    Type tttt = pair.Value.GetType();
                     if (pair.Value is int intValue)
                         query.BindParam(pair.Key, intValue);
                     else if (pair.Value is double doubleValue)
@@ -920,36 +913,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         protected DbType GetDbType(Type propType)
         {
-            DbType result = DbType.String;
-
             if (propType == typeof(string))
-            {
-                result = DbType.String;
-            }
+                return DbType.String;
             else if (propType == typeof(Guid))
-            {
-                result = DbType.Guid;
-            }
+                return DbType.Guid;
             else if (propType == typeof(bool))
-            {
-                result = DbType.Boolean;
-            }
+                return DbType.Boolean;
             else if (propType == typeof(int))
-            {
-                result = DbType.Int32;
-            }
+                return DbType.Int32;
             else if (propType == typeof(double))
-            {
-                result = DbType.Double;
-            }
+                return DbType.Double;
             else if (propType == typeof(DateTime))
-            {
-                result = DbType.DateTime;
-            }
-
-            return result;
+                return DbType.DateTime;
+            else
+                return DbType.String;
         }
-
     }
     internal static class MyStringExtensions
     {

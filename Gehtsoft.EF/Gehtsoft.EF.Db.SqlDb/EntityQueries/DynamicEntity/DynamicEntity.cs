@@ -10,7 +10,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         protected abstract IEnumerable<IDynamicEntityProperty> InitializeProperties();
         private readonly DynamicEntityPropertyCollection mProperties;
 
-        class Container
+        private class Container
         {
             internal IDynamicEntityProperty PropertyInfo { get; set; }
             internal object Value { get; set; }
@@ -20,15 +20,18 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public virtual ObsoleteEntityAttribute ObsoleteEntityAttribute { get; } = null;
 
-        private Dictionary<string, Container> mValues = new Dictionary<string, Container>();
+        private readonly Dictionary<string, Container> mValues = new Dictionary<string, Container>();
 
         public IList<IDynamicEntityProperty> Properties => mProperties;
 
         protected DynamicEntity()
         {
+#pragma warning disable S1699 // Constructors should only call non-overridable methods
+            // as designed
             mProperties = new DynamicEntityPropertyCollection(InitializeProperties());
+#pragma warning restore S1699 // Constructors should only call non-overridable methods
             foreach (IDynamicEntityProperty property in mProperties)
-                mValues[property.Name] = new Container() {PropertyInfo = property, Value = null};
+                mValues[property.Name] = new Container() { PropertyInfo = property, Value = null };
         }
 
         public override IEnumerable<string> GetDynamicMemberNames()

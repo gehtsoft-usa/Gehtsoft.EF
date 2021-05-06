@@ -17,15 +17,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             ASTNode node;
 
-            LabelTarget startLabel = null;
-            LabelTarget endLabel = null;
-            List<Expression> blockSet = null;
-            List<Expression> nextSet = null;
+            LabelTarget startLabel;
+            LabelTarget endLabel;
+            List<Expression> blockSet;
+            List<Expression> nextSet;
+
             startLabel = Expression.Label();
             endLabel = Expression.Label();
-            blockSet = new List<Expression>();
-            blockSet.Add(builder.StartBlock(startLabel, endLabel, Statement.StatementType.Block));
-            blockSet.Add(Expression.Label(startLabel));
+            blockSet = new List<Expression>
+            {
+                builder.StartBlock(startLabel, endLabel, Statement.StatementType.Block),
+                Expression.Label(startLabel)
+            };
             SqlCodeDomBuilder.PushDescriptor(builder, startLabel, endLabel, Statement.StatementType.Block);
             node = statementNode.Children[0];
             BlockExpression linqExpression = (BlockExpression)builder.ParseNodeToLinq("FOR Body", node, new DummyPersistBlock(builder));
@@ -42,7 +45,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 throw new SqlParserException(new SqlError(currentSource,
                     node.Position.Line,
                     node.Position.Column,
-                    $"Not calculable expression in WHILE statement"));
+                    "Not calculable expression in WHILE statement"));
             }
             if (whileExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
             {
@@ -64,7 +67,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             node = statementNode.Children[3];
 
-            ConditionalStatementsRun condition = new ConditionalStatementsRun(new SqlUnarExpression(whileExpression, SqlUnarExpression.OperationType.Not));
+            ConditionalStatementsRun condition = new ConditionalStatementsRun(new SqlUnaryExpression(whileExpression, SqlUnaryExpression.OperationType.Not));
             IfStatement ifStatement = new IfStatement(builder, new ConditionalStatementsRunCollection() { condition });
 
             this.OnContinue = Expression.Block(nextSet);

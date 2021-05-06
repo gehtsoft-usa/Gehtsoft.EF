@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Gehtsoft.EF.Db.OracleDb
 {
-    class OracleInsertSelectQueryBuilder : InsertSelectQueryBuilder
+    internal class OracleInsertSelectQueryBuilder : InsertSelectQueryBuilder
     {
         public OracleInsertSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false) : base(specifics, table, selectQuery, ignoreAutoIncrement)
         {
@@ -17,19 +17,24 @@ namespace Gehtsoft.EF.Db.OracleDb
             {
                 builder.Append("BEGIN \r\n");
                 var expr = $"{mTable.Name}_{autoIncrement.Name}.nextval";
-                if (mSelect.Resultset[mSelect.Resultset.Count - 1].Expression != expr)
+                if (mSelect.Resultset[^1].Expression != expr)
                     mSelect.AddExpressionToResultset(expr, System.Data.DbType.Int32, false);
             }
             builder.Append(base.BuildQuery(leftSide, autoIncrement));
             if (autoIncrement != null)
             {
-                builder.Append(";\r\n");
-                builder.Append($"SELECT {mTable.Name}_{autoIncrement.Name}.currval");
-                builder.Append(" INTO :");
-                builder.Append(autoIncrement.Name);
-                builder.Append($" FROM dual");
-                builder.Append(";\r\n");
-                builder.Append("END; \r\n");
+                builder
+                    .Append(";\r\n")
+                    .Append("SELECT ")
+                    .Append(mTable.Name)
+                    .Append('_')
+                    .Append(autoIncrement.Name)
+                    .Append(".currval")
+                    .Append(" INTO :")
+                    .Append(autoIncrement.Name)
+                    .Append(" FROM dual")
+                    .Append(";\r\n")
+                    .Append("END; \r\n");
             }
             return builder.ToString();
         }

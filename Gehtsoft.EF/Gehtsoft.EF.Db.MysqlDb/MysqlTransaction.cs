@@ -6,7 +6,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
 {
     public class MysqlDbTransaction : SqlDbTransaction
     {
-        private MysqlDbConnection mConnection;
+        private readonly MysqlDbConnection mConnection;
 
         internal MysqlDbTransaction(MysqlDbConnection db, DbTransaction transaction) : base(transaction)
         {
@@ -19,5 +19,4 @@ namespace Gehtsoft.EF.Db.MysqlDb
             base.Dispose(disposing);
         }
     }
-
 }

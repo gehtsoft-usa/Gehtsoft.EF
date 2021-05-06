@@ -82,9 +82,9 @@ namespace Gehtsoft.EF.Entities.Context
 
         public static IContextFilterCondition Property(this IContextFilter builder, string name) => builder.Add(LogOp.And).Property(name);
 
-        public static IContextFilterCondition IsNull(this IContextFilter builder, string name) => builder.Add(LogOp.And).Is(CmpOp.IsNull);
+        public static IContextFilterCondition IsNull(this IContextFilter builder, string name) => builder.Add(LogOp.And).Is(CmpOp.IsNull).Property(name);
 
-        public static IContextFilterCondition NotNull(this IContextFilter builder, string name) => builder.Add(LogOp.And).Is(CmpOp.NotNull);
+        public static IContextFilterCondition NotNull(this IContextFilter builder, string name) => builder.Add(LogOp.And).Is(CmpOp.NotNull).Property(name);
 
         public static IContextFilterCondition Is(this IContextFilter builder, CmpOp op) => builder.Add(LogOp.And).Is(op);
 
@@ -225,7 +225,7 @@ namespace Gehtsoft.EF.Entities.Context
             }
         }
 
-        public static async Task<bool> ExistsAsync<T>(this IEntityContext context, object key, CancellationToken? token = null)
+        public static async Task<bool> ExistsAsync<T>(this IEntityContext context, object key, CancellationToken? _ = null)
         {
             using (var query = context.Count(typeof(T)))
             {

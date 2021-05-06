@@ -9,11 +9,10 @@ using Gehtsoft.EF.Db.SqlDb;
 
 namespace Gehtsoft.EF.Db.SqliteDb
 {
-    class SqliteDbQuery : SqlDbQuery
+    internal class SqliteDbQuery : SqlDbQuery
     {
         public SqliteDbQuery(SqlDbConnection connection, DbCommand command, SqlDbLanguageSpecifics specifics) : base(connection, command, specifics)
         {
-
         }
 
         public override Stream GetStream(int column)

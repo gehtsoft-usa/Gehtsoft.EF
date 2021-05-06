@@ -13,7 +13,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         protected SelectEntityQueryBuilder mSelectBuilder1;
         protected bool mIsEntityCallback;
         protected bool mIsPostReadCallback;
-        private static Type entityCallbackType = typeof(IEntitySerializationCallback);
+        private static readonly Type entityCallbackType = typeof(IEntitySerializationCallback);
 
         internal SelectEntitiesQuery(SqlDbQuery query, SelectEntityQueryBuilder builder) : base(query, builder)
         {
@@ -73,7 +73,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return await ReadOneAsync(token) as T;
         }
 
-        public delegate void OnRow<T>(T row, SelectEntitiesQuery query);
+        public delegate void OnRow<in T>(T row, SelectEntitiesQuery query);
 
         public virtual EntityCollection<T> ReadAll<T>() where T : class => ReadAll<EntityCollection<T>, T>();
 

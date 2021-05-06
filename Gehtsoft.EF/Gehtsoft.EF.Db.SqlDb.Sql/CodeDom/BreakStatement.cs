@@ -37,7 +37,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
             if (!found)
             {
-                throw new SqlParserException(new SqlError(currentSource, line, column, $"Unexpected operator BREAK (out of LOOP)"));
+                throw new SqlParserException(new SqlError(currentSource, line, column, "Unexpected operator BREAK (out of LOOP)"));
             }
         }
 
@@ -61,7 +61,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
             if (foundDescr == null)
             {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error: BREAK out of appropriate body"));
+                throw new SqlParserException(new SqlError(null, 0, 0, "Runtime error: BREAK out of appropriate body"));
             }
             return Expression.Block(
                 Expression.Call(Expression.Constant(CodeDomBuilder), "BreakRun", null),

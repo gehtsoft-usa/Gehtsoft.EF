@@ -42,7 +42,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     alias = ($"autocolumn{AliasEntrys.Count + 1}");
                 }
             }
-            if (AliasEntrys.Exists(alias)) throw new Exception();
+            if (AliasEntrys.Exists(alias)) throw new ArgumentException("Alias already exists", nameof(alias));
             AliasEntrys.Add(new AliasEntry(alias, expression));
             return alias;
         }
@@ -55,7 +55,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal void AddEntityEntry(string name, string alias)
         {
             Type entityType = CodeDomBuilder.EntityByName(name);
-            if (entityType == null) throw new Exception();
+            if (entityType == null) throw new ArgumentException($"Entity with name {name} is not found", nameof(name));
             EntityEntrys.Add(new EntityEntry(name, entityType, alias, AllEntities.Inst[entityType]));
         }
 

@@ -16,22 +16,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal OpenCursorStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.OpenCursor)
         {
-            ASTNode expressionNode;
-            expressionNode = statementNode.Children[0];
+            ASTNode expressionNode = statementNode.Children[0];
             SqlBaseExpression cursorExpression = SqlExpressionParser.ParseExpression(this, expressionNode, currentSource);
             if (cursorExpression.ResultType != ResultTypes.Cursor)
             {
                 throw new SqlParserException(new SqlError(currentSource,
                     expressionNode.Position.Line,
                     expressionNode.Position.Column,
-                    $"Parameter of OPEN CURSOR is not declared as CURSOR"));
+                    "Parameter of OPEN CURSOR is not declared as CURSOR"));
             }
             if (cursorExpression.ExpressionType != ExpressionTypes.GlobalParameter)
             {
                 throw new SqlParserException(new SqlError(currentSource,
                     expressionNode.Position.Line,
                     expressionNode.Position.Column,
-                    $"Parameter of OPEN CURSOR should be global variable"));
+                    "Parameter of OPEN CURSOR should be global variable"));
             }
             CursorParameter = (GlobalParameter)cursorExpression;
         }
@@ -47,7 +46,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             string globalVariableName = CursorParameter.Name;
             SqlSelectStatement selectStatement = (SqlSelectStatement)CodeDomBuilder.FindGlobalParameter(globalVariableName).Value;
             if (selectStatement == null)
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Possibly cursor is already opened"));
+                throw new SqlParserException(new SqlError(null, 0, 0, "Possibly cursor is already opened"));
 
             SelectRunner selectRunner = new SelectRunner(CodeDomBuilder, connection);
             selectRunner.Open(selectStatement);

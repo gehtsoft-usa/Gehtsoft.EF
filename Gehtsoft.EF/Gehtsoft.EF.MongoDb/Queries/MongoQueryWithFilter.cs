@@ -13,13 +13,14 @@ namespace Gehtsoft.EF.MongoDb
         void EndWhereGroup(MongoConditionalQueryWhereGroup group);
     }
 
-    public class MongoConditionalQueryWhereGroup : IDisposable
+    public sealed class MongoConditionalQueryWhereGroup : IDisposable
     {
         private IMongoConditionalQueryWhereTarget mQuery;
         internal MongoConditionalQueryWhereGroup(IMongoConditionalQueryWhereTarget query)
         {
             mQuery = query;
         }
+
         public void Dispose()
         {
             mQuery?.EndWhereGroup(this);
@@ -34,10 +35,10 @@ namespace Gehtsoft.EF.MongoDb
         private string mPath;
         private object mValue = null;
         private CmpOp? mOp;
-        private LogOp mLogOp;
+        private readonly LogOp mLogOp;
 
         public bool IsEmpty => mFilterBuilder.IsEmpty;
-        
+
         internal MongoQuerySingleConditionBuilder(MongoQuery query, BsonFilterExpressionBuilder filterBuilder, LogOp logOp = LogOp.And)
         {
             mQuery = query;
@@ -105,7 +106,6 @@ namespace Gehtsoft.EF.MongoDb
         public static MongoQuerySingleConditionBuilder NotNull(this MongoQuerySingleConditionBuilder builder) => builder.Is(CmpOp.NotNull);
     }
 
-
     public class MongoQueryCondition : IMongoConditionalQueryWhereTarget
     {
         private readonly BsonFilterExpressionBuilder mFilterBuilder;
@@ -142,7 +142,7 @@ namespace Gehtsoft.EF.MongoDb
     {
         protected BsonFilterExpressionBuilder FilterBuilder { get; private set; }
 
-        public MongoQueryCondition Where { get; private set; }
+        public MongoQueryCondition Where { get; }
 
         protected MongoQueryWithCondition(MongoConnection connection, Type entityType) : base(connection, entityType)
         {
@@ -155,20 +155,20 @@ namespace Gehtsoft.EF.MongoDb
             FilterBuilder = new BsonFilterExpressionBuilder();
         }
 
-        [Obsolete]
+        [Obsolete("Use Where property instead")]
         public void AddWhereFilter(LogOp logOp, string path, CmpOp cmpOp, object value = null) => FilterBuilder.Add(logOp, TranslatePath(path), cmpOp, value);
 
-        [Obsolete]
+        [Obsolete("Use Where property instead")]
         public void AddWhereFilter(string path, CmpOp cmpOp, object value = null) => FilterBuilder.Add(TranslatePath(path), cmpOp, value);
 
-        [Obsolete]
+        [Obsolete("Use Where property instead")]
         public IDisposable AddWhereGroup(LogOp logOp)
         {
             FilterBuilder.BeginGroup(logOp);
             return new MongoConditionalQueryWhereGroup(Where);
         }
 
-        [Obsolete]
+        [Obsolete("Use Where property instead")]
         public IDisposable AddWhereGroup()
         {
             FilterBuilder.BeginGroup();

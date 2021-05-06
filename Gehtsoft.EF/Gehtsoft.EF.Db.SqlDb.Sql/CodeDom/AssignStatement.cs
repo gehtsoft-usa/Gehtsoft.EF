@@ -10,9 +10,9 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  class AssignStatement : Statement
+    internal class AssignStatement : Statement
     {
-        internal  AssignExpression AssignExpression { get; }
+        internal AssignExpression AssignExpression { get; }
         internal AssignStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Assign)
         {

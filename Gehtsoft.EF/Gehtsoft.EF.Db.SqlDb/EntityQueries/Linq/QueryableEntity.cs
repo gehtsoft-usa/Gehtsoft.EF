@@ -31,10 +31,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public Expression Expression { get; private set; }
-        
+        public Expression Expression { get; }
+
         public Type ElementType => typeof(T);
-        
+
         public IQueryProvider Provider => mProvider;
 
         public void Insert(T value) => mProvider.Insert<T>(value);

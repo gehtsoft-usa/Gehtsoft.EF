@@ -8,7 +8,7 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.MssqlDb
 {
-    class MssqlAlterTableQueryBuilder : AlterTableQueryBuilder
+    internal class MssqlAlterTableQueryBuilder : AlterTableQueryBuilder
     {
         public MssqlAlterTableQueryBuilder(SqlDbLanguageSpecifics specifics) : base(specifics)
         {
@@ -18,17 +18,16 @@ namespace Gehtsoft.EF.Db.MssqlDb
         {
             StringBuilder builder = new StringBuilder();
             string type = mSpecifics.TypeName(column.DbType, column.Size, column.Precision, column.Autoincrement);
-            builder.Append($"{column.Name} {type}");
+            builder.Append(column.Name).Append(' ').Append(type);
             if (column.PrimaryKey)
-                builder.Append($" PRIMARY KEY");
+                builder.Append(" PRIMARY KEY");
             if (!column.Nullable)
-                builder.Append($" NOT NULL");
+                builder.Append(" NOT NULL");
             if (column.Unique)
-                builder.Append($" UNIQUE");
+                builder.Append(" UNIQUE");
             if (column.DefaultValue != null)
-                builder.Append($" DEFAULT {mSpecifics.FormatValue(column.DefaultValue)}");
+                builder.Append(" DEFAULT ").Append(mSpecifics.FormatValue(column.DefaultValue));
             return builder.ToString();
-
         }
 
         protected override void HandleCreateQuery(TableDescriptor.ColumnInfo column)
@@ -55,7 +54,6 @@ namespace Gehtsoft.EF.Db.MssqlDb
             base.HandlePreDropQuery(column);
             if (column.ForeignKey && column.ForeignTable != column.Table)
                 mQueries.Add($"ALTER TABLE {mDescriptor.Name} DROP CONSTRAINT {mDescriptor.Name}_{column.Name}_fk");
-            
         }
 
         protected override void HandleDropQuery(TableDescriptor.ColumnInfo column)

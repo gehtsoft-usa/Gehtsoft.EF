@@ -1,7 +1,7 @@
 @group
     @title=Namespace Gehtsoft.EF.Bson
     @key=Gehtsoft.EF.Bson
-    @ingroup=index
+    @ingroup=main
     @brief=Entity to BSON conversion package
 
 

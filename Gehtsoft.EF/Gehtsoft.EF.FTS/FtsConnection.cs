@@ -17,7 +17,7 @@ namespace Gehtsoft.EF.FTS
 {
     public static class FtsConnection
     {
-        private static Type[] gTypes = new Type[] {typeof(FtsWordEntity), typeof(FtsObjectEntity), typeof(FtsWord2ObjectEntity)};
+        private static readonly Type[] gTypes = new Type[] { typeof(FtsWordEntity), typeof(FtsObjectEntity), typeof(FtsWord2ObjectEntity) };
 
         private static async Task FtsCreateTablesCore(this SqlDbConnection connection, bool sync, CancellationToken? token)
         {
@@ -75,19 +75,21 @@ namespace Gehtsoft.EF.FTS
             bool f1, f2, f3;
 
             f1 = f2 = f3 = false;
+
             foreach (TableDescriptor table in schema)
             {
-                if (string.Compare(table.Name, "fts_words", StringComparison.OrdinalIgnoreCase) == 0)
+                if (string.Equals(table.Name, "fts_words", StringComparison.OrdinalIgnoreCase))
                     f1 = true;
-                else if (string.Compare(table.Name, "fts_objects", StringComparison.OrdinalIgnoreCase) == 0)
+                else if (string.Equals(table.Name, "fts_objects", StringComparison.OrdinalIgnoreCase))
                     f2 = true;
-                else if (string.Compare(table.Name, "fts_words2objects", StringComparison.OrdinalIgnoreCase) == 0)
+                else if (string.Equals(table.Name, "fts_words2objects", StringComparison.OrdinalIgnoreCase))
                     f3 = true;
             }
 
+#pragma warning disable S2589 // false positive: Boolean expressions should not be gratuitous
             return f1 && f2 && f3;
+#pragma warning restore S2589 
         }
-
 
         public static bool DoesFtsTableExist(this SqlDbConnection connection) => connection.DoesFtsTableExistCore(true, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -156,7 +158,7 @@ namespace Gehtsoft.EF.FTS
 
         public static async Task FtsSetObjectTextAsync(this SqlDbConnection connection, string type, string objectID, string text, CancellationToken? token = null)
         {
-            await connection.FtsSetObjectTextAsync(type, objectID, objectID, text);
+            await connection.FtsSetObjectTextAsync(type, objectID, objectID, text, token);
         }
 
         private static async Task FtsSetObjectTextCore(this SqlDbConnection connection, bool sync, string type, string objectID, string sorter, string text, CancellationToken? token)
@@ -198,7 +200,6 @@ namespace Gehtsoft.EF.FTS
             }
         }
 
-
         public static void FtsSetObjectText(this SqlDbConnection connection, string type, string objectID, string sorter, string text) => connection.FtsSetObjectTextCore(true, type, objectID, sorter, text, null).ConfigureAwait(false).GetAwaiter().GetResult();
         public static Task FtsSetObjectTextAsync(this SqlDbConnection connection, string type, string objectID, string sorter, string text, CancellationToken? token = null) => connection.FtsSetObjectTextCore(false, type, objectID, sorter, text, token);
 
@@ -235,7 +236,6 @@ namespace Gehtsoft.EF.FTS
                 }
             }
         }
-
 
         public static void FtsDeleteObject(this SqlDbConnection connection, string type, string objectID) => FtsDeleteObjectCore(connection, true, type, objectID, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -306,16 +306,16 @@ namespace Gehtsoft.EF.FTS
 
         private static int gParamBase = 1;
 
-        private static int NextParam => (gParamBase = (gParamBase + 1) % 65536);
+        private static int NextParam => gParamBase = (gParamBase + 1) % 65536;
 
-        internal static void FtsAddWhereToQuery(this SqlDbConnection connection, FtsSelectQueryBuilder builder, string[]words, bool allWords, string[]types)
+        internal static void FtsAddWhereToQuery(this SqlDbConnection connection, FtsSelectQueryBuilder builder, string[] words, bool allWords, string[] types)
         {
             string paramBase = $"ftsparam{NextParam}_";
             int param = 0;
             TableDescriptor entityObjects = AllEntities.Inst[typeof(FtsObjectEntity)].TableDescriptor;
             TableDescriptor entityWords = AllEntities.Inst[typeof(FtsWordEntity)].TableDescriptor;
             TableDescriptor entityWords2Object = AllEntities.Inst[typeof(FtsWord2ObjectEntity)].TableDescriptor;
-            List<FtsSelectQueryBuilder.QueryParameter> parameters =  new List<FtsSelectQueryBuilder.QueryParameter>();
+            List<FtsSelectQueryBuilder.QueryParameter> parameters = new List<FtsSelectQueryBuilder.QueryParameter>();
             if (words != null && words.Length > 0)
             {
                 using (var bracket = builder.QueryBuilder.Where.AddGroup())
@@ -336,7 +336,7 @@ namespace Gehtsoft.EF.FTS
                             .Is(CmpOp.In)
                             .Query(subquery1);
 
-                        parameters.Add(new FtsSelectQueryBuilder.QueryParameter() {Name = paramName, Type = typeof(string), Value = word});
+                        parameters.Add(new FtsSelectQueryBuilder.QueryParameter() { Name = paramName, Type = typeof(string), Value = word });
                     }
                 }
             }
@@ -350,14 +350,18 @@ namespace Gehtsoft.EF.FTS
                     {
                         string paramName = $"{paramBase}{param++}";
                         subquery1.AddParameter(paramName);
-                        parameters.Add(new FtsSelectQueryBuilder.QueryParameter() {Name = paramName, Type = typeof(string), Value = type});
+                        parameters.Add(new FtsSelectQueryBuilder.QueryParameter() { Name = paramName, Type = typeof(string), Value = type });
                     }
                     builder.QueryBuilder.Where.Property(entityObjects[nameof(FtsObjectEntity.ObjectType)]).Is(CmpOp.In).Query(subquery1);
                 }
                 else
                 {
+#pragma warning disable S1854 // Unused assignments should be removed
+                    // done for purpose: risk of forgetting add increase if code is extended
+                    // is higher than blind minor "optimization"
                     string paramName = $"{paramBase}{param++}";
-                    parameters.Add(new FtsSelectQueryBuilder.QueryParameter() {Name = paramName, Type = typeof(string), Value = types[0]});
+#pragma warning restore S1854 
+                    parameters.Add(new FtsSelectQueryBuilder.QueryParameter() { Name = paramName, Type = typeof(string), Value = types[0] });
                     builder.QueryBuilder.Where.Property(entityObjects[nameof(FtsObjectEntity.ObjectType)]).Is(CmpOp.Eq).Parameter(paramName);
                 }
             }
@@ -389,12 +393,12 @@ namespace Gehtsoft.EF.FTS
                     builder.QueryBuilder.Skip = skip;
                     break;
                 case FtsSelectQueryBuilder.QueryType.ObjectIdsAsInt:
-                {
-                    builder.QueryBuilder.Distinct = true;
-                    builder.QueryBuilder.AddExpressionToResultset(connection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.ToInteger, new string[] {words[nameof(FtsObjectEntity.ObjectID)].Name}), DbType.Int32, false, "id");
-                    builder.QueryBuilder.Limit = limit;
-                    builder.QueryBuilder.Skip = skip;
-                }
+                    {
+                        builder.QueryBuilder.Distinct = true;
+                        builder.QueryBuilder.AddExpressionToResultset(connection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.ToInteger, new string[] { words[nameof(FtsObjectEntity.ObjectID)].Name }), DbType.Int32, false, "id");
+                        builder.QueryBuilder.Limit = limit;
+                        builder.QueryBuilder.Skip = skip;
+                    }
                     break;
                 case FtsSelectQueryBuilder.QueryType.ObjectIdsAndTypes:
                     builder.QueryBuilder.Distinct = true;
@@ -420,26 +424,23 @@ namespace Gehtsoft.EF.FTS
                 if (sync)
                 {
                     query.ExecuteReader();
-                    while (query.ReadNext())
+                    if (query.ReadNext())
                         return query.GetValue<int>(0);
                     return 0;
-
                 }
                 else
                 {
                     await query.ExecuteReaderAsync(token);
-                    while (await query.ReadNextAsync(token))
+                    if (await query.ReadNextAsync(token))
                         return query.GetValue<int>(0);
                     return 0;
-
                 }
             }
         }
 
-
         public static int FtsCountObjects(this SqlDbConnection connection, string text, bool allWords = false, string[] types = null) => FtsCountObjectsCore(connection, true, text, allWords, types, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
-        public static Task<int> FtsCountObjectsAsync(this SqlDbConnection connection, string text, bool allWords = false, string[] types = null, CancellationToken? token = null) => FtsCountObjectsCore(connection, false, text, allWords, types, null);
+        public static Task<int> FtsCountObjectsAsync(this SqlDbConnection connection, string text, bool allWords = false, string[] types = null, CancellationToken? token = null) => FtsCountObjectsCore(connection, false, text, allWords, types, token);
 
         private static async Task<FtsObjectEntityCollection> FtsGetObjectsCore(this SqlDbConnection connection, bool sync, string text, bool allWords, string[] types, int limit, int skip, CancellationToken? token)
         {
@@ -522,7 +523,6 @@ namespace Gehtsoft.EF.FTS
             public string Name { get; internal set; }
             public object Value { get; internal set; }
             public Type Type { get; internal set; }
-
         }
 
         public SelectQueryBuilder QueryBuilder { get; internal set; }
@@ -562,9 +562,9 @@ namespace Gehtsoft.EF.FTS
             else
                 subqueryType = FtsSelectQueryBuilder.QueryType.ObjectIds;
 
-            FtsSelectQueryBuilder subquery = condition.BaseQuery.Query.Connection.FtsBuildQuery(subqueryType, text, 
-                text.Contains("%"), queryType == QueryType.AllWordsExclude || queryType == QueryType.AllWordsInclude, 
-                new string[] {ftsType}, limit ?? 0, 0);
+            FtsSelectQueryBuilder subquery = condition.BaseQuery.Query.Connection.FtsBuildQuery(subqueryType, text,
+                text.Contains("%"), queryType == QueryType.AllWordsExclude || queryType == QueryType.AllWordsInclude,
+                new string[] { ftsType }, limit ?? 0, 0);
 
             foreach (FtsSelectQueryBuilder.QueryParameter p in subquery.Params)
                 condition.BaseQuery.BindParam(p.Name, ParameterDirection.Input, p.Value, p.Type);

@@ -16,7 +16,6 @@ namespace Gehtsoft.EF.Entities
     {
         public SerializableEntity()
         {
-            
         }
 
         protected SerializableEntity(SerializationInfo info, StreamingContext context)
@@ -57,32 +56,31 @@ namespace Gehtsoft.EF.Entities
                 {
                     EntitySerializationOnlyPropertyAttribute serializationOnlyPropertyAttribute = propertyInfo.GetCustomAttribute<EntitySerializationOnlyPropertyAttribute>();
                     if (serializationOnlyPropertyAttribute != null)
-                        info.AddValue(serializationOnlyPropertyAttribute.Field, propertyInfo.GetValue(this)); 
+                        info.AddValue(serializationOnlyPropertyAttribute.Field, propertyInfo.GetValue(this));
                 }
             }
         }
     }
 
     [Serializable]
-    public class SerializableEntityCollection<T> : EntityCollection<T> where T : class 
+    public class SerializableEntityCollection<T> : EntityCollection<T> where T : class
     {
         private T[] mSerializationSource;
 
         public SerializableEntityCollection()
         {
-            
         }
 
         [OnDeserialized]
-        private void DeserealizationFinished(StreamingContext context)
+        private void DeserealizationFinished(StreamingContext _context)
         {
             this.AddRange(mSerializationSource);
             mSerializationSource = null;
         }
-        
-        protected SerializableEntityCollection(SerializationInfo info, StreamingContext context)
+
+        protected SerializableEntityCollection(SerializationInfo info, StreamingContext _context)
         {
-            mSerializationSource = (T[]) info.GetValue("content", typeof(T[]));
+            mSerializationSource = (T[])info.GetValue("content", typeof(T[]));
         }
     }
 }

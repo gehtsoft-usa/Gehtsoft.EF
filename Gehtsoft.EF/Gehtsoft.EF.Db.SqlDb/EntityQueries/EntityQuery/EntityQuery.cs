@@ -118,7 +118,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public T GetValue<T>(int column) => mQuery.GetValue<T>(column);
 
-        public T GetValue<T>(string field) => mQuery.GetValue<T>(field);
+        public T GetValue<T>(string column) => mQuery.GetValue<T>(column);
 
         public object GetValue(int column, Type type)
         {
@@ -137,7 +137,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public bool IsNull(int column) => mQuery.IsNull(column);
 
-        public bool IsNull(string field) => mQuery.IsNull(field);
+        public bool IsNull(string column) => mQuery.IsNull(column);
 
         public bool ReadNext() => mQuery.ReadNext();
 
@@ -145,10 +145,20 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public Task<bool> ReadNextAsync(CancellationToken? token) => mQuery.ReadNextAsync(token);
 
+        ~EntityQuery()
+        {
+            Dispose(false);
+        }
+
         public void Dispose()
         {
-            if (mQuery != null)
-                mQuery.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            mQuery?.Dispose();
             mQuery = null;
         }
 
@@ -157,9 +167,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public T GetTag<T>()
         {
             if (mTags == null)
-                return default(T);
+                return default;
             if (!mTags.TryGetValue(typeof(T), out object value))
-                return default(T);
+                return default;
             return (T)value;
         }
 

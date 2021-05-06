@@ -57,7 +57,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         public static SqlInjectionProtectionPolicy Instance => mInstance ?? (mInstance = new SqlInjectionProtectionPolicy());
     }
 
-    public class ResiliencyPolicyDictionary
+    public sealed class ResiliencyPolicyDictionary
     {
         private static ResiliencyPolicyDictionary mInstance = null;
 
@@ -89,11 +89,8 @@ namespace Gehtsoft.EF.Db.SqlDb
             if (mConnectionResiliencyPolicies == null)
                 mConnectionResiliencyPolicies = new ConcurrentDictionary<string, IResiliencyPolicy>();
             if (mConnectionResiliencyPolicies.ContainsKey(connectionString) && !forceOverride)
-                throw new InvalidOperationException($"Resiliency policy is already set");
-            mConnectionResiliencyPolicies.AddOrUpdate(connectionString, policy, (key, value) =>
-            {
-                return policy;
-            });
+                throw new InvalidOperationException("Resiliency policy is already set");
+            mConnectionResiliencyPolicies.AddOrUpdate(connectionString, policy, (key, value) => policy);
         }
 
         public IResiliencyPolicy GetPolicy(string connectionString)

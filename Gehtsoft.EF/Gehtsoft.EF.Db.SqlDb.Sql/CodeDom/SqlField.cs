@@ -47,7 +47,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mResultType = resultType;
         }
 
-
         internal SqlField(Statement parentStatement, ASTNode fieldNode, string source)
         {
             if (fieldNode.Children.Count > 1)
@@ -59,8 +58,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 Name = fieldNode.Children[0].Value;
             }
-            string error;
-            processField(parentStatement, Prefix, Name, out error);
+            ProcessField(parentStatement, Prefix, Name, out string error);
             if (error != null)
             {
                 throw new SqlParserException(new SqlError(source,
@@ -73,8 +71,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             Name = name;
             Prefix = prefix;
-            string error;
-            processField(parentStatement, Prefix, Name, out error);
+            ProcessField(parentStatement, Prefix, Name, out string error);
             if (error != null)
             {
                 throw new SqlParserException(new SqlError(null, 0, 0, error));
@@ -84,8 +81,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             Name = name;
             Prefix = null;
-            string error;
-            processField(parentStatement, Prefix, Name, out error);
+            ProcessField(parentStatement, Prefix, Name, out string error);
             if (error != null)
             {
                 throw new SqlParserException(new SqlError(null, 0, 0, error));
@@ -98,7 +94,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mResultType = GetResultType(fieldType);
         }
 
-        private void processField(Statement parentStatement, string prefix, string name, out string error)
+        private void ProcessField(Statement parentStatement, string prefix, string name, out string error)
         {
             error = null;
             Type fieldType = null;
@@ -130,7 +126,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     {
                         AliasEntry aliasEntry = parentStatement.AliasEntrys.Find(name);
                         fieldType = aliasEntry.Expression.SystemType;
-                        if(aliasEntry.Expression is SqlField aliasField)
+                        if (aliasEntry.Expression is SqlField aliasField)
                         {
                             EntityDescriptor = aliasField.EntityDescriptor;
                             mFieldName = aliasField.FieldName;

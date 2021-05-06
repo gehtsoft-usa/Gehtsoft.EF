@@ -14,13 +14,13 @@ namespace Gehtsoft.EF.MongoDb
         {
             public abstract bool IsEmpty { get; }
 
-            public virtual bool IsOp => this is SingleOp;
+            public abstract bool IsOp { get; }
 
-            public SingleOp AsOp => this as SingleOp;
+            public abstract SingleOp AsOp { get; }
 
-            public virtual bool IsGroup => this is SingleOp;
+            public abstract bool IsGroup { get; }
 
-            public Group AsGroup => this as Group;
+            public abstract Group AsGroup { get; }
 
             public abstract BsonDocument ToBsonDocument();
         }
@@ -31,7 +31,11 @@ namespace Gehtsoft.EF.MongoDb
             public override bool IsOp => true;
             public override bool IsEmpty => false;
 
-            public BsonDocument Op { get; private set; }
+            public BsonDocument Op { get; }
+
+            public override SingleOp AsOp => this;
+
+            public override Group AsGroup => null;
 
             public SingleOp(BsonDocument op)
             {
@@ -47,7 +51,7 @@ namespace Gehtsoft.EF.MongoDb
             {
                 BsonElement el = Op.GetElement(0);
                 BsonElement el1 = el.Value.AsBsonDocument.GetElement(0);
-                return $"{el.Name} {el1.Name} {el1.Value.ToString()}";
+                return $"{el.Name} {el1.Name} {el1.Value}";
             }
         }
 
@@ -59,6 +63,10 @@ namespace Gehtsoft.EF.MongoDb
             public List<Element> Elements { get; } = new List<Element>();
 
             public override bool IsEmpty => Elements.Count == 0;
+
+            public override SingleOp AsOp => null;
+
+            public override Group AsGroup => this;
 
             public override BsonDocument ToBsonDocument()
             {
@@ -83,7 +91,7 @@ namespace Gehtsoft.EF.MongoDb
                 foreach (Element element in Elements)
                 {
                     if (builder.Length > 1)
-                        builder.Append($" {LogOp ?? "$and"} ");
+                        builder.Append(' ').Append(LogOp ?? "$and").Append(' ');
                     builder.Append(element.ToString());
                 }
                 builder.Append(")");
@@ -164,7 +172,7 @@ namespace Gehtsoft.EF.MongoDb
         public override string ToString()
         {
             if (mElementStack.Count != 1)
-                throw new EfMongoDbException(EfMongoDbExceptionCode.FilterIsIncomplete);
+                return "{Filter is not complete}";
             return mElementStack.Peek().ToString();
         }
 
@@ -209,7 +217,6 @@ namespace Gehtsoft.EF.MongoDb
                         if (!svalue.StartsWith("/"))
                         {
                             StringBuilder pattern = new StringBuilder();
-                            //pattern.Append('/');
                             for (int i = 0; i < svalue.Length; i++)
                             {
                                 char c = svalue[i];
@@ -231,7 +238,6 @@ namespace Gehtsoft.EF.MongoDb
                                 else
                                     pattern.Append(c);
                             }
-                            //pattern.Append('/');
                             svalue = pattern.ToString();
                         }
                         return new BsonDocument("$regex", EntityToBsonController.SerializeValue(svalue, null));

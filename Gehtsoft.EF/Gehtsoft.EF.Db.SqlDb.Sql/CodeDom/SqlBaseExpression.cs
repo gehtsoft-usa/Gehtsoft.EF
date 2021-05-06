@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  abstract class SqlBaseExpression
+    internal abstract class SqlBaseExpression
     {
         /// <summary>
         /// The types of the Expression
         /// </summary>
-        internal  enum ExpressionTypes
+        internal enum ExpressionTypes
         {
             Binary,
             Unar,
@@ -51,35 +51,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         static internal Type GetSystemType(ResultTypes type)
         {
-            Type retval = null;
             switch (type)
             {
                 case ResultTypes.Integer:
-                    retval = typeof(int);
-                    break;
+                    return typeof(int);
                 case ResultTypes.Boolean:
-                    retval = typeof(bool);
-                    break;
+                    return typeof(bool);
                 case ResultTypes.DateTime:
-                    retval = typeof(DateTime);
-                    break;
+                    return typeof(DateTime);
                 case ResultTypes.Double:
-                    retval = typeof(double);
-                    break;
+                    return typeof(double);
                 case ResultTypes.String:
-                    retval = typeof(string);
-                    break;
+                    return typeof(string);
                 case ResultTypes.Row:
-                    retval = typeof(Dictionary<string, object>);
-                    break;
+                    return typeof(Dictionary<string, object>);
                 case ResultTypes.RowSet:
-                    retval = typeof(List<object>);
-                    break;
+                    return typeof(List<object>);
                 case ResultTypes.Cursor:
-                    retval = typeof(SqlSelectStatement);
-                    break;
+                    return typeof(SqlSelectStatement);
             }
-            return retval;
+            return null;
         }
 
         internal Type SystemType
@@ -90,7 +81,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal  static ResultTypes GetResultType(Type type)
+        internal static ResultTypes GetResultType(Type type)
         {
             if (type == typeof(int))
                 return ResultTypes.Integer;
@@ -111,22 +102,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return ResultTypes.Unknown;
         }
 
-        internal  abstract ExpressionTypes ExpressionType { get; }
+        internal abstract ExpressionTypes ExpressionType { get; }
 
-        internal  abstract ResultTypes ResultType { get; }
+        internal abstract ResultTypes ResultType { get; }
     }
 
     /// <summary>
     /// A collection of fields with possible alias
     /// </summary>
     [Serializable]
-    internal  class SqlBaseExpressionCollection : IReadOnlyList<SqlBaseExpression>
+    internal class SqlBaseExpressionCollection : IReadOnlyList<SqlBaseExpression>
     {
         private readonly List<SqlBaseExpression> mList = new List<SqlBaseExpression>();
 
         internal SqlBaseExpressionCollection()
         {
-
         }
 
         /// <summary>

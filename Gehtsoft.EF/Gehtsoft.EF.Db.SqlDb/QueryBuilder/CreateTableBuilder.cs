@@ -28,7 +28,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
             builder.Append(mSpecifics.PreBlock);
             builder.Append(mSpecifics.PreQueryInBlock);
-            builder.Append($"CREATE TABLE {mDescriptor.Name} (");
+            builder.Append("CREATE TABLE ").Append(mDescriptor.Name).Append(" (");
 
             foreach (TableDescriptor.ColumnInfo column in mDescriptor)
             {
@@ -53,7 +53,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             foreach (TableDescriptor.ColumnInfo column in mDescriptor)
                 HandleAfterQuery(builder, column);
 
-            if (mDescriptor.Metadata != null && mDescriptor.Metadata is ICompositeIndexMetadata compositeIndex)
+            if (mDescriptor.Metadata is ICompositeIndexMetadata compositeIndex)
             {
                 foreach (var index in compositeIndex.Indexes)
                     HandleCompositeIndex(builder, index);
@@ -67,26 +67,33 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected virtual void HandleColumnDDL(StringBuilder builder, TableDescriptor.ColumnInfo column)
         {
             string type = mSpecifics.TypeName(column.DbType, column.Size, column.Precision, column.Autoincrement);
-            builder.Append($"{column.Name} {type}");
+            builder.Append(column.Name).Append(' ').Append(type);
             if (column.PrimaryKey)
-                builder.Append($" PRIMARY KEY");
+                builder.Append(" PRIMARY KEY");
             if (!column.Nullable)
-                builder.Append($" NOT NULL");
+                builder.Append(" NOT NULL");
             if (column.Unique)
-                builder.Append($" UNIQUE");
+                builder.Append(" UNIQUE");
             if (column.DefaultValue != null)
-                builder.Append($" DEFAULT {mSpecifics.FormatValue(column.DefaultValue)}");
+                builder.Append(" DEFAULT ").Append(mSpecifics.FormatValue(column.DefaultValue));
         }
 
         protected virtual void HandlePostfixDDL(StringBuilder builder, TableDescriptor.ColumnInfo column)
         {
             if (column.ForeignKey && column.ForeignTable != column.Table)
-                builder.Append($", FOREIGN KEY ({column.Name}) REFERENCES {column.ForeignTable.Name}({column.ForeignTable.PrimaryKey.Name})");
+                builder
+                    .Append(", FOREIGN KEY (")
+                    .Append(column.Name)
+                    .Append(") REFERENCES ")
+                    .Append(column.ForeignTable.Name)
+                    .Append('(')
+                    .Append(column.ForeignTable.PrimaryKey.Name)
+                    .Append(')');
         }
 
         protected virtual bool NeedIndex(TableDescriptor.ColumnInfo column)
         {
-            return (column.Sorted || (column.ForeignKey && column.ForeignTable == column.Table));
+            return column.Sorted || (column.ForeignKey && column.ForeignTable == column.Table);
         }
 
         protected virtual void HandleAfterQuery(StringBuilder builder, TableDescriptor.ColumnInfo column)
@@ -95,7 +102,16 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             {
                 builder.Append("\r\n");
                 builder.Append(mSpecifics.PreQueryInBlock);
-                builder.Append($"CREATE INDEX {mDescriptor.Name}_{column.Name} ON {mDescriptor.Name}({column.Name})");
+                builder
+                    .Append("CREATE INDEX ")
+                    .Append(mDescriptor.Name)
+                    .Append('_')
+                    .Append(column.Name)
+                    .Append(" ON ")
+                    .Append(mDescriptor.Name)
+                    .Append('(')
+                    .Append(column.Name)
+                    .Append(')');
                 if (mSpecifics.TerminateWithSemicolon)
                     builder.Append(';');
 
@@ -108,13 +124,19 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             builder.Append("\r\n");
             builder.Append(mSpecifics.PreQueryInBlock);
 
-            builder.Append($"CREATE INDEX {mDescriptor.Name}_{index.Name} ON {mDescriptor.Name}(");
+            builder
+                .Append("CREATE INDEX ")
+                .Append(mDescriptor.Name)
+                .Append('_')
+                .Append(index.Name)
+                .Append(" ON ")
+                .Append(mDescriptor.Name)
+                .Append('(');
             HandleCompositeIndexColumns(builder, index);
             builder.Append(")");
             if (mSpecifics.TerminateWithSemicolon)
                 builder.Append(';');
             builder.Append(mSpecifics.PostQueryInBlock);
-
         }
 
         protected virtual void HandleCompositeIndexColumns(StringBuilder builder, CompositeIndex index)

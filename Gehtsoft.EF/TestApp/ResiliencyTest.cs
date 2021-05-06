@@ -14,9 +14,9 @@ namespace TestApp
     [TestFixture]
     public class ResiliencyTest
     {
-        class ResilencyPolicy : IResiliencyPolicy
+        private class ResilencyPolicy : IResiliencyPolicy
         {
-            public int Count { get; private set;  } = 0;
+            public int Count { get; private set; } = 0;
 
             public void Execute(Action action)
             {
@@ -67,9 +67,9 @@ namespace TestApp
             ResilencyPolicy policy4 = new ResilencyPolicy();
 
             Action<IResiliencyPolicy, bool> setGlobalPolicy = (policy, force) => ResiliencyPolicyDictionary.Instance.SetGlobalPolicy(policy, force);
-            
+
             setGlobalPolicy.Invoking(action => action(policy1, false)).Should().NotThrow();
-           
+
             ResiliencyPolicyDictionary.Instance.GetPolicy("mystring")
                 .Should().NotBeNull()
                 .And.Be(policy1);
@@ -90,7 +90,7 @@ namespace TestApp
 
             setPolicy.Invoking(action => action("mystring", policy4, false)).Should().Throw<InvalidOperationException>();
             ResiliencyPolicyDictionary.Instance.GetPolicy("mystring").Should().Be(policy3);
-            
+
             setPolicy.Invoking(action => action("mystring", policy4, true)).Should().NotThrow<InvalidOperationException>();
             ResiliencyPolicyDictionary.Instance.GetPolicy("mystring").Should().Be(policy4);
             ResiliencyPolicyDictionary.Instance.GetPolicy("mystring1").Should().Be(policy2);
@@ -146,9 +146,6 @@ namespace TestApp
                     query.ExecuteNoDataAsync().ConfigureAwait(true).GetAwaiter().GetResult();
                     policy.Count.Should().Be(12);
                 }
-
-
-
             }
         }
     }

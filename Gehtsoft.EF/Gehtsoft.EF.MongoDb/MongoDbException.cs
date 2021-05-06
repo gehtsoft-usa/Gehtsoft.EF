@@ -19,7 +19,7 @@ namespace Gehtsoft.EF.MongoDb
 
     public class EfMongoDbException : Exception
     {
-        public EfMongoDbExceptionCode Code { get; private set; }
+        public EfMongoDbExceptionCode Code { get; }
 
         public override string Message
         {

@@ -22,7 +22,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal abstract TableType Type { get; }
     }
 
-
     /// <summary>
     /// A collection of tables
     /// </summary>
@@ -59,5 +58,4 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal void Add(SqlTableSpecification table) => mList.Add(table);
     }
-
 }

@@ -123,16 +123,20 @@ namespace Gehtsoft.EF.Db.MysqlDb
     {
         public static SqlDbConnection Create(string connectionString)
         {
-            MySqlConnection connection = new MySqlConnector.MySqlConnection();
-            connection.ConnectionString = connectionString;
+            MySqlConnection connection = new MySqlConnector.MySqlConnection
+            {
+                ConnectionString = connectionString
+            };
             connection.Open();
             return new MysqlDbConnection(connection);
         }
 
         public static async Task<SqlDbConnection> CreateAsync(string connectionString, CancellationToken? token)
         {
-            MySqlConnection connection = new MySqlConnector.MySqlConnection();
-            connection.ConnectionString = connectionString;
+            MySqlConnection connection = new MySqlConnector.MySqlConnection
+            {
+                ConnectionString = connectionString
+            };
             if (token == null)
                 await connection.OpenAsync();
             else

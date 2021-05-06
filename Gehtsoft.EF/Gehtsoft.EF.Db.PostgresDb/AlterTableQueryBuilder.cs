@@ -8,7 +8,7 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.PostgresDb
 {
-    class PostgresAlterTableQueryBuilder : AlterTableQueryBuilder
+    internal class PostgresAlterTableQueryBuilder : AlterTableQueryBuilder
     {
         public PostgresAlterTableQueryBuilder(SqlDbLanguageSpecifics specifics) : base(specifics)
         {
@@ -18,20 +18,24 @@ namespace Gehtsoft.EF.Db.PostgresDb
         {
             StringBuilder builder = new StringBuilder();
             string type = mSpecifics.TypeName(column.DbType, column.Size, column.Precision, column.Autoincrement);
-            builder.Append($"{column.Name} {type}");
+            builder.Append(column.Name).Append(' ').Append(type);
             if (column.PrimaryKey)
-                builder.Append($" PRIMARY KEY");
+                builder.Append(" PRIMARY KEY");
             if (!column.Nullable)
-                builder.Append($" NOT NULL");
+                builder.Append(" NOT NULL");
             if (column.Unique)
-                builder.Append($" UNIQUE");
+                builder.Append(" UNIQUE");
             if (column.DefaultValue != null)
-                builder.Append($" DEFAULT {mSpecifics.FormatValue(column.DefaultValue)}");
+                builder.Append(" DEFAULT ").Append(mSpecifics.FormatValue(column.DefaultValue));
             if (column.ForeignKey && column.ForeignTable != column.Table)
-                builder.Append($" REFERENCES {column.ForeignTable.Name}({column.ForeignTable.PrimaryKey.Name})");
+                builder
+                    .Append(" REFERENCES ")
+                    .Append(column.ForeignTable.Name)
+                    .Append('(')
+                    .Append(column.ForeignTable.PrimaryKey.Name)
+                    .Append(')');
             return builder.ToString();
         }
-
 
         protected override void HandleCreateQuery(TableDescriptor.ColumnInfo column)
         {

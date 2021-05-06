@@ -4,9 +4,9 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.MssqlDb
 {
-    class MssqlInsertSelectQueryBuilder : InsertSelectQueryBuilder
+    internal class MssqlInsertSelectQueryBuilder : InsertSelectQueryBuilder
     {
-        private bool mHasAutoId = false;
+        private readonly bool mHasAutoId = false;
 
         public MssqlInsertSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false) : base(specifics, descriptor, selectQuery, ignoreAutoIncrement)
         {
@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
                 bool hasAutoId = false;
                 foreach (TableDescriptor.ColumnInfo column in descriptor)
                 {
-                    if (column.Autoincrement == true && column.PrimaryKey == true)
+                    if (column.Autoincrement && column.PrimaryKey)
                     {
                         hasAutoId = true;
                         break;
@@ -31,9 +31,9 @@ namespace Gehtsoft.EF.Db.MssqlDb
             if (mHasAutoId && mIgnoreAutoIncrement)
             {
                 StringBuilder builder = new StringBuilder();
-                builder.AppendLine($"SET IDENTITY_INSERT {mTable.Name} ON;");
-                builder.AppendLine($"{base.BuildQuery(leftSide, autoIncrement)};");
-                builder.AppendLine($"SET IDENTITY_INSERT {mTable.Name} OFF;");
+                builder.Append("SET IDENTITY_INSERT ").Append(mTable.Name).AppendLine(" ON;")
+                    .Append(base.BuildQuery(leftSide, autoIncrement)).AppendLine(";")
+                    .Append("SET IDENTITY_INSERT ").Append(mTable.Name).AppendLine(" OFF;");
                 return builder.ToString();
             }
             else
@@ -43,14 +43,14 @@ namespace Gehtsoft.EF.Db.MssqlDb
                 else
                 {
                     StringBuilder builder = new StringBuilder();
-                    builder.Append("INSERT INTO ");
-                    builder.Append(mTable.Name);
-                    builder.Append(" ( ");
-                    builder.Append(leftSide);
-                    builder.Append(") ");
-                    builder.Append(" OUTPUT INSERTED.");
-                    builder.Append(autoIncrement.Name);
-                    builder.Append(" ");
+                    builder.Append("INSERT INTO ")
+                        .Append(mTable.Name)
+                        .Append(" ( ")
+                        .Append(leftSide)
+                        .Append(") ")
+                        .Append(" OUTPUT INSERTED.")
+                        .Append(autoIncrement.Name)
+                        .Append(" ");
                     if (string.IsNullOrEmpty(mSelect.Query))
                         mSelect.PrepareQuery();
                     builder.Append(mSelect.Query);

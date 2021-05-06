@@ -23,7 +23,6 @@
 
         public override void PrepareQuery()
         {
-            
         }
 
         protected string mQuery;

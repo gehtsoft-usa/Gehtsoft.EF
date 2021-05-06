@@ -7,11 +7,9 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal class SqlUnarExpression : SqlBaseExpression
+    internal class SqlUnaryExpression : SqlBaseExpression
     {
-        private ResultTypes mResultType = ResultTypes.Unknown;
-        private SqlBaseExpression mOperand;
-        private OperationType mOperation;
+        private readonly ResultTypes mResultType;
 
         /// <summary>
         /// The types of the Operation
@@ -40,36 +38,24 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlBaseExpression Operand
+        internal SqlBaseExpression Operand { get; }
+
+        internal OperationType Operation { get; }
+
+        internal SqlUnaryExpression(SqlStatement parentStatement, ASTNode operand, OperationType operation, string source)
         {
-            get
-            {
-                return mOperand;
-            }
+            Operand = SqlExpressionParser.ParseExpression(parentStatement, operand, source);
+            Operation = operation;
+            CheckOperationAndType(operation, Operand, source, operand.Position.Line, operand.Position.Column);
+            mResultType = PrepareResultType(Operand, operation);
         }
 
-        internal OperationType Operation
+        internal SqlUnaryExpression(SqlBaseExpression operand, OperationType operation)
         {
-            get
-            {
-                return mOperation;
-            }
-        }
-
-        internal SqlUnarExpression(SqlStatement parentStatement, ASTNode operand, OperationType operation, string source)
-        {
-            mOperand = SqlExpressionParser.ParseExpression(parentStatement, operand, source);
-            mOperation = operation;
-            CheckOperationAndType(operation, mOperand, source, operand.Position.Line, operand.Position.Column);
-            mResultType = prepareResultType(mOperand, operation);
-        }
-
-        internal SqlUnarExpression(SqlBaseExpression operand, OperationType operation)
-        {
-            mOperand = operand;
-            mOperation = operation;
-            CheckOperationAndType(operation, mOperand);
-            mResultType = prepareResultType(operand, operation);
+            Operand = operand;
+            Operation = operation;
+            CheckOperationAndType(operation, Operand);
+            mResultType = PrepareResultType(operand, operation);
         }
         internal static SqlConstant TryGetConstant(SqlBaseExpression operand, OperationType operation)
         {
@@ -79,7 +65,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             if (operand is SqlConstant constant)
             {
                 object value = null;
-                ResultTypes type = prepareResultType(operand, operation);
+                ResultTypes type = PrepareResultType(operand, operation);
                 switch (operation)
                 {
                     case OperationType.IsNull:
@@ -141,7 +127,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return result;
         }
 
-        private static ResultTypes prepareResultType(SqlBaseExpression operand, OperationType operation)
+        private static ResultTypes PrepareResultType(SqlBaseExpression operand, OperationType operation)
         {
             if (operation == OperationType.IsNotNull || operation == OperationType.IsNull)
             {
@@ -179,7 +165,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
             if (!isCorrect)
             {
-                throw new SqlParserException(new SqlError(source, line, column, $"Type of operand doesn't match the operation"));
+                throw new SqlParserException(new SqlError(source, line, column, "Type of operand doesn't match the operation"));
             }
         }
     }

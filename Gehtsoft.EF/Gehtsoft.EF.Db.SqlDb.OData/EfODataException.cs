@@ -75,7 +75,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
     [Serializable]
     public class EfODataException : Exception
     {
-        public EfODataExceptionCode ErrorCode { get; private set; }
+        public EfODataExceptionCode ErrorCode { get; }
 
         public EfODataException(EfODataExceptionCode code, params object[] args) : base(string.Format(EfODataExceptionMessages.Inst[code], args))
         {

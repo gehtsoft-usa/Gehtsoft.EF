@@ -6,17 +6,16 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  class NewRowSet : SqlBaseExpression
+    internal class NewRowSet : SqlBaseExpression
     {
-
-        internal  override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.NewRowSet;
             }
         }
-        internal  override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {

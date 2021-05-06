@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Gehtsoft.EF.Utils
 {
-    public class MD5HashCreator
+    public static class MD5HashCreator
     {
         public static byte[] GetBytes(string password)
         {

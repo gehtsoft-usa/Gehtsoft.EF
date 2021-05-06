@@ -9,11 +9,9 @@ namespace Gehtsoft.EF.Db.PostgresDb
         private static int gSavepointId = 1;
         private bool mFinalized = false;
 
-        private PostgresDbConnection mConnection;
-        internal bool IsSavePoint { get; private set; }
-        internal string SavePoint { get; private set; }
-        
-
+        private readonly PostgresDbConnection mConnection;
+        internal bool IsSavePoint { get; }
+        internal string SavePoint { get; }
         internal PostgresDbTransaction(PostgresDbConnection db, DbTransaction transaction) : base(transaction)
         {
             IsSavePoint = false;

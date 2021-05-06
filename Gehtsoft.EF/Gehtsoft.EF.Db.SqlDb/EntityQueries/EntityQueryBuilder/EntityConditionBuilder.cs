@@ -6,21 +6,19 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-
     public interface IEntityInfoProvider
     {
         string Alias(string path, out DbType columnType);
         string Alias(Type type, int occurrence, string propertyName, out DbType columnType);
     }
 
-
     public class SingleEntityConditionBuilder
     {
-        private EntityConditionBuilder mBuilder;
-        private LogOp mLogOp;
+        private readonly EntityConditionBuilder mBuilder;
+        private readonly LogOp mLogOp;
         private string mLeftSide, mRightSide;
         private CmpOp? mCmpOp = null;
-        
+
         public SingleEntityConditionBuilder(LogOp op, EntityConditionBuilder builder)
         {
             mBuilder = builder;
@@ -47,7 +45,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             mCmpOp = op;
             if (op == CmpOp.IsNull || op == CmpOp.NotNull)
                 Push();
-            
+
             return this;
         }
 
@@ -56,13 +54,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public virtual SingleEntityConditionBuilder Property(string propertyPath) => Raw(mBuilder.PropertyName(propertyPath));
 
         public virtual SingleEntityConditionBuilder PropertyOf(string name, Type type = null, int occurrence = 0) => Raw(mBuilder.PropertyOfName(name, type, occurrence));
-        
+
         public virtual SingleEntityConditionBuilder PropertyOf<T>(string name, int occurrence = 0) => Raw(mBuilder.PropertyOfName(name, typeof(T), occurrence));
 
         public virtual SingleEntityConditionBuilder Property(AggFn fn, string propertyPath) => Raw(fn, mBuilder.PropertyName(propertyPath));
 
         public virtual SingleEntityConditionBuilder PropertyOf(AggFn fn, string name, Type type = null, int occurrence = 0) => Raw(fn, mBuilder.PropertyOfName(name, type, occurrence));
-        
+
         public virtual SingleEntityConditionBuilder PropertyOf<T>(AggFn fn, string name, int occurrence = 0) => Raw(fn, mBuilder.PropertyOfName(name, typeof(T), occurrence));
 
         public virtual SingleEntityConditionBuilder Parameter(string parameterName) => Raw(mBuilder.Parameter(parameterName));
@@ -74,39 +72,36 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
     public class EntityConditionBuilder
     {
-        private readonly ConditionBuilder mConditionBuilder;
-        public ConditionBuilder ConditionBuilder => mConditionBuilder;
-        private readonly IEntityInfoProvider mEntityInfoProvider;
-        public IEntityInfoProvider EntityInfoProvider => mEntityInfoProvider;
+        public ConditionBuilder ConditionBuilder { get; }
+        public IEntityInfoProvider EntityInfoProvider { get; }
 
         internal EntityConditionBuilder(ConditionBuilder builder, IEntityInfoProvider entityInfoProvider)
         {
-            mConditionBuilder = builder;
-            mEntityInfoProvider = entityInfoProvider;
+            ConditionBuilder = builder;
+            EntityInfoProvider = entityInfoProvider;
         }
 
         public SingleEntityConditionBuilder Add(LogOp op) => new SingleEntityConditionBuilder(op, this);
 
-        public virtual void Add(LogOp logOp, string rawExpression) => mConditionBuilder.Add(logOp, rawExpression);
+        public virtual void Add(LogOp logOp, string rawExpression) => ConditionBuilder.Add(logOp, rawExpression);
 
-        public virtual void Add(LogOp logOp, string left, CmpOp op, string right) => mConditionBuilder.Add(logOp, left, op, right);
+        public virtual void Add(LogOp logOp, string left, CmpOp op, string right) => ConditionBuilder.Add(logOp, left, op, right);
 
-        public virtual string PropertyName(string propertyPath) => propertyPath == null ? null : mEntityInfoProvider.Alias(propertyPath, out DbType columnType);
+        public virtual string PropertyName(string propertyPath) => propertyPath == null ? null : EntityInfoProvider.Alias(propertyPath, out DbType _);
 
-        public virtual string PropertyOfName(string name, Type type = null, int occurrence = 0) => mEntityInfoProvider.Alias(type, occurrence, name, out DbType columnType);
-        
-        public virtual string PropertyOfName<T>(string name, int occurrence = 0) => mEntityInfoProvider.Alias(typeof(T), occurrence, name, out DbType columnType);
+        public virtual string PropertyOfName(string name, Type type = null, int occurrence = 0) => EntityInfoProvider.Alias(type, occurrence, name, out DbType _);
 
-        public virtual string Parameter(string parameterName) => mConditionBuilder.Parameter(parameterName);
+        public virtual string PropertyOfName<T>(string name, int occurrence = 0) => EntityInfoProvider.Alias(typeof(T), occurrence, name, out DbType _);
 
-        public virtual string Parameters(string[] parameterNames) => mConditionBuilder.Parameters(parameterNames);
+        public virtual string Parameter(string parameterName) => ConditionBuilder.Parameter(parameterName);
 
-        public virtual string Query(AQueryBuilder queryBuilder) => mConditionBuilder.Query(queryBuilder);
+        public virtual string Parameters(string[] parameterNames) => ConditionBuilder.Parameters(parameterNames);
 
-        public virtual OpBracket AddGroup(LogOp logOp = LogOp.And) => mConditionBuilder.AddGroup(logOp);
+        public virtual string Query(AQueryBuilder queryBuilder) => ConditionBuilder.Query(queryBuilder);
 
-        
-        public override string ToString() => mConditionBuilder.ToString();
+        public virtual OpBracket AddGroup(LogOp logOp = LogOp.And) => ConditionBuilder.AddGroup(logOp);
+
+        public override string ToString() => ConditionBuilder.ToString();
     }
 
     //syntax sugars for where and having filters

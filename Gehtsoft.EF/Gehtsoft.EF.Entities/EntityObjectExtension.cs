@@ -18,7 +18,7 @@ namespace Gehtsoft.EF.Entities
             return type.GetCustomAttribute<EntityAttribute>() != null;
         }
 
-        private static ConcurrentDictionary<Type, PropertyInfo> gPrimaryKeys = new ConcurrentDictionary<Type, PropertyInfo>();
+        private static readonly ConcurrentDictionary<Type, PropertyInfo> gPrimaryKeys = new ConcurrentDictionary<Type, PropertyInfo>();
 
         /// <summary>
         /// Gets identifier of an entity object
@@ -51,10 +51,7 @@ namespace Gehtsoft.EF.Entities
                     }
                 }
 
-                if (pk == null)
-                    throw new ArgumentException($"Type {entityType.Name} is not an entity or does not have primary key defined");
-
-                gPrimaryKeys[entityType] = pk;
+                gPrimaryKeys[entityType] = pk ?? throw new ArgumentException($"Type {entityType.Name} is not an entity or does not have primary key defined");
             }
             return pk;
         }

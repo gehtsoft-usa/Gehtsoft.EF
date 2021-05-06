@@ -8,8 +8,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlConstant : SqlBaseExpression
     {
-        private ResultTypes mResultType = ResultTypes.Unknown;
-        private object mValue = null;
+        private readonly ResultTypes mResultType;
 
         internal override ExpressionTypes ExpressionType
         {
@@ -26,17 +25,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal object Value
-        {
-            get
-            {
-                return mValue;
-            }
-        }
+        internal object Value { get; }
 
         internal SqlConstant(object value, ResultTypes type)
         {
-            mValue = value;
+            Value = value;
             mResultType = type;
         }
     }

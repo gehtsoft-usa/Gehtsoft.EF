@@ -11,7 +11,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal SqlConstantCollection()
         {
-
         }
 
         public SqlConstant this[int index] => ((IReadOnlyList<SqlConstant>)mList)[index];

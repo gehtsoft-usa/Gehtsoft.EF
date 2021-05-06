@@ -14,7 +14,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
     internal class DeleteRunner : SqlStatementRunner<SqlDeleteStatement>
     {
-        private SqlCodeDomBuilder mBuilder;
+        private readonly SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;
         private readonly ISqlDbConnectionFactory mConnectionFactory = null;
         private SqlDeleteStatement mDelete;
@@ -64,18 +64,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        internal override AQueryBuilder GetQueryBuilder(SqlDeleteStatement delete)
+        internal override AQueryBuilder GetQueryBuilder(SqlDeleteStatement statement)
         {
             if (mDeleteBuilder == null)
             {
-                mDelete = delete;
+                mDelete = statement;
                 if (mConnectionFactory != null)
                 {
                     mConnection = mConnectionFactory.GetConnection();
                 }
                 try
                 {
-                    processDelete(delete);
+                    ProcessDelete(statement);
                 }
                 finally
                 {
@@ -89,7 +89,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return mDeleteBuilder;
         }
 
-        private void processDelete(SqlDeleteStatement delete)
+        private void ProcessDelete(SqlDeleteStatement delete)
         {
             Type entityType = mBuilder.EntityByName(delete.TableName);
             if (entityType == null)
@@ -105,10 +105,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal void RunWithResult(SqlDeleteStatement delete)
         {
-            mBuilder.BlockDescriptors.Peek().LastStatementResult = run(delete);
+            mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(delete);
         }
 
-        private dynamic run(SqlDeleteStatement delete)
+        private dynamic Run(SqlDeleteStatement delete)
         {
             dynamic result = null;
             mDelete = delete;
@@ -118,7 +118,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             try
             {
-                processDelete(delete);
+                ProcessDelete(delete);
 
                 using (SqlDbQuery query = mConnection.GetQuery(mDeleteBuilder))
                 {

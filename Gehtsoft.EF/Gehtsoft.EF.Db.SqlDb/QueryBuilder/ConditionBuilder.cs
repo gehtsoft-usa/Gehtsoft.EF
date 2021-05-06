@@ -18,30 +18,18 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
     public class SingleConditionBuilder
     {
-        private readonly ConditionBuilder mBuilder;
-
-        internal ConditionBuilder Builder => mBuilder;
+        internal ConditionBuilder Builder { get; }
 
         private readonly LogOp mLogOp;
-        private string mLeftSide;
         private CmpOp? mCmpOp = null;
-        private string mRightSide;
 
-        internal string Right
-        {
-            get => mRightSide;
-            set => mRightSide = value;
-        }
+        internal string Right { get; set; }
 
-        internal string Left
-        {
-            get => mLeftSide;
-            set => mLeftSide = value;
-        }
+        internal string Left { get; set; }
 
         internal SingleConditionBuilder(ConditionBuilder builder, LogOp logOp)
         {
-            mBuilder = builder;
+            Builder = builder;
             mLogOp = logOp;
         }
 
@@ -52,28 +40,28 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     throw new ArgumentException("Query should not consists of string scalars", nameof(rawExpression));
 
             if (mCmpOp == null)
-                mLeftSide = rawExpression;
+                Left = rawExpression;
             else
             {
-                mRightSide = rawExpression;
+                Right = rawExpression;
                 Push();
             }
             return this;
         }
 
-        public SingleConditionBuilder Property(AggFn aggFn, QueryBuilderEntity entity, TableDescriptor.ColumnInfo columnInfo) => Raw(mBuilder.PropertyName(aggFn, entity, columnInfo));
+        public SingleConditionBuilder Property(AggFn aggFn, QueryBuilderEntity entity, TableDescriptor.ColumnInfo columnInfo) => Raw(Builder.PropertyName(aggFn, entity, columnInfo));
 
-        public SingleConditionBuilder Property(AggFn aggFn, TableDescriptor.ColumnInfo columnInfo) => Raw(mBuilder.PropertyName(aggFn, columnInfo));
+        public SingleConditionBuilder Property(AggFn aggFn, TableDescriptor.ColumnInfo columnInfo) => Raw(Builder.PropertyName(aggFn, columnInfo));
 
-        public SingleConditionBuilder Property(QueryBuilderEntity entity, TableDescriptor.ColumnInfo columnInfo) => Raw(mBuilder.PropertyName(entity, columnInfo));
+        public SingleConditionBuilder Property(QueryBuilderEntity entity, TableDescriptor.ColumnInfo columnInfo) => Raw(Builder.PropertyName(entity, columnInfo));
 
-        public SingleConditionBuilder Property(TableDescriptor.ColumnInfo columnInfo) => Raw(mBuilder.PropertyName(columnInfo));
+        public SingleConditionBuilder Property(TableDescriptor.ColumnInfo columnInfo) => Raw(Builder.PropertyName(columnInfo));
 
-        public SingleConditionBuilder Parameter(string name) => Raw(mBuilder.Parameter(name));
+        public SingleConditionBuilder Parameter(string name) => Raw(Builder.Parameter(name));
 
-        public SingleConditionBuilder Parameters(params string[] names) => Raw(mBuilder.Parameters(names));
+        public SingleConditionBuilder Parameters(params string[] names) => Raw(Builder.Parameters(names));
 
-        public SingleConditionBuilder Query(AQueryBuilder builder) => Raw(mBuilder.Query(builder));
+        public SingleConditionBuilder Query(AQueryBuilder builder) => Raw(Builder.Query(builder));
 
         public SingleConditionBuilder Is(CmpOp op)
         {
@@ -86,7 +74,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         private void Push()
         {
-            mBuilder.Add(mLogOp, mLeftSide, (CmpOp)mCmpOp, mRightSide);
+            Builder.Add(mLogOp, Left, (CmpOp)mCmpOp, Right);
         }
     }
 
@@ -245,7 +233,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public virtual void BracketClosed(OpBracket op)
         {
-            if (mConditionStarted == false)
+            if (!mConditionStarted)
                 throw new EfSqlException(EfExceptionCode.WhereBracketIsEmpty);
             mWhere.Append(")");
             mWhere.Append(InfoProvider.Specifics.CloseLogOp(op.LogOp));

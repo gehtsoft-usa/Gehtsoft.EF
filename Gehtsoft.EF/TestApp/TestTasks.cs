@@ -11,7 +11,7 @@ using NUnit.Framework;
 
 namespace TestApp
 {
-    class TestTasksImpl
+    internal static class TestTasksImpl
     {
         [Entity]
         public class MTTestEntity
@@ -37,7 +37,6 @@ namespace TestApp
                 string taskId = $"TaskId {i}";
                 Task.Run(() =>
                 {
-
                     for (int j = 0; j < 10; j++)
                     {
                         try
@@ -46,8 +45,10 @@ namespace TestApp
                             {
                                 using (var query = connection.GetInsertEntityQuery<MTTestEntity>())
                                 {
-                                    MTTestEntity e = new MTTestEntity();
-                                    e.TaskId = taskId;
+                                    MTTestEntity e = new MTTestEntity
+                                    {
+                                        TaskId = taskId
+                                    };
                                     query.Execute(e);
                                 }
                             }
@@ -61,7 +62,6 @@ namespace TestApp
                     }
 
                     Interlocked.Increment(ref completedCount);
-                    return;
                 });
             }
 
@@ -93,9 +93,8 @@ namespace TestApp
             using (var query = connection.GetSelectEntitiesCountQuery<MTTestEntity>())
             {
                 var cc = query.RowCount;
-                Assert.AreEqual(cc, 100);
+                Assert.AreEqual(100, cc);
             }
-
         }
     }
 }

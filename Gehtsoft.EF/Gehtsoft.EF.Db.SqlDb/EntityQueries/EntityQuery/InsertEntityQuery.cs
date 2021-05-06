@@ -2,8 +2,7 @@
 {
     public class InsertEntityQuery : ModifyEntityQuery
     {
-        private InsertEntityQueryBuilder mInsertBuilder;
-
+        private readonly InsertEntityQueryBuilder mInsertBuilder;
 
         internal InsertEntityQuery(SqlDbQuery query, InsertEntityQueryBuilder builder) : base(query, builder)
         {

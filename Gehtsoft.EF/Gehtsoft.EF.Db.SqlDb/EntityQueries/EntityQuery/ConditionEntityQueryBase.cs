@@ -43,7 +43,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return RowsAffected;
         }
 
-        public override async Task<int> ExecuteAsync(CancellationToken? token = null)
+        public override async Task<int> ExecuteAsync(CancellationToken? token)
         {
             PrepareQuery();
             if (IsReader)
@@ -66,11 +66,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public class InQueryName
         {
-            internal EntityQueryWithWhereBuilder.EntityQueryItem Item { get; private set; }
+            internal EntityQueryWithWhereBuilder.EntityQueryItem Item { get; }
 
             public string Path => Item.Path;
 
-            private string mAlias;
+            private readonly string mAlias;
 
             public string Alias => mAlias ?? $"{Item.QueryEntity.Alias}.{Item.Column.Name}";
 

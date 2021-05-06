@@ -38,10 +38,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
 
         public void SetTag<T>(T tag) where T : class => this[typeof(T)] = tag;
-        public T GetTag<T>()  where T : class => this[typeof(T)] as T;
+        public T GetTag<T>() where T : class => this[typeof(T)] as T;
     }
-
-
 
     public class AllEntities : IEnumerable<Type>
     {
@@ -55,7 +53,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public class NamingPolicyManager
         {
             public EntityNamingPolicy Default { get; set; } = EntityNamingPolicy.BackwardCompatibility;
-            private Dictionary<string, EntityNamingPolicy> mNamingPolicies = new Dictionary<string, EntityNamingPolicy>();
+            private readonly Dictionary<string, EntityNamingPolicy> mNamingPolicies = new Dictionary<string, EntityNamingPolicy>();
             private const string DEFAULTSCOPE = "gs$$defaultscope";
 
             public EntityNamingPolicy this[string scope]
@@ -65,9 +63,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     if (scope == null)
                         return Default;
 
-                    if (!mNamingPolicies.TryGetValue(scope ?? DEFAULTSCOPE, out EntityNamingPolicy policy))
+                    if (!mNamingPolicies.TryGetValue(scope, out EntityNamingPolicy policy))
                         policy = Default;
-                    
+
                     return policy;
                 }
                 set => mNamingPolicies[scope ?? DEFAULTSCOPE] = value;
@@ -76,19 +74,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public NamingPolicyManager NamingPolicy { get; } = new NamingPolicyManager();
 
-        private Dictionary<Type, EntityDescriptor> mEntities = new Dictionary<Type, EntityDescriptor>();
+        private readonly Dictionary<Type, EntityDescriptor> mEntities = new Dictionary<Type, EntityDescriptor>();
 
         private static AllEntities gEntities = null;
 
-        private object mMutex = new object();
+        private readonly object mMutex = new object();
 
         public static AllEntities Inst
         {
             get
             {
-                if (gEntities == null)
-                    gEntities = new AllEntities();
-                return gEntities;
+                return gEntities ?? (gEntities = new AllEntities());
             }
         }
 
@@ -124,16 +120,15 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             {
                 lock (mMutex)
                 {
-                    EntityDescriptor descriptor = null;
-                    if (mEntities.TryGetValue(type, out descriptor))
+                    if (mEntities.TryGetValue(type, out EntityDescriptor descriptor))
                         return descriptor;
-                    
+
                     TableDescriptor td = CreateTableDescriptor(type, exceptionIfNotFound);
-                    
+
                     if (td == null)
                         return null;
-                    
-                    descriptor = new EntityDescriptor() {TableDescriptor = td, EntityType = type};
+
+                    descriptor = new EntityDescriptor() { TableDescriptor = td, EntityType = type };
                     if (!td.Obsolete)
                     {
                         mEntities[type] = descriptor;
@@ -152,10 +147,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     return descriptor;
                 }
             }
-
         }
 
-        public void PreloadEntities(Assembly assembly, string scope = null) => PreloadEntities(new Assembly[] {assembly}, scope);
+        public void PreloadEntities(Assembly assembly, string scope = null) => PreloadEntities(new Assembly[] { assembly }, scope);
 
         public void PreloadEntities(IEnumerable<Assembly> assemblies, string scope = null)
         {
@@ -166,7 +160,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 {
                     if (!mEntities.ContainsKey(type.EntityType))
                     {
-                        EntityDescriptor descriptor = new EntityDescriptor() {TableDescriptor = CreateTableDescriptor(type.EntityType, true), EntityType = type.EntityType};
+                        EntityDescriptor descriptor = new EntityDescriptor() { TableDescriptor = CreateTableDescriptor(type.EntityType, true), EntityType = type.EntityType };
                         foreach (TableDescriptor.ColumnInfo column in descriptor.TableDescriptor)
                         {
                             if (column.ForeignKey && column.ForeignTable == descriptor.TableDescriptor)
@@ -183,19 +177,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
         }
 
-        private static Type DynamicEntityType = typeof(DynamicEntity);
+        private static readonly Type DynamicEntityType = typeof(DynamicEntity);
 
         private TableDescriptor CreateTableDescriptor(Type type, bool exceptionIfNotFound)
         {
             EntityAttribute typeAttribute;
             ObsoleteEntityAttribute obsoleteTypeAttribute = null;
             DynamicEntity dynamicEntity = null;
-            TableDescriptor descriptor = null;
-            string tableScope = null;
-            
+            TableDescriptor descriptor;
             if (DynamicEntityType.IsAssignableFrom(type))
             {
-                dynamicEntity = (DynamicEntity) Activator.CreateInstance(type);
+                dynamicEntity = (DynamicEntity)Activator.CreateInstance(type);
                 typeAttribute = dynamicEntity.EntityAttribute;
                 if (typeAttribute == null)
                     obsoleteTypeAttribute = dynamicEntity.ObsoleteEntityAttribute;
@@ -209,6 +201,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             EntityNamingPolicy namingPolicy = EntityNamingPolicy.Default;
 
+            string tableScope;
             if (typeAttribute == null)
             {
                 if (obsoleteTypeAttribute == null)
@@ -220,7 +213,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 }
 
                 tableScope = obsoleteTypeAttribute.Scope;
-                descriptor = new TableDescriptor(obsoleteTypeAttribute.Table) {Obsolete = true, View = obsoleteTypeAttribute.View};              
+                descriptor = new TableDescriptor(obsoleteTypeAttribute.Table) { Obsolete = true, View = obsoleteTypeAttribute.View };
                 if (obsoleteTypeAttribute.Metadata != null)
                     descriptor.Metadata = Activator.CreateInstance(obsoleteTypeAttribute.Metadata);
             }
@@ -234,7 +227,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
 
             namingPolicy = (namingPolicy == EntityNamingPolicy.Default ? NamingPolicy[tableScope] : namingPolicy);
-           
+
             if (descriptor.Name == null)
                 descriptor.Name = EntityNameConvertor.ConvertTableName(type.Name, namingPolicy == EntityNamingPolicy.BackwardCompatibility ? EntityNamingPolicy.AsIs : namingPolicy);
 
@@ -256,8 +249,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         private void CreateColumnDescriptor(Type type, EntityNamingPolicy policy, TableDescriptor descriptor, IPropertyAccessor propertyAccessor)
         {
-            EntityPropertyAttribute propertyAttribute;
-            propertyAttribute = propertyAccessor.GetCustomAttribute<EntityPropertyAttribute>();
+            EntityPropertyAttribute propertyAttribute = propertyAccessor.GetCustomAttribute<EntityPropertyAttribute>();
             if (propertyAttribute != null)
             {
                 if (policy == EntityNamingPolicy.BackwardCompatibility && propertyAttribute.Field == null)
@@ -373,7 +365,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 }
             }
         }
-
 
         public IEnumerator<Type> GetEnumerator()
         {

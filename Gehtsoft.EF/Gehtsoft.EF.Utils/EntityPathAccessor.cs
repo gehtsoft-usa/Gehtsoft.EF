@@ -9,7 +9,7 @@ namespace Gehtsoft.EF.Utils
 {
     public static class EntityPathAccessor
     {
-        private static Dictionary<Tuple<Type, string>, PropertyInfo[]> mPathDictionary = new Dictionary<Tuple<Type, string>, PropertyInfo[]>();
+        private static readonly Dictionary<Tuple<Type, string>, PropertyInfo[]> mPathDictionary = new Dictionary<Tuple<Type, string>, PropertyInfo[]>();
 
         private static PropertyInfo[] ParsePath(Type baseType, string path)
         {
@@ -18,7 +18,7 @@ namespace Gehtsoft.EF.Utils
             if (path.Contains('.'))
                 parts = path.Split('.');
             else
-                parts = new string[] {path};
+                parts = new string[] { path };
 
             TypeInfo currInfo = baseType.GetTypeInfo();
             PropertyInfo[] result = new PropertyInfo[parts.Length];
@@ -27,9 +27,7 @@ namespace Gehtsoft.EF.Utils
             foreach (string part in parts)
             {
                 PropertyInfo info = currInfo.GetProperty(part);
-                if (info == null)
-                    throw new ArgumentException(nameof(path), $"Property {part} is not found in type {currInfo.Name}");
-                result[i] = info;
+                result[i] = info ?? throw new ArgumentException(nameof(path), $"Property {part} is not found in type {currInfo.Name}");
                 currInfo = info.PropertyType.GetTypeInfo();
                 i++;
             }
@@ -40,8 +38,7 @@ namespace Gehtsoft.EF.Utils
         private static PropertyInfo[] GetPath(Type baseType, string path)
         {
             Tuple<Type, string> key = new Tuple<Type, string>(baseType, path);
-            PropertyInfo[] result;
-            if (mPathDictionary.TryGetValue(key, out result))
+            if (mPathDictionary.TryGetValue(key, out PropertyInfo[] result))
                 return result;
             result = ParsePath(baseType, path);
             mPathDictionary[key] = result;
@@ -55,7 +52,7 @@ namespace Gehtsoft.EF.Utils
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
             if (path.Length == 0)
-                throw new ArgumentException(nameof(path), "Path shall not be empty");
+                throw new ArgumentException("Path shall not be empty", nameof(path));
 
             PropertyInfo[] parsedPath = GetPath(entity.GetType(), path);
             foreach (PropertyInfo info in parsedPath)

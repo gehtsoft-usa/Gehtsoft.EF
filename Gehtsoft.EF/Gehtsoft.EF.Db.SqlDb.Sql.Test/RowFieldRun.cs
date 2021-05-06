@@ -13,15 +13,15 @@ using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
-    public class RowFieldRun : IDisposable
+    public sealed class RowFieldRun : IDisposable
     {
         private SqlCodeDomBuilder DomBuilder { get; }
-        private ISqlDbConnectionFactory connectionFactory;
-        private SqlDbConnection connection;
+        private readonly ISqlDbConnectionFactory connectionFactory;
+        private readonly SqlDbConnection connection;
 
         public RowFieldRun()
         {
-            connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:"); ;
+            connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, "Data Source=:memory:");
             Snapshot snapshot = new Snapshot();
             connection = connectionFactory.GetConnection();
             snapshot.CreateAsync(connection).ConfigureAwait(true).GetAwaiter().GetResult();
@@ -36,18 +36,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 connection.Dispose();
         }
 
-        //[Fact]
-        //public void Empty()
-        //{
-        //}
-
         [Fact]
         public void AddRowField()
         {
             Func<IDictionary<string, object>, dynamic> func;
             dynamic result;
             IDictionary<string, object> dict;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test",
                 "SELECT Quantity FROM OrderDetail LIMIT 1;" +
@@ -61,7 +56,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             dict.ContainsKey("Quantity").Should().BeTrue();
             string test = (string)dict["Test"];
             test.Should().Be("testing");
-
 
             func = environment.Parse("test",
                 "SET recordset = NEW_ROWSET();" +
@@ -86,7 +80,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             dict = result[1] as IDictionary<string, object>;
             dict.ContainsKey("Test").Should().BeTrue();
             dict.ContainsKey("Total").Should().BeTrue();
-           
+
             string test2 = (string)dict["Test"];
             test2.Should().Be("testing");
             int total2 = (int)dict["Total"];
@@ -98,7 +92,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         {
             Func<IDictionary<string, object>, object> func;
             object result;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
 
             func = environment.Parse("test",
                 "SET maxQuantity = 0.0;" +

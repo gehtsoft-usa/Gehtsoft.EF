@@ -6,17 +6,16 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  class GetLastResult : SqlBaseExpression
+    internal class GetLastResult : SqlBaseExpression
     {
-
-        internal  override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.GetLastResult;
             }
         }
-        internal  override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {

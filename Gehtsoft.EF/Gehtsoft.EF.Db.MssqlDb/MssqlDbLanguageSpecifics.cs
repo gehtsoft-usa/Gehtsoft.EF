@@ -8,64 +8,64 @@ namespace Gehtsoft.EF.Db.MssqlDb
 {
     public class MssqlDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
-        public override string TypeName(DbType dbtype, int size, int precision, bool autoincrement)
+        public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
-            string type;
-            switch (dbtype)
+            string typeName;
+            switch (type)
             {
                 case DbType.String:
                     if (size == 0)
-                        type = "text";
+                        typeName = "text";
                     else
-                        type = $"nvarchar({size})";
+                        typeName = $"nvarchar({size})";
                     break;
                 case DbType.Int16:
-                    type = "smallint";
+                    typeName = "smallint";
                     break;
                 case DbType.Int32:
-                    type = "int";
+                    typeName = "int";
                     break;
                 case DbType.Int64:
-                    type = "bigint";
+                    typeName = "bigint";
                     break;
                 case DbType.Date:
-                    type = "date";
+                    typeName = "date";
                     break;
                 case DbType.DateTime:
-                    type = "datetime";
+                    typeName = "datetime";
                     break;
                 case DbType.Double:
                     if (size == 0 && precision == 0)
-                        type = "float(53)";
+                        typeName = "float(53)";
                     else if (size == 0)
-                        type = $"numeric({38}, {precision})";
+                        typeName = $"numeric({38}, {precision})";
                     else
-                        type = $"numeric({size}, {precision})";
+                        typeName = $"numeric({size}, {precision})";
                     break;
                 case DbType.Binary:
-                    type = "image";
+                    typeName = "image";
                     break;
                 case DbType.Boolean:
-                    type = "int";
+                    typeName = "int";
                     break;
                 case DbType.Guid:
-                    type = "uniqueidentifier";
+                    typeName = "uniqueidentifier";
                     break;
                 case DbType.Decimal:
                     if (size == 0 && precision == 0)
-                        type = "float(53)";
+                        typeName = "float(53)";
                     else if (size == 0)
-                        type = $"numeric({38}, {precision})";
+                        typeName = $"numeric({38}, {precision})";
                     else
-                        type = $"numeric({size}, {precision})";
+                        typeName = $"numeric({size}, {precision})";
                     break;
                 default:
                     throw new InvalidOperationException("The type is not supported");
             }
 
             if (autoincrement)
-                type += " identity(1, 1)";
-            return type;
+                typeName += " identity(1, 1)";
+            return typeName;
         }
 
         public override void ToDbValue(ref object value, Type type, out DbType dbtype)
@@ -93,15 +93,15 @@ namespace Gehtsoft.EF.Db.MssqlDb
             {
                 if (value == null)
                     return default(bool);
-                int t = (int) TranslateValue(value, typeof(int));
+                int t = (int)TranslateValue(value, typeof(int));
                 return t != 0;
             }
             else if (type == typeof(bool?))
             {
                 if (value == null)
-                    return (bool?) null;
-                int t = (int) TranslateValue(value, typeof(int));
-                return (bool?) (t != 0);
+                    return (bool?)null;
+                int t = (int)TranslateValue(value, typeof(int));
+                return (bool?)(t != 0);
             }
             else
                 return base.TranslateValue(value, type);
@@ -135,7 +135,6 @@ namespace Gehtsoft.EF.Db.MssqlDb
                         }
                         builder.Append(")");
                         return builder.ToString();
-
                     }
                 default:
                     return base.GetSqlFunction(function, args);
@@ -144,13 +143,10 @@ namespace Gehtsoft.EF.Db.MssqlDb
 
         public override string FormatValue(object value)
         {
-            if (value is bool)
-                return FormatValue((bool) value ? (int)1 : (int)0);
-            if (value is DateTime)
-            {
-                DateTime dt = (DateTime) value;
+            if (value is bool b)
+                return FormatValue(b ? 1 : 0);
+            if (value is DateTime dt)
                 return $"{{d '{dt.Year:0000}-{dt.Month:00}-{dt.Day:00}'}}";
-            }
 
             return base.FormatValue(value);
         }

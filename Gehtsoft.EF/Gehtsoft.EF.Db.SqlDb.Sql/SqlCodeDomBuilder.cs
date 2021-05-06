@@ -46,9 +46,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal Expression ParseNodeToLinq(string name, ASTNode root, Statement parentStatement, bool clear = false)
         {
-            var visitor = new SqlASTVisitor();
-                Expression result = visitor.VisitStatementsToLinq(this, name, root, parentStatement?.Type ?? Statement.StatementType.Block, parentStatement?.OnContinue, clear);
-                return result;
+            var visitor = new SqlAstVisitor();
+            Expression result = visitor.VisitStatementsToLinq(this, name, root, parentStatement?.Type ?? Statement.StatementType.Block, parentStatement?.OnContinue, clear);
+            return result;
         }
 
         internal Expression Parse(string name, TextReader source)
@@ -83,9 +83,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         protected Dictionary<string, Type> mTypeNameToEntity = new Dictionary<string, Type>();
         protected Dictionary<Type, List<Tuple<string, string, Type>>> mTypeToFields = new Dictionary<Type, List<Tuple<string, string, Type>>>();
 
-        internal Type TypeByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item3;
-        internal string FieldByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item2;
-        internal string NameByField(Type entityType, string fieldName) => mTypeToFields[entityType].Where(t => t.Item2.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)).SingleOrDefault()?.Item1;
+        internal Type TypeByName(Type entityType, string name) => mTypeToFields[entityType].SingleOrDefault(t => t.Item1 == name)?.Item3;
+        internal string FieldByName(Type entityType, string name) => mTypeToFields[entityType].SingleOrDefault(t => t.Item1 == name)?.Item2;
+        internal string NameByField(Type entityType, string fieldName) => mTypeToFields[entityType].SingleOrDefault(t => t.Item2.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase))?.Item1;
         internal Type EntityByName(string name) => mTypeNameToEntity.ContainsKey(name) ? mTypeNameToEntity[name] : null;
 
         public void Build(EntityFinder.EntityTypeInfo[] entities, string ns = "NS")
@@ -94,7 +94,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             {
                 string name = entity.EntityType.Name;
                 mTypeNameToEntity[name] = entity.EntityType;
-                EntityDescriptor descriptor = AllEntities.Inst[entity.EntityType];
 
                 mTypeToFields.Add(entity.EntityType, new List<Tuple<string, string, Type>>());
 
@@ -104,11 +103,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     EntityPropertyAttribute propertyAttribute = propertyAccessor.GetCustomAttribute<EntityPropertyAttribute>();
                     if (propertyAttribute != null)
                     {
-                        string fieldName;
-                        if (propertyAttribute.Field == null)
-                            fieldName = propertyAccessor.Name.ToLower();
-                        else
-                            fieldName = propertyAttribute.Field;
+                        string fieldName = propertyAttribute.Field ?? propertyAccessor.Name.ToLower();
 
                         Type propertyType = propertyInfo.PropertyType;
                         if (propertyAttribute.ForeignKey)
@@ -171,10 +166,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal static void PushDescriptor(SqlCodeDomBuilder codeDomBuilder, LabelTarget startLabel, LabelTarget endLabel, Statement.StatementType statementType)
         {
-            BlockDescriptor descr = new BlockDescriptor();
-            descr.StartLabel = startLabel;
-            descr.EndLabel = endLabel;
-            descr.StatementType = statementType;
+            BlockDescriptor descr = new BlockDescriptor
+            {
+                StartLabel = startLabel,
+                EndLabel = endLabel,
+                StatementType = statementType
+            };
             codeDomBuilder.BlockDescriptors.Push(descr);
         }
         internal static object PopDescriptor(SqlCodeDomBuilder codeDomBuilder)
@@ -187,10 +184,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 {
                     foreach (var item in descr.All)
                     {
-                        codeDomBuilder.AddGlobalParameter(item.Key, item.Value.ResultType, true);
+                        codeDomBuilder.AddGlobalParameter(item.Key, item.Value.ResultType);
                     }
                 }
-
             }
             return retval;
         }
@@ -209,7 +205,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return Expression.Call(typeof(SqlCodeDomBuilder), "PopDescriptor", null, Expression.Constant(this));
         }
 
-        private IParametersHolder findEnvironmentWithParameter(string name, bool local = false)
+        private IParametersHolder FindEnvironmentWithParameter(string name)
         {
             if (BlockDescriptors.Count > 0)
             {
@@ -224,9 +220,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return null;
         }
 
-        internal bool AddGlobalParameter(string name, ResultTypes resultType, bool local = false)
+        internal bool AddGlobalParameter(string name, ResultTypes resultType)
         {
-            IParametersHolder found = findEnvironmentWithParameter(name, local);
+            IParametersHolder found = FindEnvironmentWithParameter(name);
             if (found != null)
                 return false;
             if (BlockDescriptors.Count > 0)
@@ -236,7 +232,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal void UpdateGlobalParameter(string name, SqlConstant value)
         {
-            IParametersHolder found = findEnvironmentWithParameter(name);
+            IParametersHolder found = FindEnvironmentWithParameter(name);
             if (found == null)
             {
                 if (BlockDescriptors.Count > 0)
@@ -248,7 +244,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal SqlConstant FindGlobalParameter(string name)
         {
-            IParametersHolder found = findEnvironmentWithParameter(name);
+            IParametersHolder found = FindEnvironmentWithParameter(name);
             if (found != null)
                 return found.FindGlobalParameter(name);
             return null;
@@ -262,7 +258,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 SqlConstant resultConstant = StatementRunner.CalculateExpression(exitExpression, this, Connection);
                 if (resultConstant == null)
                 {
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error while SET execution"));
+                    throw new SqlParserException(new SqlError(null, 0, 0, "Runtime error while SET execution"));
                 }
                 exitValue = resultConstant.Value;
             }
@@ -344,10 +340,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         public Func<IDictionary<string, object>, dynamic> Parse(string name, TextReader source)
         {
             Func<object> compiled = Expression.Lambda<Func<dynamic>>(SqlCodeDomBuilder.Parse(name, source)).Compile();
-            Func<IDictionary<string, object>, dynamic> func = arg =>
+            Func<IDictionary<string, object>, dynamic> func = (arg) =>
             {
-                SqlCodeDomBuilder.ParametersDictionary = arg;
-                return compiled();
+                 SqlCodeDomBuilder.ParametersDictionary = arg;
+                 return compiled();
             };
             return func;
         }
@@ -372,7 +368,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         internal LabelTarget EndLabel { get; set; }
         internal Statement.StatementType StatementType { get; set; }
 
-        private Dictionary<string, SqlConstant> globalParameters = new Dictionary<string, SqlConstant>();
+        private readonly Dictionary<string, SqlConstant> globalParameters = new Dictionary<string, SqlConstant>();
 
         internal IDictionary<string, SqlConstant> All => globalParameters;
 
@@ -388,10 +384,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         void IParametersHolder.UpdateGlobalParameter(string name, SqlConstant value) => UpdateGlobalParameter(name, value);
         internal void UpdateGlobalParameter(string name, SqlConstant value)
         {
-            if (!globalParameters.ContainsKey(name))
-                globalParameters.Add(name, value);
-            else
-                globalParameters[name] = value;
+            globalParameters[name] = value;
         }
 
         SqlConstant IParametersHolder.FindGlobalParameter(string name) => FindGlobalParameter(name);
@@ -407,8 +400,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return globalParameters.ContainsKey(name);
         }
 
-        private object mLastStatementResult = new List<object>();
-
         object IParametersHolder.LastStatementResult
         {
             get
@@ -421,16 +412,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        internal object LastStatementResult
-        {
-            get
-            {
-                return mLastStatementResult;
-            }
-            set
-            {
-                mLastStatementResult = value;
-            }
-        }
+        internal object LastStatementResult { get; set; } = new List<object>();
     }
 }

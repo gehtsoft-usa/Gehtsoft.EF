@@ -1,5 +1,5 @@
 @group
-    @key=index
+    @key=main
     @brief=Gehtsoft Entity Framework Library
     @title=Index
     @ingroup=
@@ -62,7 +62,7 @@
     @key=tutorials
     @brief=
     @title=Tutorials
-    @ingroup=index
+    @ingroup=main
     @transform=yes
     @sortgroups=no
     @sortarticles=no

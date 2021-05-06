@@ -18,21 +18,20 @@ namespace TestApp
     {
         [TestCase(null, EntityNamingPolicy.AsIs, null)]
         [TestCase("", EntityNamingPolicy.AsIs, "")]
-        
+
         [TestCase("abc", EntityNamingPolicy.AsIs, "abc")]
         [TestCase("ABC", EntityNamingPolicy.AsIs, "ABC")]
         [TestCase("MixedCase", EntityNamingPolicy.AsIs, "MixedCase")]
         [TestCase("mIXEDcASE", EntityNamingPolicy.AsIs, "mIXEDcASE")]
         [TestCase("mixedCase", EntityNamingPolicy.AsIs, "mixedCase")]
         [TestCase("a", EntityNamingPolicy.AsIs, "a")]
-        
+
         [TestCase("abc", null, "abc")]
         [TestCase("ABC", null, "ABC")]
         [TestCase("MixedCase", null, "MixedCase")]
         [TestCase("mIXEDcASE", null, "mIXEDcASE")]
         [TestCase("mixedCase", null, "mixedCase")]
         [TestCase("a", null, "a")]
-
 
         [TestCase("abc", EntityNamingPolicy.LowerCase, "abc")]
         [TestCase("ABC", EntityNamingPolicy.LowerCase, "abc")]
@@ -104,7 +103,6 @@ namespace TestApp
             public int Identifier { get; set; }
         }
 
-
         [Entity(Scope = "naming")]
         public class TestEntity1
         {
@@ -118,7 +116,6 @@ namespace TestApp
             public TestEntity2 Reference { get; set; }
         }
 
-
         [Test]
         public void TestEntityNaming()
         {
@@ -126,8 +123,7 @@ namespace TestApp
             Assert.AreEqual(EntityNamingPolicy.BackwardCompatibility, AllEntities.Inst.NamingPolicy["naming"]);
             EntityDescriptor descriptor1 = AllEntities.Inst[typeof(TestEntity1)];
             EntityDescriptor descriptor2 = AllEntities.Inst[typeof(TestEntity2)];
-            EntityDescriptor descriptor3 = AllEntities.Inst[typeof(TestEntity3)];
-            
+
             Assert.AreEqual("TestEntity1", descriptor1.TableDescriptor.Name);
             Assert.AreEqual("identifier", descriptor1.TableDescriptor[0].Name);
             Assert.AreEqual("testfield", descriptor1.TableDescriptor[1].Name);
@@ -151,7 +147,7 @@ namespace TestApp
             AllEntities.Inst.NamingPolicy["naming"] = EntityNamingPolicy.LowerCaseWithUnderscores;
             descriptor1 = AllEntities.Inst[typeof(TestEntity1)];
             descriptor2 = AllEntities.Inst[typeof(TestEntity2)];
-            descriptor3 = AllEntities.Inst[typeof(TestEntity3)];
+            var descriptor3 = AllEntities.Inst[typeof(TestEntity3)];
             Assert.AreEqual("test_entity1s", descriptor1.TableDescriptor.Name);
             Assert.AreEqual("specialTestName", descriptor3.TableDescriptor.Name);
             Assert.AreEqual("id", descriptor1.TableDescriptor[0].Name);
@@ -177,13 +173,12 @@ namespace TestApp
             [ForeignKey]
             public TestObject Reference { get; set; }
         }
-        
+
         [Entity(Scope = "naming2", Table = "men")]
         public class Man
         {
             [AutoId]
             public int ID { get; set; }
-
         }
 
         [Test]
@@ -202,8 +197,6 @@ namespace TestApp
 
                 controller = new CreateEntityController(typeof(TestObject), "naming2");
                 controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
-
-
             }
         }
     }

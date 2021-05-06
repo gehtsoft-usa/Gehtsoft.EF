@@ -27,7 +27,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         {
             Func<IDictionary<string, object>, object> func;
             object result;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment();
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment();
 
             func = environment.Parse("test",
                 "SET factorial=1, n=1" +

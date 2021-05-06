@@ -11,7 +11,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlSelectExpression : SqlBaseExpression
     {
-        private ResultTypes mResultType = ResultTypes.Unknown;
+        private readonly ResultTypes mResultType = ResultTypes.Unknown;
         internal SqlSelectStatement SelectStatement { get; } = null;
 
         internal override ExpressionTypes ExpressionType

@@ -1,7 +1,101 @@
 ﻿[*.cs]
 
-# S2699: Tests should include assertions
-dotnet_diagnostic.S2699.severity = none
+# RCS1001: Add braces (when expression spans over multiple lines).
+# Disagree with policy
+dotnet_diagnostic.RCS1001.severity = none
+
+# RCS1061: Merge 'if' with nested 'if'.
+# Disagree with policy
+dotnet_diagnostic.RCS1061.severity = none
+
+# RCS1006: Merge 'else' with nested 'if'.
+# Disagree with policy
+dotnet_diagnostic.RCS1006.severity = none
+
+# RCS1003: Add braces to if-else (when expression spans over multiple lines).
+# Disagree with policy
+dotnet_diagnostic.RCS1003.severity = none
+
+# S1066: Collapsible "if" statements should be merged
+# Disagree with policy
+dotnet_diagnostic.S1066.severity = none
+
+# RCS1194: Implement exception constructors.
+# Disagree with policy
+dotnet_diagnostic.RCS1194.severity = none
+
+# RCS1090: Add call to 'ConfigureAwait' (or vice versa).
+# Disagree with policy
+dotnet_diagnostic.RCS1090.severity = none
+
+# S3010: Static fields should not be updated in constructors
+# A lot of false positives
+dotnet_diagnostic.S3010.severity = none
+
+# S3925: "ISerializable" should be implemented correctly
+# A lot of false positives
+dotnet_diagnostic.S3925.severity = none
+
+# S2692: "IndexOf" checks should not be for positive numbers
+# Disagree with policy: it fails at often made check "is not first" rather than "contains"
+dotnet_diagnostic.S2692.severity = none
+
+# S4136: Method overloads should be grouped together
+# Disagree with policy: There is more than one good methods to group members
+dotnet_diagnostic.S4136.severity = none
+
+# S1168: Empty arrays and collections should be returned instead of null
+# They may be right, but for this particular project too much has to be changed.
+dotnet_diagnostic.S1168.severity = none
+
+# S4457: Parameter validation in "async"/"await" methods should be wrapped
+# They may be right, but for this particular project too much has to be changed.
+dotnet_diagnostic.S4457.severity = none
+
+#
+# TEMPORARY disable
+dotnet_diagnostic.S108.severity = none
+dotnet_diagnostic.S2486.severity = none
+
+# S2376: Write-only properties should not be used
+# Why?
+dotnet_diagnostic.S2376.severity = none
+
+# S2344: Enumeration type names should not have "Flags" or "Enum" suffixes
+# Why?
+dotnet_diagnostic.S2344.severity = none
+
+# S3011: Reflection should not be used to increase accessibility of classes, methods, or fields
+# They may be right, but by design, EF must have access to internal and protected entity properties
+dotnet_diagnostic.S3011.severity = none
+
+# RCS1180: Inline lazy initialization.
+# Disagree: original code is easier to read
+dotnet_diagnostic.RCS1180.severity = none
+
+# RCS1202: Avoid NullReferenceException.
+# Lot of false positives over the code
+dotnet_diagnostic.RCS1202.severity = none
+
+# RCS1123: Add parentheses when necessary.
+# Disagree: People must be able to understand the precendense of the operators
+dotnet_diagnostic.RCS1123.severity = none
 
 # IDE0063: Use simple 'using' statement
+# Disagree: exact dispose scope is better than disposed at the end of the method
 dotnet_diagnostic.IDE0063.severity = none
+
+# RCS1146: Use conditional access.
+# Disagree: if (a != null && a ... ) looks more clear than (a?.long expression)
+dotnet_diagnostic.RCS1146.severity = none
+
+# RCS1163: Unused parameter.
+# Too many false positives
+dotnet_diagnostic.RCS1163.severity = none
+dotnet_diagnostic.IDE0060.severity = none
+
+
+# RCS1124: Inline local variable.
+# Fix makes code work incorrectly
+dotnet_diagnostic.RCS1124.severity = none
+dotnet_diagnostic.IDE0039.severity = none

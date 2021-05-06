@@ -8,9 +8,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
     {
         private const string READONLY = "Collection is readonly";
 
-        private List<IDynamicEntityProperty> mProperties = new List<IDynamicEntityProperty>();
+        private readonly List<IDynamicEntityProperty> mProperties = new List<IDynamicEntityProperty>();
 
-        public bool IsReadOnly { get; private set; } = false;
+        public bool IsReadOnly { get; } = false;
 
         public DynamicEntityPropertyCollection()
         {
@@ -22,7 +22,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             IsReadOnly = true;
             mProperties.AddRange(source);
         }
-
 
         public IEnumerator<IDynamicEntityProperty> GetEnumerator() => mProperties.GetEnumerator();
 
@@ -40,7 +39,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             if (IsReadOnly)
                 throw new InvalidOperationException(READONLY);
             mProperties.Clear();
-
         }
 
         public bool Contains(IDynamicEntityProperty item) => IndexOf(item) >= 0;
@@ -62,7 +60,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
 
         public int Count => mProperties.Count;
-        
+
         public int IndexOf(IDynamicEntityProperty item)
         {
             for (int i = 0; i < mProperties.Count; i++)

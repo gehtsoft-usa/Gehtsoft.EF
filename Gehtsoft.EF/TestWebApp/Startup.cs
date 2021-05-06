@@ -32,7 +32,7 @@ namespace TestWebApp
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
+                options.CheckConsentNeeded = _ => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
@@ -48,7 +48,7 @@ namespace TestWebApp
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             ISqlDbConnectionFactory connectionFactory = (ISqlDbConnectionFactory)serviceProvider.GetService(typeof(ISqlDbConnectionFactory));
-            Snapshot snapshot = new Snapshot();
+            var snapshot = new Snapshot();
             snapshot.CreateAsync(connectionFactory.GetConnection()).ConfigureAwait(true).GetAwaiter().GetResult();
 
             EdmModelBuilder edmModelBuilder = (EdmModelBuilder)serviceProvider.GetService(typeof(EdmModelBuilder));

@@ -29,12 +29,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public object GetValue(object thisObject) => mPropertyInfo.GetValue(thisObject);
         public void SetValue(object thisObject, object value) => mPropertyInfo.SetValue(thisObject, value);
         public T GetCustomAttribute<T>() where T : System.Attribute => mPropertyInfo.GetCustomAttribute<T>();
-
     }
 
-    public class TableDescriptor : IEnumerable<TableDescriptor.ColumnInfo>, IEquatable<TableDescriptor>
+    public sealed class TableDescriptor : IEnumerable<TableDescriptor.ColumnInfo>, IEquatable<TableDescriptor>
     {
-        public class ColumnInfo : IEquatable<ColumnInfo>
+        public sealed class ColumnInfo : IEquatable<ColumnInfo>
         {
             public string ID { get; set; }
             public string Name { get; set; }
@@ -49,7 +48,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             public bool ForeignKey => ForeignTable != null;
             public TableDescriptor ForeignTable { get; set; }
             public TableDescriptor Table { get; internal set; }
-            //public PropertyInfo PropertyInfo { get; internal set; }
             public IPropertyAccessor PropertyAccessor { get; internal set; }
             public bool IgnoreRead { get; set; }
             public object DefaultValue { get; set; }
@@ -60,25 +58,23 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             {
                 get
                 {
-                    if (mFullName == null)
-                        mFullName = $"{Table.Name}.{Name}";
-                    return mFullName;
+                    return mFullName ?? (mFullName = $"{Table.Name}.{Name}");
                 }
             }
 
             public bool Equals(ColumnInfo other)
             {
-                if (ReferenceEquals(null, other)) return false;
+                if (other is null) return false;
                 if (ReferenceEquals(this, other)) return true;
                 return string.Equals(FullName, other.FullName);
             }
 
             public override bool Equals(object obj)
             {
-                if (ReferenceEquals(null, obj)) return false;
+                if (obj is null) return false;
                 if (ReferenceEquals(this, obj)) return true;
                 if (obj.GetType() != this.GetType()) return false;
-                return Equals((ColumnInfo) obj);
+                return Equals((ColumnInfo)obj);
             }
 
             public override int GetHashCode()
@@ -89,26 +85,24 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 }
             }
 
-            public static bool operator == (ColumnInfo obj1, ColumnInfo obj2)
+            public static bool operator ==(ColumnInfo obj1, ColumnInfo obj2)
             {
-                if ((object)obj1 == null || (object)obj2 == null)
+                if (obj1 is null || obj2 is null)
                     return Object.Equals(obj1, obj2);
                 else
                     return obj1.Equals(obj2);
-
             }
 
-            public static bool operator != (ColumnInfo obj1, ColumnInfo obj2)
+            public static bool operator !=(ColumnInfo obj1, ColumnInfo obj2)
             {
-                if ((object)obj1 == null || (object)obj2 == null)
+                if (obj1 is null || obj2 is null)
                     return !Object.Equals(obj1, obj2);
                 else
                     return !obj1.Equals(obj2);
-
             }
         }
 
-        private List<ColumnInfo> mColumns = new List<ColumnInfo>();
+        private readonly List<ColumnInfo> mColumns = new List<ColumnInfo>();
 
         public string Name { get; set; }
 
@@ -124,7 +118,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public ColumnInfo this[int index] => mColumns[index];
 
-        class ColumnIndexComparer : IEqualityComparer<string>
+        private class ColumnIndexComparer : IEqualityComparer<string>
         {
             public bool Equals(string x, string y)
             {
@@ -132,7 +126,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     return true;
                 if (x == null || y == null)
                     return false;
-                return string.Compare(x, y, StringComparison.OrdinalIgnoreCase) == 0;
+                return string.Equals(x, y, StringComparison.OrdinalIgnoreCase);
             }
 
             public int GetHashCode(string obj)
@@ -143,13 +137,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             }
         }
 
-        private Dictionary<string, ColumnInfo> mColumnsIndex = new Dictionary<string, ColumnInfo>(new ColumnIndexComparer());
+        private readonly Dictionary<string, ColumnInfo> mColumnsIndex = new Dictionary<string, ColumnInfo>(new ColumnIndexComparer());
 
         public ColumnInfo this[string name] => mColumnsIndex[name];
 
         public TableDescriptor()
         {
-
         }
 
         public TableDescriptor(string name)
@@ -191,47 +184,49 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable) mColumns).GetEnumerator();
+            return ((IEnumerable)mColumns).GetEnumerator();
         }
 
         public bool Equals(TableDescriptor other)
         {
-            if (ReferenceEquals(null, other)) return false;
+            if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
             return string.Equals(Name, other.Name);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
+            if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((TableDescriptor) obj);
+            return Equals((TableDescriptor)obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return Name == null ? 0 : Name.GetHashCode();
+                return (Name?.GetHashCode()) ?? 0;
             }
         }
 
-        public static bool operator == (TableDescriptor obj1, TableDescriptor obj2)
+        public static bool operator ==(TableDescriptor obj1, TableDescriptor obj2)
         {
-            if ((object)obj1 == null || (object)obj2 == null)
+            if (obj1 is null || obj2 is null)
                 return Object.Equals(obj1, obj2);
             return obj1.Equals(obj2);
         }
 
-        public static bool operator != (TableDescriptor obj1, TableDescriptor obj2)
+        public static bool operator !=(TableDescriptor obj1, TableDescriptor obj2)
         {
-            if ((object)obj1 == null || (object)obj2 == null)
+            if (obj1 is null || obj2 is null)
                 return !Object.Equals(obj1, obj2);
             return !obj1.Equals(obj2);
         }
 
         public bool Obsolete { get; set; }
+
+        public bool TryGetValue(string column, out ColumnInfo columnInfo) => mColumnsIndex.TryGetValue(column, out columnInfo);
     }
 
     public static class TableDescriptorArrayExtension
@@ -239,7 +234,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public static TableDescriptor Find(this TableDescriptor[] schema, string tableName)
         {
             foreach (TableDescriptor table in schema)
-                if (string.Compare(table.Name, tableName, StringComparison.OrdinalIgnoreCase) == 0)
+                if (string.Equals(table.Name, tableName, StringComparison.OrdinalIgnoreCase))
                     return table;
             return null;
         }
@@ -248,10 +243,10 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         {
             foreach (TableDescriptor table in schema)
             {
-                if (string.Compare(table.Name, tableName, StringComparison.OrdinalIgnoreCase) == 0)
+                if (string.Equals(table.Name, tableName, StringComparison.OrdinalIgnoreCase))
                 {
                     foreach (TableDescriptor.ColumnInfo column in table)
-                        if (string.Compare(column.Name, columnName, StringComparison.OrdinalIgnoreCase) == 0)
+                        if (string.Equals(column.Name, columnName, StringComparison.OrdinalIgnoreCase))
                             return column;
 
                     return null;
@@ -270,7 +265,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             var f = Find(schema, tableName);
             return f?.View == true;
         }
-
 
         public static bool Contains(this TableDescriptor[] schema, string tableName, string columnName)
         {

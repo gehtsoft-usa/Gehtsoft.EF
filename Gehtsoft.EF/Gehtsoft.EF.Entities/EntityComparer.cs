@@ -19,7 +19,7 @@ namespace Gehtsoft.EF.Entities
             if (objectA.GetType() == objectB.GetType())
             {
                 Type t = objectA.GetType();
-                PropertyInfo[] properties = t.GetProperties(BindingFlags.Public|BindingFlags.NonPublic| BindingFlags.Instance);
+                PropertyInfo[] properties = t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 foreach (PropertyInfo property in properties)
                 {
                     EntityPropertyAttribute attribute = property.GetCustomAttribute<EntityPropertyAttribute>();
@@ -41,6 +41,7 @@ namespace Gehtsoft.EF.Entities
                             objectAA = property.GetValue(objectA);
                             objectBB = property.GetValue(objectB);
 
+#pragma warning disable IDE0038 // Use pattern matching
                             if (attribute.DbType == DbType.Date && objectAA is DateTime && objectBB is DateTime)
                             {
                                 DateTime a = (DateTime)objectAA;
@@ -61,22 +62,21 @@ namespace Gehtsoft.EF.Entities
                                 double b = (double)objectBB;
                                 if (Math.Abs(a - b) > Math.Pow(10, -attribute.Precision))
                                     return false;
-
                             }
                             else if (attribute.DbType == DbType.Binary && objectAA is byte[] && objectBB is byte[])
                             {
-                                byte[] a = (byte[]) objectAA;
-                                byte[] b = (byte[]) objectBB;
+                                byte[] a = (byte[])objectAA;
+                                byte[] b = (byte[])objectBB;
 
                                 if (a.Length != b.Length)
                                     return false;
                                 for (int i = 0; i < a.Length; i++)
                                     if (a[i] != b[i])
                                         return false;
-
                             }
                             else if (!object.Equals(objectAA, objectBB))
                                 return false;
+#pragma warning restore IDE0038 // Use pattern matching
                         }
                     }
                 }

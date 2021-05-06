@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.MongoDb.Context
 {
-    internal class ContextTransaction : IEntityContextTransaction
+    internal sealed class ContextTransaction : IEntityContextTransaction
     {
         public ContextTransaction()
         {
@@ -16,10 +16,12 @@ namespace Gehtsoft.EF.MongoDb.Context
 
         public void Commit()
         {
+            // No transaction in MongoDB 
         }
 
         public void Dispose()
         {
+            // Nothing to dispose for MongoDB
         }
 
         public void Rollback()

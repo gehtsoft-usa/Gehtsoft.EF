@@ -17,9 +17,9 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 {
     public class EdmModelBuilder
     {
-        private Dictionary<string, Tuple<Type, int>> mTypeNameToEntity = new Dictionary<string, Tuple<Type, int>>();
-        private Dictionary<Type, List<Tuple<string, string, Type>>> mTypeToFields = new Dictionary<Type, List<Tuple<string, string, Type>>>();
-        private List<Tuple<Type, IPropertyAccessor, EdmEntityType, string, bool>> mUnresolvedEntities = new List<Tuple<Type, IPropertyAccessor, EdmEntityType, string, bool>>();
+        private readonly Dictionary<string, Tuple<Type, int>> mTypeNameToEntity = new Dictionary<string, Tuple<Type, int>>();
+        private readonly Dictionary<Type, List<Tuple<string, string, Type>>> mTypeToFields = new Dictionary<Type, List<Tuple<string, string, Type>>>();
+        private readonly List<Tuple<Type, IPropertyAccessor, EdmEntityType, string, bool>> mUnresolvedEntities = new List<Tuple<Type, IPropertyAccessor, EdmEntityType, string, bool>>();
 
         public IEdmModel Model { get; private set; }
 
@@ -27,9 +27,9 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
         public int EntityPagingLimitByName(string odataEntityName) => mTypeNameToEntity[odataEntityName].Item2;
         public void SetEntityPagingLimitByName(string odataEntityName, int pagingLimit) => mTypeNameToEntity[odataEntityName] = new Tuple<Type, int>(EntityTypeByName(odataEntityName), pagingLimit);
 
-        public Type TypeByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item3;
-        public string FieldByName(Type entityType, string name) => mTypeToFields[entityType].Where(t => t.Item1 == name).SingleOrDefault()?.Item2;
-        public string NameByField(Type entityType, string fieldName) => mTypeToFields[entityType].Where(t => t.Item2 == fieldName).SingleOrDefault()?.Item1;
+        public Type TypeByName(Type entityType, string name) => mTypeToFields[entityType].SingleOrDefault(t => t.Item1 == name)?.Item3;
+        public string FieldByName(Type entityType, string name) => mTypeToFields[entityType].SingleOrDefault(t => t.Item1 == name)?.Item2;
+        public string NameByField(Type entityType, string fieldName) => mTypeToFields[entityType].SingleOrDefault(t => t.Item2 == fieldName)?.Item1;
 
         public void Build(EntityFinder.EntityTypeInfo[] entities, string ns = "NS")
         {
@@ -62,11 +62,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     EntityPropertyAttribute propertyAttribute = propertyAccessor.GetCustomAttribute<EntityPropertyAttribute>();
                     if (propertyAttribute != null)
                     {
-                        string fieldName;
-                        if (propertyAttribute.Field == null)
-                            fieldName = propertyAccessor.Name.ToLower();
-                        else
-                            fieldName = propertyAttribute.Field;
+                        string fieldName = propertyAttribute.Field ?? propertyAccessor.Name.ToLower();
 
                         mTypeToFields[entity.EntityType].Add(Tuple.Create(propertyAccessor.Name, fieldName, propertyAttribute.ForeignKey ? null : propertyInfo.PropertyType));
                     }
@@ -76,22 +72,22 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 {
                     if (property.PrimaryKey)
                     {
-                        IEdmStructuralProperty entityProperty;
-                        edmEntity.AddKeys(entityProperty = edmEntity.AddStructuralProperty(property.PropertyAccessor.Name, SqlTypeToEdmType(property.DbType)));
+                        IEdmStructuralProperty entityProperty = edmEntity.AddStructuralProperty(property.PropertyAccessor.Name, SqlTypeToEdmType(property.DbType));
+                        edmEntity.AddKeys(entityProperty);
                         keys[edmEntity] = entityProperty;
                     }
                     else if (property.ForeignKey)
                     {
                         string[] arr = property.Name.Split(new char[] { '.' });
                         string propertyName = arr[arr.Length - 1];
-                        if(propertyName == property.PropertyAccessor.Name)
+                        if (propertyName == property.PropertyAccessor.Name)
                         {
                             propertyName += "ID";
                         }
                         edmEntity.AddStructuralProperty(propertyName, SqlTypeToEdmType(property.DbType));
                         if (dict.ContainsKey(property.PropertyAccessor.PropertyType))
                         {
-                            processForeignKey(keys, dict, property.PropertyAccessor.PropertyType, property.PropertyAccessor, edmEntity, entity.EntityType.Name, property.Nullable);
+                            ProcessForeignKey(keys, dict, property.PropertyAccessor.PropertyType, property.PropertyAccessor, edmEntity, entity.EntityType.Name, property.Nullable);
                         }
                         else
                         {
@@ -103,12 +99,12 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         edmEntity.AddStructuralProperty(property.PropertyAccessor.Name, SqlTypeToEdmType(property.DbType));
                 }
 
-                EdmEntitySet set = container.AddEntitySet(entity.EntityType.Name, edmEntity);
+                _ = container.AddEntitySet(entity.EntityType.Name, edmEntity);
             }
 
             foreach (Tuple<Type, IPropertyAccessor, EdmEntityType, string, bool> unresolved in mUnresolvedEntities)
             {
-                processForeignKey(keys, dict, unresolved.Item1, unresolved.Item2, unresolved.Item3, unresolved.Item4, unresolved.Item5);
+                ProcessForeignKey(keys, dict, unresolved.Item1, unresolved.Item2, unresolved.Item3, unresolved.Item4, unresolved.Item5);
             }
             Model = model;
 
@@ -121,7 +117,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             catch { }
         }
 
-        private void processForeignKey(Dictionary<EdmEntityType, IEdmStructuralProperty> keys, Dictionary<Type, EdmEntityType> dict, Type item1, IPropertyAccessor item2, EdmEntityType item3, string item4, bool item5)
+        private void ProcessForeignKey(Dictionary<EdmEntityType, IEdmStructuralProperty> keys, Dictionary<Type, EdmEntityType> dict, Type item1, IPropertyAccessor item2, EdmEntityType item3, string item4, bool item5)
         {
             var referenceEntity = dict[item1];
             IEdmStructuralProperty entityProperty = item3.AddStructuralProperty($"{item2.Name}Ref", new EdmEntityTypeReference(referenceEntity, item5));
@@ -149,72 +145,50 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 TargetMultiplicity = EdmMultiplicity.Many,
                 ContainsTarget = false,
             });
-
         }
 
         private static EdmPrimitiveTypeKind SqlTypeToEdmType(DbType dbType)
         {
-            EdmPrimitiveTypeKind typeKind;
             switch (dbType)
             {
                 case System.Data.DbType.String:
-                    typeKind = EdmPrimitiveTypeKind.String;
-                    break;
-
                 case System.Data.DbType.AnsiString:
-                    typeKind = EdmPrimitiveTypeKind.String;
-                    break;
+                    return EdmPrimitiveTypeKind.String;
 
                 case System.Data.DbType.Int32:
-                    typeKind = EdmPrimitiveTypeKind.Int32;
-                    break;
+                    return EdmPrimitiveTypeKind.Int32;
 
                 case System.Data.DbType.Int64:
-                    typeKind = EdmPrimitiveTypeKind.Int64;
-                    break;
+                    return EdmPrimitiveTypeKind.Int64;
 
                 case System.Data.DbType.Boolean:
-                    typeKind = EdmPrimitiveTypeKind.Boolean;
-                    break;
+                    return EdmPrimitiveTypeKind.Boolean;
 
                 case System.Data.DbType.Date:
-                    typeKind = EdmPrimitiveTypeKind.Date;
-                    break;
-
                 case System.Data.DbType.DateTime:
-                    typeKind = EdmPrimitiveTypeKind.Date;
-                    break;
+                    return EdmPrimitiveTypeKind.Date;
 
                 case System.Data.DbType.DateTime2:
-                    typeKind = EdmPrimitiveTypeKind.Date;
-                    break;
+                    return EdmPrimitiveTypeKind.Date;
 
                 case System.Data.DbType.Single:
-                    typeKind = EdmPrimitiveTypeKind.Single;
-                    break;
+                    return EdmPrimitiveTypeKind.Single;
 
                 case System.Data.DbType.Double:
-                    typeKind = EdmPrimitiveTypeKind.Double;
-                    break;
+                    return EdmPrimitiveTypeKind.Double;
 
                 case System.Data.DbType.VarNumeric:
-                    typeKind = EdmPrimitiveTypeKind.Double;
-                    break;
+                    return EdmPrimitiveTypeKind.Double;
 
                 case System.Data.DbType.Guid:
-                    typeKind = EdmPrimitiveTypeKind.Guid;
-                    break;
+                    return EdmPrimitiveTypeKind.Guid;
 
                 case System.Data.DbType.Binary:
-                    typeKind = EdmPrimitiveTypeKind.Binary;
-                    break;
+                    return EdmPrimitiveTypeKind.Binary;
 
                 default:
-
-                    typeKind = EdmPrimitiveTypeKind.None;
-                    break;
+                    return EdmPrimitiveTypeKind.None;
             }
-            return typeKind;
         }
     }
 

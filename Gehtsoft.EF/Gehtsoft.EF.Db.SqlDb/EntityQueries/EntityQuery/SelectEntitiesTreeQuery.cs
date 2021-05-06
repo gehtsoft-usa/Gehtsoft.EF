@@ -9,7 +9,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     public class SelectEntitiesTreeQuery : SelectEntitiesQueryBase
     {
-        internal SelectEntityTreeQueryBuilder TreeQueryBuilder { get; private set; }
+        internal SelectEntityTreeQueryBuilder TreeQueryBuilder { get; }
 
         internal SelectEntitiesTreeQuery(SqlDbQuery query, SelectEntityTreeQueryBuilder builder) : base(query, builder)
         {
@@ -37,6 +37,4 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
         }
     }
-
-
 }

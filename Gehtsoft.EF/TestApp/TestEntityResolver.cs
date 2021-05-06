@@ -12,11 +12,11 @@ using FluentAssertions;
 namespace TestApp
 {
     [TestFixture]
-    class TestEntityResolver
+    internal class TestEntityResolver
     {
         public class Entity<T>
         {
-            
+            public Type ContanierFor => typeof(T);
         }
 
         #region entities
@@ -98,43 +98,7 @@ namespace TestApp
 
             public bool Is(UserRoles role)
             {
-                return ((Roles & role) == role);
-            }
-        }
-
-        public static class UserStatusUtil
-        {
-            public static string ToCode(UserStatus status)
-            {
-                switch (status)
-                {
-                    case UserStatus.Active:
-                        return "a";
-                    case UserStatus.None:
-                        return "n";
-                    case UserStatus.Suspended:
-                        return "s";
-                    case UserStatus.WaitConfirmation:
-                        return "w";
-                    default:
-                        return "n";
-                }
-            }
-
-            public static UserStatus FromCode(string code)
-            {
-                if (!string.IsNullOrEmpty(code))
-                {
-                    if (code == "n")
-                        return UserStatus.None;
-                    else if (code == "a")
-                        return UserStatus.Active;
-                    else if (code == "s")
-                        return UserStatus.Suspended;
-                    else if (code == "w")
-                        return UserStatus.WaitConfirmation;
-                }
-                return UserStatus.None;
+                return (Roles & role) == role;
             }
         }
 
@@ -146,7 +110,6 @@ namespace TestApp
 
             [EntityProperty(Field = "name", DbType = DbType.String, Size = 32)]
             public string Name { get; set; }
-
 
             private DateTime mStart;
 
@@ -181,7 +144,6 @@ namespace TestApp
 
             public bool IsOpen => End.Ticks == 0;
 
-
             public bool IsInPeriod(DateTime datetime)
             {
                 if (IsOpen)
@@ -199,14 +161,6 @@ namespace TestApp
             SuperSack = 1,
             /** MC - essentially - returned back due to quality issues*/
             MetalCrate = 2,
-        }
-
-        public enum BinStep
-        {
-            Mill = 1,
-            Lab = 2,
-            Bagged = 3,
-            Rebagged = 4
         }
 
         [Entity(Scope = "mzc", Table = "bins")]
@@ -369,7 +323,6 @@ namespace TestApp
 
             public GradeClass()
             {
-
             }
 
             public GradeClass(int id)
@@ -411,7 +364,6 @@ namespace TestApp
             [EntityProperty(Field = "tag", DbType = DbType.String, Size = 16, Sorted = true)]
             public string Tag { get; set; }
         }
-
 
         [Entity(Scope = "mzc", Table = "metalcrates")]
         public class MetalCrate : MetalCrateBase
@@ -614,7 +566,6 @@ namespace TestApp
 
             public StateGrade()
             {
-
             }
 
             public StateGrade(int id)
@@ -675,7 +626,7 @@ namespace TestApp
             [EntityProperty(Field = "literweight", DbType = DbType.Double, Size = 10, Precision = 2)]
             public double LiterWeight { get; set; }
             public double CherryDensity => QuoterCupWeight * 4;
-            public double EstimatedVolume => (CherryDensity == 0 ? 0 : NetWeight / CherryDensity);
+            public double EstimatedVolume => CherryDensity == 0 ? 0 : NetWeight / CherryDensity;
 
             [EntityProperty(Field = "greencount", DbType = DbType.Int32)]
             internal int GreenCount
@@ -763,7 +714,6 @@ namespace TestApp
 
             public class LabStructureInfo : Entity<LabStructureInfo>
             {
-
                 public class LabInfo : Entity<LabInfo>
                 {
                     public int Count { get; set; }
@@ -780,7 +730,7 @@ namespace TestApp
                         }
                     }
 
-                    private LabStructureInfo mStructure;
+                    private readonly LabStructureInfo mStructure;
 
                     internal LabInfo(LabStructureInfo structure)
                     {
@@ -809,7 +759,6 @@ namespace TestApp
                 public int Count => Green.Count + Ripe.Count + Floater.Count;
                 public double Weight => Green.Weight + Ripe.Weight + Floater.Weight;
             }
-
 
             public LabStructureInfo LabData { get; }
             public LabStructureInfo DeceasedData { get; }
@@ -1351,7 +1300,6 @@ namespace TestApp
             [EntityProperty(Field = "ageddiscoloredwt", DbType = DbType.Double, Size = 7, Precision = 1)]
             public double AgedDiscoloredWt { get; set; }
 
-
             [EntityProperty(Field = "miscct", DbType = DbType.Double, Size = 7, Precision = 1)]
             public double MiscCt { get; set; }
 
@@ -1730,7 +1678,6 @@ namespace TestApp
             PM,
         }
 
-
         [Entity(Scope = "mzc", Table = "harvestshift")]
         public class HarvestShift : Entity<HarvestShift>
         {
@@ -1897,17 +1844,11 @@ namespace TestApp
             [Entity(Scope = "mzc", Table = "orchard_application_chemical")]
             public class AppliedChemical : Entity<AppliedChemical>
             {
-                private bool mChanged;
-                private int mID;
                 private OrchardChemical mChemical;
                 private double mAmount;
 
                 [EntityProperty(Field = "id", DbType = DbType.Int32, PrimaryKey = true, Autoincrement = true)]
-                public int ID
-                {
-                    get { return mID; }
-                    internal set { mID = value; }
-                }
+                public int ID { get; internal set; }
 
                 [EntityProperty(Field = "chemical", ForeignKey = true)]
                 public OrchardChemical Chemical
@@ -1916,7 +1857,7 @@ namespace TestApp
                     set
                     {
                         mChemical = value;
-                        mChanged = true;
+                        Changed = true;
                     }
                 }
 
@@ -1927,39 +1868,33 @@ namespace TestApp
                     set
                     {
                         mAmount = value;
-                        mChanged = true;
+                        Changed = true;
                     }
                 }
 
                 [EntityProperty(Field = "application", ForeignKey = true, IgnoreRead = true)]
                 public OrchardApplication Application { get; set; }
 
-
-                public bool Changed
-                {
-                    get { return mChanged; }
-                    internal set { mChanged = value; }
-                }
+                public bool Changed { get; internal set; }
 
                 public AppliedChemical()
                 {
-
                 }
 
                 public AppliedChemical(OrchardChemical chemical, double amount)
                 {
-                    mID = -1;
+                    ID = -1;
                     mChemical = chemical;
                     mAmount = amount;
-                    mChanged = true;
+                    Changed = true;
                 }
 
                 internal AppliedChemical(int id, OrchardChemical chemical, double amount)
                 {
-                    mID = id;
+                    ID = id;
                     mChemical = chemical;
                     mAmount = amount;
-                    mChanged = false;
+                    Changed = false;
                 }
             }
 
@@ -1968,7 +1903,7 @@ namespace TestApp
                 ID = -1;
             }
 
-            internal OrchardApplication(int id, Field field, OrchardAction action, OrchardOperator op, DateTime date, double volume, double acreage, string comment, bool hasChemicals)
+            internal OrchardApplication(int id, Field field, OrchardAction action, OrchardOperator op, DateTime date, double volume, double acreage, string comment)
             {
                 ID = id;
                 Date = date;
@@ -2040,41 +1975,9 @@ namespace TestApp
         public enum BeanType
         {
             Unknown = 0,
-            Green = 5000,
+            Ripe = 1000,
             Floater = 3000,
-          Ripe = 1000
-        }
-
-        public static class BeanTypeUtil
-        {
-            public static string BeanTypeToCode(BeanType type)
-            {
-                switch (type)
-                {
-                    case BeanType.Green:
-                        return "GR";
-                    case BeanType.Floater:
-                        return "WN";
-                    case BeanType.Ripe:
-                        return "RP";
-                    default:
-                        return "UK";
-                }
-            }
-
-            public static BeanType CodeToBeanType(string code)
-            {
-                if (string.IsNullOrEmpty(code))
-                    return BeanType.Unknown;
-                else if (code == "GR")
-                    return BeanType.Green;
-                else if (code == "WN")
-                    return BeanType.Floater;
-                else if (code == "RP")
-                    return BeanType.Ripe;
-                else
-                    return BeanType.Unknown;
-            }
+            Green = 5000
         }
 
         [Entity(Scope = "mzc", Table = "varieties")]
@@ -2112,7 +2015,7 @@ namespace TestApp
         [Test]
         public void TestFinderAndSorter()
         {
-            EntityFinder.EntityTypeInfo[] types = EntityFinder.FindEntities(new Assembly[] {typeof(TestEntityResolver).GetTypeInfo().Assembly}, "mzc", true);
+            EntityFinder.EntityTypeInfo[] types = EntityFinder.FindEntities(new Assembly[] { typeof(TestEntityResolver).GetTypeInfo().Assembly }, "mzc", true);
             EntityFinder.ArrageEntities(types);
 
             int sc = 0;
@@ -2125,8 +2028,6 @@ namespace TestApp
                 }
                 else
                     types[i].View.Should().BeFalse();
-
-
 
                 PropertyInfo[] props = types[i].EntityType.GetTypeInfo().GetProperties();
                 foreach (PropertyInfo pi in props)

@@ -39,8 +39,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
     public abstract class OnEntityActionAttribute : Attribute
     {
-        private Type mType;
-        private string mName;
+        private readonly Type mType;
+        private readonly string mName;
         private EntityActionDelegate mAction;
         private EntityActionAsyncDelegate mAsyncAction;
         private bool mInit = false;
@@ -112,9 +112,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 mAction(connection);
             else if (mAsyncAction != null)
                 mAsyncAction(connection).GetAwaiter().GetResult();
-
-
-
         }
 
         public async Task InvokeAsync(SqlDbConnection connection)
@@ -130,10 +127,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             {
                 await mAsyncAction(connection);
             }
-
-            return;
         }
-
     }
 
     [AttributeUsage(AttributeTargets.Class)]
@@ -141,10 +135,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
     {
         public OnEntityCreateAttribute(Type containerType, string delegateName) : base(containerType, delegateName)
         {
-
         }
     }
-
 
     [AttributeUsage(AttributeTargets.Class)]
     public class OnEntityDropAttribute : OnEntityActionAttribute
@@ -165,31 +157,27 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
     [AttributeUsage(AttributeTargets.Property)]
     public class OnEntityPropertyDropAttribute : OnEntityActionAttribute
     {
-
         public OnEntityPropertyDropAttribute(Type containerType, string delegateName) : base(containerType, delegateName)
         {
         }
     }
 
-
     public class CreateEntityController
     {
-        private IEnumerable<Assembly> mAssemblies;
-        private string mScope;
+        private readonly IEnumerable<Assembly> mAssemblies;
+        private readonly string mScope;
         private EntityFinder.EntityTypeInfo[] mTypes;
 
-        public event CreateEntityControllerEventDelegate OnAction;
+        public event EventHandler<CreateEntityControllerEventArgs> OnAction;
 
         public CreateEntityController(Type findNearThisType, string scope = null) :
                this(findNearThisType.GetTypeInfo().Assembly, scope)
         {
-
         }
 
         public CreateEntityController(Assembly entityAssembly, string scope = null) :
                this(new Assembly[] { entityAssembly }, scope)
         {
-
         }
 
         public CreateEntityController(IEnumerable<Assembly> assemblies, string scope = null)
@@ -215,7 +203,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
         }
 
-        protected async ValueTask DropTablesCore(SqlDbConnection connection, bool async)
+        protected async ValueTask DropTablesCore(SqlDbConnection connection, bool asyncCall)
         {
             LoadTypes();
             foreach (EntityFinder.EntityTypeInfo info in mTypes.Reverse())
@@ -224,7 +212,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 if (attribute != null)
                 {
                     RaiseProcessing(info.Table);
-                    if (async)
+                    if (asyncCall)
                         await attribute.InvokeAsync(connection);
                     else
                         attribute.Invoke(connection);
@@ -235,11 +223,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 if (info.View && !view)
                     continue;
 
-                using (EntityQuery drop = view ? connection.GetDropViewQuery(info.EntityType) : 
+                using (EntityQuery drop = view ? connection.GetDropViewQuery(info.EntityType) :
                                                  connection.GetDropEntityQuery(info.EntityType))
                 {
                     RaiseDrop(info.Table);
-                    if (async)
+                    if (asyncCall)
                         await drop.ExecuteAsync();
                     else
                         drop.Execute();
@@ -251,7 +239,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public Task DropTablesAsync(SqlDbConnection connection) => DropTablesCore(connection, true).AsTask();
 
-        private async ValueTask CreateTablesCore(SqlDbConnection connection, bool async)
+        private async ValueTask CreateTablesCore(SqlDbConnection connection, bool asyncCall)
         {
             LoadTypes();
             foreach (EntityFinder.EntityTypeInfo info in mTypes)
@@ -265,17 +253,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                                                     connection.GetCreateEntityQuery(info.EntityType))
                 {
                     RaiseCreate(info.Table);
-                    if (async)
+                    if (asyncCall)
                         await create.ExecuteAsync();
                     else
                         create.Execute();
                 }
-                
+
                 OnEntityCreateAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityCreateAttribute>();
                 if (attribute != null)
                 {
                     RaiseProcessing(info.Table);
-                    if (async)
+                    if (asyncCall)
                         await attribute.InvokeAsync(connection);
                     else
                         attribute.Invoke(connection);
@@ -286,7 +274,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public void CreateTables(SqlDbConnection connection) => CreateTablesCore(connection, false).GetAwaiter().GetResult();
 
         public Task CreateTablesAsync(SqlDbConnection connection) => CreateTablesCore(connection, true).AsTask();
-
 
         public enum UpdateMode
         {
@@ -331,9 +318,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         else
                             await drop.ExecuteAsync();
                     }
-
                 }
-
             }
 
             //drop obsolete tables and/or columns and tables which are forced to be recreated
@@ -376,7 +361,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                                 {
                                     if (dropColumns == null)
                                         dropColumns = new List<TableDescriptor.ColumnInfo>();
-                                    Type refType = property.PropertyType;
                                     dropColumns.Add(new TableDescriptor.ColumnInfo()
                                     {
                                         Name = attribute.Field,
@@ -392,9 +376,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                                             attribute1.Invoke(connection);
                                         else
                                             await attribute1.InvokeAsync(connection);
-
                                     }
-
                                 }
                             }
                             if (dropColumns != null)
@@ -492,7 +474,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                                 else
                                     await action.InvokeAsync(connection);
                             }
-
                         }
                     }
                 }
@@ -517,9 +498,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         attribute.Invoke(connection);
                     else
                         await attribute.InvokeAsync(connection);
-
                 }
-
             }
         }
 

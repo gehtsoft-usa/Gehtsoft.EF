@@ -13,15 +13,15 @@ using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
-    public class SetRun : IDisposable
+    public sealed class SetRun : IDisposable
     {
         private SqlCodeDomBuilder DomBuilder { get; }
-        private ISqlDbConnectionFactory connectionFactory;
-        private SqlDbConnection connection;
+        private readonly ISqlDbConnectionFactory connectionFactory;
+        private readonly SqlDbConnection connection;
 
         public SetRun()
         {
-            connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, @"Data Source=:memory:"); ;
+            connectionFactory = new SqlDbUniversalConnectionFactory(UniversalSqlDbFactory.SQLITE, "Data Source=:memory:");
             Snapshot snapshot = new Snapshot();
             connection = connectionFactory.GetConnection();
             snapshot.CreateAsync(connection).ConfigureAwait(true).GetAwaiter().GetResult();
@@ -41,7 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         {
             Func<IDictionary<string, object>, object> func;
             object result;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment(connection);
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
             List<object> array;
 
             func = environment.Parse("test",

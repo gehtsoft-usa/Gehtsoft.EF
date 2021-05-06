@@ -21,6 +21,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -30,8 +31,6 @@ namespace Gehtsoft.EF.Db.SqlDb
                 mTransaction.Dispose();
                 mTransaction = null;
             }
-            if (disposing)
-                GC.SuppressFinalize(this);
         }
 
         public virtual void Rollback()

@@ -14,7 +14,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
     internal class InsertRunner : SqlStatementRunner<SqlInsertStatement>
     {
-        private SqlCodeDomBuilder mBuilder;
+        private readonly SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;
         private readonly ISqlDbConnectionFactory mConnectionFactory = null;
         private SqlInsertStatement mInsert;
@@ -65,18 +65,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        internal override AQueryBuilder GetQueryBuilder(SqlInsertStatement insert)
+        internal override AQueryBuilder GetQueryBuilder(SqlInsertStatement statement)
         {
             if (mInsertSimpleBuilder == null && mInsertSelectBuilder == null)
             {
-                mInsert = insert;
+                mInsert = statement;
                 if (mConnectionFactory != null)
                 {
                     mConnection = mConnectionFactory.GetConnection();
                 }
                 try
                 {
-                    processInsert(insert);
+                    ProcessInsert(statement);
                 }
                 finally
                 {
@@ -90,8 +90,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return (AQueryBuilder)mInsertSimpleBuilder ?? (AQueryBuilder)mInsertSelectBuilder;
         }
 
-        TableDescriptor.ColumnInfo autoIncrement = null;
-        private void processInsert(SqlInsertStatement insert)
+        private TableDescriptor.ColumnInfo autoIncrement = null;
+        private void ProcessInsert(SqlInsertStatement insert)
         {
             Type entityType = mBuilder.EntityByName(insert.TableName);
             if (entityType == null)
@@ -100,7 +100,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
             foreach (TableDescriptor.ColumnInfo column in entityDescriptor.TableDescriptor)
             {
-                if (column.Autoincrement == true && column.PrimaryKey == true)
+                if (column.Autoincrement && column.PrimaryKey)
                 {
                     autoIncrement = column;
                     break;
@@ -158,12 +158,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-
         internal void RunWithResult(SqlInsertStatement insert)
         {
-            mBuilder.BlockDescriptors.Peek().LastStatementResult = run(insert);
+            mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(insert);
         }
-        private dynamic run(SqlInsertStatement insert)
+        private dynamic Run(SqlInsertStatement insert)
         {
             List<dynamic> result = new List<dynamic>();
             mInsert = insert;
@@ -173,7 +172,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             try
             {
-                processInsert(insert);
+                ProcessInsert(insert);
 
                 using (SqlDbQuery query = mConnection.GetQuery(mInsertSimpleBuilder != null ? (AQueryBuilder)mInsertSimpleBuilder : (AQueryBuilder)mInsertSelectBuilder))
                 {
@@ -192,7 +191,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     {
                         query.ExecuteNoData();
                         object v = query.GetParamValue(autoIncrement.Name, autoIncrement.PropertyAccessor.PropertyType);
-                        if(v is Int32 || v is UInt32 || v is UInt64)
+                        if (v is Int32 || v is UInt32 || v is UInt64)
                         {
                             v = Convert.ChangeType(v, typeof(Int64));
                         }
@@ -205,9 +204,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         query.ExecuteReader();
                         while (query.ReadNext())
                         {
-                            object o = bindRecord(query);
+                            object o = BindRecord(query);
                             // MSSql Insert from Select returns IDs of all inserted records, but we need only the last one
-                            if (result.Count > 0) 
+                            if (result.Count > 0)
                                 result.Clear();
                             result.Add(o);
                         }
@@ -225,7 +224,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return result;
         }
 
-        private object bindRecord(SqlDbQuery query)
+        private object BindRecord(SqlDbQuery query)
         {
             var result = new ExpandoObject();
             IDictionary<string, object> _result = result as IDictionary<string, object>;

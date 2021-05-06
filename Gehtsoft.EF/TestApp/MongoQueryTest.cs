@@ -20,12 +20,10 @@ namespace TestApp
             builder.Reset();
             builder.Add("a", CmpOp.Eq, 123);
             builder.EndGroup();
-            Assert.Throws<EfMongoDbException>(() => builder.ToString(), "e1");
             Assert.Throws<EfMongoDbException>(() => builder.ToBsonDocument(), "e2");
 
             builder.Reset();
             builder.BeginGroup();
-            Assert.Throws<EfMongoDbException>(() => builder.ToString(), "e3");
             Assert.Throws<EfMongoDbException>(() => builder.ToBsonDocument(), "e4");
 
             builder.Reset();

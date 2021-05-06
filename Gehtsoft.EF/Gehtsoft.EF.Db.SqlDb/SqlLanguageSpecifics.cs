@@ -171,7 +171,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                 case AggFn.Count:
                     if (string.IsNullOrEmpty(argument))
-                        return $"COUNT(*)";
+                        return "COUNT(*)";
                     else
                         return $"COUNT(DISTINCT {argument})";
 
@@ -198,8 +198,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                 type = type1;
             }
 
-            bool isEnum;
-            isEnum = type.IsEnum;
+            bool isEnum = type.IsEnum;
             if (isEnum)
             {
                 type = typeof(int);
@@ -260,8 +259,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         {
             if (value == null)
             {
-                bool isValueType;
-                isValueType = type.IsValueType;
+                bool isValueType = type.IsValueType;
                 if (isValueType)
                     return Activator.CreateInstance(type);
                 else
@@ -270,8 +268,7 @@ namespace Gehtsoft.EF.Db.SqlDb
             else
             {
                 type = Nullable.GetUnderlyingType(type) ?? type;
-                bool isEnum;
-                isEnum = type.IsEnum;
+                bool isEnum = type.IsEnum;
                 if (isEnum)
                 {
                     if (!(value is int))
@@ -306,7 +303,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                     return $"MAX({args[0]})";
 
                 case SqlFunctionId.Count:
-                    return $"COUNT(*)";
+                    return "COUNT(*)";
 
                 case SqlFunctionId.Like:
                     return $"{args[0]} LIKE {args[1]}";
@@ -364,17 +361,18 @@ namespace Gehtsoft.EF.Db.SqlDb
         {
             if (value is null)
                 return "NULL";
-            if (value is short)
-                return ((short)value).ToString();
-            if (value is int)
-                return ((int)value).ToString();
-            if (value is long)
-                return ((long)value).ToString();
-            if (value is float)
-                return ((float)value).ToString();
-            if (value is string)
+            if (value is short sw)
+                return (sw).ToString();
+            if (value is int iv)
+                return (iv).ToString();
+            if (value is long lv)
+                return (lv).ToString();
+            if (value is float flt)
+                return (flt).ToString();
+            if (value is double dblV)
+                return (dblV).ToString();
+            if (value is string s)
             {
-                string s = (string)value;
                 if (s.Contains("\r") || s.Contains("\n") || s.Contains("'"))
                     throw new ArgumentException("Illegal string content", nameof(value));
                 return $"'{s}'";

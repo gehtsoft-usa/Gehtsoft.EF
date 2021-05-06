@@ -33,7 +33,7 @@ namespace Gehtsoft.EF.MongoDb
         public override async Task ExecuteAsync()
         {
             if (InsertIfNotExists)
-                await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument, new UpdateOptions {IsUpsert = true});
+                await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument, new UpdateOptions { IsUpsert = true });
             else
                 await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument);
         }
@@ -42,7 +42,7 @@ namespace Gehtsoft.EF.MongoDb
             if (InsertIfNotExists)
                 await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument, new UpdateOptions { IsUpsert = true }, token);
             else
-                await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument,  null, token);
+                await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument, null, token);
         }
 
         public override Task ExecuteAsync(object entity)

@@ -5,10 +5,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     public class SelectEntityQueryBuilder : SelectEntityQueryBuilderBase
     {
-        private SelectQueryTypeBinder mBinder;
-        private SelectEntityQueryFilter[] mExclusions;
+        private readonly SelectEntityQueryFilter[] mExclusions;
 
-        public SelectQueryTypeBinder Binder => mBinder;
+        public SelectQueryTypeBinder Binder { get; }
 
         public SelectEntityQueryBuilder(Type type, SqlDbConnection connection, SelectEntityQueryFilter[] exclusions = null) : base(type, connection)
         {
@@ -20,8 +19,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         filter.EntityType = type;
             }
             AddEntitiesTree();
-            mBinder = CreateBinder(mSelectQueryBuilder.Entities[0], mEntityDescriptor.EntityType);
-
+            Binder = CreateBinder(mSelectQueryBuilder.Entities[0], mEntityDescriptor.EntityType);
         }
 
         protected SelectQueryTypeBinder CreateBinder(QueryBuilderEntity entity, Type type)

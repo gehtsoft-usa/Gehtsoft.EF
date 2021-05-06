@@ -17,17 +17,17 @@ namespace Gehtsoft.EF.Entities
                 if (last == 'y')
                     name = name.Substring(0, name.Length - 1) + "ies";
                 else if (last == 's' || last == 'x' || (last == 'h' && (preLast == 'c' || preLast == 's')))
-                    name = name + "es";
+                    name += "es";
                 else if (last == 'o' && (preLast != 'a' && preLast != 'o' && preLast != 'i' && preLast != 'e' && preLast != 'y' && preLast != 'u'))
                 {
                     if (name.EndsWith("hero", StringComparison.OrdinalIgnoreCase) || name.EndsWith("potato", StringComparison.OrdinalIgnoreCase) ||
                         name.EndsWith("tomato", StringComparison.OrdinalIgnoreCase) || name.EndsWith("volcano", StringComparison.OrdinalIgnoreCase))
-                        name = name + "es";
+                        name += "es";
                     else
-                        name = name + "s";
+                        name += "s";
                 }
                 else
-                    name = name + "s";
+                    name += "s";
             }
             return ConvertName(name, policy);
         }
@@ -50,35 +50,35 @@ namespace Gehtsoft.EF.Entities
                 case EntityNamingPolicy.UpperFirstCharacter:
                     return char.ToUpper(name[0]) + name.Substring(1);
                 case EntityNamingPolicy.LowerCaseWithUnderscores:
-                {
-                    StringBuilder b = new StringBuilder();
-                    bool priorIsUpper = false;
-                    foreach (char c in name)
                     {
-                        bool isUpper = char.IsUpper(c);
-                        bool invertedCase = char.IsUpper(c) && !priorIsUpper && b.Length > 0;
-                        priorIsUpper = isUpper;
-                        if (invertedCase)
-                            b.Append('_');
-                        b.Append(char.ToLower(c));
+                        StringBuilder b = new StringBuilder();
+                        bool priorIsUpper = false;
+                        foreach (char c in name)
+                        {
+                            bool isUpper = char.IsUpper(c);
+                            bool invertedCase = char.IsUpper(c) && !priorIsUpper && b.Length > 0;
+                            priorIsUpper = isUpper;
+                            if (invertedCase)
+                                b.Append('_');
+                            b.Append(char.ToLower(c));
+                        }
+                        return b.ToString();
                     }
-                    return b.ToString();
-                }
                 case EntityNamingPolicy.UpperCaseWithUnderscopes:
-                {
-                    StringBuilder b = new StringBuilder();
-                    bool priorIsUpper = false;
-                    foreach (char c in name)
                     {
-                        bool isUpper = char.IsUpper(c);
-                        bool invertedCase = char.IsUpper(c) && !priorIsUpper && b.Length > 0;
-                        priorIsUpper = isUpper;
-                        if (invertedCase)
-                            b.Append('_');
-                        b.Append(char.ToUpper(c));
+                        StringBuilder b = new StringBuilder();
+                        bool priorIsUpper = false;
+                        foreach (char c in name)
+                        {
+                            bool isUpper = char.IsUpper(c);
+                            bool invertedCase = char.IsUpper(c) && !priorIsUpper && b.Length > 0;
+                            priorIsUpper = isUpper;
+                            if (invertedCase)
+                                b.Append('_');
+                            b.Append(char.ToUpper(c));
+                        }
+                        return b.ToString();
                     }
-                    return b.ToString();
-                }
                 default:
                     throw new ArgumentException("Unsupported naming policy", nameof(policy));
             }

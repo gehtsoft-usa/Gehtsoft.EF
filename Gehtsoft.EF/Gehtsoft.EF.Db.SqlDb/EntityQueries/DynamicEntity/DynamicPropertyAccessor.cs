@@ -8,9 +8,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     public class DynamicPropertyAccessor : IPropertyAccessor
     {
-        private IDynamicEntityProperty mPropertyInfo;
-        private const string INVALIDTYPE = "Object is not a dynamic object";
-
+        private readonly IDynamicEntityProperty mPropertyInfo;
         public DynamicPropertyAccessor(IDynamicEntityProperty propertyInfo)
         {
             mPropertyInfo = propertyInfo;

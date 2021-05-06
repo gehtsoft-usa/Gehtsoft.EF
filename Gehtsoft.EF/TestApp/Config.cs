@@ -9,15 +9,14 @@ using System.Threading.Tasks;
 
 namespace TestApp
 {
-    class Config
+    internal sealed class Config
     {
         private readonly ProfileFactory mProfileFactory;
         private static Config gConfig;
-        public static Config Instance = gConfig ?? (gConfig = new Config());
+        public static Config Instance = gConfig ??= new Config();
 
         private Config()
         {
-
             mProfileFactory = new ProfileFactory();
             string location = Path.GetFullPath(typeof(Config).Assembly.Location);
             FileInfo fi = new FileInfo(location);
@@ -33,6 +32,5 @@ namespace TestApp
         public string Mysql => mProfileFactory.Profile.Get<string>("connectionStrings", "mysql");
         public string Postgres => mProfileFactory.Profile.Get<string>("connectionStrings", "postgres");
         public string Mongo => mProfileFactory.Profile.Get<string>("connectionStrings", "mongo");
-
     }
 }

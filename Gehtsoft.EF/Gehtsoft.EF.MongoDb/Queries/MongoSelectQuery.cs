@@ -24,12 +24,10 @@ namespace Gehtsoft.EF.MongoDb
                     Execute();
                 return mRowCount ?? 0;
             }
-
         }
 
         internal MongoCountQuery(MongoConnection connection, Type entityType) : base(connection, entityType)
         {
-
         }
 
         public override async Task ExecuteAsync()
@@ -95,7 +93,7 @@ namespace Gehtsoft.EF.MongoDb
                 throw new EfMongoDbException(EfMongoDbExceptionCode.NoRow);
             if (type != EntityType)
                 throw new EfMongoDbException(EfMongoDbExceptionCode.NotAnEntity);
-            return EntityToBsonController.ToEntity(mCurrentRow, Type);
+            return mCurrentRow.ToEntity(Type);
         }
 
         public T GetEntity<T>() where T : class => GetEntity(typeof(T)) as T;
@@ -157,8 +155,7 @@ namespace Gehtsoft.EF.MongoDb
                 string s = value.AsString;
                 if (s == null)
                     return Guid.Empty;
-                Guid g;
-                if (!Guid.TryParse(s, out g))
+                if (!Guid.TryParse(s, out Guid g))
                     return Guid.Empty;
                 return g;
             }
@@ -231,7 +228,7 @@ namespace Gehtsoft.EF.MongoDb
 
     public class MongoSelectQuery : MongoSelectQueryBase
     {
-        private bool mExpandExternal = false;
+        private readonly bool mExpandExternal = false;
         private List<Tuple<string, bool>> mResultSet = null;
 
         internal MongoSelectQuery(MongoConnection connection, Type entityType, bool expandExternalReferences) : base(connection, entityType)
@@ -326,7 +323,6 @@ namespace Gehtsoft.EF.MongoDb
                         rs.AddRange(batch);
                     }
                     ResultSet = rs;
-
                 }
             }
         }
@@ -342,18 +338,18 @@ namespace Gehtsoft.EF.MongoDb
 
         public EntityCollection<T> ReadAll<T>() where T : class => ReadAll<EntityCollection<T>, T>();
 
-        public EntityCollection<T> ReadAll<TC, T>() where TC : EntityCollection<T> where T : class
+        public TC ReadAll<TC, T>() where TC : EntityCollection<T>, new() where T : class
         {
             if (ResultSet == null)
                 Execute();
 
-            EntityCollection<T> coll = new EntityCollection<T>();
+            TC coll = new TC();
             while (ReadNext())
                 coll.Add(GetEntity<T>());
             return coll;
         }
 
-        public override Task ExecuteAsync() => ExecuteAsyncCore(default(CancellationToken));
+        public override Task ExecuteAsync() => ExecuteAsyncCore(default);
 
         public override Task ExecuteAsync(CancellationToken token) => ExecuteAsyncCore(token);
     }

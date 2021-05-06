@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Gehtsoft.EF.Db.SqliteDb;
+using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Northwind;
 using Xunit;
 using FluentAssertions;
+using Gehtsoft.EF.Db.SqliteDb;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
@@ -48,6 +49,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SampleSelect1()
         {
+            mNorthwind.Should().NotBeNull();
+
             var env = CreateEnvironment();
             var statement = env.Parse("query", "SELECT * FROM Category");
             var categories = statement(null);
@@ -58,6 +61,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SampleSelect2()
         {
+            mNorthwind.Should().NotBeNull();
+
             var env = CreateEnvironment();
             var statement = env.Parse("query", "SELECT * FROM Category WHERE CategoryID > 3");
             var categories = statement(null);
@@ -68,28 +73,32 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         [Fact]
         public void SampleSelect3()
         {
+            mNorthwind.Should().NotBeNull();
+
             var env = CreateEnvironment();
             var statement = env.Parse("query", "SELECT * FROM Category WHERE CategoryID > ?categoryID");
             var categories = statement(new Dictionary<string, object> { { "categoryID", 3 } });
             foreach (var category in categories)
                 Console.WriteLine("{0} {1}", category.CategoryID, category.CategoryName, category.Description);
-
         }
 
         [Fact]
         public void SampleSelect4()
         {
+            mNorthwind.Should().NotBeNull();
+
             var env = CreateEnvironment();
             var statement = env.Parse("query", "SELECT * FROM OrderDetail AUTO JOIN Order AUTO JOIN Product");
             var orderDetails = statement(null);
             foreach (var orderDetail in orderDetails)
                 Console.WriteLine("{0} {1} {2}", orderDetail.Order, orderDetail.Product, orderDetail.Product_ProductName);
-
         }
 
         [Fact]
         public void SampleSelect5()
         {
+            mNorthwind.Should().NotBeNull();
+
             var env = CreateEnvironment();
             var statement = env.Parse("query", "SELECT Order.OrderID, COUNT(*) AS DetailsCount FROM Order LEFT JOIN OrderDetail ON Order.OrderID = OrderDetail.Order GROUP BY Order.OrderID");
             var orderDetails = statement(null);

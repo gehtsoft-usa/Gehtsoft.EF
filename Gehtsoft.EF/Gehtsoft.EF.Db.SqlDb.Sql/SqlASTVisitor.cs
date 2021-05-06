@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
-    internal class SqlASTVisitor
+    internal class SqlAstVisitor
     {
         /// <summary>
         /// Visit and process a statement node
@@ -17,7 +17,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         /// <param name="source"></param>
         /// <param name="statementNode"></param>
         /// <returns></returns>
-        private Statement visitStatement(SqlCodeDomBuilder builder, string source, ASTNode statementNode)
+        private Statement VisitStatement(SqlCodeDomBuilder builder, string source, ASTNode statementNode)
         {
             if (statementNode.Symbol.ID == SqlParser.ID.VariableStatement)
             {
@@ -135,7 +135,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             builder.BlockDescriptors.Peek().OnContinue = onContinue;
             for (int i = 0; i < statementNode.Children.Count; i++)
             {
-                var stmt = visitStatement(builder, source, statementNode.Children[i]);
+                var stmt = VisitStatement(builder, source, statementNode.Children[i]);
                 if (stmt != null)
                     initialSet.Add(stmt.ToLinqWxpression());
             }

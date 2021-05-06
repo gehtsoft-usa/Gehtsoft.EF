@@ -8,7 +8,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlSortSpecification
     {
-
         internal SqlBaseExpression Expression { get; } = null;
         internal SortDir Ordering { get; } = SortDir.Asc;
 
@@ -35,7 +34,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal SqlSortSpecificationCollection()
         {
-
         }
 
         public SqlSortSpecification this[int index] => ((IReadOnlyList<SqlSortSpecification>)mList)[index];
@@ -57,5 +55,4 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mList.Add(fieldAlias);
         }
     }
-
 }

@@ -16,15 +16,18 @@
   <dg:folder name="src/fts" encoding="windows-1252" />
   <dg:folder name="src/odata" encoding="windows-1252" />
  </dg:source>
- <dg:output template="%docgen%/template/html/main.xsl" file="dst/null-file" encoding="windows-1252">
+ <dg:output template="%docgen%/template/html/main.xsl" file="dst/null-file" encoding="utf-8">
   <dg:define name="text-language" value="en" />
-  <dg:define name="hhp-language" value="0x409 English (United States)" />
   <dg:define name="help-title" value="Gehtsoft EF Reference" />
-  <dg:define name="chm-file" value="../Gehtsoft.EF.chm" />
   <dg:define name="advanced-web-content" value="yes" />
   <dg:define name="default-transform" value="yes" />
   <dg:define name="enable-highlighter" value="yes" />
   <dg:define name="external-resources" value="yes" />
+  <dg:define name="web-content-file-name" value="index" />
+  <dg:define name="web-content-file-name-backward-compatibility" value="yes" />
+  <dg:define name="write-hhp" value="no" />
+  <dg:define name="hhp-language" value="0x409 English (United States)" />
+  <dg:define name="chm-file" value="../Gehtsoft.EF.chm" />
  </dg:output>
  <dg:output template="%docgen%/template/xmldoc/main.xsl" file="Gehtsoft.EF.Entities.xml" encoding="utf-8">
   <dg:define name="assembly" value="Gehtsoft.EF.Entities" />

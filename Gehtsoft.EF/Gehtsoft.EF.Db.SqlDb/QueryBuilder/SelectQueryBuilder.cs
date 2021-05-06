@@ -273,7 +273,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             StringBuilder query = PrepareSelectQueryCore();
 
             if (Limit > 0 || Skip > 0)
-                query.Append($" LIMIT {Limit} OFFSET {Skip} ");
+                query.Append(" LIMIT ").Append(Limit).Append(" OFFSET ").Append(Skip).Append(' ');
             mQuery = query.ToString();
         }
 
@@ -374,7 +374,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     }
                 }
                 from.Append(entity.Table.Name);
-                from.Append($" {mSpecifics.TableAliasInSelect} ");
+                from.Append(' ').Append(mSpecifics.TableAliasInSelect).Append(' ');
                 from.Append(entity.Alias);
                 if (entity.JoinType != TableJoinType.None)
                 {
@@ -459,22 +459,22 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             get { return mQuery; }
         }
 
-        public override string GetAlias(TableDescriptor.ColumnInfo info, QueryBuilderEntity entity = null)
+        public override string GetAlias(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity queryEntity)
         {
-            if (entity == null)
+            if (queryEntity == null)
             {
                 foreach (QueryBuilderEntity entity1 in mEntities)
-                    if (entity1.Table == info.Table)
+                    if (entity1.Table == columnInfo.Table)
                     {
-                        entity = entity1;
+                        queryEntity = entity1;
                         break;
                     }
             }
 
-            if (entity == null)
+            if (queryEntity == null)
                 throw new EfSqlException(EfExceptionCode.NoTableInQuery);
 
-            return $"{entity.Alias}.{info.Name}";
+            return $"{queryEntity.Alias}.{columnInfo.Name}";
         }
 
         protected TableDescriptor mQueryTableDescriptor;

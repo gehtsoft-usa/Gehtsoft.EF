@@ -1,7 +1,7 @@
 @group
     @title=Namespace Gehtsoft.EF.MongoDb
     @key=Gehtsoft.EF.MongoDb
-    @ingroup=index
+    @ingroup=main
     @brief=MongoDB support for Entity Framework
 
     MongoDB is a NonSQL database. The tables in MongoDB aren't two-dimension structures of simple types, as in SQL databases.

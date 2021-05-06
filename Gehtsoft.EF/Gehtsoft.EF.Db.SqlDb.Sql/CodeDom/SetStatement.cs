@@ -9,9 +9,9 @@ using Hime.Redist;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  class SetStatement : Statement
+    internal class SetStatement : Statement
     {
-        internal  SetItemCollection SetItems { get; }
+        internal SetItemCollection SetItems { get; }
 
         internal SetStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Set)
@@ -39,7 +39,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             throw new SqlParserException(new SqlError(currentSource,
                                 expressionNode.Position.Line,
                                 expressionNode.Position.Column,
-                                $"Expression in SET statement doesn't match type of declared before ({existing.ResultType.ToString()})"));
+                                $"Expression in SET statement doesn't match type of declared before ({existing.ResultType})"));
                         }
                     }
                     else
@@ -70,7 +70,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 SqlConstant resultConstant = StatementRunner.CalculateExpression(sourceExpression, CodeDomBuilder, CodeDomBuilder.Connection);
                 if (resultConstant == null)
                 {
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Runtime error while SET execution"));
+                    throw new SqlParserException(new SqlError(null, 0, 0, "Runtime error while SET execution"));
                 }
                 CodeDomBuilder.UpdateGlobalParameter($"?{name}", resultConstant);
             }
@@ -82,10 +82,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
     }
 
-    internal  class SetItem
+    internal class SetItem
     {
-        internal  string Name { get; }
-        internal  SqlBaseExpression Expression { get; }
+        internal string Name { get; }
+        internal SqlBaseExpression Expression { get; }
 
         internal SetItem(string name, SqlBaseExpression expression)
         {
@@ -100,16 +100,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         }
     }
 
-    internal  class SetItemCollection : IReadOnlyList<SetItem>
+    internal class SetItemCollection : IReadOnlyList<SetItem>
     {
         private readonly List<SetItem> mList = new List<SetItem>();
 
         internal SetItemCollection()
         {
-
         }
 
-        internal  SetItem FindByName(string name) => mList.Where(t => t.Name == name).SingleOrDefault();
+        internal SetItem FindByName(string name) => mList.SingleOrDefault(t => t.Name == name);
 
         public SetItem this[int index] => ((IReadOnlyList<SetItem>)mList)[index];
 

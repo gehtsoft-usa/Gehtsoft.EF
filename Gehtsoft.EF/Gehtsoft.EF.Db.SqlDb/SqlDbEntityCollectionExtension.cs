@@ -19,25 +19,13 @@ namespace Gehtsoft.EF.Db.SqlDb
             return -1;
         }
 
-        private static T Get<T>(this EntityCollection<T> collection, TableDescriptor.ColumnInfo column, object value)
-        {
-            int index = Find(collection, column, value);
-            if (index < 0)
-                return default(T);
-            return collection[index];
-        }
-
         public static int Find<T>(this EntityCollection<T> collection, string column, object value)
         {
             EntityDescriptor descriptor = AllEntities.Inst[typeof(T)];
             return Find(collection, descriptor[column], value);
         }
 
-        public static int Get<T>(this EntityCollection<T> collection, string column, object value)
-        {
-            EntityDescriptor descriptor = AllEntities.Inst[typeof(T)];
-            return Find(collection, descriptor[column], value);
-        }
+        public static int Get<T>(this EntityCollection<T> collection, string column, object value) => Find(collection, column, value);
 
         public static int FindByPK<T>(this EntityCollection<T> collection, object value)
         {
@@ -45,10 +33,6 @@ namespace Gehtsoft.EF.Db.SqlDb
             return Find(collection, descriptor.PrimaryKey, value);
         }
 
-        public static int GetByPK<T>(this EntityCollection<T> collection, object value)
-        {
-            EntityDescriptor descriptor = AllEntities.Inst[typeof(T)];
-            return Find(collection, descriptor.PrimaryKey, value);
-        }
+        public static int GetByPK<T>(this EntityCollection<T> collection, object value) => FindByPK<T>(collection, value);
     }
 }

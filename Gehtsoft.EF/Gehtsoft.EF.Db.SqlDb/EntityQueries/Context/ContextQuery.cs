@@ -20,14 +20,19 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Context
 
         ~ContextQuery()
         {
-            Dispose();
+            Dispose(false);
         }
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             Query?.Dispose();
             Query = null;
-            GC.SuppressFinalize(this);
         }
 
         public int Execute()
@@ -35,7 +40,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Context
             return Query.Execute();
         }
 
-        public Task<int> ExecuteAsync(CancellationToken? token)
+        public Task<int> ExecuteAsync(CancellationToken? token = null)
         {
             return Query.ExecuteAsync(token);
         }
@@ -43,27 +48,27 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Context
 
     internal class ContextModifyQuery : ContextQuery, IModifyEntityQuery
     {
-        protected ModifyEntityQuery ModifyQuery { get; private set; }
+        protected ModifyEntityQuery ModifyQuery { get; }
 
         public ContextModifyQuery(ModifyEntityQuery query) : base(query)
         {
             ModifyQuery = query;
         }
 
-        public void Execute(object v)
+        public void Execute(object entity)
         {
-            ModifyQuery.Execute(v);
+            ModifyQuery.Execute(entity);
         }
 
-        public Task ExecuteAsync(object v, CancellationToken? token)
+        public Task ExecuteAsync(object entity, CancellationToken? token = null)
         {
-            return ModifyQuery.ExecuteAsync(v, token);
+            return ModifyQuery.ExecuteAsync(entity, token);
         }
     }
 
     internal class ContextCondition : IContextFilterCondition
     {
-        protected SingleEntityQueryConditionBuilder Builder { get; private set; }
+        protected SingleEntityQueryConditionBuilder Builder { get; }
 
         public ContextCondition(SingleEntityQueryConditionBuilder builder)
         {
@@ -91,7 +96,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Context
 
     internal class ContextFilter : IContextFilter
     {
-        protected EntityQueryConditionBuilder Builder { get; private set; }
+        protected EntityQueryConditionBuilder Builder { get; }
 
         public ContextFilter(EntityQueryConditionBuilder builder)
         {
@@ -103,7 +108,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Context
             return Builder.AddGroup(logOp);
         }
 
-        public IContextFilterCondition Add(LogOp op)
+        public IContextFilterCondition Add(LogOp op = LogOp.And)
         {
             return new ContextCondition(Builder.Add(op));
         }
@@ -111,7 +116,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Context
 
     internal class ContextQueryWithCondition : ContextQuery, IContextQueryWithCondition
     {
-        public IContextFilter Where { get; private set; }
+        public IContextFilter Where { get; }
 
         public ContextQueryWithCondition(ConditionEntityQueryBase query) : base(query)
         {
@@ -121,7 +126,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Context
 
     internal class ContextOrder : IContextOrder
     {
-        protected SelectEntitiesQuery SelectQuery { get; private set; }
+        protected SelectEntitiesQuery SelectQuery { get; }
 
         public ContextOrder(SelectEntitiesQuery query)
         {
@@ -137,11 +142,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Context
 
     internal class ContextSelect : ContextQuery, IContextSelect
     {
-        protected SelectEntitiesQuery SelectQuery { get; private set; }
+        protected SelectEntitiesQuery SelectQuery { get; }
 
-        public IContextOrder Order { get; private set; }
+        public IContextOrder Order { get; }
 
-        public IContextFilter Where { get; private set; }
+        public IContextFilter Where { get; }
 
         public int? Take
         {
@@ -175,9 +180,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Context
 
     internal class ContextCount : ContextQuery, IContextCount
     {
-        protected SelectEntitiesCountQuery SelectQuery { get; private set; }
+        protected SelectEntitiesCountQuery SelectQuery { get; }
 
-        public IContextFilter Where { get; private set; }
+        public IContextFilter Where { get; }
 
         public ContextCount(SelectEntitiesCountQuery query) : base(query)
         {

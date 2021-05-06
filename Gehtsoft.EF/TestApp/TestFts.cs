@@ -22,9 +22,7 @@ namespace TestApp
         [Test]
         public void TestWordParser()
         {
-            string[] words;
-
-            words = StringUtils.ParseToWords("");
+            string[] words = StringUtils.ParseToWords("");
             Assert.AreEqual(0, words.Length);
             words = StringUtils.ParseToWords("", true);
             Assert.AreEqual(0, words.Length);
@@ -88,11 +86,12 @@ namespace TestApp
         [Test]
         public void TestLevensteinPerformance()
         {
-            int nsamples = 120000;
-            int nwords = 100;
-            int minlength = 2;
-            int maxlength = 10;
-            Random r = new Random((int) DateTime.Now.Ticks & 0xffff);
+            const int nsamples = 120000;
+            const int nwords = 100;
+            const int minlength = 2;
+            const int maxlength = 10;
+
+            Random r = new Random((int)DateTime.Now.Ticks & 0xffff);
 
             string[] samples = new string[nsamples];
             for (int i = 0; i < nsamples; i++)
@@ -118,7 +117,6 @@ namespace TestApp
             Console.WriteLine($"Test size {nsamples} samples, {nwords} words");
             Console.WriteLine($"Total test {sw.ElapsedMilliseconds} ms");
             Console.WriteLine($"One word per {sw.ElapsedMilliseconds * 1.0 / nwords} ms");
-
         }
 
         private static string RandomWord(Random r, int minlength, int maxlength)
@@ -126,7 +124,7 @@ namespace TestApp
             int length = minlength + r.Next(maxlength - minlength + 1);
             char[] word = new char[length];
             for (int i = 0; i < word.Length; i++)
-                word[i] = (char) r.Next('A', 'Z' + 1);
+                word[i] = (char)r.Next('A', 'Z' + 1);
             return new string(word);
         }
 
@@ -139,7 +137,6 @@ namespace TestApp
             [EntityProperty(Size = 128)]
             public string Text { get; set; }
         }
-
 
         public static void DoTestFts(SqlDbConnection connection)
         {
@@ -177,7 +174,6 @@ namespace TestApp
             Assert.IsNotNull(words);
             Assert.AreEqual(0, words.Count);
 
-
             coll = connection.FtsGetObjects("перец пряники", false);
             Assert.AreEqual(2, coll.Count);
             Assert.IsTrue(Contains("type2", "object1", coll));
@@ -185,11 +181,10 @@ namespace TestApp
 
             Assert.AreEqual(2, connection.FtsCountObjects("перец пряники", false));
 
-
             coll = connection.FtsGetObjects("петя", false, null, 10, 0);
             Assert.AreEqual(1, coll.Count);
 
-            coll = connection.FtsGetObjects("петя", false, new string[] {"type2", "type1"}, 10, 0);
+            coll = connection.FtsGetObjects("петя", false, new string[] { "type2", "type1" }, 10, 0);
             Assert.AreEqual(1, coll.Count);
 
             coll = connection.FtsGetObjects("перец пряники", true);
@@ -210,14 +205,14 @@ namespace TestApp
             Assert.IsTrue(Contains("type2", "object1", coll));
             Assert.IsTrue(Contains("type2", "object2", coll));
 
-            coll = connection.FtsGetObjects("п% d%", false, new string[] {"type1", "type2"});
+            coll = connection.FtsGetObjects("п% d%", false, new string[] { "type1", "type2" });
             Assert.AreEqual(4, coll.Count);
             Assert.IsTrue(Contains("type1", "object1", coll));
             Assert.IsTrue(Contains("type1", "object2", coll));
             Assert.IsTrue(Contains("type2", "object1", coll));
             Assert.IsTrue(Contains("type2", "object2", coll));
 
-            coll = connection.FtsGetObjects("п% d%", false, new string[] {"type2"});
+            coll = connection.FtsGetObjects("п% d%", false, new string[] { "type2" });
             Assert.AreEqual(2, coll.Count);
             Assert.IsTrue(Contains("type2", "object1", coll));
             Assert.IsTrue(Contains("type2", "object2", coll));
@@ -255,30 +250,27 @@ namespace TestApp
             using (var query = connection.GetCreateEntityQuery<FtsEntity>())
                 query.Execute();
 
-            FtsEntity entity;
-
-
-            entity = new FtsEntity() {Text = "The text number one"};
+            FtsEntity entity = new FtsEntity() { Text = "The text number one" };
             using (var query = connection.GetInsertEntityQuery<FtsEntity>())
                 query.Execute(entity);
             connection.FtsSetObjectText("t1", entity.ID.ToString(), entity.Text);
 
-            entity = new FtsEntity() {Text = "The string number two"};
+            entity = new FtsEntity() { Text = "The string number two" };
             using (var query = connection.GetInsertEntityQuery<FtsEntity>())
                 query.Execute(entity);
             connection.FtsSetObjectText("t1", entity.ID.ToString(), entity.Text);
 
-            entity = new FtsEntity() {Text = "The poem number three"};
+            entity = new FtsEntity() { Text = "The poem number three" };
             using (var query = connection.GetInsertEntityQuery<FtsEntity>())
                 query.Execute(entity);
             connection.FtsSetObjectText("t1", entity.ID.ToString(), entity.Text);
 
-            entity = new FtsEntity() {Text = "The story number four"};
+            entity = new FtsEntity() { Text = "The story number four" };
             using (var query = connection.GetInsertEntityQuery<FtsEntity>())
                 query.Execute(entity);
             connection.FtsSetObjectText("t1", entity.ID.ToString(), entity.Text);
 
-            entity = new FtsEntity() {Text = "The text number five"};
+            entity = new FtsEntity() { Text = "The text number five" };
             using (var query = connection.GetInsertEntityQuery<FtsEntity>())
                 query.Execute(entity);
             connection.FtsSetObjectText("t1", entity.ID.ToString(), entity.Text);
@@ -292,8 +284,6 @@ namespace TestApp
                 Assert.AreEqual(2, rc.Count);
                 Assert.AreEqual(1, rc[0].ID);
                 Assert.AreEqual(5, rc[1].ID);
-
-
             }
 
             using (var query = connection.GetSelectEntitiesQuery<FtsEntity>())
@@ -363,7 +353,6 @@ namespace TestApp
             Assert.IsNotNull(words);
             Assert.AreEqual(0, words.Count);
 
-
             coll = await connection.FtsGetObjectsAsync("перец пряники", false);
             Assert.AreEqual(2, coll.Count);
             Assert.IsTrue(Contains("type2", "object1", coll));
@@ -371,11 +360,10 @@ namespace TestApp
 
             Assert.AreEqual(2, await connection.FtsCountObjectsAsync("перец пряники", false));
 
-
             coll = await connection.FtsGetObjectsAsync("петя", false, null, 10, 0);
             Assert.AreEqual(1, coll.Count);
 
-            coll = await connection.FtsGetObjectsAsync("петя", false, new string[] {"type2", "type1"}, 10, 0);
+            coll = await connection.FtsGetObjectsAsync("петя", false, new string[] { "type2", "type1" }, 10, 0);
             Assert.AreEqual(1, coll.Count);
 
             coll = await connection.FtsGetObjectsAsync("перец пряники", true);
@@ -396,14 +384,14 @@ namespace TestApp
             Assert.IsTrue(Contains("type2", "object1", coll));
             Assert.IsTrue(Contains("type2", "object2", coll));
 
-            coll = await connection.FtsGetObjectsAsync("п% d%", false, new string[] {"type1", "type2"});
+            coll = await connection.FtsGetObjectsAsync("п% d%", false, new string[] { "type1", "type2" });
             Assert.AreEqual(4, coll.Count);
             Assert.IsTrue(Contains("type1", "object1", coll));
             Assert.IsTrue(Contains("type1", "object2", coll));
             Assert.IsTrue(Contains("type2", "object1", coll));
             Assert.IsTrue(Contains("type2", "object2", coll));
 
-            coll = await connection.FtsGetObjectsAsync("п% d%", false, new string[] {"type2"});
+            coll = await connection.FtsGetObjectsAsync("п% d%", false, new string[] { "type2" });
             Assert.AreEqual(2, coll.Count);
             Assert.IsTrue(Contains("type2", "object1", coll));
             Assert.IsTrue(Contains("type2", "object2", coll));
@@ -441,31 +429,28 @@ namespace TestApp
             using (var query = connection.GetCreateEntityQuery<FtsEntity>())
                 await query.ExecuteAsync();
 
-            FtsEntity entity;
-
-
-            entity = new FtsEntity() {Text = "The text number one"};
+            FtsEntity entity = new FtsEntity() { Text = "The text number one" };
             using (var query = connection.GetInsertEntityQuery<FtsEntity>())
                 await query.ExecuteAsync(entity);
-            
+
             await connection.FtsSetObjectTextAsync("t1", entity.ID.ToString(), entity.Text);
 
-            entity = new FtsEntity() {Text = "The string number two"};
+            entity = new FtsEntity() { Text = "The string number two" };
             using (var query = connection.GetInsertEntityQuery<FtsEntity>())
                 await query.ExecuteAsync(entity);
             await connection.FtsSetObjectTextAsync("t1", entity.ID.ToString(), entity.Text);
 
-            entity = new FtsEntity() {Text = "The poem number three"};
+            entity = new FtsEntity() { Text = "The poem number three" };
             using (var query = connection.GetInsertEntityQuery<FtsEntity>())
                 await query.ExecuteAsync(entity);
             await connection.FtsSetObjectTextAsync("t1", entity.ID.ToString(), entity.Text);
 
-            entity = new FtsEntity() {Text = "The story number four"};
+            entity = new FtsEntity() { Text = "The story number four" };
             using (var query = connection.GetInsertEntityQuery<FtsEntity>())
                 await query.ExecuteAsync(entity);
             await connection.FtsSetObjectTextAsync("t1", entity.ID.ToString(), entity.Text);
 
-            entity = new FtsEntity() {Text = "The text number five"};
+            entity = new FtsEntity() { Text = "The text number five" };
             using (var query = connection.GetInsertEntityQuery<FtsEntity>())
                 await query.ExecuteAsync(entity);
             await connection.FtsSetObjectTextAsync("t1", entity.ID.ToString(), entity.Text);
@@ -479,8 +464,6 @@ namespace TestApp
                 Assert.AreEqual(2, rc.Count);
                 Assert.AreEqual(1, rc[0].ID);
                 Assert.AreEqual(5, rc[1].ID);
-
-
             }
 
             using (var query = connection.GetSelectEntitiesQuery<FtsEntity>())
@@ -513,7 +496,6 @@ namespace TestApp
                     Assert.IsFalse(v.Text.Contains("text"));
             }
         }
-
     }
 }
 

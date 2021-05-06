@@ -17,9 +17,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public TableJoinType JoinType { get; set; }
         public QueryBuilderEntity ConnectedToTable { get; set; }
         public TableDescriptor.ColumnInfo ConnectedToField { get; internal set; }
-        public ConditionBuilder On { get; } 
+        public ConditionBuilder On { get; }
 
-        [Obsolete]
+        [Obsolete("Use ConnectedTo properties instead")]
         public string Expression
         {
             set
@@ -28,7 +28,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             }
         }
 
-        [Obsolete]
+        [Obsolete("Use On property instead")]
         public void SetJoin(TableJoinType type, string expression)
         {
             JoinType = type;
@@ -43,7 +43,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
     public class QueryBuilderEntityCollection : IEnumerable<QueryBuilderEntity>
     {
-        private List<QueryBuilderEntity> mList = new List<QueryBuilderEntity>();
+        private readonly List<QueryBuilderEntity> mList = new List<QueryBuilderEntity>();
 
         public int Count => mList.Count;
 
@@ -65,12 +65,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
     }
 
-
     public abstract class QueryWithWhereBuilder : AQueryBuilder, IConditionBuilderInfoProvider
     {
         public SqlDbLanguageSpecifics Specifics => mSpecifics;
         private static int gAlias = 0;
-        private static object gAliasMutex = new object();
+        private static readonly object gAliasMutex = new object();
         protected ConditionBuilder mWhere = null;
         public ConditionBuilder Where => mWhere ?? (mWhere = new ConditionBuilder(this));
 
@@ -107,10 +106,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 ConnectedToTable = connectedToTable,
                 ConnectedToField = connectedToColumn,
             };
-            mEntities.Add(rentity);           
+            mEntities.Add(rentity);
             return rentity;
         }
-
 
         protected QueryBuilderEntity AddTable(TableDescriptor table, TableDescriptor.ColumnInfo connectingColumn, TableJoinType joinType, QueryBuilderEntity connectToTable, TableDescriptor.ColumnInfo connectToColumn)
         {
@@ -170,7 +168,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     }
                 }
 
-
                 if (connectToTable == null)
                     throw new EfSqlException(EfExceptionCode.NoTableToConnect);
 
@@ -201,7 +198,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                             {
                                 connectingColumn = pk;
                                 connectToColumn = column;
-
                             }
                         }
                     }
@@ -213,7 +209,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             return AddTable(table, connectingColumn, joinType, connectToTable, connectToColumn);
         }
 
-        public abstract string GetAlias(TableDescriptor.ColumnInfo info, QueryBuilderEntity entity = null);
+        public abstract string GetAlias(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity queryEntity);
     }
 
     [Obsolete("Upgrade your code to using query Where property")]
@@ -242,7 +238,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, LogOp logOp, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, AQueryBuilder subquery)
             => builder.Where.Add(logOp, builder.Where.PropertyName(entity, columnInfo), cmpOp, builder.Where.Query(subquery));
-        
+
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, LogOp logOp, CmpOp cmpOp, AQueryBuilder subquery)
             => builder.Where.Add(logOp, null, cmpOp, builder.Where.Query(subquery));
@@ -255,27 +251,27 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             => builder.Where.Add(LogOp.And, builder.Where.PropertyName(null, columnInfo), cmpOp, (parameterName?.Contains(".") ?? false) ? parameterName : builder.Where.Parameter(parameterName));
 
         [Obsolete("Upgrade your code to using query Where property")]
-        public static void AddWhereFilter(this QueryWithWhereBuilder builder,  TableDescriptor.ColumnInfo columnInfo, CmpOp cmpOp, string[] parameterNames)
+        public static void AddWhereFilter(this QueryWithWhereBuilder builder, TableDescriptor.ColumnInfo columnInfo, CmpOp cmpOp, string[] parameterNames)
             => builder.Where.Add(LogOp.And, builder.Where.PropertyName(null, columnInfo), cmpOp, builder.Where.Parameters(parameterNames));
 
         [Obsolete("Upgrade your code to using query Where property")]
-        public static void AddWhereFilter(this QueryWithWhereBuilder builder,  TableDescriptor.ColumnInfo columnInfo, CmpOp cmpOp, AQueryBuilder subquery)
+        public static void AddWhereFilter(this QueryWithWhereBuilder builder, TableDescriptor.ColumnInfo columnInfo, CmpOp cmpOp, AQueryBuilder subquery)
             => builder.Where.Add(LogOp.And, builder.Where.PropertyName(null, columnInfo), cmpOp, builder.Where.Query(subquery));
 
         [Obsolete("Upgrade your code to using query Where property")]
-        public static void AddWhereFilter(this QueryWithWhereBuilder builder,  TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string parameterName = null)
+        public static void AddWhereFilter(this QueryWithWhereBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string parameterName = null)
             => builder.Where.Add(LogOp.And, builder.Where.PropertyName(entity, columnInfo), cmpOp, (parameterName?.Contains(".") ?? false) ? parameterName : builder.Where.Parameter(parameterName));
-        
+
         [Obsolete("Upgrade your code to using query Where property")]
-        public static void AddWhereFilter(this QueryWithWhereBuilder builder,  TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string[] parameterNames)
+        public static void AddWhereFilter(this QueryWithWhereBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string[] parameterNames)
             => builder.Where.Add(LogOp.And, builder.Where.PropertyName(entity, columnInfo), cmpOp, builder.Where.Parameters(parameterNames));
 
         [Obsolete("Upgrade your code to using query Where property")]
-        public static void AddWhereFilter(this QueryWithWhereBuilder builder,  TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, AQueryBuilder subquery)
+        public static void AddWhereFilter(this QueryWithWhereBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, AQueryBuilder subquery)
             => builder.Where.Add(LogOp.And, builder.Where.PropertyName(entity, columnInfo), cmpOp, builder.Where.Query(subquery));
-        
+
         [Obsolete("Upgrade your code to using query Where property")]
-        public static void AddWhereFilter(this QueryWithWhereBuilder builder,  CmpOp cmpOp, AQueryBuilder subquery)
+        public static void AddWhereFilter(this QueryWithWhereBuilder builder, CmpOp cmpOp, AQueryBuilder subquery)
             => builder.Where.Add(LogOp.And, null, cmpOp, builder.Where.Query(subquery));
 
         [Obsolete("Upgrade your code to using query Where property")]
@@ -295,7 +291,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             get { return mQuery; }
         }
 
-        public SingleTableQueryWithWhereBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics, tableDescriptor)
+        protected SingleTableQueryWithWhereBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics, tableDescriptor)
         {
             mQuery = null;
             mDescriptor = tableDescriptor;
@@ -309,17 +305,15 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             Where.Property(mDescriptor.PrimaryKey).Is(CmpOp.Eq).Parameter(mDescriptor.PrimaryKey.Name);
         }
 
-        public override string GetAlias(TableDescriptor.ColumnInfo info, QueryBuilderEntity entity = null)
+        public override string GetAlias(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity queryEntity)
         {
-            if (entity == null)
-                entity = mEntities[0];
+            if (queryEntity == null)
+                queryEntity = mEntities[0];
 
-            if (entity != mEntities[0])
+            if (queryEntity != mEntities[0])
                 throw new EfSqlException(EfExceptionCode.NoTableInQuery);
 
-            return $"{info.Table.Name}.{info.Name}";
+            return $"{columnInfo.Table.Name}.{columnInfo.Name}";
         }
     }
-
-    
 }

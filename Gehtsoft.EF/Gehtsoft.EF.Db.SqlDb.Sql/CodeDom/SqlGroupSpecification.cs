@@ -8,13 +8,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlGroupSpecification
     {
-
         internal SqlBaseExpression Expression { get; } = null;
 
         internal SqlGroupSpecification(SqlStatement parentStatement, ASTNode sortSpecificationNode, string source)
         {
             Expression = SqlExpressionParser.ParseExpression(parentStatement, sortSpecificationNode.Children[0], source);
-
         }
 
         internal SqlGroupSpecification(SqlField field)
@@ -30,7 +28,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal SqlGroupSpecificationCollection()
         {
-
         }
 
         public SqlGroupSpecification this[int index] => ((IReadOnlyList<SqlGroupSpecification>)mList)[index];
@@ -52,5 +49,4 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mList.Add(fieldAlias);
         }
     }
-
 }

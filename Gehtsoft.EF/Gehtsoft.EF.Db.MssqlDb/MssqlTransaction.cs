@@ -6,7 +6,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
     public class MssqlTransaction : SqlDbTransaction
     {
         private MssqlDbConnection mDb;
-        private string mSavePointName = null;
+        private readonly string mSavePointName = null;
 
         internal MssqlTransaction(MssqlDbConnection db, System.Data.SqlClient.SqlTransaction transaction) : base(transaction)
         {
@@ -48,10 +48,6 @@ namespace Gehtsoft.EF.Db.MssqlDb
                 }
                 base.Dispose(disposing);
             }
-
-            if (disposing)
-                GC.SuppressFinalize(this);
         }
     }
-
 }

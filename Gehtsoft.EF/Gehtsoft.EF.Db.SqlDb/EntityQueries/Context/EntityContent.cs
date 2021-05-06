@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
-    public partial class SqlDbConnection : IEntityContext, IDisposable
+    public partial class SqlDbConnection : IEntityContext
     {
         IEntityContextTransaction IEntityContext.BeginTransaction()
         {

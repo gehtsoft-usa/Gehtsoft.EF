@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.MongoDb;
 using Gehtsoft.EF.Utils;
@@ -150,8 +151,7 @@ namespace TestApp
                     Assert.AreEqual("s1", query.GetValue<string>(1));
                     Assert.AreEqual(e1.DateVal, query.GetValue<DateTime>("dateval"));
 
-                    Guid?[] arr;
-                    arr = query.GetValue<Guid?[]>("guidvalarr");
+                    Guid?[] arr = query.GetValue<Guid?[]>("guidvalarr");
                     Assert.IsNotNull(arr);
                     Assert.AreEqual(e1.GuidValArr.Length, arr.Length);
                     Assert.AreEqual(e1.GuidValArr[0], arr[0]);
@@ -468,7 +468,7 @@ namespace TestApp
         public void TestEntityContext()
         {
             using (MongoConnection connection = MongoConnectionFactory.Create(Config.Instance.Mongo))
-                EntityContextTest.Test(connection);
+                EntityContextTest.Test(connection).Should().BeTrue();
         }
     }
 }

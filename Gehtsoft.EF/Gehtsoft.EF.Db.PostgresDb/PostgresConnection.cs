@@ -141,16 +141,20 @@ namespace Gehtsoft.EF.Db.PostgresDb
     {
         public static SqlDbConnection Create(string connectionString)
         {
-            NpgsqlConnection connection = new NpgsqlConnection();
-            connection.ConnectionString = connectionString;
+            NpgsqlConnection connection = new NpgsqlConnection
+            {
+                ConnectionString = connectionString
+            };
             connection.Open();
             return new PostgresDbConnection(connection);
         }
 
         public static async Task<SqlDbConnection> CreateAsync(string connectionString, CancellationToken? token)
         {
-            NpgsqlConnection connection = new NpgsqlConnection();
-            connection.ConnectionString = connectionString;
+            NpgsqlConnection connection = new NpgsqlConnection
+            {
+                ConnectionString = connectionString
+            };
             if (token == null)
                 await connection.OpenAsync();
             else

@@ -9,7 +9,9 @@ namespace Gehtsoft.EF.Entities
 {
     public static class EntityFinder
     {
+#pragma warning disable S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
         public class EntityTypeInfo : IComparable<EntityTypeInfo>
+#pragma warning restore S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
         {
             public string Scope { get; set; }
             public Type EntityType { get; set; }
@@ -19,7 +21,7 @@ namespace Gehtsoft.EF.Entities
             public List<Type> DependsOn { get; } = new List<Type>();
             public List<EntityTypeInfo> DependsOnInfo { get; } = new List<EntityTypeInfo>();
             public bool View { get; set; }
-            public Type Metadata { get; set;  } 
+            public Type Metadata { get; set; }
 
             public int CompareTo(object obj)
             {
@@ -36,10 +38,10 @@ namespace Gehtsoft.EF.Entities
                     return 1;
                 if (!View && other.View)
                     return -1;
-                
+
                 if (View && other.View)
-                    return CompareNames(other); 
-                
+                    return CompareNames(other);
+
                 if (DoesDependOn(other))
                     return 1;
                 if (other.DoesDependOn(this))
@@ -101,7 +103,7 @@ namespace Gehtsoft.EF.Entities
                         if (includeObsolete)
                         {
                             obsoleteEntityAttribute = type.GetTypeInfo().GetCustomAttribute<ObsoleteEntityAttribute>();
-                            if (obsoleteEntityAttribute != null)
+                            if (obsoleteEntityAttribute != null && (scope == null || obsoleteEntityAttribute.Scope == scope))
                             {
                                 EntityTypeInfo eti = new EntityTypeInfo
                                 {
@@ -138,17 +140,13 @@ namespace Gehtsoft.EF.Entities
         {
             foreach (PropertyInfo property in eti.EntityType.GetTypeInfo().GetProperties())
             {
-                {
-                    EntityPropertyAttribute propertyAttribute = property.GetCustomAttribute<EntityPropertyAttribute>();
-                    if (propertyAttribute != null && propertyAttribute.ForeignKey)
-                        eti.DependsOn.Add(property.PropertyType);
-                }
+                EntityPropertyAttribute propertyAttribute = property.GetCustomAttribute<EntityPropertyAttribute>();
+                if (propertyAttribute != null && propertyAttribute.ForeignKey)
+                    eti.DependsOn.Add(property.PropertyType);
 
-                {
-                    ObsoleteEntityPropertyAttribute propertyAttribute = property.GetCustomAttribute<ObsoleteEntityPropertyAttribute>();
-                    if (propertyAttribute != null && propertyAttribute.ForeignKey)
-                        eti.DependsOn.Add(property.PropertyType);
-                }
+                ObsoleteEntityPropertyAttribute obsoletePropertyAttribute = property.GetCustomAttribute<ObsoleteEntityPropertyAttribute>();
+                if (obsoletePropertyAttribute != null && obsoletePropertyAttribute.ForeignKey)
+                    eti.DependsOn.Add(property.PropertyType);
             }
         }
 

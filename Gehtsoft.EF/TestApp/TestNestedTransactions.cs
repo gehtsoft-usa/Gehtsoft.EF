@@ -11,9 +11,9 @@ using NUnit.Framework;
 
 namespace TestApp
 {
-    public class NestedTransactionsTest
+    public static class NestedTransactionsTest
     {
-        static TableDescriptor gTable = new TableDescriptor
+        private static readonly TableDescriptor gTable = new TableDescriptor
         (
             "transactiontest",
             new TableDescriptor.ColumnInfo[]
@@ -22,7 +22,6 @@ namespace TestApp
                 new TableDescriptor.ColumnInfo { Name = "vstring", DbType = DbType.String, Size = 32},
             }
         );
-
 
         public static void Do(SqlDbConnection connection)
         {
@@ -113,8 +112,6 @@ namespace TestApp
                 query.ReadNext();
                 Assert.AreEqual(1, query.GetValue<int>(0));
             }
-
         }
-
     }
 }

@@ -87,7 +87,7 @@ namespace Gehtsoft.EF.Db.SqlDb
     [Serializable]
     public class EfSqlException : Exception
     {
-        public EfExceptionCode ErrorCode { get; private set; }
+        public EfExceptionCode ErrorCode { get; }
 
         public EfSqlException(EfExceptionCode code, params object[] args) : base(string.Format(EfExceptionMessages.Inst[code], args))
         {

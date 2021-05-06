@@ -9,7 +9,7 @@ namespace Gehtsoft.EF.MongoDb
 {
     public partial class MongoConnection : IDisposable
     {
-        private IMongoDatabase mDatabase;
+        private readonly IMongoDatabase mDatabase;
 
         public IMongoDatabase Database => mDatabase;
 
@@ -21,7 +21,7 @@ namespace Gehtsoft.EF.MongoDb
         public string[] GetSchema()
         {
             List<string> schema = new List<string>();
-            IAsyncCursor<BsonDocument> list = mDatabase.ListCollections(new ListCollectionsOptions() { });
+            IAsyncCursor<BsonDocument> list = mDatabase.ListCollections(new ListCollectionsOptions());
             while (list.MoveNext())
             {
                 foreach (BsonDocument doc in list.Current)
@@ -32,7 +32,7 @@ namespace Gehtsoft.EF.MongoDb
 
         public void Dispose()
         {
-
+            // Nothing to dispose for MongoDB
         }
 
         public MongoCreateListQuery GetCreateListQuery<T>() => new MongoCreateListQuery(this, typeof(T));
@@ -73,8 +73,6 @@ namespace Gehtsoft.EF.MongoDb
             IMongoClient client = new MongoClient(url);
             IMongoDatabase database = client.GetDatabase(url.DatabaseName);
             return Task.FromResult(new MongoConnection(database));
-
         }
-
     }
 }

@@ -6,48 +6,35 @@ namespace Gehtsoft.EF.Db.SqliteDb
 {
     public class SqliteDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
-        public override string TypeName(DbType dbtype, int size, int precision, bool autoincrement)
+        public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
-            string type;
-            switch (dbtype)
+            switch (type)
             {
                 case DbType.String:
-                    type = "TEXT";
-                    break;
+                    return "TEXT";
                 case DbType.Int16:
-                    type = "INTEGER";
-                    break;
+                    return "INTEGER";
                 case DbType.Int32:
-                    type = "INTEGER";
-                    break;
+                    return "INTEGER";
                 case DbType.Int64:
-                    type = "INTEGER";
-                    break;
+                    return "INTEGER";
                 case DbType.Date:
-                    type = "REAL";
-                    break;
+                    return "REAL";
                 case DbType.DateTime:
-                    type = "REAL";
-                    break;
+                    return "REAL";
                 case DbType.Double:
-                    type = "REAL";
-                    break;
+                    return "REAL";
                 case DbType.Binary:
-                    type = "BLOB";
-                    break;
+                    return "BLOB";
                 case DbType.Boolean:
-                    type = "INTEGER";
-                    break;
+                    return "INTEGER";
                 case DbType.Guid:
-                    type = "TEXT";
-                    break;
+                    return "TEXT";
                 case DbType.Decimal:
-                    type = "REAL";
-                    break;
+                    return "REAL";
                 default:
                     throw new InvalidOperationException("The type is not supported");
             }
-            return type;
         }
 
         public override void ToDbValue(ref object value, Type type, out DbType dbtype)
@@ -124,23 +111,22 @@ namespace Gehtsoft.EF.Db.SqliteDb
             {
                 if (value == null)
                     return default(bool);
-                int t = (int) TranslateValue(value, typeof(int));
+                int t = (int)TranslateValue(value, typeof(int));
                 return t != 0;
             }
             else if (type == typeof(bool?))
             {
                 if (value == null)
-                    return (bool?) null;
-                int t = (int) TranslateValue(value, typeof(int));
-                return (bool?) (t != 0);
+                    return (bool?)null;
+                int t = (int)TranslateValue(value, typeof(int));
+                return (bool?)(t != 0);
             }
             else if (type == typeof(Guid))
             {
                 string s = (string)TranslateValue(value, typeof(string));
                 if (s == null)
                     return Guid.Empty;
-                Guid guid;
-                if (!Guid.TryParse(s, out guid))
+                if (!Guid.TryParse(s, out Guid guid))
                     return Guid.Empty;
                 else
                     return guid;
@@ -150,8 +136,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 string s = (string)TranslateValue(value, typeof(string));
                 if (s == null)
                     return (Guid?)null;
-                Guid guid;
-                if (!Guid.TryParse(s, out guid))
+                if (!Guid.TryParse(s, out Guid guid))
                     return (Guid?)Guid.Empty;
                 else
                     return (Guid?)guid;
@@ -199,16 +184,11 @@ namespace Gehtsoft.EF.Db.SqliteDb
 
         public override string FormatValue(object value)
         {
-            if (value is bool)
-                return FormatValue((bool) value ? (int)1 : (int)0);
-            if (value is DateTime)
-            {
-                DateTime dt = (DateTime) value;
+            if (value is bool b)
+                return FormatValue(b ? 1 : 0);
+            if (value is DateTime dt)
                 return FormatValue(DateTimeTool.ToOADate(dt));
-            }
-
             return base.FormatValue(value);
         }
-
     }
 }

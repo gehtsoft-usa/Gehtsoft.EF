@@ -4,11 +4,10 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.OracleDb
 {
-    class OracleDropTableBuilder : DropTableBuilder
+    internal class OracleDropTableBuilder : DropTableBuilder
     {
         public OracleDropTableBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table) : base(specifics, table)
         {
-            
         }
 
         public override void PrepareQuery()
@@ -28,17 +27,20 @@ namespace Gehtsoft.EF.Db.OracleDb
             {
                 builder.Append(mSpecifics.PreBlock);
                 builder.Append(mSpecifics.PreQueryInBlock);
-                builder.Append($"DROP SEQUENCE {mDescriptor.Name}_{autoIncrementColumn.Name}");
+                builder
+                    .Append("DROP SEQUENCE ")
+                    .Append(mDescriptor.Name)
+                    .Append('_')
+                    .Append(autoIncrementColumn.Name);
                 builder.Append(mSpecifics.PostQueryInBlock);
                 builder.Append("EXCEPTION\r\n");
                 builder.Append("  WHEN OTHERS THEN NULL;\r\n");
                 builder.Append(mSpecifics.PostBlock);
             }
 
-
             builder.Append(mSpecifics.PreBlock);
             builder.Append(mSpecifics.PreQueryInBlock);
-            builder.Append($"DROP TABLE {mDescriptor.Name}");
+            builder.Append("DROP TABLE ").Append(mDescriptor.Name);
             builder.Append(mSpecifics.PostQueryInBlock);
             builder.Append("EXCEPTION\r\n");
             builder.Append("  WHEN OTHERS THEN NULL;\r\n");

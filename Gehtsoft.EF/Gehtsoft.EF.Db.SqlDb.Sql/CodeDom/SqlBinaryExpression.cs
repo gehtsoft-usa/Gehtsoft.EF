@@ -9,10 +9,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlBinaryExpression : SqlBaseExpression
     {
-        private ResultTypes mResultType = ResultTypes.Unknown;
-        private SqlBaseExpression mLeftOperand;
-        private SqlBaseExpression mRightOperand;
-        private OperationType mOperation;
+        private readonly ResultTypes mResultType;
 
         /// <summary>
         /// The types of the Operation
@@ -49,47 +46,29 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlBaseExpression LeftOperand
-        {
-            get
-            {
-                return mLeftOperand;
-            }
-        }
+        internal SqlBaseExpression LeftOperand { get; }
 
-        internal SqlBaseExpression RightOperand
-        {
-            get
-            {
-                return mRightOperand;
-            }
-        }
+        internal SqlBaseExpression RightOperand { get; }
 
-        internal OperationType Operation
-        {
-            get
-            {
-                return mOperation;
-            }
-        }
+        internal OperationType Operation { get; }
 
         internal SqlBinaryExpression(SqlStatement parentStatement, ASTNode leftOperand, OperationType operation, ASTNode rightOperand, string source)
         {
-            mLeftOperand = SqlExpressionParser.ParseExpression(parentStatement, leftOperand, source);
-            mRightOperand = SqlExpressionParser.ParseExpression(parentStatement, rightOperand, source);
+            LeftOperand = SqlExpressionParser.ParseExpression(parentStatement, leftOperand, source);
+            RightOperand = SqlExpressionParser.ParseExpression(parentStatement, rightOperand, source);
 
-            CheckOperands(mLeftOperand, operation, mRightOperand, source, rightOperand.Position.Line, rightOperand.Position.Column);
-            mResultType = getResultType(operation, mLeftOperand.ResultType);
-            mOperation = operation;
+            CheckOperands(LeftOperand, operation, RightOperand, source, rightOperand.Position.Line, rightOperand.Position.Column);
+            mResultType = GetResultType(operation, LeftOperand.ResultType);
+            Operation = operation;
         }
 
         internal SqlBinaryExpression(SqlBaseExpression leftOperand, OperationType operation, SqlBaseExpression rightOperand)
         {
-            mLeftOperand = leftOperand;
-            mRightOperand = rightOperand;
-            CheckOperands(mLeftOperand, operation, mRightOperand);
-            mResultType = getResultType(operation, mLeftOperand.ResultType);
-            mOperation = operation;
+            LeftOperand = leftOperand;
+            RightOperand = rightOperand;
+            CheckOperands(LeftOperand, operation, RightOperand);
+            mResultType = GetResultType(operation, LeftOperand.ResultType);
+            Operation = operation;
         }
 
         internal static SqlConstant TryGetConstant(SqlBaseExpression leftOperand, OperationType operation, SqlBaseExpression rightOperand)
@@ -338,7 +317,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                                 break;
                         }
                     }
-
                 }
                 if (value != null)
                     result = new SqlConstant(value, type);
@@ -359,16 +337,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 if (!((leftOperand.ResultType == ResultTypes.Integer || leftOperand.ResultType == ResultTypes.Double) &&
                    (rightOperand.ResultType == ResultTypes.Integer || rightOperand.ResultType == ResultTypes.Double)))
-                    throw new SqlParserException(new SqlError(source, line, column, $"Types of operands don't match"));
+                    throw new SqlParserException(new SqlError(source, line, column, "Types of operands don't match"));
             }
-            if (!checkOperationAndType(operation, leftOperand.ResultType))
+            if (!CheckOperationAndType(operation, leftOperand.ResultType))
             {
                 throw new SqlParserException(new SqlError(source, line, column,
-                    $"Incorrect type of operation '{operation}' for type '{leftOperand.ResultType.ToString()}')"));
+                    $"Incorrect type of operation '{operation}' for type '{leftOperand.ResultType}')"));
             }
         }
 
-        private static ResultTypes getResultType(OperationType operation, ResultTypes resultType)
+        private static ResultTypes GetResultType(OperationType operation, ResultTypes resultType)
         {
             ResultTypes result = resultType;
             if (operation == OperationType.Eq ||
@@ -382,26 +360,22 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             return result;
         }
 
-        private static bool checkOperationAndType(OperationType operation, ResultTypes resultType)
+        private static bool CheckOperationAndType(OperationType operation, ResultTypes resultType)
         {
-            bool isCorrect = true;
             switch (operation)
             {
                 case OperationType.Minus:
                 case OperationType.Plus:
                 case OperationType.Mult:
                 case OperationType.Div:
-                    isCorrect = resultType == ResultTypes.Double || resultType == ResultTypes.Integer;
-                    break;
+                    return resultType == ResultTypes.Double || resultType == ResultTypes.Integer;
                 case OperationType.Concat:
-                    isCorrect = resultType == ResultTypes.String;
-                    break;
+                    return resultType == ResultTypes.String;
                 case OperationType.And:
                 case OperationType.Or:
-                    isCorrect = resultType == ResultTypes.Boolean;
-                    break;
+                    return resultType == ResultTypes.Boolean;
             }
-            return isCorrect;
+            return true;
         }
     }
 }

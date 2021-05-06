@@ -17,22 +17,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal AddRowStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.AddRow)
         {
-            ASTNode expressionNode;
-            expressionNode = statementNode.Children[0];
+            ASTNode expressionNode = statementNode.Children[0];
             ValueExpression = SqlExpressionParser.ParseExpression(this, expressionNode, currentSource);
             if (ValueExpression.ResultType != ResultTypes.Row)
             {
                 throw new SqlParserException(new SqlError(currentSource,
                     expressionNode.Position.Line,
                     expressionNode.Position.Column,
-                    $"Row expression in ADD ROW statement should have ROW type"));
+                    "Row expression in ADD ROW statement should have ROW type"));
             }
             if (!Statement.IsCalculable(ValueExpression))
             {
                 throw new SqlParserException(new SqlError(currentSource,
                     expressionNode.Position.Line,
                     expressionNode.Position.Column,
-                    $"Not calculable value expression in ADD ROW statement"));
+                    "Not calculable value expression in ADD ROW statement"));
             }
 
             expressionNode = statementNode.Children[1];
@@ -42,14 +41,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 throw new SqlParserException(new SqlError(currentSource,
                     expressionNode.Position.Line,
                     expressionNode.Position.Column,
-                    $"RowSet expression in ADD ROW statement should have ROWSET type"));
+                    "RowSet expression in ADD ROW statement should have ROWSET type"));
             }
             if (rowExpression.ExpressionType != ExpressionTypes.GlobalParameter)
             {
                 throw new SqlParserException(new SqlError(currentSource,
                     expressionNode.Position.Line,
                     expressionNode.Position.Column,
-                    $"RowSet should be set by global variable in ADD ROW statement"));
+                    "RowSet should be set by global variable in ADD ROW statement"));
             }
             RowParameter = (GlobalParameter)rowExpression;
         }
@@ -60,7 +59,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             string globalVariableName = RowParameter.Name;
             List<object> list = (List<object>)CodeDomBuilder.FindGlobalParameter(globalVariableName).Value;
             list.Add(value);
-       }
+        }
 
         internal override Expression ToLinqWxpression()
         {

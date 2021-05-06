@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  class GetRowsCount : SqlBaseExpression
+    internal class GetRowsCount : SqlBaseExpression
     {
-        internal  SqlBaseExpression Parameter { get; }
+        internal SqlBaseExpression Parameter { get; }
 
-        internal  override ExpressionTypes ExpressionType
+        internal override ExpressionTypes ExpressionType
         {
             get
             {
                 return ExpressionTypes.GetRowsCount;
             }
         }
-        internal  override ResultTypes ResultType
+        internal override ResultTypes ResultType
         {
             get
             {

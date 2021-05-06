@@ -14,31 +14,31 @@ namespace Gehtsoft.EF.Db.SqlDb
         public const string MSSQL = "mssql";
         internal const string MSSQL_ASSEMBLY = "Gehtsoft.EF.Db.MssqlDb";
         internal const string MSSQL_CLASS = "Gehtsoft.EF.Db.MssqlDb.MssqlDbConnectionFactory";
-        
+
         public const string MYSQL = "mysql";
         internal const string MYSQL_ASSEMBLY = "Gehtsoft.EF.Db.MysqlDb";
         internal const string MYSQL_CLASS = "Gehtsoft.EF.Db.MysqlDb.MysqlDbConnectionFactory";
-        
+
         public const string ORACLE = "oracle";
         internal const string ORACLE_ASSEMBLY = "Gehtsoft.EF.Db.OracleDb";
         internal const string ORACLE_CLASS = "Gehtsoft.EF.Db.OracleDb.OracleDbConnectionFactory";
-        
+
         public const string POSTGRES = "npgsql";
         internal const string POSTGRES_ASSEMBLY = "Gehtsoft.EF.Db.PostgresDb";
         internal const string POSTGRES_CLASS = "Gehtsoft.EF.Db.PostgresDb.PostgresDbConnectionFactory";
-        
+
         public const string SQLITE = "sqlite";
         internal const string SQLITE_ASSEMBLY = "Gehtsoft.EF.Db.SqliteDb";
         internal const string SQLITE_CLASS = "Gehtsoft.EF.Db.SqliteDb.SqliteDbConnectionFactory";
 
-        public static string[] SupportedDatabases 
+        public static string[] SupportedDatabases
         {
             get
             {
-                return new string[] {MSSQL, MYSQL, POSTGRES, SQLITE, ORACLE};
+                return new string[] { MSSQL, MYSQL, POSTGRES, SQLITE, ORACLE };
             }
         }
-        
+
         public static bool FindDriver(string dbname, out string assemblyName, out string className)
         {
             if (dbname == MSSQL)
@@ -61,7 +61,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                 className = ORACLE_CLASS;
                 return true;
             }
-            
+
             if (dbname == POSTGRES)
             {
                 assemblyName = POSTGRES_ASSEMBLY;
@@ -151,22 +151,30 @@ namespace Gehtsoft.EF.Db.SqlDb
                 return resiliencyPolicy.Execute(() => LoadFactory(dbname)?.Invoke(connectionString));
         }
 
-        public static Task<SqlDbConnection> CreateAsync(string dbname, string connectionString)
+        public static async Task<SqlDbConnection> CreateAsync(string dbname, string connectionString)
         {
             IResiliencyPolicy resiliencyPolicy = ResiliencyPolicyDictionary.Instance.GetPolicy(connectionString);
+            var factory = LoadAsyncFactory(dbname);
+            if (factory == null)
+                throw new ArgumentException($"The database {dbname} is not found", nameof(dbname));
             if (resiliencyPolicy == null)
-                return LoadAsyncFactory(dbname)?.Invoke(connectionString, null);
+                return await factory.Invoke(connectionString, null);
             else
-                return resiliencyPolicy.ExecuteAsync(token1 => LoadAsyncFactory(dbname)?.Invoke(connectionString, token1), CancellationToken.None);
+                return await resiliencyPolicy.ExecuteAsync(token1 => factory.Invoke(connectionString, token1), CancellationToken.None);
         }
 
-        public static Task<SqlDbConnection> CreateAsync(string dbname, string connectionString, CancellationToken token)
+        public static async Task<SqlDbConnection> CreateAsync(string dbname, string connectionString, CancellationToken token)
         {
             IResiliencyPolicy resiliencyPolicy = ResiliencyPolicyDictionary.Instance.GetPolicy(connectionString);
+
+            var factory = LoadAsyncFactory(dbname);
+            if (factory == null)
+                throw new ArgumentException($"The database {dbname} is not found", nameof(dbname));
+
             if (resiliencyPolicy == null)
-                return LoadAsyncFactory(dbname)?.Invoke(connectionString, token);
+                return await factory.Invoke(connectionString, token);
             else
-                return resiliencyPolicy.ExecuteAsync(token1 => LoadAsyncFactory(dbname)?.Invoke(connectionString, token1), token);
+                return await resiliencyPolicy.ExecuteAsync(token1 => factory.Invoke(connectionString, token1), token);
         }
     }
 }

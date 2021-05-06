@@ -45,7 +45,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         throw new SqlParserException(new SqlError(currentSource,
                             node.Position.Line,
                             node.Position.Column,
-                            $"Not calculable expression in IF statement"));
+                            "Not calculable expression in IF statement"));
                     }
                     if (conditionalExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
                     {
@@ -97,7 +97,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal ConditionalStatementsRunCollection()
         {
-
         }
 
         public ConditionalStatementsRun this[int index] => ((IReadOnlyList<ConditionalStatementsRun>)mList)[index];

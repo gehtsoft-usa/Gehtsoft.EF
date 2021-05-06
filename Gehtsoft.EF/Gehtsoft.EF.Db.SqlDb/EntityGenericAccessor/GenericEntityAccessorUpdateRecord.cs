@@ -11,16 +11,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
     public class UpdateRecordPropertyAttribute : Attribute
     {
         /// <summary>
-        /// The name of the entity property. By default - the same name as the filter property. 
+        /// The name of the entity property. By default - the same name as the filter property.
         /// </summary>
         public string PropertyName { get; set; }
     }
 
     /// <summary>
-    /// Generic update record class for the generic accessor.
-    /// 
+    /// <para>Generic update record class for the generic accessor.</para>
+    /// <para>
     /// The whole idea of generic filter is that the developer just derives operation-specific update class from this one
     /// and just defines a set of properties making them up using UpdateRecordProperty attribute.
+    /// </para>
     /// </summary>
     public class GenericEntityAccessorUpdateRecord
     {
@@ -29,8 +30,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         internal class FieldInfo
         {
-            internal string EntityPath { get; private set; }
-            internal PropertyInfo RecordProperty { get; private set; }
+            internal string EntityPath { get; }
+            internal PropertyInfo RecordProperty { get; }
 
             internal FieldInfo(PropertyInfo recordProperty, string entityPath)
             {
@@ -123,7 +124,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             }
         }
 
-        private static Dictionary<Type, List<FieldInfo>> mCache = new Dictionary<Type, List<FieldInfo>>();
+        private static readonly Dictionary<Type, List<FieldInfo>> mCache = new Dictionary<Type, List<FieldInfo>>();
 
         public GenericEntityAccessorUpdateRecord(Type t)
         {

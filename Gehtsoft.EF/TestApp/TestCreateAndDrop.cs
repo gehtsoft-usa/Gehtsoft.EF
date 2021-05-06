@@ -9,9 +9,9 @@ using NUnit.Framework;
 
 namespace TestApp
 {
-    static class TestCreateAndDrop
+    internal static class TestCreateAndDrop
     {
-        static TableDescriptor gCreateDropTable = new TableDescriptor
+        private static readonly TableDescriptor gCreateDropTable = new TableDescriptor
         (
             "createdroptest",
             new TableDescriptor.ColumnInfo[]
@@ -27,7 +27,7 @@ namespace TestApp
             }
         );
 
-        static TableDescriptor gCreateDropTable1 = new TableDescriptor
+        private static readonly TableDescriptor gCreateDropTable1 = new TableDescriptor
         (
             "createdroptest1",
             new TableDescriptor.ColumnInfo[]
@@ -37,7 +37,9 @@ namespace TestApp
             }
         );
 
-        class entity
+#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable S1144   // Unused set
+        private class TestEntity
         {
             public int vint_pk { get; set; }
             public string vstring { get; set; }
@@ -47,10 +49,10 @@ namespace TestApp
             public DateTime? vdate { get; set; }
             public bool? vbool { get; set; }
             public int? vint { get; set; }
-
         }
+#pragma warning restore IDE1006, S1144
 
-        private static object lobMutex = new object();
+        private static readonly object lobMutex = new object();
         private static byte[] gBlob = null;
         private static string gClob = null;
 
@@ -60,18 +62,17 @@ namespace TestApp
         {
             lock (lobMutex)
             {
-                Random r = new Random((int) DateTime.Now.Ticks % 65536);
+                Random r = new Random((int)DateTime.Now.Ticks % 65536);
                 if (gBlob == null)
                     gBlob = new byte[lobsize];
                 for (int i = 0; i < gBlob.Length; i++)
-                    gBlob[i] = (byte) r.Next(256);
+                    gBlob[i] = (byte)r.Next(256);
 
                 StringBuilder b = new StringBuilder();
                 for (int i = 0; i < lobsize; i++)
-                    b.Append((char) ('A' + r.Next(27)));
+                    b.Append((char)('A' + r.Next(27)));
                 gClob = b.ToString();
             }
-
 
             DropTableBuilder dbuilder = connection.GetDropTableBuilder(gCreateDropTable);
             CreateTableBuilder cbuilder = connection.GetCreateTableBuilder(gCreateDropTable);
@@ -100,7 +101,6 @@ namespace TestApp
 
             schema = connection.Schema();
 
-
             Assert.NotNull(schema);
             Assert.IsTrue(schema.Contains("createdroptest"));
             Assert.IsTrue(schema.Contains("createdroptest", "vint_pk"));
@@ -114,7 +114,7 @@ namespace TestApp
             dt1 = new DateTime(dt1.Year, dt1.Month, dt1.Day, dt1.Hour, dt1.Minute, dt1.Second);
             DateTime dt2 = new DateTime(2006, 12, 8);
 
-            UpdateQueryToTypeBinder ubinder = new UpdateQueryToTypeBinder(typeof(entity));
+            UpdateQueryToTypeBinder ubinder = new UpdateQueryToTypeBinder(typeof(TestEntity));
             ubinder.AutoBind(gCreateDropTable);
 
             using (query = connection.GetQuery(ibuilder))
@@ -143,7 +143,7 @@ namespace TestApp
 
                 Assert.AreEqual(1, id);
 
-                entity e1 = new entity()
+                TestEntity e1 = new TestEntity()
                 {
                     vstring = "string2",
                     vclob = gClob,
@@ -158,7 +158,7 @@ namespace TestApp
 
                 Assert.AreEqual(2, e1.vint_pk);
 
-                e1 = new entity()
+                e1 = new TestEntity()
                 {
                     vstring = null,
                     vclob = null,
@@ -176,15 +176,15 @@ namespace TestApp
 
             SelectQueryBuilder sbuilder = connection.GetSelectQueryBuilder(gCreateDropTable);
             sbuilder.AddOrderBy(gCreateDropTable["vint_pk"]);
-            SelectQueryTypeBinder binder = new SelectQueryTypeBinder(typeof(entity));
+            SelectQueryTypeBinder binder = new SelectQueryTypeBinder(typeof(TestEntity));
             binder.AutoBind(null);
 
-            entity e;
+            TestEntity e;
             using (query = connection.GetQuery(sbuilder))
             {
                 query.ExecuteReader();
                 Assert.IsTrue(query.ReadNext());
-                e = binder.Read<entity>(query);
+                e = binder.Read<TestEntity>(query);
 
                 Assert.AreEqual(1, e.vint_pk);
                 Assert.AreEqual("string1", e.vstring);
@@ -269,7 +269,6 @@ namespace TestApp
                 query.ReadNext().Should().BeFalse();
             }
 
-
             UpdateQueryBuilder ubuilder = connection.GetUpdateQueryBuilder(gCreateDropTable);
             ubuilder.AddWhereFilterPrimaryKey();
             ubuilder.AddUpdateColumn(gCreateDropTable["vstring"]);
@@ -291,7 +290,6 @@ namespace TestApp
                 Assert.AreEqual(arr, gBlob);
             }
 
-
             using (query = connection.GetQuery())
             {
                 query.CommandText = "select vblob from createdroptest where vint_pk = 2";
@@ -304,7 +302,7 @@ namespace TestApp
                     {
                         s.CopyTo(copy);
                         copy.Flush();
-                        
+
                         var arr = copy.ToArray();
                         Assert.AreEqual(arr.Length, gBlob.Length);
                         Assert.AreEqual(arr, gBlob);
@@ -321,7 +319,6 @@ namespace TestApp
                 query.ExecuteNoData();
                 query.BindParam("vint_pk", 3);
                 query.ExecuteNoData();
-
             }
 
             using (query = connection.GetQuery())
@@ -338,10 +335,6 @@ namespace TestApp
                 Assert.AreEqual(dt1, query.GetValue<DateTime>("vdate"));
                 Assert.IsFalse(query.ReadNext());
             }
-
-                
-            
-
         }
     }
 }

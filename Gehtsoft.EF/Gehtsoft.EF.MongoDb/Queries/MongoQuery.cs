@@ -14,40 +14,49 @@ namespace Gehtsoft.EF.MongoDb
 {
     public abstract class MongoQuery : IDisposable
     {
-        private readonly MongoConnection mConnection;
-        protected Type Type { get; private set; }
-        protected BsonEntityDescription Description { get; private set; }
+        protected Type Type { get; }
+        protected BsonEntityDescription Description { get; }
 
         protected string CollectionName => Description.Table ?? Description.EntityType.Name;
 
         private IMongoCollection<BsonDocument> mCollection = null;
 
-        public IMongoCollection<BsonDocument> Collection => mCollection ?? (mCollection = mConnection.Database.GetCollection<BsonDocument>(CollectionName));
+        public IMongoCollection<BsonDocument> Collection => mCollection ?? (mCollection = Connection.Database.GetCollection<BsonDocument>(CollectionName));
 
         protected bool CollectionExists
         {
             get
             {
                 BsonDocument filter = new BsonDocument("name", Description.Table ?? Description.EntityType.Name);
-                IAsyncCursor<BsonDocument> list = mConnection.Database.ListCollections(new ListCollectionsOptions() { Filter = filter });
+                IAsyncCursor<BsonDocument> list = Connection.Database.ListCollections(new ListCollectionsOptions() { Filter = filter });
                 return list.Any();
             }
         }
 
-
-        public MongoConnection Connection => mConnection;
+        public MongoConnection Connection { get; }
         public Type EntityType => Type;
 
         protected MongoQuery(MongoConnection connection, Type entityType)
         {
-            mConnection = connection;
+            Connection = connection;
             Type = entityType;
             Description = AllEntities.Inst.FindType(entityType);
         }
 
+        ~MongoQuery()
+        {
+            Dispose(false);
+        }
+
         public void Dispose()
         {
-            
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            // nothing to dispose in MongoDB
         }
 
         public abstract Task ExecuteAsync();
@@ -70,7 +79,7 @@ namespace Gehtsoft.EF.MongoDb
             t.Wait();
         }
 
-        private static Dictionary<Type, Dictionary<string, string>> gPathCache = new Dictionary<Type, Dictionary<string, string>>();
+        private static readonly Dictionary<Type, Dictionary<string, string>> gPathCache = new Dictionary<Type, Dictionary<string, string>>();
 
         private class CurrentElementOfPath
         {
@@ -81,17 +90,13 @@ namespace Gehtsoft.EF.MongoDb
 
         internal string TranslatePath(string path)
         {
-            string translatedPath;
-
-            Dictionary<string, string> cache;
-
-            if (!gPathCache.TryGetValue(Type, out cache))
+            if (!gPathCache.TryGetValue(Type, out Dictionary<string, string> cache))
             {
                 cache = new Dictionary<string, string>();
                 gPathCache[Type] = cache;
             }
 
-            if (cache.TryGetValue(path, out translatedPath))
+            if (cache.TryGetValue(path, out string translatedPath))
                 return translatedPath;
 
             string[] elements = path.Split('.');
@@ -155,7 +160,6 @@ namespace Gehtsoft.EF.MongoDb
             cache[path] = translatedPath;
             return translatedPath;
         }
-
     }
 
     public static class MongoQueryExtension

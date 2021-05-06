@@ -11,7 +11,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public SelectQueryBuilder SelectQueryBuilder => mSelectQueryBuilder;
 
         public EntityConditionBuilder Having { get; protected set; }
-        
+
         public SelectEntityQueryBuilderBase(Type type, SqlDbConnection connection) : base(connection.GetLanguageSpecifics(), type)
         {
             mSelectQueryBuilder = connection.GetSelectQueryBuilder(mEntityDescriptor.TableDescriptor);
@@ -50,7 +50,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         string bp = basePath + column.ID + ".";
                         AddEntityItems(AllEntities.Inst[column.PropertyAccessor.PropertyType], newEntity, bp, CountTypes(newEntity.Table) - 1);
 
-
                         bool proceed = false;
 
                         if (expandAll && !selfReference)
@@ -61,7 +60,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         if (proceed)
                             AddSubEntities(newEntity, column.PropertyAccessor.PropertyType, expandAll, !selfReference, bp);
                     }
-
                 }
             }
         }
@@ -98,7 +96,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             if (item.Column.PrimaryKey)
             {
                 //other(pk) -> type(fk)
-                Type otherType = item.Column.PropertyAccessor.PropertyType;
                 connectToEntity = item.QueryEntity;
                 connectToColumn = item.Column;
 
@@ -156,21 +153,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public void AddToResultset(string propertyName, string alias = null)
         {
-            EntityQueryItem item = null;
-            if (!mItemIndex.TryGetValue(propertyName, out item))
+            if (!mItemIndex.TryGetValue(propertyName, out EntityQueryItem item))
                 throw new EfSqlException(EfExceptionCode.ColumnNotFound, propertyName);
 
             mSelectQueryBuilder.AddToResultset(item.Column, item.QueryEntity, alias);
-
         }
 
         public void AddToResultset(Type type, string propertyName, string alias = null) => AddToResultset(type, 0, propertyName, alias);
 
         public void AddToResultset(Type type, int occurrence, string propertyName, string alias = null)
         {
-            EntityQueryItem item = null;
-
-            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, occurrence, propertyName), out item))
+            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, occurrence, propertyName), out EntityQueryItem item))
                 throw new EfSqlException(EfExceptionCode.ColumnNotFound, propertyName);
 
             mSelectQueryBuilder.AddToResultset(item.Column, item.QueryEntity, alias);
@@ -178,15 +171,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public void AddToResultset(AggFn aggregate, string propertyName, string alias = null)
         {
-            
-            EntityQueryItem item = null;
             if (propertyName != null)
             {
-                if (!mItemIndex.TryGetValue(propertyName, out item))
+                if (!mItemIndex.TryGetValue(propertyName, out EntityQueryItem item))
                     throw new EfSqlException(EfExceptionCode.ColumnNotFound, propertyName);
                 mSelectQueryBuilder.AddToResultset(aggregate, item.Column, item.QueryEntity, alias);
             }
-            else 
+            else
                 mSelectQueryBuilder.AddToResultset(aggregate, alias);
         }
 
@@ -194,10 +185,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public void AddToResultset(AggFn aggregate, Type type, int occurrence, string propertyName, string alias = null)
         {
-            EntityQueryItem item = null;
             if (type == null)
                 type = mEntityDescriptor.EntityType;
-            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, occurrence, propertyName), out item))
+            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, occurrence, propertyName), out EntityQueryItem item))
                 throw new EfSqlException(EfExceptionCode.ColumnNotFound, propertyName);
 
             mSelectQueryBuilder.AddToResultset(aggregate, item.Column, item.QueryEntity, alias);
@@ -208,24 +198,19 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             mSelectQueryBuilder.AddExpressionToResultset(expression, dbType, isaggregate, alias);
         }
 
-
         public void AddOrderBy(string propertyName, SortDir direction = SortDir.Asc)
         {
-            EntityQueryItem item = null;
-            if (!mItemIndex.TryGetValue(propertyName, out item))
+            if (!mItemIndex.TryGetValue(propertyName, out EntityQueryItem item))
                 throw new EfSqlException(EfExceptionCode.ColumnNotFound, propertyName);
 
             mSelectQueryBuilder.AddOrderBy(item.Column, item.QueryEntity, direction);
-
         }
 
         public void AddOrderBy(Type type, string propertyName, SortDir direction = SortDir.Asc) => AddOrderBy(type, 0, propertyName, direction);
 
         public void AddOrderBy(Type type, int occurrence, string propertyName, SortDir direction = SortDir.Asc)
         {
-            EntityQueryItem item = null;
-
-            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, occurrence, propertyName), out item))
+            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, occurrence, propertyName), out EntityQueryItem item))
                 throw new EfSqlException(EfExceptionCode.ColumnNotFound, propertyName);
 
             mSelectQueryBuilder.AddOrderBy(item.Column, item.QueryEntity, direction);
@@ -233,21 +218,18 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public void AddGroupBy(string propertyName)
         {
-            EntityQueryItem item = null;
-            if (!mItemIndex.TryGetValue(propertyName, out item))
+            if (!mItemIndex.TryGetValue(propertyName, out EntityQueryItem item))
                 throw new EfSqlException(EfExceptionCode.ColumnNotFound, propertyName);
 
             mSelectQueryBuilder.AddGroupBy(item.Column, item.QueryEntity);
-
         }
 
         public void AddGroupBy(Type type, string propertyName)
         {
-            EntityQueryItem item = null;
             if (type == null)
                 type = mEntityDescriptor.EntityType;
 
-            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, 0, propertyName), out item))
+            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, 0, propertyName), out EntityQueryItem item))
                 throw new EfSqlException(EfExceptionCode.ColumnNotFound, propertyName);
 
             mSelectQueryBuilder.AddGroupBy(item.Column, item.QueryEntity);
@@ -255,11 +237,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public void AddGroupBy(Type type, int occurrence, string propertyName)
         {
-            EntityQueryItem item = null;
             if (type == null)
                 type = mEntityDescriptor.EntityType;
 
-            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, occurrence, propertyName), out item))
+            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, occurrence, propertyName), out EntityQueryItem item))
                 throw new EfSqlException(EfExceptionCode.ColumnNotFound, propertyName);
 
             mSelectQueryBuilder.AddGroupBy(item.Column, item.QueryEntity);
@@ -268,13 +249,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public void AddOrderByExpr(string expression, SortDir direction = SortDir.Asc)
         {
             mSelectQueryBuilder.AddOrderByExpr(expression, direction);
-
         }
 
         internal void AddGroupByExpr(string expression)
         {
             mSelectQueryBuilder.AddGroupByExpr(expression);
-
         }
 
         protected internal SelectQueryBuilderResultsetItem ResultColumn(int index) => mSelectQueryBuilder.ResultColumn(index);

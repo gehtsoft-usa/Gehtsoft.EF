@@ -4,7 +4,6 @@
     {
         public MultiDeleteEntityQuery(SqlDbQuery query, DeleteEntityQueryBuilder builder) : base(query, builder)
         {
-
         }
     }
 }

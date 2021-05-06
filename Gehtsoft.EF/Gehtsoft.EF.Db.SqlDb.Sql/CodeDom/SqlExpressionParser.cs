@@ -9,16 +9,15 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  static class SqlExpressionParser
+    internal static class SqlExpressionParser
     {
-        internal  static SqlBaseExpression ParseExpression(Statement parentStatement, ASTNode fieldNode, string source)
+        internal static SqlBaseExpression ParseExpression(Statement parentStatement, ASTNode fieldNode, string source)
         {
             SqlBaseExpression result = null;
-            string operation = string.Empty;
             ResultTypes opType = ResultTypes.Unknown;
             object constant = null;
             SqlBinaryExpression.OperationType? binaryOp = null;
-            SqlUnarExpression.OperationType? unarOp = null;
+            SqlUnaryExpression.OperationType? unarOp = null;
             SqlInExpression.OperationType? inOp = null;
             string funcName = null;
             SqlBaseExpressionCollection callParameters = null;
@@ -45,9 +44,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     constant = double.Parse(fieldNode.Value);
                     break;
                 case SqlLexer.ID.TerminalStringdq:
-                    opType = ResultTypes.String;
-                    constant = fieldNode.Value.Substring(1, fieldNode.Value.Length - 2);
-                    break;
                 case SqlLexer.ID.TerminalStringsq:
                     opType = ResultTypes.String;
                     constant = fieldNode.Value.Substring(1, fieldNode.Value.Length - 2);
@@ -75,16 +71,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     break;
                 case SqlParser.ID.VariableDatetimeConst:
                     DateTime dtt;
-                    if (!DateTime.TryParseExact(fieldNode.Children[0].Value.Substring(1, fieldNode.Children[0].Value.Length - 2),
+                    string valueToParse = fieldNode.Children[0].Value.Substring(1, fieldNode.Children[0].Value.Length - 2);
+                    if (!DateTime.TryParseExact(valueToParse,
                         "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
                     {
-                        if (!DateTime.TryParseExact(fieldNode.Children[0].Value.Substring(1, fieldNode.Children[0].Value.Length - 2),
+                        if (!DateTime.TryParseExact(valueToParse,
                             "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
                         {
-                            if (!DateTime.TryParseExact(fieldNode.Children[0].Value.Substring(1, fieldNode.Children[0].Value.Length - 2),
+                            if (!DateTime.TryParseExact(valueToParse,
                                 "yyyy-MM-dd HH", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
                             {
-                                if (!DateTime.TryParseExact(fieldNode.Children[0].Value.Substring(1, fieldNode.Children[0].Value.Length - 2),
+                                if (!DateTime.TryParseExact(valueToParse,
                                     "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
                                 {
                                     throw new SqlParserException(new SqlError(source,
@@ -132,7 +129,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     }
                     else
                     {
-                        unarOp = SqlUnarExpression.OperationType.Minus;
+                        unarOp = SqlUnaryExpression.OperationType.Minus;
                     }
                     break;
                 case SqlParser.ID.VariablePlusOp:
@@ -142,11 +139,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     }
                     else
                     {
-                        unarOp = SqlUnarExpression.OperationType.Plus;
+                        unarOp = SqlUnaryExpression.OperationType.Plus;
                     }
                     break;
                 case SqlParser.ID.VariableNotOp:
-                    unarOp = SqlUnarExpression.OperationType.Not;
+                    unarOp = SqlUnaryExpression.OperationType.Not;
                     break;
                 case SqlParser.ID.VariableMulOp:
                     binaryOp = SqlBinaryExpression.OperationType.Mult;
@@ -175,8 +172,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             parameterNode.Position.Column,
                             $"Incorrect type of parameter ({parameterNode.Value ?? "null"})"));
                     }
-                    callParameters = new SqlBaseExpressionCollection();
-                    callParameters.Add(parameter);
+                    callParameters = new SqlBaseExpressionCollection
+                    {
+                        parameter
+                    };
 
                     break;
                 case SqlParser.ID.VariableStrFuncCall:
@@ -191,8 +190,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             parameterNodeStrFunc.Position.Column,
                             $"Incorrect type of parameter ({parameterNodeStrFunc.Value ?? "null"})"));
                     }
-                    callParameters = new SqlBaseExpressionCollection();
-                    callParameters.Add(parameterStrFunc);
+                    callParameters = new SqlBaseExpressionCollection
+                    {
+                        parameterStrFunc
+                    };
 
                     break;
                 case SqlParser.ID.VariableCastFuncCall:
@@ -218,8 +219,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             break;
                     }
                     SqlBaseExpression parameterCustFunc = ParseExpression(parentStatement, parameterNodeCustFunc, source);
-                    callParameters = new SqlBaseExpressionCollection();
-                    callParameters.Add(parameterCustFunc);
+                    callParameters = new SqlBaseExpressionCollection
+                    {
+                        parameterCustFunc
+                    };
 
                     break;
                 case SqlParser.ID.VariableMathFuncCall:
@@ -234,8 +237,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             $"Incorrect type of parameter ({parameterNodeMathFunc.Value ?? "null"})"));
                     }
                     funcResultType = parameterMathFunc.ResultType;
-                    callParameters = new SqlBaseExpressionCollection();
-                    callParameters.Add(parameterMathFunc);
+                    callParameters = new SqlBaseExpressionCollection
+                    {
+                        parameterMathFunc
+                    };
 
                     break;
                 case SqlParser.ID.VariableAggrFunc:
@@ -274,9 +279,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             $"Incorrect type of parameter ({parameter2Node.Value ?? "null"})"));
                     }
 
-                    callParameters = new SqlBaseExpressionCollection();
-                    callParameters.Add(parameter1);
-                    callParameters.Add(parameter2);
+                    callParameters = new SqlBaseExpressionCollection
+                    {
+                        parameter1,
+                        parameter2
+                    };
 
                     break;
                 case SqlParser.ID.VariableBoolStrFuncCall:
@@ -301,9 +308,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             $"Incorrect type of parameter ({param2Node.Value ?? "null"})"));
                     }
 
-                    callParameters = new SqlBaseExpressionCollection();
-                    callParameters.Add(param1);
-                    callParameters.Add(param2);
+                    callParameters = new SqlBaseExpressionCollection
+                    {
+                        param1,
+                        param2
+                    };
 
                     break;
                 case SqlParser.ID.VariableExactInOp:
@@ -313,10 +322,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     inOp = SqlInExpression.OperationType.NotIn;
                     break;
                 case SqlParser.ID.VariableExactNullOp:
-                    unarOp = SqlUnarExpression.OperationType.IsNull;
+                    unarOp = SqlUnaryExpression.OperationType.IsNull;
                     break;
                 case SqlParser.ID.VariableNotNullOp:
-                    unarOp = SqlUnarExpression.OperationType.IsNotNull;
+                    unarOp = SqlUnaryExpression.OperationType.IsNotNull;
                     break;
                 case SqlParser.ID.VariableGlobalParameter:
                 case SqlParser.ID.VariableGlobalParameterSimple:
@@ -362,20 +371,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 SqlBaseExpression mRightOperand = ParseExpression(parentStatement, fieldNode.Children[1], source);
 
                 SqlConstant mConstant = SqlBinaryExpression.TryGetConstant(mLeftOperand, binaryOp.Value, mRightOperand);
-                if (mConstant != null)
-                    result = mConstant;
-                else
-                    result = new SqlBinaryExpression(mLeftOperand, binaryOp.Value, mRightOperand);
+                result = mConstant ?? (SqlBaseExpression)new SqlBinaryExpression(mLeftOperand, binaryOp.Value, mRightOperand);
             }
             if (unarOp.HasValue)
             {
                 SqlBaseExpression mOperand = ParseExpression(parentStatement, fieldNode.Children[0], source);
 
-                SqlConstant mConstant = SqlUnarExpression.TryGetConstant(mOperand, unarOp.Value);
-                if (mConstant != null)
-                    result = mConstant;
-                else
-                    result = new SqlUnarExpression(mOperand, unarOp.Value);
+                SqlConstant mConstant = SqlUnaryExpression.TryGetConstant(mOperand, unarOp.Value);
+                result = mConstant ?? (SqlBaseExpression)new SqlUnaryExpression(mOperand, unarOp.Value);
             }
             if (inOp.HasValue)
             {
@@ -384,6 +387,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             return result;
         }
-
     }
 }

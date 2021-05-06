@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,63 +29,42 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
         }
 
         private readonly ISqlDbConnectionFactory mConnectionFactory;
-        private IEdmModel mModel => mModelBuilder.Model;
+        private IEdmModel Model => mModelBuilder.Model;
         private readonly EdmModelBuilder mModelBuilder;
-        private string mRoot = string.Empty;
         private FormatType mFormat = FormatType.Json;
 
-        private string mODataCountName = "odata.count";
-        private string mODataMetadataName = "odata.metadata";
-        private string mCanDeleteName = "_candelete_";
+        public string Root { get; set; }
 
-        public string Root
-        {
-            get { return mRoot; }
-            set { mRoot = value; }
-        }
+        public string CanDeleteName { get; set; } = "_candelete_";
 
-        public string CanDeleteName
-        {
-            get { return mCanDeleteName; }
-            set { mCanDeleteName = value; }
-        }
+        public string ODataCountName { get; set; } = "odata.count";
 
-        public string ODataCountName
-        {
-            get { return mODataCountName; }
-            set { mODataCountName = value; }
-        }
-
-        public string ODataMetadataName
-        {
-            get { return mODataMetadataName; }
-            set { mODataMetadataName = value; }
-        }
+        public string ODataMetadataName { get; set; } = "odata.metadata";
 
         public ODataProcessor(ISqlDbConnectionFactory connectionFactory, EntityFinder.EntityTypeInfo[] entities, string nsname = "NS", string root = "")
         {
             mConnectionFactory = connectionFactory;
             mModelBuilder = new EdmModelBuilder();
             mModelBuilder.Build(entities, nsname);
-            mRoot = root;
-            while (mRoot.Length > 0 && mRoot.EndsWith("/")) mRoot = mRoot.Substring(0, mRoot.Length - 1);
+            Root = root;
+            while (Root.Length > 0 && Root.EndsWith("/")) Root = Root.Substring(0, Root.Length - 1);
         }
 
         public ODataProcessor(ISqlDbConnectionFactory connectionFactory, EdmModelBuilder edmModelBuilder, string root = "")
         {
             mConnectionFactory = connectionFactory;
             mModelBuilder = edmModelBuilder;
-            mRoot = root;
-            while (mRoot.Length > 0 && mRoot.EndsWith("/")) mRoot = mRoot.Substring(0, mRoot.Length - 1);
+            Root = root;
+            while (Root.Length > 0 && Root.EndsWith("/")) Root = Root.Substring(0, Root.Length - 1);
         }
 
-        public String GetRelativeUrl(string url) => url.Substring(mRoot.Length);
+        public String GetRelativeUrl(string url) => url.Substring(Root.Length);
 
         public Task<object> SelectDataAsync(Uri uri, CancellationToken? token) => SelectDataCore(true, uri, token);
 
         public object SelectData(Uri uri) => SelectDataCore(false, uri, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
-        private async Task<object> SelectDataCore(bool async, Uri uri, CancellationToken? token)
+        private async Task<object> SelectDataCore(bool asyncCall, Uri uri, CancellationToken? token)
         {
             SqlDbConnection connection = mConnectionFactory.GetConnection();
             try
@@ -137,7 +117,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     if (!queryParts[0].StartsWith("/")) queryParts[0] = "/" + queryParts[0];
                 }
 
-                ODataUriParser parser = new ODataUriParser(mModel, uri);
+                ODataUriParser parser = new ODataUriParser(Model, uri);
                 ODataUri uriParser = parser.ParseUri();
                 ODataToQuery oDataToQuery = new ODataToQuery(mModelBuilder, uriParser, connection);
                 AQueryBuilder queryBuilder = oDataToQuery.BuildQuery();
@@ -150,7 +130,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
                     int pagingLimit = mModelBuilder.EntityPagingLimitByName(oDataToQuery.MainEntityDescriptor.EntityType.Name + "_Type");
 
-                    bindParams(query, oDataToQuery);
+                    BindParams(query, oDataToQuery);
 
                     string primaryKeyName = null;
                     if (oDataToQuery.OneToMany || pagingLimit > 0 || candelete)
@@ -170,7 +150,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         primaryKeyType = mModelBuilder.TypeByName(oDataToQuery.MainEntityDescriptor.EntityType, primaryKeyName);
                     }
 
-                    if (async)
+                    if (asyncCall)
                         await query.ExecuteReaderAsync(token);
                     else
                         query.ExecuteReader();
@@ -179,7 +159,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     int dal = oDataToQuery.Skip ?? 0;
                     string skiptoken = null;
 
-                    while (async ? await query.ReadNextAsync(token) : query.ReadNext())
+                    while (asyncCall ? await query.ReadNextAsync(token) : query.ReadNext())
                     {
                         if (pagingLimit > 0 && oDataToQuery.ResultMode == ODataToQuery.ResultType.Array && !oDataToQuery.OneToMany)
                         {
@@ -192,7 +172,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                                     if (value is int || value is long || value is double)
                                         skiptoken = value.ToString();
                                     else
-                                        skiptoken = $"'{value.ToString()}'";
+                                        skiptoken = $"'{value}'";
                                 }
                                 break;
                             }
@@ -224,8 +204,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                             {
                                 XmlSerializableDictionary curr = o as XmlSerializableDictionary;
                                 int currId = (int)curr[primaryKeyName];
-                                XmlSerializableDictionary prev = result.Where(t => ((int)(t as XmlSerializableDictionary)[primaryKeyName]) == currId).FirstOrDefault() as XmlSerializableDictionary;
-                                if (prev != null)
+                                if (result.Find(t => ((int)(t as XmlSerializableDictionary)[primaryKeyName]) == currId) is XmlSerializableDictionary prev)
                                 {
                                     foreach (KeyValuePair<string, object> pair in toAdd)
                                     {
@@ -240,7 +219,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         else
                             result.Add(o);
 
-                        if(candelete)
+                        if (candelete)
                         {
                             object orgValue = (result[result.Count - 1] as Dictionary<string, object>)[primaryKeyName];
                             int key = (int)query.LanguageSpecifics.TranslateValue(orgValue, primaryKeyType);
@@ -250,7 +229,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     }
 
                     string segment = oDataToQuery.MainEntityDescriptor.EntityType.Name;
-                    string metadata = $"{mRoot}/$metadata#{segment}";
+                    string metadata = $"{Root}/$metadata#{segment}";
                     if (oDataToQuery.ResultMode != ODataToQuery.ResultType.Array)
                     {
                         metadata = $"{metadata}/@Element";
@@ -276,7 +255,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                             return result[0];
                         }
                         XmlSerializableDictionary res = result[0] as XmlSerializableDictionary;
-                        res.Add(mODataMetadataName, metadata);
+                        res.Add(ODataMetadataName, metadata);
                         return res;
                     }
 
@@ -303,13 +282,13 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
                             using (SqlDbQuery queryForCount = connection.GetQuery(builderForCount))
                             {
-                                bindParams(queryForCount, oDataToQueryForCount);
+                                BindParams(queryForCount, oDataToQueryForCount);
 
-                                if (async)
+                                if (asyncCall)
                                     await queryForCount.ExecuteReaderAsync(token);
                                 else
                                     queryForCount.ExecuteReader();
-                                if (async ? await queryForCount.ReadNextAsync(token) : queryForCount.ReadNext())
+                                if (asyncCall ? await queryForCount.ReadNextAsync(token) : queryForCount.ReadNext())
                                 {
                                     totalCount = (long)queryForCount.GetValue(0);
                                 }
@@ -334,7 +313,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                                 if (value is int || value is long || value is double)
                                     skiptoken = value.ToString();
                                 else
-                                    skiptoken = $"'{value.ToString()}'";
+                                    skiptoken = $"'{value}'";
                             }
                         }
                         result = result.GetRange(dal, quanto);
@@ -343,29 +322,26 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
                     if (totalCount > -1)
                     {
-                        resDict.Add(mODataCountName, totalCount);
+                        resDict.Add(ODataCountName, totalCount);
                     }
                     resDict.Add("value", result);
                     if (skiptoken != null)
                     {
-                        StringBuilder nextUrl = new StringBuilder(mRoot + encode(queryParts[0]));
+                        StringBuilder nextUrl = new StringBuilder(Root + Encode(queryParts[0]));
                         bool wasTop = false;
                         int paramCounts = 0;
                         for (int i = 1; i < queryParts.Length; i++)
                         {
                             string queryParameter = queryParts[i];
-                            if (queryParameter.StartsWith("$top="))
-                            {
-                                wasTop = true;
-                            }
-                            else if (queryParameter.StartsWith("$skip"))
-                            {
+                            if (queryParameter.StartsWith("$skip"))
                                 continue;
-                            }
+
+                            if (queryParameter.StartsWith("$top="))
+                                wasTop = true;
                             else
                             {
                                 nextUrl.Append(paramCounts == 0 ? "?" : "&");
-                                nextUrl.Append(encode(queryParameter));
+                                nextUrl.Append(Encode(queryParameter));
                                 paramCounts++;
                             }
                         }
@@ -374,19 +350,19 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                             if (limit > pagingLimit)
                             {
                                 nextUrl.Append(paramCounts == 0 ? "?" : "&");
-                                nextUrl.Append($"$top={limit - pagingLimit}");
+                                nextUrl.Append("$top=").Append(limit - pagingLimit);
                             }
                         }
                         nextUrl.Append(paramCounts == 0 ? "?" : "&");
                         if (uriParser.OrderBy == null)
-                            nextUrl.Append($"$skiptoken={skiptoken}");
+                            nextUrl.Append("$skiptoken=").Append(skiptoken);
                         else
-                            nextUrl.Append($"$skip={skip + pagingLimit}");
+                            nextUrl.Append("$skip=").Append(skip + pagingLimit);
 
                         resDict.Add("odata.nextLink", nextUrl.ToString());
                     }
 
-                    resDict.Add(mODataMetadataName, metadata);
+                    resDict.Add(ODataMetadataName, metadata);
                     return resDict;
                 }
             }
@@ -416,11 +392,10 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             }
         }
 
-        private void bindParams(SqlDbQuery query, ODataToQuery oDataToQuery)
+        private void BindParams(SqlDbQuery query, ODataToQuery oDataToQuery)
         {
             foreach (KeyValuePair<string, object> pair in oDataToQuery.BindParams)
             {
-                Type tttt = pair.Value.GetType();
                 if (pair.Value is int intValue)
                     query.BindParam(pair.Key, intValue);
                 else if (pair.Value is double doubleValue)
@@ -442,12 +417,12 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
         public string GetFormattedData(Uri uri) => GetFormattedDataCore(false, uri, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
-        private async Task<string> GetFormattedDataCore(bool async, Uri uri, CancellationToken? token)
+        private async Task<string> GetFormattedDataCore(bool asyncCall, Uri uri, CancellationToken? token)
         {
             object obj;
             string result = string.Empty;
 
-            if (async)
+            if (asyncCall)
                 obj = await SelectDataAsync(uri, token);
             else
                 obj = SelectData(uri);
@@ -484,10 +459,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 using (StringWriter writer = new StringWriter())
                 {
                     using (XmlWriter jswriter = XmlWriter.Create(writer))
-                    {
                         serializer.Serialize(writer, obj);
-                        result = writer.ToString();
-                    }
                     result = writer.ToString();
                 }
             }
@@ -498,7 +470,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
         public string RemoveRecord(string tableName, int id) => RemoveRecordCore(false, tableName, id, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
-        private async Task<string> RemoveRecordCore(bool async, string tableName, int id, CancellationToken? token)
+        private async Task<string> RemoveRecordCore(bool asyncCall, string tableName, int id, CancellationToken? token)
         {
             string result = null;
             SqlDbConnection connection = mConnectionFactory.GetConnection();
@@ -517,7 +489,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
                 using (SqlDbQuery query = connection.GetQuery(builder))
                 {
-                    if (async)
+                    if (asyncCall)
                         await query.ExecuteNoDataAsync(token);
                     else
                         query.ExecuteNoData();
@@ -535,7 +507,6 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
             return result;
         }
-
 
         public Task<Tuple<string, bool>> AddNewRecordAsync(string tableName, string serializedBody, CancellationToken? token) => AddUpdateRecordCore(true, tableName, serializedBody, token);
 
@@ -555,7 +526,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             return result.Item1;
         }
 
-        private async Task<Tuple<string, bool>> AddUpdateRecordCore(bool async, string tableName, string serializedBody, CancellationToken? token, int sourceId = 0)
+        private async Task<Tuple<string, bool>> AddUpdateRecordCore(bool asyncCall, string tableName, string serializedBody, CancellationToken? token, int sourceId = 0)
         {
             bool wasError = false;
             string result = null;
@@ -576,7 +547,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 if (sourceId <= 0)
                 {
                     entity = Activator.CreateInstance(entityType);
-                    fillEntityWithDefaultValues(entity, entityDescriptor.TableDescriptor);
+                    FillEntityWithDefaultValues(entity, entityDescriptor.TableDescriptor);
                 }
                 else
                 {
@@ -585,7 +556,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         string key = getQuery.Where.PropertyName(pKey);
                         string expression = getQuery.LanguageSpecifics.GetOp(CmpOp.Eq, key, sourceId.ToString());
                         getQuery.Where.Add(LogOp.And, expression);
-                        entity = async ? await getQuery.ReadOneAsync(token) : getQuery.ReadOne();
+                        entity = asyncCall ? await getQuery.ReadOneAsync(token) : getQuery.ReadOne();
                     }
                 }
 
@@ -603,9 +574,9 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         {
                             string fieldName = item.Key;
                             if (fieldName == pKey) pKeyJValue = (JValue)item.Value;
-                            if(fieldName == CanDeleteName) pCanDeleteJValue = (JValue)item.Value;
+                            if (fieldName == CanDeleteName) pCanDeleteJValue = (JValue)item.Value;
                             object value = ((JValue)item.Value).Value;
-                            changeFieldValueInEntity(entity, fieldName, value);
+                            ChangeFieldValueInEntity(entity, fieldName, value);
                         }
                     }
                 }
@@ -615,7 +586,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 else
                     query = connection.GetUpdateEntityQuery(entityType);
 
-                if (async)
+                if (asyncCall)
                     await query.ExecuteAsync(entity, token);
                 else
                     query.Execute(entity);
@@ -632,7 +603,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 }
                 if (sourceId <= 0 || pCanDeleteJValue != null)
                 {
-                    bool recordCanBeDeleted = (sourceId <= 0) ? true : this.CanDelete(entityType, (int)newKey);
+                    bool recordCanBeDeleted = (sourceId <= 0) || this.CanDelete(entityType, (int)newKey);
                     if (pCanDeleteJValue != null)
                     {
                         pCanDeleteJValue.Value = recordCanBeDeleted;
@@ -670,7 +641,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             return new Tuple<string, bool>(result, wasError);
         }
 
-        private void fillEntityWithDefaultValues(object entity, TableDescriptor tableDescriptor)
+        private void FillEntityWithDefaultValues(object entity, TableDescriptor tableDescriptor)
         {
             foreach (TableDescriptor.ColumnInfo columnInfo in tableDescriptor)
             {
@@ -683,7 +654,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             }
         }
 
-        private object createEntity(Type type, int id)
+        private object CreateEntity(Type type, int id)
         {
             object entity = Activator.CreateInstance(type);
             EntityDescriptor entityDescriptor = AllEntities.Inst[entity.GetType()];
@@ -694,7 +665,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             return entity;
         }
 
-        private void changeFieldValueInEntity(object entity, string fieldName, object value)
+        private void ChangeFieldValueInEntity(object entity, string fieldName, object value)
         {
             PropertyInfo propertyInfo = entity.GetType().GetProperty(fieldName);
             if (propertyInfo == null)
@@ -713,17 +684,10 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     EntityDescriptor entityDescriptor = AllEntities.Inst[propertyType, false];
                     if (entityDescriptor != null)
                     {
-                        try
+                        object innerObj = CreateEntity(propertyType, Int32.Parse(value.ToString()));
+                        if (innerObj != null)
                         {
-                            object innerObj = createEntity(propertyType, Int32.Parse(value.ToString()));
-                            if (innerObj != null)
-                            {
-                                propertyInfo.SetValue(entity, innerObj);
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            throw;
+                            propertyInfo.SetValue(entity, innerObj);
                         }
                         return;
                     }
@@ -736,7 +700,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             }
         }
 
-        private string encode(string source)
+        private string Encode(string source)
         {
             return source.Replace(" ", "%20");
         }
@@ -747,7 +711,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             bool result = false;
             try
             {
-                result = connection.CanDelete(createEntity(type, id));
+                result = connection.CanDelete(CreateEntity(type, id));
             }
             finally
             {
@@ -773,44 +737,31 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
         public void WriteXml(System.Xml.XmlWriter writer)
         {
-            //XmlSerializer keySerializer = new XmlSerializer(typeof(string));
             XmlSerializer valueSerializer;
             foreach (string key in this.Keys)
             {
                 writer.WriteStartElement("item");
-                //writer.WriteStartElement("key");
                 writer.WriteStartAttribute("key");
-                writer.WriteRaw(key.ToString());
-                //keySerializer.Serialize(writer, key);
+                writer.WriteRaw(key);
                 writer.WriteEndAttribute();
-                //writer.WriteEndElement();
-                //writer.WriteStartElement("value");
                 object value = this[key];
                 if (value != null)
                 {
-                    if (typeof(IEnumerable<object>).IsAssignableFrom(value.GetType()))
+                    if (value is IEnumerable<object>)
                     {
                         valueSerializer = new XmlSerializer(typeof(XmlSerializableDictionary));
                         IEnumerable<object> list = value as IEnumerable<object>;
                         foreach (object value1 in list)
-                        {
-                            //writer.WriteStartElement("entry");
                             valueSerializer.Serialize(writer, value1);
-                            //writer.WriteEndElement();
-                        }
                     }
-                    else if (typeof(XmlSerializableDictionary).IsAssignableFrom(value.GetType()))
+                    else if (value is XmlSerializableDictionary)
                     {
                         valueSerializer = new XmlSerializer(typeof(XmlSerializableDictionary));
                         valueSerializer.Serialize(writer, value);
                     }
                     else
                     {
-                        valueSerializer = new XmlSerializer(value.GetType());
                         writer.WriteStartAttribute("value");
-
-                        //valueSerializer.Serialize(writer, value);
-
                         string result;
                         if (value is DateTime date)
                         {
@@ -824,7 +775,6 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         writer.WriteEndAttribute();
                     }
                 }
-                //writer.WriteEndElement();
                 writer.WriteEndElement();
             }
         }

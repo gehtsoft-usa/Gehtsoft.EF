@@ -36,7 +36,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     rightSide.Append(", ");
                 }
 
-
                 leftSide.Append(info.Name);
                 if (info.Autoincrement && !mIgnoreAutoIncrement)
                 {

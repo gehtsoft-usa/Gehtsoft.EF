@@ -7,7 +7,6 @@ namespace Gehtsoft.EF.Db.MssqlDb
     {
         public MssqlDropQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table) : base(specifics, table)
         {
-
         }
 
         public override void PrepareQuery()

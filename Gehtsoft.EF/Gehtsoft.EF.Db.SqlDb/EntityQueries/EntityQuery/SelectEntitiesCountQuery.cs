@@ -12,7 +12,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
         }
 
-
         protected int mCount = -1;
 
         public virtual int RowCount

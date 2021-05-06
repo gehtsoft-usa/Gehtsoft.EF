@@ -24,7 +24,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 return connection.GetCreateViewBuilder(entityDescriptor.TableDescriptor.Name, vcm.GetSelectQuery(connection));
             throw new ArgumentException($"Type {type.FullName} does not have view creation meta data", nameof(type));
         }
-             
 
         public static AQueryBuilder GetCreateEntityQueryBuilder<T>(this SqlDbConnection connection) => GetCreateEntityQueryBuilder(connection, typeof(T));
 
@@ -34,7 +33,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
             return connection.GetDropTableBuilder(AllEntities.Inst[type].TableDescriptor);
         }
-        
+
         public static AQueryBuilder GetDropEntityQueryBuilder<T>(this SqlDbConnection connection) => GetDropEntityQueryBuilder(connection, typeof(T));
 
         public static AQueryBuilder GetDropViewQueryBuilder(this SqlDbConnection connection, Type type)
@@ -58,8 +57,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
             return new InsertEntityQueryBuilder(type, connection, ignoreAutoIncrement);
         }
-
-
 
         public static DeleteEntityQueryBuilder GetDeleteEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
@@ -141,7 +138,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return new SelectEntitiesTreeQuery(connection.GetQuery(), new SelectEntityTreeQueryBuilder(type, connection, hasRootParam));
         }
 
-
         public static SelectEntitiesCountQuery GetSelectEntitiesCountQuery(this SqlDbConnection connection, Type type)
         {
             return new SelectEntitiesCountQuery(connection.GetQuery(), new SelectEntityCountQueryBuilder(type, connection));
@@ -213,7 +209,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             foreach (Type t in AllEntities.Inst)
             {
                 EntityDescriptor other = AllEntities.Inst[t];
-                if (exceptTableDescriptors == null || exceptTableDescriptors.Count(x => x.Name == other.TableDescriptor.Name) == 0)
+                if (exceptTableDescriptors == null || !exceptTableDescriptors.Any(x => x.Name == other.TableDescriptor.Name))
                 {
                     foreach (TableDescriptor.ColumnInfo ci in other.TableDescriptor)
                     {
@@ -233,6 +229,5 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
             return true;
         }
-
     }
 }

@@ -1,7 +1,7 @@
 @group
     @title=Namespace Gehtsoft.EF.Entities
     @key=Gehtsoft.EF.Entities
-    @ingroup=index
+    @ingroup=main
     @brief=The name space consists of common definitions and metadata tools for entity framework
 
 @end

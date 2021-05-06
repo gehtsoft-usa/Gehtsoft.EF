@@ -62,7 +62,6 @@ namespace Gehtsoft.EF.MongoDb
             }
             else
                 throw new EfMongoDbException(EfMongoDbExceptionCode.NotAnEntity);
-
         }
     }
 }

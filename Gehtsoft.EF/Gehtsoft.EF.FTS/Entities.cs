@@ -10,12 +10,10 @@ namespace Gehtsoft.EF.FTS
         public int ID { get; set; } = -1;
         [EntityProperty(Field = "word", DbType = DbType.String, Size = 32, Sorted = true)]
         public string Word { get; set; }
-
     }
 
     public class FtsWordEntityCollection : EntityCollection<FtsWordEntity>
     {
-        
     }
 
     [Entity(Scope = "fts", Table = "fts_objects")]
@@ -29,12 +27,10 @@ namespace Gehtsoft.EF.FTS
         public string ObjectID { get; set; }
         [EntityProperty(Field = "sorter", DbType = DbType.String, Size = 32, Sorted = true)]
         public string Sorter { get; set; }
-
     }
 
     public class FtsObjectEntityCollection : EntityCollection<FtsObjectEntity>
     {
-        
     }
 
     [Entity(Scope = "fts", Table = "fts_words2objects")]
@@ -47,5 +43,4 @@ namespace Gehtsoft.EF.FTS
         [EntityProperty(Field = "object", ForeignKey = true)]
         public FtsObjectEntity Object { get; set; }
     }
-
 }

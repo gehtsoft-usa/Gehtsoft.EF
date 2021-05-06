@@ -10,17 +10,17 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
-    internal  class DeclareCursorStatement : Statement
+    internal class DeclareCursorStatement : Statement
     {
-        internal  string Name { get; }
-        internal  SqlSelectStatement SelectStatement { get; }
+        internal string Name { get; }
+        internal SqlSelectStatement SelectStatement { get; }
         internal DeclareCursorStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.DeclareCursor)
         {
             Name = $"?{statementNode.Children[0].Value}";
-            ResultTypes resultType = ResultTypes.Cursor;
+            const ResultTypes resultType = ResultTypes.Cursor;
 
-            if (!builder.AddGlobalParameter(Name, resultType, true))
+            if (!builder.AddGlobalParameter(Name, resultType))
             {
                 throw new SqlParserException(new SqlError(currentSource,
                     statementNode.Children[0].Position.Line,

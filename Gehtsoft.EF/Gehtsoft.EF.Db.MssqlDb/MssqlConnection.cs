@@ -81,9 +81,9 @@ namespace Gehtsoft.EF.Db.MssqlDb
             return new MssqlDropViewBuilder(gSpecifics, name);
         }
 
-        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoincrement)
+        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement)
         {
-            return new MssqlInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoincrement);
+            return new MssqlInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);
         }
 
         public override HierarchicalSelectQueryBuilder GetHierarchicalSelectQueryBuilder(TableDescriptor descriptor, TableDescriptor.ColumnInfo parentReferenceColumn, string rootParameter = null)
@@ -163,16 +163,20 @@ namespace Gehtsoft.EF.Db.MssqlDb
     {
         public static SqlDbConnection Create(string connectionString)
         {
-            SqlConnection connection = new System.Data.SqlClient.SqlConnection();
-            connection.ConnectionString = connectionString;
+            SqlConnection connection = new System.Data.SqlClient.SqlConnection
+            {
+                ConnectionString = connectionString
+            };
             connection.Open();
             return new MssqlDbConnection(connection);
         }
 
         public static async Task<SqlDbConnection> CreateAsync(string connectionString, CancellationToken? token)
         {
-            SqlConnection connection = new System.Data.SqlClient.SqlConnection();
-            connection.ConnectionString = connectionString;
+            SqlConnection connection = new System.Data.SqlClient.SqlConnection
+            {
+                ConnectionString = connectionString
+            };
             if (token == null)
                 await connection.OpenAsync();
             else

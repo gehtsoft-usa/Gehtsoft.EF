@@ -21,17 +21,16 @@ namespace TestApp
         public class TestClass
         {
             public string PropertyV { get; set; }
-            public TestClass PropertyR { get; set; } 
-            public TestClass1 PropertyR1 { get; set; } 
+            public TestClass PropertyR { get; set; }
+            public TestClass1 PropertyR1 { get; set; }
 
             private TestClass(IEnumerator<string> en)
             {
                 PropertyV = en.Current;
-                PropertyR1 = new TestClass1() {PropertyX = "r1" + en.Current};
+                PropertyR1 = new TestClass1() { PropertyX = "r1" + en.Current };
                 if (en.MoveNext())
                     PropertyR = new TestClass(en);
             }
-
 
             public TestClass(params string[] args)
             {
@@ -47,7 +46,7 @@ namespace TestApp
                     en.Reset();
                     en.MoveNext();
                     PropertyV = en.Current;
-                    PropertyR1 = new TestClass1() {PropertyX = "r1" + en.Current};
+                    PropertyR1 = new TestClass1() { PropertyX = "r1" + en.Current };
                     if (en.MoveNext())
                         PropertyR = new TestClass(en);
                 }
@@ -57,9 +56,7 @@ namespace TestApp
         [Test]
         public void TestPropertyReader()
         {
-            TestClass v;
-
-            v = new TestClass("a1", "a2", "a3", "a4", "a5", "a6");
+            TestClass v = new TestClass("a1", "a2", "a3", "a4", "a5", "a6");
             Assert.IsNull(EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyR"));
             Assert.AreEqual("a6", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
             Assert.AreEqual("a5", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
@@ -72,7 +69,6 @@ namespace TestApp
             Assert.AreEqual("a6", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
             Assert.AreEqual("a5", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
 
-            
             Assert.AreEqual("r1a6", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyR1.PropertyX"));
             Assert.AreEqual("r1a5", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR1.PropertyX"));
             Assert.AreEqual("r1a4", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR1.PropertyX"));
@@ -98,8 +94,8 @@ namespace TestApp
         [Test]
         public void PKReaderTest()
         {
-            Entity1 e1 = new Entity1() {PK = 2};
-            Entity2 e2 = new Entity2() {PK = 5};
+            Entity1 e1 = new Entity1() { PK = 2 };
+            Entity2 e2 = new Entity2() { PK = 5 };
 
             Assert.IsFalse(this.IsEfEntity());
             Assert.IsTrue(e1.IsEfEntity());

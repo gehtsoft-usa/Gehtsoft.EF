@@ -13,10 +13,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal SqlFieldCollection()
         {
-
         }
 
-        internal SqlField FindByName(string name) => mList.Where(t => t.FieldName == name).SingleOrDefault();
+        internal SqlField FindByName(string name) => mList.SingleOrDefault(t => t.FieldName == name);
 
         public SqlField this[int index] => ((IReadOnlyList<SqlField>)mList)[index];
 

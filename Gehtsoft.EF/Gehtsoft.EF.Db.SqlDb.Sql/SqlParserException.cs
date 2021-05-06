@@ -13,7 +13,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         /// <summary>
         /// The collection of errors
         /// </summary>
-        public SqlErrorCollection Errors { get; private set; }
+        public SqlErrorCollection Errors { get; }
 
         /// <summary>
         /// The aggregate error message
@@ -25,7 +25,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         internal SqlParserException(SqlError error) : this(new SqlErrorCollection() { error })
         {
         }
-
 
         internal SqlParserException(SqlErrorCollection errors)
         {
@@ -50,5 +49,4 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             info.AddValue("errors", Errors);
         }
     }
-
 }

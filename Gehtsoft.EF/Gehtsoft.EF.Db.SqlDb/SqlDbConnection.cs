@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 
     public delegate Task<SqlDbConnection> SqlDbConnectionFactoryAsync(string connectionString, CancellationToken? token);
 
-    public abstract partial class SqlDbConnection : IEntityContext, IDisposable
+    public abstract partial class SqlDbConnection : IEntityContext
     {
         protected DbConnection mConnection;
 
@@ -176,7 +176,7 @@ namespace Gehtsoft.EF.Db.SqlDb
             return value;
         }
 
-        public T GetTag<T>(object key, T defaultValue = default(T))
+        public T GetTag<T>(object key, T defaultValue = default)
         {
             if (mTags == null)
                 return defaultValue;

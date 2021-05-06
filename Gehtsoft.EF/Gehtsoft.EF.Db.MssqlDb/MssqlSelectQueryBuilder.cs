@@ -5,46 +5,39 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.MssqlDb
 {
-    class MssqlConditionBuilder : ConditionBuilder
+    internal class MssqlConditionBuilder : ConditionBuilder
     {
-        private MssqlSelectQueryBuilder mBuilder;
+        private readonly MssqlSelectQueryBuilder mBuilder;
 
         public MssqlConditionBuilder(MssqlSelectQueryBuilder builder) : base(builder)
         {
             mBuilder = builder;
-
         }
 
-        public override string Query(AQueryBuilder builder)
+        public override string Query(AQueryBuilder queryBuilder)
         {
-            if (builder is MssqlHierarchicalSelectQueryBuilder)
+            if (queryBuilder is MssqlHierarchicalSelectQueryBuilder)
             {
-                mBuilder.With = (builder as MssqlHierarchicalSelectQueryBuilder).With;
-                return (builder as MssqlHierarchicalSelectQueryBuilder).Select;
+                mBuilder.With = (queryBuilder as MssqlHierarchicalSelectQueryBuilder).With;
+                return (queryBuilder as MssqlHierarchicalSelectQueryBuilder).Select;
             }
-            else if (builder is MssqlSelectQueryBuilder && (builder as MssqlSelectQueryBuilder).With != null)
+            else if (queryBuilder is MssqlSelectQueryBuilder && (queryBuilder as MssqlSelectQueryBuilder).With != null)
             {
-                mBuilder.With = (builder as MssqlSelectQueryBuilder).With;
-                if (builder.Query == null)
-                    builder.PrepareQuery();
-                string query = builder.Query.Substring(mBuilder.With.Length);
+                mBuilder.With = (queryBuilder as MssqlSelectQueryBuilder).With;
+                if (queryBuilder.Query == null)
+                    queryBuilder.PrepareQuery();
+                string query = queryBuilder.Query.Substring(mBuilder.With.Length);
                 return query;
             }
-            return base.Query(builder);
+            return base.Query(queryBuilder);
         }
     }
 
-    class MssqlSelectQueryBuilder : SelectQueryBuilder
+    internal class MssqlSelectQueryBuilder : SelectQueryBuilder
     {
-        private string mWith = null;
+        public string With { get; internal set; } = null;
 
-        public string With
-        {
-            get => mWith;
-            internal set => mWith = value;
-        }
-
-        internal MssqlSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table)  : base(specifics, table)
+        internal MssqlSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table) : base(specifics, table)
         {
             mWhere = new MssqlConditionBuilder(this);
         }
@@ -53,10 +46,10 @@ namespace Gehtsoft.EF.Db.MssqlDb
         {
             StringBuilder query;
 
-            if (mWith != null)
+            if (With != null)
             {
                 query = new StringBuilder();
-                query.Append(mWith);
+                query.Append(With);
                 query.Append(PrepareSelectQueryCore());
             }
             else
@@ -66,7 +59,12 @@ namespace Gehtsoft.EF.Db.MssqlDb
 
             if (Limit > 0 || Skip > 0)
             {
-                query.Append($" OFFSET {Skip} ROWS FETCH NEXT {Limit} ROWS ONLY");
+                query
+                    .Append(" OFFSET ")
+                    .Append(Skip)
+                    .Append(" ROWS FETCH NEXT ")
+                    .Append(Limit)
+                    .Append(" ROWS ONLY");
             }
             mQuery = query.ToString();
         }

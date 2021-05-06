@@ -4,9 +4,9 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.PostgresDb
 {
-    class PostgresInsertSelectQueryBuilder : InsertSelectQueryBuilder
+    internal class PostgresInsertSelectQueryBuilder : InsertSelectQueryBuilder
     {
-        private bool mHasAutoId = false;
+        private readonly bool mHasAutoId;
 
         public PostgresInsertSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false) : base(specifics, descriptor, selectQuery, ignoreAutoIncrement)
         {
@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
                 bool hasAutoId = false;
                 foreach (TableDescriptor.ColumnInfo column in descriptor)
                 {
-                    if (column.Autoincrement == true && column.PrimaryKey == true)
+                    if (column.Autoincrement && column.PrimaryKey)
                     {
                         hasAutoId = true;
                         break;
@@ -31,9 +31,23 @@ namespace Gehtsoft.EF.Db.PostgresDb
             StringBuilder builder = new StringBuilder();
             builder.Append(base.BuildQuery(leftSide, autoIncrement));
             if (autoIncrement != null)
-                builder.Append($"; SELECT last_value from {mTable.Name}_{autoIncrement.Name}_seq;");
+                builder
+                    .Append("; SELECT last_value from ")
+                    .Append(mTable.Name)
+                    .Append('_')
+                    .Append(autoIncrement.Name)
+                    .Append("_seq;");
             else if (mHasAutoId)
-                builder.Append($"; SELECT pg_catalog.setval(pg_get_serial_sequence('{mTable.Name}', '{mTable.PrimaryKey.Name.ToLower()}'), (SELECT MAX({mTable.PrimaryKey.Name.ToLower()}) FROM {mTable.Name}));");
+                builder
+                    .Append("; SELECT pg_catalog.setval(pg_get_serial_sequence('")
+                    .Append(mTable.Name)
+                    .Append("', '")
+                    .Append(mTable.PrimaryKey.Name.ToLower())
+                    .Append("'), (SELECT MAX(")
+                    .Append(mTable.PrimaryKey.Name.ToLower())
+                    .Append(") FROM ")
+                    .Append(mTable.Name)
+                    .Append("));");
             return builder.ToString();
         }
     }

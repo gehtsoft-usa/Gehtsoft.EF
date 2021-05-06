@@ -12,7 +12,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class DeclareStatement : Statement
     {
-        private Dictionary<string, ResultTypes> variables = new Dictionary<string, ResultTypes>();
+        private readonly Dictionary<string, ResultTypes> variables = new Dictionary<string, ResultTypes>();
         internal DeclareStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
             : base(builder, StatementType.Declare)
         {
@@ -21,7 +21,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 string name = $"?{node.Children[0].Value}";
                 ResultTypes resultType = GetResultTypeByName(node.Children[1].Value);
 
-                if (!builder.AddGlobalParameter(name, resultType, true))
+                if (!builder.AddGlobalParameter(name, resultType))
                 {
                     throw new SqlParserException(new SqlError(currentSource,
                         node.Children[0].Position.Line,
@@ -29,14 +29,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         $"Duplicate declared name ({name})"));
                 }
 
-                if (variables.ContainsKey(name))
-                {
-                    variables[name] = resultType;
-                }
-                else
-                {
-                    variables.Add(name, resultType);
-                }
+                variables[name] = resultType;
             }
         }
 
@@ -44,7 +37,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             foreach (KeyValuePair<string, ResultTypes> item in variables)
             {
-                if (!CodeDomBuilder.AddGlobalParameter(item.Key, item.Value, true))
+                if (!CodeDomBuilder.AddGlobalParameter(item.Key, item.Value))
                 {
                     throw new SqlParserException(new SqlError(null, 0, 0, $"Duplicate declared name ({item.Key})"));
                 }

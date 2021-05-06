@@ -10,13 +10,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlQualifiedJoinedTable : SqlTableSpecification
     {
-        private SqlTableSpecification mLeftTable;
-        private SqlPrimaryTable mRightTable;
-        private string mJoinType;
-        private SqlBaseExpression mJoinCondition = null;
-        private ASTNode? mExpressionNode = null;
-        private SqlStatement mParentStatement;
-        private string mSource;
+        private SqlBaseExpression mJoinCondition;
+        private ASTNode? mExpressionNode;
+        private readonly SqlStatement mParentStatement;
+        private readonly string mSource;
 
         internal QueryBuilderEntity BuilderEntity { get; set; }
 
@@ -50,29 +47,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlTableSpecification LeftTable
-        {
-            get
-            {
-                return mLeftTable;
-            }
-        }
+        internal SqlTableSpecification LeftTable { get; }
 
-        internal SqlPrimaryTable RightTable
-        {
-            get
-            {
-                return mRightTable;
-            }
-        }
+        internal SqlPrimaryTable RightTable { get; }
 
-        internal string JoinType
-        {
-            get
-            {
-                return mJoinType;
-            }
-        }
+        internal string JoinType { get; }
 
         internal SqlBaseExpression JoinCondition
         {
@@ -102,11 +81,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             if (node1.Symbol.ID == SqlParser.ID.VariableTablePrimary)
             {
-                mLeftTable = new SqlPrimaryTable(parentStatement, node1, source);
+                LeftTable = new SqlPrimaryTable(parentStatement, node1, source);
             }
             else if (node1.Symbol.ID == SqlParser.ID.VariableQualifiedJoin)
             {
-                mLeftTable = new SqlQualifiedJoinedTable(parentStatement, node1, source);
+                LeftTable = new SqlQualifiedJoinedTable(parentStatement, node1, source);
             }
             else
             {
@@ -116,11 +95,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     $"Unexpected table reference node {node1.Symbol.Name}({node1.Value ?? "null"})"));
             }
 
-            mJoinType = node2.Value;
+            JoinType = node2.Value;
 
             if (node3.Symbol.ID == SqlParser.ID.VariableTablePrimary)
             {
-                mRightTable = new SqlPrimaryTable(parentStatement, node3, source);
+                RightTable = new SqlPrimaryTable(parentStatement, node3, source);
             }
             else
             {
@@ -141,9 +120,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal SqlQualifiedJoinedTable(SqlTableSpecification leftTable, SqlPrimaryTable rightTable, string joinType, SqlBaseExpression joinCondition)
         {
-            mLeftTable = leftTable;
-            mRightTable = rightTable;
-            mJoinType = joinType;
+            LeftTable = leftTable;
+            RightTable = rightTable;
+            JoinType = joinType;
             mJoinCondition = joinCondition;
         }
     }

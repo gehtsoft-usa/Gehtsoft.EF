@@ -14,7 +14,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
     internal class UpdateRunner : SqlStatementRunner<SqlUpdateStatement>
     {
-        private SqlCodeDomBuilder mBuilder;
+        private readonly SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;
         private readonly ISqlDbConnectionFactory mConnectionFactory = null;
         private SqlUpdateStatement mUpdate;
@@ -64,18 +64,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
         }
 
-        internal override AQueryBuilder GetQueryBuilder(SqlUpdateStatement update)
+        internal override AQueryBuilder GetQueryBuilder(SqlUpdateStatement statement)
         {
             if (mUpdateBuilder == null)
             {
-                mUpdate = update;
+                mUpdate = statement;
                 if (mConnectionFactory != null)
                 {
                     mConnection = mConnectionFactory.GetConnection();
                 }
                 try
                 {
-                    processUpdate(update);
+                    ProcessUpdate(statement);
                 }
                 finally
                 {
@@ -89,7 +89,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             return mUpdateBuilder;
         }
 
-        private void processUpdate(SqlUpdateStatement update)
+        private void ProcessUpdate(SqlUpdateStatement update)
         {
             Type entityType = mBuilder.EntityByName(update.TableName);
             if (entityType == null)
@@ -104,7 +104,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
                 TableDescriptor.ColumnInfo column = entityDescriptor.TableDescriptor[field.Name];
 
-                if(updateAssign.Expression != null)
+                if (updateAssign.Expression != null)
                 {
                     if (updateAssign.Expression is SqlConstant constant)
                     {
@@ -117,7 +117,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         mUpdateBuilder.AddUpdateColumnExpression(column, GetStrExpression(updateAssign.Expression), null);
                     }
                 }
-                else if(updateAssign.Select != null)
+                else if (updateAssign.Select != null)
                 {
                     SelectRunner runner = new SelectRunner(CodeDomBuilder, Connection, this);
                     SelectQueryBuilder selectBuilder = (SelectQueryBuilder)runner.GetQueryBuilder(updateAssign.Select);
@@ -134,10 +134,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
 
         internal void RunWithResult(SqlUpdateStatement update)
         {
-            mBuilder.BlockDescriptors.Peek().LastStatementResult = run(update);
+            mBuilder.BlockDescriptors.Peek().LastStatementResult = Run(update);
         }
 
-        private dynamic run(SqlUpdateStatement update)
+        private dynamic Run(SqlUpdateStatement update)
         {
             dynamic result = null;
             mUpdate = update;
@@ -147,7 +147,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             }
             try
             {
-                processUpdate(update);
+                ProcessUpdate(update);
 
                 using (SqlDbQuery query = mConnection.GetQuery(mUpdateBuilder))
                 {

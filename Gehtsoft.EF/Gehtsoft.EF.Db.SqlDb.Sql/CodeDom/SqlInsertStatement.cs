@@ -25,9 +25,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             get
             {
-                if (mEntityDescriptor == null)
-                    mEntityDescriptor = this.EntityEntrys.Find(TableName).EntityDescriptor;
-                return mEntityDescriptor;
+                return mEntityDescriptor ?? (mEntityDescriptor = this.EntityEntrys.Find(TableName).EntityDescriptor);
             }
         }
 
@@ -67,19 +65,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             else if (statementNode.Children[2].Symbol.ID == SqlParser.ID.VariableSelect)
             {
                 RightSelect = new SqlSelectStatement(this.CodeDomBuilder, statementNode.Children[2], currentSource);
-                if(RightSelect.Grouping != null)
+                if (RightSelect.Grouping != null)
                 {
                     throw new SqlParserException(new SqlError(currentSource,
                         statementNode.Children[2].Position.Line,
                         statementNode.Children[2].Position.Column,
-                        $"GROUP BY can not be used in SELECT part of INSERT operator"));
+                        "GROUP BY can not be used in SELECT part of INSERT operator"));
                 }
                 if (RightSelect.Sorting != null)
                 {
                     throw new SqlParserException(new SqlError(currentSource,
                         statementNode.Children[2].Position.Line,
                         statementNode.Children[2].Position.Column,
-                        $"SORT BY can not be used in SELECT part of INSERT operator"));
+                        "SORT BY can not be used in SELECT part of INSERT operator"));
                 }
             }
             else
@@ -138,7 +136,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 if (Fields.Count != Values.Count)
                 {
-                    throw new SqlParserException(new SqlError(null, 0, 0, $"Number of fields and values in INSERT statement should be the same"));
+                    throw new SqlParserException(new SqlError(null, 0, 0, "Number of fields and values in INSERT statement should be the same"));
                 }
                 for (int i = 0; i < Fields.Count; i++)
                 {
@@ -172,7 +170,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     }
                 }
             }
-
         }
     }
 }

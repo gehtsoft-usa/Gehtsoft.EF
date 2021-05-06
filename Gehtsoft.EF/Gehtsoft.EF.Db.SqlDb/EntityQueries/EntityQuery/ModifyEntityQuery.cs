@@ -26,7 +26,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             mBinder.BindAndExecute(mQuery, entity, IsInsert);
         }
 
+#pragma warning disable S4019 // Base class methods should not be hidden
+        // by design. base method has no meaning
         public Task ExecuteAsync(object entity) => ExecuteAsync(entity, null);
+#pragma warning restore S4019 // Base class methods should not be hidden
 
         public virtual async Task ExecuteAsync(object entity, CancellationToken? token)
         {

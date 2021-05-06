@@ -22,12 +22,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             DomBuilder = new SqlCodeDomBuilder();
         }
 
-
         [Fact]
         public void ForDo()
         {
             object result;
-            SqlCodeDomEnvironment environment  = DomBuilder.NewEnvironment();
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment();
 
             var func = environment.Parse("test",
                 "SET factorial = 1 " +
