@@ -13,6 +13,5 @@ namespace Gehtsoft.EF.Serialization.IO
         event EntityDelegate OnEntity;
 
         void Scan();
-
     }
 }

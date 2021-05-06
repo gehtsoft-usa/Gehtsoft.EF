@@ -7,27 +7,24 @@ namespace Gehtsoft.EF.Mapper
     [AttributeUsage(AttributeTargets.Property)]
     public class DoNotAutoMapAttribute : Attribute
     {
-
     }
 
     public static class MapFactory
     {
-        private static Dictionary<Tuple<Type, Type>, IMap> mMaps = new Dictionary<Tuple<Type, Type>, IMap>();
+        private static readonly Dictionary<Tuple<Type, Type>, IMap> mMaps = new Dictionary<Tuple<Type, Type>, IMap>();
 
         private static IMap FindMap(Type from, Type to)
         {
             Tuple<Type, Type> key = new Tuple<Type, Type>(from, to);
 
-            IMap map;
-
-            if (mMaps.TryGetValue(key, out map))
+            if (mMaps.TryGetValue(key, out IMap map))
                 return map;
             return null;
         }
 
         private static IMap Construct(Type from, Type to)
         {
-            Type mapType = typeof(Map<,>).MakeGenericType(new Type[] {from, to});
+            Type mapType = typeof(Map<,>).MakeGenericType(new Type[] { from, to });
             IMap map = Activator.CreateInstance(mapType) as IMap;
             return map;
         }
@@ -49,12 +46,12 @@ namespace Gehtsoft.EF.Mapper
 
         public static Map<TFrom, TTo> GetMap<TFrom, TTo>(bool createIfNotExist = true)
         {
-            return (Map<TFrom, TTo>) GetMap(typeof(TFrom), typeof(TTo), createIfNotExist);
+            return (Map<TFrom, TTo>)GetMap(typeof(TFrom), typeof(TTo), createIfNotExist);
         }
 
         public static Map<TFrom, TTo> CreateMap<TFrom, TTo>()
         {
-            return (Map<TFrom, TTo>) CreateMap(typeof(TFrom), typeof(TTo));
+            return (Map<TFrom, TTo>)CreateMap(typeof(TFrom), typeof(TTo));
         }
 
         public static IMap CreateMap(Type from, Type to, bool createAlways = true)
@@ -82,9 +79,9 @@ namespace Gehtsoft.EF.Mapper
         {
             IMap map = FindMap(typeof(TFrom), typeof(TTo));
             if (map != null)
-                return (TTo) map.Do(source);
+                return (TTo)map.Do(source);
 
-            return (TTo) ValueMapper.MapValue(source, typeof(TTo));
+            return (TTo)ValueMapper.MapValue(source, typeof(TTo));
         }
 
         public static void RemoveMap(Type source, Type destination)
@@ -108,8 +105,7 @@ namespace Gehtsoft.EF.Mapper
 
             MapClassAttribute classAttribute = modelTypeInfo.GetCustomAttribute<MapClassAttribute>();
             if (classAttribute == null || classAttribute.OtherType != otherType)
-                throw new Exception("Model isn't property associated with the class");
-
+                throw new InvalidOperationException("Model isn't property associated with the class");
 
             foreach (PropertyInfo property in modelTypeInfo.GetProperties())
             {
@@ -117,12 +113,12 @@ namespace Gehtsoft.EF.Mapper
                     continue;
 
                 MapPropertyAttribute attribute = property.GetCustomAttribute<MapPropertyAttribute>();
-                if (attribute != null && !attribute.IgnoreToModel)
+                if (attribute?.IgnoreToModel == false)
                 {
                     string name = attribute.Name ?? property.Name;
                     PropertyInfo otherProperty = otherTypeInfo.GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
                     if (otherProperty == null)
-                        throw new Exception($"The property {name} is not found in the referenced class");
+                        throw new InvalidOperationException($"The property {name} is not found in the referenced class");
                     if (otherProperty.GetCustomAttribute<DoNotAutoMapAttribute>() != null)
                         continue;
                     IMappingTarget target = new ClassPropertyAccessor(property);
@@ -143,7 +139,7 @@ namespace Gehtsoft.EF.Mapper
 
             MapClassAttribute classAttribute = modelTypeInfo.GetCustomAttribute<MapClassAttribute>();
             if (classAttribute == null || classAttribute.OtherType != otherType)
-                throw new Exception("Model isn't properly associated with the class");
+                throw new InvalidOperationException("Model isn't properly associated with the class");
 
             foreach (PropertyInfo property in modelTypeInfo.GetProperties())
             {
@@ -151,12 +147,12 @@ namespace Gehtsoft.EF.Mapper
                     continue;
 
                 MapPropertyAttribute attribute = property.GetCustomAttribute<MapPropertyAttribute>();
-                if (attribute != null && !attribute.IgnoreFromModel)
+                if (attribute?.IgnoreFromModel == false)
                 {
                     string name = attribute.Name ?? property.Name;
                     PropertyInfo otherProperty = otherTypeInfo.GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
                     if (otherProperty == null)
-                        throw new Exception($"The property {name} is not found in the referenced class");
+                        throw new InvalidOperationException($"The property {name} is not found in the referenced class");
 
                     if (otherProperty.GetCustomAttribute<DoNotAutoMapAttribute>() != null)
                         continue;

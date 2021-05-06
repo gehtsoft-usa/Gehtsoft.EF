@@ -4,7 +4,7 @@ namespace Gehtsoft.EF.Mapper
 {
     public class ExpressionSource<TEntity, TValue> : IMappingSource
     {
-        private Func<TEntity, TValue> mAction;
+        private readonly Func<TEntity, TValue> mAction;
 
         public ExpressionSource(Func<TEntity, TValue> expression)
         {

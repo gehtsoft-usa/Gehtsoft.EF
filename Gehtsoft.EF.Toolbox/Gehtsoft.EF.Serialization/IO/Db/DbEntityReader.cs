@@ -13,8 +13,8 @@ namespace Gehtsoft.EF.Serialization.IO.Db
     {
         public int FrameSize { get; set; } = 1000;
 
-        private SqlDbConnection mConnection;
-        private EntityFinder.EntityTypeInfo[] mEntityTypes;
+        private readonly SqlDbConnection mConnection;
+        private readonly EntityFinder.EntityTypeInfo[] mEntityTypes;
 
         public DbEntityReader(EntityFinder.EntityTypeInfo[] types, SqlDbConnection connection, CancellationToken? cancellationToken)
         {
@@ -34,7 +34,7 @@ namespace Gehtsoft.EF.Serialization.IO.Db
             foreach (EntityFinder.EntityTypeInfo type in mEntityTypes)
             {
                 HandleType(type.EntityType);
-                if (mCancellationToken != null && ((CancellationToken) mCancellationToken).IsCancellationRequested)
+                if (mCancellationToken != null && ((CancellationToken)mCancellationToken).IsCancellationRequested)
                     return;
             }
         }
@@ -48,7 +48,7 @@ namespace Gehtsoft.EF.Serialization.IO.Db
                 if (column.ForeignKey && object.ReferenceEquals(column.ForeignTable, descriptor.TableDescriptor))
                 {
                     if (selfReference != null)
-                        throw new Exception($"The entity type {type.Name} has more than one self reference. Such scenario is not supported by the default implementation.");
+                        throw new InvalidOperationException($"The entity type {type.Name} has more than one self reference. Such scenario is not supported by the default implementation.");
                     selfReference = column;
                 }
             }
@@ -79,7 +79,7 @@ namespace Gehtsoft.EF.Serialization.IO.Db
                         if (entity == null)
                             break;
                         OnEntity?.Invoke(entity);
-                        if (mCancellationToken != null && ((CancellationToken) mCancellationToken).IsCancellationRequested)
+                        if (mCancellationToken != null && ((CancellationToken)mCancellationToken).IsCancellationRequested)
                             return;
                         count++;
                     }
@@ -88,11 +88,9 @@ namespace Gehtsoft.EF.Serialization.IO.Db
                         return;
 
                     skip += count;
-
                 }
             }
         }
-
 
         protected void ProcessSelfReferencedEntity(EntityDescriptor entityDescriptor, TableDescriptor.ColumnInfo selftReference, object parent = null)
         {
@@ -122,14 +120,14 @@ namespace Gehtsoft.EF.Serialization.IO.Db
             foreach (object o in result)
             {
                 OnEntity?.Invoke(o);
-                if (mCancellationToken != null && ((CancellationToken) mCancellationToken).IsCancellationRequested)
+                if (mCancellationToken != null && ((CancellationToken)mCancellationToken).IsCancellationRequested)
                     return;
             }
 
             foreach (object o in result)
             {
                 ProcessSelfReferencedEntity(entityDescriptor, selftReference, entityDescriptor.PrimaryKey.PropertyAccessor.GetValue(o));
-                if (mCancellationToken != null && ((CancellationToken) mCancellationToken).IsCancellationRequested)
+                if (mCancellationToken != null && ((CancellationToken)mCancellationToken).IsCancellationRequested)
                     return;
             }
         }

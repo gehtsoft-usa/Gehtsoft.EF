@@ -6,7 +6,7 @@ namespace Gehtsoft.EF.Mapper
 {
     public class PropertyMappingCollection : IPropertyMappingCollection
     {
-        private List<IPropertyMapping> mMappings = new List<IPropertyMapping>();
+        private readonly List<IPropertyMapping> mMappings = new List<IPropertyMapping>();
 
         public void Add(IPropertyMapping mapping) => mMappings.Add(mapping);
 
@@ -29,9 +29,9 @@ namespace Gehtsoft.EF.Mapper
         IEnumerator IEnumerable.GetEnumerator() => mMappings.GetEnumerator();
     }
 
-    public class PropertyMappingCollection<TSource, TDestination> : IEnumerable<PropertyMapping<TSource, TDestination>>, IPropertyMappingCollection 
+    public class PropertyMappingCollection<TSource, TDestination> : IEnumerable<PropertyMapping<TSource, TDestination>>, IPropertyMappingCollection
     {
-        private List<PropertyMapping<TSource, TDestination>> mMappings = new List<PropertyMapping<TSource, TDestination>>();
+        private readonly List<PropertyMapping<TSource, TDestination>> mMappings = new List<PropertyMapping<TSource, TDestination>>();
 
         public void Add(PropertyMapping<TSource, TDestination> mapping) => mMappings.Add(mapping);
 
@@ -46,7 +46,6 @@ namespace Gehtsoft.EF.Mapper
             if (!(mapping is PropertyMapping<TSource, TDestination>))
                 throw new ArgumentException("Only property generalized property mappings may be added to a collection");
         }
-
 
         public int Find(IMappingTarget target)
         {

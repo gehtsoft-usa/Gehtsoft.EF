@@ -1,0 +1,66 @@
+﻿[*.cs]
+
+# S927: Parameter names should match base declaration and other partial definitions
+dotnet_diagnostic.S927.severity = none
+
+# RCS1001: Add braces (when expression spans over multiple lines).
+# Disagree with policy
+dotnet_diagnostic.RCS1001.severity = none
+
+# RCS1061: Merge 'if' with nested 'if'.
+# Disagree with policy
+dotnet_diagnostic.RCS1061.severity = none
+
+# RCS1006: Merge 'else' with nested 'if'.
+# Disagree with policy
+dotnet_diagnostic.RCS1006.severity = none
+
+# RCS1003: Add braces to if-else (when expression spans over multiple lines).
+# Disagree with policy
+dotnet_diagnostic.RCS1003.severity = none
+
+# S1066: Collapsible "if" statements should be merged
+# Disagree with policy
+dotnet_diagnostic.S1066.severity = none
+
+# S1168: Empty arrays and collections should be returned instead of null
+# They may be right, but for this particular project too much has to be changed.
+dotnet_diagnostic.S1168.severity = none
+
+# S2344: Enumeration type names should not have "Flags" or "Enum" suffixes
+# Why?
+dotnet_diagnostic.S2344.severity = none
+
+# S1199: Extract nested block into a separate method.
+# Why?
+dotnet_diagnostic.S1199.severity = none
+
+# S3358: Extract nested ternary
+# Why?
+dotnet_diagnostic.S3358.severity = none
+
+# S2699: Overridables must be adjasted
+# Why?
+dotnet_diagnostic.S2699.severity = none
+
+# S4136: Overridables must be adjasted
+# Why?
+dotnet_diagnostic.S4136.severity = none
+
+
+# S3011: Reflection should not be used to increase accessibility of classes, methods, or fields
+# They may be right, but by design, EF must have access to internal and protected entity properties
+dotnet_diagnostic.S3011.severity = none
+
+# S3011: Simplify using
+# Requires C# 8.0 while the project is C# 7.3
+dotnet_diagnostic.IDE0063.severity = none
+
+# IDE0066: Switch expression
+# Requires C# 8.0 while the project is C# 7.3
+dotnet_diagnostic.IDE0063.severity = none
+dotnet_diagnostic.IDE0066.severity = none
+
+# IDE0066: Unused parameters in lambda
+# Requires C# 9.0 to discard parameters while the project is C# 7.3
+dotnet_diagnostic.RCS1163.severity = none

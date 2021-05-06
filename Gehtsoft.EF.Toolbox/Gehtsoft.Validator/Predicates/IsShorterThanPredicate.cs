@@ -6,7 +6,7 @@ namespace Gehtsoft.Validator
 {
     public class IsShorterThanPredicate : IValidationPredicate
     {
-        private int mLength;
+        private readonly int mLength;
 
         public IsShorterThanPredicate(Type parameterType, int length)
         {
@@ -14,7 +14,7 @@ namespace Gehtsoft.Validator
             mLength = length;
         }
 
-        private Type mParameterType;
+        private readonly Type mParameterType;
         public Type ParameterType => mParameterType;
         public bool Validate(object value)
         {
@@ -25,7 +25,7 @@ namespace Gehtsoft.Validator
             {
                 return array.Length < mLength;
             }
-            
+
             if (value is ICollection collection)
             {
                 return collection.Count < mLength;

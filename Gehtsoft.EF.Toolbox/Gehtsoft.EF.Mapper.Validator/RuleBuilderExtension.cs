@@ -63,7 +63,6 @@ namespace Gehtsoft.EF.Mapper.Validator
             return builder;
         }
 
-
         private static void AddValidDbSizeRule(ValidationRuleBuilder builder)
         {
             Type modelType = builder.Rule.EntityType;
@@ -71,16 +70,16 @@ namespace Gehtsoft.EF.Mapper.Validator
             if (mapEntitAttribute == null)
                 throw new ArgumentException("The model isn't associate with the entity");
 
-            EntityDescriptor entity = AllEntities.Inst[mapEntitAttribute.EntityType];
+            _ = AllEntities.Inst[mapEntitAttribute.EntityType];
             IMap map = MapFactory.GetMap(modelType, mapEntitAttribute.EntityType);
 
             if (builder.Rule.Target.IsProperty)
             {
                 foreach (var property in map.Mappings)
                 {
-                    if (property.Target is EntityPropertyAccessor && property.Source is ClassPropertyAccessor)
+                    if (property.Target is EntityPropertyAccessor accessor && property.Source is ClassPropertyAccessor)
                     {
-                        EntityPropertyAccessor propertyTarget = (EntityPropertyAccessor) property.Target;
+                        EntityPropertyAccessor propertyTarget = accessor;
 
                         if (property.Source.Name == builder.Rule.Target.PropertyName)
                         {
@@ -101,12 +100,12 @@ namespace Gehtsoft.EF.Mapper.Validator
             throw new InvalidOperationException("The model property is not mapped to an entity");
         }
 
-        private static Type GetModelValidatorType(ValidationRuleBuilder builder) => typeof(EfModelValidator<>).MakeGenericType(new Type[] {builder.Rule.EntityType});
+        private static Type GetModelValidatorType(ValidationRuleBuilder builder) => typeof(EfModelValidator<>).MakeGenericType(new Type[] { builder.Rule.EntityType });
 
         private static SqlDbLanguageSpecifics GetLanguageSpecifics(ValidationRuleBuilder builder)
         {
             Type modelValidatorType = GetModelValidatorType(builder);
-            if (modelValidatorType.IsAssignableFrom(builder.Validator.GetType()))
+            if (modelValidatorType.IsInstanceOfType(builder.Validator))
             {
                 PropertyInfo languageSpecificsProperty = builder.Validator.GetType().GetProperty(nameof(EfModelValidator<object>.LanguageSpecifics), BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
                 return languageSpecificsProperty?.GetValue(builder.Validator) as SqlDbLanguageSpecifics;
@@ -117,7 +116,7 @@ namespace Gehtsoft.EF.Mapper.Validator
         private static IValidatorConnectionFactory GetConnectionFactory(ValidationRuleBuilder builder)
         {
             Type modelValidatorType = GetModelValidatorType(builder);
-            if (modelValidatorType.IsAssignableFrom(builder.Validator.GetType()))
+            if (modelValidatorType.IsInstanceOfType(builder.Validator))
             {
                 PropertyInfo connectionFactoryProperty = builder.Validator.GetType().GetProperty(nameof(EfModelValidator<object>.ConnectionFactory), BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
                 return connectionFactoryProperty?.GetValue(builder.Validator) as IValidatorConnectionFactory;
@@ -132,17 +131,15 @@ namespace Gehtsoft.EF.Mapper.Validator
             if (mapEntitAttribute == null)
                 throw new ArgumentException("The model isn't associate with the entity");
 
-            EntityDescriptor entity = AllEntities.Inst[mapEntitAttribute.EntityType];
+            _ = AllEntities.Inst[mapEntitAttribute.EntityType];
             IMap map = MapFactory.GetMap(modelType, mapEntitAttribute.EntityType);
 
             if (builder.Rule.Target.IsProperty)
             {
                 foreach (var property in map.Mappings)
                 {
-                    if (property.Target is EntityPropertyAccessor)
+                    if (property.Target is EntityPropertyAccessor propertyTarget)
                     {
-                        EntityPropertyAccessor propertyTarget = (EntityPropertyAccessor) property.Target;
-
                         if (property.Source.Name == builder.Rule.Target.PropertyName)
                         {
                             if ((propertyTarget.ColumnInfo.DbType == DbType.Double ||
@@ -176,11 +173,11 @@ namespace Gehtsoft.EF.Mapper.Validator
         {
             Type modelType = builder.Rule.EntityType;
             MapEntityAttribute mapEntitAttribute = modelType.GetTypeInfo().GetCustomAttribute<MapEntityAttribute>();
-            
+
             if (mapEntitAttribute == null)
                 throw new ArgumentException("The model isn't associate with the entity");
 
-            EntityDescriptor entity = AllEntities.Inst[mapEntitAttribute.EntityType];
+            _ = AllEntities.Inst[mapEntitAttribute.EntityType];
             IMap map = MapFactory.GetMap(modelType, mapEntitAttribute.EntityType);
 
             if (builder.Rule.Target.IsProperty)
@@ -188,11 +185,8 @@ namespace Gehtsoft.EF.Mapper.Validator
                 PropertyInfo pk = null;
                 foreach (var property in map.Mappings)
                 {
-                    if (property.Target is EntityPropertyAccessor && property.Source is ClassPropertyAccessor)
+                    if (property.Target is EntityPropertyAccessor propertyTarget && property.Source is ClassPropertyAccessor propertySource)
                     {
-                        EntityPropertyAccessor propertyTarget = (EntityPropertyAccessor) property.Target;
-                        ClassPropertyAccessor propertySource = (ClassPropertyAccessor) property.Source;
-
                         if (propertyTarget.ColumnInfo.PrimaryKey)
                             pk = propertySource.PropertyInfo;
                     }
@@ -200,11 +194,8 @@ namespace Gehtsoft.EF.Mapper.Validator
 
                 foreach (var property in map.Mappings)
                 {
-                    if (property.Target is EntityPropertyAccessor && property.Source is ClassPropertyAccessor)
+                    if (property.Target is EntityPropertyAccessor propertyTarget && property.Source is ClassPropertyAccessor propertySource)
                     {
-                        EntityPropertyAccessor propertyTarget = (EntityPropertyAccessor) property.Target;
-                        ClassPropertyAccessor propertySource = (ClassPropertyAccessor) property.Source;
-
                         if (propertySource.Name == builder.Rule.Target.PropertyName)
                         {
                             ValidationTarget oldTarget = builder.Rule.Target;
@@ -246,17 +237,15 @@ namespace Gehtsoft.EF.Mapper.Validator
             if (mapEntitAttribute == null)
                 throw new ArgumentException("The model isn't associate with the entity");
 
-            EntityDescriptor entity = AllEntities.Inst[mapEntitAttribute.EntityType];
+            _ = AllEntities.Inst[mapEntitAttribute.EntityType];
             IMap map = MapFactory.GetMap(modelType, mapEntitAttribute.EntityType);
 
             if (builder.Rule.Target.IsProperty)
             {
                 foreach (var property in map.Mappings)
                 {
-                    if (property.Target is EntityPropertyAccessor)
+                    if (property.Target is EntityPropertyAccessor propertyTarget)
                     {
-                        EntityPropertyAccessor propertyTarget = (EntityPropertyAccessor) property.Target;
-
                         if (property.Source.Name == builder.Rule.Target.PropertyName)
                         {
                             IValidatorConnectionFactory factory = GetConnectionFactory(builder);
@@ -276,6 +265,5 @@ namespace Gehtsoft.EF.Mapper.Validator
 
         [Obsolete("The method is replaced with correctly spelled MustBeUnique method")]
         public static GenericValidationRuleBuilder<TE, TE> MustBeUnqiue<TE, TV>(this GenericValidationRuleBuilder<TE, TV> builder) => MustBeUnique(builder);
-
     }
 }

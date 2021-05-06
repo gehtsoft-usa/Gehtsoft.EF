@@ -10,7 +10,7 @@ namespace Gehtsoft.Validator
             mParameterType = parameterType;
         }
 
-        private Type mParameterType;
+        private readonly Type mParameterType;
         public Type ParameterType => mParameterType;
         public bool Validate(object value)
         {
@@ -21,7 +21,7 @@ namespace Gehtsoft.Validator
             {
                 return array.Length > 0;
             }
-            
+
             if (value is ICollection collection)
             {
                 return collection.Count > 0;

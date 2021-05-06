@@ -8,14 +8,14 @@ namespace Gehtsoft.Validator
     public class PropertyValidationArrayTarget : ValidationTarget
     {
         public override string PropertyName { get; }
-        private PropertyInfo mPropertyInfo = null;
-        private Type mElementType = null;
+        private readonly PropertyInfo mPropertyInfo = null;
+        private readonly Type mElementType = null;
 
         public override Type ValueType => mElementType;
         public override string TargetName => mPropertyInfo.Name;
         public override T GetCustomAttribute<T>() => mPropertyInfo.GetCustomAttribute<T>();
         public override bool IsProperty => true;
-        
+
         public PropertyValidationArrayTarget(Type type, string propertyName)
         {
             PropertyName = propertyName;
@@ -25,7 +25,7 @@ namespace Gehtsoft.Validator
             if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 mElementType = typeInfo.GetGenericArguments()[0];
             else
-            {               
+            {
                 foreach (Type interfaceType in typeInfo.ImplementedInterfaces)
                 {
                     TypeInfo interfaceTypeInfo = interfaceType.GetTypeInfo();
@@ -34,37 +34,29 @@ namespace Gehtsoft.Validator
                         mElementType = interfaceTypeInfo.GetGenericArguments()[0];
                         break;
                     }
-
                 }
                 if (mElementType == null)
                     throw new ArgumentException("The property is not a enumerable");
             }
         }
 
-
         public override bool IsSingleValue => false;
 
         private IEnumerable GetEnumerable(object target)
         {
             object container = mPropertyInfo.GetValue(target);
-            if (container == null)
-                return null;
-            IEnumerable enumerable = container as IEnumerable;
-            if (enumerable == null)
-                return null;
-            return enumerable;
+            return container as IEnumerable;
         }
 
         public override ValidationValue First(object target)
         {
             IEnumerator enumerator = GetEnumerable(target).GetEnumerator();
             if (enumerator == null)
-                return new ValidationValue() {Value = null, Name = $"{PropertyName}[{0}]"};
+                return new ValidationValue() { Value = null, Name = $"{PropertyName}[{0}]" };
             enumerator.Reset();
             if (!enumerator.MoveNext())
                 throw new InvalidOperationException("Value is empty");
-            return new ValidationValue() {Value = enumerator.Current, Name = $"{PropertyName}[{0}]"};
-
+            return new ValidationValue() { Value = enumerator.Current, Name = $"{PropertyName}[{0}]" };
         }
 
         public override ValidationValue[] All(object target)
@@ -75,7 +67,7 @@ namespace Gehtsoft.Validator
             if (enumerable != null)
             {
                 foreach (object x in enumerable)
-                    result.Add(new ValidationValue() {Name = $"{PropertyName}[{i++}]", Value = x});
+                    result.Add(new ValidationValue() { Name = $"{PropertyName}[{i++}]", Value = x });
             }
             return result.ToArray();
         }

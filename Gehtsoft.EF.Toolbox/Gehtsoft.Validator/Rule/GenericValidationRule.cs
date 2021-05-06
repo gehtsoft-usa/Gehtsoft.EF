@@ -4,7 +4,6 @@
     {
         public GenericValidationRule() : base(typeof(TE), typeof(TV))
         {
-
         }
     }
 }

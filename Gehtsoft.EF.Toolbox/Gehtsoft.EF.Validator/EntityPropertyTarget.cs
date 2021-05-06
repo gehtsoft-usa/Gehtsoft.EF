@@ -6,7 +6,7 @@ namespace Gehtsoft.EF.Validator
 {
     public class EntityPropertyTarget : ValidationTarget
     {
-        private IPropertyAccessor mPropertyAccessor;
+        private readonly IPropertyAccessor mPropertyAccessor;
 
         public override string TargetName => mPropertyAccessor.Name;
         public override T GetCustomAttribute<T>() => mPropertyAccessor.GetCustomAttribute<T>();
@@ -24,12 +24,12 @@ namespace Gehtsoft.EF.Validator
 
         public override ValidationValue First(object target)
         {
-            return new ValidationValue() {Name = mPropertyAccessor.Name, Value = mPropertyAccessor.GetValue(target)};
+            return new ValidationValue() { Name = mPropertyAccessor.Name, Value = mPropertyAccessor.GetValue(target) };
         }
 
         public override ValidationValue[] All(object target)
         {
-            return new ValidationValue[] {First(target)};
+            return new ValidationValue[] { First(target) };
         }
     }
 }

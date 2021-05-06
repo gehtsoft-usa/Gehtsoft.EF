@@ -19,7 +19,6 @@ namespace Gehtsoft.EF.Mapper
             EntityDescriptor entityInfo = AllEntities.Inst[destinationType, false];
             if (entityInfo != null)
                 mDestinationDescriptor = entityInfo;
-
         }
 
         protected override IMappingTarget GetTargetByName(string name)
@@ -38,10 +37,7 @@ namespace Gehtsoft.EF.Mapper
                     target = new EntityPropertyAccessor(columnInfo);
             }
 
-            if (target == null)
-                return base.GetTargetByName(name);
-            else
-                return target;
+            return target ?? base.GetTargetByName(name);
         }
     }
 }

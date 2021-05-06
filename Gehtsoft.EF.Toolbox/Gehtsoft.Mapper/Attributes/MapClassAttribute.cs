@@ -10,9 +10,8 @@ namespace Gehtsoft.EF.Mapper
 
         public MapClassAttribute() : base(typeof(ClassToModelInitializer))
         {
-
         }
-        
+
         public MapClassAttribute(Type otherType) : this()
         {
             OtherType = otherType;

@@ -6,11 +6,11 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 
 namespace Gehtsoft.EF.Serialization.IO.Db
 {
-    public class DbEntityWriter : IEntityWriter, IDisposable
+    public sealed class DbEntityWriter : IEntityWriter, IDisposable
     {
-        private SqlDbConnection mConnection;
+        private readonly SqlDbConnection mConnection;
         private SqlDbTransaction mTransaction;
-        private bool mTransactEachType;
+        private readonly bool mTransactEachType;
 
         public DbEntityWriter(SqlDbConnection connection, bool? transactEachType = null)
         {
@@ -58,14 +58,13 @@ namespace Gehtsoft.EF.Serialization.IO.Db
                 mTransaction = mConnection.BeginTransaction();
 
             mInsertQuery = mConnection.GetInsertEntityQuery(type, true);
-
         }
 
         public void Write(object entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
-            
+
             mInsertQuery.Execute(entity);
         }
     }

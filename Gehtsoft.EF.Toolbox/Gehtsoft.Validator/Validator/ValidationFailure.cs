@@ -13,7 +13,6 @@ namespace Gehtsoft.Validator
 
         internal ValidationFailure()
         {
-
         }
 
         public ValidationFailure(string name, string path, int code, string message)

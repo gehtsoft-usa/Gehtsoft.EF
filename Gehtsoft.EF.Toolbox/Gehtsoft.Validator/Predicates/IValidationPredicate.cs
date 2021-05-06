@@ -29,16 +29,14 @@ namespace Gehtsoft.Validator
             get
             {
                 if (mPredicates == null)
-                    throw new IndexOutOfRangeException();
+                    throw new InvalidOperationException("There is no predicates set yet");
                 return mPredicates[index];
             }
         }
 
         internal void Add(IValidationPredicate predicate)
         {
-            if (mPredicates == null)
-                mPredicates = new List<IValidationPredicate>();
-            mPredicates.Add(predicate);
+            (mPredicates ?? (mPredicates = new List<IValidationPredicate>())).Add(predicate);
         }
 
         public IEnumerator<IValidationPredicate> GetEnumerator() => mPredicates != null ? mPredicates.GetEnumerator() : (new List<IValidationPredicate>()).GetEnumerator();

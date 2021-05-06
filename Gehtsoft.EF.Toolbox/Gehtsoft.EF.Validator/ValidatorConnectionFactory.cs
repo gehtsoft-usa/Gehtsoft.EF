@@ -6,9 +6,9 @@ namespace Gehtsoft.EF.Validator
 {
     public class ValidatorConnectionFactory : IValidatorConnectionFactory
     {
-        private SqlDbConnectionFactory mFactory;
-        private SqlDbConnectionFactoryAsync mAsyncFactory;
-        private string mConnectionString;
+        private readonly SqlDbConnectionFactory mFactory;
+        private readonly SqlDbConnectionFactoryAsync mAsyncFactory;
+        private readonly string mConnectionString;
 
         public ValidatorConnectionFactory(SqlDbConnectionFactory factory, string connectionString) : this(factory, null, connectionString)
         {
@@ -25,7 +25,6 @@ namespace Gehtsoft.EF.Validator
         public SqlDbConnection GetConnection() => mFactory(mConnectionString);
         public Task<SqlDbConnection> GetConnectionAsync() => mAsyncFactory(mConnectionString, null);
 
-        public Task<SqlDbConnection> GetConnectionAsync(CancellationToken? token) => mAsyncFactory(mConnectionString, token);
-
+        public Task<SqlDbConnection> GetConnectionAsync(CancellationToken? token = null) => mAsyncFactory(mConnectionString, token);
     }
 }

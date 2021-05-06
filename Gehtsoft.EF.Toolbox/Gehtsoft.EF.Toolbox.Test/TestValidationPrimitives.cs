@@ -172,7 +172,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             Assert.IsTrue(predicate.Validate("abcd"));
             Assert.IsFalse(predicate.Validate("abcd efg"));
 
-            predicate = new HTMLInjectionPredicate();
+            predicate = new HtmlInjectionPredicate();
             Assert.IsTrue(predicate.Validate("abcd & eqlm"));
             Assert.IsFalse(predicate.Validate("<a href=123>"));
         }

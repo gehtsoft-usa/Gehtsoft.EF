@@ -12,19 +12,20 @@ namespace Gehtsoft.EF.Mapper
 
     public class MappingActionCollection<TSource, TTarget> : IEnumerable<MappingAction<TSource, TTarget>>, IMappingActionCollection
     {
-        private List<MappingAction<TSource, TTarget>> mActions = new List<MappingAction<TSource, TTarget>>();
+        private readonly List<MappingAction<TSource, TTarget>> mActions = new List<MappingAction<TSource, TTarget>>();
 
         public int Count => mActions.Count;
 
         public MappingAction<TSource, TTarget> this[int index] => mActions[index];
-        
+
         IMappingAction IMappingActionCollection.this[int index] => mActions[index];
 
         public void Add(MappingAction<TSource, TTarget> action) => mActions.Add(action);
 
         void IMappingActionCollection.Add(IMappingAction action)
         {
-
+            if (action is MappingAction<TSource, TTarget> a)
+                Add(a);
         }
 
         IEnumerator<IMappingAction> IEnumerable<IMappingAction>.GetEnumerator() => mActions.GetEnumerator();

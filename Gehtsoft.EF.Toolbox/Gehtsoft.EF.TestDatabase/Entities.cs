@@ -43,7 +43,6 @@ namespace Gehtsoft.EF.TestDatabase
 
         [EntityProperty(Size = 64, Nullable = false, Sorted = true)]
         public string Name { get; set; }
-
     }
 
     [Entity(Table = "testdb_good", Scope = "testdb")]

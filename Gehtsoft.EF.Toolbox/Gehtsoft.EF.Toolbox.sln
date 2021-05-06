@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.2002
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gehtsoft.Mapper", "Gehtsoft.Mapper\Gehtsoft.Mapper.csproj", "{1A5E63A5-F132-47BC-AF43-7435E20ADCB4}"
 EndProject
@@ -18,6 +18,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gehtsoft.EF.TestDatabase", "Gehtsoft.EF.TestDatabase\Gehtsoft.EF.TestDatabase.csproj", "{72D999A9-A0EC-49E2-8F62-03D0382F2744}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gehtsoft.EF.Toolbox.Test", "Gehtsoft.EF.Toolbox.Test\Gehtsoft.EF.Toolbox.Test.csproj", "{BB5CAE33-A5C1-4FC9-9B4C-A0AF3DCFCEC7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9ED2084D-55CD-4B63-B85F-48F5F91105AC}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,10 +67,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		        SolutionGuid = {A10AB049-3FBC-4DEB-AD41-BFD2BCCF082A}
-		                                SolutionGuid = {7762A749-C0A8-4940-9BDD-27E1F04D6D23}
-		                        SolutionGuid = {00E52238-0DFD-42A9-857E-B2DE10C8CC71}
-		                SolutionGuid = {3CB81218-1948-4DB8-B5D7-FF6DA008C953}
 		SolutionGuid = {F124B988-392E-45A2-A34C-466B7326FA89}
+		                SolutionGuid = {3CB81218-1948-4DB8-B5D7-FF6DA008C953}
+		                        SolutionGuid = {00E52238-0DFD-42A9-857E-B2DE10C8CC71}
+		                                SolutionGuid = {7762A749-C0A8-4940-9BDD-27E1F04D6D23}
+		        SolutionGuid = {A10AB049-3FBC-4DEB-AD41-BFD2BCCF082A}
 	EndGlobalSection
 EndGlobal

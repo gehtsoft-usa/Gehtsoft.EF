@@ -11,7 +11,7 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Serialization.IO.Xml
 {
-    public class XmlEntityReader : IDisposable, IEntityReader
+    public sealed class XmlEntityReader : IDisposable, IEntityReader
     {
         public string RootElementName { get; set; } = "es";
         public string TypeElementName { get; set; } = "t";
@@ -22,8 +22,8 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
         public string TypeAttributeName { get; set; } = "t";
         public string EncodedAttributeName { get; set; } = "u";
         public IBlobAccessor BlobAccessor { get; set; } = new Base64BlobAccessor();
-        public int MaximumPropertiesPerEntity 
-        { 
+        public int MaximumPropertiesPerEntity
+        {
             get { return mCurrentProperties.Length; }
             set
             {
@@ -38,18 +38,15 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
 
         private CancellationToken? mCancellationToken;
 
-
         private XmlReader mReader;
         private readonly bool mIsNewReader;
 
         public XmlEntityReader(Stream reader, XmlReaderSettings settings = null, CancellationToken? token = null) : this(settings == null ? XmlReader.Create(reader) : XmlReader.Create(reader, settings), true, token)
         {
-
         }
 
         public XmlEntityReader(string buffer, CancellationToken? token = null) : this(XmlReader.Create(new StringReader(buffer)), true, token)
         {
-
         }
 
         public XmlEntityReader(XmlReader reader, bool isNewReader = false, CancellationToken? token = null)
@@ -84,7 +81,7 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
         }
 
         private object mReturnEntity = null;
-        
+
         private void ElementStarted(Element element)
         {
             if (element.Name == TypeElementName)
@@ -123,7 +120,7 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
                     string sid = element.Attributes[IDAttributeName];
                     int id = Int32.Parse(sid);
                     if (id >= mCurrentProperties.Length)
-                        throw new IndexOutOfRangeException($"Enitity contains too many properties {id}. Increase MaximumPropertiesPerEntity value.");
+                        throw new ArgumentOutOfRangeException(nameof(element), $"Enitity contains too many properties {id}. Increase MaximumPropertiesPerEntity value.");
                     string type = element.Attributes[TypeElementName];
                     bool encoded = element.Attributes.ContainsKey(EncodedAttributeName);
                     string text = element.Text.ToString();
@@ -147,7 +144,7 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
                     string sid = element.Attributes[IDAttributeName];
                     int id = Int32.Parse(sid);
                     if (id >= mCurrentProperties.Length)
-                        throw new IndexOutOfRangeException($"Enitity contains too many properties {id}. Increase MaximumPropertiesPerEntity value.");
+                        throw new ArgumentOutOfRangeException(nameof(element), $"Enitity contains too many properties {id}. Increase MaximumPropertiesPerEntity value.");
                     string name = element.Attributes[NameAttributeName];
                     mCurrentProperties[id] = name;
                     mColumns[id] = mCurrentType[name];
@@ -188,13 +185,13 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
             }
         }
 
-        Stack<Element> mStack = new Stack<Element>();
+        private readonly Stack<Element> mStack = new Stack<Element>();
 
         public void Scan()
         {
             while (mReader.Read())
             {
-                if (mCancellationToken != null && ((CancellationToken) mCancellationToken).IsCancellationRequested)
+                if (mCancellationToken != null && ((CancellationToken)mCancellationToken).IsCancellationRequested)
                     return;
 
                 switch (mReader.NodeType)
@@ -207,9 +204,11 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
                             if (mStack.Peek().IsEmpty)
                                 ElementEnded(mStack.Pop());
                         }
-                        Element element = new Element();
-                        element.Name = mReader.Name;
-                        element.Notified = false;
+                        Element element = new Element
+                        {
+                            Name = mReader.Name,
+                            Notified = false
+                        };
                         for (int i = 0; i < mReader.AttributeCount; i++)
                         {
                             mReader.MoveToAttribute(i);
@@ -221,7 +220,7 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
                         break;
                     case XmlNodeType.EndElement:
                         if (mStack.Count == 0)
-                            return ;
+                            return;
                         ElementEnded(mStack.Pop());
                         if (mReturnEntity != null)
                         {
@@ -243,7 +242,6 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
                         break;
                 }
             }
-            return ;
         }
     }
 }

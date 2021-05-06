@@ -5,12 +5,12 @@ namespace Gehtsoft.Validator
 {
     public class FunctionPredicate<T> : IValidationPredicate
     {
-        private Func<T, bool> mPredicate;
-        private bool IsTValue;
-        private bool IsTEnum;
-        private bool IsTNullable;
-        private Type mParameterType;
-        private Type mCoversionType;
+        private readonly Func<T, bool> mPredicate;
+        private readonly bool IsTValue;
+        private readonly bool IsTEnum;
+        private readonly bool IsTNullable;
+        private readonly Type mParameterType;
+        private readonly Type mCoversionType;
 
         public Type ParameterType => mParameterType;
 

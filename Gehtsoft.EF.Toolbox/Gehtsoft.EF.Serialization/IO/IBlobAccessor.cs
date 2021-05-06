@@ -20,7 +20,7 @@ namespace Gehtsoft.EF.Serialization.IO
 
     public class FileBlobAccessor : IBlobAccessor
     {
-        private DirectoryInfo mDirectory;
+        private readonly DirectoryInfo mDirectory;
 
         public FileBlobAccessor(string directory)
         {
@@ -52,7 +52,5 @@ namespace Gehtsoft.EF.Serialization.IO
                 return b;
             }
         }
-
-
     }
 }

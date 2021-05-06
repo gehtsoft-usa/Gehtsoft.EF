@@ -9,11 +9,10 @@ namespace Gehtsoft.Validator
             mParameterType = parameterType;
         }
 
-        private Type mParameterType;
+        private readonly Type mParameterType;
         public Type ParameterType => mParameterType;
         public bool Validate(object value) => value != null;
 
         public string RemoteScript(Type compilerType) => "(value != null && value != undefined)";
-
     }
 }

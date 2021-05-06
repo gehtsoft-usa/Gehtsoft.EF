@@ -13,7 +13,7 @@ namespace Gehtsoft.EF.Serialization.IO
         public static string Format(float value) => value.ToString(CultureInfo.InvariantCulture);
         public static string Format(double value) => value.ToString(CultureInfo.InvariantCulture);
         public static string Format(bool value) => value ? "true" : "false";
-        public static string Format(DateTime value) => (value.Hour != 0 || value.Minute != 0 || value.Second !=0 || value.Millisecond != 0) ? value.ToString("O", CultureInfo.InvariantCulture) : value.ToString("d", CultureInfo.InvariantCulture);
+        public static string Format(DateTime value) => (value.Hour != 0 || value.Minute != 0 || value.Second != 0 || value.Millisecond != 0) ? value.ToString("O", CultureInfo.InvariantCulture) : value.ToString("d", CultureInfo.InvariantCulture);
         public static string Format(decimal value) => value.ToString(CultureInfo.InvariantCulture);
         public static string Format(byte[] value) => Convert.ToBase64String(value);
 
@@ -37,7 +37,6 @@ namespace Gehtsoft.EF.Serialization.IO
                 formatted = t;
                 return true;
             }
-
 
             if (value is short s)
             {
@@ -104,7 +103,7 @@ namespace Gehtsoft.EF.Serialization.IO
 
             throw new ArgumentException("Type isn't supported", nameof(value));
         }
-        
+
         public static short ParseShort(string value) => (short)Int32.Parse(value, CultureInfo.InvariantCulture);
         public static int ParseInt(string value) => Int32.Parse(value, CultureInfo.InvariantCulture);
         public static float ParseFloat(string value) => Single.Parse(value, CultureInfo.InvariantCulture);
@@ -140,13 +139,13 @@ namespace Gehtsoft.EF.Serialization.IO
             throw new ArgumentException($"Unknown type code {type}", nameof(type));
         }
 
-        public static T ParseAndConvert<T>(string typeCode, string value) => (T) ParseAndConvert(typeCode, value, typeof(T));
+        public static T ParseAndConvert<T>(string typeCode, string value) => (T)ParseAndConvert(typeCode, value, typeof(T));
 
         public static object ParseAndConvert(string typeCode, string value, Type type)
         {
             TypeInfo typeInfo = type.GetTypeInfo();
             object v = Parse(typeCode, value);
-            
+
             if (v == null)
             {
                 if (typeInfo.IsValueType)

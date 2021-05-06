@@ -13,12 +13,12 @@ namespace Gehtsoft.Validator.JSConvertor
         public ValidationExpressionCompiler(LambdaExpression lambdaExpression, int? entityParameterIndex = null, int? valueParameterIndex = null) : base(lambdaExpression)
         {
             if ((lambdaExpression.Parameters.Count < 1 && (entityParameterIndex != null || valueParameterIndex != null)) || lambdaExpression.Parameters.Count > 2)
-                throw new ArgumentException("The expression must have only one or two parameters", nameof(Expression));
+                throw new ArgumentException("The expression must have only one or two parameters", nameof(lambdaExpression));
 
             if (entityParameterIndex != null)
-                mEntityParameter = lambdaExpression.Parameters[(int) entityParameterIndex];
+                mEntityParameter = lambdaExpression.Parameters[(int)entityParameterIndex];
             if (valueParameterIndex != null)
-                mValueParameter = lambdaExpression.Parameters[(int) valueParameterIndex];
+                mValueParameter = lambdaExpression.Parameters[(int)valueParameterIndex];
         }
 
         protected bool InLambdaParameter { get; private set; } = false;
@@ -46,8 +46,8 @@ namespace Gehtsoft.Validator.JSConvertor
 
         protected override string AddParameterAccess(Expression expression) => AddParameterAccess(expression, true);
 
-        private static object mCustomMutex = new object();
-        private static List<Func<MemberExpression, Func<Expression, string>, string>> mCustomMembers = new List<Func<MemberExpression, Func<Expression, string>, string>>();
+        private static readonly object mCustomMutex = new object();
+        private static readonly List<Func<MemberExpression, Func<Expression, string>, string>> mCustomMembers = new List<Func<MemberExpression, Func<Expression, string>, string>>();
 
         public static void AddCustomMemberAccess(Func<MemberExpression, Func<Expression, string>, string> handler)
         {
@@ -74,7 +74,7 @@ namespace Gehtsoft.Validator.JSConvertor
             return base.AddMemberAccess(expression);
         }
 
-        private static List<Func<MethodCallExpression, Func<Expression, string>, string>> mCustomCalls = new List<Func<MethodCallExpression, Func<Expression, string>, string>>();
+        private static readonly List<Func<MethodCallExpression, Func<Expression, string>, string>> mCustomCalls = new List<Func<MethodCallExpression, Func<Expression, string>, string>>();
 
         public static void AddCustomCall(Func<MethodCallExpression, Func<Expression, string>, string> handler)
         {
@@ -106,7 +106,7 @@ namespace Gehtsoft.Validator.JSConvertor
             string result = null;
             if (expression.NodeType == ExpressionType.MemberAccess)
             {
-                MemberExpression memberExpression = (MemberExpression) expression;
+                MemberExpression memberExpression = (MemberExpression)expression;
                 result = AddParameterAccess(memberExpression.Expression, false);
                 if (result != "")
                     result += ".";
@@ -114,7 +114,7 @@ namespace Gehtsoft.Validator.JSConvertor
             }
             else if (expression.NodeType == ExpressionType.ArrayIndex)
             {
-                BinaryExpression binaryExpression = (BinaryExpression) expression;
+                BinaryExpression binaryExpression = (BinaryExpression)expression;
                 return $"jsv_index({AddParameterAccess(binaryExpression.Left)}, {WalkExpression(binaryExpression.Right)})";
             }
             else if (expression.NodeType == ExpressionType.Parameter)

@@ -3,27 +3,25 @@ using System.Reflection;
 
 namespace Gehtsoft.EF.Mapper
 {
-    public class ClassPropertyAccessor : IMappingSource, IMappingTarget
+    public sealed class ClassPropertyAccessor : IMappingSource, IMappingTarget
     {
-        private readonly PropertyInfo mPropertyInfo;
-
-        public PropertyInfo PropertyInfo => mPropertyInfo;
+        public PropertyInfo PropertyInfo { get; }
 
         public ClassPropertyAccessor(PropertyInfo propertyInfo)
         {
-            mPropertyInfo = propertyInfo;
+            PropertyInfo = propertyInfo;
         }
 
-        public string Name => mPropertyInfo.Name;
-        public Type ValueType => mPropertyInfo.PropertyType;
-        public void Set(object obj, object value) => mPropertyInfo.SetValue(obj, value);
-        public object Get(object obj) => mPropertyInfo.GetValue(obj);
+        public string Name => PropertyInfo.Name;
+        public Type ValueType => PropertyInfo.PropertyType;
+        public void Set(object obj, object value) => PropertyInfo.SetValue(obj, value);
+        public object Get(object obj) => PropertyInfo.GetValue(obj);
 
-        public bool Equals(IMappingTarget target) => Equals((object) target);
+        public bool Equals(IMappingTarget target) => Equals((object)target);
 
-        protected bool Equals(ClassPropertyAccessor other)
+        private bool Equals(ClassPropertyAccessor other)
         {
-            return Equals(mPropertyInfo, other.mPropertyInfo);
+            return Equals(PropertyInfo, other.PropertyInfo);
         }
 
         public override bool Equals(object obj)
@@ -31,12 +29,12 @@ namespace Gehtsoft.EF.Mapper
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((ClassPropertyAccessor) obj);
+            return Equals((ClassPropertyAccessor)obj);
         }
 
         public override int GetHashCode()
         {
-            return (mPropertyInfo != null ? mPropertyInfo.GetHashCode() : 0);
+            return (PropertyInfo != null ? PropertyInfo.GetHashCode() : 0);
         }
     }
 }

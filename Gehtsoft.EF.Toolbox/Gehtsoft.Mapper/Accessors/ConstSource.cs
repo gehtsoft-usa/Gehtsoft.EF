@@ -11,8 +11,8 @@ namespace Gehtsoft.EF.Mapper
 
         public string Name => "const";
         public Type ValueType => typeof(TType);
-        public object mConst;
-        
+        private readonly object mConst;
+
         public object Get(object obj)
         {
             return mConst;

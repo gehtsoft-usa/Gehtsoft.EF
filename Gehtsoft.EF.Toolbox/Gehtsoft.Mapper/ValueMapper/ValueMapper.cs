@@ -18,9 +18,9 @@ namespace Gehtsoft.EF.Mapper
 
     public static class ValueMapper
     {
-        private static Type enumerableType = typeof(IEnumerable);
-        private static Type collectionType = typeof(ICollection);
-        private static Type listType = typeof(IList);
+        private static readonly Type enumerableType = typeof(IEnumerable);
+        private static readonly Type collectionType = typeof(ICollection);
+        private static readonly Type listType = typeof(IList);
 
         public static object MapValue(object sourceValue, Type destinationType, MapFlag flags = MapFlag.None, object destinationValue = null)
         {
@@ -34,7 +34,6 @@ namespace Gehtsoft.EF.Mapper
                     return null;
             }
 
-
             Type destinationType1 = Nullable.GetUnderlyingType(destinationType);
             if (destinationType1 != null && destinationType1 != destinationType)
             {
@@ -44,14 +43,14 @@ namespace Gehtsoft.EF.Mapper
 
             Type sourceType = sourceValue.GetType();
 
-            if (sourceValue is string && ((flags & MapFlag.TrimStrings) == MapFlag.TrimStrings))
-                sourceValue = ((string) sourceValue).Trim();
+            if (sourceValue is string sv && ((flags & MapFlag.TrimStrings) == MapFlag.TrimStrings))
+                sourceValue = sv.Trim();
 
-            if ((sourceValue is DateTime) && ((flags & MapFlag.TrimToDate) == MapFlag.TrimToDate))
-                sourceValue = DateUtils.TruncateTime((DateTime) sourceValue);
+            if ((sourceValue is DateTime time) && ((flags & MapFlag.TrimToDate) == MapFlag.TrimToDate))
+                sourceValue = DateUtils.TruncateTime(time);
 
-            if ((sourceValue is DateTime) && ((flags & MapFlag.TrimToSeconds) == MapFlag.TrimToSeconds))
-                sourceValue = DateUtils.TruncateToSeconds((DateTime) sourceValue);
+            if ((sourceValue is DateTime time1) && ((flags & MapFlag.TrimToSeconds) == MapFlag.TrimToSeconds))
+                sourceValue = DateUtils.TruncateToSeconds(time1);
 
             if (sourceType == destinationType)
             {
@@ -82,8 +81,8 @@ namespace Gehtsoft.EF.Mapper
             {
                 if (destinationTypeInfo.IsEnum)
                 {
-                    if (sourceValue is string)
-                        return Enum.Parse(destinationType, (string)sourceValue);
+                    if (sourceValue is string x)
+                        return Enum.Parse(destinationType, x);
                     else
                         return Enum.ToObject(destinationType, sourceValue);
                 }
@@ -98,9 +97,9 @@ namespace Gehtsoft.EF.Mapper
                 if (destinationTypeInfo.IsArray && sourceTypeInfo.IsArray)
                 {
                     Type destinationElementType = destinationTypeInfo.GetElementType();
-                    Array sourceArray = (Array) sourceValue;
+                    Array sourceArray = (Array)sourceValue;
                     int length = sourceArray.Length;
-                    Array destinationArray = Activator.CreateInstance(destinationType, new object[] {length}) as Array;
+                    Array destinationArray = Activator.CreateInstance(destinationType, new object[] { length }) as Array;
 
                     for (int i = 0; i < length; i++)
                         destinationArray.SetValue(MapValue(sourceArray.GetValue(i), destinationElementType), i);
@@ -110,11 +109,11 @@ namespace Gehtsoft.EF.Mapper
                 else if (destinationTypeInfo.IsArray && enumerableType.IsAssignableFrom(sourceType))
                 {
                     Type destinationElementType = destinationTypeInfo.GetElementType();
-                    IEnumerable collection = (IEnumerable) sourceValue;
+                    IEnumerable collection = (IEnumerable)sourceValue;
                     int length = 0;
                     foreach (var v in collection)
                         length++;
-                    Array destinationArray = Activator.CreateInstance(destinationType, new object[] {length}) as Array;
+                    Array destinationArray = Activator.CreateInstance(destinationType, new object[] { length }) as Array;
                     int idx = 0;
                     foreach (object value in collection)
                         destinationArray.SetValue(MapValue(value, destinationElementType), idx++);
@@ -125,7 +124,7 @@ namespace Gehtsoft.EF.Mapper
                     Type destinationElementType = GetElementType(destinationType);
                     if (destinationElementType == null)
                         destinationElementType = typeof(object);
-                    Array sourceArray = (Array) sourceValue;
+                    Array sourceArray = (Array)sourceValue;
                     int length = sourceArray.Length;
                     IList destinationCollection = Activator.CreateInstance(destinationType) as IList;
                     for (int i = 0; i < length; i++)
@@ -135,7 +134,7 @@ namespace Gehtsoft.EF.Mapper
                 else if (listType.IsAssignableFrom(destinationType) && enumerableType.IsAssignableFrom(sourceType))
                 {
                     Type destinationElementType = GetElementType(destinationType);
-                    IEnumerable collection = (IEnumerable) sourceValue;
+                    IEnumerable collection = (IEnumerable)sourceValue;
                     IList destinationCollection = Activator.CreateInstance(destinationType) as IList;
                     foreach (object value in collection)
                         destinationCollection.Add(MapValue(value, destinationElementType));
@@ -151,7 +150,7 @@ namespace Gehtsoft.EF.Mapper
 
                         map = MapFactory.GetMap(sourceType, destinationType, true);
                         if (map == null)
-                            throw new Exception($"Map between {sourceType} and {destinationType} does not exists and cannot be automatically created");
+                            throw new InvalidOperationException($"Map between {sourceType} and {destinationType} does not exists and cannot be automatically created");
                     }
 
                     if (destinationValue == null)
@@ -183,11 +182,11 @@ namespace Gehtsoft.EF.Mapper
                     TypeInfo candidateTypeInfo = candidateType.GetTypeInfo();
                     if (candidateTypeInfo.IsValueType || candidateType == typeof(string) || (!candidateTypeInfo.IsAbstract && !candidateTypeInfo.IsInterface))
                     {
-                        Type candidateInterface = typeof(ICollection<>).MakeGenericType(new Type[] {candidateType});
+                        Type candidateInterface = typeof(ICollection<>).MakeGenericType(new Type[] { candidateType });
                         if (candidateInterface.GetTypeInfo().IsAssignableFrom(type))
                             return candidateType;
 
-                        candidateInterface = typeof(IEnumerable<>).MakeGenericType(new Type[] {candidateType});
+                        candidateInterface = typeof(IEnumerable<>).MakeGenericType(new Type[] { candidateType });
                         if (candidateInterface.GetTypeInfo().IsAssignableFrom(type))
                             return candidateType;
                     }

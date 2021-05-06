@@ -4,7 +4,7 @@ namespace Gehtsoft.Validator
 {
     public class AlwaysPredicate : IValidationPredicate
     {
-        private Type mParameterType;
+        private readonly Type mParameterType;
         public Type ParameterType => mParameterType;
 
         public AlwaysPredicate(Type parameterType)

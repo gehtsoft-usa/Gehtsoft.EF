@@ -101,15 +101,15 @@ namespace Gehtsoft.EF.Toolbox.Test
             result = entityValidator.Validate(entity);
             Assert.IsTrue(result.IsValid);
 
-            entity.Reference = new ValidatorTestEntityDict() {ID = 1};
+            entity.Reference = new ValidatorTestEntityDict() { ID = 1 };
             result = entityValidator.Validate(entity);
             Assert.IsTrue(result.IsValid);
 
-            entity.StringValue = new string('0', 257);;
+            entity.StringValue = new string('0', 257);
             result = entityValidator.Validate(entity);
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Failures.Count);
-            Assert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.StringValue), (int) EfValidationErrorCode.StringIsTooLong));           
+            Assert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.StringValue), (int)EfValidationErrorCode.StringIsTooLong));
             entity.StringValue = "";
 
             entity.DateValue = new DateTime(2050, 1, 1);
@@ -161,7 +161,6 @@ namespace Gehtsoft.EF.Toolbox.Test
             Assert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.DecimalValue), (int)EfValidationErrorCode.NumberIsOutOfRange));
             entity.DecimalValue = 0;
 
-
             entity.EnumValue = ValidatorTestEnum.EnumValue1;
             result = entityValidator.Validate(entity);
             Assert.IsTrue(result.IsValid);
@@ -191,20 +190,26 @@ namespace Gehtsoft.EF.Toolbox.Test
 
                 using (ModifyEntityQuery query = connection.GetInsertEntityQuery<ValidatorTestEntityDict>())
                 {
-                    dictEntry = new ValidatorTestEntityDict();
-                    dictEntry.StringValue = "entity1";
+                    dictEntry = new ValidatorTestEntityDict
+                    {
+                        StringValue = "entity1"
+                    };
                     query.Execute(dictEntry);
 
-                    dictEntry = new ValidatorTestEntityDict();
-                    dictEntry.StringValue = "entity2";
+                    dictEntry = new ValidatorTestEntityDict
+                    {
+                        StringValue = "entity2"
+                    };
                     query.Execute(dictEntry);
                 }
 
-                dictEntry = new ValidatorTestEntityDict();
-                dictEntry.StringValue = "entity2";
+                dictEntry = new ValidatorTestEntityDict
+                {
+                    StringValue = "entity2"
+                };
                 ValidationResult res = dictValidator.Validate(dictEntry);
                 Assert.IsFalse(res.IsValid);
-                Assert.IsTrue(res.Failures.Contains(nameof(ValidatorTestEntityDict.StringValue), (int) EfValidationErrorCode.ValueIsNotUnique));
+                Assert.IsTrue(res.Failures.Contains(nameof(ValidatorTestEntityDict.StringValue), (int)EfValidationErrorCode.ValueIsNotUnique));
 
                 dictEntry.ID = 2;
                 dictEntry.StringValue = "entity2";
@@ -216,27 +221,29 @@ namespace Gehtsoft.EF.Toolbox.Test
                 res = dictValidator.Validate(dictEntry);
                 Assert.IsTrue(res.IsValid);
 
-                entity = new ValidatorTestEntity();
-                entity.StringValue = "123";
-                entity.DateValue = DateTime.Now;
-                entity.TsValue = DateTime.Now;
-                entity.DoubleValue = 123.45;
-                entity.DecimalValue = 123.45m;
-                entity.EnumValue = ValidatorTestEnum.EnumValue1;
-                entity.IntValue = 0;
-                entity.Reference = null;
+                entity = new ValidatorTestEntity
+                {
+                    StringValue = "123",
+                    DateValue = DateTime.Now,
+                    TsValue = DateTime.Now,
+                    DoubleValue = 123.45,
+                    DecimalValue = 123.45m,
+                    EnumValue = ValidatorTestEnum.EnumValue1,
+                    IntValue = 0,
+                    Reference = null
+                };
 
                 res = entityValidator.Validate(entity);
                 Assert.IsTrue(res.IsValid);
 
-                entity.Reference = new ValidatorTestEntityDict() {ID = 2};
+                entity.Reference = new ValidatorTestEntityDict() { ID = 2 };
                 res = entityValidator.Validate(entity);
                 Assert.IsTrue(res.IsValid);
 
-                entity.Reference = new ValidatorTestEntityDict() {ID = 3};
+                entity.Reference = new ValidatorTestEntityDict() { ID = 3 };
                 res = entityValidator.Validate(entity);
                 Assert.IsFalse(res.IsValid);
-                Assert.IsTrue(res.Failures.Contains(nameof(ValidatorTestEntity.Reference), (int) EfValidationErrorCode.ReferenceDoesNotExists));
+                Assert.IsTrue(res.Failures.Contains(nameof(ValidatorTestEntity.Reference), (int)EfValidationErrorCode.ReferenceDoesNotExists));
             }
         }
 
@@ -252,13 +259,14 @@ namespace Gehtsoft.EF.Toolbox.Test
         public void TestMessageProvider()
         {
             EfEntityValidator<ValidatorTestEntityDict> validator = new EfEntityValidator<ValidatorTestEntityDict>(null, null, new MessageProvider());
-            ValidatorTestEntityDict rec = new ValidatorTestEntityDict();
-            rec.StringValue = new string('a', 512);
+            ValidatorTestEntityDict rec = new ValidatorTestEntityDict
+            {
+                StringValue = new string('a', 512)
+            };
             ValidationResult res = validator.Validate(rec);
             Assert.IsFalse(res.IsValid);
             Assert.AreEqual(1, res.Failures.Count);
-            Assert.AreEqual($"ValidatorTestEntityDict.StringValue - error {(int) EfValidationErrorCode.StringIsTooLong}", res.Failures[0].Message);
+            Assert.AreEqual($"ValidatorTestEntityDict.StringValue - error {(int)EfValidationErrorCode.StringIsTooLong}", res.Failures[0].Message);
         }
-
     }
 }

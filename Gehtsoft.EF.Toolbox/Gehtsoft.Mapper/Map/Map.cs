@@ -11,27 +11,23 @@ namespace Gehtsoft.EF.Mapper
 {
     public class Map<TSource, TDestination> : IMap
     {
-        private PropertyMappingCollection<TSource, TDestination> mMappings = new PropertyMappingCollection<TSource, TDestination>();
+        public PropertyMappingCollection<TSource, TDestination> Mappings { get; } = new PropertyMappingCollection<TSource, TDestination>();
 
-        public PropertyMappingCollection<TSource, TDestination> Mappings => mMappings;
-
-        IPropertyMappingCollection IMap.Mappings => mMappings;
+        IPropertyMappingCollection IMap.Mappings => Mappings;
 
         public Type Source => typeof(TSource);
 
         public Type Destination => typeof(TDestination);
 
-        private MappingActionCollection<TSource, TDestination> mPre = new MappingActionCollection<TSource, TDestination>();
+        private readonly MappingActionCollection<TSource, TDestination> mPre = new MappingActionCollection<TSource, TDestination>();
 
-        private MappingActionCollection<TSource, TDestination> mPost = new MappingActionCollection<TSource, TDestination>();
+        private readonly MappingActionCollection<TSource, TDestination> mPost = new MappingActionCollection<TSource, TDestination>();
 
         IMappingActionCollection IMap.Pre => mPre;
 
         IMappingActionCollection IMap.Post => mPost;
 
         public bool MapNullToNull { get; set; } = true;
-
-      
 
         public Map()
         {
@@ -43,7 +39,7 @@ namespace Gehtsoft.EF.Mapper
         {
             if (Factory == null)
                 return null;
-            return (object) Factory((TSource) source);
+            return Factory((TSource)source);
         }
 
         Func<object, object> IMap.Factory
@@ -59,15 +55,17 @@ namespace Gehtsoft.EF.Mapper
 
         protected internal virtual PropertyMapping<TSource, TDestination> AddTarget(IMappingTarget target)
         {
-            PropertyMapping<TSource, TDestination> mapping = new PropertyMapping<TSource, TDestination>(this);
-            mapping.Target = target;
-            mMappings.Add(mapping);
+            PropertyMapping<TSource, TDestination> mapping = new PropertyMapping<TSource, TDestination>(this)
+            {
+                Target = target
+            };
+            Mappings.Add(mapping);
             return mapping;
         }
 
         public virtual IEnumerable<PropertyMapping<TSource, TDestination>> FindTarget(IMappingTarget target)
         {
-            foreach (PropertyMapping<TSource, TDestination> mapping in mMappings)
+            foreach (PropertyMapping<TSource, TDestination> mapping in Mappings)
                 if (mapping.Target.Equals(target))
                     yield return mapping;
         }
@@ -83,19 +81,10 @@ namespace Gehtsoft.EF.Mapper
 
         public virtual PropertyMapping<TSource, TDestination> For<TValue>(Expression<Func<TDestination, TValue>> member)
         {
-            MemberInfo memberInfo = null;
-            try
-            {
-                memberInfo = PropertyMapping<TSource, TDestination>.PropertyOfParameterInfo(member);
-            }
-            catch (Exception)
-            {
-                ;
-            }
+            MemberInfo memberInfo = PropertyMapping<TSource, TDestination>.PropertyOfParameterInfo(member);
 
-            PropertyInfo propertyInfo = memberInfo as PropertyInfo;
-            if (propertyInfo == null)
-                throw new Exception("The expression is not a simple property access expression!");
+            if (!(memberInfo is PropertyInfo propertyInfo))
+                throw new InvalidOperationException("The expression is not a simple property access expression!");
 
             IMappingTarget target = new ClassPropertyAccessor(propertyInfo);
             return AddTarget(target);
@@ -110,7 +99,6 @@ namespace Gehtsoft.EF.Mapper
                 target = new ClassPropertyAccessor(propertyInfo);
 
             return target;
-
         }
 
         public virtual IEnumerable<PropertyMapping<TSource, TDestination>> Find(string name)
@@ -131,27 +119,16 @@ namespace Gehtsoft.EF.Mapper
             if (target == null)
                 return false;
 
-            foreach (var t in FindTarget(target))
-                return true;
-
-            return false;
+            var t = FindTarget(target);
+            return t.Any();
         }
 
         public virtual IEnumerable<PropertyMapping<TSource, TDestination>> Find<TValue>(Expression<Func<TDestination, TValue>> member)
         {
-            MemberInfo memberInfo = null;
-            try
-            {
-                memberInfo = PropertyMapping<TSource, TDestination>.PropertyOfParameterInfo(member);
-            }
-            catch (Exception)
-            {
-                ;
-            }
+            MemberInfo memberInfo = PropertyMapping<TSource, TDestination>.PropertyOfParameterInfo(member);
 
-            PropertyInfo propertyInfo = memberInfo as PropertyInfo;
-            if (propertyInfo == null)
-                throw new Exception("The expression is not a simple property access expression!");
+            if (!(memberInfo is PropertyInfo propertyInfo))
+                throw new InvalidOperationException("The expression is not a simple property access expression!");
 
             IMappingTarget target = GetTargetByName(propertyInfo.Name);
 
@@ -167,7 +144,6 @@ namespace Gehtsoft.EF.Mapper
             IMappingTarget target = new ActionTarget<TDestination, TValue>(action);
             return AddTarget(target);
         }
-
 
         public virtual MappingAction<TSource, TDestination> BeforeMapping(Action<TSource, TDestination> action)
         {
@@ -185,24 +161,22 @@ namespace Gehtsoft.EF.Mapper
 
         protected virtual bool Equals(Map<TSource, TDestination> other)
         {
-            return Equals((object) other);
+            return Equals((object)other);
         }
 
         public override bool Equals(object obj) => Equals(obj as IMap);
 
         public virtual bool Equals(IMap obj)
         {
-
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return this.Source == obj.Source && this.Destination == obj.Destination;
+            if (obj is null) return false;
+            return ReferenceEquals(this, obj) || (Source == obj.Source && Destination == obj.Destination);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return this.Source.GetHashCode() ^ (397 ^ this.Destination.GetHashCode());
+                return this.Source.GetHashCode() ^ 397 ^ this.Destination.GetHashCode();
             }
         }
 
@@ -211,7 +185,7 @@ namespace Gehtsoft.EF.Mapper
             foreach (IMappingAction predicate in mPre)
                 predicate.Perform(source, destination);
 
-            foreach (IPropertyMapping mapping in mMappings)
+            foreach (IPropertyMapping mapping in Mappings)
                 mapping.Map(source, destination, ignoreNull);
 
             foreach (IMappingAction predicate in mPost)
@@ -223,15 +197,15 @@ namespace Gehtsoft.EF.Mapper
         public virtual TDestination Do(TSource source)
         {
             if (source == null && MapNullToNull)
-                return default(TDestination);
+                return default;
 
             TDestination destination;
             if (Factory != null)
                 destination = Factory(source);
             else if (source == null)
-                return default(TDestination);
+                return default;
             else
-                destination = (TDestination)Activator.CreateInstance<TDestination>();
+                destination = Activator.CreateInstance<TDestination>();
             Do(source, destination);
             return destination;
         }
@@ -240,9 +214,9 @@ namespace Gehtsoft.EF.Mapper
 
         IPropertyMapping IMap.For(IMappingTarget source) => AddTarget(source);
 
-        void IMap.Do(object from, object to) => Do((TSource) from, (TDestination) to);
+        void IMap.Do(object from, object to) => Do((TSource)from, (TDestination)to);
 
-        void IMap.Do(object from, object to, bool ignoreNull) => Do((TSource) from, (TDestination) to);
+        void IMap.Do(object from, object to, bool ignoreNull) => Do((TSource)from, (TDestination)to);
 
         public virtual IEnumerator<IPropertyMapping> GetEnumerator()
         {
@@ -251,8 +225,6 @@ namespace Gehtsoft.EF.Mapper
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
-
-
 
     public static class MapExtension
     {
@@ -284,16 +256,14 @@ namespace Gehtsoft.EF.Mapper
                     continue;
 
                 if (!map.ContainsRuleFor(destinationProperty.Name))
-                     map.For(destinationProperty.Name).From(sourceProperty.Name);
+                    map.For(destinationProperty.Name).From(sourceProperty.Name);
             }
         }
 
         private static bool IsMappingValueType(this Type type)
         {
             type = Nullable.GetUnderlyingType(type) ?? type;
-            return (type == typeof(string) || type.IsValueType || type.IsEnum);
-
+            return type == typeof(string) || type.IsValueType || type.IsEnum;
         }
-
     }
 }

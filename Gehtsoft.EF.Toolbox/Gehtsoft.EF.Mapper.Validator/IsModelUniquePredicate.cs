@@ -12,15 +12,13 @@ namespace Gehtsoft.EF.Mapper.Validator
 {
     public class IsModelUniquePredicate : IsUniquePredicate
     {
-        public PropertyInfo PkInfo { get; private set; }
-        public PropertyInfo ValueInfo { get; private set; }
-       
+        public PropertyInfo PkInfo { get; }
+        public PropertyInfo ValueInfo { get; }
 
         public IsModelUniquePredicate(PropertyInfo pk, PropertyInfo value, IValidatorConnectionFactory connectionFactory, Type entityType, TableDescriptor.ColumnInfo relatedColumn) : base(connectionFactory, entityType, relatedColumn)
         {
             PkInfo = pk;
             ValueInfo = value;
-
         }
 
         public override bool Validate(object value)
@@ -29,7 +27,6 @@ namespace Gehtsoft.EF.Mapper.Validator
             RelatedColumn.Table.PrimaryKey.PropertyAccessor.SetValue(entity, PkInfo.GetValue(value));
             RelatedColumn.PropertyAccessor.SetValue(entity, ValueInfo.GetValue(value));
             return base.Validate(entity);
-
         }
     }
 }

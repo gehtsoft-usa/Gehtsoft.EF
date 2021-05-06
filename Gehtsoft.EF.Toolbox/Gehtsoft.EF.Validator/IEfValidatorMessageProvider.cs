@@ -11,12 +11,11 @@ namespace Gehtsoft.EF.Validator
     public interface IEfValidatorMessageProvider
     {
         string GetMessage(EntityDescriptor entityDescriptor, TableDescriptor.ColumnInfo column, int validationErrorCode);
-
     }
 
     public class DefaultEfValidatorMessageProvider : IEfValidatorMessageProvider
     {
-        private static Dictionary<string, Dictionary<int, string>> gDefaultCodes = new Dictionary<string, Dictionary<int, string>>()
+        private static readonly Dictionary<string, Dictionary<int, string>> gDefaultCodes = new Dictionary<string, Dictionary<int, string>>()
         {
             {
                 "en",
@@ -50,16 +49,13 @@ namespace Gehtsoft.EF.Validator
             }
         };
 
-        private Dictionary<int, string> mDictionary;
-
-
+        private readonly Dictionary<int, string> mDictionary;
 
         public DefaultEfValidatorMessageProvider(string language = "en")
         {
             if (!gDefaultCodes.TryGetValue(language, out mDictionary))
                 mDictionary = gDefaultCodes["en"];
         }
-
 
         public string GetMessage(EntityDescriptor entityDescriptor, TableDescriptor.ColumnInfo column, int validationErrorCode)
         {

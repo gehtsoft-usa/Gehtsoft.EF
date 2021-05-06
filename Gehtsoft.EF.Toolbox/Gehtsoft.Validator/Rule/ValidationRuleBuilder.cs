@@ -6,8 +6,8 @@ namespace Gehtsoft.Validator
 {
     public class ValidationRuleBuilder
     {
-        public ValidationRule Rule { get; private set; }
-        public BaseValidator Validator { get; private set; }
+        public ValidationRule Rule { get; }
+        public BaseValidator Validator { get; }
 
         public ValidationRuleBuilder(BaseValidator validator, ValidationRule validationRule)
         {
@@ -155,13 +155,13 @@ namespace Gehtsoft.Validator
 
         public ValidationRuleBuilder NotSQLInjection()
         {
-            Rule.Validator = new SQLInjectionPredicate();
+            Rule.Validator = new SqlInjectionPredicate();
             return this;
         }
 
         public ValidationRuleBuilder NotHTML()
         {
-            Rule.Validator = new HTMLInjectionPredicate();
+            Rule.Validator = new HtmlInjectionPredicate();
             return this;
         }
 

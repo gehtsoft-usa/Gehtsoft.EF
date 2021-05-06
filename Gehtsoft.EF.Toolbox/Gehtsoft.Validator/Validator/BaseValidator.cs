@@ -10,12 +10,11 @@ using System.Threading.Tasks;
 [assembly: InternalsVisibleTo("Gehtsoft.EF.Validator")]
 [assembly: InternalsVisibleTo("Gehtsoft.EF.Mapper.Validator")]
 
-
 namespace Gehtsoft.Validator
 {
     public class BaseValidator : IBaseValidator, IAsyncBaseValidator
     {
-        public Type ValidateType { get; private set; }
+        public Type ValidateType { get; }
         protected List<ValidationRule> mRules = new List<ValidationRule>();
         protected IValidationPredicate mWhen;
         protected IValidationPredicate mUnless;
@@ -100,11 +99,10 @@ namespace Gehtsoft.Validator
             ValidationRuleBuilder builder = forElement ? RuleForAll(name) : RuleFor(name);
             builder.Must(predicate);
             if (code != null)
-                builder.WithCode((int) code);
+                builder.WithCode((int)code);
             if (message != null)
                 builder.WithMessage(message);
         }
-
 
         public void When(IValidationPredicate predicate)
         {
@@ -118,7 +116,7 @@ namespace Gehtsoft.Validator
 
         public ValidationRuleBuilder RuleForEntity(string name = null)
         {
-            ValidationRule rule = new ValidationRule(ValidateType, ValidateType) {Target = new EntityValidationTarget(ValidateType, name ?? "")};
+            ValidationRule rule = new ValidationRule(ValidateType, ValidateType) { Target = new EntityValidationTarget(ValidateType, name ?? "") };
             mRules.Add(rule);
             return new ValidationRuleBuilder(this, rule);
         }
@@ -129,7 +127,7 @@ namespace Gehtsoft.Validator
 
         public ValidationRuleBuilder Rule(ValidationTarget target)
         {
-            ValidationRule rule = new ValidationRule(ValidateType, target.ValueType) {Target = target};
+            ValidationRule rule = new ValidationRule(ValidateType, target.ValueType) { Target = target };
             mRules.Add(rule);
             return new ValidationRuleBuilder(this, rule);
         }
@@ -152,14 +150,13 @@ namespace Gehtsoft.Validator
                 return await asyncPredicate.ValidateAsync(value, token);
             else
                 return predicate.Validate(value);
-
         }
 
         protected virtual async Task<ValidationResult> ValidateCore(bool sync, object entity, CancellationToken? token)
         {
             ValidationResult result = new ValidationResult();
 
-            if (token != null && token.Value.IsCancellationRequested)
+            if (token?.IsCancellationRequested == true)
                 throw new OperationCanceledException();
 
             if (SkipIfNull && entity == null)
@@ -195,7 +192,7 @@ namespace Gehtsoft.Validator
 
             foreach (ValidationRule rule in mRules)
             {
-                if (token != null && token.Value.IsCancellationRequested)
+                if (token?.IsCancellationRequested == true)
                     throw new OperationCanceledException();
 
                 if (rule.WhenEntity != null)
@@ -238,7 +235,7 @@ namespace Gehtsoft.Validator
                     else
                     {
                         ValidationTarget.ValidationValue[] all = rule.Target.All(entity);
-                        if (all != null && all.Length > 0)
+                        if (all?.Length > 0)
                         {
                             foreach (ValidationTarget.ValidationValue v in all)
                             {

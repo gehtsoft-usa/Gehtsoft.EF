@@ -17,7 +17,6 @@ namespace Gehtsoft.Validator.JSConvertor
         public string ErrorMessage { get; set; }
     }
 
-
     public static class ConvertToJsExtension
     {
         public static JsValidatorRule[] GetJsRules(this IBaseValidator validator, Type compilerType = null)
@@ -44,13 +43,11 @@ namespace Gehtsoft.Validator.JSConvertor
                         ErrorMessage = rule.Message,
                     };
 
-
                     if (jsRule.JsValidationExpression == null) //isn't supported on the client
                         continue;
 
                     if (!string.IsNullOrEmpty(prefix))
                         jsRule.JsValidationExpression = jsRule.JsValidationExpression.Replace("reference('", $"reference('{prefix}.");
-
 
                     bool hasWhen = true;
                     if (rule.WhenEntity != null)
@@ -68,7 +65,7 @@ namespace Gehtsoft.Validator.JSConvertor
                         throw new ArgumentNullException($"Rule {jsRule.JsTargetName} has a condition predicate which can't be compiled to the JS.");
 
                     if (hasWhen && !string.IsNullOrEmpty(prefix))
-                            jsRule.JsWhenExpression = jsRule.JsWhenExpression.Replace("reference('", $"reference('{prefix}.");
+                        jsRule.JsWhenExpression = jsRule.JsWhenExpression.Replace("reference('", $"reference('{prefix}.");
 
                     list.Add(jsRule);
                 }

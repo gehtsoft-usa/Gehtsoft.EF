@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -77,7 +78,7 @@ namespace Gehtsoft.EF.Toolbox.Test
                 ValidateModel(new DefaultEfValidatorMessageProvider());
                 RuleForEntity().Must(e => e.SubModel != null).WithMessage("SubModel is substantial part of the submission, do not miss it!").ServerOnly();
                 RuleFor(e => e.ID).Must(v => v.HasValue);
-                RuleFor(e => e.Name).NotNullOrWhitespace().UnlessEntity(e => e.SubModel == null ? false : e.SubModel.AllowAllowEmptyName).WithMessage("Empty name must be allowed");
+                RuleFor(e => e.Name).NotNullOrWhitespace().UnlessEntity(e => e.SubModel != null && e.SubModel.AllowAllowEmptyName).WithMessage("Empty name must be allowed");
                 RuleFor(e => e.Name).Must(value => value.Substring(1).All(c => c != value[0]));
                 RuleFor(e => e.Age).Must(v => v > 16).WithMessage("Age must be more than 16");
                 RuleFor(e => e.SubModel).ValidateUsing<SubModelValidator>();
@@ -125,7 +126,8 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             ModelValidator validator = new ModelValidator();
             JsValidatorRule[] jsRules = validator.GetJsRules();
-            ;
+
+            Trace.WriteLine(jsRules);
         }
     }
 }

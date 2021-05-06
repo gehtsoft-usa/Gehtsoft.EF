@@ -9,9 +9,9 @@ namespace Gehtsoft.EF.Validator
 {
     public abstract class DatabasePredicate : IValidationPredicate, IValidationPredicateAsync
     {
-        public IValidatorConnectionFactory ConnectionFactory { get; private set; }
-        public Type EntityType { get; private set; }
-        public TableDescriptor.ColumnInfo RelatedColumn { get; private set; }
+        public IValidatorConnectionFactory ConnectionFactory { get; }
+        public Type EntityType { get; }
+        public TableDescriptor.ColumnInfo RelatedColumn { get; }
 
         protected DatabasePredicate(IValidatorConnectionFactory connectionFactory, Type entityType, TableDescriptor.ColumnInfo relatedColumn)
         {

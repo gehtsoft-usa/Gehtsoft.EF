@@ -12,13 +12,12 @@ namespace Gehtsoft.Validator
         ValidationResult Validate(object entity);
     }
 
-
     public interface IValidator<T> : IBaseValidator
     {
         ValidationResult Validate(T entity);
     }
 
-    public interface IAsyncBaseValidator 
+    public interface IAsyncBaseValidator
     {
         Task<ValidationResult> ValidateAsync(object entity, CancellationToken? token = null);
     }

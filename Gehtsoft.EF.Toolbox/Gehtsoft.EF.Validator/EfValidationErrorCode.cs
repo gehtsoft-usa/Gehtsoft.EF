@@ -1,6 +1,6 @@
 ﻿namespace Gehtsoft.EF.Validator
 {
-    public enum EfValidationErrorCode : int
+    public enum EfValidationErrorCode
     {
         StringIsTooLong = 1000,
         NumberIsOutOfRange = 1001,

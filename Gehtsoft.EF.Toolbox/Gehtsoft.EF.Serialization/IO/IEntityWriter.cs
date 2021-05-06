@@ -8,5 +8,5 @@ namespace Gehtsoft.EF.Serialization.IO
     {
         void Start(Type type);
         void Write(object entity);
-    }   
+    }
 }

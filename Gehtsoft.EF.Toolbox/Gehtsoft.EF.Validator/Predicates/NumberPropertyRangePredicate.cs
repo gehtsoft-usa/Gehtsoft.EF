@@ -6,8 +6,8 @@ namespace Gehtsoft.EF.Validator
 {
     public class NumberPropertyRangePredicate : IValidationPredicate
     {
-        private int mSize, mPrecision;
-        private double mMax;
+        private readonly int mSize, mPrecision;
+        private readonly double mMax;
 
         public NumberPropertyRangePredicate(int size, int precision)
         {
@@ -29,10 +29,10 @@ namespace Gehtsoft.EF.Validator
                 value = Convert.ChangeType(value, type1);
 
             double v;
-            if (value is double)
-                v = (double) value;
+            if (value is double x)
+                v = x;
             else
-                v = (double) Convert.ChangeType(value, typeof(double));
+                v = (double)Convert.ChangeType(value, typeof(double));
 
             return v > -mMax && v < mMax;
         }

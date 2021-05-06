@@ -4,7 +4,7 @@ namespace Gehtsoft.Validator
 {
     public class IsNullPredicate : IValidationPredicate
     {
-        private Type mParameterType;
+        private readonly Type mParameterType;
         public Type ParameterType => mParameterType;
 
         public IsNullPredicate(Type parameterType)

@@ -6,8 +6,8 @@ namespace Gehtsoft.Validator
 {
     public class DoesMatchPredicate : IValidationPredicate
     {
-        private Regex mRegex;
-        private string mPattern;
+        private readonly Regex mRegex;
+        private readonly string mPattern;
 
         public DoesMatchPredicate(Type parameterType, string pattern, RegexOptions? options = null, TimeSpan? timeout = null)
         {
@@ -20,10 +20,15 @@ namespace Gehtsoft.Validator
                 mRegex = new Regex(pattern, options ?? RegexOptions.None);
         }
 
-        private Type mParameterType;
+        private readonly Type mParameterType;
         public Type ParameterType => mParameterType;
 
-        public bool Validate(object value) => value == null ? false : mRegex.IsMatch(value?.ToString());
+        public bool Validate(object value)
+        {
+            if (value == null)
+                return false;
+            return mRegex.IsMatch(value?.ToString());
+        }
 
         public string RemoteScript(Type compilerType) => $"jsv_match(/{mPattern}/{Suffix(mRegex.Options)}, value)";
 

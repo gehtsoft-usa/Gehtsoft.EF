@@ -24,15 +24,15 @@ namespace Gehtsoft.Validator
 
             if (mPredicateSource == null)
                 return mJavaScript;
-            
-            ValidationExpressionCompiler compiler = null;
+
+            ValidationExpressionCompiler compiler;
             try
             {
-                compiler = Activator.CreateInstance(expressionCompilerType, mPredicateSource, mParameterIsEntity ? (int?) 0 : null, mParameterIsEntity ? null : (int?) 0) as ValidationExpressionCompiler;
+                compiler = Activator.CreateInstance(expressionCompilerType, mPredicateSource, mParameterIsEntity ? (int?)0 : null, mParameterIsEntity ? null : (int?)0) as ValidationExpressionCompiler;
             }
-            catch (Exception )
+            catch (Exception)
             {
-                
+                compiler = null;
             }
 
             mPredicateSource = null;
@@ -44,10 +44,10 @@ namespace Gehtsoft.Validator
             {
                 mJavaScript = compiler.JavaScriptExpression;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 mJavaScript = null;
-                throw e;
+                throw;
             }
 
             return mJavaScript;

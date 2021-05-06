@@ -6,8 +6,8 @@ namespace Gehtsoft.EF.Validator
 {
     public class DecimalPropertyRangePredicate : IValidationPredicate
     {
-        private int mSize, mPrecision;
-        private decimal mMax;
+        private readonly int mSize, mPrecision;
+        private readonly decimal mMax;
 
         public DecimalPropertyRangePredicate(int size, int precision)
         {
@@ -29,10 +29,10 @@ namespace Gehtsoft.EF.Validator
                 value = Convert.ChangeType(value, type1);
 
             decimal v;
-            if (value is decimal)
-                v = (decimal) value;
+            if (value is decimal x)
+                v = x;
             else
-                v = (decimal) Convert.ChangeType(value, typeof(decimal));
+                v = (decimal)Convert.ChangeType(value, typeof(decimal));
 
             return v > -mMax && v < mMax;
         }

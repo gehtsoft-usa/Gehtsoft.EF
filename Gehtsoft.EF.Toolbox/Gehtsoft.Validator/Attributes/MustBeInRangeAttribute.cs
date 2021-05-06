@@ -9,10 +9,9 @@ namespace Gehtsoft.Validator
         public bool MinimumInclusive { get; set; } = true;
         public object Maximum { get; set; } = null;
         public bool MaximumInclusive { get; set; } = true;
-       
-        public MustBeInRangeAttribute() 
-        {
 
+        public MustBeInRangeAttribute()
+        {
         }
     }
 }

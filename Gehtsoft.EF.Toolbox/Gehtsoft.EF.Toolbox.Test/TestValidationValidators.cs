@@ -13,7 +13,7 @@ namespace Gehtsoft.EF.Toolbox.Test
         public enum TestEnum1
         {
             E1 = 1,
-            E2 = 2, 
+            E2 = 2,
             E3 = 3,
         }
 
@@ -30,7 +30,7 @@ namespace Gehtsoft.EF.Toolbox.Test
 
         public class TestEntity1Validator : AbstractValidator<TestEntity1>
         {
-            public TestEntity1Validator ()
+            public TestEntity1Validator()
             {
                 Unless(a => a == null);
                 RuleForEntity("whole").Must(a => a.Valid).WithMessage("message1").WithCode(1000);
@@ -58,9 +58,7 @@ namespace Gehtsoft.EF.Toolbox.Test
         public void TestRules()
         {
             TestEntity1Validator validator = new TestEntity1Validator();
-            ValidationResult result;
-
-            result = validator.Validate(null);
+            ValidationResult result = validator.Validate(null);
             Assert.IsTrue(result.IsValid);
 
             TestEntity1 entity1 = new TestEntity1();
@@ -80,7 +78,7 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             Assert.IsTrue(result.Failures.Contains(nameof(TestEntity1.StringValue), 3001));
             Assert.IsFalse(result.Failures.Contains(nameof(TestEntity1.StringValue), 3002));
-            
+
             Assert.IsFalse(result.Failures.Contains(nameof(TestEntity1.DateTimeValue), 4001));
             Assert.IsFalse(result.Failures.Contains(nameof(TestEntity1.ArrayValue), 5001));
             Assert.IsFalse(result.Failures.Contains(nameof(TestEntity1.ArrayValue), 5002));
@@ -91,8 +89,8 @@ namespace Gehtsoft.EF.Toolbox.Test
             entity1.IntValue = (int)TestEnum1.E2;
             entity1.StringValue = new string('x', 50);
             entity1.EnumValue = TestEnum1.E1;
-            entity1.ArrayValue = new string[] {"abc", "", null, "   "};
-            entity1.ListValue = new List<int>(new int[] {1, 11, 12, 13, 14, 15, 2}); 
+            entity1.ArrayValue = new string[] { "abc", "", null, "   " };
+            entity1.ListValue = new List<int>(new int[] { 1, 11, 12, 13, 14, 15, 2 });
             entity1.DateTimeValue = new DateTime(2004, 12, 31, 23, 59, 59);
             result = validator.Validate(entity1);
             Assert.IsFalse(result.IsValid);
@@ -103,7 +101,7 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             Assert.IsFalse(result.Failures.Contains(nameof(TestEntity1.StringValue), 3001));
             Assert.IsTrue(result.Failures.Contains(nameof(TestEntity1.StringValue), 3002));
-            
+
             Assert.IsFalse(result.Failures.Contains(nameof(TestEntity1.DateTimeValue), 4001));
 
             Assert.IsFalse(result.Failures.Contains(nameof(TestEntity1.ArrayValue), 5001));
@@ -120,20 +118,18 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             Assert.IsFalse(result.Failures.Contains(nameof(TestEntity1.EnumValue), 7001));
 
-            entity1.EnumValue = (TestEnum1) 50;
+            entity1.EnumValue = (TestEnum1)50;
             result = validator.Validate(entity1);
             Assert.IsTrue(result.Failures.Contains(nameof(TestEntity1.EnumValue), 7001));
 
             entity1.IntValue = (int)TestEnum1.E2;
             entity1.StringValue = new string('x', 4);
             entity1.EnumValue = TestEnum1.E1;
-            entity1.ArrayValue = new string[] {"abc"};
-            entity1.ListValue = new List<int>(new int[] {11, 12}); 
+            entity1.ArrayValue = new string[] { "abc" };
+            entity1.ListValue = new List<int>(new int[] { 11, 12 });
             entity1.DateTimeValue = null;
             result = validator.Validate(entity1);
             Assert.IsTrue(result.IsValid);
-
-
         }
 
         public class TestEntity2
@@ -175,11 +171,9 @@ namespace Gehtsoft.EF.Toolbox.Test
         [Test]
         public void TestValidateUsing()
         {
-            TestEntity2 e2 = new TestEntity2() {ID = 0, Self = new TestEntity2() {ID = 0}};
+            TestEntity2 e2 = new TestEntity2() { ID = 0, Self = new TestEntity2() { ID = 0 } };
             TestEntity2Validator validator2 = new TestEntity2Validator();
-            ValidationResult result;
-
-            result = validator2.Validate(e2);
+            ValidationResult result = validator2.Validate(e2);
             Assert.IsFalse(result.IsValid);
             Assert.IsTrue(result.Failures.Contains("ID", 1));
             Assert.IsTrue(result.Failures.Contains("Self.ID", 1));
@@ -202,7 +196,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             Assert.IsTrue(result.Failures.Contains("MultiReference", 3));
 
             e3.ID = 5;
-            e3.MultiReference = new TestEntity2[] {null, e2, new TestEntity2() {ID = 0}, new TestEntity2() {ID = 1}};
+            e3.MultiReference = new TestEntity2[] { null, e2, new TestEntity2() { ID = 0 }, new TestEntity2() { ID = 1 } };
             result = validator3.Validate(e3);
             Assert.IsFalse(result.Failures.Contains("ID", 2));
             Assert.IsTrue(result.Failures.Contains("Reference.Self.ID", 1));
@@ -232,7 +226,7 @@ namespace Gehtsoft.EF.Toolbox.Test
 
         public class TestEntity4MessageResolver : IValidationMessageResolver
         {
-            private static Dictionary<string, string> gMessages = new Dictionary<string, string>()
+            private static readonly Dictionary<string, string> gMessages = new Dictionary<string, string>()
             {
                 {TestEntity4Messages.NOTNULL, "{0} must be not null"},
                 {TestEntity4Messages.NOTEMPTY, "{0} must be not empty"},
@@ -241,12 +235,10 @@ namespace Gehtsoft.EF.Toolbox.Test
                 {TestEntity4Messages.OUTOFRANGE, "{0} is out of range"},
             };
 
-
             public string Resolve(Type entityType, ValidationTarget target, int code, string message)
             {
                 string name = target.GetCustomAttribute<Test4NameAttribute>()?.DisplayName ?? target.TargetName;
-                string translatedMessage;
-                if (!gMessages.TryGetValue(message, out translatedMessage))
+                if (!gMessages.TryGetValue(message, out string translatedMessage))
                     translatedMessage = message;
                 if (translatedMessage.Contains("{0}"))
                     translatedMessage = string.Format(translatedMessage, name);
@@ -286,20 +278,22 @@ namespace Gehtsoft.EF.Toolbox.Test
             ValidationMessageResolverFactory.SetResolverFor<TestEntity4>(new TestEntity4MessageResolver());
             Test4Validator validator = new Test4Validator();
 
-            TestEntity4 entity = new TestEntity4();
-            entity.StringValue = new string(' ', 50);
+            TestEntity4 entity = new TestEntity4
+            {
+                StringValue = new string(' ', 50)
+            };
             ValidationResult result = validator.Validate(entity);
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(5, result.Failures.Count);
-            Assert.AreEqual(result.Failures[0].Message, "String Value must be not empty");
-            Assert.AreEqual(result.Failures[1].Message, "String Value is too long");
-            Assert.AreEqual(result.Failures[2].Message, "Array of String must be not null");
-            Assert.AreEqual(result.Failures[3].Message, "IntegerValue is out of range");
-            Assert.AreEqual(result.Failures[4].Message, "notzero");
+            Assert.AreEqual("String Value must be not empty", result.Failures[0].Message);
+            Assert.AreEqual("String Value is too long", result.Failures[1].Message);
+            Assert.AreEqual("Array of String must be not null", result.Failures[2].Message);
+            Assert.AreEqual("IntegerValue is out of range", result.Failures[3].Message);
+            Assert.AreEqual("notzero", result.Failures[4].Message);
 
             entity.StringValue = "123";
             entity.IntegerValue = 15;
-            
+
             entity.StringArray = new[]
             {
                 "abc", "abd", "efg", new string('a', 20), "aaa", "eee"
@@ -307,14 +301,11 @@ namespace Gehtsoft.EF.Toolbox.Test
             result = validator.Validate(entity);
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(4, result.Failures.Count);
-            
-            Assert.AreEqual(result.Failures[0].Message, "An element of Array of String value does not match to the pattern");
-            Assert.AreEqual(result.Failures[1].Message, "An element of Array of String value does not match to the pattern");
-            Assert.AreEqual(result.Failures[2].Message, "Array of String is too long");
-            Assert.AreEqual(result.Failures[3].Message, "An element of Array of String is too long");
 
-            
-
+            Assert.AreEqual("An element of Array of String value does not match to the pattern", result.Failures[0].Message);
+            Assert.AreEqual("An element of Array of String value does not match to the pattern", result.Failures[1].Message);
+            Assert.AreEqual("Array of String is too long", result.Failures[2].Message);
+            Assert.AreEqual("An element of Array of String is too long", result.Failures[3].Message);
         }
 
         public class SubValidator : BaseValidator
@@ -343,7 +334,7 @@ namespace Gehtsoft.EF.Toolbox.Test
         [Test]
         public void TestValidateUsingOptions()
         {
-            TestEntity3 entity = new TestEntity3() {Reference = new TestEntity2()};
+            TestEntity3 entity = new TestEntity3() { Reference = new TestEntity2() };
             AbstractValidator<TestEntity3> validator;
             ValidationResult rs;
 
@@ -373,7 +364,6 @@ namespace Gehtsoft.EF.Toolbox.Test
             rs = validator.Validate(entity);
             Assert.IsTrue(rs.IsValid);
         }
-
     }
 }
 

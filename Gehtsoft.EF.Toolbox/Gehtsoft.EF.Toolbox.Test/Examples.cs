@@ -18,7 +18,6 @@ using NUnit.Framework;
 
 namespace Gehtsoft.EF.Toolbox.Test
 {
-
     [TestFixture]
     public class Example
     {
@@ -29,7 +28,7 @@ namespace Gehtsoft.EF.Toolbox.Test
 
         public class Destination
         {
-            public string A { get;  }
+            public string A { get; }
             public Destination(string a)
             {
                 A = a;
@@ -43,9 +42,10 @@ namespace Gehtsoft.EF.Toolbox.Test
             var map = MapFactory.CreateMap<Source, Destination>();
             map.Factory = src => new Destination(src.A);
 
-            Source []s = {new Source() {A = "X"}};
+            Source[] s = { new Source() { A = "X" } };
             Destination[] d = MapFactory.Map<Source[], Destination[]>(s);
-            ;
+
+            Console.WriteLine($"{d}");
         }
     }
 }

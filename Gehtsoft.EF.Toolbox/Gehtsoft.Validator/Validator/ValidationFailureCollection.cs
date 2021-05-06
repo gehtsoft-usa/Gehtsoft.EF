@@ -10,7 +10,6 @@ namespace Gehtsoft.Validator
 
         public ValidationFailureCollection()
         {
-
         }
 
         public int Count => mFailures?.Count ?? 0;
@@ -19,9 +18,9 @@ namespace Gehtsoft.Validator
         {
             get
             {
-                if (mFailures == null) 
-                    throw new IndexOutOfRangeException();
-                return mFailures[index]; 
+                if (mFailures == null)
+                    throw new InvalidOperationException("There is not failures yet.");
+                return mFailures[index];
             }
         }
 
@@ -57,6 +56,5 @@ namespace Gehtsoft.Validator
                     return true;
             return false;
         }
-
     }
 }

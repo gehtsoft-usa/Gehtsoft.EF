@@ -7,9 +7,9 @@ namespace Gehtsoft.Validator
 {
     public class FunctionValidationTarget<TE, TV> : ValidationTarget
     {
-        private Func<TE, TV> mPredicate;
-        private string mName;
-        private PropertyInfo mPropertyInfo;
+        private readonly Func<TE, TV> mPredicate;
+        private readonly string mName;
+        private readonly PropertyInfo mPropertyInfo;
 
         public override string TargetName => mName;
 
@@ -36,8 +36,8 @@ namespace Gehtsoft.Validator
 
         public override bool IsSingleValue => true;
 
-        public override ValidationValue First(object target) => new ValidationValue() {Name = mName, Value = mPredicate((TE)target)};
+        public override ValidationValue First(object target) => new ValidationValue() { Name = mName, Value = mPredicate((TE)target) };
 
-        public override ValidationValue[] All(object target) => new ValidationValue[] {First(target)};
+        public override ValidationValue[] All(object target) => new ValidationValue[] { First(target) };
     }
 }

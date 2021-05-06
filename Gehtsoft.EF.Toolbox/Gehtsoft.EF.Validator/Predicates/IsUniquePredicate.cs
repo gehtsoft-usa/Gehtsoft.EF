@@ -35,7 +35,7 @@ namespace Gehtsoft.EF.Validator
 
     public class ReferenceExistsPredicate : DatabasePredicate
     {
-        public bool PkOnly { get; private set; }
+        public bool PkOnly { get; }
 
         public ReferenceExistsPredicate(IValidatorConnectionFactory connectionFactory, Type entityType, TableDescriptor.ColumnInfo relatedColumn, bool pkOnly = false) : base(connectionFactory, entityType, relatedColumn)
         {

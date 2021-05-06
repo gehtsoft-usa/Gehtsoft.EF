@@ -9,7 +9,6 @@ namespace Gehtsoft.Validator
 
         public PhoneNumberPredicate() : base(typeof(string), PhoneRegex, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2.0))
         {
-
         }
     }
 }

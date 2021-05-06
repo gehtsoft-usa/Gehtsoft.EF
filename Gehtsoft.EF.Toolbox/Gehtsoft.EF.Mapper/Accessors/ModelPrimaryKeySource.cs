@@ -6,9 +6,9 @@ namespace Gehtsoft.EF.Mapper
 {
     public class ModelPrimaryKeySource : IMappingSource
     {
-        private TableDescriptor.ColumnInfo mForeignKeyAccessor;
-        private TableDescriptor.ColumnInfo mPrimaryKey;
-        private PropertyInfo mPrimaryKeySource;
+        private readonly TableDescriptor.ColumnInfo mForeignKeyAccessor;
+        private readonly TableDescriptor.ColumnInfo mPrimaryKey;
+        private readonly PropertyInfo mPrimaryKeySource;
 
 
         public ModelPrimaryKeySource(TableDescriptor.ColumnInfo foreignKeyAccessor, PropertyInfo primaryKeySource)

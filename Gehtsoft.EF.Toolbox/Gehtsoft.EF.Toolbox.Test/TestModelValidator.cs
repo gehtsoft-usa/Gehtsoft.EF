@@ -40,7 +40,6 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             public Dictionary()
             {
-
             }
 
             public Dictionary(int id)
@@ -75,7 +74,6 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             public Entity()
             {
-
             }
 
             public Entity(int id)
@@ -123,9 +121,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             DateTime? DateTimeValue { get; set; }
             double? NullableNumericValue { get; set; }
             DateTime? NullableDateTimeValue { get; set; }
-
         }
-
 
         [MapEntity(EntityType = typeof(Entity))]
         public class EntityModel1 : IEntityModel
@@ -144,13 +140,12 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             [MapProperty]
             public DateTime? DateTimeValue { get; set; }
-            
+
             [MapProperty]
             public double? NullableNumericValue { get; set; }
 
             [MapProperty]
             public DateTime? NullableDateTimeValue { get; set; }
-
         }
 
         [MapEntity(EntityType = typeof(Entity))]
@@ -178,7 +173,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             [MustBeInDbValueRange(WithMessage = "outofrange")]
             [MapProperty]
             public DateTime? DateTimeValue { get; set; }
-            
+
             [MustBeInDbValueRange(WithMessage = "outofrange")]
             [MapProperty]
             public double? NullableNumericValue { get; set; }
@@ -194,17 +189,17 @@ namespace Gehtsoft.EF.Toolbox.Test
             {
                 switch (validationErrorCode)
                 {
-                    case (int) EfValidationErrorCode.NullValue:
+                    case (int)EfValidationErrorCode.NullValue:
                         return "isnull";
-                    case (int) EfValidationErrorCode.NumberIsOutOfRange:
+                    case (int)EfValidationErrorCode.NumberIsOutOfRange:
                         return "outofrange";
-                    case (int) EfValidationErrorCode.DateIsOutRange:
+                    case (int)EfValidationErrorCode.DateIsOutRange:
                         return "outofrange";
-                    case (int) EfValidationErrorCode.StringIsTooLong:
+                    case (int)EfValidationErrorCode.StringIsTooLong:
                         return "toolong";
-                    case (int) EfValidationErrorCode.ReferenceDoesNotExists:
+                    case (int)EfValidationErrorCode.ReferenceDoesNotExists:
                         return "mustexist";
-                    case (int) EfValidationErrorCode.ValueIsNotUnique:
+                    case (int)EfValidationErrorCode.ValueIsNotUnique:
                         return "notunique";
                     default:
                         return "unknowncode";
@@ -227,8 +222,6 @@ namespace Gehtsoft.EF.Toolbox.Test
                 RuleFor(nameof(DictionaryModel1.ID)).NotNull().WithMessage("isnull");
                 RuleFor(x => x.Name).NotNull().WithMessage("isnull");
                 RuleFor(x => x.Name).MustHaveValidDbSize().WithMessage("toolong");
-                //RuleFor(nameof(DictionaryModel1.Name)).MustBeUnqiue().WithMessage("notunique");
-                //RuleFor(x => x.Name).MustBeUnique().WhenValue(x => !string.IsNullOrEmpty(x.Name)).WithMessage("notunique");
                 RuleFor(x => x.Name).WhenValue(x => !string.IsNullOrEmpty(x)).MustBeUnique().WithMessage("notunique");
             }
         }
@@ -272,15 +265,14 @@ namespace Gehtsoft.EF.Toolbox.Test
             }
         }
 
-
-        private void Test<TDM, TEM>(bool hasConnection, BaseValidator dictionaryValidator, BaseValidator entityValidator) 
-            where TDM : IDictionaryModel, new() 
+        private void Test<TDM, TEM>(bool hasConnection, BaseValidator dictionaryValidator, BaseValidator entityValidator)
+            where TDM : IDictionaryModel, new()
             where TEM : IEntityModel, new()
         {
             ValidationResult result;
 
             //validate entity model
-            TDM dictionary = new TDM() {ID = null, Name = null};
+            TDM dictionary = new TDM() { ID = null, Name = null };
             result = dictionaryValidator.Validate(dictionary);
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(2, result.Failures.Count);
@@ -336,9 +328,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             Assert.AreEqual(hasConnection ? 6 : 4, result.Failures.Count);
 
             tokenSource.Cancel();
-            Assert.Throws<OperationCanceledException>(() => { 
-                entityValidator.ValidateAsync(entity, tokenSource.Token).ConfigureAwait(true).GetAwaiter().GetResult(); 
-            });
+            Assert.Throws<OperationCanceledException>(() => entityValidator.ValidateAsync(entity, tokenSource.Token).ConfigureAwait(true).GetAwaiter().GetResult());
 
             if (hasConnection)
             {
@@ -358,10 +348,10 @@ namespace Gehtsoft.EF.Toolbox.Test
             }
         }
 
-        private SqlDbConnection  InitializeConnection()
+        private SqlDbConnection InitializeConnection()
         {
             SqlDbConnection connection = SqliteDbConnectionFactory.CreateMemory();
-            
+
             using (var query = connection.GetCreateEntityQuery<Dictionary>())
                 query.Execute();
 
@@ -370,8 +360,7 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             using (var query = connection.GetInsertEntityQuery<Dictionary>())
             {
-                Dictionary dictionary;
-                dictionary = new Dictionary() { Name = "Record1" };
+                Dictionary dictionary = new Dictionary() { Name = "Record1" };
                 query.Execute(dictionary);
                 dictionary = new Dictionary() { Name = "Record2" };
                 query.Execute(dictionary);
@@ -394,7 +383,6 @@ namespace Gehtsoft.EF.Toolbox.Test
             var dictionaryValidator = new DictionaryValidatorAutoCreate();
             var entityValidator = new EntityValidatorAutoCreate();
             Test<DictionaryModel1, EntityModel1>(false, dictionaryValidator, entityValidator);
-
         }
 
         [Test]
@@ -404,7 +392,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             var entityValidator = new EntityValidatorByRule();
             Test<DictionaryModel1, EntityModel1>(false, dictionaryValidator, entityValidator);
         }
-        
+
         [Test]
         public void TestAttributeValidationDB()
         {
@@ -425,7 +413,6 @@ namespace Gehtsoft.EF.Toolbox.Test
                 var entityValidator = new EntityValidatorAutoCreate(new ValidatorSingletonConnectionFactory(connection));
                 Test<DictionaryModel1, EntityModel1>(true, dictionaryValidator, entityValidator);
             }
-
         }
 
         [Test]

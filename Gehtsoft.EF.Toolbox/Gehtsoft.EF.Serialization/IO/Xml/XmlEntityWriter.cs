@@ -9,11 +9,11 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Serialization.IO.Xml
 {
-    public class XmlEntityWriter : IEntityWriter, IDisposable
+    public sealed class XmlEntityWriter : IEntityWriter, IDisposable
     {
         private XmlWriter mWriter;
-        private bool mIsNewWriter;
-        
+        private readonly bool mIsNewWriter;
+
         private bool mTypeStarted;
         private bool mEntityStarted;
 
@@ -31,12 +31,10 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
 
         public XmlEntityWriter(StringWriter writer, XmlWriterSettings settings = null) : this(settings == null ? XmlWriter.Create(writer) : XmlWriter.Create(writer, settings), true)
         {
-
         }
 
         public XmlEntityWriter(StringBuilder builder, XmlWriterSettings settings = null) : this(settings == null ? XmlWriter.Create(builder) : XmlWriter.Create(builder, settings), true)
         {
-
         }
 
         public XmlEntityWriter(XmlWriter writer, bool isNewWriter = false)
@@ -113,11 +111,11 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
                 mWriter.WriteAttributeString(NameAttributeName, column.ID);
                 mWriter.WriteEndElement();
                 id++;
-            }           
+            }
             mTypeStarted = true;
         }
 
-        private static readonly char[] XMLCHARS = new char[] {'<', '>', '&', '/', '\'', '\"', '\r', '\n'};
+        private static readonly char[] XMLCHARS = new char[] { '<', '>', '&', '/', '\'', '\"', '\r', '\n' };
 
         public void Write(object entity)
         {

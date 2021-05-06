@@ -9,9 +9,8 @@ namespace Gehtsoft.EF.Mapper
 
         public MapEntityAttribute() : base(typeof(EntityMapInitializer))
         {
-
         }
-        
+
         public MapEntityAttribute(Type entityType) : this()
         {
             EntityType = entityType;

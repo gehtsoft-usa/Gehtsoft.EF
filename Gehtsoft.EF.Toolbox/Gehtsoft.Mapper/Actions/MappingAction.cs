@@ -4,7 +4,7 @@ namespace Gehtsoft.EF.Mapper
 {
     public class MappingAction<TSource, TTarget> : IMappingAction
     {
-        private Action<TSource, TTarget> mAction;
+        private readonly Action<TSource, TTarget> mAction;
         private Func<TSource, TTarget, bool> mPredicate;
 
         public MappingAction(Action<TSource, TTarget> action)
@@ -22,9 +22,9 @@ namespace Gehtsoft.EF.Mapper
         public void Perform(object source, object target)
         {
             if (mPredicate != null)
-                if (!mPredicate((TSource) source, (TTarget) target))
+                if (!mPredicate((TSource)source, (TTarget)target))
                     return;
-            mAction.Invoke((TSource) source, (TTarget) target);
+            mAction.Invoke((TSource)source, (TTarget)target);
         }
 
         public MappingAction<TSource, TTarget> When(Func<TSource, TTarget, bool> predicate)
@@ -40,7 +40,7 @@ namespace Gehtsoft.EF.Mapper
         }
 
         public MappingAction<TSource, TTarget> WhenNull() => When((s, t) => s == null);
-        
+
         public MappingAction<TSource, TTarget> WhenNotNull() => When((s, t) => s != null);
     }
 }

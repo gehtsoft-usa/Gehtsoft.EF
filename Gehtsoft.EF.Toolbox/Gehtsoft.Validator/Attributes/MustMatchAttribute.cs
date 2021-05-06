@@ -13,7 +13,6 @@ namespace Gehtsoft.Validator
 
         public MustMatchAttribute()
         {
-
         }
         public MustMatchAttribute(string pattern)
         {

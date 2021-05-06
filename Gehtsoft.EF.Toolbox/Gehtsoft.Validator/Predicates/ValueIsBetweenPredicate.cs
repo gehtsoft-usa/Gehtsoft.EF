@@ -4,20 +4,18 @@ namespace Gehtsoft.Validator
 {
     public class ValueIsBetweenPredicate : IValidationPredicate
     {
-        private IComparable mMin, mMax;
-        private bool mMinInclusive, mMaxInclusive;
-        private Type mParameterType;
-        public Type ParameterType => mParameterType;
-        public string mJavaScript;
+        private readonly IComparable mMin, mMax;
+        private readonly bool mMinInclusive, mMaxInclusive;
+        public Type ParameterType { get; }
+        private readonly string mJavaScript;
 
         public ValueIsBetweenPredicate(Type parameterType, object min, bool minInclusive, object max, bool maxInclusive)
         {
-            mParameterType = parameterType;
+            ParameterType = parameterType;
             mMin = min as IComparable;
             mMax = max as IComparable;
             mMinInclusive = minInclusive;
             mMaxInclusive = maxInclusive;
-
 
             try
             {
@@ -31,7 +29,6 @@ namespace Gehtsoft.Validator
             {
                 mJavaScript = null;
             }
-
         }
 
         public bool Validate(object value)
@@ -48,7 +45,6 @@ namespace Gehtsoft.Validator
                 {
                     if (rc >= 0)
                         return false;
-
                 }
             }
             if (mMax != null)

@@ -3,25 +3,23 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Mapper
 {
-    public class EntityPropertyAccessor : IMappingSource, IMappingTarget
+    public sealed class EntityPropertyAccessor : IMappingSource, IMappingTarget
     {
-        private readonly TableDescriptor.ColumnInfo mColumnInfo;
-
-        public TableDescriptor.ColumnInfo ColumnInfo => mColumnInfo;
+        public TableDescriptor.ColumnInfo ColumnInfo { get; }
 
         public EntityPropertyAccessor(TableDescriptor.ColumnInfo columnInfo)
         {
-            mColumnInfo = columnInfo;
+            ColumnInfo = columnInfo;
         }
 
-        public string Name => mColumnInfo.PropertyAccessor.Name;
-        public Type ValueType => mColumnInfo.PropertyAccessor.PropertyType;
-        public void Set(object obj, object value) => mColumnInfo.PropertyAccessor.SetValue(obj, value);
-        public object Get(object obj) => mColumnInfo.PropertyAccessor.GetValue(obj);
+        public string Name => ColumnInfo.PropertyAccessor.Name;
+        public Type ValueType => ColumnInfo.PropertyAccessor.PropertyType;
+        public void Set(object obj, object value) => ColumnInfo.PropertyAccessor.SetValue(obj, value);
+        public object Get(object obj) => ColumnInfo.PropertyAccessor.GetValue(obj);
 
-        protected bool Equals(EntityPropertyAccessor other)
+        private bool Equals(EntityPropertyAccessor other)
         {
-            return ReferenceEquals(mColumnInfo, other.mColumnInfo);
+            return ReferenceEquals(ColumnInfo, other.ColumnInfo);
         }
 
         public override bool Equals(object obj)
@@ -29,19 +27,19 @@ namespace Gehtsoft.EF.Mapper
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((EntityPropertyAccessor) obj);
+            return Equals((EntityPropertyAccessor)obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                if (mColumnInfo == null)
+                if (ColumnInfo == null)
                     return 0;
-                return mColumnInfo.Name.GetHashCode() ^ mColumnInfo.Table.Name.GetHashCode() * 397;     
-            }           
+                return ColumnInfo.Name.GetHashCode() ^ ColumnInfo.Table.Name.GetHashCode() * 397;
+            }
         }
 
-        public bool Equals(IMappingTarget target) => Equals((object) target);
+        public bool Equals(IMappingTarget target) => Equals((object)target);
     }
 }

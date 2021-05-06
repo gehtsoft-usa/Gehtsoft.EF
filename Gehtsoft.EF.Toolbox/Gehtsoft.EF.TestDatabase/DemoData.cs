@@ -9,11 +9,14 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
 using Gehtsoft.Tools.Crypto;
 using Gehtsoft.Tools.TypeUtils;
 
+//disable static public field and static initialization warnings
+#pragma warning disable S1104, S2386, S3963
+
 namespace Gehtsoft.EF.TestDatabase
 {
     public static class DemoData
     {
-        public static Employee[] Employees = new Employee[]
+        public static readonly Employee[] Employees = new Employee[]
         {
             new Employee() {FirstName = "Paule", LastName = "Follitt", EmployedSince = new DateTime(2000, 2, 21), Active = true, EmployeeType = EmployeeType.Manager},
             new Employee() {FirstName = "Benedikt", LastName = "Von Der Empten", EmployedSince = new DateTime(2014, 3, 4), Active = true, EmployeeType = EmployeeType.Salesman},
@@ -42,10 +45,10 @@ namespace Gehtsoft.EF.TestDatabase
             new Employee() {FirstName = "Darnell", LastName = "Lithgow", EmployedSince = new DateTime(2015, 3, 15), Active = true, EmployeeType = EmployeeType.Salesman},
         };
 
-        public static Category CategoryGrocery = new Category() {Name = "Grocery"};
-        public static Category CategoryCar = new Category() {Name = "Car"};
+        public static readonly Category CategoryGrocery = new Category() { Name = "Grocery" };
+        public static readonly Category CategoryCar = new Category() { Name = "Car" };
 
-        public static Good[] Goods = new Good[]
+        public static readonly Good[] Goods = new Good[]
         {
             new Good() {Name = "Cookie Double Choco", Category = CategoryGrocery},
             new Good() {Name = "Cake Circle, Paprus", Category = CategoryGrocery},
@@ -180,12 +183,10 @@ namespace Gehtsoft.EF.TestDatabase
             new Good() {Name = "Acura TL", Category = CategoryCar},
         };
 
-        private static List<Employee> activeSalesmen;
+        private static readonly List<Employee> activeSalesmen;
 
         static DemoData()
         {
-            Random r = new Random();
-
             Employee currentManager = null;
             Employee boss = null;
 
@@ -215,7 +216,7 @@ namespace Gehtsoft.EF.TestDatabase
             }
         }
 
-        public static Type[] AllTypes = new Type[] {typeof(Employee), typeof(Category), typeof(Good), typeof(Sale)};
+        public static readonly Type[] AllTypes = new Type[] { typeof(Employee), typeof(Category), typeof(Good), typeof(Sale) };
 
         public static void CreateTables(SqlDbConnection connection)
         {
@@ -269,16 +270,18 @@ namespace Gehtsoft.EF.TestDatabase
             {
                 using (ModifyEntityQuery query = connection.GetInsertEntityQuery<Sale>())
                 {
-                    double avgSales = (double) approxSalesToCreate / (double) salesDayCount;
-                    int variation = (int) (avgSales / 5 + 2) / 2;
+                    double avgSales = (double)approxSalesToCreate / (double)salesDayCount;
+                    int variation = (int)(avgSales / 5 + 2) / 2;
                     DateTime saleDate = (DateTime)startSalesDate;
                     for (int i = 0; i < salesDayCount; i++, saleDate = saleDate.AddDays(1))
                     {
-                        int daySales = (int) avgSales + (variation - r.Next(variation * 2));
+                        int daySales = (int)avgSales + (variation - r.Next(variation * 2));
                         for (int j = 0; j < daySales; j++)
                         {
-                            Sale sale = new Sale();
-                            sale.SaleDate = saleDate;
+                            Sale sale = new Sale
+                            {
+                                SaleDate = saleDate
+                            };
                             Employee salesmen = null;
                             int attempt = 50;
                             while (true)

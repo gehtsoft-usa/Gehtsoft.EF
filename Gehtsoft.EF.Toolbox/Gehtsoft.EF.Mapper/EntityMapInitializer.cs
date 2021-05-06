@@ -30,7 +30,7 @@ namespace Gehtsoft.EF.Mapper
 
                 MapPropertyAttribute attribute = propertyInfo.GetCustomAttribute<MapPropertyAttribute>();
 
-                if (attribute == null || attribute.IgnoreToModel)
+                if (attribute?.IgnoreToModel != false)
                     continue;
 
                 string name = attribute.Name ?? propertyInfo.Name;
@@ -67,12 +67,11 @@ namespace Gehtsoft.EF.Mapper
                 {
                     PropertyInfo otherPropertyInfo = entityTypeInfo.GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
                     if (otherPropertyInfo == null)
-                        throw new Exception($"Property {name} is not found nor as column of the entity nor as a class property");
+                        throw new InvalidOperationException($"Property {name} is not found nor as column of the entity nor as a class property");
                     source = new ClassPropertyAccessor(otherPropertyInfo);
                 }
 
                 IMappingTarget target = new ClassPropertyAccessor(propertyInfo);
-
 
                 IPropertyMapping mapping = map.For(target);
                 mapping.Source = source;
@@ -95,7 +94,7 @@ namespace Gehtsoft.EF.Mapper
             foreach (PropertyInfo propertyInfo in modelTypeInfo.GetProperties())
             {
                 MapPropertyAttribute attribute = propertyInfo.GetCustomAttribute<MapPropertyAttribute>();
-                if (attribute == null || attribute.IgnoreFromModel)
+                if (attribute?.IgnoreFromModel != false)
                     continue;
 
                 if (propertyInfo.GetCustomAttribute<DoNotAutoMapAttribute>() != null)
@@ -132,7 +131,7 @@ namespace Gehtsoft.EF.Mapper
                 {
                     PropertyInfo otherPropertyInfo = entityTypeInfo.GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
                     if (otherPropertyInfo == null)
-                        throw new Exception($"Property {name} is not found nor as column of the entity nor as a class property");
+                        throw new InvalidOperationException($"Property {name} is not found nor as column of the entity nor as a class property");
                     target = new ClassPropertyAccessor(otherPropertyInfo);
                 }
 
@@ -143,6 +142,5 @@ namespace Gehtsoft.EF.Mapper
                 mapping.MapFlag = attribute.MapFlags;
             }
         }
-
     }
 }

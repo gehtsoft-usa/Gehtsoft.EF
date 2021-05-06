@@ -9,10 +9,10 @@ namespace Gehtsoft.Validator
 {
     public class FunctionValidationArrayTarget<TE, TV> : ValidationTarget where TV : IEnumerable
     {
-        private Func<TE, TV> mPredicate;
-        private string mName;
-        private Type mElementType;
-        private PropertyInfo mPropertyInfo;
+        private readonly Func<TE, TV> mPredicate;
+        private readonly string mName;
+        private readonly Type mElementType;
+        private readonly PropertyInfo mPropertyInfo;
 
         public override string TargetName => mName;
         public override T GetCustomAttribute<T>() => mPropertyInfo?.GetCustomAttribute<T>();
@@ -38,7 +38,7 @@ namespace Gehtsoft.Validator
             if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 mElementType = typeInfo.GetGenericArguments()[0];
             else
-            {               
+            {
                 foreach (Type interfaceType in typeInfo.ImplementedInterfaces)
                 {
                     TypeInfo interfaceTypeInfo = interfaceType.GetTypeInfo();
@@ -47,7 +47,6 @@ namespace Gehtsoft.Validator
                         mElementType = interfaceTypeInfo.GetGenericArguments()[0];
                         break;
                     }
-
                 }
                 if (mElementType == null)
                     throw new ArgumentException("The property is not a enumerable");
@@ -70,12 +69,11 @@ namespace Gehtsoft.Validator
         {
             IEnumerator enumerator = GetEnumerable(target).GetEnumerator();
             if (enumerator == null)
-                return new ValidationValue() {Value = null, Name = $"{mName}[{0}]"};
+                return new ValidationValue() { Value = null, Name = $"{mName}[{0}]" };
             enumerator.Reset();
             if (!enumerator.MoveNext())
                 throw new InvalidOperationException("Value is empty");
-            return new ValidationValue() {Value = enumerator.Current, Name = $"{mName}[{0}]"};
-
+            return new ValidationValue() { Value = enumerator.Current, Name = $"{mName}[{0}]" };
         }
 
         public override ValidationValue[] All(object target)
@@ -86,7 +84,7 @@ namespace Gehtsoft.Validator
             if (enumerable != null)
             {
                 foreach (object x in enumerable)
-                    result.Add(new ValidationValue() {Name = $"{mName}[{i++}]", Value = x});
+                    result.Add(new ValidationValue() { Name = $"{mName}[{i++}]", Value = x });
             }
 
             return result.ToArray();

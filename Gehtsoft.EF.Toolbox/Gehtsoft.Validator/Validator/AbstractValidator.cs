@@ -9,7 +9,6 @@ namespace Gehtsoft.Validator
     {
         public AbstractValidator() : base(typeof(T))
         {
-
         }
 
         public void When(Func<T, bool> predicate)
@@ -32,24 +31,27 @@ namespace Gehtsoft.Validator
             return new GenericValidationRuleBuilder<T, TV>(this, base.RuleFor(propertyName).Rule);
         }
 
-        public GenericValidationRuleBuilder<T, TV> RuleForAll<TV>(string propertyName) 
+        public GenericValidationRuleBuilder<T, TV> RuleForAll<TV>(string propertyName)
         {
             return new GenericValidationRuleBuilder<T, TV>(this, base.RuleForAll(propertyName).Rule);
         }
 
-
         public GenericValidationRuleBuilder<T, TV> RuleFor<TV>(Expression<Func<T, TV>> accessor, string name = null)
         {
-            ValidationRule rule = new ValidationRule(typeof(T), typeof(TV));
-            rule.Target = new FunctionValidationTarget<T, TV>(accessor, name);
+            ValidationRule rule = new ValidationRule(typeof(T), typeof(TV))
+            {
+                Target = new FunctionValidationTarget<T, TV>(accessor, name)
+            };
             mRules.Add(rule);
             return new GenericValidationRuleBuilder<T, TV>(this, rule);
         }
 
-        public GenericValidationRuleBuilder<T, TV> RuleForAll<TV>(Expression<Func<T, IEnumerable<TV>>> accessor, string name = null) 
+        public GenericValidationRuleBuilder<T, TV> RuleForAll<TV>(Expression<Func<T, IEnumerable<TV>>> accessor, string name = null)
         {
-            ValidationRule rule = new ValidationRule(typeof(T), typeof(TV));
-            rule.Target = new FunctionValidationArrayTarget<T, IEnumerable<TV>>(accessor, name);
+            ValidationRule rule = new ValidationRule(typeof(T), typeof(TV))
+            {
+                Target = new FunctionValidationArrayTarget<T, IEnumerable<TV>>(accessor, name)
+            };
             mRules.Add(rule);
             return new GenericValidationRuleBuilder<T, TV>(this, rule);
         }

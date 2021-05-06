@@ -7,9 +7,8 @@ namespace Gehtsoft.Validator
     {
         public int Length { get; set; }
 
-        public MustBeShorterThanAttribute() 
+        public MustBeShorterThanAttribute()
         {
-
         }
 
         public MustBeShorterThanAttribute(int length)

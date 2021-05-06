@@ -8,8 +8,8 @@ namespace Gehtsoft.Validator
 {
     public static class ValidationMessageResolverFactory
     {
-        private static Dictionary<Type, IValidationMessageResolver> mResolvers = new Dictionary<Type, IValidationMessageResolver>();
-        private static IValidationMessageResolver mNullResolver = new ValidationMessageNullResolver();
+        private static readonly Dictionary<Type, IValidationMessageResolver> mResolvers = new Dictionary<Type, IValidationMessageResolver>();
+        private static readonly IValidationMessageResolver mNullResolver = new ValidationMessageNullResolver();
 
         public static IValidationMessageResolver GetResolver(Type entityType)
         {

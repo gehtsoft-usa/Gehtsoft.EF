@@ -7,7 +7,7 @@ using Gehtsoft.Tools.TypeUtils;
 
 namespace Gehtsoft.EF.Mapper
 {
-    public class PropertyMapping<TSource, TDestination> : IPropertyMapping 
+    public class PropertyMapping<TSource, TDestination> : PropertyMapping, IPropertyMapping
     {
         public IMappingTarget Target { get; set; }
         public IMappingSource Source { get; set; }
@@ -27,39 +27,9 @@ namespace Gehtsoft.EF.Mapper
             return this;
         }
 
-        internal static PropertyInfo PropertyOfParameterInfo(Expression expression)
-        {
-            if (expression.NodeType == ExpressionType.Lambda)
-                return PropertyOfParameterInfo(((LambdaExpression) expression).Body);
-
-            if (expression.NodeType == ExpressionType.Convert)
-                return PropertyOfParameterInfo(((UnaryExpression) expression).Operand);
-
-            if (expression.NodeType == ExpressionType.MemberAccess)
-            {
-                MemberExpression e = (MemberExpression) expression;
-                MemberInfo mi = e.Member;
-                if (mi.MemberType == MemberTypes.Property && e.Expression.NodeType == ExpressionType.Parameter)
-                    return (PropertyInfo) mi;
-            }
-
-            return null;
-        }
-
         public PropertyMapping<TSource, TDestination> From<TValue>(Expression<Func<TSource, TValue>> from)
         {
-            PropertyInfo memberInfo = null;
-
-            try
-            {
-                memberInfo = PropertyOfParameterInfo(from);
-            }
-            catch (Exception)
-            {
-                ;
-            }
-
-            PropertyInfo propertyInfo = memberInfo as PropertyInfo;
+            PropertyInfo propertyInfo = PropertyOfParameterInfo(from);
 
             if (propertyInfo != null && typeof(TSource).IsAssignableFrom(propertyInfo.DeclaringType))
                 Source = new ClassPropertyAccessor(propertyInfo);
@@ -78,8 +48,6 @@ namespace Gehtsoft.EF.Mapper
             return this;
         }
 
-
-
         public PropertyMapping<TSource, TDestination> To(IMappingTarget target)
         {
             Target = target;
@@ -97,18 +65,9 @@ namespace Gehtsoft.EF.Mapper
 
         public PropertyMapping<TSource, TDestination> To<TValue>(Expression<Func<TDestination, TValue>> to)
         {
-            PropertyInfo memberInfo = null;
-            try
-            {
-                memberInfo = PropertyOfParameterInfo(to);
-            }
-            catch (Exception)
-            {
-                ;
-            }
+            PropertyInfo memberInfo = PropertyOfParameterInfo(to);
 
-            PropertyInfo propertyInfo = memberInfo as PropertyInfo;
-            if (propertyInfo == null)
+            if (!(memberInfo is PropertyInfo propertyInfo))
                 throw new ArgumentException("The expression is not a simple property access expression!", nameof(to));
 
             Target = new ClassPropertyAccessor(propertyInfo);
@@ -139,7 +98,6 @@ namespace Gehtsoft.EF.Mapper
             return this;
         }
 
-
         public PropertyMapping<TSource, TDestination> When(Func<TSource, bool> predicate)
         {
             WhenPredicate = new MappingPredicate<TSource>(predicate);
@@ -151,7 +109,6 @@ namespace Gehtsoft.EF.Mapper
             WhenPredicate = new MappingPredicate<TDestination>(predicate);
             return this;
         }
-
 
         public PropertyMapping<TSource, TDestination> Ignore()
         {
@@ -212,9 +169,9 @@ namespace Gehtsoft.EF.Mapper
             }
         }
 
-        public void Map(object source, object destination) => Map((TSource) source, (TDestination) destination, false);
+        public void Map(object source, object destination) => Map((TSource)source, (TDestination)destination, false);
 
-        public void Map(object source, object destination, bool ignoreNull) => Map((TSource) source, (TDestination) destination, ignoreNull);
+        public void Map(object source, object destination, bool ignoreNull) => Map((TSource)source, (TDestination)destination, ignoreNull);
     }
 
     public static class EnumerableOfPropertyMappingExtension

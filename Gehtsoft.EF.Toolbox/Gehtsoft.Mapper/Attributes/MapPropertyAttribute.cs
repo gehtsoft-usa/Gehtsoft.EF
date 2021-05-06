@@ -15,7 +15,6 @@ namespace Gehtsoft.EF.Mapper
 
         public MapPropertyAttribute()
         {
-
         }
 
         public MapPropertyAttribute(string name)
