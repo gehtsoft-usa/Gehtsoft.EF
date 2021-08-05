@@ -233,6 +233,9 @@ namespace TestApp
             [EntityProperty(Field = "total", DbType = DbType.Double, Size = 8, Precision = 2, DefaultValue = 10)]
             public double Total { get; set; }
 
+            [EntityProperty(Field = "note", Size = 64, Nullable = true)]
+            public string Note { get; set; }
+
             public Sale()
             {
             }
@@ -270,6 +273,13 @@ namespace TestApp
                     index.Add(nameof(Sale.SalesDate));
                     index.Add("salesperson", SortDir.Desc);
                     yield return index;
+
+                    index = new CompositeIndex(typeof(Sale), "Index2");
+                    index.FailIfUnsupported = false;
+                    index.Add(SqlFunctionId.Upper, nameof(Sale.Note));
+                    yield return index;
+
+
                 }
             }
         }

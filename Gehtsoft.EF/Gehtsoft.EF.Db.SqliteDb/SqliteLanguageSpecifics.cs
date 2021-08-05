@@ -190,5 +190,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 return FormatValue(DateTimeTool.ToOADate(dt));
             return base.FormatValue(value);
         }
+
+        public override bool SupportFunctionsInIndexes => true;
     }
 }

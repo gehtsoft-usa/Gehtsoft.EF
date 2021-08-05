@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
@@ -121,6 +124,14 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         protected virtual void HandleCompositeIndex(StringBuilder builder, CompositeIndex index)
         {
+            if (!mSpecifics.SupportFunctionsInIndexes && index.Any(f => f.Function != null))
+            {
+                if (index.FailIfUnsupported)
+                    throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+                else
+                    return;
+            }    
+
             builder.Append("\r\n");
             builder.Append(mSpecifics.PreQueryInBlock);
 
@@ -146,7 +157,10 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 var field = index.Fields[i];
                 if (i > 0)
                     builder.Append(", ");
-                builder.Append(field.Name);
+                if (field.Function != null)
+                    builder.Append(mSpecifics.GetSqlFunction(field.Function.Value, new string[] { field.Name }));
+                else
+                    builder.Append(field.Name);
                 if (field.Direction == SortDir.Desc)
                     builder.Append(" DESC");
             }

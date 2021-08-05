@@ -1,24 +1,34 @@
 ﻿using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Gehtsoft.EF.Db.SqlDb.Metadata
 {
-    public class CompositeIndex
+    public class CompositeIndex : IEnumerable<CompositeIndex.Field>
     {
         public class Field
         {
+            public SqlFunctionId? Function { get; }
             public string Name { get; }
             public SortDir Direction { get; }
 
-            public Field(string name)
+            public Field(string name) : this(null, name, SortDir.Asc)
             {
-                Name = name;
-                Direction = SortDir.Asc;
             }
-            public Field(string name, SortDir direction)
+
+            public Field(string name, SortDir direction) : this(null, name, direction)
             {
+            }
+
+            public Field(SqlFunctionId? function, string name) : this(function, name, SortDir.Asc)
+            {
+            }
+
+            public Field(SqlFunctionId? function, string name, SortDir direction)
+            {
+                Function = function;
                 Name = name;
                 Direction = direction;
             }
@@ -34,6 +44,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
 
         public IReadOnlyList<Field> Fields => mFields;
 
+        public bool FailIfUnsupported { get; set; }
+
         public CompositeIndex(string name) : this(null, name)
         {
         }
@@ -46,9 +58,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
             Name = name;
         }
 
-        public void Add(string name) => Add(name, SortDir.Asc);
+        public void Add(string name) => Add(null, name, SortDir.Asc);
 
-        public void Add(string name, SortDir direction)
+        public void Add(SqlFunctionId function, string name) => Add(function, name, SortDir.Asc);
+
+        public void Add(string name, SortDir direction) => Add(null, name, direction);
+
+        public void Add(SqlFunctionId? function, string name, SortDir direction)
         {
             if (mEntityInfo != null)
             {
@@ -63,7 +79,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
                 }
             }
 
-            mFields.Add(new Field(name, direction));
+            mFields.Add(new Field(function, name, direction));
+        }
+
+        public IEnumerator<Field> GetEnumerator()
+        {
+            return ((IEnumerable<Field>)mFields).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)mFields).GetEnumerator();
         }
     }
 }

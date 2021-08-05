@@ -105,5 +105,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
         public override DateTime? MaxDate => new DateTime(9999, 12, 31);
         public override DateTime? MinTimestamp => new DateTime(-4713, 1, 1);
         public override DateTime? MaxTimestamp => new DateTime(9999, 12, 31);
+
+        public override bool SupportFunctionsInIndexes => true;
     }
 }

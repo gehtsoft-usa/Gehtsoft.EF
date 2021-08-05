@@ -57,6 +57,8 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public virtual bool ModifyColumnSupported => true;
 
+        public virtual bool SupportFunctionsInIndexes => false;
+
         public virtual string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             throw new NotImplementedException();

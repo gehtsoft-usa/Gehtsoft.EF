@@ -1,0 +1,1 @@
+msbuild ../Gehtsoft.EF.sln /p:Configuration=Release

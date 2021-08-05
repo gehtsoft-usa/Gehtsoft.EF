@@ -2,6 +2,7 @@
 <nuget xmlns="http://www.gehtsoft.com/build/nuget">
  <!-- versions. the FIRST version is the current -->
  <versions>
+  <version id="1.6.3">- Update dependencies.</version>
   <version id="1.6.2">- Update dependencies.</version>
   <version id="1.6.1">- Add SQLDB metadata to automatic view creation and composite indexes.</version>
   <version id="1.5.2">- Update dependencies.</version>
