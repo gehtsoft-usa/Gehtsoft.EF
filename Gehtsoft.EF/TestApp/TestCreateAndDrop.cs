@@ -6,6 +6,7 @@ using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using NUnit.Framework;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 
 namespace TestApp
 {
@@ -74,14 +75,21 @@ namespace TestApp
                 gClob = b.ToString();
             }
 
-            DropTableBuilder dbuilder = connection.GetDropTableBuilder(gCreateDropTable);
-            CreateTableBuilder cbuilder = connection.GetCreateTableBuilder(gCreateDropTable);
-            InsertQueryBuilder ibuilder = connection.GetInsertQueryBuilder(gCreateDropTable);
-            DropTableBuilder dbuilder1 = connection.GetDropTableBuilder(gCreateDropTable1);
-            CreateTableBuilder cbuilder1 = connection.GetCreateTableBuilder(gCreateDropTable1);
+            var viewDropBuilder = connection.GetDropViewBuilder("createdroptest_view");
+            var dbuilder = connection.GetDropTableBuilder(gCreateDropTable);
+            var cbuilder = connection.GetCreateTableBuilder(gCreateDropTable);
+            var idxbuilder = connection.GetCreateIndexBuilder(gCreateDropTable1, new CompositeIndex("custom") { "vstring" });
+            var ibuilder = connection.GetInsertQueryBuilder(gCreateDropTable);
+            var didxbuilder = connection.GetDropIndexBuilder(gCreateDropTable1, "custom");
+            var dbuilder1 = connection.GetDropTableBuilder(gCreateDropTable1);
+            var cbuilder1 = connection.GetCreateTableBuilder(gCreateDropTable1);
 
             SqlDbQuery query;
 
+            using (query = connection.GetQuery(didxbuilder))
+                query.ExecuteNoData();
+            using (query = connection.GetQuery(viewDropBuilder))
+                query.ExecuteNoData();
             using (query = connection.GetQuery(dbuilder))
                 query.ExecuteNoData();
             using (query = connection.GetQuery(dbuilder1))
@@ -97,6 +105,9 @@ namespace TestApp
                 query.ExecuteNoData();
 
             using (query = connection.GetQuery(cbuilder1))
+                query.ExecuteNoData();
+
+            using (query = connection.GetQuery(idxbuilder))
                 query.ExecuteNoData();
 
             schema = connection.Schema();
@@ -334,6 +345,31 @@ namespace TestApp
                 Assert.AreEqual(true, query.GetValue<bool>("vbool"));
                 Assert.AreEqual(dt1, query.GetValue<DateTime>("vdate"));
                 Assert.IsFalse(query.ReadNext());
+            }
+
+            var viewSelectBuilder = connection.GetSelectQueryBuilder(gCreateDropTable);
+            viewSelectBuilder.AddToResultset(gCreateDropTable["vint_pk"], "pk");
+            viewSelectBuilder.AddToResultset(gCreateDropTable["vstring"], "note");
+
+            var viewCreateBuilder = connection.GetCreateViewBuilder("createdroptest_view", viewSelectBuilder);
+
+            using (query = connection.GetQuery(viewDropBuilder))
+                query.ExecuteNoData();
+
+            using (query = connection.GetQuery(viewCreateBuilder))
+                query.ExecuteNoData();
+
+            using (query = connection.GetQuery("select * from createdroptest_view"))
+            {
+                query.ExecuteReader();
+                query.FieldCount.Should().Be(2);
+                query.Field(0).Name.Should().Match(v => v.Equals("pk", StringComparison.OrdinalIgnoreCase));
+                query.Field(1).Name.Should().Match(v => v.Equals("note", StringComparison.OrdinalIgnoreCase));
+                query.ReadNext().Should().BeTrue();
+                query.GetValue<int>(0).Should().Be(1);
+                query.GetValue<string>(1).Should().Be("newstring1");
+
+
             }
         }
     }

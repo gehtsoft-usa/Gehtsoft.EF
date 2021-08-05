@@ -81,6 +81,11 @@ namespace Gehtsoft.EF.Db.MssqlDb
             return new MssqlDropViewBuilder(gSpecifics, name);
         }
 
+        public override DropIndexBuilder GetDropIndexBuilder(TableDescriptor descriptor, string name)
+        {
+            return new MssqlDropIndexBuilder(gSpecifics, descriptor.Name, name);
+        }
+
         public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement)
         {
             return new MssqlInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);

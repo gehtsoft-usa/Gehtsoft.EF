@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Entities.Context;
@@ -104,6 +105,11 @@ namespace Gehtsoft.EF.Db.SqlDb
             return new CreateTableBuilder(GetLanguageSpecifics(), descriptor);
         }
 
+        public virtual CreateIndexBuilder GetCreateIndexBuilder(TableDescriptor descriptor, CompositeIndex index)
+        {
+            return new CreateIndexBuilder(GetLanguageSpecifics(), descriptor, index);
+        }
+
         public virtual DropTableBuilder GetDropTableBuilder(TableDescriptor descriptor)
         {
             return new DropTableBuilder(GetLanguageSpecifics(), descriptor);
@@ -160,9 +166,15 @@ namespace Gehtsoft.EF.Db.SqlDb
         {
             return new CreateViewBuilder(GetLanguageSpecifics(), name, selectBuilder);
         }
+
         public virtual DropViewBuilder GetDropViewBuilder(string name)
         {
             return new DropViewBuilder(GetLanguageSpecifics(), name);
+        }
+
+        public virtual DropIndexBuilder GetDropIndexBuilder(TableDescriptor descriptor, string name)
+        {
+            return new DropIndexBuilder(GetLanguageSpecifics(), descriptor.Name, name);
         }
 
         private Dictionary<object, object> mTags = null;

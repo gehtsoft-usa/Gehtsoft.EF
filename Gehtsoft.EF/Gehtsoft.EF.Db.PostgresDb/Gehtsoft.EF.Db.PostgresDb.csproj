@@ -16,6 +16,7 @@
 
    <ItemGroup>
     <Compile Include="AlterTableQueryBuilder.cs" />
+    <Compile Include="PostgresDropIndexBuilder.cs" />
     <Compile Include="PostgresInsertSelectQueryBuilder.cs" />
     <Compile Include="PostgresQuery.cs" />
     <Compile Include="PostgresConnection.cs" />

@@ -57,6 +57,11 @@ namespace Gehtsoft.EF.Db.OracleDb
             return new OracleDropViewBuilder(gSpecifics, name);
         }
 
+        public override DropIndexBuilder GetDropIndexBuilder(TableDescriptor table, string name)
+        {
+            return new OracleDropIndexBuilder(gSpecifics, table.Name, name);
+        }
+
         public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement)
         {
             return new OracleInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);

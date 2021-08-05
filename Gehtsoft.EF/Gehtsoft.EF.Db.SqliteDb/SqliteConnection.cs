@@ -11,6 +11,7 @@ using System.Threading;
 
 namespace Gehtsoft.EF.Db.SqliteDb
 {
+
     public class SqliteDbConnection : SqlDbConnection
     {
         protected SqliteConnection mSqlConnection;
@@ -144,6 +145,11 @@ namespace Gehtsoft.EF.Db.SqliteDb
         {
             if (!transaction.IsSavePoint)
                 mCurrentTransaction = null;
+        }
+
+        public override DropIndexBuilder GetDropIndexBuilder(TableDescriptor descriptor, string name)
+        {
+            return new SqliteDropIndexBuilder(GetLanguageSpecifics(), descriptor.Name, name);
         }
     }
 

@@ -1,0 +1,44 @@
+
+
+@class
+    @name=AlterTableQueryBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AlterTableQueryBuilder
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.AlterTableQueryBuilder
+    @type=class
+    @parent=object
+    @brief=The ALTER TABLE command builder.
+
+    @member
+        @type=method
+        @name=SetTable
+        @key=SetTable.5f2
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.QueryBuilder.AlterTableQueryBuilder.SetTable(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor,Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo[],Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.ColumnInfo[])
+        @visibility=public
+        @scope=instance
+        @brief=Sets the details.
+
+            @declaration
+                @language=cs
+                @name=SetTable
+                @return=void
+                @params=[link=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/link] descriptor, ColumnInfo[] addColumns, ColumnInfo[] dropColumns
+            @end
+
+            @param
+                @name=descriptor
+                The table to be altered
+            @end
+
+            @param
+                @name=addColumns
+                Columns to be added or `null` if no columns needs to be added
+            @end
+
+            @param
+                @name=dropColumns
+                Columns to be dropped or `null` if no columns needs to be dropped
+            @end
+    @end
+@end

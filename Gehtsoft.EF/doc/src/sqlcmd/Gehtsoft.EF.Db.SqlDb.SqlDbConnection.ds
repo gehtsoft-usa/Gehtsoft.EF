@@ -409,7 +409,7 @@
         @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetLanguageSpecifics
         @key=GetLanguageSpecifics.0
         @divisor=.
-        @brief=
+        @brief=Gets ruleset of the specific database.
         @scope=instance
         @visibility=public
 
@@ -423,6 +423,88 @@
 
     @end
 
+    @member
+
+        @type=method
+        @name=GetAlterTableQueryBuilder
+        @key=GetAlterTableQueryBuilder.TX
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetAlterTableQueryBuilder
+        @visibility=public
+        @scope=instance
+        @brief=Creates query builder for alter table query.
+
+            @declaration
+                @language=cs
+                @name=GetAlterTableQueryBuilder
+                @return=[link=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AlterTableQueryBuilder]AlterTableQueryBuilder[/link]
+                @params=
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=GetCreateIndexBuilder
+        @key=GetCreateIndexBuilder.4L8
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetCreateIndexBuilder(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor,Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex)
+        @visibility=public
+        @scope=instance
+        @brief=Creates query builder for create index query
+
+            @declaration
+                @language=cs
+                @name=GetCreateIndexBuilder
+                @return=[link=Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateIndexBuilder]CreateIndexBuilder[/link]
+                @params=[link=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/link] descriptor, [link=Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex]CompositeIndex[/link] index
+            @end
+
+            @param
+                @name=descriptor
+                The table descriptor to create the index for.
+            @end
+
+            @param
+                @name=index
+                The index definition.
+            @end
+
+            Note: The name of the index will be the name of the table followed by
+            underscore and the name of the index.
+    @end
+
+
+    @member
+
+        @type=method
+        @name=GetDropIndexBuilder
+        @key=GetDropIndexBuilder.W48
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetDropIndexBuilder(Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor,System.String)
+        @visibility=public
+        @scope=instance
+        @brief=Creates a drop index query.
+
+            @declaration
+                @language=cs
+                @name=GetDropIndexBuilder
+                @return=[link=Gehtsoft.EF.Db.SqlDb.QueryBuilder.DropIndexBuilder]DropIndexBuilder[/link]
+                @params=[link=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/link] descriptor, string name
+            @end
+
+            @param
+                @name=descriptor
+                The table descriptor to drop the index for.
+            @end
+
+            @param
+                @name=name
+                The name of the index.
+            @end
+
+    @end
 
 
     The type defined in the [c]dll[/c] assembly.

@@ -313,6 +313,10 @@ namespace Gehtsoft.EF.Db.SqlDb
         public virtual int ExecuteNoData()
         {
             PrepareExecute();
+
+            if (string.IsNullOrEmpty(mCommand.CommandText))
+                return 0;
+
             if (mResiliency == null)
                 return mCommand.ExecuteNonQuery();
             else
@@ -324,6 +328,10 @@ namespace Gehtsoft.EF.Db.SqlDb
         public virtual Task<int> ExecuteNoDataAsync(CancellationToken? token)
         {
             PrepareExecute();
+
+            if (string.IsNullOrEmpty(mCommand.CommandText))
+                return Task.FromResult(0);
+
             if (mResiliency == null)
             {
                 if (token == null)

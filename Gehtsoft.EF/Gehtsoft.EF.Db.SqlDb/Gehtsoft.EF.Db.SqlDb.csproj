@@ -85,7 +85,9 @@
     <Compile Include="EntityQueries\EntityQuery\UpdateEntityQuery.cs" />
     <Compile Include="Metadata\CompositeIndex.cs" />
     <Compile Include="Metadata\ICompositeIndexMetadata.cs" />
+    <Compile Include="QueryBuilder\CreateIndexBuilder.cs" />
     <Compile Include="QueryBuilder\CreateViewBuilder.cs" />
+    <Compile Include="QueryBuilder\DropIndexBuilder.cs" />
     <Compile Include="QueryBuilder\DropViewBuilder.cs" />
     <Compile Include="ISqlDbConnectionFactory.cs" />
     <Compile Include="Metadata\IViewCreationMetadata.cs" />

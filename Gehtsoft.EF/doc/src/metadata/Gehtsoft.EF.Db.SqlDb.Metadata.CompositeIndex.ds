@@ -4,9 +4,34 @@
     @ingroup=Gehtsoft.EF.Db.SqlDb.Metadata
     @sig=T:Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex
     @type=class
-        
+
     @parent=object
-    @brief=The class defining the information about a composite index. 
+    @brief=The class defining the information about a composite index.
+
+    @member
+        @type=property
+        @name=FailIfUnsupported
+        @key=FailIfUnsupported.sY3
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex.FailIfUnsupported
+        @visibility=public
+        @scope=instance
+        @brief=The property defines the desired behavior in case the index consists of functions and connection does not support functions in index.
+
+        If the value of the property is `true` (default value), the index creation will fail with "feature is not supported"
+        exception. If the value of the property is `false`, the index will be skipped.
+
+        The examples of the DB that does not support functions in the index are MSSQL and MySQL.
+
+            @declaration
+                @language=cs
+                @return=bool
+                @name=FailIfUnsupported
+                @suffix= public get; public set;
+            @end
+
+    @end
+
 
     @member
         @type=constructor
@@ -17,7 +42,7 @@
         @visibility=public
         @scope=instance
         @brief=
-                
+
             @declaration
                 @language=cs
                 @name=CompositeIndex
@@ -28,20 +53,20 @@
                 @name=entityType
                 The type of the entity.
             @end
-            
+
             @param
                 @name=name
-                The name of the index. 
+                The name of the index.
 
                 When index is created, DB object name
-                will be the name of the entity concatenated with the 
+                will be the name of the entity concatenated with the
                 name of the index, e.g. "EntityName_IndexName".
             @end
-        
+
     @end
-    
+
     @member
-        
+
         @type=method
         @name=Add
         @key=Add.aD5
@@ -49,24 +74,24 @@
         @sig=M:Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex.Add(System.String)
         @visibility=public
         @scope=instance
-        @brief=
-                
+        @brief=Adds a column in default sort direction to index.
+
             @declaration
                 @language=cs
                 @name=Add
                 @return=void
                 @params=string name
             @end
-            
+
             @param
                 @name=name
 
             @end
-        
+
     @end
-    
+
     @member
-        
+
         @type=method
         @name=Add
         @key=Add.3x8
@@ -74,7 +99,7 @@
         @sig=M:Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex.Add(System.String,Gehtsoft.EF.Entities.SortDir)
         @visibility=public
         @scope=instance
-        @brief=Adds a column to the index definition
+        @brief=Adds a column with the specified sort direction to the index definition
 
         @declaration
             @language=cs
@@ -82,7 +107,7 @@
             @return=void
             @params=string name
         @end
-            
+
         @declaration
             @language=cs
             @name=Add
@@ -90,18 +115,47 @@
             @params=string name, [link=Gehtsoft.EF.Entities.SortDir]SortDir[/link] direction
         @end
 
-            
+
             @param
                 @name=name
-                The name of of the column or the name of the entity property 
+                The name of of the column or the name of the entity property
             @end
-        
+
             @param
                 @name=direction
                 The sorting direction (default is ascending)
             @end
-        
+
     @end
-    
+
+    @member
+
+        @type=method
+        @name=Add
+        @key=Add.2Y8
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex.Add(Gehtsoft.EF.Db.SqlDb.SqlFunctionId,System.String)
+        @visibility=public
+        @scope=instance
+        @brief=Adds a function to the index definition.
+
+            @declaration
+                @language=cs
+                @name=Add
+                @return=void
+                @params=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link] function, string name
+            @end
+
+            @param
+                @name=function
+                The function identifier
+            @end
+
+            @param
+                @name=name
+                The name of the column
+            @end
+    @end
+
+
 @end
-    

@@ -1,0 +1,17 @@
+
+@class
+    @name=CreateIndexBuilder
+    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateIndexBuilder
+    @ingroup=Gehtsoft.EF.Db.SqlDb.QueryBuilder
+    @sig=T:Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateIndexBuilder
+    @type=class
+    @parent=[link=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/link]
+    @brief=Create index builder.
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetCreateIndexBuilder.4L8]SqlDbConnection.GetCreateIndexBuilder()[/clink]
+    method to create an instance of the object.
+
+    The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder]Gehtsoft.EF.Db.SqlDb.QueryBuilder[/clink].
+
+@end

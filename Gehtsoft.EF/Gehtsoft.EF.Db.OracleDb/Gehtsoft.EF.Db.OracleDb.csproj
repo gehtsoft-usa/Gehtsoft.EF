@@ -27,6 +27,7 @@
     <Compile Include="OracleConnection.cs" />
     <Compile Include="OracleCreateTableBuilder.cs" />
     <Compile Include="OracleDbLanguageSpecifics.cs" />
+    <Compile Include="OracleDropIndexBuilder.cs" />
     <Compile Include="OracleDropTableBuilder.cs" />
     <Compile Include="OracleDropViewBuilder.cs" />
     <Compile Include="OracleHierarchicalSelectQueryBuilder.cs" />

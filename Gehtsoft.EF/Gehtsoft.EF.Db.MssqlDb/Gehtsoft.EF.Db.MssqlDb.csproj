@@ -21,6 +21,7 @@
     <Compile Include="MssqlCreateTableBuilder.cs" />
     <Compile Include="MssqlDbLanguageSpecifics.cs" />
     <Compile Include="MssqlDropQuertyBuilder.cs" />
+    <Compile Include="MssqlDropIndexBuilder.cs" />
     <Compile Include="MssqlHierarchicalSelectQueryBuilder.cs" />
     <Compile Include="MssqlInsertQueryBuilder.cs" />
     <Compile Include="MssqlInsertSelectQueryBuilder.cs" />

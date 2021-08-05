@@ -130,7 +130,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
                 else
                     return;
-            }    
+            }
 
             builder.Append("\r\n");
             builder.Append(mSpecifics.PreQueryInBlock);

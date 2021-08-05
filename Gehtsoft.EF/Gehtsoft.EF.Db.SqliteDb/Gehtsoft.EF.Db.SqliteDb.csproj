@@ -27,6 +27,7 @@
     <Compile Include="SqliteConnection.cs" />
     <Compile Include="SqliteCreateTableBuilder.cs" />
     <Compile Include="SqliteDbQuery.cs" />
+    <Compile Include="SqliteDropIndexBuilder.cs" />
     <Compile Include="SqliteHierarchicalSelectQueryBuilder.cs" />
     <Compile Include="SqliteInsertQueryBuilder.cs" />
     <Compile Include="SqliteInsertSelectQueryBuilder.cs" />

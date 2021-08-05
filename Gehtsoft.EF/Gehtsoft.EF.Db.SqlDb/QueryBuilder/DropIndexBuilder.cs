@@ -4,15 +4,17 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
-    public class DropViewBuilder : AQueryBuilder
+    public class DropIndexBuilder : AQueryBuilder
     {
+        protected readonly string mTable;
         protected readonly string mName;
         protected string mQuery;
         override public string Query => mQuery;
 
-        public DropViewBuilder(SqlDbLanguageSpecifics specifics, string name) : base(specifics)
+        public DropIndexBuilder(SqlDbLanguageSpecifics specifics, string table, string name) : base(specifics)
         {
             mSpecifics = specifics;
+            mTable = table;
             mName = name;
         }
 
@@ -25,7 +27,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             builder.Append(mSpecifics.PreBlock);
             builder.Append(mSpecifics.PreQueryInBlock);
 
-            builder.Append($"DROP VIEW IF EXISTS {mName}");
+            builder.Append($"DROP INDEX IF EXISTS {mTable}_{mName} ON {mTable}");
 
             if (mSpecifics.TerminateWithSemicolon)
                 builder.Append(';');
