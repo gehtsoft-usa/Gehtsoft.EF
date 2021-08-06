@@ -1,0 +1,98 @@
+
+
+@class
+    @name=EntityActionDelegate
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionDelegate
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionDelegate
+    @type=class
+
+    @parent=MulticastDelegate
+    @brief=
+
+    @member
+
+        @type=method
+        @name=Invoke
+        @key=Invoke.eNF
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionDelegate.Invoke(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Invoke
+                @return=void
+                @params=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection
+            @end
+
+            @param
+                @name=connection
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=BeginInvoke
+        @key=BeginInvoke.vGF
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionDelegate.BeginInvoke(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.AsyncCallback,System.Object)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=BeginInvoke
+                @return=IAsyncResult
+                @params=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection, AsyncCallback callback, object object
+            @end
+
+            @param
+                @name=connection
+
+            @end
+
+            @param
+                @name=callback
+
+            @end
+
+            @param
+                @name=object
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=EndInvoke
+        @key=EndInvoke.8AF
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionDelegate.EndInvoke(System.IAsyncResult)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=EndInvoke
+                @return=void
+                @params=IAsyncResult result
+            @end
+
+            @param
+                @name=result
+
+            @end
+
+    @end
+
+@end

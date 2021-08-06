@@ -1,0 +1,139 @@
+
+
+@class
+    @name=OnEntityActionAttribute
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.OnEntityActionAttribute
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.OnEntityActionAttribute
+    @type=class
+        
+    @parent=Attribute
+    @brief=
+                
+    @member
+        
+        @type=property
+        @name=AsyncAction
+        @key=AsyncAction.XjE
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.OnEntityActionAttribute.AsyncAction
+        @visibility=protected
+            
+        @scope=instance
+        @brief=
+                
+            @declaration
+                @language=cs
+                
+                @return=[link=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionAsyncDelegate]EntityActionAsyncDelegate[/link]
+                @name=AsyncAction
+                @suffix= protected get; 
+            @end
+            
+    @end
+    
+    @member
+        
+        @type=property
+        @name=Action
+        @key=Action.4O
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.OnEntityActionAttribute.Action
+        @visibility=protected
+            
+        @scope=instance
+        @brief=
+                
+            @declaration
+                @language=cs
+                
+                @return=[link=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionDelegate]EntityActionDelegate[/link]
+                @name=Action
+                @suffix= protected get; 
+            @end
+            
+    @end
+    
+    @member
+        
+        @type=constructor
+        @name=OnEntityActionAttribute
+        @key=.ctor.jY7
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.OnEntityActionAttribute.#ctor(System.Type,System.String)
+        @visibility=protected
+        @scope=instance
+        @brief=
+                
+            @declaration
+                @language=cs
+                @name=OnEntityActionAttribute
+                @return=
+                
+                @params=Type containerType, string delegateName
+            @end
+            
+            @param
+                @name=containerType
+
+            @end
+        
+            @param
+                @name=delegateName
+
+            @end
+        
+    @end
+    
+    @member
+        
+        @type=method
+        @name=Invoke
+        @key=Invoke.90A
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.OnEntityActionAttribute.Invoke(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @visibility=public
+        @scope=instance
+        @brief=
+                
+            @declaration
+                @language=cs
+                @name=Invoke
+                @return=void
+                @params=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection
+            @end
+            
+            @param
+                @name=connection
+
+            @end
+        
+    @end
+    
+    @member
+        
+        @type=method
+        @name=InvokeAsync
+        @key=InvokeAsync.y55
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.OnEntityActionAttribute.InvokeAsync(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @visibility=public
+        @scope=instance
+        @brief=
+                
+            @declaration
+                @language=cs
+                @name=InvokeAsync
+                @return=Task
+                @params=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection
+            @end
+            
+            @param
+                @name=connection
+
+            @end
+        
+    @end
+    
+@end
+    

@@ -164,8 +164,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return Raw(Builder.Parameters(names));
         }
 
-        protected void Push()
+        internal protected void Push()
         {
+            Builder.BaseWhere.ConditionBuilder.RecordPosition();
             Builder.Add(mLogOp, Left, mCmpOp ?? CmpOp.Eq, Right);
         }
     }
@@ -326,8 +327,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         internal static SingleEntityQueryConditionBuilder Wrap(this SingleEntityQueryConditionBuilder builder, SqlFunctionId function)
         {
             if (builder.Right != null)
-                throw new InvalidOperationException("Wrap may be applied on the left side only");
-            if (builder.Left != null)
+            {
+                builder.Builder.BaseWhere.ConditionBuilder.UnwindToPosition();
+                builder.Right = builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Right });
+                builder.Push();
+            }
+            else if (builder.Left != null)
                 builder.Left = builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Left });
             else if (function == SqlFunctionId.Count)
                 builder.Left = builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { });

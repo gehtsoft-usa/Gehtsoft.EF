@@ -1,0 +1,36 @@
+
+@class
+    @name=IEfPatchAsync
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatchAsync
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatchAsync
+    @type=interface
+    @parent=[link=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatch]IEfPatch[/link]
+    @brief=The interface to a patch.
+
+    @member
+
+        @type=method
+        @name=ApplyAsync
+        @key=ApplyAsync.672
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatchAsync.ApplyAsync(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @visibility=public
+        @scope=instance
+        @brief=The method is called to apply patch asynchronously.
+
+            @declaration
+                @language=cs
+                @name=ApplyAsync
+                @return=Task
+                @params=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection
+            @end
+
+            @param
+                @name=connection
+
+            @end
+
+    @end
+
+@end

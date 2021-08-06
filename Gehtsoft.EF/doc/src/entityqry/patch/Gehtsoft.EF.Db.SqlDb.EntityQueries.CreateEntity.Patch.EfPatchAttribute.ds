@@ -1,0 +1,200 @@
+@class
+    @name=EfPatchAttribute
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute
+    @type=class
+    @parent=Attribute
+    @brief=The attribute to mark the patches
+
+    In addition to being marked with the attribute, the patch class
+    must implement [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatch]IEfPatch[/clink]
+    interface.
+
+    @member
+
+        @type=property
+        @name=Scope
+        @key=Scope.XEG
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute.Scope
+        @visibility=public
+
+        @scope=instance
+        @brief=The scope of the entities.
+
+            @declaration
+                @language=cs
+
+                @return=string
+                @name=Scope
+                @suffix= public get; public set;
+            @end
+
+    @end
+
+    @member
+
+        @type=property
+        @name=MajorVersion
+        @key=MajorVersion.CI2
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute.MajorVersion
+        @visibility=public
+
+        @scope=instance
+        @brief=The major version of the patch.
+
+            @declaration
+                @language=cs
+
+                @return=int
+                @name=MajorVersion
+                @suffix= public get; public set;
+            @end
+
+    @end
+
+    @member
+
+        @type=property
+        @name=MinorVersion
+        @key=MinorVersion.rVG
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute.MinorVersion
+        @visibility=public
+
+        @scope=instance
+        @brief=The minor version of the patch.
+
+            @declaration
+                @language=cs
+
+                @return=int
+                @name=MinorVersion
+                @suffix= public get; public set;
+            @end
+
+    @end
+
+    @member
+
+        @type=property
+        @name=PatchVersion
+        @key=PatchVersion.yY5
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute.PatchVersion
+        @visibility=public
+
+        @scope=instance
+        @brief=The patch number within major.minor version.
+
+            @declaration
+                @language=cs
+
+                @return=int
+                @name=PatchVersion
+                @suffix= public get; public set;
+            @end
+
+    @end
+
+    @member
+
+        @type=constructor
+        @name=EfPatchAttribute
+        @key=.ctor.jYD
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute.#ctor
+        @visibility=public
+        @scope=instance
+        @brief=Default constructor.
+
+            @declaration
+                @language=cs
+                @name=EfPatchAttribute
+                @return=
+
+                @params=
+            @end
+
+    @end
+
+    @member
+
+        @type=constructor
+        @name=EfPatchAttribute
+        @key=.ctor.J
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute.#ctor(System.Int32,System.Int32,System.Int32)
+        @visibility=public
+        @scope=instance
+        @brief=Constructor for a default scope.
+
+            @declaration
+                @language=cs
+                @name=EfPatchAttribute
+                @return=
+
+                @params=int major, int minor, int patch
+            @end
+
+            @param
+                @name=major
+
+            @end
+
+            @param
+                @name=minor
+
+            @end
+
+            @param
+                @name=patch
+
+            @end
+
+    @end
+
+    @member
+
+        @type=constructor
+        @name=EfPatchAttribute
+        @key=.ctor.3O6
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute.#ctor(System.String,System.Int32,System.Int32,System.Int32)
+        @visibility=public
+        @scope=instance
+        @brief=Constructor for the specified scope.
+
+            @declaration
+                @language=cs
+                @name=EfPatchAttribute
+                @return=
+
+                @params=string scope, int major, int minor, int patch
+            @end
+
+            @param
+                @name=scope
+
+            @end
+
+            @param
+                @name=major
+
+            @end
+
+            @param
+                @name=minor
+
+            @end
+
+            @param
+                @name=patch
+
+            @end
+
+    @end
+
+@end

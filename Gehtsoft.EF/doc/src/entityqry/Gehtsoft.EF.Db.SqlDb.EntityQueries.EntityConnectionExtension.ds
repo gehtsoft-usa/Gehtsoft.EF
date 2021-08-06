@@ -63,9 +63,6 @@
             @params=this [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] connection, System.Type type
         @end
 
-        See also [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateViewController]CreateViewController[/clink] for more sophisticated
-        approach to create tables.
-
         Please note that the [clink=Gehtsoft.EF.Entities.EntityAttribute]EntityAttribute[/clink] of the type specified
         must define metadata that implements [clink=Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata]IViewCreationMetadata[/clink]
         interface.

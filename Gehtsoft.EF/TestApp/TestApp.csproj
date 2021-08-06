@@ -53,6 +53,7 @@
     <Compile Include="NorthwindTest.cs" />
     <Compile Include="ODataProcessorTest.cs" />
     <Compile Include="ODataTest.cs" />
+    <Compile Include="PatchTest.cs" />
     <Compile Include="ResiliencyTest.cs" />
     <Compile Include="TestEntity2.cs" />
     <Compile Include="TestNestedTransactions.cs" />

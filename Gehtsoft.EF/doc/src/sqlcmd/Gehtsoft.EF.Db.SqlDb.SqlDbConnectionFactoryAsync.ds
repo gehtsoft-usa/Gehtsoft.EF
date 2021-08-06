@@ -1,0 +1,105 @@
+@class
+    @name=SqlDbConnectionFactoryAsync
+    @key=Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactoryAsync
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactoryAsync
+    @type=class
+    @parent=MulticastDelegate
+    @brief=The delegate to create a connection asynchronously.
+
+    @member
+
+        @type=method
+        @name=Invoke
+        @key=Invoke.wP3
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactoryAsync.Invoke(System.String,System.Nullable{System.Threading.CancellationToken})
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Invoke
+                @return=Task<[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link]>
+                @params=string connectionString, CancellationToken? token
+            @end
+
+            @param
+                @name=connectionString
+
+            @end
+
+            @param
+                @name=token
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=BeginInvoke
+        @key=BeginInvoke.mNB
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactoryAsync.BeginInvoke(System.String,System.Nullable{System.Threading.CancellationToken},System.AsyncCallback,System.Object)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=BeginInvoke
+                @return=IAsyncResult
+                @params=string connectionString, System.Threading.CancellationToken? token, AsyncCallback callback, object object
+            @end
+
+            @param
+                @name=connectionString
+
+            @end
+
+            @param
+                @name=token
+
+            @end
+
+            @param
+                @name=callback
+
+            @end
+
+            @param
+                @name=object
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=EndInvoke
+        @key=EndInvoke.yH9
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactoryAsync.EndInvoke(System.IAsyncResult)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=EndInvoke
+                @return=Task<[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link]>
+                @params=IAsyncResult result
+            @end
+
+            @param
+                @name=result
+
+            @end
+
+    @end
+
+@end

@@ -386,6 +386,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         public virtual DateTime? MaxDate { get; } = null;
         public virtual DateTime? MinTimestamp { get; } = null;
         public virtual DateTime? MaxTimestamp { get; } = null;
+        public virtual bool CaseSensitiveStringComparison => true;
     }
 
     public enum SqlFunctionId

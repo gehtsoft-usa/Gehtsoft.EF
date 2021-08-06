@@ -1,0 +1,58 @@
+
+
+@class
+    @name=ConditionEntityQueryBase.InQueryName
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.InQueryName
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.InQueryName
+    @type=class
+        
+    @parent=object
+    @brief=
+                
+    @member
+        
+        @type=property
+        @name=Path
+        @key=Path.XA8
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.InQueryName.Path
+        @visibility=public
+            
+        @scope=instance
+        @brief=
+                
+            @declaration
+                @language=cs
+                
+                @return=string
+                @name=Path
+                @suffix= public get; 
+            @end
+            
+    @end
+    
+    @member
+        
+        @type=property
+        @name=Alias
+        @key=Alias.h96
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.InQueryName.Alias
+        @visibility=public
+            
+        @scope=instance
+        @brief=
+                
+            @declaration
+                @language=cs
+                
+                @return=string
+                @name=Alias
+                @suffix= public get; 
+            @end
+            
+    @end
+    
+@end
+    

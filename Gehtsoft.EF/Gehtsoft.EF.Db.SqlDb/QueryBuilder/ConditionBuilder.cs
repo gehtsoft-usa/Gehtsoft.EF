@@ -74,6 +74,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         private void Push()
         {
+            Builder.RecordPosition();
             Builder.Add(mLogOp, Left, (CmpOp)mCmpOp, Right);
         }
     }
@@ -170,7 +171,28 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
             mWhere.Append(rawExpression);
             mWhere.Append(InfoProvider.Specifics.CloseLogOp(logOp));
+
             mConditionStarted = true;
+        }
+
+        private int mPosition = -1;
+
+        public virtual void RecordPosition()
+        {
+            mPosition = mWhere.Length;
+        }
+
+        public virtual void UnwindToPosition()
+        {
+            if (mPosition == -1)
+                throw new InvalidOperationException("Position is not saved");
+            else if (mPosition == 0)
+            {
+                mConditionStarted = false;
+                mWhere.Clear();
+            }
+            else
+                mWhere.Remove(mPosition, mWhere.Length - mPosition);
         }
 
         public virtual void Add(LogOp logOp, string leftSide, CmpOp cmpOp, string rightSide) => Add(logOp, InfoProvider.Specifics.GetOp(cmpOp, leftSide, rightSide));

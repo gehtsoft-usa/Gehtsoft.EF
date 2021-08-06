@@ -279,6 +279,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
             Recreate,
             Update,
+            CreateNew,
         }
 
         private readonly static TableDescriptor mDummyTable = new TableDescriptor("dummytable");
@@ -407,7 +408,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     continue;
 
                 if (!schema.Contains(info.Table) ||
-                    defaultUpdateMode == UpdateMode.Recreate ||
+                    defaultUpdateMode == UpdateMode.Recreate || 
                     (individualUpdateModes != null && individualUpdateModes.ContainsKey(info.EntityType) && individualUpdateModes[info.EntityType] == UpdateMode.Recreate))
                 {
                     using (EntityQuery create = connection.GetCreateEntityQuery(info.EntityType))

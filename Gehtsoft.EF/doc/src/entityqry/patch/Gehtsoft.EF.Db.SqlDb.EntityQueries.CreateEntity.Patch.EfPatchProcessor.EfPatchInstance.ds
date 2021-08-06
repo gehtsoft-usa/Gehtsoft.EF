@@ -1,0 +1,113 @@
+
+@class
+    @name=EfPatchProcessor.EfPatchInstance
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.EfPatchInstance
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.EfPatchInstance
+    @type=class
+    @parent=object
+    @brief=Patch object metadata.
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.FindAllPatches.8cD]FindAllPatches[/clink]
+    to collect patches metadata.
+
+    @member
+
+        @type=property
+        @name=Version
+        @key=Version.ZO6
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.EfPatchInstance.Version
+        @visibility=public
+
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @return=[link=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute]EfPatchAttribute[/link]
+                @name=Version
+                @suffix= public get;
+            @end
+
+    @end
+
+    @member
+
+        @type=property
+        @name=PatchType
+        @key=PatchType.2MG
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.EfPatchInstance.PatchType
+        @visibility=public
+
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+
+                @return=Type
+                @name=PatchType
+                @suffix= public get;
+            @end
+
+    @end
+
+    @member
+
+        @type=constructor
+        @name=EfPatchProcessor.EfPatchInstance
+        @key=.ctor.343
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.EfPatchInstance.#ctor(Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute,System.Type)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=EfPatchProcessor.EfPatchInstance
+                @return=
+
+                @params=[link=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute]EfPatchAttribute[/link] version, Type type
+            @end
+
+            @param
+                @name=version
+
+            @end
+
+            @param
+                @name=type
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=Create
+        @key=Create.auG
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.EfPatchInstance.Create(System.IServiceProvider)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Create
+                @return=object
+                @params=IServiceProvider serviceProvider = null
+            @end
+
+            @param
+                @name=serviceProvider
+
+            @end
+
+    @end
+
+@end

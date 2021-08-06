@@ -8,7 +8,7 @@
 
     The metadata object may be either specified via
     [clink=Gehtsoft.EF.Entities.EntityAttribute.Metadata.Ok6]EntityAttribute.Metadata[/clink]
-    property or [clink=TableDescriptor.Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.Metadata.Gs1]TableDescriptor.Metadata[/clink]
+    property or [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.Metadata.Gs1]TableDescriptor.Metadata[/clink]
     property.
 
     To provide additional information implement one of the interfaces specified

@@ -1,0 +1,350 @@
+@class
+    @name=SqlFunctionId
+    @key=Gehtsoft.EF.Db.SqlDb.SqlFunctionId
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlFunctionId
+    @type=enum
+    @parent=Enum
+    @brief=Identifiers of the SQL functions
+
+    @member
+
+        @type=field
+        @name=ToDate
+        @key=ToDate.sbF
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.ToDate
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=ToDate
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 1
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=ToTimestamp
+        @key=ToTimestamp.Z3D
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.ToTimestamp
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=ToTimestamp
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 2
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=ToInteger
+        @key=ToInteger.KvA
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.ToInteger
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=ToInteger
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 3
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=ToDouble
+        @key=ToDouble.G9D
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.ToDouble
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=ToDouble
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 4
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=Like
+        @key=Like.2X
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.Like
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Like
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 5
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=Sum
+        @key=Sum.5tE
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.Sum
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Sum
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 6
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=Avg
+        @key=Avg.cJD
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.Avg
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Avg
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 7
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=Min
+        @key=Min.qm4
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.Min
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Min
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 8
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=Max
+        @key=Max.ik9
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.Max
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Max
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 9
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=Count
+        @key=Count.PFG
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.Count
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Count
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 10
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=Abs
+        @key=Abs.UuD
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.Abs
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Abs
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 11
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=Trim
+        @key=Trim.57A
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.Trim
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Trim
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 12
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=TrimLeft
+        @key=TrimLeft.NZC
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.TrimLeft
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=TrimLeft
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 13
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=TrimRight
+        @key=TrimRight.NxG
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.TrimRight
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=TrimRight
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 14
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=Upper
+        @key=Upper.Q3C
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.Upper
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Upper
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 15
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=Lower
+        @key=Lower.ANE
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.Lower
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Lower
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 16
+            @end
+
+    @end
+
+    @member
+
+        @type=field
+        @name=Concat
+        @key=Concat.471
+        @divisor=.
+        @sig=F:Gehtsoft.EF.Db.SqlDb.SqlFunctionId.Concat
+        @visibility=public
+        @scope=class
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Concat
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlFunctionId]SqlFunctionId[/link]
+                @suffix= = 17
+            @end
+
+    @end
+
+@end

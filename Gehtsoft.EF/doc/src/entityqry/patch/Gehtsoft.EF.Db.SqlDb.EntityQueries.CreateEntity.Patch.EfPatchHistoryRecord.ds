@@ -1,0 +1,210 @@
+@class
+    @name=EfPatchHistoryRecord
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord
+    @type=class
+
+    @parent=object
+    @brief=The entity used to keep history of the patches applied.
+
+    @member
+
+        @type=property
+        @name=ID
+        @key=ID.CP6
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord.ID
+        @visibility=public
+
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+
+                @return=int
+                @name=ID
+                @suffix= public get; public set;
+            @end
+
+    @end
+
+    @member
+
+        @type=property
+        @name=Scope
+        @key=Scope.gDG
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord.Scope
+        @visibility=public
+
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+
+                @return=string
+                @name=Scope
+                @suffix= public get; public set;
+            @end
+
+    @end
+
+    @member
+
+        @type=property
+        @name=MajorVersion
+        @key=MajorVersion.DV1
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord.MajorVersion
+        @visibility=public
+
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+
+                @return=int
+                @name=MajorVersion
+                @suffix= public get; public set;
+            @end
+
+    @end
+
+    @member
+
+        @type=property
+        @name=MinorVersion
+        @key=MinorVersion.UzC
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord.MinorVersion
+        @visibility=public
+
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+
+                @return=int
+                @name=MinorVersion
+                @suffix= public get; public set;
+            @end
+
+    @end
+
+    @member
+
+        @type=property
+        @name=PatchVersion
+        @key=PatchVersion.5t6
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord.PatchVersion
+        @visibility=public
+
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+
+                @return=int
+                @name=PatchVersion
+                @suffix= public get; public set;
+            @end
+
+    @end
+
+    @member
+
+        @type=property
+        @name=Applied
+        @key=Applied.lvF
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord.Applied
+        @visibility=public
+
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+
+                @return=DateTime
+                @name=Applied
+                @suffix= public get; public set;
+            @end
+
+    @end
+
+    @member
+
+        @type=constructor
+        @name=EfPatchHistoryRecord
+        @key=.ctor.o14
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord.#ctor
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=EfPatchHistoryRecord
+                @return=
+
+                @params=
+            @end
+
+    @end
+
+    @member
+
+        @type=constructor
+        @name=EfPatchHistoryRecord
+        @key=.ctor.ow6
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord.#ctor(System.String,System.Int32,System.Int32,System.Int32,System.DateTime)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=EfPatchHistoryRecord
+                @return=
+
+                @params=string scope, int majorVersion, int minorVersion, int patchVersion, DateTime applied
+            @end
+
+            @param
+                @name=scope
+
+            @end
+
+            @param
+                @name=majorVersion
+
+            @end
+
+            @param
+                @name=minorVersion
+
+            @end
+
+            @param
+                @name=patchVersion
+
+            @end
+
+            @param
+                @name=applied
+
+            @end
+
+    @end
+
+@end

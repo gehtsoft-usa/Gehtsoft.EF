@@ -1,0 +1,291 @@
+@class
+    @name=EfPatchProcessor
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor
+    @type=class
+    @parent=object
+    @brief=The patch controller.
+
+    @member
+
+        @type=method
+        @name=FindAllPatches
+        @key=FindAllPatches.8cD
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.FindAllPatches(System.Collections.Generic.IEnumerable{System.Reflection.Assembly},System.String)
+        @visibility=public
+        @scope=class
+        @brief=Searches for all patches object in the specified assemblies
+
+            @declaration
+                @language=cs
+                @name=FindAllPatches
+                @return=IList<EfPatchProcessor.EfPatchInstance>
+                @params=IEnumerable<System.Reflection.Assembly> assemblies, string scope = null
+            @end
+
+            @param
+                @name=assemblies
+                The list of the assemblies to search the patches.
+
+            @end
+
+            @param
+                @name=scope
+                The scope to search or `null` to search patches
+                for all scopes.
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=GetAllPatches
+        @key=GetAllPatches.mP3
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.GetAllPatches(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})
+        @visibility=public
+        @scope=class
+        @brief=Gets all patches from the log.
+
+            @declaration
+                @language=cs
+                @name=GetAllPatches
+                @return=[link=Gehtsoft.EF.Entities.EntityCollection_T]EntityCollection<[link=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord]EfPatchHistoryRecord[/link]>[/link]
+                @params=this [link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection, string scope, int? take = null, int? skip = null
+            @end
+
+            @param
+                @name=connection
+                The connection.
+            @end
+
+            @param
+                @name=scope
+                The scope to search or `null` to search patches
+                for all scopes.
+            @end
+
+            @param
+                @name=take
+
+            @end
+
+            @param
+                @name=skip
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=GetAllPatchesAsync
+        @key=GetAllPatchesAsync.ON8
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.GetAllPatchesAsync(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})
+        @visibility=public
+        @scope=class
+        @brief=Gets all patches for the log asynchronously.
+
+            @declaration
+                @language=cs
+                @name=GetAllPatchesAsync
+                @return=Task<[link=Gehtsoft.EF.Entities.EntityCollection_T]EntityCollection<[link=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord]EfPatchHistoryRecord[/link]>[/link]>
+                @params=this [link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection, string scope, int? take = null, int? skip = null
+            @end
+
+            @param
+                @name=connection
+
+            @end
+
+            @param
+                @name=scope
+                The scope to search or `null` to search patches
+                for all scopes.
+            @end
+
+            @param
+                @name=take
+
+            @end
+
+            @param
+                @name=skip
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=GetLastAppliedPatch
+        @key=GetLastAppliedPatch.848
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.GetLastAppliedPatch(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.String)
+        @visibility=public
+        @scope=class
+        @brief=Gets the last patch applied.
+
+            @declaration
+                @language=cs
+                @name=GetLastAppliedPatch
+                @return=[link=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord]EfPatchHistoryRecord[/link]
+                @params=this [link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection, string scope
+            @end
+
+            @param
+                @name=connection
+
+            @end
+
+            @param
+                @name=scope
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=GetLastAppliedPatchAsync
+        @key=GetLastAppliedPatchAsync.26B
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.GetLastAppliedPatchAsync(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.String)
+        @visibility=public
+        @scope=class
+        @brief=Gets the last patch applied asynchronously.
+
+            @declaration
+                @language=cs
+                @name=GetLastAppliedPatchAsync
+                @return=Task<[link=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchHistoryRecord]EfPatchHistoryRecord[/link]>
+                @params=this [link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection, string scope
+            @end
+
+            @param
+                @name=connection
+
+            @end
+
+            @param
+                @name=scope
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=ApplyPatchesAsync
+        @key=ApplyPatchesAsync.1Y3
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.ApplyPatchesAsync(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Collections.Generic.IList{Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.EfPatchInstance},System.String,System.IServiceProvider)
+        @visibility=public
+        @scope=class
+        @brief=Applies patches asynchronously.
+
+            @declaration
+                @language=cs
+                @name=ApplyPatchesAsync
+                @return=Task
+                @params=this [link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection, IList<EfPatchProcessor.EfPatchInstance> patches, string scope, IServiceProvider serviceProvider = null
+            @end
+
+            @param
+                @name=connection
+                The connection to apply patches.
+            @end
+
+            @param
+                @name=patches
+                The list of all patches.
+
+                Use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.FindAllPatches.8cD]FindAllPatches[/clink]
+                to get the collection the patches.
+
+                Only the patches that aren't applied yet will be executed.
+
+                If there is no patches log yet, the controller
+                consider that the database has been just created
+                and no patches are required. Only patches
+                developed after creation of the log will be applied
+                in the future.
+            @end
+
+            @param
+                @name=scope
+                The scope.
+            @end
+
+            @param
+                @name=serviceProvider
+                The service provider. If the service provider
+                specified, it will be used to inject
+                any additional dependencies into the patches.
+            @end
+
+
+
+    @end
+
+    @member
+
+        @type=method
+        @name=ApplyPatches
+        @key=ApplyPatches.DV6
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.ApplyPatches(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.Collections.Generic.IList{Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.EfPatchInstance},System.String,System.IServiceProvider)
+        @visibility=public
+        @scope=class
+        @brief=Applies patches.
+
+            @declaration
+                @language=cs
+                @name=ApplyPatches
+                @return=void
+                @params=this [link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection, IList<EfPatchProcessor.EfPatchInstance> patches, string scope, IServiceProvider serviceProvider = null
+            @end
+
+            @param
+                @name=connection
+                The connection to apply patches.
+            @end
+
+            @param
+                @name=patches
+                The list of all patches.
+
+                Use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchProcessor.FindAllPatches.8cD]FindAllPatches[/clink]
+                to get the collection the patches.
+
+                Only the patches that aren't applied yet will be executed.
+
+                If there is no patches log yet, the controller
+                consider that the database has been just created
+                and no patches are required. Only patches
+                developed after creation of the log will be applied
+                in the future.
+            @end
+
+            @param
+                @name=scope
+                The scope.
+            @end
+
+            @param
+                @name=serviceProvider
+                The service provider. If the service provider
+                specified, it will be used to inject
+                any additional dependencies into the patches.
+            @end
+    @end
+
+@end

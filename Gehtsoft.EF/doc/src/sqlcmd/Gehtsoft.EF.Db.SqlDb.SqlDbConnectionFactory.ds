@@ -1,0 +1,94 @@
+@class
+    @name=SqlDbConnectionFactory
+    @key=Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactory
+    @ingroup=Gehtsoft.EF.Db.SqlDb
+    @sig=T:Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactory
+    @type=class
+    @parent=MulticastDelegate
+    @brief=Delegate to create an instance of the connection synchronously
+
+    @member
+        @type=method
+        @name=Invoke
+        @key=Invoke.jg1
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactory.Invoke(System.String)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Invoke
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link]
+                @params=string connectionString
+            @end
+
+            @param
+                @name=connectionString
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=BeginInvoke
+        @key=BeginInvoke.LF
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactory.BeginInvoke(System.String,System.AsyncCallback,System.Object)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=BeginInvoke
+                @return=IAsyncResult
+                @params=string connectionString, AsyncCallback callback, object object
+            @end
+
+            @param
+                @name=connectionString
+
+            @end
+
+            @param
+                @name=callback
+
+            @end
+
+            @param
+                @name=object
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=EndInvoke
+        @key=EndInvoke.cG8
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactory.EndInvoke(System.IAsyncResult)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=EndInvoke
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link]
+                @params=IAsyncResult result
+            @end
+
+            @param
+                @name=result
+
+            @end
+
+    @end
+
+@end

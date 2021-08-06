@@ -1,0 +1,43 @@
+
+@class
+    @name=IEfPatch
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatch
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatch
+    @type=interface
+    @brief=The interface to a patch.
+
+    If the patch implements only this interface, the patch
+    will be always executed synchronously, even if the controller
+    is called in asynchronous mode.
+
+    To make patch working asynchronously implement
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatchAsync]IEfPatchAsync[/clink]
+    interface instead.
+
+    @member
+
+        @type=method
+        @name=Apply
+        @key=Apply.vv
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatch.Apply(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @visibility=public
+        @scope=instance
+        @brief=The method is called to apply the patch to the specified connection.
+
+            @declaration
+                @language=cs
+                @name=Apply
+                @return=void
+                @params=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection
+            @end
+
+            @param
+                @name=connection
+
+            @end
+
+    @end
+
+@end

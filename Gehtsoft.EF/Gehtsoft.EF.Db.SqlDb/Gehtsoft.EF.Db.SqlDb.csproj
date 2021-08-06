@@ -39,6 +39,11 @@
     <Compile Include="EntityQueries\Context\ContextQuery.cs" />
     <Compile Include="EntityQueries\Context\ContextTransaction.cs" />
     <Compile Include="EntityQueries\Context\EntityContent.cs" />
+    <Compile Include="EntityQueries\CreateEntity\Patch\EfPatchAttribute.cs" />
+    <Compile Include="EntityQueries\CreateEntity\Patch\EfPatchProcessor.cs" />
+    <Compile Include="EntityQueries\CreateEntity\Patch\IEfPatch.cs" />
+    <Compile Include="EntityQueries\CreateEntity\Patch\EfPatchHistoryRecord.cs" />
+    <Compile Include="EntityQueries\CreateEntity\Patch\IEfPatchAsync.cs" />
     <Compile Include="EntityQueries\DynamicEntity\DynamicEntityProperty.cs" />
     <Compile Include="EntityQueries\DynamicEntity\DynamicEntityPropertyCollection.cs" />
     <Compile Include="EntityQueries\DynamicEntity\DynamicPropertyAccessor.cs" />

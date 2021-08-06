@@ -11,6 +11,7 @@
   <dg:folder name="src/entity" encoding="windows-1252" />
   <dg:folder name="src/context" encoding="windows-1252" />
   <dg:folder name="src/entityqry" encoding="windows-1252" />
+  <dg:folder name="src/entityqry/patch" encoding="windows-1252" />
   <dg:folder name="src/linq" encoding="windows-1252" />
   <dg:folder name="src/mongo" encoding="windows-1252" />
   <dg:folder name="src/fts" encoding="windows-1252" />

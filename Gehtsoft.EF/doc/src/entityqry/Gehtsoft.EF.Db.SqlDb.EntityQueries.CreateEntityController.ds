@@ -1,7 +1,7 @@
 @class
     @name=CreateEntityController
     @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController
-    @brief=Controller to create or drop a set of entities
+    @brief=Controller to create, update or drop a set of entities
     @type=class
     @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
     @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController
@@ -181,6 +181,16 @@
             The modes for individual entities. This parameter may be useful for debugging new entities, so these new entities are recreated every
             test run while all well-debugged properties are kept intact.
         @end
+
+        Note: the ability of the controller to recognize and update tables is limited:
+
+        1) Some DBs (e.g. SQLite cannot drop columns)
+        2) The controller cannot recognize changing column type or other options, e.g. column indexes).
+        3) The controller cannot recognize changing of compound indexes.
+        4) The controller cannot update views.
+
+        Use [link=Gehtsoft.EF.Db.SqlDb.QueryBuilder]SQL query builder[/link] to alter table, drop index, create index, drop view and
+        create view and [link=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch]patches[/link] for fine tuning the tables update.
 
     @end
 

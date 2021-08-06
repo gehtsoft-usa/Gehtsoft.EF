@@ -1,0 +1,98 @@
+
+
+@class
+    @name=EntityActionAsyncDelegate
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionAsyncDelegate
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionAsyncDelegate
+    @type=class
+
+    @parent=MulticastDelegate
+    @brief=
+
+    @member
+
+        @type=method
+        @name=Invoke
+        @key=Invoke.In6
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionAsyncDelegate.Invoke(Gehtsoft.EF.Db.SqlDb.SqlDbConnection)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=Invoke
+                @return=Task
+                @params=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection
+            @end
+
+            @param
+                @name=connection
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=BeginInvoke
+        @key=BeginInvoke.0A6
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionAsyncDelegate.BeginInvoke(Gehtsoft.EF.Db.SqlDb.SqlDbConnection,System.AsyncCallback,System.Object)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=BeginInvoke
+                @return=IAsyncResult
+                @params=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link] connection, AsyncCallback callback, object object
+            @end
+
+            @param
+                @name=connection
+
+            @end
+
+            @param
+                @name=callback
+
+            @end
+
+            @param
+                @name=object
+
+            @end
+
+    @end
+
+    @member
+
+        @type=method
+        @name=EndInvoke
+        @key=EndInvoke.If7
+        @divisor=.
+        @sig=M:Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionAsyncDelegate.EndInvoke(System.IAsyncResult)
+        @visibility=public
+        @scope=instance
+        @brief=
+
+            @declaration
+                @language=cs
+                @name=EndInvoke
+                @return=Task
+                @params=IAsyncResult result
+            @end
+
+            @param
+                @name=result
+
+            @end
+
+    @end
+
+@end

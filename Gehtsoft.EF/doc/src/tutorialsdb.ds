@@ -77,7 +77,7 @@
             For the queries that has resultset, go trough the resultset using
             [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ReadNext.0]ReadNext()[/clink] method and read
             values using [c]GetValue[/c] method (see the [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.1]version for column index[/clink]
-            or the [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.4]version for column name[/clink]).
+            or the [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.1]version for column name[/clink]).
         @end
     @end
 

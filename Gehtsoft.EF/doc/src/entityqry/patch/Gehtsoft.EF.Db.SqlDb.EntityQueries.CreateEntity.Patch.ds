@@ -1,0 +1,12 @@
+@group
+    @title=Namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
+    @ingroup=main
+    @brief=DB Patches
+
+    The patches toolkit allows to finetune DB updates by creating
+    class called patch.
+
+    The patch controller looks for all patch classes and applies those that aren't
+    applied yet.
+@end

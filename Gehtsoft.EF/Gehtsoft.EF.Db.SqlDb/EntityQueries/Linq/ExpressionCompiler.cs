@@ -591,10 +591,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 }
             }
 
-            if (allParams)
-                return new Result(mSpecifics, "leq" + NextLeqParam, callNode);
-
             bool isFunction = (callNode.Method.DeclaringType == typeof(SqlFunction));
+
+            if (allParams && !isFunction)
+                return new Result(mSpecifics, "leq" + NextLeqParam, callNode);
 
             string[] stringResults = new string[argumentResults.Length + (callNode.Object == null ? 0 : 1)];
 

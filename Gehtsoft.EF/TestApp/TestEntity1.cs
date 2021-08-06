@@ -635,9 +635,29 @@ namespace TestApp
                 query.Execute(good5);
             }
 
+
+
             using (SelectEntitiesCountQuery query = connection.GetSelectEntitiesCountQuery(typeof(Good)))
             {
                 Assert.AreEqual(5, query.RowCount);
+            }
+
+            if (connection.GetLanguageSpecifics().CaseSensitiveStringComparison)
+            {
+                using (var query = connection.GetSelectEntitiesCountQuery<Good>())
+                {
+                    query.Where.Property(nameof(Good.Name)).ToUpper().Eq().Value("Trousers");
+                    query.Execute();
+                    query.RowCount.Should().Be(0);
+                }
+            }
+
+            using (var query = connection.GetSelectEntitiesCountQuery<Good>())
+            {
+                query.Where.Add(LogOp.Not).Property(nameof(Good.Name)).IsNull();
+                query.Where.Property(nameof(Good.Name)).ToUpper().Eq().Value("Trousers").ToUpper();
+                query.Execute();
+                query.RowCount.Should().Be(1);
             }
 
             using (var query = connection.GetGenericSelectEntityQuery(typeof(Good)))
@@ -1229,6 +1249,12 @@ namespace TestApp
             using (SelectEntitiesCountQuery query = connection.GetSelectEntitiesCountQuery<Employee>())
             {
                 query.Where.Expression<Employee>(o => SqlFunction.Like(o.Name, "dummy%"));
+                Assert.AreEqual(6, query.RowCount);
+            }
+
+            using (SelectEntitiesCountQuery query = connection.GetSelectEntitiesCountQuery<Employee>())
+            {
+                query.Where.Expression<Employee>(o => SqlFunction.Like(SqlFunction.Upper(o.Name), SqlFunction.Upper("dummy%")));
                 Assert.AreEqual(6, query.RowCount);
             }
 

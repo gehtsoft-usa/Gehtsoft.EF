@@ -9,7 +9,7 @@
     @parent=[link=Gehtsoft.EF.Db.SqlDb.QueryBuilder.AQueryBuilder]AQueryBuilder[/link]
     @brief=Drop index command.
 
-    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetDropIndexBuilder.W48]SqlDbConnection.GetDropIndexBuilder()[/clink]
+    Use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetDropIndexBuilder.W48]SqlDbConnection.GetDropIndexBuilder()[/clink]
     method to create an instance of the object.
 
     The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.

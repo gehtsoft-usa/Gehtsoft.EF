@@ -16,4 +16,6 @@
   <strip-namespace name="Gehtsoft.EF.Entities" />
   <strip-namespace name="Gehtsoft.EF.Db.SqlDb.QueryBuilder" />
   <strip-namespace name="Gehtsoft.EF.Db.SqlDb.Metadata" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity" />
 </settings >

@@ -1,51 +1,68 @@
-
 @class
-    
     @name=CreateEntityController.UpdateMode
     @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode
-    @brief=
+    @brief=The mode of table update for CreateEntityController
     @type=enum
     @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries
     @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode
+
     @member
         @name=Recreate
         @sig=F:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode.Recreate
         @key=Recreate.0
         @divisor=.
-        @brief=
+        @brief=Drops any existing tables and creates a new tables.
         @scope=class
         @visibility=public
-            
+
         @type=field
-            
+
         @declaration
             @language=cs
             @name=Recreate
             @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode]CreateEntityController.UpdateMode[/clink]
         @end
-    
+
     @end
-    
+
+    @member
+        @name=
+        @sig=F:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode.CreateNew
+        @key=CreateNew.0
+        @divisor=.
+        @brief=Creates tables only if tables don't exist yet.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Recreate
+            @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode]CreateEntityController.UpdateMode[/clink]
+        @end
+
+    @end
+
     @member
         @name=Update
         @sig=F:Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode.Update
         @key=Update.0
         @divisor=.
-        @brief=
+        @brief=Create tables that doesn't exist and updates the structure if it is changed.
         @scope=class
         @visibility=public
-            
+
         @type=field
-            
+
         @declaration
             @language=cs
             @name=Update
             @return=[clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateMode]CreateEntityController.UpdateMode[/clink]
         @end
-    
+
     @end
-    
+
     The type defined in the [c]Gehtsoft.EF.Db.SqlDb.dll[/c] assembly.
     The namespace is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries]Gehtsoft.EF.Db.SqlDb.EntityQueries[/clink].
 @end
-    

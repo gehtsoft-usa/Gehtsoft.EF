@@ -1,0 +1,57 @@
+
+
+@class
+    @name=QueryableEntityProvider.IConnectionProvider
+    @key=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider.IConnectionProvider
+    @ingroup=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
+    @sig=T:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider.IConnectionProvider
+    @type=interface
+        
+    @brief=
+                
+    @member
+        
+        @type=property
+        @name=Connection
+        @key=Connection.as4
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider.IConnectionProvider.Connection
+        @visibility=public
+            
+        @scope=instance
+        @brief=
+                
+            @declaration
+                @language=cs
+                
+                @return=[link=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/link]
+                @name=Connection
+                @suffix= public get; 
+            @end
+            
+    @end
+    
+    @member
+        
+        @type=property
+        @name=NeedToDispose
+        @key=NeedToDispose.ma4
+        @divisor=.
+        @sig=P:Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider.IConnectionProvider.NeedToDispose
+        @visibility=public
+            
+        @scope=instance
+        @brief=
+                
+            @declaration
+                @language=cs
+                
+                @return=bool
+                @name=NeedToDispose
+                @suffix= public get; 
+            @end
+            
+    @end
+    
+@end
+    
