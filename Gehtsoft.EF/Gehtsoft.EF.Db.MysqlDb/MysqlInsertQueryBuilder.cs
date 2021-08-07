@@ -34,6 +34,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
                 builder.Append("; SELECT LAST_INSERT_ID();");
             else if (mHasAutoId)
             {
+                /*
                 builder
                     .Append("; SET @max = (SELECT MAX(")
                     .Append(mTable.PrimaryKey.Name)
@@ -50,6 +51,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
                     .Append("; PREPARE stmt FROM @query")
                     .Append("; EXECUTE stmt")
                     .Append("; DEALLOCATE PREPARE stmt;");
+                */
             }
             return builder.ToString();
         }

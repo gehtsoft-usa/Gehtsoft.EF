@@ -3,7 +3,7 @@ using System;
 
 namespace Gehtsoft.EF.Northwind
 {
-    [Entity(Table = "nw_orders", Scope = "northwind")]
+    [Entity(Table = "nw_ord", Scope = "northwind")]
     public class Order
     {
         [EntityProperty(Field = "orderID", PrimaryKey = true, Autoincrement = true)]

@@ -61,6 +61,9 @@ namespace Gehtsoft.EF.Utils
             return entity;
         }
 
+        public static TR ReadData<TE, TR>(TE entity, string path)
+            => (TR)ReadData(entity, path);
+
         public static void PreparePath(Type entityType, string path)
         {
             GetPath(entityType, path);

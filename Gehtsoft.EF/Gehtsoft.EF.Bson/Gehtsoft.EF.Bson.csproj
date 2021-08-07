@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.10" />
     <PackageReference Include="MongoDB.Bson">
-      <Version>2.13.0</Version>
+      <Version>2.13.1</Version>
     </PackageReference>
   </ItemGroup>
 </Project>

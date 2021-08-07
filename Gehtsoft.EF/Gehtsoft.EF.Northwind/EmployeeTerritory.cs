@@ -2,7 +2,7 @@
 
 namespace Gehtsoft.EF.Northwind
 {
-    [Entity(Table = "nw_employee_territories", Scope = "northwind")]
+    [Entity(Table = "nw_empl_terr", Scope = "northwind")]
     public class EmployeeTerritory
     {
         [AutoId(Field = "referenceID")]

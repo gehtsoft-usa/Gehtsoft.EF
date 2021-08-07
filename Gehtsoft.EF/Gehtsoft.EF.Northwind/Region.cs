@@ -2,7 +2,7 @@
 
 namespace Gehtsoft.EF.Northwind
 {
-    [Entity(Table = "nw_regions", Scope = "northwind")]
+    [Entity(Table = "nw_reg", Scope = "northwind")]
     public class Region
     {
         [EntityProperty(Field = "regionID", PrimaryKey = true, Autoincrement = true)]

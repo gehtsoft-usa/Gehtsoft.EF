@@ -105,5 +105,12 @@ namespace TestApp
             mConnection.Should().NotBeNull();
             EntityContextTest.Test(mConnection);
         }
+
+        [Test]
+        public void TestNorthwind()
+        {
+            NorthwindTest t = new NorthwindTest();
+            t.Test(mConnection);
+        }
     }
 }

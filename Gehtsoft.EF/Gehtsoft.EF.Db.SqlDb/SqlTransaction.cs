@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
@@ -38,9 +39,13 @@ namespace Gehtsoft.EF.Db.SqlDb
             mTransaction?.Rollback();
         }
 
+        public virtual Task RollbackAsync() => Task.Run(() => Rollback());
+
         public virtual void Commit()
         {
             mTransaction?.Commit();
         }
+
+        public virtual Task CommitAsync() => Task.Run(() => Commit());
     }
 }

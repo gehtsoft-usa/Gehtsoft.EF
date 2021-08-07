@@ -2,8 +2,11 @@
 using System.IO;
 using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Entities.Context;
+using MongoDB.Bson.Serialization.IdGenerators;
 using NUnit.Framework;
 
 namespace TestApp
@@ -159,6 +162,71 @@ namespace TestApp
         {
             mConnection.Should().NotBeNull();
             TestSqlInjections.Do(mConnection);
+        }
+
+        [Entity(Table = "testdate")]
+        public class DateTestEntity
+        {
+            [EntityProperty(Sorted = true)]
+            public DateTime Date { get; set; }
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void DateModes(bool asString)
+        {
+            try
+            {
+                Random r = new Random();
+                var dt = DateTime.Now;
+
+                SqliteGlobalOptions.StoreDateAsString = asString;
+                using var connection = SqliteDbConnectionFactory.CreateMemory();
+                using (var query = connection.CreateEntity<DateTestEntity>())
+                {
+                    query.Execute();
+                }
+
+                for (int i = 0; i < 50; i++, dt = dt.AddMinutes(r.Next(5, 60)))
+                {
+                    var t = new DateTestEntity()
+                    {
+                        Date = dt
+                    };
+
+                    using var query = connection.InsertEntity<DateTestEntity>();
+                    query.Execute(t);
+                }
+
+                using (var query = connection.Select<DateTestEntity>())
+                {
+                    query.Order.Add(nameof(DateTestEntity.Date));
+                    var all = query.ReadAll<EntityCollection<DateTestEntity>, DateTestEntity>();
+                    all.Should().HaveCount(50);
+                    all.Should().BeInAscendingOrder(e => e.Date);
+                }
+
+                using (var query = connection.GetQuery("select * from testdate"))
+                {
+                    query.ExecuteReader();
+                    query.ReadNext();
+                    object v = query.GetValue(0);
+                    if (asString)
+                    {
+                        v.Should().BeOfType<string>();
+                        (v as string).Should().Match("????-??-?? ??:??:??");
+                    }
+                    else
+                    {
+                        v.Should().BeOfType<double>();
+                        DateTime.FromOADate((double)v).Should().BeWithin(TimeSpan.FromHours(50));
+                    }
+                }
+            }
+            finally
+            {
+                SqliteGlobalOptions.StoreDateAsString = false;
+            }
         }
     }
 }

@@ -4,6 +4,7 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using System.Threading.Tasks;
 using System.Threading;
 using MySqlConnector;
+using System.Data;
 
 namespace Gehtsoft.EF.Db.MysqlDb
 {
@@ -35,6 +36,15 @@ namespace Gehtsoft.EF.Db.MysqlDb
                 throw new EfSqlException(EfExceptionCode.NestingTransactionsNotSupported);
 
             mCurrentTransaction = mSqlConnection.BeginTransaction();
+            return new MysqlDbTransaction(this, mCurrentTransaction);
+        }
+
+        public override SqlDbTransaction BeginTransaction(IsolationLevel level)
+        {
+            if (mCurrentTransaction != null)
+                throw new EfSqlException(EfExceptionCode.NestingTransactionsNotSupported);
+
+            mCurrentTransaction = mSqlConnection.BeginTransaction(level);
             return new MysqlDbTransaction(this, mCurrentTransaction);
         }
 

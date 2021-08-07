@@ -72,6 +72,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
         }
 
+        public EntityDescriptor[] All() => mEntities.Values.ToArray();
+
         public NamingPolicyManager NamingPolicy { get; } = new NamingPolicyManager();
 
         private readonly Dictionary<Type, EntityDescriptor> mEntities = new Dictionary<Type, EntityDescriptor>();

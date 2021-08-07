@@ -12,6 +12,8 @@ namespace Gehtsoft.EF.Northwind
 {
     public class Snapshot
     {
+        private readonly (Type type, IEnumerable list)[] mTypes;
+
         public Snapshot()
         {
             Customers = (new CsvReader<Customer>()).Read();
@@ -25,11 +27,8 @@ namespace Gehtsoft.EF.Northwind
             Products = (new CsvReader<Product>()).Read();
             Orders = (new CsvReader<Order>()).Read();
             OrderDetails = (new CsvReader<OrderDetail>()).Read();
-        }
 
-        public async Task CreateAsync(IEntityContext context)
-        {
-            (Type type, IEnumerable list)[] types = new (Type type, IEnumerable list)[]
+            mTypes = new (Type type, IEnumerable list)[]
             {
                 (typeof(Category), this.Categories),
                 (typeof(Region), this.Regions),
@@ -43,33 +42,76 @@ namespace Gehtsoft.EF.Northwind
                 (typeof(Order), this.Orders),
                 (typeof(OrderDetail), this.OrderDetails),
             };
+        }
 
-            foreach (var (type, list) in types.Reverse())
-            {
-                using (var query = context.DropEntity(type))
-                    await query.ExecuteAsync();
-            }
+        public Task CreateAsync(IEntityContext context, int? orderLimit = null) => CreateCore(context, true, orderLimit).AsTask();
 
-            foreach (var (type, list) in types)
-            {
-                using (var query = context.CreateEntity(type))
-                    await query.ExecuteAsync();
-            }
+        public void Create(IEntityContext context, int? orderLimit = null)
+        {
+            if (!CreateCore(context, false, orderLimit).IsCompleted)
+                throw new InvalidOperationException("The sync operation is expected to be completed");
+        }
+
+        private async ValueTask CreateCore(IEntityContext context, bool executeAsync, int? orderLimit)
+        {
+            if (executeAsync)
+                await CreateTablesAsync(context);
+            else
+                CreateTables(context);          
 
             var transaction = context.BeginTransaction();
 
             try
             {
-                foreach (var (type, list) in types)
+                HashSet<int> orders = new HashSet<int>();
+                
+                foreach (var (type, list) in mTypes)
                 {
                     bool createKey = type == typeof(OrderDetail) || type == typeof(EmployeeTerritory);
+                    
+                    bool itIsOrder = type == typeof(Order) && orderLimit != null; 
+                    bool itIsOrderDetail = type == typeof(OrderDetail) && orderLimit != null;
+
                     using (var query = context.InsertEntity(type, createKey))
                     {
                         foreach (var v in list)
-                            await query.ExecuteAsync(v);
+                        {
+                            if (itIsOrder && orders.Count >= orderLimit.Value)
+                                break;
+
+                            if (itIsOrderDetail && v is OrderDetail details)
+                                if (!orders.Contains(details.Order.OrderID))
+                                    continue;
+
+                            if (executeAsync)
+                                await query.ExecuteAsync(v);
+                            else
+                                query.Execute(v);
+
+                            if (itIsOrder && v is Order order)
+                                orders.Add(order.OrderID);
+
+                            
+
+                        }
                     }
                 }
                 transaction.Commit();
+
+                if (orderLimit != null)
+                {
+                    List<Order> newOrders = new List<Order>();
+                    for (int i = 0; i < orderLimit.Value; i++)
+                        newOrders.Add(Orders[i]);
+                    Orders = newOrders;
+                    
+                    List<OrderDetail> newOrderDetails = new List<OrderDetail>();
+                    for (int i = 0; i < orderLimit.Value; i++)
+                        for (int j = 0; j < OrderDetails.Count; j++)
+                            if (OrderDetails[j].Order.OrderID == Orders[i].OrderID)
+                                newOrderDetails.Add(OrderDetails[j]);
+                    OrderDetails = newOrderDetails;
+                }
             }
             catch (Exception)
             {
@@ -81,6 +123,37 @@ namespace Gehtsoft.EF.Northwind
                 transaction.Dispose();
             }
         }
+
+        public Task CreateTablesAsync(IEntityContext context) => CreateTablesCore(context, true).AsTask();
+
+        public void CreateTables(IEntityContext context)
+        {
+            if (!CreateTablesCore(context, false).IsCompleted)
+                throw new InvalidOperationException("The sync operation is expected to be completed");
+        }
+
+        private async ValueTask CreateTablesCore(IEntityContext context, bool executeAsync)
+        {
+            foreach (var (type, list) in mTypes.Reverse())
+            {
+                using (var query = context.DropEntity(type))
+                    if (executeAsync)
+                        await query.ExecuteAsync();
+                    else
+                        query.Execute();
+            }
+
+            foreach (var (type, list) in mTypes)
+            {
+                using (var query = context.CreateEntity(type))
+                    if (executeAsync)
+                        await query.ExecuteAsync();
+                    else
+                        query.Execute();
+            }
+        }
+
+
 
         public IReadOnlyList<Customer> Customers { get; internal set; }
         public IReadOnlyList<Category> Categories { get; internal set; }

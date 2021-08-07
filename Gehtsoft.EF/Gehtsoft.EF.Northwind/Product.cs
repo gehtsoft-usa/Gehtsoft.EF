@@ -2,7 +2,7 @@
 
 namespace Gehtsoft.EF.Northwind
 {
-    [Entity(Table = "nw_products", Scope = "northwind")]
+    [Entity(Table = "nw_prod", Scope = "northwind")]
     public class Product
     {
         [EntityProperty(Field = "productID", PrimaryKey = true, Autoincrement = true)]

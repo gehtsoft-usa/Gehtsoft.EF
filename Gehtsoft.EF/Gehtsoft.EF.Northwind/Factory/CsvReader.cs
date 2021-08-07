@@ -15,8 +15,11 @@ namespace Gehtsoft.EF.Northwind.Factory
     internal class CsvReader<T>
         where T : class, new()
     {
-        public CsvReader()
+        private readonly int? mMaxRecords;
+
+        public CsvReader(int? maxRecords = null)
         {
+            mMaxRecords = maxRecords;
         }
 
         private class ColumnInfo
@@ -51,7 +54,7 @@ namespace Gehtsoft.EF.Northwind.Factory
                     string line;
                     ColumnInfo[] columns = null;
 
-                    while ((line = reader.ReadLine()) != null)
+                    while ((line = reader.ReadLine()) != null && (mMaxRecords == null || res.Count < mMaxRecords.Value))
                     {
                         string[] values = line.Split(',');
                         if (columns == null)

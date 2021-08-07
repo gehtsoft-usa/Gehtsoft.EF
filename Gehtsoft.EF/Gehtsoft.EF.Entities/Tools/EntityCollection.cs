@@ -4,23 +4,6 @@ using System.Collections.Generic;
 
 namespace Gehtsoft.EF.Entities
 {
-    public interface IEntityAccessor<T> : ICollection<T>
-    {
-        T this[int index] { get; }
-
-        int Find(T entity, IEqualityComparer<T> comparer);
-
-        int Find(T entity);
-
-        bool Contains(T entity, IEqualityComparer<T> comparer);
-
-        T[] ToArray();
-    }
-
-    public interface IEntityCollection<T> : IEntityAccessor<T>, IList<T>
-    {
-        new T this[int index] { get; set; }
-    }
 
     /// <summary>
     /// Collection of entities of the type specified.
@@ -98,7 +81,7 @@ namespace Gehtsoft.EF.Entities
             return Find(entity, comparer) >= 0;
         }
 
-        private static readonly EntityComparer<T> COMPARER = new EntityComparer<T>();
+        private static readonly EntityEqualityComparer<T> COMPARER = new EntityEqualityComparer<T>();
 
         public int Find(T entity)
         {
@@ -183,59 +166,34 @@ namespace Gehtsoft.EF.Entities
             return mList.ToArray();
         }
 
-        public EntityCollection<T> Copy()
+        public EntityCollection<T> Clone()
         {
             EntityCollection<T> rv = new EntityCollection<T>();
             rv.mList.AddRange(mList);
             return rv;
         }
 
-        public bool Equals(T x, T y)
+        public bool Equals(EntityCollection<T> other)
         {
-            if (x is IEquatable<T> eq)
-                return eq.Equals(y);
-            return object.ReferenceEquals(x, y);
-        }
-
-        public int GetHashCode(T obj)
-        {
-            return obj?.GetHashCode() ?? 0;
-        }
-
-        new public bool Equals(object x, object y)
-        {
-            if (x == y)
-            {
-                return true;
-            }
-
-            if (x == null || y == null)
-            {
+            if (other == null)
                 return false;
-            }
+            if (other.Count != Count)
+                return false;
 
-            if (x is EntityCollection<T> a
-                && y is EntityCollection<T> b)
+            for (int i = 0; i < Count; i++)
             {
-                return Equals(a, b);
+                bool rc;
+
+                if (this[i] is IEquatable<T> eq)
+                    rc = eq.Equals(other[i]);
+                else
+                    rc = EntityComparerHelper.Equals(this[i], other[i]);
+
+                if (!rc)
+                    return false;
             }
 
-            throw new ArgumentException("", nameof(x));
-        }
-
-        public int GetHashCode(object obj)
-        {
-            if (obj == null)
-            {
-                return 0;
-            }
-
-            if (obj is EntityCollection<T> x)
-            {
-                return GetHashCode(x);
-            }
-
-            throw new ArgumentException("", nameof(obj));
+            return true;
         }
     }
 }

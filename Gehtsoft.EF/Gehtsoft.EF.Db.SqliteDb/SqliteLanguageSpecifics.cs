@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Globalization;
 using Gehtsoft.EF.Db.SqlDb;
 
 namespace Gehtsoft.EF.Db.SqliteDb
@@ -19,7 +20,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 case DbType.Int64:
                     return "INTEGER";
                 case DbType.Date:
-                    return "REAL";
+                    return SqliteGlobalOptions.StoreDateAsString ? "TEXT" : "REAL";
                 case DbType.DateTime:
                     return "REAL";
                 case DbType.Double:
@@ -67,12 +68,24 @@ namespace Gehtsoft.EF.Db.SqliteDb
             }
             else if (type == typeof(DateTime))
             {
-                dbtype = DbType.Double;
-                DateTime dt = (DateTime)value;
-                if (dt.Ticks == 0)
-                    value = DBNull.Value;
+                if (SqliteGlobalOptions.StoreDateAsString)
+                {
+                    dbtype = DbType.String;
+                    DateTime dt = (DateTime)value;
+                    if (dt.Ticks == 0)
+                        value = DBNull.Value;
+                    else
+                        value = dt.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                }
                 else
-                    value = DateTimeTool.ToOADate(dt);
+                {
+                    dbtype = DbType.Double;
+                    DateTime dt = (DateTime)value;
+                    if (dt.Ticks == 0)
+                        value = DBNull.Value;
+                    else
+                        value = DateTimeTool.ToOADate(dt);
+                }
             }
             else if (type == typeof(DateTime?))
             {
@@ -146,7 +159,14 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 if (value == null)
                     return new DateTime(0);
 
-                return DateTimeTool.FromOADate((double)TranslateValue(value, typeof(double)));
+                if (SqliteGlobalOptions.StoreDateAsString)
+                {
+                    if (!DateTime.TryParseExact((string)value, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var dt))
+                        return new DateTime(0);
+                    return dt;
+                }
+                else
+                    return DateTimeTool.FromOADate((double)TranslateValue(value, typeof(double)));
             }
             else if (type == typeof(DateTime?))
             {

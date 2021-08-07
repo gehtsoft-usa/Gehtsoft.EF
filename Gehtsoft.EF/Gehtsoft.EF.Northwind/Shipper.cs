@@ -2,7 +2,7 @@
 
 namespace Gehtsoft.EF.Northwind
 {
-    [Entity(Table = "nw_shippers", Scope = "northwind")]
+    [Entity(Table = "nw_ship", Scope = "northwind")]
     public class Shipper
     {
         [EntityProperty(Field = "shipperID", PrimaryKey = true, Autoincrement = true)]

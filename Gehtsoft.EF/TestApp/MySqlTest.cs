@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Data;
+using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using NUnit.Framework;
 
@@ -77,7 +78,7 @@ namespace TestApp
             TestTasksImpl.Test(mConnection);
         }
 
-        //[Test]
+        [Test]
         public void TestNorthwind()
         {
             NorthwindTest t = new NorthwindTest();

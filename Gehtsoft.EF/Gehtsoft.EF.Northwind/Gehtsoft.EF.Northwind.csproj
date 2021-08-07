@@ -11,35 +11,36 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="csv\categories.csv" />
-    <None Remove="csv\customers.csv" />
-    <None Remove="csv\employees.csv" />
-    <None Remove="csv\employee_territories.csv" />
-    <None Remove="csv\orders.csv" />
-    <None Remove="csv\order_details.csv" />
-    <None Remove="csv\products.csv" />
-    <None Remove="csv\regions.csv" />
-    <None Remove="csv\shippers.csv" />
-    <None Remove="csv\suppliers.csv" />
-    <None Remove="csv\territories.csv" />
+    <None Remove="csv\cat.csv" />
+    <None Remove="csv\cust.csv" />
+    <None Remove="csv\empl.csv" />
+    <None Remove="csv\empl_terr.csv" />
+    <None Remove="csv\ord.csv" />
+    <None Remove="csv\ord_det.csv" />
+    <None Remove="csv\prod.csv" />
+    <None Remove="csv\reg.csv" />
+    <None Remove="csv\ship.csv" />
+    <None Remove="csv\supp.csv" />
+    <None Remove="csv\terr.csv" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="csv\categories.csv" />
-    <EmbeddedResource Include="csv\customers.csv" />
-    <EmbeddedResource Include="csv\employees.csv" />
-    <EmbeddedResource Include="csv\employee_territories.csv" />
-    <EmbeddedResource Include="csv\orders.csv" />
-    <EmbeddedResource Include="csv\order_details.csv" />
-    <EmbeddedResource Include="csv\products.csv" />
-    <EmbeddedResource Include="csv\regions.csv" />
-    <EmbeddedResource Include="csv\shippers.csv" />
-    <EmbeddedResource Include="csv\suppliers.csv" />
-    <EmbeddedResource Include="csv\territories.csv" />
+    <EmbeddedResource Include="csv\cat.csv" />
+    <EmbeddedResource Include="csv\cust.csv" />
+    <EmbeddedResource Include="csv\empl.csv" />
+    <EmbeddedResource Include="csv\empl_terr.csv" />
+    <EmbeddedResource Include="csv\ord.csv" />
+    <EmbeddedResource Include="csv\ord_det.csv" />
+    <EmbeddedResource Include="csv\prod.csv" />
+    <EmbeddedResource Include="csv\reg.csv" />
+    <EmbeddedResource Include="csv\ship.csv" />
+    <EmbeddedResource Include="csv\supp.csv" />
+    <EmbeddedResource Include="csv\terr.csv" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 

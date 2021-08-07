@@ -1,4 +1,6 @@
-﻿using Gehtsoft.EF.Db.SqlDb;
+﻿using FluentAssertions;
+using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Northwind;
@@ -14,16 +16,29 @@ namespace TestApp
 {
     public class NorthwindTest
     {
-        private readonly Snapshot mSnapshot = new Snapshot();
+        
 
-        public void Test(SqlDbConnection context)
+        public void Test(SqlDbConnection context, int? maxRecords = null)
         {
-            mSnapshot.CreateAsync(context).ConfigureAwait(true).GetAwaiter().GetResult();
+            Snapshot snapshot = new Snapshot();
+            snapshot.Create(context, maxRecords);
+
 
             var queriableProvider = new QueryableEntityProvider(new QueryableEntityProviderConnection(context));
 
             var orders = queriableProvider.Entities<Order>();
             var details = queriableProvider.Entities<OrderDetail>();
+
+            var maxId = orders.Max(o => o.OrderID);
+            maxId.Should().BeGreaterThan(10000);
+            using (var query = context.GetInsertEntityQuery<Order>())
+            {
+                var o = snapshot.Orders[0];
+                o.OrderID = -1;
+                query.Execute(o);
+                o.OrderID.Should().BeGreaterThan(maxId);
+                ;
+            }
 
             var r1 = orders.Count();
             var r2 = orders.Max(o => o.OrderDate);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Gehtsoft.EF.Entities
@@ -13,7 +12,7 @@ namespace Gehtsoft.EF.Entities
                 return true;
             if (objectA == null || objectB == null)
                 return false;
-            if (object.ReferenceEquals(objectA, objectB))
+            if (ReferenceEquals(objectA, objectB))
                 return true;
 
             if (objectA.GetType() == objectB.GetType())
@@ -85,23 +84,40 @@ namespace Gehtsoft.EF.Entities
             else
                 return false;
         }
-    }
 
-    public class EntityComparer<T> : IEqualityComparer<T>
-    {
-        public static bool Equals(T x, T y)
+        public static int GetHashCode(object obj)
         {
-            return EntityComparerHelper.Equals(x, y);
-        }
+            if (obj == null)
+                return 0.GetHashCode();
+            var t = obj.GetType();
+            
+            int hash = -1923861349;
+            PropertyInfo[] properties = t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttribute<EntityPropertyAttribute>();
+                if (attribute != null)
+                {
+                    int valueHash = 0;
 
-        bool IEqualityComparer<T>.Equals(T x, T y)
-        {
-            return EntityComparerHelper.Equals(x, y);
-        }
+                    var value = property.GetValue(obj);
+                    if (value == null)
+                        valueHash = 0.GetHashCode();
+                    else
+                    {
+                        var propertyType = property.PropertyType;
+                        var entityAttribute = propertyType.GetCustomAttribute<EntityAttribute>();
+                        if (entityAttribute != null)
+                            valueHash = GetHashCode(value);
+                        else
+                            valueHash = value.GetHashCode();
 
-        public int GetHashCode(T obj)
-        {
-            return obj != null ? obj.GetHashCode() : "".GetHashCode();
+                    }
+
+                    unchecked { hash = hash * -1521134295 + valueHash; }
+                }
+            }
+            return hash;
         }
     }
 }

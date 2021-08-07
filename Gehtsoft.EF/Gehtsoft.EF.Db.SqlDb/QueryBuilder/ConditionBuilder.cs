@@ -72,7 +72,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             return this;
         }
 
-        private void Push()
+        internal void Push()
         {
             Builder.RecordPosition();
             Builder.Add(mLogOp, Left, (CmpOp)mCmpOp, Right);
@@ -114,9 +114,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         internal static SingleConditionBuilder Wrap(this SingleConditionBuilder builder, SqlFunctionId function)
         {
             if (builder.Right != null)
-                throw new InvalidOperationException("Wrap may be applied on the left side argument only");
-
-            if (builder.Left != null)
+            {
+                builder.Builder.UnwindToPosition();
+                builder.Right = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Right });
+                builder.Push();
+            }
+            else if (builder.Left != null)
                 builder.Left = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Left });
             else if (function == SqlFunctionId.Count)
                 builder.Left = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, Array.Empty<string>());

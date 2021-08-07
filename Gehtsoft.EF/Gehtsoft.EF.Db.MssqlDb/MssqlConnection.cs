@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading;
@@ -56,6 +57,18 @@ namespace Gehtsoft.EF.Db.MssqlDb
                 mSavePointID++;
                 return t;
             }
+        }
+
+        public override SqlDbTransaction BeginTransaction(IsolationLevel level)
+        {
+            if (mTransaction == null)
+            {
+                MssqlTransaction t = new MssqlTransaction(this, mSqlConnection.BeginTransaction(level));
+                mTransaction = t;
+                return t;
+            }
+            else
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported, "The isolation level cannot be set of nested transactions");
         }
 
         internal virtual void EndTransaction(MssqlTransaction transaction)

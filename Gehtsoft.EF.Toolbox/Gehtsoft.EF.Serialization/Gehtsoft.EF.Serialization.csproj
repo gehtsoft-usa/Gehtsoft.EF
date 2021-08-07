@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$(MSBuildProjectDirectory)\..\version.proj" />
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.6.1" />
-    <PackageReference Include="Gehtsoft.EF.Entities" Version="1.6.1" />
+    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.7.1" />
+    <PackageReference Include="Gehtsoft.EF.Entities" Version="1.7.1" />
   </ItemGroup>
 
 </Project>

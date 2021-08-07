@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
@@ -67,6 +69,11 @@ namespace Gehtsoft.EF.Db.SqlDb
         public virtual SqlDbTransaction BeginTransaction()
         {
             return new SqlDbTransaction(mConnection.BeginTransaction());
+        }
+
+        public virtual SqlDbTransaction BeginTransaction(IsolationLevel level)
+        {
+            return new SqlDbTransaction(mConnection.BeginTransaction(level));
         }
 
         public virtual SqlDbQuery GetQuery() => ConstructQuery();
@@ -208,5 +215,28 @@ namespace Gehtsoft.EF.Db.SqlDb
             else
                 mTags.Add(key, value);
         }
+
+        class ExistingTable : IEntityTable
+        {
+            public string Name { get; set; }
+            public Type EntityType { get; set; }
+        }
+
+        public IEntityTable[] ExistingTables()
+        {
+            var tables = Schema();
+            var r = new ExistingTable[tables.Length];
+            var entities = AllEntities.Inst.All();
+            for (int i = 0; i < tables.Length; i++)
+            {
+                r[i] = new ExistingTable()
+                {
+                    Name = tables[i].Name,
+                    EntityType = entities.FirstOrDefault(e => e.TableDescriptor.Name.Equals(tables[i].Name, StringComparison.OrdinalIgnoreCase))?.EntityType
+                };
+            }
+            return r;
+        }
+
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Gehtsoft.EF.Northwind
 {
-    [Entity(Table = "nw_categories", Scope = "northwind")]
+    [Entity(Table = "nw_cat", Scope = "northwind")]
     public class Category
     {
         [EntityProperty(Field = "categoryID", PrimaryKey = true, Autoincrement = true)]

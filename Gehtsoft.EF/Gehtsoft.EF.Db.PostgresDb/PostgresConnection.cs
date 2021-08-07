@@ -4,6 +4,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Data;
 
 namespace Gehtsoft.EF.Db.PostgresDb
 {
@@ -39,6 +40,19 @@ namespace Gehtsoft.EF.Db.PostgresDb
             else
             {
                 mCurrentTransaction = mSqlConnection.BeginTransaction();
+                return new PostgresDbTransaction(this, mCurrentTransaction);
+            }
+        }
+
+        public override SqlDbTransaction BeginTransaction(IsolationLevel level)
+        {
+            if (mCurrentTransaction != null)
+            {
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported, "The isolation level cannot be set of nested transactions");
+            }
+            else
+            {
+                mCurrentTransaction = mSqlConnection.BeginTransaction(level);
                 return new PostgresDbTransaction(this, mCurrentTransaction);
             }
         }

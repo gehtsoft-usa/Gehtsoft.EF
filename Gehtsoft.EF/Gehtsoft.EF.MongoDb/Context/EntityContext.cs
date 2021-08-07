@@ -58,5 +58,28 @@ namespace Gehtsoft.EF.MongoDb
         {
             return new ContextCount(this.GetCountQuery(type));
         }
+
+        class ExistingTable : IEntityTable
+        {
+            public string Name { get; set; }
+            public Type EntityType { get; set; }
+        }
+
+        public IEntityTable[] ExistingTables()
+        {
+            var tables = GetSchema();
+            var r = new ExistingTable[tables.Length];
+            var entities = AllEntities.Inst.All();
+            for (int i = 0; i < tables.Length; i++)
+            {
+                r[i] = new ExistingTable()
+                {
+                    Name = tables[i],
+                    EntityType = entities.FirstOrDefault(e => e.TableDescriptor.Name == tables[i])?.EntityType
+                };
+            }
+
+            return r;
+        }
     }
 }

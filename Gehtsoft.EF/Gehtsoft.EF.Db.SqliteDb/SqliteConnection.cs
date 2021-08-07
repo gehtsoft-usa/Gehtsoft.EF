@@ -8,6 +8,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Data;
 
 namespace Gehtsoft.EF.Db.SqliteDb
 {
@@ -137,6 +138,17 @@ namespace Gehtsoft.EF.Db.SqliteDb
             else
             {
                 mCurrentTransaction = new SqliteDbTransaction(this, mSqlConnection.BeginTransaction());
+                return mCurrentTransaction;
+            }
+        }
+
+        public override SqlDbTransaction BeginTransaction(IsolationLevel level)
+        {
+            if (mCurrentTransaction != null)
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported, "The isolation level cannot be set of nested transactions");
+            else
+            {
+                mCurrentTransaction = new SqliteDbTransaction(this, mSqlConnection.BeginTransaction(level));
                 return mCurrentTransaction;
             }
         }

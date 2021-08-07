@@ -2,7 +2,7 @@
 
 namespace Gehtsoft.EF.Northwind
 {
-    [Entity(Table = "nw_order_details", Scope = "northwind")]
+    [Entity(Table = "nw_ord_det", Scope = "northwind")]
     public class OrderDetail
     {
         [AutoId(Field = "detailID")]

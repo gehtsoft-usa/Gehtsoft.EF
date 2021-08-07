@@ -2,7 +2,7 @@
 
 namespace Gehtsoft.EF.Northwind
 {
-    [Entity(Table = "nw_territories", Scope = "northwind")]
+    [Entity(Table = "nw_terr", Scope = "northwind")]
     public class Territory
     {
         [EntityProperty(Field = "territoryID", PrimaryKey = true, Size = 5)]

@@ -9,15 +9,36 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="EntityAttribute.cs" />
-    <Compile Include="EntityCollection.cs" />
-    <Compile Include="EntityComparer.cs" />
+    <Compile Include="Attributes\AutoIdAttribute.cs" />
+    <Compile Include="Attributes\EntityAttribute.cs" />
+    <Compile Include="Attributes\EntityPropertyAttribute.cs" />
+    <Compile Include="Attributes\ForeignKeyAttribute.cs" />
+    <Compile Include="Attributes\ObsoleteEntityAttribute.cs" />
+    <Compile Include="Attributes\ObsoleteEntityPropertyAttribute.cs" />
+    <Compile Include="Attributes\PrimaryKeyAttribute.cs" />
+    <Compile Include="EntityContext\IEntityTable.cs" />
+    <Compile Include="Tools\EntityCollection.cs" />
+    <Compile Include="EntityContext\EntityContextExtension.cs" />
+    <Compile Include="EntityContext\EntityFilterBuilderExtension.cs" />
+    <Compile Include="EntityContext\IContextCount.cs" />
+    <Compile Include="EntityContext\IContextFilter.cs" />
+    <Compile Include="EntityContext\IContextFilterCondition.cs" />
+    <Compile Include="EntityContext\IContextOrder.cs" />
+    <Compile Include="EntityContext\IContextQueryWithCondition.cs" />
+    <Compile Include="EntityContext\IContextSelect.cs" />
+    <Compile Include="EntityContext\IEntityContextTransaction.cs" />
+    <Compile Include="EntityContext\IEntityQuery.cs" />
+    <Compile Include="EntityContext\IModifyEntityQuery.cs" />
+    <Compile Include="Tools\EntityComparerHelper.cs" />
+    <Compile Include="Tools\EntityEqualityComparer.cs" />
     <Compile Include="EntityFinder.cs" />
-    <Compile Include="EntityNameConvertor.cs" />
-    <Compile Include="EntityObjectExtension.cs" />
-    <Compile Include="IEntityContext.cs" />
-    <Compile Include="Ops.cs" />
-    <Compile Include="EntitySerialization.cs" />
+    <Compile Include="NamingPolicy\EntityNameConvertor.cs" />
+    <Compile Include="NamingPolicy\EntityNamingPolicy.cs" />
+    <Compile Include="Tools\EntityObjectExtension.cs" />
+    <Compile Include="EntityContext\IEntityContext.cs" />
+    <Compile Include="EntityContext\Ops.cs" />
+    <Compile Include="Tools\IEntityAccessor.cs" />
+    <Compile Include="Tools\IEntityCollection.cs" />
   </ItemGroup>
 
   <ItemGroup>

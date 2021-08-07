@@ -42,6 +42,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gehtsoft.EF.Test", "Gehtsoft.EF.Test\Gehtsoft.EF.Test.csproj", "{D3A17F21-4FAA-4E29-A686-53181741CA92}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,17 +118,21 @@ Global
 		{B933C4B8-F8E3-48BB-B0A1-FC1F81174113}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B933C4B8-F8E3-48BB-B0A1-FC1F81174113}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B933C4B8-F8E3-48BB-B0A1-FC1F81174113}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3A17F21-4FAA-4E29-A686-53181741CA92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3A17F21-4FAA-4E29-A686-53181741CA92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3A17F21-4FAA-4E29-A686-53181741CA92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3A17F21-4FAA-4E29-A686-53181741CA92}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		        SolutionGuid = {5AFA782D-9953-4D2A-929E-A1AB0EDEAD11}
-		                        SolutionGuid = {F0519E4F-B015-4BFD-B20E-5DF30C4DB2D5}
-		                                        SolutionGuid = {259F36B7-318C-4C2E-AC97-35FB29062F96}
-		                                                SolutionGuid = {33200B68-F0A7-47BE-9669-34094286A9ED}
-		                                SolutionGuid = {93B56E1C-FF41-4FBD-8986-5F6FC03982EA}
-		                SolutionGuid = {5C4F4863-A166-415F-9DB6-DC653856865D}
 		SolutionGuid = {4570E860-0909-4352-BCCE-0422D837FF72}
+		                SolutionGuid = {5C4F4863-A166-415F-9DB6-DC653856865D}
+		                                SolutionGuid = {93B56E1C-FF41-4FBD-8986-5F6FC03982EA}
+		                                                SolutionGuid = {33200B68-F0A7-47BE-9669-34094286A9ED}
+		                                        SolutionGuid = {259F36B7-318C-4C2E-AC97-35FB29062F96}
+		                        SolutionGuid = {F0519E4F-B015-4BFD-B20E-5DF30C4DB2D5}
+		        SolutionGuid = {5AFA782D-9953-4D2A-929E-A1AB0EDEAD11}
 	EndGlobalSection
 EndGlobal
