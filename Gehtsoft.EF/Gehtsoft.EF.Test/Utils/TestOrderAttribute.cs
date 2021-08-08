@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Gehtsoft.EF.Test
+namespace Gehtsoft.EF.Test.Utils
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class TestOrderAttribute : Attribute

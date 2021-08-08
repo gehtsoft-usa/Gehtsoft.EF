@@ -4,6 +4,25 @@
     <TargetFramework>net50</TargetFramework>
   </PropertyGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="!Exists('Configuration.json')">
+    <ItemGroup>
+        <ConfigSource Include="Configuration.Example.json"/>
+        <ConfigTarget Include="Configuration.json"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(ConfigSource)" DestinationFiles="@(ConfigTarget)" />
+  </Target>
+
+
+  <ItemGroup>
+    <None Remove="Configuration.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Configuration.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
@@ -36,11 +55,5 @@
     <ProjectReference Include="..\Gehtsoft.EF.MongoDb\Gehtsoft.EF.MongoDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Northwind\Gehtsoft.EF.Northwind.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Utils\Gehtsoft.EF.Utils.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Configuration.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>

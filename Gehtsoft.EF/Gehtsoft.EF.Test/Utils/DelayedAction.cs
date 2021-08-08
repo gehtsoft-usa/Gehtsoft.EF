@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gehtsoft.EF.Test
+namespace Gehtsoft.EF.Test.Utils
 {
     public sealed class DelayedAction : IDisposable
     {

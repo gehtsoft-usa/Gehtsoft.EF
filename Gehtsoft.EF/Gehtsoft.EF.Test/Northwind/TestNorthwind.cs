@@ -9,12 +9,13 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Entities.Context;
 using Gehtsoft.EF.Northwind;
+using Gehtsoft.EF.Test.Utils;
 using Microsoft.OData.UriParser;
 using Xunit;
 
 namespace Gehtsoft.EF.Test.Northwind
 {
-    [TestCaseOrderer("Gehtsoft.EF.Test.TestOrderAttributeOrderer", "Gehtsoft.EF.Test")]
+    [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
     [Collection(nameof(NorthwindFixture))]
     public class TestNorthwind 
     {
@@ -27,11 +28,7 @@ namespace Gehtsoft.EF.Test.Northwind
 
 
         [Theory]
-        [InlineData("sqlite")]
-        [InlineData("npgsql")]
-        [InlineData("mysql")]
-        [InlineData("oracle")]
-        [InlineData("mssql")]
+        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
         [TestOrder(0)]
         public void TablesCreated(string driver)
         {
@@ -86,11 +83,7 @@ namespace Gehtsoft.EF.Test.Northwind
         }
 
         [Theory]
-        [InlineData("sqlite")]
-        [InlineData("npgsql")]
-        [InlineData("mysql")]
-        [InlineData("oracle")]
-        [InlineData("mssql")]
+        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
         [TestOrder(1)]
         public void AllDataCreated(string driver)
         {
@@ -122,11 +115,8 @@ namespace Gehtsoft.EF.Test.Northwind
         }
 
         [Theory]
+        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "-oracle", MemberType = typeof(SqlConnectionSources))]
         [TestOrder(0)]
-        [InlineData("sqlite")]
-        [InlineData("npgsql")]
-        [InlineData("mysql")]
-        [InlineData("mssql")]
         public void InsertAndDeleteOrder(string driver)
         {
             var connection = mFixture.GetInstance(driver);

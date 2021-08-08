@@ -7,6 +7,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Entities.Context;
 using Gehtsoft.EF.MongoDb;
 using Gehtsoft.EF.Northwind;
+using Gehtsoft.EF.Test.Utils;
 using Xunit;
 
 namespace Gehtsoft.EF.Test.Northwind
@@ -22,18 +23,20 @@ namespace Gehtsoft.EF.Test.Northwind
         {
         }
 
-        public SqlDbConnection GetInstance(string driver) => GetInstance(driver, TestConfiguration.Instance.Get("connections:" + driver));
+        public SqlDbConnection GetInstance(string connection) => GetInstance(connection, AppConfiguration.Instance.Get("connections:" + connection));
 
-        public SqlDbConnection GetInstance(string driver, string connectionString)
+        public SqlDbConnection GetInstance(string connectionName, string connectionString)
         {
-            var key = driver + "," + connectionString;
+            var key = connectionName;
+            var config = AppConfiguration.Instance.GetSqlConnection(connectionName);
+
             if (gConnections.TryGetValue(key, out var connection))
                 return connection;
 
-            connection = UniversalSqlDbFactory.Create(driver, connectionString);
+            connection = UniversalSqlDbFactory.Create(config.Driver, config.ConnectionString);
 
             if (connection == null)
-                throw new ArgumentException($"Incorrect driver name or connection settings {driver}:{connectionString}");
+                throw new ArgumentException($"Incorrect driver name or connection settings {connectionName}:{connectionString}");
 
             mSnapshot.Create(connection, 100);
             gConnections[key] = connection;
