@@ -26,6 +26,10 @@ namespace Gehtsoft.EF.Entities.Context
 
         public static async Task<T> ReadOneAsync<T>(this IContextSelect query) => (T)(await query.ReadOneAsync());
 
+        public static EntityCollection<T> ReadAll<T>(this IContextSelect query)
+            where T : class
+            => ReadAll<EntityCollection<T>, T>(query);
+
         public static TC ReadAll<TC, T>(this IContextSelect query)
             where TC : ICollection<T>, new()
             where T : class

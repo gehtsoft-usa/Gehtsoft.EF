@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Db.OracleDb;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Entities.Context;
 using Gehtsoft.EF.MongoDb;
@@ -39,6 +40,17 @@ namespace Gehtsoft.EF.Test.Northwind
                 throw new ArgumentException($"Incorrect driver name or connection settings {connectionName}:{connectionString}");
 
             mSnapshot.Create(connection, 100);
+            if (connection.ConnectionType == UniversalSqlDbFactory.ORACLE &&
+                connection is OracleDbConnection oracleConnection)
+            {
+                oracleConnection.UpdateSequence(typeof(Category));
+                oracleConnection.UpdateSequence(typeof(Employee));
+                oracleConnection.UpdateSequence(typeof(Product));
+                oracleConnection.UpdateSequence(typeof(Region));
+                oracleConnection.UpdateSequence(typeof(Order));
+                oracleConnection.UpdateSequence(typeof(Shipper));
+                oracleConnection.UpdateSequence(typeof(Supplier));
+            }
             gConnections[key] = connection;
             return connection;
         }

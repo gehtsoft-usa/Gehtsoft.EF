@@ -162,7 +162,7 @@ namespace Gehtsoft.EF.Db.OracleDb
                     currentTableMaximum = query.GetValue<int>(0);
             }
 
-            using (SqlDbQuery query = GetQuery($"select {sequenceName}.currval from dual"))
+            using (SqlDbQuery query = GetQuery($"select {sequenceName}.nextval from dual"))
             {
                 query.ExecuteReader();
                 if (query.ReadNext())

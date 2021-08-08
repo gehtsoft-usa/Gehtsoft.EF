@@ -115,7 +115,7 @@ namespace Gehtsoft.EF.Test.Northwind
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "-oracle", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
         [TestOrder(0)]
         public void InsertAndDeleteOrder(string driver)
         {
