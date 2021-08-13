@@ -254,6 +254,101 @@ namespace Gehtsoft.EF.Test.Entity.Tools
         }
 
         [Fact]
+        public void AddRange()
+        {
+            var collection1 = new EntityCollection<Data>()
+            {
+                new Data() { Id = 1, Name = "name1" },
+                new Data() { Id = 2, Name = "name2" },
+                new Data() { Id = 3, Name = "name3" },
+                new Data() { Id = 4, Name = "name4" },
+                new Data() { Id = 5, Name = "name5" }
+            };
+
+            var collection2 = new EntityCollection<Data>();
+            collection2.AddRange(collection1);
+            collection2.Should().BeEquivalentTo(collection1);
+        }
+
+        [Fact]
+        public void Clear()
+        {
+            var collection1 = new EntityCollection<Data>()
+            {
+                new Data() { Id = 1, Name = "name1" },
+                new Data() { Id = 2, Name = "name2" },
+                new Data() { Id = 3, Name = "name3" },
+                new Data() { Id = 4, Name = "name4" },
+                new Data() { Id = 5, Name = "name5" }
+            };
+            collection1.Should().HaveCount(5);
+            collection1.Clear();
+            collection1.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public void Countains_Success()
+        {
+            var d3 = new Data() { Id = 3, Name = "name3" };
+
+            var collection1 = new EntityCollection<Data>()
+            {
+                new Data() { Id = 1, Name = "name1" },
+                new Data() { Id = 2, Name = "name2" },
+                d3,
+                new Data() { Id = 4, Name = "name4" },
+                new Data() { Id = 5, Name = "name5" }
+            };
+            collection1.Contains(d3).Should().BeTrue();
+        }
+
+        [Fact]
+        public void Countains_Fail()
+        {
+            var d3 = new Data() { Id = 3, Name = "name3" };
+
+            var collection1 = new EntityCollection<Data>()
+            {
+                new Data() { Id = 1, Name = "name1" },
+                new Data() { Id = 2, Name = "name2" },
+                new Data() { Id = 4, Name = "name4" },
+                new Data() { Id = 5, Name = "name5" }
+            };
+            collection1.Contains(d3).Should().BeFalse();
+        }
+
+        [Fact]
+        public void IndexOf_Success()
+        {
+            var d3 = new Data() { Id = 3, Name = "name3" };
+
+            var collection1 = new EntityCollection<Data>()
+            {
+                new Data() { Id = 1, Name = "name1" },
+                new Data() { Id = 2, Name = "name2" },
+                d3,
+                new Data() { Id = 4, Name = "name4" },
+                new Data() { Id = 5, Name = "name5" }
+            };
+            collection1.IndexOf(d3).Should().Be(2);
+        }
+
+        [Fact]
+        public void IndexOf_Fail()
+        {
+            var d3 = new Data() { Id = 3, Name = "name3" };
+
+            var collection1 = new EntityCollection<Data>()
+            {
+                new Data() { Id = 1, Name = "name1" },
+                new Data() { Id = 2, Name = "name2" },
+                new Data() { Id = 4, Name = "name4" },
+                new Data() { Id = 5, Name = "name5" }
+            };
+            collection1.IndexOf(d3).Should().BeLessThan(0);
+        }
+
+        [Fact]
         public void Events()
         {
             int index;
@@ -341,9 +436,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             change.Should().BeFalse();
             remove.Should().BeTrue();
             index.Should().Be(1);
-
-
-
         }
 
 

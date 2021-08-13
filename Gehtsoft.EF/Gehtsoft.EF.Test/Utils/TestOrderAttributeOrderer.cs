@@ -24,7 +24,7 @@ namespace Gehtsoft.EF.Test.Utils
         IEnumerable<TTestCase> ITestCaseOrderer.OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
         {
             var cases = testCases.ToArray();
-            Array.Sort(cases, (a, b) => GetOrder(b).CompareTo(GetOrder(a)));
+            Array.Sort(cases, (a, b) => GetOrder(a).CompareTo(GetOrder(b)));
             return cases;
         }
     }

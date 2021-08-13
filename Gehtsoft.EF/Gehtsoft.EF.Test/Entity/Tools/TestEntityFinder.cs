@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
@@ -173,11 +174,20 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             }
         }
 
-        [Fact]
-        public void TableDescriptorCreation()
+        [Theory]
+        [InlineData(typeof(Order), typeof(Customer), true)]
+        [InlineData(typeof(Order), typeof(Employee), true)]
+        [InlineData(typeof(EmployeeTerritory), typeof(Employee), true)]
+        [InlineData(typeof(Order), typeof(Shipper), true)]
+        [InlineData(typeof(Employee), typeof(Order), false)]
+        public void DependsOn(Type type1, Type type2, bool dependsOn)
         {
             var entities = EntityFinder.FindEntities(new Assembly[] { typeof(Order).Assembly }, "northwind", false);
 
+            var e1 = entities.First(e => e.EntityType == type1);
+            var e2 = entities.First(e => e.EntityType == type2);
+
+            e1.DoesDependOn(e2).Should().Be(dependsOn);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Gehtsoft.EF.Test.Northwind
 
         [Theory]
         [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
-        [TestOrder(0)]
+        [TestOrder(1)]
         public void TablesCreated(string driver)
         {
             var connection = mFixture.GetInstance(driver);
@@ -84,7 +84,7 @@ namespace Gehtsoft.EF.Test.Northwind
 
         [Theory]
         [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
-        [TestOrder(1)]
+        [TestOrder(2)]
         public void AllDataCreated(string driver)
         {
             var connection = mFixture.GetInstance(driver);
@@ -116,7 +116,7 @@ namespace Gehtsoft.EF.Test.Northwind
 
         [Theory]
         [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
-        [TestOrder(0)]
+        [TestOrder(10)]
         public void InsertAndDeleteOrder(string driver)
         {
             var connection = mFixture.GetInstance(driver);

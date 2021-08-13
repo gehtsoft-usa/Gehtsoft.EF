@@ -46,6 +46,10 @@ namespace Gehtsoft.EF.Entities.Context
             return r;
         }
 
+        public static Task<EntityCollection<T>> ReadAllAsync<T>(this IContextSelect query)
+            where T : class
+            => ReadAllAsync<EntityCollection<T>, T>(query);
+
         public static async Task<TC> ReadAllAsync<TC, T>(this IContextSelect query, CancellationToken? token = null)
             where TC : ICollection<T>, new()
             where T : class
@@ -100,17 +104,17 @@ namespace Gehtsoft.EF.Entities.Context
             }
         }
 
-        public static void Save<T>(this IEntityContext context, T entity)
+        public static void Save<T>(this IEntityContext context, T entity, bool createKey = true)
         {
             bool exists = context.Exists<T>(entity.GetEfEntityId());
-            using (var query = exists ? context.UpdateEntity<T>() : context.InsertEntity<T>())
+            using (var query = exists ? context.UpdateEntity<T>() : context.InsertEntity<T>(createKey))
                 query.Execute(entity);
         }
 
-        public static async Task SaveAsync<T>(this IEntityContext context, T entity, CancellationToken? token = null)
+        public static async Task SaveAsync<T>(this IEntityContext context, T entity, bool createKey = true, CancellationToken? token = null)
         {
             bool exists = await context.ExistsAsync<T>(entity.GetEfEntityId(), token);
-            using (var query = exists ? context.UpdateEntity<T>() : context.InsertEntity<T>())
+            using (var query = exists ? context.UpdateEntity<T>() : context.InsertEntity<T>(createKey))
                 await query.ExecuteAsync(entity, token);
         }
     }
