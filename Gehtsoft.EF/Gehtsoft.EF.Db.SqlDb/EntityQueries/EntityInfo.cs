@@ -329,6 +329,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                             propertyAttribute.DbType = DbType.Int32;
                             propertyAttribute.Nullable = nullable;
                         }
+                        else if (propType == typeof(long))
+                        {
+                            propertyAttribute.DbType = DbType.Int64;
+                            propertyAttribute.Nullable = nullable;
+                        }
                         else if (propType == typeof(double))
                         {
                             propertyAttribute.DbType = DbType.Double;
@@ -340,10 +345,26 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                                     propertyAttribute.Precision = 7;
                             }
                         }
+                        else if (propType == typeof(decimal))
+                        {
+                            propertyAttribute.DbType = DbType.Decimal;
+                            propertyAttribute.Nullable = nullable;
+                            if (propertyAttribute.Size == 0)
+                            {
+                                propertyAttribute.Size = 18;
+                                if (propertyAttribute.Precision == 0)
+                                    propertyAttribute.Precision = 4;
+                            }
+                        }
                         else if (propType == typeof(DateTime))
                         {
                             propertyAttribute.DbType = DbType.DateTime;
                             propertyAttribute.Nullable = nullable;
+                        }
+                        else if (propType == typeof(byte[]))
+                        {
+                            propertyAttribute.DbType = DbType.Binary;
+                            propertyAttribute.Nullable = true;
                         }
                     }
 

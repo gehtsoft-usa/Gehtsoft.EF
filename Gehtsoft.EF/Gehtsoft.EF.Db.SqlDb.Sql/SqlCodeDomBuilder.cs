@@ -17,8 +17,6 @@ using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 using System.Linq.Expressions;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.Statement;
 
-//[assembly: InternalsVisibleTo("Gehtsoft.EF.Db.SqlDb.Sql.Test")]
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql
 {
     /// <summary>

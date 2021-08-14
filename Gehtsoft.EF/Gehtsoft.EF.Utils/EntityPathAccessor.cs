@@ -68,5 +68,8 @@ namespace Gehtsoft.EF.Utils
         {
             GetPath(entityType, path);
         }
+
+        public static bool IsPathCached(Type entityType, string path)
+            => mPathDictionary.ContainsKey(new Tuple<Type, string>(entityType, path));
     }
 }

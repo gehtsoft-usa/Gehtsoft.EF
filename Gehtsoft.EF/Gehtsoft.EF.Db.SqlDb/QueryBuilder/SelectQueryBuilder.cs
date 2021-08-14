@@ -7,8 +7,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Gehtsoft.EF.Entities;
 
-[assembly: InternalsVisibleTo("Gehtsoft.EF.Db.SqlDb.Sql")]
-
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
     public class SelectQueryBuilderResultsetItem

@@ -118,6 +118,7 @@
     <Compile Include="SqlTransaction.cs" />
     <Compile Include="UniversalSqlDbFactory.cs" />
     <Compile Include="UpdateQueryToTypeBinder.cs" />
+    <Compile Include="Attributes.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Attributes.cs" />
     <Compile Include="Attributes\AutoIdAttribute.cs" />
     <Compile Include="Attributes\EntityAttribute.cs" />
     <Compile Include="Attributes\EntityPropertyAttribute.cs" />
