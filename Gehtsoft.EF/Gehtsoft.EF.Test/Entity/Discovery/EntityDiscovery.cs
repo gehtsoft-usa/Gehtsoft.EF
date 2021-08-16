@@ -6,16 +6,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Test.Utils;
 using SharpCompress.Common;
 using Xunit;
 
-namespace Gehtsoft.EF.Test.Entity
+namespace Gehtsoft.EF.Test.Entity.Discovery
 {
-    public class TableDescriptionCreationFromEntities
+    public class Dicoverer
     {
-        [Entity(Scope = "tablebuilder", Table = "t1")]
+        [Entity(Scope = "tablebuilder", Table = "t1", Metadata = typeof(ExactSpecMetadata))]
         public class ExactSpec
         {
             [EntityProperty(Field = "f1", DbType = DbType.Int32, PrimaryKey = true, Autoincrement = true)]
@@ -49,14 +51,18 @@ namespace Gehtsoft.EF.Test.Entity
             public byte[] Blob { get; set; }
         }
 
-        [Entity]
+        public class ExactSpecMetadata
+        {
+        }
+
+        [Entity(Scope = "tablebuilder")]
         public class Dict1
         {
             [AutoId]
             public int ID { get; set; }
         }
 
-        [Entity]
+        [Entity(Scope = "tablebuilder")]
         public class Dict2
         {
             [EntityProperty(PrimaryKey = true)]
@@ -97,9 +103,49 @@ namespace Gehtsoft.EF.Test.Entity
             public Dict2 Reference2 { get; set; }
         }
 
+        [ObsoleteEntity(Scope = "tablebuilder")]
+        public class ObsoleteEntity
+        {
+            [AutoId]
+            public int ID { get; set; }
+        }
+
+        public class DynamicTestEntity : DynamicEntity
+        {
+            public override EntityAttribute EntityAttribute
+            {
+                get
+                {
+                    return new EntityAttribute()
+                    {
+                        Scope = "tablebuilder",
+                        Table = "dynamictable",
+                    };
+                }
+            }
+
+            protected override IEnumerable<IDynamicEntityProperty> InitializeProperties()
+            {
+                yield return new DynamicEntityProperty(typeof(int), "Property1", new EntityPropertyAttribute()
+                {
+                    PrimaryKey = true,
+                    Autoincrement = true,
+                });
+
+                yield return new DynamicEntityProperty(typeof(string), "Property2", new EntityPropertyAttribute()
+                {
+                    Sorted = true,
+                    Nullable = true,
+                    Size = 84,
+                });
+            }
+        }
+
         [Theory]
         [InlineData(typeof(ExactSpec), "t1", 10)]
         [InlineData(typeof(DefaultSpec), "DefaultSpec", 10)]
+        [InlineData(typeof(ObsoleteEntity), "ObsoleteEntity", 1)]
+        [InlineData(typeof(DynamicTestEntity), "dynamictable", 2)]
         public void TableSpec(Type entityType, string tableName, int fieldCount)
         {
             var entityInfo = AllEntities.Inst[entityType];
@@ -132,8 +178,8 @@ namespace Gehtsoft.EF.Test.Entity
         [InlineData(typeof(DefaultSpec), 8, "reference1", DbType.Int32, false, false, false, false, false, true, 0, 0)]
         [InlineData(typeof(DefaultSpec), 9, "reference2", DbType.Guid, false, false, true, false, false, true, 0, 0)]
 
-
-
+        [InlineData(typeof(DynamicTestEntity), 0, "property1", DbType.Int32, true, true, false, false, false, true, 0, 0)]
+        [InlineData(typeof(DynamicTestEntity), 1, "property2", DbType.String, false, false, true, true, false, true, 84, 0)]
         public void Field(Type entityType, int index, string name, DbType fieldType, bool pk, bool auto, bool nullable, bool sorted, bool unique, bool fk, int size, int precision)
         {
             var entityInfo = AllEntities.Inst[entityType];
@@ -208,6 +254,92 @@ namespace Gehtsoft.EF.Test.Entity
             table[field].PropertyAccessor.GetValue(entity).Should().Be(defaultValue);
             table[field].PropertyAccessor.SetValue(entity, testValue);
             table[field].PropertyAccessor.GetValue(entity).Should().Be(testValue);
+        }
+
+        [Theory]
+        [InlineData("Property1", typeof(int), 0, 123)]
+        [InlineData("Property2", typeof(string), null, "1234")]
+        public void DynamicPropertyAccessor(string field, Type valueType, object defaultValue, object testValue)
+        {
+            var entityInfo = AllEntities.Inst[typeof(DynamicTestEntity)];
+            var table = entityInfo.TableDescriptor;
+            var entity = new DynamicTestEntity();
+
+            defaultValue = TranslateTestValue(valueType, defaultValue);
+            testValue = TranslateTestValue(valueType, testValue);
+
+            table[field].PropertyAccessor.PropertyType.Should().Be(valueType);
+            table[field].PropertyAccessor.GetValue(entity).Should().Be(defaultValue);
+            table[field].PropertyAccessor.SetValue(entity, testValue);
+            table[field].PropertyAccessor.GetValue(entity).Should().Be(testValue);
+        }
+
+        [Fact]
+        public void ForgetType()
+        {
+            AllEntities.Inst[typeof(ExactSpec)].Should().NotBeNull();
+            AllEntities.Inst[typeof(DefaultSpec)].Should().NotBeNull(); 
+            AllEntities.Inst.Should().Contain(e => e == typeof(ExactSpec));
+            AllEntities.Inst.Should().Contain(e => e == typeof(DefaultSpec));
+            AllEntities.Inst.ForgetType(typeof(ExactSpec));
+            AllEntities.Inst.Should().NotContain(e => e == typeof(ExactSpec));
+            AllEntities.Inst.Should().Contain(e => e == typeof(DefaultSpec));
+        }
+
+        [Fact]
+        public void ForgetScope()
+        {
+            AllEntities.Get<ExactSpec>().Should().NotBeNull();
+            AllEntities.Get<DefaultSpec>().Should().NotBeNull();
+            AllEntities.Inst.Should().Contain(e => e == typeof(ExactSpec));
+            AllEntities.Inst.Should().Contain(e => e == typeof(DefaultSpec));
+            AllEntities.Inst.ForgetScope("tablebuilder");
+            AllEntities.Inst.Should().NotContain(e => e == typeof(ExactSpec));
+            AllEntities.Inst.Should().NotContain(e => e == typeof(DefaultSpec));
+        }
+
+        [Fact]
+        public void DiscoveryEvents()
+        {
+            var signalled = new List<Tuple<object, EntityDescriptor>>();  
+            var action = new EventHandler<EntityDescriptorEventArgs>((o, args) =>
+                signalled.Add(new Tuple<object, EntityDescriptor>(o, args?.Entity)));
+
+            AllEntities.Inst.OnEntityDiscovered += action;
+            using (var unsubscribe = new DelayedAction(() => AllEntities.Inst.OnEntityDiscovered -= action))
+            {
+                AllEntities.Inst.ForgetScope("tablebuilder");
+                AllEntities.Get<ExactSpec>().Should().NotBeNull();
+
+                signalled.Should().Contain(t => t.Item1 == AllEntities.Inst && t.Item2.EntityType == typeof(ExactSpec));
+                signalled.Should().NotContain(t => t.Item1 == AllEntities.Inst && t.Item2.EntityType == typeof(DefaultSpec));
+
+                AllEntities.Get<DefaultSpec>().Should().NotBeNull();
+
+                signalled.Should().Contain(t => t.Item1 == AllEntities.Inst && t.Item2.EntityType == typeof(DefaultSpec));
+            }
+
+            AllEntities.Inst.ForgetScope("tablebuilder");
+            var currentCount = signalled.Count;
+            AllEntities.Inst[typeof(ExactSpec)].Should().NotBeNull();
+            signalled.Should().HaveCount(currentCount);
+        }
+
+        [Fact]
+        public void Metadata()
+        {
+            AllEntities.Get<ExactSpec>().TableDescriptor.Metadata.Should().NotBeNull();
+            AllEntities.Get<ExactSpec>().TableDescriptor.Metadata.Should().BeOfType<ExactSpecMetadata>();
+
+            AllEntities.Get<DefaultSpec>().TableDescriptor.Metadata.Should().BeNull();
+        }
+
+        [Fact]
+        public void Exception()
+        {
+            AllEntities.Get<ExactSpecMetadata>(false).Should().BeNull();
+            ((Action)(() => AllEntities.Get<ExactSpecMetadata>(true))).Should().Throw<EfSqlException>();
+            ((Action)(() => AllEntities.Get<ExactSpecMetadata>())).Should().Throw<EfSqlException>();
         }
     }
 }

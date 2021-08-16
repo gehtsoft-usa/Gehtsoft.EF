@@ -32,5 +32,27 @@ namespace Gehtsoft.EF.Test.Entity.Utils
 
             return new AndConstraint<GenericCollectionAssertions<T>>(collection);
         }
+
+        public static AndConstraint<GenericCollectionAssertions<T>> HaveOneElementAfterTheOther<T>(this GenericCollectionAssertions<T> collection, Func<T, bool> one, Func<T, bool> two, string because = null, params object[] args)
+        {
+            Execute.Assertion
+                .BecauseOf(because, args)
+                .Given(() => collection.Subject)
+                .ForCondition(e =>
+                {
+                    bool f1 = false, f2 = false;
+                    e.ForEach(t =>
+                    {
+                        if (one(t))
+                            f1 = true;
+                        if (two(t) && f1)
+                            f2 = true;
+                    });
+                    return f2;
+                })
+                .FailWith("Expected {context:the collection} contain {0} and then {1} but it does not", one, two);
+
+            return new AndConstraint<GenericCollectionAssertions<T>>(collection);
+        }
     }
 }

@@ -333,12 +333,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                 return Task.FromResult(0);
 
             if (mResiliency == null)
-            {
-                if (token == null)
-                    return mCommand.ExecuteNonQueryAsync();
-                else
-                    return mCommand.ExecuteNonQueryAsync(token.Value);
-            }
+                return mCommand.ExecuteNonQueryAsync(token ?? CancellationToken.None);
             else
                 return mResiliency.ExecuteAsync(token1 => mCommand.ExecuteNonQueryAsync(token1), token ?? CancellationToken.None);
         }
@@ -349,19 +344,9 @@ namespace Gehtsoft.EF.Db.SqlDb
         {
             PrepareExecute();
             if (mResiliency == null)
-            {
-                if (ReadBlobAsStream)
-                    mReader = mCommand.ExecuteReader(CommandBehavior.SequentialAccess);
-                else
-                    mReader = mCommand.ExecuteReader();
-            }
+                mReader = mCommand.ExecuteReader(ReadBlobAsStream ? CommandBehavior.SequentialAccess : CommandBehavior.Default);
             else
-            {
-                if (ReadBlobAsStream)
-                    mReader = mResiliency.Execute(() => mCommand.ExecuteReader(CommandBehavior.SequentialAccess));
-                else
-                    mReader = mResiliency.Execute(() => mCommand.ExecuteReader());
-            }
+                mReader = mResiliency.Execute(() => mCommand.ExecuteReader(ReadBlobAsStream ? CommandBehavior.SequentialAccess : CommandBehavior.Default));
         }
 
         public Task ExecuteReaderAsync() => ExecuteReaderAsync(null);
@@ -369,33 +354,9 @@ namespace Gehtsoft.EF.Db.SqlDb
         {
             PrepareExecute();
             if (mResiliency == null)
-            {
-                if (ReadBlobAsStream)
-                {
-                    if (token == null)
-                        mReader = await mCommand.ExecuteReaderAsync(CommandBehavior.SequentialAccess);
-                    else
-                        mReader = await mCommand.ExecuteReaderAsync(CommandBehavior.SequentialAccess, token.Value);
-                }
-                else
-                {
-                    if (token == null)
-                        mReader = await mCommand.ExecuteReaderAsync();
-                    else
-                        mReader = await mCommand.ExecuteReaderAsync(token.Value);
-                }
-            }
+                mReader = await mCommand.ExecuteReaderAsync(ReadBlobAsStream ? CommandBehavior.SequentialAccess : CommandBehavior.Default, token ?? CancellationToken.None);
             else
-            {
-                if (ReadBlobAsStream)
-                {
-                    mReader = await mResiliency.ExecuteAsync(token1 => mCommand.ExecuteReaderAsync(CommandBehavior.SequentialAccess, token1), token ?? CancellationToken.None);
-                }
-                else
-                {
-                    mReader = await mResiliency.ExecuteAsync(token1 => mCommand.ExecuteReaderAsync(token1), token ?? CancellationToken.None);
-                }
-            }
+                mReader = await mResiliency.ExecuteAsync(token1 => mCommand.ExecuteReaderAsync(ReadBlobAsStream ? CommandBehavior.SequentialAccess : CommandBehavior.Default, token1), token ?? CancellationToken.None);
         }
 
         protected const string READER_IS_NOT_INIT = "Reader is not initialized";
@@ -512,12 +473,7 @@ namespace Gehtsoft.EF.Db.SqlDb
             if (mReader == null)
                 throw new InvalidOperationException(READER_IS_NOT_INIT);
             if (mResiliency == null)
-            {
-                if (token == null)
-                    return CanRead = await mReader.ReadAsync();
-                else
-                    return CanRead = await mReader.ReadAsync(token.Value);
-            }
+                return CanRead = await mReader.ReadAsync(token ?? CancellationToken.None);
             else
                 return CanRead = await mResiliency.ExecuteAsync(token1 => mReader.ReadAsync(token1), token ?? CancellationToken.None);
         }

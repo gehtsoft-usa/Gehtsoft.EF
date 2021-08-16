@@ -8,7 +8,7 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
-    public class SqlDbLanguageSpecifics
+    public abstract class SqlDbLanguageSpecifics
     {
         public virtual bool TerminateWithSemicolon
         {
@@ -59,10 +59,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public virtual bool SupportFunctionsInIndexes => false;
 
-        public virtual string TypeName(DbType type, int size, int precision, bool autoincrement)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract string TypeName(DbType type, int size, int precision, bool autoincrement);
 
         public enum AutoincrementReturnStyle
         {
@@ -387,6 +384,110 @@ namespace Gehtsoft.EF.Db.SqlDb
         public virtual DateTime? MinTimestamp { get; } = null;
         public virtual DateTime? MaxTimestamp { get; } = null;
         public virtual bool CaseSensitiveStringComparison => true;
+    }
+
+    public class Sql92LanguageSpecifics : SqlDbLanguageSpecifics
+    {
+        public override string TypeName(DbType type, int size, int precision, bool autoincrement)
+        {
+            switch (type)
+            {
+                case DbType.Int32:
+                    return "INTEGER";
+                case DbType.Int64:
+                    return "NUMERIC(19, 0)";
+                case DbType.Double:
+                    return $"NUMERIC({size}, {precision})";
+                case DbType.Decimal:
+                    return $"DOUBLE PRECISION({size}, {precision})";
+                case DbType.Boolean:
+                    return $"VARCHAR(1)";
+                case DbType.String:
+                    return $"VARCHAR({size})";
+                case DbType.Binary:
+                    return $"BLOB({size})";
+                case DbType.Date:
+                    return $"DATE";
+                case DbType.DateTime:
+                    return $"TIMESTAMP";
+                case DbType.Guid:
+                    return $"VARCHAR(40)";
+                default:
+                    throw new NotImplementedException($"Type {type} is not supported in SQL92");
+            }
+        }
+
+        public override void ToDbValue(ref object value, Type type, out DbType dbtype)
+        {
+            if (type == typeof(bool))
+            {
+                dbtype = DbType.String;
+                value = (bool)value ? "1" : "0";
+            }
+            else if (type == typeof(bool?))
+            {
+                dbtype = DbType.String;
+                if (value == null)
+                    value = DBNull.Value;
+                else
+                    value = (bool)value ? "1" : "0";
+            }
+            else if (type == typeof(Guid))
+            {
+                dbtype = DbType.String;
+                value = ((Guid)value).ToString("D");
+            }
+            else if (type == typeof(Guid?))
+            {
+                dbtype = DbType.String;
+                if (value == null)
+                    value = DBNull.Value;
+                else
+                    value = ((Guid)(Guid?)value).ToString("D");
+            }
+            else
+                base.ToDbValue(ref value, type, out dbtype);
+        }
+
+        public override object TranslateValue(object value, Type type)
+        {
+            if (type == typeof(bool))
+            {
+                if (value == null)
+                    return default(bool);
+                string t = (string)TranslateValue(value, typeof(string));
+                return t != "0";
+            }
+            else if (type == typeof(bool?))
+            {
+                if (value == null)
+                    return (bool?)null;
+                string t = (string)TranslateValue(value, typeof(string));
+                return (bool?)(t != "0");
+            }
+            else if (type == typeof(Guid))
+            {
+                string s = (string)TranslateValue(value, typeof(string));
+                if (s == null)
+                    return Guid.Empty;
+                if (!Guid.TryParse(s, out Guid guid))
+                    return Guid.Empty;
+                else
+                    return guid;
+            }
+            else if (type == typeof(Guid?))
+            {
+                string s = (string)TranslateValue(value, typeof(string));
+                if (s == null)
+                    return (Guid?)null;
+                if (!Guid.TryParse(s, out Guid guid))
+                    return (Guid?)Guid.Empty;
+                else
+                    return (Guid?)guid;
+            }
+            else
+                return base.TranslateValue(value, type);
+        }
     }
 
     public enum SqlFunctionId

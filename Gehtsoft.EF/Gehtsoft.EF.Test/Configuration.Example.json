@@ -18,6 +18,11 @@
       "enabled": "true",
       "connectionString": "Data Source=test.db;"
     },
+    "sqlite-memory": {
+      "driver": "sqlite",
+      "enabled": "false",
+      "connectionString": "Data Source=:memory:;"
+    }
   },
   "mongoConnections": {
     //"mongo": {

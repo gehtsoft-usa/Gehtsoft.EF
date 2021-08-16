@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq.Expressions;
 using Gehtsoft.EF.Entities;
@@ -31,7 +32,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             mProperties = new DynamicEntityPropertyCollection(InitializeProperties());
 #pragma warning restore S1699 // Constructors should only call non-overridable methods
             foreach (IDynamicEntityProperty property in mProperties)
-                mValues[property.Name] = new Container() { PropertyInfo = property, Value = null };
+            {
+                object value = null;
+                if (property.PropertyType.IsValueType)
+                    value = Activator.CreateInstance(property.PropertyType);
+                mValues[property.Name] = new Container() { PropertyInfo = property, Value = value };
+            }
         }
 
         public override IEnumerable<string> GetDynamicMemberNames()

@@ -39,11 +39,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         TResult Execute<TResult>(Func<TResult> action);
 
-        Task ExecuteAsync(Func<Task> action);
-
         Task ExecuteAsync(Func<CancellationToken, Task> action, CancellationToken token);
-
-        Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> action);
 
         Task<TResult> ExecuteAsync<TResult>(Func<CancellationToken, Task<TResult>> action, CancellationToken token);
     }

@@ -6,8 +6,8 @@
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="!Exists('Configuration.json')">
     <ItemGroup>
-        <ConfigSource Include="Configuration.Example.json"/>
-        <ConfigTarget Include="Configuration.json"/>
+        <ConfigSource Include="Configuration.Example.json" />
+        <ConfigTarget Include="Configuration.json" />
     </ItemGroup>
     <Copy SourceFiles="@(ConfigSource)" DestinationFiles="@(ConfigTarget)" />
   </Target>
