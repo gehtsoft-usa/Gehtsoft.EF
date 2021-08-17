@@ -5,10 +5,61 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Collections;
 using FluentAssertions.Execution;
+using FluentAssertions.Primitives;
 using Gehtsoft.Tools.TypeUtils;
 
 namespace Gehtsoft.EF.Test.Entity.Utils
 {
+    public static class ReferenceTypeAssertionExtension
+    {
+        private static bool Equals<T>(T e, T target)
+        {
+            if (e == null && target == null)
+                return true;
+
+            if (e == null || target == null)
+                return false;
+
+            if (ReferenceEquals(e, target))
+                return true;
+
+            if (e is Array x && target is Array y)
+            {
+                if (x.Length != y.Length)
+                    return false;
+                for (int i = 0; i < x.Length; i++)
+                {
+                    if (!Equals<object>(x.GetValue(i), y.GetValue(i)))
+                        return false;
+                }
+                return true;
+            }
+
+            if (e is IEquatable<T> eq)
+                return eq.Equals(target);
+
+            if (e is IComparable<T> cmp1)
+                return cmp1.CompareTo(target) == 0;
+
+            if (e is IComparable cmp2)
+                return cmp2.CompareTo(target) == 0;
+
+            return false;
+        }
+
+        public static AndConstraint<TA> BeEqualTo<TS, TA>(this TA assertions, TS target, string because = null, params object[] becauseArgs)
+            where TA : ReferenceTypeAssertions<TS, TA>
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .Given(() => assertions.Subject)
+                .ForCondition(e => Equals<TS>(e, target))
+                .FailWith("Expected that the object is {0} but it is {1}", target, assertions.Subject);
+
+            return new AndConstraint<TA>(assertions);
+        }
+    }
+
     public static class GenericCollectionAssertionExtension
     {
         public static AndConstraint<GenericCollectionAssertions<T>> HaveOneElementAfterTheOther<T>(this GenericCollectionAssertions<T> collection, T one, T two, string because = null, params object[] args)

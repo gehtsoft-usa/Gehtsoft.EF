@@ -9,41 +9,10 @@ using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Linq;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
-    public interface IDbQuery : IDisposable
-    {
-        bool IsInsert { get; }
-
-        bool CanRead { get; }
-
-        SqlDbLanguageSpecifics LanguageSpecifics { get; }
-
-        void BindNull(string name, DbType type);
-        void BindOutputParam(string name, DbType type);
-        void BindParam(string name, ParameterDirection direction, object value, Type valueType);
-        void BindParam<T>(string name, T value);
-        object GetParamValue(string name, Type type);
-        T GetParamValue<T>(string name);
-
-        int ExecuteNoData();
-        void ExecuteReader();
-        bool ReadNext();
-
-        bool IsNull(int column);
-        bool IsNull(string column);
-
-        T GetValue<T>(int column);
-        T GetValue<T>(string column);
-
-        object GetValue(int column, Type type);
-
-        object GetValue(string column, Type type);
-
-        int FindField(string column);
-    }
-
     public class SqlDbQuery : IDbQuery
     {
         protected DbCommand mCommand;
@@ -135,23 +104,36 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public int ParametersCount => Parameters.Count;
 
-        public void BindParam<T>(string name, T value)
-        {
-            object _value = value;
-            Type t = typeof(T);
+        public bool HasParam(string name) => Parameters.FirstOrDefault(p => p.Name == name) != null;
 
-            if (_value.GetType().GetTypeInfo().IsClass)
+        public void BindParam(string name, Type t, object value)
+        {
+            if (!mSpecifics.TypeToDb(t, out var dbt))
             {
-                EntityDescriptor ed = AllEntities.Inst[_value.GetType(), false];
-                if (ed != null && ed.TableDescriptor.PrimaryKey != null)
+                if (t.IsClass)
                 {
-                    t = ed.TableDescriptor.PrimaryKey.PropertyAccessor.PropertyType;
-                    _value = ed.TableDescriptor.PrimaryKey.PropertyAccessor.GetValue(_value) ?? DBNull.Value;
+                    var ed = AllEntities.Inst[value.GetType(), false];
+                    if (ed != null && ed.TableDescriptor.PrimaryKey != null)
+                    {
+                        t = ed.TableDescriptor.PrimaryKey.PropertyAccessor.PropertyType;
+                        mSpecifics.TypeToDb(t, out dbt);
+                        value = ed.TableDescriptor.PrimaryKey.PropertyAccessor.GetValue(value) ?? DBNull.Value;
+                    }
+                    else
+                        throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
                 }
             }
-            mSpecifics.ToDbValue(ref _value, t, out DbType type);
-            BindParam(name, type, ParameterDirection.Input, _value);
+
+            if (value == null)
+                BindNull(name, dbt);
+            else 
+            {
+                mSpecifics.ToDbValue(ref value, t, out dbt);
+                BindParam(name, dbt, ParameterDirection.Input, value);
+            }
         }
+
+        public void BindParam<T>(string name, T value) => BindParam(name, typeof(T), value);
 
         internal void CopyParametersFrom(SqlDbQuery query)
         {
@@ -185,6 +167,15 @@ namespace Gehtsoft.EF.Db.SqlDb
         {
             BindParam(name, type, ParameterDirection.Output, null);
         }
+
+        public virtual void BindOutputParam(string name, Type type)
+        {
+            if (!mSpecifics.TypeToDb(type, out var dbt))
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+            BindOutputParam(name, dbt);
+        }
+
+        public virtual void BindOutputParam<T>(string name) => BindOutputParam(name, typeof(T));
 
         public virtual void BindParam(string name, ParameterDirection direction, object value, Type valueType)
         {
@@ -264,7 +255,7 @@ namespace Gehtsoft.EF.Db.SqlDb
             return CommandTextBuilder.ToString();
         }
 
-        protected virtual void BindParameterToQuery(SqlDbQuery.Param p)
+        protected virtual void BindParameterToQuery(Param p)
         {
             if (p.DbParameter == null)
             {

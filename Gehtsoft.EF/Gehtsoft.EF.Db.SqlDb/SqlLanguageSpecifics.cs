@@ -182,6 +182,77 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
         }
 
+        public virtual bool TypeToDb(Type type, out DbType dbtype)
+        {
+            type = Nullable.GetUnderlyingType(type) ?? type;
+
+            if (type == typeof(short))
+            {
+                dbtype = DbType.Int16;
+                return true;
+            }
+            else if (type == typeof(int) || type.IsEnum)
+            {
+                dbtype = DbType.Int32;
+                return true;
+            }
+            else if (type == typeof(long))
+            {
+                dbtype = DbType.Int64;
+                return true;
+            }
+            else if (type == typeof(bool))
+            {
+                dbtype = DbType.Boolean;
+                return true;
+            }
+            else if (type == typeof(string))
+            {
+                dbtype = DbType.String;
+                return true;
+            }
+            else if (type == typeof(double))
+            {
+                dbtype = DbType.Double;
+                return true;
+            }
+            else if (type == typeof(decimal))
+            {
+                dbtype = DbType.Decimal;
+                return true;
+            }
+            else if (type == typeof(DateTime))
+            {
+                dbtype = DbType.DateTime;
+                return true;
+            }
+            else if (type == typeof(TimeSpan))
+            {
+                dbtype = DbType.Time;
+                return true;
+            }
+            else if (type == typeof(byte[]))
+            {
+                dbtype = DbType.Binary;
+                return true;
+            }
+            else if (type == typeof(Guid))
+            {
+                dbtype = DbType.Guid;
+                return true;
+            }
+            else if (type == typeof(object))
+            {
+                dbtype = DbType.Object;
+                return true;
+            }
+            else
+            {
+                dbtype = DbType.Object;
+                return false;
+            }
+        }
+
         public virtual void ToDbValue(ref object value, Type type, out DbType dbtype)
         {
             Type type1 = Nullable.GetUnderlyingType(type) ?? type;
@@ -415,6 +486,19 @@ namespace Gehtsoft.EF.Db.SqlDb
                 default:
                     throw new NotImplementedException($"Type {type} is not supported in SQL92");
             }
+        }
+
+        public override bool TypeToDb(Type type, out DbType dbtype)
+        {
+            type = Nullable.GetUnderlyingType(type) ?? type;
+
+            if (type == typeof(bool) || type == typeof(Guid))
+            {
+                dbtype = DbType.String;
+                return true;
+            }
+
+            return base.TypeToDb(type, out dbtype);
         }
 
         public override void ToDbValue(ref object value, Type type, out DbType dbtype)

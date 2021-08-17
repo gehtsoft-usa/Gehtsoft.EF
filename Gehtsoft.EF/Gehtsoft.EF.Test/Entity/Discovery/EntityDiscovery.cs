@@ -197,39 +197,6 @@ namespace Gehtsoft.EF.Test.Entity.Discovery
             column.Precision.Should().Be(precision);
         }
 
-        private object TranslateTestValue(Type valueType, object value)
-        {
-
-            valueType = Nullable.GetUnderlyingType(valueType) ?? valueType;
-
-            if (value == null)
-                return value;
-            if (value.GetType() == valueType)
-                return value;
-            
-            if (valueType == typeof(DateTime))
-            {
-                if (value is string s)
-                {
-                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d1))
-                        return d1;
-
-                    if (DateTime.TryParseExact(s, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out d1))
-                        return d1;
-
-                    throw new ArgumentException($"Value {s} has unexpected data format. Try use yyyy-MM-dd format", nameof(value));
-                }
-                else if (value is int i)
-                    return new DateTime((long)i);
-                else if (value is long l)
-                    return new DateTime(l);
-            }
-            else if (valueType == typeof(byte[]) && value is string sb)
-                return Convert.FromHexString(sb);
-
-            return Convert.ChangeType(value, valueType);
-        }
-
         [Theory]
         [InlineData(nameof(ExactSpec.IntProperty), typeof(int), 0, 123)]
         [InlineData(nameof(ExactSpec.LongProperty), typeof(long?), null, 456)]
@@ -247,8 +214,8 @@ namespace Gehtsoft.EF.Test.Entity.Discovery
             var table = entityInfo.TableDescriptor;
             var entity = new ExactSpec();
 
-            defaultValue = TranslateTestValue(valueType, defaultValue);
-            testValue = TranslateTestValue(valueType, testValue);
+            defaultValue = TestValue.Translate(valueType, defaultValue);
+            testValue = TestValue.Translate(valueType, testValue);
 
             table[field].PropertyAccessor.PropertyType.Should().Be(valueType);
             table[field].PropertyAccessor.GetValue(entity).Should().Be(defaultValue);
@@ -265,8 +232,8 @@ namespace Gehtsoft.EF.Test.Entity.Discovery
             var table = entityInfo.TableDescriptor;
             var entity = new DynamicTestEntity();
 
-            defaultValue = TranslateTestValue(valueType, defaultValue);
-            testValue = TranslateTestValue(valueType, testValue);
+            defaultValue = TestValue.Translate(valueType, defaultValue);
+            testValue = TestValue.Translate(valueType, testValue);
 
             table[field].PropertyAccessor.PropertyType.Should().Be(valueType);
             table[field].PropertyAccessor.GetValue(entity).Should().Be(defaultValue);

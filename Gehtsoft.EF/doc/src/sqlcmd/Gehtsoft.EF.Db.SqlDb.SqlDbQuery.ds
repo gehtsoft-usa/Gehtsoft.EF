@@ -30,8 +30,13 @@
             @language=cs
             @name=BindParam<T>
             @return=void
-
             @params=string name, T value
+        @end
+        @declaration
+            @language=cs
+            @name=BindParam
+            @return=void
+            @params=string name, Type valueType, object value
         @end
 
         @param
@@ -64,8 +69,7 @@
             @language=cs
             @name=BindNull
             @return=void
-
-            @params=string name, System.Data.DbType type
+            @params=string name, System.Data.DbType dbtype
         @end
 
         @param
@@ -75,13 +79,16 @@
 
         @param
             @name=type
-            The value type.
+            The DB value type.
         @end
 
+        To bind null with the automatic translation into
+        the proper value type use [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindParam.3]BindParam<T>()[/clink] method
+        with `null` value specified.
     @end
 
     @member
-        @name=BindOutput
+        @name=BindOutputParam
         @sig=M:Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindOutput(System.String,System.Data.DbType)
         @key=BindOutput.0
         @divisor=.
@@ -93,10 +100,21 @@
 
         @declaration
             @language=cs
-            @name=BindNull
+            @name=BindOutputParam
             @return=void
-
-            @params=string name, System.Data.DbType type
+            @params=string name, System.Data.DbType dbtype
+        @end
+        @declaration
+            @language=cs
+            @name=BindOutputParam
+            @return=void
+            @params=string name, System.Type valueType
+        @end
+        @declaration
+            @language=cs
+            @name=BindOutputParam<T>
+            @return=void
+            @params=string name
         @end
 
         @param
@@ -105,10 +123,15 @@
         @end
 
         @param
-            @name=type
-            The value type.
+            @name=dbtype
+            The DB value type.
         @end
-
+        @param
+            @name=T, valueType
+            The type of the value. The value type will
+            be automatically translated into appropriate
+            DB value type for the current DB driver.
+        @end
     @end
 
     @member
@@ -128,6 +151,7 @@
             @return=void
 
         @end
+
         @declaration
             @language=cs
             @name=Task ExecuteNoDataAsync
@@ -155,10 +179,27 @@
             @return=object
             @params=string name
         @end
+        @declaration
+            @language=cs
+            @name=GetParamValue
+            @return=object
+            @params=string name, Type expectedType
+        @end
+        @declaration
+            @language=cs
+            @name=GetParamValue<T>
+            @return=T
+            @params=string name
+        @end
 
         @param
             @name=name
-
+            The name of the parameter.
+        @end
+        @param
+            @name=T, expectedType
+            The expected type of the value. If no type is specified,
+            the value will be returned "as is".
         @end
 
     @end

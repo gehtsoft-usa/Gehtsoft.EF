@@ -95,6 +95,7 @@
     <Compile Include="EntityQueries\EntityQuery\SelectEntitiesQuery.cs" />
     <Compile Include="EntityQueries\EntityQuery\SelectEntitiesQueryBase.cs" />
     <Compile Include="EntityQueries\EntityQuery\UpdateEntityQuery.cs" />
+    <Compile Include="IDbQuery.cs" />
     <Compile Include="Metadata\CompositeIndex.cs" />
     <Compile Include="Metadata\ICompositeIndexMetadata.cs" />
     <Compile Include="QueryBuilder\CreateIndexBuilder.cs" />

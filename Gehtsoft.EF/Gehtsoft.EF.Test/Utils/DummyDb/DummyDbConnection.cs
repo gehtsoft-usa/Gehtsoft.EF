@@ -6,7 +6,7 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 {
     internal class DummyDbConnection : DbConnection
     {
-        public override string ConnectionString { get; set; }
+        public override string ConnectionString { get; set; } = "dummyConnectionString";
 
         public override string Database => "dummydb";
 

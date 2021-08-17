@@ -68,6 +68,19 @@ namespace Gehtsoft.EF.Db.MssqlDb
             return typeName;
         }
 
+        public override bool TypeToDb(Type type, out DbType dbtype)
+        {
+            type = Nullable.GetUnderlyingType(type) ?? type;
+
+            if (type == typeof(bool))
+            {
+                dbtype = DbType.Int32;
+                return true;
+            }
+
+            return base.TypeToDb(type, out dbtype);
+        }
+
         public override void ToDbValue(ref object value, Type type, out DbType dbtype)
         {
             if (type == typeof(bool))

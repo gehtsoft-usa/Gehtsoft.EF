@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
-namespace Gehtsoft.EF.Test.SqlDb.Query
+namespace Gehtsoft.EF.Test.Utils.DummyDb
 {
     internal class DummySqlConnection : SqlDbConnection
     {

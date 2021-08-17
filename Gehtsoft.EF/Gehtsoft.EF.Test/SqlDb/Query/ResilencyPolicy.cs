@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -18,14 +17,12 @@ using Xunit;
 namespace Gehtsoft.EF.Test.SqlDb.Query
 {
     [Collection(nameof(NorthwindFixture))]
-    public class ResilencyPolicy
+    public sealed class ResilencyPolicy : IDisposable
     {
         private readonly NorthwindFixture mNorthwind;
 
-        public ResilencyPolicy(NorthwindFixture northwind)
+        private void ResetPolicies()
         {
-            mNorthwind = northwind;
-
             ResiliencyPolicyDictionary.Instance.SetPolicy(
                 "dummyConnectionString",
                 null, true);
@@ -34,6 +31,14 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
                 "wrongConnectionString",
                 null, true);
         }
+
+        public ResilencyPolicy(NorthwindFixture northwind)
+        {
+            mNorthwind = northwind;
+            ResetPolicies();
+        }
+
+        public void Dispose() => ResetPolicies();
 
         [Theory]
         [InlineData(true)]
@@ -55,9 +60,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
                 setPolicy ? "dummyConnectionString" : "wrongConnectionString", 
                 policy.Object, true);
 
-            var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
-            var efconnection = new DummySqlConnection(dbconnection);
-            var query = efconnection.GetQuery("command");
+            using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
+            using var efconnection = new DummySqlConnection(dbconnection);
+            using var query = efconnection.GetQuery("command");
             var dbquery = query.Command as DummyQuery;
             dbquery.ExecuteNonQueryReturnValue = 456;
 
@@ -87,9 +92,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
                 setPolicy ? "dummyConnectionString" : "wrongConnectionString",
                 policy.Object, true);
 
-            var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
-            var efconnection = new DummySqlConnection(dbconnection);
-            var query = efconnection.GetQuery("command");
+            using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
+            using var efconnection = new DummySqlConnection(dbconnection);
+            using var query = efconnection.GetQuery("command");
             var dbquery = query.Command as DummyQuery;
             dbquery.ExecuteNonQueryReturnValue = 456;
 
@@ -122,9 +127,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
                 setPolicy ? "dummyConnectionString" : "wrongConnectionString",
                 policy.Object, true);
 
-            var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
-            var efconnection = new DummySqlConnection(dbconnection);
-            var query = efconnection.GetQuery("command");
+            using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
+            using var efconnection = new DummySqlConnection(dbconnection);
+            using var query = efconnection.GetQuery("command");
             var dbquery = query.Command as DummyQuery;
             dbquery.ReturnReader = reader2;
 
@@ -157,9 +162,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
                 setPolicy ? "dummyConnectionString" : "wrongConnectionString",
                 policy.Object, true);
 
-            var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
-            var efconnection = new DummySqlConnection(dbconnection);
-            var query = efconnection.GetQuery("command");
+            using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
+            using var efconnection = new DummySqlConnection(dbconnection);
+            using var query = efconnection.GetQuery("command");
             var dbquery = query.Command as DummyQuery;
             dbquery.ReturnReader = reader2;
 
@@ -199,9 +204,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
                 setPolicy ? "dummyConnectionString" : "wrongConnectionString",
                 policy.Object, true);
 
-            var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
-            var efconnection = new DummySqlConnection(dbconnection);
-            var query = efconnection.GetQuery("command");
+            using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
+            using var efconnection = new DummySqlConnection(dbconnection);
+            using var query = efconnection.GetQuery("command");
             var dbquery = query.Command as DummyQuery;
             dbquery.ReturnReader = reader;
 
@@ -243,9 +248,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
                 setPolicy ? "dummyConnectionString" : "wrongConnectionString",
                 policy.Object, true);
 
-            var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
-            var efconnection = new DummySqlConnection(dbconnection);
-            var query = efconnection.GetQuery("command");
+            using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
+            using var efconnection = new DummySqlConnection(dbconnection);
+            using var query = efconnection.GetQuery("command");
             var dbquery = query.Command as DummyQuery;
             dbquery.ReturnReader = reader;
 
@@ -286,9 +291,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
                 setPolicy ? "dummyConnectionString" : "wrongConnectionString",
                 policy.Object, true);
 
-            var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
-            var efconnection = new DummySqlConnection(dbconnection);
-            var query = efconnection.GetQuery("command");
+            using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
+            using var efconnection = new DummySqlConnection(dbconnection);
+            using var query = efconnection.GetQuery("command");
             var dbquery = query.Command as DummyQuery;
             dbquery.ReturnReader = reader;
 
@@ -330,9 +335,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
                 setPolicy ? "dummyConnectionString" : "wrongConnectionString",
                 policy.Object, true);
 
-            var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
-            var efconnection = new DummySqlConnection(dbconnection);
-            var query = efconnection.GetQuery("command");
+            using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
+            using var efconnection = new DummySqlConnection(dbconnection);
+            using var query = efconnection.GetQuery("command");
             var dbquery = query.Command as DummyQuery;
             dbquery.ReturnReader = reader;
 

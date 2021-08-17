@@ -38,6 +38,34 @@ namespace Gehtsoft.EF.Db.SqliteDb
             }
         }
 
+        public override bool TypeToDb(Type type, out DbType dbtype)
+        {
+            type = Nullable.GetUnderlyingType(type) ?? type;
+
+            if (type == typeof(bool))
+            {
+                dbtype = DbType.Int32;
+                return true;
+            }
+            if (type == typeof(Guid))
+            {
+                dbtype = DbType.String;
+                return true;
+            }
+            if (type == typeof(DateTime))
+            {
+                dbtype = SqliteGlobalOptions.StoreDateAsString ? DbType.String : DbType.Double;
+                return true;
+            }
+            if (type == typeof(decimal))
+            {
+                dbtype = DbType.Double;
+                return true;
+            }
+
+            return base.TypeToDb(type, out dbtype);
+        }
+
         public override void ToDbValue(ref object value, Type type, out DbType dbtype)
         {
             if (type == typeof(bool))
