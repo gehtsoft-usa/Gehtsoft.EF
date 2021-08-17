@@ -108,11 +108,14 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public void BindParam(string name, Type t, object value)
         {
+            if (t == typeof(object) && value != null)
+                t = value.GetType();
+
             if (!mSpecifics.TypeToDb(t, out var dbt))
             {
                 if (t.IsClass)
                 {
-                    var ed = AllEntities.Inst[value.GetType(), false];
+                    var ed = AllEntities.Inst[t, false];
                     if (ed != null && ed.TableDescriptor.PrimaryKey != null)
                     {
                         t = ed.TableDescriptor.PrimaryKey.PropertyAccessor.PropertyType;
