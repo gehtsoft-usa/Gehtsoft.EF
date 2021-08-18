@@ -18,13 +18,22 @@
     <PackageReference Include="Hime.Build.Task" Version="0.1.6" IncludeAssets="build" />
   </ItemGroup>
 
-  <Target Name="CompileGrammar" BeforeTargets="DispatchToInnerBuilds">
-    <CompileGrammar GrammarName="Sql" GrammarFile="sql.gram" Namespace="Gehtsoft.eF.Db.SqlDb.Sql" OutputMode="Source" CodeAccess="Internal" OutputPath="." />
+  <Target Name="AddGrammarFiles" DependsOnTargets="CompileGrammar" BeforeTargets="BeforeResGen">
+     <ItemGroup>
+       <EmbeddedResource Include="$(IntermediateOutputPath)SqlLexer.bin" Type="Non-Resx" WithCulture="false" />
+       <EmbeddedResource Include="$(IntermediateOutputPath)SqlParser.bin" Type="Non-Resx" WithCulture="false" />
+       <Compile Include="$(IntermediateOutputPath)SqlLexer.cs" ExcludeFromSourceAnalysis="true" />
+       <Compile Include="$(IntermediateOutputPath)SqlParser.cs" ExcludeFromSourceAnalysis="true" />
+     </ItemGroup>
+  </Target>
+
+  <Target Name="CompileGrammar" Inputs="sql.gram"
+          Outputs="$(IntermediateOutputPath)SqlLexer.cs;$(IntermediateOutputPath)SqlParser.cs;$(IntermediateOutputPath)SqlLexer.bin;$(IntermediateOutputPath)SqlParser.bin;">
+     <CompileGrammar GrammarName="Sql" GrammarFile="sql.gram" Namespace="Gehtsoft.eF.Db.SqlDb.Sql"
+                     OutputMode="Source" CodeAccess="Internal" OutputPath="$(IntermediateOutputPath)" />
   </Target>
 
    <ItemGroup>
-    <EmbeddedResource Include="SqlLexer.bin" />
-    <EmbeddedResource Include="SqlParser.bin" />
     <Compile Include="CodeDom\AddFieldStatement.cs" />
     <Compile Include="CodeDom\AddRowStatement.cs" />
     <Compile Include="CodeDom\AssignExpression.cs" />
@@ -89,8 +98,6 @@
     <Compile Include="SqlCodeDomBuilder.cs" />
     <Compile Include="SqlError.cs" />
     <Compile Include="SqlErrorCollection.cs" />
-    <Compile Include="SqlLexer.cs" />
-    <Compile Include="SqlParser.cs" />
     <Compile Include="SqlParserException.cs" />
     <Compile Include="UpdateRunner.cs" />
   </ItemGroup>

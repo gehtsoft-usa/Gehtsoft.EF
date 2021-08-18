@@ -63,7 +63,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
             dbquery.ExecuteNonQueryReturnValue = 456;
 
             query.ExecuteNoData().Should().Be(setPolicy ? 123 : 456);
@@ -95,7 +95,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
             dbquery.ExecuteNonQueryReturnValue = 456;
 
             (await query.ExecuteNoDataAsync()).Should().Be(setPolicy ? 123 : 456);
@@ -130,7 +130,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
             dbquery.ReturnReader = reader2;
 
             query.ExecuteReader();
@@ -165,7 +165,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
             dbquery.ReturnReader = reader2;
 
             await query.ExecuteReaderAsync();
@@ -207,7 +207,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
             dbquery.ReturnReader = reader;
 
             query.ExecuteReader();
@@ -251,7 +251,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
             dbquery.ReturnReader = reader;
 
             await query.ExecuteReaderAsync();
@@ -294,7 +294,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
             dbquery.ReturnReader = reader;
 
             query.ExecuteReader();
@@ -338,7 +338,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
             dbquery.ReturnReader = reader;
 
             await query.ExecuteReaderAsync();

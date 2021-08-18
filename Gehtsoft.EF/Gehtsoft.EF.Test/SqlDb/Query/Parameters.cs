@@ -24,7 +24,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
 
             value = TestValue.Translate(valueType, value);
             expectedValue = TestValue.Translate(expectedValueType ?? valueType, expectedValue);
@@ -52,7 +52,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
 
             expectedValue = TestValue.Translate(expectedValueType, expectedValue);
 
@@ -76,7 +76,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
 
             query.BindOutputParam("p1", DbType.Int32);
             query.BindOutputParam<string>("p2");
@@ -97,7 +97,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyQuery;
+            var dbquery = query.Command as DummyDbCommand;
 
             query.BindParam<int>("p1", 123);
             query.BindParam<string>("p2", "abcdef");
@@ -128,7 +128,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
 
             query2.CopyParametersFrom(query1);
 
-            var dbquery = query2.Command as DummyQuery;
+            var dbquery = query2.Command as DummyDbCommand;
             query2.ExecuteNoData();
 
             dbquery.Parameters.Count.Should().Be(3);

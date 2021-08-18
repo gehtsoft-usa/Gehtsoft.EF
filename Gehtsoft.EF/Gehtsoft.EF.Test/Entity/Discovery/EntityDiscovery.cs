@@ -189,6 +189,7 @@ namespace Gehtsoft.EF.Test.Entity.Discovery
             column.Name.Should().Be(name);
             column.DbType.Should().Be(fieldType);
             column.PrimaryKey.Should().Be(pk);
+            column.ForeignKey.Should().Be(fk);
             column.Autoincrement.Should().Be(auto);
             column.Nullable.Should().Be(nullable);
             column.Sorted.Should().Be(sorted);
@@ -245,7 +246,7 @@ namespace Gehtsoft.EF.Test.Entity.Discovery
         public void ForgetType()
         {
             AllEntities.Inst[typeof(ExactSpec)].Should().NotBeNull();
-            AllEntities.Inst[typeof(DefaultSpec)].Should().NotBeNull(); 
+            AllEntities.Inst[typeof(DefaultSpec)].Should().NotBeNull();
             AllEntities.Inst.Should().Contain(e => e == typeof(ExactSpec));
             AllEntities.Inst.Should().Contain(e => e == typeof(DefaultSpec));
             AllEntities.Inst.ForgetType(typeof(ExactSpec));
@@ -268,7 +269,7 @@ namespace Gehtsoft.EF.Test.Entity.Discovery
         [Fact]
         public void DiscoveryEvents()
         {
-            var signalled = new List<Tuple<object, EntityDescriptor>>();  
+            var signalled = new List<Tuple<object, EntityDescriptor>>();
             var action = new EventHandler<EntityDescriptorEventArgs>((o, args) =>
                 signalled.Add(new Tuple<object, EntityDescriptor>(o, args?.Entity)));
 

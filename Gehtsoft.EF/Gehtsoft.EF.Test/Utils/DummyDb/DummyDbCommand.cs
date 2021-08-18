@@ -6,11 +6,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver;
+
+#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
 
 namespace Gehtsoft.EF.Test.Utils.DummyDb
 {
-
-    internal class DummyQuery : DbCommand
+    internal class DummyDbCommand : DbCommand
     {
         public override string CommandText { get; set; }
         public override int CommandTimeout { get; set; }
@@ -37,7 +39,7 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
             return ExecuteNonQueryReturnValue;
         }
 
-        public override Task<int> ExecuteNonQueryAsync(CancellationToken token)
+        public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
         {
             ExecuteNonQueryAsyncCalled = true;
             return Task.FromResult(ExecuteNonQueryReturnValue);
@@ -71,6 +73,14 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
             ExecuteDbReaderCommandParameter = behavior;
             ExecuteDbReaderAsyncCalled = true;
             return Task.FromResult(ReturnReader);
+        }
+
+        public bool DisposedCalled { get; set; }
+
+        protected override void Dispose(bool disposing)
+        {
+            DisposedCalled = true;
+            base.Dispose(disposing);
         }
     }
 }

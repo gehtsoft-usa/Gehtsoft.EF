@@ -130,9 +130,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return mQuery.GetValue(column, type);
         }
 
-        public int FindField(string column)
+        public int FindField(string column, bool ignoreCase = false)
         {
-            return mQuery.FindField(column);
+            return mQuery.FindField(column, ignoreCase);
         }
 
         public bool IsNull(int column) => mQuery.IsNull(column);

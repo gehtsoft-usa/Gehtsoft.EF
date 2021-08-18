@@ -99,3 +99,9 @@ dotnet_diagnostic.IDE0060.severity = none
 # Fix makes code work incorrectly
 dotnet_diagnostic.RCS1124.severity = none
 dotnet_diagnostic.IDE0039.severity = none
+
+# S1905: Redundant casts should not be used
+dotnet_diagnostic.S1905.severity = none
+
+# IDE0090: Use 'new(...)'
+dotnet_diagnostic.IDE0090.severity = none

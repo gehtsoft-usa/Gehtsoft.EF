@@ -32,6 +32,6 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         object GetValue(string column, Type type);
 
-        int FindField(string column);
+        int FindField(string column, bool ignoreCase = false);
     }
 }

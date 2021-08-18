@@ -139,7 +139,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                 if (typeprefix != null)
                     name += typeprefix;
                 PropertyInfo propertyInfo = mType.GetProperty(name);
-                AddBinding(column.Name, name, new PropertyAccessor(propertyInfo), null, column.DbType, column.Size, column.Autoincrement && column.PrimaryKey);
+                AddBinding(column.Name, name, column.PropertyAccessor ?? new PropertyAccessor(propertyInfo), null, column.DbType, column.Size, column.Autoincrement && column.PrimaryKey);
             }
         }
 

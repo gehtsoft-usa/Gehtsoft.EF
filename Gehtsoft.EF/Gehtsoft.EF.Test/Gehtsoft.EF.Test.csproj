@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net50</TargetFramework>
@@ -56,4 +56,24 @@
     <ProjectReference Include="..\Gehtsoft.EF.Northwind\Gehtsoft.EF.Northwind.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Utils\Gehtsoft.EF.Utils.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hime.SDK" Version="3.5.1" />
+    <PackageReference Include="Hime.Build.Task" Version="0.1.6" IncludeAssets="build" />
+  </ItemGroup>
+
+  <Target Name="AddGrammarFiles" DependsOnTargets="CompileGrammar" BeforeTargets="BeforeResGen">
+     <ItemGroup>
+       <EmbeddedResource Include="$(IntermediateOutputPath)SqlLexer.bin" Type="Non-Resx" WithCulture="false" />
+       <EmbeddedResource Include="$(IntermediateOutputPath)SqlParser.bin" Type="Non-Resx" WithCulture="false" />
+       <Compile Include="$(IntermediateOutputPath)SqlLexer.cs" ExcludeFromSourceAnalysis="true" />
+       <Compile Include="$(IntermediateOutputPath)SqlParser.cs" ExcludeFromSourceAnalysis="true" />
+     </ItemGroup>
+  </Target>
+
+  <Target Name="CompileGrammar" Inputs="SqlParser/sql.gram"
+          Outputs="$(IntermediateOutputPath)SqlLexer.cs;$(IntermediateOutputPath)SqlParser.cs;$(IntermediateOutputPath)SqlLexer.bin;$(IntermediateOutputPath)SqlParser.bin;">
+     <CompileGrammar GrammarName="Sql" GrammarFile="SqlParser/sql.gram" Namespace="Gehtsoft.EF.Test.SqlParser"
+                     OutputMode="Source" CodeAccess="Internal" OutputPath="$(IntermediateOutputPath)" />
+  </Target>
 </Project>

@@ -1,0 +1,284 @@
+grammar Sql
+{
+    options
+    {
+        Axiom = "ROOT";
+        Separator = "SEPARATOR";
+        ParserType = "RNGLR";
+    }
+
+    terminals
+    {
+        NEW_LINE        -> U+000D /* CR */
+                        |  U+000A /* LF */
+                        |  U+000D U+000A /* CR LF */
+                        |  U+0085 // Next line character
+                        |  U+2028 // Line separator character
+                        |  U+2029 ; //Paragraph separator character (U+2029)
+
+        WHITE_SPACE -> U+0020 | U+0009 | U+000B | U+000C | U+000d | U+000a;
+
+        INT -> [0-9]+;
+
+        REAL -> [0-9]+ '.' [0-9]* | '.' [0-9]+;
+
+        STRINGDQ -> '"' ( (. - ('"' | '\\')) |
+                               ('\\' ('"' | '\\' | 'r' | 'n' | 'b' | 't')) |
+                               ('\\' [0-9] [0-9] [0-9]) |
+                               ('\\' 'x' [0-9a-fA-F] [0-9a-fA-F])
+                        )*  '"';
+
+        STRINGSQ -> '\'' ( (. - ('\'' | '\\')) |
+                               ('\\' ('"' | '\\' | 'r' | 'n' | 'b' | 't')) |
+                               ('\\' [0-9] [0-9] [0-9]) |
+                               ('\\' 'x' [0-9a-fA-F] [0-9a-fA-F])
+                        )*  '\'';
+
+        COMMENT_LINE    -> '--' (.* - (.* NEW_LINE .*)) ;
+        IDENTIFIER  -> [a-zA-Z_] [a-zA-Z0-9_]* ;
+        SEPARATOR   -> WHITE_SPACE | COMMENT_LINE | NEW_LINE;
+        GLOBAL_PARAMETER_NAME -> '?' IDENTIFIER;
+        ASSIGN -> ':=';
+    }
+
+    rules {
+
+        NULL -> 'NULL'!;
+
+        BOOLEAN_TRUE -> 'TRUE'!;
+
+        BOOLEAN_FALSE -> 'FALSE'!;
+
+        BOOLEAN_CONST -> BOOLEAN_TRUE^ | BOOLEAN_FALSE^;
+
+        STRING_CONST -> STRINGDQ^ | STRINGSQ^;
+
+        NUMBER_CONST -> INT^ | REAL^;
+
+        DATE_CONST -> 'DATE'! STRING_CONST;
+
+        DATETIME_CONST -> 'DATETIME'! STRING_CONST;
+
+        CONSTANT -> NULL^ |
+                    BOOLEAN_CONST^ |
+                    STRING_CONST^ |
+                    NUMBER_CONST^ |
+                    DATETIME_CONST^ |
+                    DATE_CONST^;
+
+        EOS -> ';'! *;
+        NOP -> ';'!;
+
+        MINUS_OP -> '-'!;
+        PLUS_OP -> '+'!;
+        MUL_OP -> '*'!;
+        DIV_OP -> '/'!;
+        CONCAT_OP -> '||'!;
+
+        EQ_OP -> '='!;
+        NEQ_OP -> '<>'!;
+        GT_OP -> '>'!;
+        GE_OP -> '>='!;
+        LT_OP -> '<'!;
+        LE_OP -> '<='!;
+
+        EXACT_LIKE_OP -> 'LIKE'!;
+        NOT_LIKE_OP -> 'NOT'! 'LIKE'!;
+        LIKE_OP -> EXACT_LIKE_OP^ | NOT_LIKE_OP^;
+
+        EXACT_IN_OP -> 'IN'!;
+        NOT_IN_OP -> 'NOT'! 'IN'!;
+        IN_OP -> EXACT_IN_OP^ | NOT_IN_OP^;
+
+        EXACT_EXISTS_OP -> 'EXISTS'!;
+        NOT_EXISTS_OP -> 'NOT'! 'EXISTS'!;
+        EXISTS_OP -> EXACT_EXISTS_OP^ | NOT_EXISTS_OP^;
+
+        EXACT_NULL_OP -> 'IS'! 'NULL'!;
+        NOT_NULL_OP -> 'IS'! 'NOT'! 'NULL'!;
+        NULL_OP -> EXACT_NULL_OP^ | NOT_NULL_OP^;
+
+        CALL_ARGS -> EXPR (','! EXPR)*;
+        CALL_BRACKET -> '('! CALL_ARGS^ ')'!;
+
+        MATH_FUNC_NAME -> 'ABS'^;
+        MATH_FUNC_CALL -> MATH_FUNC_NAME  '('! EXPR ')'!;
+
+        CAST_FUNC_NAME -> 'TOSTRING'^ | 'TOINT'^ | 'TODOUBLE'^ | 'TODATE'^ | 'TOTIMESTAMP'^;
+        CAST_FUNC_CALL -> CAST_FUNC_NAME  '('! EXPR ')'!;
+
+        STR_FUNC_NAME -> 'TRIM'^ | 'LTRIM'^ | 'RTRIM'^ | 'UPPER'^ | 'LOWER'^;
+        STR_FUNC_CALL -> STR_FUNC_NAME  '('! CONCAT_EXPR ')'!;
+
+        BOOL_STR_FUNC_NAME -> 'CONTAINS'^ | 'ENDSWITH'^ | 'STARTSWITH'^ ;
+        BOOL_STR_FUNC_CALL -> BOOL_STR_FUNC_NAME  '('! CONCAT_EXPR ','! CONCAT_EXPR ')'!;
+
+        TRIM_LEADING -> 'LEADING'! ;
+        TRIM_TRAILING -> 'TRAILING'! ;
+        TRIM_BOTH -> 'BOTH'! ;
+        TRIM_SPECIFICATION -> TRIM_LEADING^ | TRIM_TRAILING^ | TRIM_BOTH^ ;
+        TRIM_CALL -> 'TRIM'! '('! TRIM_SPECIFICATION? CONCAT_EXPR ')'!;
+
+        FUNC_CALL -> MATH_FUNC_CALL^ | BOOL_STR_FUNC_CALL^ | CAST_FUNC_CALL^ | STR_FUNC_CALL^ | TRIM_CALL^;
+
+        BRACKET_EXPR -> '('! EXPR^ ')'!;
+
+        SELECT_EXPR -> '('! SELECT ')'!;
+
+        BASE_TYPE -> 'STRING'^ | 'INTEGER'^ |'DOUBLE'^ |'BOOLEAN'^ |'DATETIME'^;
+        PARAMETER_TYPE -> BASE_TYPE^| 'ROW'^ | 'ROWSET'^ ;
+        GLOBAL_PARAMETER -> GLOBAL_PARAMETER_NAME ('AS'! PARAMETER_TYPE)?;
+        GLOBAL_PARAMETER_SIMPLE -> GLOBAL_PARAMETER_NAME;
+
+        SIMPLE_EXPR -> FIELD^ |
+                       GLOBAL_PARAMETER^ |
+                       FUNC_CALL^ |
+                       BRACKET_EXPR^ |
+                       CONSTANT^ |
+                       SELECT_EXPR^ |
+                       AGGR_CALL^;
+
+        UNARY_EXPR -> SIMPLE_EXPR^ |
+                      MINUS_OP^ SIMPLE_EXPR |
+                      PLUS_OP^ SIMPLE_EXPR;
+
+        MUL_EXPR -> UNARY_EXPR^ |
+                    MUL_EXPR MUL_OP^ UNARY_EXPR |
+                    MUL_EXPR DIV_OP^ UNARY_EXPR;
+
+        ADD_EXPR -> MUL_EXPR^ |
+                    ADD_EXPR PLUS_OP^ MUL_EXPR |
+                    ADD_EXPR MINUS_OP^ MUL_EXPR |
+                    ADD_EXPR CONCAT_OP^ MUL_EXPR;
+
+        CONCAT_EXPR -> SIMPLE_EXPR^ | CONCAT_EXPR CONCAT_OP^ SIMPLE_EXPR;
+
+        COM_EXPR -> ADD_EXPR^ | CONCAT_EXPR^;
+
+        REL_EXPR -> ADD_EXPR^ |
+                    REL_EXPR EQ_OP^ COM_EXPR |
+                    REL_EXPR NEQ_OP^ COM_EXPR |
+                    REL_EXPR GT_OP^ COM_EXPR |
+                    REL_EXPR GE_OP^ COM_EXPR |
+                    REL_EXPR LT_OP^ COM_EXPR |
+                    REL_EXPR LE_OP^ COM_EXPR;
+
+        LIKE_EXPR -> CONCAT_EXPR  LIKE_OP^ CONCAT_EXPR;
+
+        IN_PREDICATE -> CONCAT_EXPR IN_OP^ IN_PREDICATE_VALUE;
+        IN_PREDICATE_VALUE -> '('! SELECT^ ')'! | IN_VALUE_LIST^;
+        IN_VALUE_ARGS -> EXPR (','! EXPR)*;
+        IN_VALUE_LIST -> '('! IN_VALUE_ARGS^ ')'!;
+
+        EXISTS_PREDICATE -> EXISTS_OP^ '('! SELECT^ ')'!;
+
+        NULL_PREDICATE -> EXPR NULL_OP^;
+
+
+        COMPARE_EXPR -> REL_EXPR^ | LIKE_EXPR^ | IN_PREDICATE^ | NULL_PREDICATE^ | EXISTS_PREDICATE^;
+
+        NOT_OP -> 'NOT'!;
+        AND_OP -> 'AND'!;
+        OR_OP -> 'OR'!;
+
+        UX_BOOL_EXPR -> COMPARE_EXPR^ |
+                        NOT_OP^ COMPARE_EXPR;
+
+        AND_BOOL_EXPR -> UX_BOOL_EXPR^ |
+                         AND_BOOL_EXPR AND_OP^ UX_BOOL_EXPR;
+
+        OR_BOOL_EXPR -> AND_BOOL_EXPR^ |
+                        OR_BOOL_EXPR OR_OP^ AND_BOOL_EXPR;
+
+        ASSIGN_EXPR -> GLOBAL_PARAMETER_SIMPLE ASSIGN! EXPR;
+
+        EXPR -> OR_BOOL_EXPR^ | ASSIGN_EXPR^;
+
+        BOOL_EXPR -> OR_BOOL_EXPR^;
+
+        SET_QUANTIFIER -> 'DISTINCT' | 'ALL';
+
+        ASRERISK -> '*';
+
+        AGGR_CALL_BRACKET -> '('! FIELD^ ')'!;
+        AGGR_FUNC -> 'COUNT' | 'MAX' | 'MIN' | 'AVG' | 'SUM';
+        AGGR_COUNT_ALL -> 'COUNT(*)'!;
+        AGGR_CALL -> AGGR_FUNC^ AGGR_CALL_BRACKET | AGGR_COUNT_ALL^;
+
+        SELECT_SUBLIST -> EXPR_ALIAS (','! EXPR_ALIAS)*;
+
+        EXPR_ALIAS -> EXPR ('AS'! IDENTIFIER)?;
+
+        FIELD -> IDENTIFIER('.'! IDENTIFIER)?;
+
+        SELECT_LIST -> ASRERISK | SELECT_SUBLIST;
+
+        TABLE_EXPRESSION -> FROM_CLAUSE (WHERE_CLAUSE)?;
+
+        WHERE_CLAUSE -> 'WHERE'! BOOL_EXPR;
+
+        FROM_CLAUSE -> 'FROM'! TABLE_REFERENCE_LIST;
+
+        TABLE_REFERENCE_LIST -> TABLE_REFERENCE (','! TABLE_REFERENCE)*;
+
+        TABLE_REFERENCE -> TABLE_PRIMARY^ | JOINED_TABLE^;
+
+        TABLE_PRIMARY -> IDENTIFIER ('AS'! IDENTIFIER)?;
+
+        JOINED_TABLE -> QUALIFIED_JOIN^ | AUTO_JOIN^;
+
+        AUTO_JOIN -> TABLE_REFERENCE 'AUTO'! 'JOIN'! TABLE_PRIMARY;
+
+        QUALIFIED_JOIN -> TABLE_REFERENCE (JOIN_TYPE)? 'JOIN'! TABLE_PRIMARY JOIN_SPECIFICATION;
+
+        JOIN_TYPE -> 'INNER'^ | OUTER_JOIN_TYPE^ ('OUTER'!)? ;
+
+        OUTER_JOIN_TYPE ->  'LEFT'^ | 'RIGHT'^ | 'FULL'^ ;
+
+        JOIN_SPECIFICATION -> JOIN_CONDITION;
+
+        JOIN_CONDITION -> 'ON'! BOOL_EXPR;
+
+        SELECT -> 'SELECT'! (SET_QUANTIFIER)? SELECT_LIST TABLE_EXPRESSION (GROUP_BY)? (ORDER_BY)? (LIMIT_OFFSET)? EOS!;
+
+        ORDER_BY -> 'ORDER BY'! SORT_SPECIFICATION_LIST^;
+
+        SORT_SPECIFICATION_LIST -> SORT_SPECIFICATION (','! SORT_SPECIFICATION)*;
+
+        SORT_SPECIFICATION -> EXPR (ORDERING_SPECIFICATION)?;
+
+        ORDERING_SPECIFICATION -> 'ASC'^ | 'DESC'^;
+
+        GROUP_BY -> 'GROUP BY'! GROUP_SPECIFICATION_LIST^;
+
+        GROUP_SPECIFICATION_LIST -> GROUP_SPECIFICATION (','! GROUP_SPECIFICATION)*;
+
+        GROUP_SPECIFICATION -> EXPR;
+
+        LIMIT_OFFSET -> LIMIT (OFFSET)? | OFFSET (LIMIT)?;
+
+        LIMIT -> 'LIMIT'! INT;
+        OFFSET -> 'OFFSET'! INT;
+
+        INSERT -> 'INSERT'! 'INTO'! IDENTIFIER FIELDS_LIST TO_INSERT;
+
+        FIELDS -> FIELD (','! FIELD)*;
+        FIELDS_LIST -> '('! FIELDS^ ')'!;
+
+        VALUES -> CONSTANT (','! CONSTANT)*;
+        VALUES_LIST -> 'VALUES'! '('! VALUES^ ')'! ;
+
+        TO_INSERT -> VALUES_LIST^ | SELECT^;
+
+        UPDATE -> 'UPDATE'!  IDENTIFIER 'SET'! UPDATE_LIST (WHERE_CLAUSE)?;
+        UPDATE_LIST -> UPDATE_ASSIGN (','! UPDATE_ASSIGN)*;
+        UPDATE_ASSIGN -> FIELD '='! UPDATE_OPERAND;
+        UPDATE_OPERAND -> EXPR^ | '('! SELECT^ ')'! ;
+
+        DELETE -> 'DELETE'! 'FROM'! IDENTIFIER (WHERE_CLAUSE)?;
+
+        STATEMENT  -> SELECT^ | INSERT^ | UPDATE^ | DELETE^;
+
+        ROOT -> STATEMENT STATEMENT*;
+    }
+}

@@ -8,6 +8,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 {
     public class SelectQueryTypeBinderRule
     {
+        public bool ColumnDoesNotExist { get; set; } = false;
         public int ColumnIndex { get; set; }
         public string ColumnName { get; set; }
         public string PropertyName { get; set; }
@@ -99,6 +100,9 @@ namespace Gehtsoft.EF.Db.SqlDb
 
             foreach (SelectQueryTypeBinderRule rule in mRules)
             {
+                if (rule.ColumnDoesNotExist)
+                    continue;
+
                 if (rule.PropertyInfo == null)
                 {
                     rule.PropertyInfo = new PropertyAccessor(mType.GetProperty(rule.PropertyName));
@@ -113,7 +117,18 @@ namespace Gehtsoft.EF.Db.SqlDb
                 else
                 {
                     if (rule.ColumnIndex == -1)
-                        rule.ColumnIndex = query.FindField(rule.ColumnName);
+                    {
+                        rule.ColumnIndex = query.FindField(rule.ColumnName, true);
+                        if (rule.ColumnIndex == -1)
+                        {
+                            rule.ColumnDoesNotExist = true;
+                            continue;
+                        }
+                    }
+
+                    if (rule.ColumnIndex == -1)
+                        continue;
+
                     if (rule.PrimaryKey && query.IsNull(rule.ColumnIndex))
                         return null;
                     rule.PropertyInfo.SetValue(r, query.GetValue(rule.ColumnIndex, rule.PropertyInfo.PropertyType));
@@ -131,6 +146,9 @@ namespace Gehtsoft.EF.Db.SqlDb
 
             foreach (SelectQueryTypeBinderRule rule in mRules)
             {
+                if (rule.ColumnDoesNotExist)
+                    continue;
+                
                 if (rule.PropertyInfo == null)
                 {
                     rule.PropertyInfo = new PropertyAccessor(mType.GetProperty(rule.PropertyName));
@@ -145,7 +163,12 @@ namespace Gehtsoft.EF.Db.SqlDb
                 else
                 {
                     if (rule.ColumnIndex == -1)
-                        rule.ColumnIndex = query.FindField(rule.ColumnName);
+                        rule.ColumnIndex = query.FindField(rule.ColumnName, true);
+                    if (rule.ColumnIndex == -1)
+                    {
+                        rule.ColumnDoesNotExist = true;
+                        continue;
+                    }
                     if (rule.PrimaryKey && query.IsNull(rule.ColumnIndex))
                         return false;
                     dict.Add(rule.PropertyInfo.Name, query.GetValue(rule.ColumnIndex, rule.PropertyInfo.PropertyType));

@@ -34,6 +34,6 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
             throw new NotImplementedException();
         }
 
-        protected override DbCommand CreateDbCommand() => new DummyQuery() { Connection = this };
+        protected override DbCommand CreateDbCommand() => new DummyDbCommand() { Connection = this };
     }
 }

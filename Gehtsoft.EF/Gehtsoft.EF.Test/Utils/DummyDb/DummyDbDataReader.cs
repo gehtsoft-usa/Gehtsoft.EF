@@ -188,5 +188,13 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
             CurrentRow++;
             return Task.FromResult(true);
         }
+
+        public bool DisposeCalled { get; set; }
+
+        protected override void Dispose(bool disposing)
+        {
+            DisposeCalled = true;
+            base.Dispose(disposing);
+        }
     }
 }

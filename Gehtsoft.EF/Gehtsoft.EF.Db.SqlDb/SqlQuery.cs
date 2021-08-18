@@ -17,9 +17,7 @@ namespace Gehtsoft.EF.Db.SqlDb
     {
         protected DbCommand mCommand;
         protected DbDataReader mReader;
-
         public IDbCommand Command => mCommand;
-
         public IDataReader Reader => mReader;
 
         protected SqlDbLanguageSpecifics mSpecifics;
@@ -104,7 +102,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public int ParametersCount => Parameters.Count;
 
-        public bool HasParam(string name) => Parameters.FirstOrDefault(p => p.Name == name) != null;
+        public bool HasParam(string name) => Parameters.Find(p => p.Name == name) != null;
 
         public void BindParam(string name, Type t, object value)
         {
@@ -129,7 +127,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 
             if (value == null)
                 BindNull(name, dbt);
-            else 
+            else
             {
                 mSpecifics.ToDbValue(ref value, t, out dbt);
                 BindParam(name, dbt, ParameterDirection.Input, value);
@@ -182,9 +180,18 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public virtual void BindParam(string name, ParameterDirection direction, object value, Type valueType)
         {
-            object _value = value;
-            mSpecifics.ToDbValue(ref _value, valueType, out DbType type);
-            BindParam(name, type, direction, _value);
+            valueType = Nullable.GetUnderlyingType(valueType) ?? valueType;
+            if (value != null && valueType.IsClass && valueType != typeof(string) && valueType != typeof(byte[]))
+            {
+                var ef = AllEntities.Get(valueType, false);
+                if (ef != null && ef.PrimaryKey != null)
+                {
+                    valueType = ef.PrimaryKey.PropertyAccessor.PropertyType;
+                    value = ef.PrimaryKey.PropertyAccessor.GetValue(value);
+                }
+            }
+            mSpecifics.ToDbValue(ref value, valueType, out DbType type);
+            BindParam(name, type, direction, value);
         }
 
         protected virtual void BindParam(string name, DbType type, ParameterDirection direction, object value = null)
@@ -247,6 +254,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
 
         protected Dictionary<string, FieldInfo> mFields;
+        protected Dictionary<string, FieldInfo> mFieldsNoCase;
 
         protected virtual string FinalizeCommand()
         {
@@ -383,28 +391,35 @@ namespace Gehtsoft.EF.Db.SqlDb
             return Field(mReader.GetName(column));
         }
 
-        public virtual FieldInfo Field(string name)
+        public virtual FieldInfo Field(string name, bool ignoreCase = false)
         {
             HandleFieldName(ref name);
 
             if (mReader == null)
                 throw new InvalidOperationException(READER_IS_NOT_INIT);
 
-            if (mFields == null)
+            if (ignoreCase && mFieldsNoCase == null)
+                mFieldsNoCase = new Dictionary<string, FieldInfo>();
+
+            if (!ignoreCase && mFields == null)
                 mFields = new Dictionary<string, FieldInfo>();
 
-            if (mFields.Count != mReader.FieldCount)
+            var dict = ignoreCase ? mFieldsNoCase : mFields;
+
+            if (dict.Count != mReader.FieldCount)
             {
-                if (mFields.Count > 0)
-                    mFields.Clear();
+                if (dict.Count > 0)
+                    dict.Clear();
+
                 for (int i = 0; i < mReader.FieldCount; i++)
                 {
-                    string rname = mReader.GetName(i);
-                    mFields[rname] = new FieldInfo(rname, mReader.GetFieldType(i), i);
+                    var rname = mReader.GetName(i);
+                    var key = ignoreCase ? rname.ToUpperInvariant() : rname;
+                    dict[key] = new FieldInfo(rname, mReader.GetFieldType(i), i);
                 }
             }
 
-            if (mFields.TryGetValue(name, out FieldInfo rc))
+            if (dict.TryGetValue(ignoreCase ? name.ToUpperInvariant() : name, out FieldInfo rc))
                 return rc;
             else
                 return null;
@@ -546,9 +561,9 @@ namespace Gehtsoft.EF.Db.SqlDb
             return false;
         }
 
-        public int FindField(string column)
+        public int FindField(string column, bool ignoreCase = false)
         {
-            FieldInfo fi = Field(column);
+            FieldInfo fi = Field(column, ignoreCase);
             if (fi == null)
                 return -1;
             else

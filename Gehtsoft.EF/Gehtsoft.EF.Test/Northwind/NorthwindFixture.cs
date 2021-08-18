@@ -15,10 +15,9 @@ namespace Gehtsoft.EF.Test.Northwind
 {
     public sealed class NorthwindFixture : IDisposable
     {
-        private readonly Snapshot mSnapshot = new Snapshot();
         private readonly Dictionary<string, SqlDbConnection> gConnections = new Dictionary<string, SqlDbConnection>();
 
-        public Snapshot Snapshot => mSnapshot;
+        public Snapshot Snapshot { get; } = new Snapshot();
 
         public NorthwindFixture()
         {
@@ -39,7 +38,7 @@ namespace Gehtsoft.EF.Test.Northwind
             if (connection == null)
                 throw new ArgumentException($"Incorrect driver name or connection settings {connectionName}:{connectionString}");
 
-            mSnapshot.Create(connection, 100);
+            Snapshot.Create(connection, 100);
             if (connection.ConnectionType == UniversalSqlDbFactory.ORACLE &&
                 connection is OracleDbConnection oracleConnection)
             {

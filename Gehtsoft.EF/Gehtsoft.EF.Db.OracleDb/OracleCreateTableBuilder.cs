@@ -45,7 +45,7 @@ namespace Gehtsoft.EF.Db.OracleDb
 
         protected override bool NeedIndex(TableDescriptor.ColumnInfo column)
         {
-            return column.Sorted && !column.Unique && !column.PrimaryKey;
+            return (column.Sorted || column.ForeignKey) && !column.Unique && !column.PrimaryKey;
         }
     }
 }

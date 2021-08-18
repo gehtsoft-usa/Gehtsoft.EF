@@ -59,6 +59,8 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public virtual bool SupportFunctionsInIndexes => false;
 
+        public virtual bool IndexForFKCreatedAutomatically => false;
+
         public abstract string TypeName(DbType type, int size, int precision, bool autoincrement);
 
         public enum AutoincrementReturnStyle
@@ -307,6 +309,10 @@ namespace Gehtsoft.EF.Db.SqlDb
             {
                 dbtype = DbType.DateTime;
             }
+            else if (type == typeof(TimeSpan))
+            {
+                dbtype = DbType.Time;
+            }
             else if (type == typeof(Guid))
             {
                 dbtype = DbType.Guid;
@@ -472,19 +478,19 @@ namespace Gehtsoft.EF.Db.SqlDb
                 case DbType.Decimal:
                     return $"DOUBLE PRECISION({size}, {precision})";
                 case DbType.Boolean:
-                    return $"VARCHAR(1)";
+                    return "VARCHAR(1)";
                 case DbType.String:
                     return $"VARCHAR({size})";
                 case DbType.Binary:
                     return $"BLOB({size})";
                 case DbType.Date:
-                    return $"DATE";
+                    return "DATE";
                 case DbType.DateTime:
-                    return $"TIMESTAMP";
+                    return "TIMESTAMP";
                 case DbType.Guid:
-                    return $"VARCHAR(40)";
+                    return "VARCHAR(40)";
                 default:
-                    throw new NotImplementedException($"Type {type} is not supported in SQL92");
+                    throw new ArgumentException($"Type {type} is not supported in SQL92", nameof(type));
             }
         }
 

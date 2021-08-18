@@ -96,7 +96,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         protected virtual bool NeedIndex(TableDescriptor.ColumnInfo column)
         {
-            return column.Sorted || (column.ForeignKey && column.ForeignTable == column.Table);
+            return column.Sorted || (column.ForeignKey && column.ForeignTable == column.Table) || (column.ForeignKey && !mSpecifics.IndexForFKCreatedAutomatically);
         }
 
         protected virtual void HandleAfterQuery(StringBuilder builder, TableDescriptor.ColumnInfo column)
