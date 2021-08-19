@@ -20,7 +20,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Factory
         [Theory]
         [MemberData(nameof(Connections), parameters: "")]
         public void GetConnection(string connectionName, Type expectedType)
-        { 
+        {
             var config = AppConfiguration.Instance.GetSqlConnection(connectionName);
             using var connection = UniversalSqlDbFactory.Create(config.Driver, config.ConnectionString);
             connection.Should().NotBeNull();

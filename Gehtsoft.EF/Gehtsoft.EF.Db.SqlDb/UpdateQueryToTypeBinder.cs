@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
@@ -19,18 +20,22 @@ namespace Gehtsoft.EF.Db.SqlDb
         public int Size { get; set; }
     }
 
-    public static class UpdateQueryTruncationRules
+    public interface IUpdateQueryTruncationController
     {
-        public static bool Enabled { get; set; } = false;
-        public static bool TruncateStrings { get; set; } = true;
-        public static bool TruncateNumbers { get; set; } = true;
-        public static bool TruncateDates { get; set; } = true;
-        public static DateTime MaximumDate { get; set; } = new DateTime(9999, 12, 31);
-        public static DateTime MinimumDate { get; set; } = new DateTime(1, 1, 1);
+        object Truncate(DbType type, int size, object value);
+    }
 
-        public static object Truncate(DbType type, int size, object value)
+    public class DefaultUpdateQueryTruncationController
+    {
+        public bool TruncateStrings { get; set; } = true;
+        public bool TruncateNumbers { get; set; } = true;
+        public bool TruncateDates { get; set; } = true;
+        public DateTime MaximumDate { get; set; } = new DateTime(9999, 12, 31);
+        public DateTime MinimumDate { get; set; } = new DateTime(1, 1, 1);
+
+        public virtual object Truncate(DbType type, int size, object value)
         {
-            if (!Enabled || value == null)
+            if (value == null)
                 return value;
 
             if (value is string && size > 0 && TruncateStrings && type == DbType.String)
@@ -56,6 +61,50 @@ namespace Gehtsoft.EF.Db.SqlDb
                 return d;
             }
 
+            if (type == DbType.Int16 && size > 0 && TruncateNumbers)
+            {
+                double d;
+                if (value is double x)
+                    d = x;
+                else
+                    d = Convert.ToDouble(value);
+                double m = Math.Pow(10.0, size) - 1;
+                if (d > m)
+                    return (short)m;
+                else if (d < -m)
+                    return (short)-m;
+                return value;
+            }
+
+            if (type == DbType.Int32 && size > 0 && TruncateNumbers)
+            {
+                double d;
+                if (value is double x)
+                    d = x;
+                else
+                    d = Convert.ToDouble(value);
+                double m = Math.Pow(10.0, size) - 1;
+                if (d > m)
+                    return (int)m;
+                else if (d < -m)
+                    return (int)-m;
+                return value;
+            }
+
+            if (type == DbType.Int64 && size > 0 && TruncateNumbers)
+            {
+                double d;
+                if (value is double x)
+                    d = x;
+                else
+                    d = Convert.ToDouble(value);
+                double m = Math.Pow(10.0, size) - 1;
+                if (d > m)
+                    return (long)m;
+                else if (d < -m)
+                    return (long)-m;
+                return value;
+            }
             if (type == DbType.Decimal && size > 0 && TruncateNumbers)
             {
                 decimal d;
@@ -81,6 +130,27 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
             return value;
         }
+    }
+
+    public class UpdateQueryTruncationRules
+    {
+        private readonly ConcurrentDictionary<string, IUpdateQueryTruncationController> mRules = new ConcurrentDictionary<string, IUpdateQueryTruncationController>();
+
+        public IUpdateQueryTruncationController this[string connectionString]
+        {
+            get
+            {
+                if (mRules.TryGetValue(connectionString, out var x))
+                    return x;
+                return null;
+            }
+        }
+
+        public void EnableTruncation(string connectionString, IUpdateQueryTruncationController truncationController) => mRules.TryAdd(connectionString, truncationController);
+
+        public void DisableTruncation(string connectionString) => mRules.TryRemove(connectionString, out _);
+
+        public static UpdateQueryTruncationRules Instance { get; } = new UpdateQueryTruncationRules();
     }
 
     public class UpdateQueryToTypeBinder
@@ -154,6 +224,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         protected virtual async Task BindAndExecuteCore(bool sync, SqlDbQuery query, object value, bool? insert, CancellationToken? token)
         {
             bool isInsert;
+            var truncateController = UpdateQueryTruncationRules.Instance[query.Connection.Connection.ConnectionString];
 
             if (insert == null)
                 isInsert = query.IsInsert;
@@ -176,9 +247,9 @@ namespace Gehtsoft.EF.Db.SqlDb
                         v = rule.PkPropertyInfo.GetValue(v);
                         t = rule.PkPropertyInfo.PropertyType;
                     }
-                    else if (UpdateQueryTruncationRules.Enabled)
+                    else if (truncateController != null)
                     {
-                        v = UpdateQueryTruncationRules.Truncate(rule.DbType, rule.Size, value);
+                        v = truncateController.Truncate(rule.DbType, rule.Size, v);
                         t = v.GetType();
                     }
                     else

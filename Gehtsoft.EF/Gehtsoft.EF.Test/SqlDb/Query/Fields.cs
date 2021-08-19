@@ -149,7 +149,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             for (int i = 0; i < row; i++)
                 query.ReadNext().Should().BeTrue();
 
-            query.GetValue(column, dataType).Should().BeEqualTo(expectedValue);
+            query.GetValue(column, dataType).Should().BeEquivalentTo(expectedValue);
         }
 
         [Fact]

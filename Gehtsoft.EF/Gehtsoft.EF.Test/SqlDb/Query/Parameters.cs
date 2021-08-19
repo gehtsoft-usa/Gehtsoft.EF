@@ -36,11 +36,11 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             dbquery.Parameters.Count.Should().Be(1);
             dbquery.Parameters[0].ParameterName.Should().Be(efconnection.GetLanguageSpecifics().ParameterPrefix + name);
             dbquery.Parameters[0].DbType.Should().Be(type);
-            dbquery.Parameters[0].Value.Should().BeEqualTo(expectedValue);
+            dbquery.Parameters[0].Value.Should().BeEquivalentTo(expectedValue);
             dbquery.Parameters[0].Direction.Should().Be(ParameterDirection.Input);
 
-            query.GetParamValue(name).Should().BeEqualTo(expectedValue);
-            query.GetParamValue(name, valueType).Should().BeEqualTo(value);
+            query.GetParamValue(name).Should().BeEquivalentTo(expectedValue);
+            query.GetParamValue(name, valueType).Should().BeEquivalentTo(value);
         }
 
         [Theory]
@@ -67,7 +67,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             dbquery.Parameters[0].Direction.Should().Be(ParameterDirection.Input);
 
             query.GetParamValue(name).Should().Be(null);
-            query.GetParamValue(name, expectedValueType).Should().BeEqualTo(expectedValue);
+            query.GetParamValue(name, expectedValueType).Should().BeEquivalentTo(expectedValue);
         }
 
         [Fact]
@@ -97,7 +97,6 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
-            var dbquery = query.Command as DummyDbCommand;
 
             query.BindParam<int>("p1", 123);
             query.BindParam<string>("p2", "abcdef");
@@ -119,7 +118,6 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query1 = efconnection.GetQuery("command");
             using var query2 = efconnection.GetQuery("command");
-
 
             query1.BindParam<int>("p1", 123);
             query1.BindParam<string>("p2", "abcdef");

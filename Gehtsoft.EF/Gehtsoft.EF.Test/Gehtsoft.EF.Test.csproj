@@ -64,8 +64,8 @@
 
   <Target Name="AddGrammarFiles" DependsOnTargets="CompileGrammar" BeforeTargets="PreBuildEvent">
       <ItemGroup>
-          <Compile Include="$(IntermediateOutputPath)SqlTestLexer.cs"  />
-          <Compile Include="$(IntermediateOutputPath)SqlTestParser.cs"  />
+          <Compile Include="$(IntermediateOutputPath)SqlTestLexer.cs" />
+          <Compile Include="$(IntermediateOutputPath)SqlTestParser.cs" />
       </ItemGroup>
 
       <ItemGroup>
