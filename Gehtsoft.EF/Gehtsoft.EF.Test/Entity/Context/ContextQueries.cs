@@ -239,7 +239,7 @@ namespace Gehtsoft.EF.Test.Entity.Context
 
             cats.Clear();
         }
-        
+
         [Theory]
         [InlineData("sqlite-memory")]
         public void SelectEntities_All(string driver)
@@ -252,9 +252,8 @@ namespace Gehtsoft.EF.Test.Entity.Context
                 foreach (var cat in mFixture.Snapshot.Categories)
                     cats.Should().Contain(c =>
                             c.CategoryID == cat.CategoryID &&
-                            c.CategoryName == cat.CategoryName && 
+                            c.CategoryName == cat.CategoryName &&
                             c.Description == cat.Description);
-
             }
         }
 
@@ -336,7 +335,7 @@ namespace Gehtsoft.EF.Test.Entity.Context
         public void SelectEntities_Save(string driver)
         {
             var connection = mFixture.GetInstance(driver);
-            
+
             var cat = new Category()
             {
                 CategoryID = 10000,

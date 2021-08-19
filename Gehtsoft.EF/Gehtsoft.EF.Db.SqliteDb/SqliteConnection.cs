@@ -12,7 +12,6 @@ using System.Data;
 
 namespace Gehtsoft.EF.Db.SqliteDb
 {
-
     public class SqliteDbConnection : SqlDbConnection
     {
         protected SqliteConnection mSqlConnection;

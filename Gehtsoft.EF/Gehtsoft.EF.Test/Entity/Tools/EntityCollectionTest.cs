@@ -189,7 +189,7 @@ namespace Gehtsoft.EF.Test.Entity.Tools
 
             collection1.Equals(collection2).Should().BeFalse();
         }
-        
+
         [Fact]
         public void CompareSameContent()
         {
@@ -377,7 +377,7 @@ namespace Gehtsoft.EF.Test.Entity.Tools
 
             index = -1;
             add = change = remove = false;
-           
+
             collection1.Add(new Data());
 
             add.Should().BeTrue();
@@ -437,7 +437,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             remove.Should().BeTrue();
             index.Should().Be(1);
         }
-
 
     }
 }

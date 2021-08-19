@@ -22,7 +22,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
         public static bool Like(object value, string mask)
         {
-            Regex re = new Regex(mask.Replace(".", "\\.").Replace('%', '.').Replace("*", ".*"));
+            Regex re = new Regex(mask.Replace(".", "\\.").Replace('_', '.').Replace("%", ".*"));
             return re.IsMatch(value.ToString());
         }
 

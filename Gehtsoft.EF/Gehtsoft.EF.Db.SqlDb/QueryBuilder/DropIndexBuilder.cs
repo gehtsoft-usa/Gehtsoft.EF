@@ -27,7 +27,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             builder.Append(mSpecifics.PreBlock);
             builder.Append(mSpecifics.PreQueryInBlock);
 
-            builder.Append($"DROP INDEX IF EXISTS {mTable}_{mName} ON {mTable}");
+            builder.Append("DROP INDEX IF EXISTS ")
+                .Append(mTable)
+                .Append('_')
+                .Append(mName)
+                .Append(" ON ")
+                .Append(mTable);
 
             if (mSpecifics.TerminateWithSemicolon)
                 builder.Append(';');

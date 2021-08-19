@@ -129,5 +129,4 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries = mOriginalPolicy;
         }
     }
-
 }

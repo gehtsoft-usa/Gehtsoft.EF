@@ -65,6 +65,5 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             var e3 = new Entity3();
             e3.IsEfEntity().Should().BeFalse();
         }
-
     }
 }

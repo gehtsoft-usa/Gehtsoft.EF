@@ -124,7 +124,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
 
             entities.Should().HaveOneElementAfterTheOther(product, order_detail);
             entities.Should().HaveOneElementAfterTheOther(order, order_detail);
-
         }
 
         [Fact]
@@ -132,7 +131,7 @@ namespace Gehtsoft.EF.Test.Entity.Tools
         {
             var entities = EntityFinder.FindEntities(new Assembly[] { typeof(Entity1).Assembly, typeof(Order).Assembly }, null, false);
             var order = entities.First(eti => eti.EntityType == typeof(Order));
-            
+
             order.Table.Should().Be("nw_ord");
             order.Scope.Should().Be("northwind");
 
@@ -144,7 +143,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
 
             var entity1 = entities.First(eti => eti.EntityType == typeof(Entity1));
             entity1.Metadata.Should().Be(typeof(TestEntityFinder));
-
 
         }
 
@@ -159,7 +157,7 @@ namespace Gehtsoft.EF.Test.Entity.Tools
                 var entityInfo = AllEntities.Get(entities[i].EntityType);
                 for (int j = 0; j < entityInfo.TableDescriptor.Count; j++)
                 {
-                    if (entityInfo.TableDescriptor[j].ForeignKey && 
+                    if (entityInfo.TableDescriptor[j].ForeignKey &&
                         entityInfo.TableDescriptor[j].ForeignTable.Name != entityInfo.TableDescriptor.Name)
                     {
                         int? targetIndex = null;

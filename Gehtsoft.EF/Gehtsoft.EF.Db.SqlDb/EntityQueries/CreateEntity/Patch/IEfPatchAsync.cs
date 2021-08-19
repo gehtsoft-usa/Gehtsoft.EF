@@ -6,5 +6,4 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
     {
         Task ApplyAsync(SqlDbConnection connection);
     }
-
 }

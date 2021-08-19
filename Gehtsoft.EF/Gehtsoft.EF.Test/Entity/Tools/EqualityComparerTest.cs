@@ -93,7 +93,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             var c = new EntityEqualityComparer<Data>();
             c.Equals(f, s).Should().Be(expected);
 
-
         }
 
         [Fact]
@@ -121,7 +120,7 @@ namespace Gehtsoft.EF.Test.Entity.Tools
         public void CompareDifferent()
         {
             var f = Create();
-            
+
             var s = Create();
             s.Key += 1;
             EntityComparerHelper.Equals(f, s).Should().BeFalse();

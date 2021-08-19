@@ -16,13 +16,10 @@ namespace TestApp
 {
     public class NorthwindTest
     {
-        
-
         public void Test(SqlDbConnection context, int? maxRecords = null)
         {
             Snapshot snapshot = new Snapshot();
             snapshot.Create(context, maxRecords);
-
 
             var queriableProvider = new QueryableEntityProvider(new QueryableEntityProviderConnection(context));
 
@@ -37,7 +34,6 @@ namespace TestApp
                 o.OrderID = -1;
                 query.Execute(o);
                 o.OrderID.Should().BeGreaterThan(maxId);
-                ;
             }
 
             var r1 = orders.Count();

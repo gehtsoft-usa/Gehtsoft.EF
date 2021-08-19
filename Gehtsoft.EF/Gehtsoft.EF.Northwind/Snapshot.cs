@@ -57,19 +57,19 @@ namespace Gehtsoft.EF.Northwind
             if (executeAsync)
                 await CreateTablesAsync(context);
             else
-                CreateTables(context);          
+                CreateTables(context);
 
             var transaction = context.BeginTransaction();
 
             try
             {
                 HashSet<int> orders = new HashSet<int>();
-                
+
                 foreach (var (type, list) in mTypes)
                 {
                     bool createKey = type == typeof(OrderDetail) || type == typeof(EmployeeTerritory);
-                    
-                    bool itIsOrder = type == typeof(Order) && orderLimit != null; 
+
+                    bool itIsOrder = type == typeof(Order) && orderLimit != null;
                     bool itIsOrderDetail = type == typeof(OrderDetail) && orderLimit != null;
 
                     using (var query = context.InsertEntity(type, createKey))
@@ -91,7 +91,6 @@ namespace Gehtsoft.EF.Northwind
                             if (itIsOrder && v is Order order)
                                 orders.Add(order.OrderID);
 
-                            
 
                         }
                     }
@@ -104,7 +103,7 @@ namespace Gehtsoft.EF.Northwind
                     for (int i = 0; i < orderLimit.Value; i++)
                         newOrders.Add(Orders[i]);
                     Orders = newOrders;
-                    
+
                     List<OrderDetail> newOrderDetails = new List<OrderDetail>();
                     for (int i = 0; i < orderLimit.Value; i++)
                         for (int j = 0; j < OrderDetails.Count; j++)

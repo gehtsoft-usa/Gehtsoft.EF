@@ -75,7 +75,7 @@ namespace Gehtsoft.EF.Test.Entity.Naming
         [InlineData("mixedCase", EntityNamingPolicy.UpperCaseWithUnderscopes, "MIXED_CASE")]
         [InlineData("a", EntityNamingPolicy.UpperCaseWithUnderscopes, "A")]
 
-        public void ConvertName(string originalName, EntityNamingPolicy? policy, string expectedResult) 
+        public void ConvertName(string originalName, EntityNamingPolicy? policy, string expectedResult)
             => EntityNameConvertor.ConvertName(originalName, policy).Should().Be(expectedResult);
 
         [Theory]
@@ -87,7 +87,7 @@ namespace Gehtsoft.EF.Test.Entity.Naming
         [InlineData("crack", EntityNamingPolicy.UpperCase, "CRACKS")]
         [InlineData("igloo", EntityNamingPolicy.LowerCaseWithUnderscores, "igloos")]
         [InlineData("RottenPotato", EntityNamingPolicy.LowerCaseWithUnderscores, "rotten_potatoes")]
-        public void ConvertTableName(string originalName, EntityNamingPolicy? policy, string expectedResult) 
+        public void ConvertTableName(string originalName, EntityNamingPolicy? policy, string expectedResult)
             => EntityNameConvertor.ConvertTableName(originalName, policy).Should().Be(expectedResult);
 
         [Entity(Scope = "naming", NamingPolicy = EntityNamingPolicy.BackwardCompatibility)]
@@ -117,7 +117,7 @@ namespace Gehtsoft.EF.Test.Entity.Naming
             public TestEntity2 Reference { get; set; }
         }
 
-        sealed class NamingScope : IDisposable
+        internal sealed class NamingScope : IDisposable
         {
             private readonly string mScope;
 
@@ -131,7 +131,6 @@ namespace Gehtsoft.EF.Test.Entity.Naming
             {
                 AllEntities.Inst.ForgetScope(mScope);
                 AllEntities.Inst.NamingPolicy[mScope] = EntityNamingPolicy.BackwardCompatibility;
-
             }
         }
 
@@ -169,7 +168,6 @@ namespace Gehtsoft.EF.Test.Entity.Naming
             descriptor1.TableDescriptor[1].Name.Should().Be("TestField");
             descriptor1.TableDescriptor[2].Name.Should().Be("TestEntity2Ref");
 
-
             descriptor2.TableDescriptor.Name.Should().Be("TestEntity2", "TestEntity2 has forced backward compatiblity naming");
             descriptor2.TableDescriptor[0].Name.Should().Be("identifier");
         }
@@ -185,7 +183,6 @@ namespace Gehtsoft.EF.Test.Entity.Naming
             descriptor1.TableDescriptor[0].Name.Should().Be("id");
             descriptor1.TableDescriptor[1].Name.Should().Be("test_field");
             descriptor1.TableDescriptor[2].Name.Should().Be("test_entity2_ref");
-
 
             descriptor2.TableDescriptor.Name.Should().Be("TestEntity2", "TestEntity2 has forced backward compatiblity naming");
             descriptor2.TableDescriptor[0].Name.Should().Be("identifier");
@@ -203,28 +200,9 @@ namespace Gehtsoft.EF.Test.Entity.Naming
             descriptor1.TableDescriptor[1].Name.Should().Be("testfield");
             descriptor1.TableDescriptor[2].Name.Should().Be("testentity2ref");
 
-
             descriptor2.TableDescriptor.Name.Should().Be("TestEntity2", "TestEntity2 has forced backward compatiblity naming");
             descriptor2.TableDescriptor[0].Name.Should().Be("identifier");
         }
-
-        /*
-            
-
-            AllEntities.Inst.ForgetScope("naming");
-            AllEntities.Inst.NamingPolicy["naming"] = EntityNamingPolicy.LowerCaseWithUnderscores;
-            descriptor1 = AllEntities.Inst[typeof(TestEntity1)];
-            descriptor2 = AllEntities.Inst[typeof(TestEntity2)];
-            var descriptor3 = AllEntities.Inst[typeof(TestEntity3)];
-            Assert.AreEqual("test_entity1s", descriptor1.TableDescriptor.Name);
-            Assert.AreEqual("specialTestName", descriptor3.TableDescriptor.Name);
-            Assert.AreEqual("id", descriptor1.TableDescriptor[0].Name);
-            Assert.AreEqual("test_field", descriptor1.TableDescriptor[1].Name);
-            Assert.AreEqual("test_entity2_ref", descriptor1.TableDescriptor[2].Name);
-            Assert.AreEqual("TestEntity2", descriptor2.TableDescriptor.Name);
-            Assert.AreEqual("identifier", descriptor2.TableDescriptor[0].Name);
-        */
-
 
         [Entity(Scope = "naming2")]
         public class TestObject

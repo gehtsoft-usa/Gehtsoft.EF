@@ -11,7 +11,6 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.Entity
 {
-
     public class DynamicEntityTest
     {
         public class DynamicTestEntity : DynamicEntity

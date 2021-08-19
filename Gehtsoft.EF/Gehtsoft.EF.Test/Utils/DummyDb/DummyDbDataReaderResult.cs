@@ -2,7 +2,6 @@
 
 namespace Gehtsoft.EF.Test.Utils.DummyDb
 {
-
     internal class DummyDbDataReaderResult
     {
         public DummyDbDataReaderColumnCollection Columns { get; set; }

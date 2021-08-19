@@ -90,7 +90,7 @@ namespace Gehtsoft.EF.Entities
             if (obj == null)
                 return 0.GetHashCode();
             var t = obj.GetType();
-            
+
             int hash = -1923861349;
             PropertyInfo[] properties = t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             foreach (PropertyInfo property in properties)
@@ -111,7 +111,6 @@ namespace Gehtsoft.EF.Entities
                             valueHash = GetHashCode(value);
                         else
                             valueHash = value.GetHashCode();
-
                     }
 
                     unchecked { hash = hash * -1521134295 + valueHash; }

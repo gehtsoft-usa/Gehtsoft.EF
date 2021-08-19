@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Test.Utils
 {
-    class SqlConnectionSources
+    internal static class SqlConnectionSources
     {
         public static IEnumerable<AppConfiguration.ConnectionInfo> Connections(string exclude = null)
                 => Connections(AppConfiguration.Instance, exclude);
@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Test.Utils
         public static IEnumerable<AppConfiguration.ConnectionInfo> Connections(AppConfiguration config, string exclude = null)
         {
             string[] _exclude;
-            
+
             if (!string.IsNullOrEmpty(exclude))
                 _exclude = exclude.Split(',', StringSplitOptions.RemoveEmptyEntries);
             else
@@ -26,7 +26,6 @@ namespace Gehtsoft.EF.Test.Utils
             var globalFilter = config.Get("global-filter:sql-drivers", "all");
             if (globalFilter != "all")
                 _includeOnly = globalFilter.Split(",", StringSplitOptions.RemoveEmptyEntries);
-
 
             for (int i = 0; i < _exclude.Length; i++)
             {

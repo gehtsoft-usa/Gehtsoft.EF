@@ -178,6 +178,5 @@ namespace Gehtsoft.EF.Test.Utils
 
             reader.NextResult().Should().BeFalse();
         }
-
     }
 }

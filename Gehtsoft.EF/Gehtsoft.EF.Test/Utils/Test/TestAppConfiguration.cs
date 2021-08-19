@@ -12,7 +12,7 @@ namespace Gehtsoft.EF.Test.Utils
     {
         public class AppConfiguration1 : AppConfiguration
         {
-            public AppConfiguration1(string json) 
+            public AppConfiguration1(string json)
             {
                 using var ms = new MemoryStream(Encoding.UTF8.GetBytes(json));
                 Config = new ConfigurationBuilder()
@@ -29,7 +29,6 @@ namespace Gehtsoft.EF.Test.Utils
 
             config.Get<bool>("sql-connections:connection1:enabled").Should().BeTrue();
             config.Get("sql-connections:connection1:driver").Should().Be("driver1");
-
         }
 
         [Fact]
@@ -58,7 +57,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         [Fact]
         public void TestConnectionSource()
-        {           
+        {
             string json = "{ \"sql-connections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" }, \"connection2\" : { \"driver\" : \"driver2\", \"connectionString\" : \"connection-string2\", \"enabled\" : \"true\" } } }";
             var config = new AppConfiguration1(json);
             var infos = SqlConnectionSources.Connections(config).ToArray();

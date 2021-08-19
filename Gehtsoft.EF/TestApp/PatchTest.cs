@@ -16,7 +16,7 @@ namespace TestApp
 {
     public class PatchTest
     {
-        private static Dictionary<Type, int> gInvocations = new Dictionary<Type, int>();
+        private readonly static Dictionary<Type, int> gInvocations = new Dictionary<Type, int>();
 
         private static void ClearInvokations() => gInvocations.Clear();
 
@@ -53,7 +53,7 @@ namespace TestApp
                 Invoke(this);
             }
         }
-        
+
         [EfPatch("patchtest1", 1, 2, 1)]
         public class Patch121 : IEfPatch
         {
@@ -123,7 +123,7 @@ namespace TestApp
             patches[6].PatchType.Should().Be(typeof(Patch221));
             patches[7].PatchType.Should().Be(typeof(Patch321));
         }
-        
+
         [TestCase]
         public void Find_None()
         {
@@ -143,7 +143,7 @@ namespace TestApp
             connection.ApplyPatches(patches, "patchtest1");
 
             connection.Schema().Should().Contain(t => t.Name == "ef_patch_history");
-            
+
             using (var query = connection.GetSelectEntitiesQuery<EfPatchHistoryRecord>())
             {
                 var c = query.ReadAll<EfPatchHistoryRecord>();
@@ -194,8 +194,6 @@ namespace TestApp
             r.MinorVersion.Should().Be(attr.MinorVersion);
             r.PatchVersion.Should().Be(attr.PatchVersion);
             r.Applied.Should().BeWithin(TimeSpan.FromSeconds(2));
-
-
         }
 
         [TestCase]
@@ -245,7 +243,6 @@ namespace TestApp
             Match<Patch211>(c, 4);
             Match<Patch221>(c, 5);
             Match<Patch321>(c, 6);
-
         }
     }
 }

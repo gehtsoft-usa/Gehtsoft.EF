@@ -46,8 +46,8 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
         [Theory]
         [InlineData("command", "command;")]
         [InlineData("command;", "command;")]
-        [InlineData("command;   ", "command;")]
-        [InlineData("command   ", "command;")]
+        [InlineData("command;   ", "command;   ")]
+        [InlineData("command   ", "command   ;")]
         public void TerminateCommandWithSemicolon(string command, string expectedCommand)
         {
             using var connection = new DummySqlConnection(new DummyDbConnection());

@@ -5,13 +5,13 @@
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="!Exists('Configuration.json')">
+    <Message Text="Prebuilding" />
     <ItemGroup>
         <ConfigSource Include="Configuration.Example.json" />
         <ConfigTarget Include="Configuration.json" />
     </ItemGroup>
     <Copy SourceFiles="@(ConfigSource)" DestinationFiles="@(ConfigTarget)" />
   </Target>
-
 
   <ItemGroup>
     <None Remove="Configuration.json" />
@@ -62,18 +62,20 @@
     <PackageReference Include="Hime.Build.Task" Version="0.1.6" IncludeAssets="build" />
   </ItemGroup>
 
-  <Target Name="AddGrammarFiles" DependsOnTargets="CompileGrammar" BeforeTargets="BeforeResGen">
-     <ItemGroup>
-       <EmbeddedResource Include="$(IntermediateOutputPath)SqlLexer.bin" Type="Non-Resx" WithCulture="false" />
-       <EmbeddedResource Include="$(IntermediateOutputPath)SqlParser.bin" Type="Non-Resx" WithCulture="false" />
-       <Compile Include="$(IntermediateOutputPath)SqlLexer.cs" ExcludeFromSourceAnalysis="true" />
-       <Compile Include="$(IntermediateOutputPath)SqlParser.cs" ExcludeFromSourceAnalysis="true" />
-     </ItemGroup>
+  <Target Name="AddGrammarFiles" DependsOnTargets="CompileGrammar" BeforeTargets="PreBuildEvent">
+      <ItemGroup>
+          <Compile Include="$(IntermediateOutputPath)SqlTestLexer.cs"  />
+          <Compile Include="$(IntermediateOutputPath)SqlTestParser.cs"  />
+      </ItemGroup>
+
+      <ItemGroup>
+          <EmbeddedResource Include="$(IntermediateOutputPath)SqlTestLexer.bin" Type="Non-Resx" WithCulture="false" />
+          <EmbeddedResource Include="$(IntermediateOutputPath)SqlTestParser.bin" Type="Non-Resx" WithCulture="false" />
+      </ItemGroup>
   </Target>
 
-  <Target Name="CompileGrammar" Inputs="SqlParser/sql.gram"
-          Outputs="$(IntermediateOutputPath)SqlLexer.cs;$(IntermediateOutputPath)SqlParser.cs;$(IntermediateOutputPath)SqlLexer.bin;$(IntermediateOutputPath)SqlParser.bin;">
-     <CompileGrammar GrammarName="Sql" GrammarFile="SqlParser/sql.gram" Namespace="Gehtsoft.EF.Test.SqlParser"
-                     OutputMode="Source" CodeAccess="Internal" OutputPath="$(IntermediateOutputPath)" />
+  <Target Name="CompileGrammar" Inputs="sql.gram" Outputs="$(IntermediateOutputPath)SqlTestLexer.cs;$(IntermediateOutputPath)SqlTestParser.cs;$(IntermediateOutputPath)SqlLexer.bin;$(IntermediateOutputPath)SqlParser.bin;">
+     <CompileGrammar GrammarName="SqlTest" GrammarFile="sql.gram" Namespace="Gehtsoft.eF.Test.SqlParser" OutputMode="Source" CodeAccess="Internal" OutputPath="$(IntermediateOutputPath)" />
   </Target>
+
 </Project>

@@ -18,7 +18,7 @@ namespace Gehtsoft.EF.Test.Utils
                 .Build();
         }
 
-        private static AppConfiguration gInstance = null;
+        private readonly static AppConfiguration gInstance = null;
 
         public static AppConfiguration Instance => gInstance ?? new AppConfiguration();
 

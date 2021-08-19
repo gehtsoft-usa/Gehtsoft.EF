@@ -11,7 +11,6 @@ namespace Gehtsoft.EF.Test.Utils
     {
         public static object Translate(Type valueType, object value)
         {
-
             valueType = Nullable.GetUnderlyingType(valueType) ?? valueType;
 
             if (value == null)

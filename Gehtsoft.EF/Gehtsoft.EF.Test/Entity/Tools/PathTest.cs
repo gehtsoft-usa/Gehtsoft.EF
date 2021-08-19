@@ -49,6 +49,5 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             EntityPathAccessor.PreparePath(typeof(CA), "CA2.CB2.CC1.Day");
             EntityPathAccessor.IsPathCached(typeof(CA), "CA2.CB2.CC1.Day").Should().BeTrue();
         }
-
     }
 }

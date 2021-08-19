@@ -368,8 +368,6 @@ namespace TestApp
                 query.ReadNext().Should().BeTrue();
                 query.GetValue<int>(0).Should().Be(1);
                 query.GetValue<string>(1).Should().Be("newstring1");
-
-
             }
         }
     }

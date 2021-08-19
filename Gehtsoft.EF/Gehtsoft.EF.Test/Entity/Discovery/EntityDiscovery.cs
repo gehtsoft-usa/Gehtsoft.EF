@@ -178,8 +178,8 @@ namespace Gehtsoft.EF.Test.Entity.Discovery
         [InlineData(typeof(DefaultSpec), 8, "reference1", DbType.Int32, false, false, false, false, false, true, 0, 0)]
         [InlineData(typeof(DefaultSpec), 9, "reference2", DbType.Guid, false, false, true, false, false, true, 0, 0)]
 
-        [InlineData(typeof(DynamicTestEntity), 0, "property1", DbType.Int32, true, true, false, false, false, true, 0, 0)]
-        [InlineData(typeof(DynamicTestEntity), 1, "property2", DbType.String, false, false, true, true, false, true, 84, 0)]
+        [InlineData(typeof(DynamicTestEntity), 0, "property1", DbType.Int32, true, true, false, false, false, false, 0, 0)]
+        [InlineData(typeof(DynamicTestEntity), 1, "property2", DbType.String, false, false, true, true, false, false, 84, 0)]
         public void Field(Type entityType, int index, string name, DbType fieldType, bool pk, bool auto, bool nullable, bool sorted, bool unique, bool fk, int size, int precision)
         {
             var entityInfo = AllEntities.Inst[entityType];

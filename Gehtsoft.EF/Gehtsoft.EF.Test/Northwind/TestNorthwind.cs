@@ -17,7 +17,7 @@ namespace Gehtsoft.EF.Test.Northwind
 {
     [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
     [Collection(nameof(NorthwindFixture))]
-    public class TestNorthwind 
+    public class TestNorthwind
     {
         private readonly NorthwindFixture mFixture;
 
@@ -79,7 +79,6 @@ namespace Gehtsoft.EF.Test.Northwind
             schema.Should().Contain(table => table.Name.Equals(
                                  AllEntities.Inst[typeof(Territory), true].TableDescriptor.Name,
                                  StringComparison.OrdinalIgnoreCase));
-
         }
 
         [Theory]
@@ -176,7 +175,6 @@ namespace Gehtsoft.EF.Test.Northwind
                 query.GetCount().Should().Be(1);
             }
         }
-
 
     }
 }

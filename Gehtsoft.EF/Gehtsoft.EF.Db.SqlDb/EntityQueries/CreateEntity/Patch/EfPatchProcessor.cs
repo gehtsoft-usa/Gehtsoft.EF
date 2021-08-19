@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
 {
-    public static class EfPatchProcessor 
+    public static class EfPatchProcessor
     {
         public class EfPatchInstance
         {
@@ -191,7 +191,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
 
                             if (v > l)
                                 startFrom = i;
-
                         }
                     }
 
@@ -209,7 +208,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
                                 await SavePatchAsync(connection, patches[i]);
                             else
                                 SavePatch(connection, patches[i]);
-
                         }
                     }
                 }

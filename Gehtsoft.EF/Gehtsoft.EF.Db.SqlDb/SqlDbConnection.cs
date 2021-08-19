@@ -237,6 +237,5 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
             return r;
         }
-
     }
 }

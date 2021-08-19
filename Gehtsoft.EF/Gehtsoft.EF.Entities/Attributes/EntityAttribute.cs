@@ -3,7 +3,6 @@ using System.Reflection;
 
 namespace Gehtsoft.EF.Entities
 {
-
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
     public class EntityAttribute : Attribute
     {

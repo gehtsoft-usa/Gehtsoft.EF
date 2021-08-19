@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace Gehtsoft.EF.Entities
 {
-
     /// <summary>
     /// Collection of entities of the type specified.
     /// </summary>

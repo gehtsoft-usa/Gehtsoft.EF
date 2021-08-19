@@ -110,7 +110,6 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             query.BindOutput("p3", DbType.Int32);
 
             query.ParametersCount.Should().Be(3);
-
         }
 
         [Fact]
@@ -132,9 +131,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             query2.ExecuteNoData();
 
             dbquery.Parameters.Count.Should().Be(3);
-            
+
             var pp = efconnection.GetLanguageSpecifics().ParameterPrefix;
-            
+
             dbquery.Parameters[0].ParameterName.Should().Be(pp + "p1");
             dbquery.Parameters[0].DbType.Should().Be(DbType.Int32);
             dbquery.Parameters[0].Value.Should().Be(123);
@@ -150,5 +149,4 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
             dbquery.Parameters[2].Direction.Should().Be(ParameterDirection.Output);
         }
     }
-        
 }

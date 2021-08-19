@@ -269,17 +269,19 @@ namespace TestApp
             {
                 get
                 {
-                    CompositeIndex index = new CompositeIndex(typeof(Sale), "Index1");
-                    index.Add(nameof(Sale.SalesDate));
-                    index.Add("salesperson", SortDir.Desc);
+                    CompositeIndex index = new CompositeIndex(typeof(Sale), "Index1")
+                    {
+                        nameof(Sale.SalesDate),
+                        { "salesperson", SortDir.Desc }
+                    };
                     yield return index;
 
-                    index = new CompositeIndex(typeof(Sale), "Index2");
-                    index.FailIfUnsupported = false;
+                    index = new CompositeIndex(typeof(Sale), "Index2")
+                    {
+                        FailIfUnsupported = false
+                    };
                     index.Add(SqlFunctionId.Upper, nameof(Sale.Note));
                     yield return index;
-
-
                 }
             }
         }
@@ -634,8 +636,6 @@ namespace TestApp
                 good5.Name = "Trousers";
                 query.Execute(good5);
             }
-
-
 
             using (SelectEntitiesCountQuery query = connection.GetSelectEntitiesCountQuery(typeof(Good)))
             {

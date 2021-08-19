@@ -149,7 +149,6 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
             CurrentResult++;
             CurrentRow = -1;
             return true;
-
         }
         public bool NextResultAsyncCalled { get; set; }
 
@@ -178,7 +177,7 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 
         public bool ReadAsyncCalled { get; set; }
 
-        public override Task<bool> ReadAsync(CancellationToken cancellationToken) 
+        public override Task<bool> ReadAsync(CancellationToken cancellationToken)
         {
             ReadAsyncCalled = true;
             if (CurrentResult >= Results.Count)

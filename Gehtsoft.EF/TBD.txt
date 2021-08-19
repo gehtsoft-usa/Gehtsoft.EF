@@ -1,3 +1,4 @@
-Refactor truncate rules:
+Сделать XmlAstNode отдельным классом
 
+Refactor truncate rules:
 make it interface, provide default implementation and associate it with the connection instance.

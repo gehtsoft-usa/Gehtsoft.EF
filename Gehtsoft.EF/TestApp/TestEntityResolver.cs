@@ -462,7 +462,7 @@ namespace TestApp
                 {
                     if ((value == null && mCrate != null) ||
                         (mCrate == null && value != null) ||
-                        (mCrate.ID != value.ID))
+                        (mCrate?.ID != value?.ID))
                         CrateChanged = true;
                     mCrate = value;
                 }

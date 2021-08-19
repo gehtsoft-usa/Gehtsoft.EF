@@ -312,10 +312,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Binders
             public double F4 { get; set; }
             public decimal F5 { get; set; }
             public Entity4 Aggregate { get; set; }
-            
         }
 
-        public class Entity4        
+        public class Entity4
         {
             public DateTime F6 { get; set; }
             public DateTime F7 { get; set; }
@@ -434,7 +433,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Binders
             var td = AllEntities.Get<Entity1>().TableDescriptor;
             var binder = new UpdateQueryToTypeBinder(typeof(Entity1));
             binder.AutoBind(td);
-            
+
             using var dbconnection = new DummyDbConnection();
             using var efconnection = new DummySqlConnection(dbconnection);
             using var query = efconnection.GetQuery("command");
@@ -457,7 +456,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Binders
                     }
                 }
             };
-            
+
             var guid = Guid.Parse("82f1a6ad-83f8-44f4-8136-eb58d20fe1d1");
 
             var e = new Entity1()

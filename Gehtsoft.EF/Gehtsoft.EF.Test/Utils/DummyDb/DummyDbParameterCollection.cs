@@ -13,7 +13,7 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 
         public override object SyncRoot { get; } = new object();
 
-        public override int Add(object value) 
+        public override int Add(object value)
         {
             if (value is DbParameter p)
                 mParameters.Add(p);
@@ -51,7 +51,6 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
                 return IndexOf(p);
             else
                 throw new ArgumentException("Incorrect type", nameof(value));
-
         }
 
         public override int IndexOf(string parameterName)
@@ -68,7 +67,6 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
                 mParameters.Insert(index, p);
             else
                 throw new ArgumentException("Incorrect type", nameof(value));
-
         }
 
         public override void Remove(object value)
@@ -77,7 +75,6 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
                 mParameters.Remove(p);
             else
                 throw new ArgumentException("Incorrect type", nameof(value));
-
         }
 
         public override void RemoveAt(int index)
