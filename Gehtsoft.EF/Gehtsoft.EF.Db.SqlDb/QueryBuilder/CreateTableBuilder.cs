@@ -11,6 +11,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
     public class CreateTableBuilder : AQueryBuilder
     {
+        protected virtual TableDdlBuilder DdlBuilder { get; set; }
         protected TableDescriptor mDescriptor;
         protected string mQuery;
         public override string Query => mQuery;
@@ -23,6 +24,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public override void PrepareQuery()
         {
+            if (DdlBuilder == null)
+                DdlBuilder = new TableDdlBuilder(mSpecifics, mDescriptor);
+
             if (mQuery != null)
                 return;
 
@@ -40,12 +44,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 else
                     first = false;
 
-                HandleColumnDDL(builder, column);
+                DdlBuilder.HandleColumnDDL(builder, column, false);
             }
 
             foreach (TableDescriptor.ColumnInfo column in mDescriptor)
             {
-                HandlePostfixDDL(builder, column);
+                DdlBuilder.HandlePostfixDDL(builder, column, false);
             }
 
             builder.Append(')');
@@ -54,7 +58,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             builder.Append(mSpecifics.PostQueryInBlock);
 
             foreach (TableDescriptor.ColumnInfo column in mDescriptor)
-                HandleAfterQuery(builder, column);
+                DdlBuilder.HandleAfterQuery(builder, column);
 
             if (mDescriptor.Metadata is ICompositeIndexMetadata compositeIndex)
             {
@@ -65,61 +69,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             builder.Append(mSpecifics.PostBlock);
 
             mQuery = builder.ToString();
-        }
-
-        protected virtual void HandleColumnDDL(StringBuilder builder, TableDescriptor.ColumnInfo column)
-        {
-            string type = mSpecifics.TypeName(column.DbType, column.Size, column.Precision, column.Autoincrement);
-            builder.Append(column.Name).Append(' ').Append(type);
-            if (column.PrimaryKey)
-                builder.Append(" PRIMARY KEY");
-            if (!column.Nullable)
-                builder.Append(" NOT NULL");
-            if (column.Unique)
-                builder.Append(" UNIQUE");
-            if (column.DefaultValue != null)
-                builder.Append(" DEFAULT ").Append(mSpecifics.FormatValue(column.DefaultValue));
-        }
-
-        protected virtual void HandlePostfixDDL(StringBuilder builder, TableDescriptor.ColumnInfo column)
-        {
-            if (column.ForeignKey && column.ForeignTable != column.Table)
-                builder
-                    .Append(", FOREIGN KEY (")
-                    .Append(column.Name)
-                    .Append(") REFERENCES ")
-                    .Append(column.ForeignTable.Name)
-                    .Append('(')
-                    .Append(column.ForeignTable.PrimaryKey.Name)
-                    .Append(')');
-        }
-
-        protected virtual bool NeedIndex(TableDescriptor.ColumnInfo column)
-        {
-            return column.Sorted || (column.ForeignKey && column.ForeignTable == column.Table) || (column.ForeignKey && !mSpecifics.IndexForFKCreatedAutomatically);
-        }
-
-        protected virtual void HandleAfterQuery(StringBuilder builder, TableDescriptor.ColumnInfo column)
-        {
-            if (NeedIndex(column))
-            {
-                builder.Append("\r\n");
-                builder.Append(mSpecifics.PreQueryInBlock);
-                builder
-                    .Append("CREATE INDEX ")
-                    .Append(mDescriptor.Name)
-                    .Append('_')
-                    .Append(column.Name)
-                    .Append(" ON ")
-                    .Append(mDescriptor.Name)
-                    .Append('(')
-                    .Append(column.Name)
-                    .Append(')');
-                if (mSpecifics.TerminateWithSemicolon)
-                    builder.Append(';');
-
-                builder.Append(mSpecifics.PostQueryInBlock);
-            }
         }
 
         protected virtual void HandleCompositeIndex(StringBuilder builder, CompositeIndex index)

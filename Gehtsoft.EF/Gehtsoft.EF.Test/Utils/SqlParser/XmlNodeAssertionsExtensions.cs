@@ -20,12 +20,10 @@ namespace Gehtsoft.EF.Test.SqlParser
 
         protected override string Identifier => "node";
 
-
-
-        public AndConstraint<AstNodeAssertions> Exists(string because = null, params object[] becauseArgs)
+        public AndConstraint<AstNodeAssertions> Exist(string because = null, params object[] becauseArgs)
             => this.NotBeNull(because, becauseArgs);
 
-        public AndConstraint<AstNodeAssertions> NotExists(string because = null, params object[] becauseArgs)
+        public AndConstraint<AstNodeAssertions> NotExist(string because = null, params object[] becauseArgs)
             => this.BeNull(because, becauseArgs);
 
         public AndConstraint<AstNodeAssertions> HaveSymbol(string symbol, string because = null, params object[] becauseArgs)
@@ -33,8 +31,8 @@ namespace Gehtsoft.EF.Test.SqlParser
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .Given(() => Subject)
-                .ForCondition(node => node.Symbol == symbol)
-                .FailWith("Expected {context:node} to have a symbol {0}", symbol);
+                .ForCondition(node => node?.Symbol == symbol)
+                .FailWith("Expected {context:node} to have a symbol {0} but it has {1}", symbol, Subject?.Symbol);
             return new AndConstraint<AstNodeAssertions>(this);
         }
 
@@ -43,8 +41,8 @@ namespace Gehtsoft.EF.Test.SqlParser
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .Given(() => Subject)
-                .ForCondition(node => node.Value == value)
-                .FailWith("Expected {context:node} to have a value {0}", value);
+                .ForCondition(node => node?.Value == value)
+                .FailWith("Expected {context:node} to have a value {0} but it has {1}", value, Subject?.Value);
             return new AndConstraint<AstNodeAssertions>(this);
         }
 

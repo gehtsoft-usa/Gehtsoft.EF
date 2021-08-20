@@ -16,6 +16,7 @@
 
    <ItemGroup>
     <Compile Include="AlterTableQueryBuilder.cs" />
+    <Compile Include="PostgresCreateTableBuilder.cs" />
     <Compile Include="PostgresDropIndexBuilder.cs" />
     <Compile Include="PostgresInsertSelectQueryBuilder.cs" />
     <Compile Include="PostgresQuery.cs" />
@@ -23,6 +24,7 @@
     <Compile Include="PostgresHierarchicalSelectQueryBuilder.cs" />
     <Compile Include="PostgresInsertQueryBuilder.cs" />
     <Compile Include="PostgresLanguageSpecifics.cs" />
+    <Compile Include="PostgresTableDdlBuilder.cs" />
     <Compile Include="PostgresTransaction.cs" />
   </ItemGroup>
 

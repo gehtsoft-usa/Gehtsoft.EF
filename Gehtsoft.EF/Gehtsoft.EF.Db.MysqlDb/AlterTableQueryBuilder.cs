@@ -14,34 +14,15 @@ namespace Gehtsoft.EF.Db.MysqlDb
         {
         }
 
-        protected override string GetDDL(TableDescriptor.ColumnInfo column)
+        protected override TableDdlBuilder CreateDdlBuilder()
         {
-            StringBuilder builder = new StringBuilder();
-            string type = mSpecifics.TypeName(column.DbType, column.Size, column.Precision, column.Autoincrement);
-            builder.Append(column.Name).Append(' ').Append(type);
-            if (column.PrimaryKey)
-                builder.Append(" PRIMARY KEY");
-            if (column.Autoincrement)
-                builder.Append(" AUTO_INCREMENT");
-            if (!column.Nullable)
-                builder.Append(" NOT NULL");
-            if (column.Unique)
-                builder.Append(" UNIQUE");
-            if (column.DefaultValue != null)
-                builder.Append(" DEFAULT ").Append(mSpecifics.FormatValue(column.DefaultValue));
-            return builder.ToString();
+            return new MysqlTableDdlBuilder(mSpecifics, mDescriptor);
         }
 
-        protected override void HandleCreateQuery(TableDescriptor.ColumnInfo column)
-        {
-            mQueries.Add($"ALTER TABLE {mDescriptor.Name} ADD COLUMN {GetDDL(column)}");
-        }
-
-        protected override void HandleDropQuery(TableDescriptor.ColumnInfo column)
+        protected override void HandlePreDropQuery(TableDescriptor.ColumnInfo column)
         {
             if (column.ForeignKey)
                 mQueries.Add($"ALTER TABLE {mDescriptor.Name} DROP FOREIGN KEY fk_{column.Table.Name}_{column.Name}");
-            mQueries.Add($"ALTER TABLE {mDescriptor.Name} DROP COLUMN {column.Name}");
         }
     }
 }

@@ -20,7 +20,22 @@ namespace Gehtsoft.EF.Test.Entity.Utils
             Execute.Assertion
                .BecauseOf(because, args)
                .Given(() => collection.Subject)
+               .ForCondition(e => e != null)
+               .FailWith("Expected {context:the collection} to exists but it does not")
+               .Then
                .ForCondition(e => e.Any(i => p(i)))
+               .FailWith("Expected {context:the collection} have element matching {0} but it does not", predicate);
+
+            return new AndConstraint<GenericCollectionAssertions<T>>(collection);
+        }
+
+        public static AndConstraint<GenericCollectionAssertions<T>> HaveNoElementMatching<T>(this GenericCollectionAssertions<T> collection, Expression<Func<T, bool>> predicate, string because = null, params object[] args)
+        {
+            var p = predicate.Compile();
+            Execute.Assertion
+               .BecauseOf(because, args)
+               .Given(() => collection.Subject)
+               .ForCondition(e => e == null || !e.Any(i => p(i)))
                .FailWith("Expected {context:the collection} have element matching {0} but it does not", predicate);
 
             return new AndConstraint<GenericCollectionAssertions<T>>(collection);

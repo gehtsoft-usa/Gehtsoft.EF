@@ -154,6 +154,11 @@ namespace Gehtsoft.EF.Db.PostgresDb
         {
             return new PostgresDropIndexBuilder(GetLanguageSpecifics(), descriptor.Name, name);
         }
+
+        public override CreateTableBuilder GetCreateTableBuilder(TableDescriptor descriptor)
+        {
+            return new PostgresCreateTableBuilder(GetLanguageSpecifics(), descriptor);
+        }
     }
 
     public static class PostgresDbConnectionFactory
@@ -182,3 +187,4 @@ namespace Gehtsoft.EF.Db.PostgresDb
         }
     }
 }
+

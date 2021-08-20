@@ -419,7 +419,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Binders
 
             binder.BindAndExecute(query, e, false);
 
+#pragma warning disable IDE0038 // Use pattern matching
             truncateCalls.Should().HaveElementMatching(e => e.Item1 == DbType.String && e.Item2 == 10 && e.Item3 is string && (string)e.Item3 == "very long string is here");
+#pragma warning restore IDE0038 // Use pattern matching
             query.GetParamValue<string>("f11").Should().Be("very long ");
         }
     }

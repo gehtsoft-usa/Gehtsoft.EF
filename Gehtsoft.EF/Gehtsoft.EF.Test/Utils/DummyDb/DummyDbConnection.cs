@@ -18,7 +18,9 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 
         public override void ChangeDatabase(string databaseName)
         {
+#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
             throw new NotImplementedException();
+#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
         }
 
         public override void Close()
@@ -31,7 +33,7 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
-            throw new NotImplementedException();
+            return new DummyDbTransaction(isolationLevel, this);
         }
 
         protected override DbCommand CreateDbCommand() => new DummyDbCommand() { Connection = this };

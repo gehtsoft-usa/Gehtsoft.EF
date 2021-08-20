@@ -13,11 +13,15 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 
         public override HierarchicalSelectQueryBuilder GetHierarchicalSelectQueryBuilder(TableDescriptor descriptor, TableDescriptor.ColumnInfo parentReferenceColumn, string rootParameter = null) => throw new NotFiniteNumberException();
 
-        private readonly Sql92LanguageSpecifics mLanguageSpecifics = new Sql92LanguageSpecifics();
+        public DummyDbSpecifics DummyDbSpecifics { get; } = new DummyDbSpecifics();
 
-        public override SqlDbLanguageSpecifics GetLanguageSpecifics() => mLanguageSpecifics;
+        public override SqlDbLanguageSpecifics GetLanguageSpecifics() => DummyDbSpecifics;
 
         protected override Task<TableDescriptor[]> SchemaCore(bool sync, CancellationToken? token) => throw new NotFiniteNumberException();
+
+        public DummySqlConnection() : this(new DummyDbConnection())
+        {
+        }
 
         public DummySqlConnection(DbConnection connection) : base(connection)
         {

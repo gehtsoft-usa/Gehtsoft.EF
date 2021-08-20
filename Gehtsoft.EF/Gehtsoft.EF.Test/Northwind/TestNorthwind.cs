@@ -26,7 +26,6 @@ namespace Gehtsoft.EF.Test.Northwind
             mFixture = fixture;
         }
 
-
         [Theory]
         [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
         [TestOrder(1)]
@@ -175,6 +174,5 @@ namespace Gehtsoft.EF.Test.Northwind
                 query.GetCount().Should().Be(1);
             }
         }
-
     }
 }

@@ -23,6 +23,7 @@
     <Compile Include="MysqlInsertQueryBuilder.cs" />
     <Compile Include="MysqlInsertSelectQueryBuilder.cs" />
     <Compile Include="MysqlQuery.cs" />
+    <Compile Include="MysqlTableDdlBuilder.cs" />
     <Compile Include="MysqlTransaction.cs" />
   </ItemGroup>
 

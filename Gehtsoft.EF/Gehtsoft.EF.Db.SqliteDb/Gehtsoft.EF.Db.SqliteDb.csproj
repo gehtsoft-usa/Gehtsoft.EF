@@ -33,6 +33,7 @@
     <Compile Include="SqliteInsertQueryBuilder.cs" />
     <Compile Include="SqliteInsertSelectQueryBuilder.cs" />
     <Compile Include="SqliteLanguageSpecifics.cs" />
+    <Compile Include="SqliteTableDdlBuilder.cs" />
     <Compile Include="SqliteTransaction.cs" />
   </ItemGroup>
 

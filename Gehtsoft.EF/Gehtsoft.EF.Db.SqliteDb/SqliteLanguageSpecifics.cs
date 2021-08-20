@@ -14,15 +14,12 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 case DbType.String:
                     return "TEXT";
                 case DbType.Int16:
-                    return "INTEGER";
                 case DbType.Int32:
-                    return "INTEGER";
                 case DbType.Int64:
                     return "INTEGER";
                 case DbType.Date:
-                    return SqliteGlobalOptions.StoreDateAsString ? "TEXT" : "REAL";
                 case DbType.DateTime:
-                    return "REAL";
+                    return SqliteGlobalOptions.StoreDateAsString ? "TEXT" : "REAL";
                 case DbType.Double:
                     return "REAL";
                 case DbType.Binary:

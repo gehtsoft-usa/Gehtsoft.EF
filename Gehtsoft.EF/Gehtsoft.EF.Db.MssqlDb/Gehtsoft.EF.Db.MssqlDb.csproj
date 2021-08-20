@@ -27,6 +27,7 @@
     <Compile Include="MssqlInsertSelectQueryBuilder.cs" />
     <Compile Include="MssqlQuery.cs" />
     <Compile Include="MssqlSelectQueryBuilder.cs" />
+    <Compile Include="MssqlTableDdlBuilder.cs" />
     <Compile Include="MssqlTransaction.cs" />
   </ItemGroup>
 

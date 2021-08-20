@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
-    public abstract class AlterTableQueryBuilder
+    public class AlterTableQueryBuilder
     {
+        protected TableDdlBuilder DdlBuilder { get; set; }
         protected TableDescriptor mDescriptor;
         protected TableDescriptor.ColumnInfo[] mAddColumns, mDropColumns;
         protected List<string> mQueries;
@@ -28,8 +29,13 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mQueries = new List<string>();
         }
 
+        protected virtual TableDdlBuilder CreateDdlBuilder() => new TableDdlBuilder(mSpecifics, mDescriptor);
+
         public string[] GetQueries()
         {
+            if (DdlBuilder == null)
+                DdlBuilder = CreateDdlBuilder();
+
             if (mDescriptor == null || (mAddColumns == null && mDropColumns == null))
                 return new string[] { };
 
@@ -64,45 +70,16 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mPrepared = true;
         }
 
-        protected virtual void HandleAddColumn(TableDescriptor.ColumnInfo column)
+        private void HandleAddColumn(TableDescriptor.ColumnInfo column)
         {
             HandleCreateQuery(column);
             HandleAfterCreateQuery(column);
         }
 
-        protected virtual void HandleDropColumn(TableDescriptor.ColumnInfo column)
+        private void HandleDropColumn(TableDescriptor.ColumnInfo column)
         {
             HandlePreDropQuery(column);
             HandleDropQuery(column);
-        }
-
-        protected virtual string GetDDL(TableDescriptor.ColumnInfo column)
-        {
-            StringBuilder builder = new StringBuilder();
-            string type = mSpecifics.TypeName(column.DbType, column.Size, column.Precision, column.Autoincrement);
-            builder.Append(column.Name).Append(' ').Append(type);
-            if (column.PrimaryKey)
-                builder.Append(" PRIMARY KEY");
-            if (!column.Nullable)
-                builder.Append(" NOT NULL");
-            if (column.Unique)
-                builder.Append(" UNIQUE");
-            if (column.DefaultValue != null)
-                builder.Append(" DEFAULT ").Append(mSpecifics.FormatValue(column.DefaultValue));
-            if (column.ForeignKey && column.ForeignTable != column.Table)
-                builder
-                    .Append(" FOREIGN KEY REFERENCES ")
-                    .Append(column.ForeignTable.Name)
-                    .Append('(')
-                    .Append(column.ForeignTable.PrimaryKey.Name)
-                    .Append(')');
-
-            return builder.ToString();
-        }
-
-        protected virtual bool NeedIndex(TableDescriptor.ColumnInfo column)
-        {
-            return column.Sorted || (column.ForeignKey && column.ForeignTable == column.Table) || (column.ForeignKey && !mSpecifics.IndexForFKCreatedAutomatically);
         }
 
         protected virtual void HandlePreDropQuery(TableDescriptor.ColumnInfo column)
@@ -114,14 +91,33 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mQueries.Add($"ALTER TABLE {mDescriptor.Name} DROP COLUMN {column.Name}");
         }
 
+        protected virtual string AddColumnKeyword => " ADD COLUMN ";
+
         protected virtual void HandleCreateQuery(TableDescriptor.ColumnInfo column)
         {
-            mQueries.Add($"ALTER TABLE {mDescriptor.Name} ADD COLUMN {GetDDL(column)}");
+            StringBuilder sb = new StringBuilder();
+            sb.Append("ALTER TABLE ")
+                .Append(mDescriptor.Name)
+                .Append(' ')
+                .Append(AddColumnKeyword)
+                .Append(' ');
+
+            DdlBuilder.HandleColumnDDL(sb, column, true);
+            mQueries.Add(sb.ToString());
+
+            sb = new StringBuilder();
+            sb.Append("ALTER TABLE ")
+                .Append(mDescriptor.Name)
+                .Append(" ADD ");
+            var l = sb.Length;
+            DdlBuilder.HandlePostfixDDL(sb, column, true);
+            if (sb.Length > l)
+                mQueries.Add(sb.ToString());
         }
 
         protected virtual void HandleAfterCreateQuery(TableDescriptor.ColumnInfo column)
         {
-            if (NeedIndex(column))
+            if (DdlBuilder.NeedIndex(column))
                 mQueries.Add($"CREATE INDEX {mDescriptor.Name}_{column.Name} ON {mDescriptor.Name}({column.Name})");
         }
     }

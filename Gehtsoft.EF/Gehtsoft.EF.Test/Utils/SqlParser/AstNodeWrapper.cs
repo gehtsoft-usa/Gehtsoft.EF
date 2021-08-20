@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Hime.Redist;
+using Microsoft.OData.Edm;
 
 namespace Gehtsoft.EF.Test.SqlParser
 {
@@ -20,7 +21,15 @@ namespace Gehtsoft.EF.Test.SqlParser
                 mWrappers = new AstNodeWrapper[mNode.Children.Count];
             }
 
-            public IAstNode this[int index] => mWrappers[index] ??= new AstNodeWrapper(mNode.Children[index]);
+            public IAstNode this[int index]
+            {
+                get
+                {
+                    if (mWrappers[index] == null)
+                        mWrappers[index] = new AstNodeWrapper(mNode.Children[index]);
+                    return mWrappers[index];
+                }
+            }
 
             public int Count => mNode.Children.Count;
 

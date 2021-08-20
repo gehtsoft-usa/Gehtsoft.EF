@@ -14,37 +14,14 @@ namespace Gehtsoft.EF.Db.SqliteDb
         {
         }
 
-        protected override string GetDDL(TableDescriptor.ColumnInfo column)
+        protected override TableDdlBuilder CreateDdlBuilder()
         {
-            StringBuilder builder = new StringBuilder();
-            string type = mSpecifics.TypeName(column.DbType, column.Size, column.Precision, column.Autoincrement);
-            builder.Append(column.Name).Append(' ').Append(type);
-            if (column.PrimaryKey)
-                throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
-            if (column.Autoincrement)
-                builder.Append(" AUTOINCREMENT");
-            if (column.DefaultValue != null)
-                builder.Append(" DEFAULT ").Append(mSpecifics.FormatValue(column.DefaultValue));
-            if (!column.Nullable)
-                throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
-            if (column.Unique)
-                throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
-            return builder.ToString();
+            return new SqliteTableDdlBuilder(mSpecifics, mDescriptor);
         }
 
         protected override void HandleDropQuery(TableDescriptor.ColumnInfo column)
         {
             throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
-        }
-
-        protected override void HandleCreateQuery(TableDescriptor.ColumnInfo column)
-        {
-            mQueries.Add($"ALTER TABLE {column.Table.Name} ADD COLUMN {GetDDL(column)}");
-        }
-
-        protected override bool NeedIndex(TableDescriptor.ColumnInfo column)
-        {
-            return column.ForeignKey || base.NeedIndex(column);
         }
     }
 }

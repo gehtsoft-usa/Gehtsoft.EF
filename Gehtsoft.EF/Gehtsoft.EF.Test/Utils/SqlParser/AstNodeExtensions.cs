@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
 using Hime.Redist;
 
+#pragma warning disable RCS1224 // Make method an extension method.
+
 namespace Gehtsoft.EF.Test.SqlParser
 {
     public static class AstNodeExtensions
@@ -85,17 +87,41 @@ namespace Gehtsoft.EF.Test.SqlParser
             return node;
         }
 
+        private readonly static Dictionary<string, Regex> mLikeRegexp = new Dictionary<string, Regex>();
+
+        private static bool Like(string target, string expression)
+        {
+            if (!mLikeRegexp.TryGetValue(expression, out var re))
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append('^');
+                foreach (char c in expression)
+                {
+                    if (c == '.' || c == '\\' || c == '/' || c == '(' || c == ')' || c == '[' || c == ']' || c == '^')
+                        sb.Append('\\').Append(c);
+                    else if (c == '?')
+                        sb.Append('.').Append('?');
+                    else if (c == '*' || c == '%')
+                        sb.Append('.').Append('*');
+                    else
+                        sb.Append(c);
+                }
+                sb.Append('$');
+                re = new Regex(sb.ToString());
+                mLikeRegexp[expression] = re;
+            }
+            return re.IsMatch(target);
+        }
+
         public static IEnumerable<IAstNode> ScanChildren(this IAstNode node, bool recursive, string symbol, string value, int? index)
         {
-            symbol = symbol.Replace('*', '%');
-            value = value?.Replace('*', '%');
             int match = 0;
 
             foreach (var child in node.Children)
             {
-                if (SqlFunction.Like(child.Symbol, symbol))
+                if (Like(child.Symbol, symbol))
                 {
-                    if (string.IsNullOrEmpty(value) || SqlFunction.Like(child.Value, value))
+                    if (string.IsNullOrEmpty(value) || Like(child.Value, value))
                     {
                         match++;
                         if (index == null || index == match)
@@ -119,7 +145,15 @@ namespace Gehtsoft.EF.Test.SqlParser
 
         public static IEnumerable<IAstNode> Self(this IAstNode node)
         {
-            yield return node;
+            if (node == null)
+                throw new ArgumentNullException(nameof(node));
+
+            return Self2();
+
+            IEnumerable<IAstNode> Self2()
+            {
+                yield return node;
+            }
         }
 
         private readonly static Regex parser = new Regex(@"([^\(\/^\[]+)(\(([^)]+)\))?(\[(\d+)\])?");
@@ -160,8 +194,8 @@ namespace Gehtsoft.EF.Test.SqlParser
         public static IEnumerable<IAstNode> Select(this IAstNode node, string astPathExpression)
             => ExecuteOneLevel(Self(node), astPathExpression, 0);
 
-        public static IAstNode SelectNode(this IAstNode node, string astPathExpression)
-            => ExecuteOneLevel(Self(node), astPathExpression, 0).FirstOrDefault();
+        public static IAstNode SelectNode(this IAstNode node, string astPathExpression, int index = 1)
+            => ExecuteOneLevel(Self(node), astPathExpression, 0).Skip(index - 1).FirstOrDefault();
 
         public static AstNodeAssertions Should(this IAstNode node) => new AstNodeAssertions(node);
     }

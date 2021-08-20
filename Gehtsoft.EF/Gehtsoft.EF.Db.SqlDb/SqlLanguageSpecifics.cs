@@ -474,15 +474,17 @@ namespace Gehtsoft.EF.Db.SqlDb
                 case DbType.Int64:
                     return "NUMERIC(19, 0)";
                 case DbType.Double:
-                    return $"NUMERIC({size}, {precision})";
                 case DbType.Decimal:
-                    return $"DOUBLE PRECISION({size}, {precision})";
+                    return $"NUMERIC({size}, {precision})";
                 case DbType.Boolean:
                     return "VARCHAR(1)";
                 case DbType.String:
                     return $"VARCHAR({size})";
                 case DbType.Binary:
-                    return $"BLOB({size})";
+                    if (size > 0)
+                        return $"BLOB({size})";
+                    else
+                        return "BLOB";
                 case DbType.Date:
                     return "DATE";
                 case DbType.DateTime:

@@ -115,6 +115,7 @@
     <Compile Include="QueryBuilder\QueryBuilder.cs" />
     <Compile Include="QueryBuilder\QueryWithWhereBuilder.cs" />
     <Compile Include="QueryBuilder\SelectQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\TableDdlBuilder.cs" />
     <Compile Include="QueryBuilder\TableDescriptor.cs" />
     <Compile Include="QueryBuilder\UpdateQueryBuilder.cs" />
     <Compile Include="ResiliencyPolicy.cs" />

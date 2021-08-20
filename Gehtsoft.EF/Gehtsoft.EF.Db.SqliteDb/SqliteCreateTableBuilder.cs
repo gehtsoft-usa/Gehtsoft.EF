@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+﻿using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.SqliteDb
 {
@@ -7,27 +6,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
     {
         public SqliteCreateTableBuilder(SqliteDbLanguageSpecifics specifics, TableDescriptor table) : base(specifics, table)
         {
-        }
-
-        protected override void HandleColumnDDL(StringBuilder builder, TableDescriptor.ColumnInfo column)
-        {
-            string type = mSpecifics.TypeName(column.DbType, column.Size, column.Precision, column.Autoincrement);
-            builder.Append(column.Name).Append(' ').Append(type);
-            if (column.PrimaryKey)
-                builder.Append(" PRIMARY KEY");
-            if (column.Autoincrement)
-                builder.Append(" AUTOINCREMENT");
-            if (!column.Nullable)
-                builder.Append(" NOT NULL");
-            if (column.Unique)
-                builder.Append(" UNIQUE");
-            if (column.DefaultValue != null)
-                builder.Append(" DEFAULT ").Append(mSpecifics.FormatValue(column.DefaultValue));
-        }
-
-        protected override bool NeedIndex(TableDescriptor.ColumnInfo column)
-        {
-            return base.NeedIndex(column) || column.ForeignKey;
+            DdlBuilder = new SqliteTableDdlBuilder(specifics, table);
         }
     }
 }

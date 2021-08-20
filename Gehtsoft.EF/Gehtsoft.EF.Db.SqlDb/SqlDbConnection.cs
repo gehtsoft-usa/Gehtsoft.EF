@@ -216,7 +216,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                 mTags.Add(key, value);
         }
 
-        class ExistingTable : IEntityTable
+        internal class ExistingTable : IEntityTable
         {
             public string Name { get; set; }
             public Type EntityType { get; set; }
@@ -232,7 +232,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                 r[i] = new ExistingTable()
                 {
                     Name = tables[i].Name,
-                    EntityType = entities.FirstOrDefault(e => e.TableDescriptor.Name.Equals(tables[i].Name, StringComparison.OrdinalIgnoreCase))?.EntityType
+                    EntityType = Array.Find(entities, e => e.TableDescriptor.Name.Equals(tables[i].Name, StringComparison.OrdinalIgnoreCase))?.EntityType
                 };
             }
             return r;

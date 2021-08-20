@@ -35,6 +35,7 @@
     <Compile Include="OracleInsertSelectQueryBuilder.cs" />
     <Compile Include="OracleQuery.cs" />
     <Compile Include="OracleSelectQueryBuilder.cs" />
+    <Compile Include="OracleTableDdlBuilder.cs" />
   </ItemGroup>
 
   <ItemGroup>
