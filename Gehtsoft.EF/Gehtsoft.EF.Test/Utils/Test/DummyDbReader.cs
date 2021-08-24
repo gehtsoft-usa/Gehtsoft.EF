@@ -8,7 +8,7 @@ using FluentAssertions;
 using Gehtsoft.EF.Test.Utils.DummyDb;
 using Xunit;
 
-namespace Gehtsoft.EF.Test.Utils
+namespace Gehtsoft.EF.TestInfrastructure.Test.Utils
 {
     public class DummyDbReaderTest
     {

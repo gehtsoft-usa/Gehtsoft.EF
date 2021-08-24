@@ -2,7 +2,7 @@
 {
     public class MultiDeleteEntityQuery : ConditionEntityQueryBase
     {
-        public MultiDeleteEntityQuery(SqlDbQuery query, DeleteEntityQueryBuilder builder) : base(query, builder)
+        internal MultiDeleteEntityQuery(SqlDbQuery query, DeleteEntityQueryBuilder builder) : base(query, builder)
         {
         }
     }

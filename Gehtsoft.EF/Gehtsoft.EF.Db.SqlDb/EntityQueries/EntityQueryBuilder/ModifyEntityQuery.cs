@@ -3,7 +3,7 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-    public class InsertEntityQueryBuilder : EntityQueryBuilder
+    internal class InsertEntityQueryBuilder : EntityQueryBuilder
     {
         protected UpdateQueryToTypeBinder mBinder;
         protected bool mIgnoreAutoIncrement;
@@ -26,7 +26,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
     }
 
-    public class DeleteEntityQueryBuilder : EntityQueryWithWhereBuilder
+    internal class DeleteEntityQueryBuilder : EntityQueryWithWhereBuilder
     {
         protected UpdateQueryToTypeBinder mBinder;
 
@@ -52,7 +52,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
     }
 
-    public class UpdateEntityQueryBuilder : EntityQueryWithWhereBuilder
+    internal class UpdateEntityQueryBuilder : EntityQueryWithWhereBuilder
     {
         protected UpdateQueryToTypeBinder mBinder;
 

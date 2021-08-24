@@ -48,32 +48,32 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public static AQueryBuilder GetDropViewQueryBuilder<T>(this SqlDbConnection connection) => GetDropViewQueryBuilder(connection, typeof(T));
 
-        public static InsertEntityQueryBuilder GetInsertEntityQueryBuilder(this SqlDbConnection connection, Type type)
+        internal static InsertEntityQueryBuilder GetInsertEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
             return new InsertEntityQueryBuilder(type, connection, false);
         }
 
-        public static InsertEntityQueryBuilder GetInsertEntityQueryBuilder(this SqlDbConnection connection, Type type, bool ignoreAutoIncrement)
+        internal static InsertEntityQueryBuilder GetInsertEntityQueryBuilder(this SqlDbConnection connection, Type type, bool ignoreAutoIncrement)
         {
             return new InsertEntityQueryBuilder(type, connection, ignoreAutoIncrement);
         }
 
-        public static DeleteEntityQueryBuilder GetDeleteEntityQueryBuilder(this SqlDbConnection connection, Type type)
+        internal static DeleteEntityQueryBuilder GetDeleteEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
             return new DeleteEntityQueryBuilder(type, connection);
         }
 
-        public static UpdateEntityQueryBuilder GetUpdateEntityQueryBuilder(this SqlDbConnection connection, Type type)
+        internal static UpdateEntityQueryBuilder GetUpdateEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
             return new UpdateEntityQueryBuilder(type, connection);
         }
 
-        public static SelectEntityQueryBuilder GetSelectEntityQueryBuilder(this SqlDbConnection connection, Type type)
+        internal static SelectEntityQueryBuilder GetSelectEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
             return new SelectEntityQueryBuilder(type, connection);
         }
 
-        public static SelectEntityCountQueryBuilder GetSelectEntityCountQueryBuilder(this SqlDbConnection connection, Type type)
+        internal static SelectEntityCountQueryBuilder GetSelectEntityCountQueryBuilder(this SqlDbConnection connection, Type type)
         {
             return new SelectEntityCountQueryBuilder(type, connection);
         }
@@ -148,17 +148,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return new SelectEntitiesQuery(connection.GetQuery(), new SelectEntityQueryBuilder(type, connection, exclusions));
         }
 
-        public static InsertEntityQueryBuilder GetInsertEntityQueryBuilder<T>(this SqlDbConnection connection) => GetInsertEntityQueryBuilder(connection, typeof(T));
+        internal static InsertEntityQueryBuilder GetInsertEntityQueryBuilder<T>(this SqlDbConnection connection) => GetInsertEntityQueryBuilder(connection, typeof(T));
 
-        public static InsertEntityQueryBuilder GetInsertEntityQueryBuilder<T>(this SqlDbConnection connection, bool ignoreAutoIncrement) => GetInsertEntityQueryBuilder(connection, typeof(T), ignoreAutoIncrement);
+        internal static InsertEntityQueryBuilder GetInsertEntityQueryBuilder<T>(this SqlDbConnection connection, bool ignoreAutoIncrement) => GetInsertEntityQueryBuilder(connection, typeof(T), ignoreAutoIncrement);
 
-        public static DeleteEntityQueryBuilder GetDeleteEntityQueryBuilder<T>(this SqlDbConnection connection) => GetDeleteEntityQueryBuilder(connection, typeof(T));
+        internal static DeleteEntityQueryBuilder GetDeleteEntityQueryBuilder<T>(this SqlDbConnection connection) => GetDeleteEntityQueryBuilder(connection, typeof(T));
 
-        public static UpdateEntityQueryBuilder GetUpdateEntityQueryBuilder<T>(this SqlDbConnection connection) => GetUpdateEntityQueryBuilder(connection, typeof(T));
+        internal static UpdateEntityQueryBuilder GetUpdateEntityQueryBuilder<T>(this SqlDbConnection connection) => GetUpdateEntityQueryBuilder(connection, typeof(T));
 
-        public static SelectEntityQueryBuilder GetSelectEntityQueryBuilder<T>(this SqlDbConnection connection) => GetSelectEntityQueryBuilder(connection, typeof(T));
+        internal static SelectEntityQueryBuilder GetSelectEntityQueryBuilder<T>(this SqlDbConnection connection) => GetSelectEntityQueryBuilder(connection, typeof(T));
 
-        public static SelectEntityCountQueryBuilder GetSelectEntityCountQueryBuilder<T>(this SqlDbConnection connection) => GetSelectEntityCountQueryBuilder(connection, typeof(T));
+        internal static SelectEntityCountQueryBuilder GetSelectEntityCountQueryBuilder<T>(this SqlDbConnection connection) => GetSelectEntityCountQueryBuilder(connection, typeof(T));
 
         public static EntityQuery GetCreateEntityQuery<T>(this SqlDbConnection connection) => GetCreateEntityQuery(connection, typeof(T));
 

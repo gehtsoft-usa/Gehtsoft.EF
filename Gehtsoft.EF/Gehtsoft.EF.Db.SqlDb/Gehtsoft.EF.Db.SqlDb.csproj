@@ -56,7 +56,14 @@
     <Compile Include="EntityQueries\EntityDiscovery\NamingPolicyManager.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\StandardEntityDiscoverer.cs" />
     <Compile Include="EntityQueries\EntityQueryBuilder\EntityConditionBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\EntityQueryBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\EntityQueryWithWhereBuilder.cs" />
     <Compile Include="EntityQueries\EntityQueryBuilder\EntityQueryWithWhereBuilderBackwardCompatibility.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\ModifyEntityQuery.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityCountQueryBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityQueryBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityQueryBuilderBase.cs" />
+    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityTreeQueryBuilder.cs" />
     <Compile Include="EntityQueries\EntityQuery\ConditionEntityQueryBase.cs" />
     <Compile Include="EntityQueries\CreateEntity\CreateEntityController.cs" />
     <Compile Include="EntityQueries\EntityQuery\ConditionEntityQueryBaseBackwardCompatibility.cs" />
@@ -67,8 +74,6 @@
     <Compile Include="EntityQueries\EntityConnection.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\AllEntities.cs" />
     <Compile Include="EntityQueries\EntityQuery\EntityQuery.cs" />
-    <Compile Include="EntityQueries\EntityQueryBuilder\EntityQueryBuilder.cs" />
-    <Compile Include="EntityQueries\EntityQueryBuilder\EntityQueryWithWhereBuilder.cs" />
     <Compile Include="EntityQueries\EntityQuery\EntityQueryConditionBuilder.cs" />
     <Compile Include="EntityQueries\IEntitySerializationCallback.cs" />
     <Compile Include="EntityQueries\EntityQuery\SelectEntitiesTreeQuery.cs" />
@@ -81,12 +86,7 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
     <Compile Include="EntityQueries\Linq\SqlFunctions.cs" />
-    <Compile Include="EntityQueries\EntityQueryBuilder\ModifyEntityQuery.cs" />
-    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityCountQueryBuilder.cs" />
-    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityQueryBuilder.cs" />
-    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityQueryBuilderBase.cs" />
     <Compile Include="EntityQueries\EntityQuery\SelectEntityQueryBuilderBaseReader.cs" />
-    <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityTreeQueryBuilder.cs" />
     <Compile Include="EntityQueries\EntityQuery\SelectEntityQueryFilter.cs" />
     <Compile Include="EntityQueries\EntityQuery\ModifyEntityQuery.cs" />
     <Compile Include="EntityQueries\EntityQuery\MultiDeleteEntityQuery.cs" />
@@ -114,6 +114,7 @@
     <Compile Include="QueryBuilder\InsertSelectQueryBuilder.cs" />
     <Compile Include="QueryBuilder\QueryBuilder.cs" />
     <Compile Include="QueryBuilder\QueryWithWhereBuilder.cs" />
+    <Compile Include="QueryBuilder\RawSqlQueryBuilder.cs" />
     <Compile Include="QueryBuilder\SelectQueryBuilder.cs" />
     <Compile Include="QueryBuilder\TableDdlBuilder.cs" />
     <Compile Include="QueryBuilder\TableDescriptor.cs" />

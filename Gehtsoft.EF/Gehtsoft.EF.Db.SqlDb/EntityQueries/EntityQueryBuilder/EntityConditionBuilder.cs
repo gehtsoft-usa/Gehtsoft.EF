@@ -6,13 +6,13 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-    public interface IEntityInfoProvider
+    internal interface IEntityInfoProvider
     {
         string Alias(string path, out DbType columnType);
         string Alias(Type type, int occurrence, string propertyName, out DbType columnType);
     }
 
-    public class SingleEntityConditionBuilder
+    internal class SingleEntityConditionBuilder
     {
         private readonly EntityConditionBuilder mBuilder;
         private readonly LogOp mLogOp;
@@ -70,7 +70,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public virtual SingleEntityConditionBuilder Query(AQueryBuilder queryBuilder) => Raw(mBuilder.Query(queryBuilder));
     }
 
-    public class EntityConditionBuilder
+    internal class EntityConditionBuilder
     {
         public ConditionBuilder ConditionBuilder { get; }
         public IEntityInfoProvider EntityInfoProvider { get; }
@@ -93,19 +93,22 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public virtual string PropertyOfName<T>(string name, int occurrence = 0) => EntityInfoProvider.Alias(typeof(T), occurrence, name, out DbType _);
 
-        public virtual string Parameter(string parameterName) => ConditionBuilder.Parameter(parameterName);
+        public virtual string Parameter(string parameterName) => ConditionBuilder.ParameterName(parameterName);
 
-        public virtual string Parameters(string[] parameterNames) => ConditionBuilder.Parameters(parameterNames);
+        public virtual string Parameters(string[] parameterNames) => ConditionBuilder.ParameterList(parameterNames);
 
         public virtual string Query(AQueryBuilder queryBuilder) => ConditionBuilder.Query(queryBuilder);
 
         public virtual OpBracket AddGroup(LogOp logOp = LogOp.And) => ConditionBuilder.AddGroup(logOp);
 
-        public override string ToString() => ConditionBuilder.ToString();
+        public override string ToString()
+        {
+            return ConditionBuilder.ToString();
+        }
     }
 
     //syntax sugars for where and having filters
-    public static class EntityConditionBuilderExtension
+    internal static class EntityConditionBuilderExtension
     {
         public static SingleEntityConditionBuilder And(this EntityConditionBuilder builder) => new SingleEntityConditionBuilder(LogOp.And, builder);
         public static SingleEntityConditionBuilder Or(this EntityConditionBuilder builder) => new SingleEntityConditionBuilder(LogOp.Or, builder);

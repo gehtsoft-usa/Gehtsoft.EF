@@ -5,9 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Gehtsoft.EF.Test.SqlParser;
 using Xunit;
 
-namespace Gehtsoft.EF.Test.SqlParser
+namespace Gehtsoft.EF.TestInfrastructure.Test.SqlParser
 {
     public class SqlParserTest
     {

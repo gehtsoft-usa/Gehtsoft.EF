@@ -10,7 +10,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     public class SelectEntitiesQuery : SelectEntitiesQueryBase
     {
-        protected SelectEntityQueryBuilder mSelectBuilder1;
+        internal SelectEntityQueryBuilder mSelectBuilder1;
         protected bool mIsEntityCallback;
         protected bool mIsPostReadCallback;
         private static readonly Type entityCallbackType = typeof(IEntitySerializationCallback);

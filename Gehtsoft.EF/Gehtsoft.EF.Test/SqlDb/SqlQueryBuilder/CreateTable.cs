@@ -689,8 +689,4 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
                 .And.Match(n => n.SelectNode("/TABLE_NAME/IDENTIFIER(tableName)", 1) != null);
         }
     }
-
-    public class AlterTable
-    {
-    }
 }

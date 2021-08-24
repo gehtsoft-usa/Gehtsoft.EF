@@ -57,6 +57,8 @@ namespace Gehtsoft.EF.Entities
         private IOpBracketAcceptor mAcceptor;
         public LogOp LogOp { get; }
 
+        public event EventHandler OnClose;
+
         public OpBracket(IOpBracketAcceptor acceptor, LogOp op)
         {
             mAcceptor = acceptor;
@@ -65,6 +67,8 @@ namespace Gehtsoft.EF.Entities
 
         public void Dispose()
         {
+            OnClose?.Invoke(this, EventArgs.Empty);
+
             if (mAcceptor != null)
                 mAcceptor.BracketClosed(this);
             mAcceptor = null;

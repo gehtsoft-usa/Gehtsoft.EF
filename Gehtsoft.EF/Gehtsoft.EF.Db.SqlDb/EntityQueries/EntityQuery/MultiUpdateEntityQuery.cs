@@ -2,7 +2,7 @@
 {
     public class MultiUpdateEntityQuery : ConditionEntityQueryBase
     {
-        protected readonly UpdateEntityQueryBuilder mUpdateBuilder;
+        internal readonly UpdateEntityQueryBuilder mUpdateBuilder;
 
         internal MultiUpdateEntityQuery(SqlDbQuery query, UpdateEntityQueryBuilder builder) : base(query, builder)
         {

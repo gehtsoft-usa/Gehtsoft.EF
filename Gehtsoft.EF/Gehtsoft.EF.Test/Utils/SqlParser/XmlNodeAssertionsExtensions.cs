@@ -65,7 +65,7 @@ namespace Gehtsoft.EF.Test.SqlParser
                 .FailWith("Expected {context:node} to contain a node at the path {0}, but it does not", path)
                 .Then
                 .ForCondition(node => predicate.Compile()(node.SelectNode(path)))
-                .FailWith("Expected {context:node} to contain a node at the path {0} and matching the predicate {1} but node {2} does not match", path, predicate, Subject.SelectNode(path));
+                .FailWith("Expected {context:node} to contain a node at the path {0} and matching the predicate but node {1} does not match", path, Subject.SelectNode(path));
 
             return new AndConstraint<AstNodeAssertions>(this);
         }

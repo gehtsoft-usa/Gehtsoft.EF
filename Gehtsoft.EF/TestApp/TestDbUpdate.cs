@@ -177,8 +177,8 @@ namespace TestApp
         {
             public SelectQueryBuilder GetSelectQuery(SqlDbConnection connection)
             {
-                var builder = connection.GetSelectEntityQueryBuilder<Entity1>();
-                return builder.SelectQueryBuilder;
+                using var query = connection.GetSelectEntitiesQuery<Entity1>();
+                return query.SelectBuilder;
             }
         }
 
@@ -221,8 +221,8 @@ namespace TestApp
         {
             public SelectQueryBuilder GetSelectQuery(SqlDbConnection connection)
             {
-                var builder = connection.GetSelectEntityQueryBuilder<Entity1_2>();
-                return builder.SelectQueryBuilder;
+                using var query = connection.GetSelectEntitiesQuery<Entity1_2>();
+                return query.SelectBuilder;
             }
         }
 

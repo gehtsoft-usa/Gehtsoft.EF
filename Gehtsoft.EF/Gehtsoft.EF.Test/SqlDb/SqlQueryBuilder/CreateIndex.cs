@@ -6,6 +6,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Test.Entity.Utils;
 using Gehtsoft.EF.Test.SqlParser;
 using Gehtsoft.EF.Test.Utils.DummyDb;
 using Xunit;
@@ -143,6 +144,5 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             index.SelectNode("//SORT_SPECIFICATION[2]/FIELD/IDENTIFIER").Should().HaveValue("f2");
             index.SelectNode("//SORT_SPECIFICATION[3]/FIELD/IDENTIFIER").Should().HaveValue("f3");
         }
-
     }
 }

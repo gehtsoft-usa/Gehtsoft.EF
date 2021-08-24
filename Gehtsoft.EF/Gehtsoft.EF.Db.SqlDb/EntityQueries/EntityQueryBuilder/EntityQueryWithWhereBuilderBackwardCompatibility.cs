@@ -4,7 +4,7 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-    public static class EntityQueryWithWhereBuilderBackwardCompatibility
+    internal static class EntityQueryWithWhereBuilderBackwardCompatibility
     {
         [Obsolete("Use Where property of the entity query builder instead")]
         public static void AddWhereFilter(this EntityQueryWithWhereBuilder builder, string propertyName, CmpOp op, string parameterName)

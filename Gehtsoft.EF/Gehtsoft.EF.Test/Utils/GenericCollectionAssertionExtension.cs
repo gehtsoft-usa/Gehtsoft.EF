@@ -24,7 +24,22 @@ namespace Gehtsoft.EF.Test.Entity.Utils
                .FailWith("Expected {context:the collection} to exists but it does not")
                .Then
                .ForCondition(e => e.Any(i => p(i)))
-               .FailWith("Expected {context:the collection} have element matching {0} but it does not", predicate);
+               .FailWith("Expected {context:the collection} have element matching predicate but it does not");
+
+            return new AndConstraint<GenericCollectionAssertions<T>>(collection);
+        }
+
+        public static AndConstraint<GenericCollectionAssertions<T>> HaveElementMatchingAt<T>(this GenericCollectionAssertions<T> collection, int index, Expression<Func<T, bool>> predicate, string because = null, params object[] args)
+        {
+            var p = predicate.Compile();
+            Execute.Assertion
+               .BecauseOf(because, args)
+               .Given(() => collection.Subject)
+               .ForCondition(e => e != null)
+               .FailWith("Expected {context:the collection} to exists but it does not")
+               .Then
+               .ForCondition(e => e.Skip(index).Take(1).Any(i => p(i)))
+               .FailWith("Expected {context:the collection} have element matching predicate at {1} but it does not", index);
 
             return new AndConstraint<GenericCollectionAssertions<T>>(collection);
         }
@@ -36,7 +51,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
                .BecauseOf(because, args)
                .Given(() => collection.Subject)
                .ForCondition(e => e == null || !e.Any(i => p(i)))
-               .FailWith("Expected {context:the collection} have element matching {0} but it does not", predicate);
+               .FailWith("Expected {context:the collection} have element matching predicate but it does not");
 
             return new AndConstraint<GenericCollectionAssertions<T>>(collection);
         }
@@ -48,7 +63,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
                .BecauseOf(because, args)
                .Given(() => collection.Subject)
                .ForCondition(e => e.All(i => p(i)))
-               .FailWith("Expected {context:the collection} have element matching {0} but it does not", predicate);
+               .FailWith("Expected {context:the collection} have element matching predicate but it does not");
 
             return new AndConstraint<GenericCollectionAssertions<T>>(collection);
         }

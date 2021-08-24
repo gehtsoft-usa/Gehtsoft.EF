@@ -30,9 +30,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
             Type targetType = typeof(T);
 
-            for (int column = 0; column < mQuery.SelectBuilder.SelectQueryBuilder.Resultset.Count; column++)
+            for (int column = 0; column < mQuery.SelectEntityBuilder.SelectQueryBuilder.Resultset.Count; column++)
             {
-                var item = mQuery.SelectBuilder.SelectQueryBuilder.Resultset[column];
+                var item = mQuery.SelectEntityBuilder.SelectQueryBuilder.Resultset[column];
 
                 if (!string.IsNullOrEmpty(item.Alias))
                 {
@@ -155,9 +155,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
 
-            for (int column = 0; column < mQuery.SelectBuilder.SelectQueryBuilder.Resultset.Count; column++)
+            for (int column = 0; column < mQuery.SelectEntityBuilder.SelectQueryBuilder.Resultset.Count; column++)
             {
-                var item = mQuery.SelectBuilder.SelectQueryBuilder.Resultset[column];
+                var item = mQuery.SelectEntityBuilder.SelectQueryBuilder.Resultset[column];
                 if (item.Alias == name)
                     return column;
             }

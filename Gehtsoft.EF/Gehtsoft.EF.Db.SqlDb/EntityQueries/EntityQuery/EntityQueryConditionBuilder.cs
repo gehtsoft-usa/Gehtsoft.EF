@@ -20,6 +20,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public SingleEntityQueryConditionBuilder(LogOp logop, EntityQueryConditionBuilder builder)
         {
             Builder = builder;
+            Builder.SetCurrentSingleEntityQueryConditionBuilder(this);
             mLogOp = logop;
             Left = Right = null;
         }
@@ -49,7 +50,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     throw new InvalidOperationException("Right side is already set");
 
                 Right = raw;
-                Push();
             }
 
             return this;
@@ -58,8 +58,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public virtual SingleEntityQueryConditionBuilder Is(CmpOp op)
         {
             mCmpOp = op;
-            if (op == CmpOp.IsNull || op == CmpOp.NotNull)
-                Push();
             return this;
         }
 
@@ -107,9 +105,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public SingleEntityQueryConditionBuilder Query(SelectEntitiesQueryBase query)
         {
+            query.Where.SetCurrentSingleEntityQueryConditionBuilder(null);
             Builder.BaseQuery.CopyParametersFrom(query);
             SelectQueryBuilderResultsetItem firstColumn = query.ResultColumn(0);
-            return Raw(Builder.Query(query.Builder.QueryBuilder), firstColumn.DbType);
+            return Raw(Builder.Query(query.EntityQueryBuilder.QueryBuilder), firstColumn.DbType);
         }
 
         public SingleEntityQueryConditionBuilder Value(object value, DbType? valueDbType = null)
@@ -166,27 +165,50 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         internal protected void Push()
         {
-            Builder.BaseWhere.ConditionBuilder.RecordPosition();
-            Builder.Add(mLogOp, Left, mCmpOp ?? CmpOp.Eq, Right);
+            if (mCmpOp == null)
+                Builder.Add(mLogOp, Left);
+            else
+                Builder.Add(mLogOp, Left, (CmpOp)mCmpOp, Right);
         }
     }
 
     public class EntityQueryConditionBuilder
     {
         public ConditionEntityQueryBase BaseQuery { get; }
-        public EntityConditionBuilder BaseWhere { get; }
+        internal EntityConditionBuilder BaseWhere { get; }
 
-        public EntityQueryConditionBuilder(ConditionEntityQueryBase query, EntityConditionBuilder builder)
+        internal EntityQueryConditionBuilder(ConditionEntityQueryBase query, EntityConditionBuilder builder)
         {
             BaseQuery = query;
             BaseWhere = builder;
         }
 
+        private SingleEntityQueryConditionBuilder mCurrentBuilder = null;
+
+        internal void SetCurrentSingleEntityQueryConditionBuilder(SingleEntityQueryConditionBuilder currentBuilder)
+        {
+            if (mCurrentBuilder != null)
+            {
+                var c = mCurrentBuilder;
+                mCurrentBuilder = null;
+                c.Push();
+            }
+            mCurrentBuilder = currentBuilder;
+        }
+
         public SingleEntityQueryConditionBuilder Add(LogOp logOp = LogOp.And) => new SingleEntityQueryConditionBuilder(logOp, this);
 
-        public virtual void Add(LogOp logOp, string rawExpression) => BaseWhere.Add(logOp, rawExpression);
+        public virtual void Add(LogOp logOp, string rawExpression)
+        {
+            SetCurrentSingleEntityQueryConditionBuilder(null);
+            BaseWhere.Add(logOp, rawExpression);
+        }
 
-        public virtual void Add(LogOp logOp, string left, CmpOp op, string right) => BaseWhere.Add(logOp, left, op, right);
+        public virtual void Add(LogOp logOp, string left, CmpOp op, string right)
+        {
+            SetCurrentSingleEntityQueryConditionBuilder(null);
+            BaseWhere.Add(logOp, left, op, right);
+        }
 
         public virtual string PropertyName(string propertyPath) => propertyPath == null ? null : BaseWhere.PropertyName(propertyPath);
 
@@ -215,12 +237,22 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public virtual string Query(SelectEntitiesQueryBase query)
         {
             BaseQuery.CopyParametersFrom(query);
-            return Query(query.Builder.QueryBuilder);
+            return Query(query.EntityQueryBuilder.QueryBuilder);
         }
 
-        public virtual OpBracket AddGroup(LogOp logOp = LogOp.And) => BaseWhere.AddGroup(logOp);
+        public virtual OpBracket AddGroup(LogOp logOp = LogOp.And)
+        {
+            SetCurrentSingleEntityQueryConditionBuilder(null);
+            var g = BaseWhere.AddGroup(logOp);
+            g.OnClose += (s, e) => this.SetCurrentSingleEntityQueryConditionBuilder(null);
+            return g;
+        }
 
-        public override string ToString() => BaseWhere.ToString();
+        public override string ToString()
+        {
+            SetCurrentSingleEntityQueryConditionBuilder(null);
+            return BaseWhere.ToString();
+        }
     }
 
     public static class EntityQueryConditionBuilderExtension
@@ -327,11 +359,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         internal static SingleEntityQueryConditionBuilder Wrap(this SingleEntityQueryConditionBuilder builder, SqlFunctionId function)
         {
             if (builder.Right != null)
-            {
-                builder.Builder.BaseWhere.ConditionBuilder.UnwindToPosition();
                 builder.Right = builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Right });
-                builder.Push();
-            }
             else if (builder.Left != null)
                 builder.Left = builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Left });
             else if (function == SqlFunctionId.Count)

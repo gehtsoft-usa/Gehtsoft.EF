@@ -3,10 +3,11 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using FluentAssertions;
+using Gehtsoft.EF.Test.Utils;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
-namespace Gehtsoft.EF.Test.Utils
+namespace Gehtsoft.EF.TestInfrastructure.Test.Utils
 {
     public class TestAppConfiguration
     {

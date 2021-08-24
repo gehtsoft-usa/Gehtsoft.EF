@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
@@ -27,10 +29,13 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         internal string Left { get; set; }
 
+        internal bool HasOp => mCmpOp != null;
+
         internal SingleConditionBuilder(ConditionBuilder builder, LogOp logOp)
         {
             Builder = builder;
             mLogOp = logOp;
+            builder.SetCurrentSignleConditionBuilder(this);
         }
 
         public SingleConditionBuilder Raw(string rawExpression)
@@ -42,10 +47,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (mCmpOp == null)
                 Left = rawExpression;
             else
-            {
                 Right = rawExpression;
-                Push();
-            }
             return this;
         }
 
@@ -57,25 +59,40 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public SingleConditionBuilder Property(TableDescriptor.ColumnInfo columnInfo) => Raw(Builder.PropertyName(columnInfo));
 
-        public SingleConditionBuilder Parameter(string name) => Raw(Builder.Parameter(name));
+        public SingleConditionBuilder Parameter(string name) => Raw(Builder.ParameterName(name));
 
-        public SingleConditionBuilder Parameters(params string[] names) => Raw(Builder.Parameters(names));
+        public SingleConditionBuilder Parameters(params string[] names) => Raw(Builder.ParameterList(names));
 
         public SingleConditionBuilder Query(AQueryBuilder builder) => Raw(Builder.Query(builder));
 
         public SingleConditionBuilder Is(CmpOp op)
         {
             mCmpOp = op;
-            if (op == CmpOp.IsNull || op == CmpOp.NotNull)
-                Push();
-
             return this;
         }
 
+        public SingleConditionBuilder Add(LogOp op) => Builder.Add(op);
+
         internal void Push()
         {
-            Builder.RecordPosition();
-            Builder.Add(mLogOp, Left, (CmpOp)mCmpOp, Right);
+            if (mCmpOp == null)
+                Builder.Add(mLogOp, Left);
+            else
+                Builder.Add(mLogOp, Left, (CmpOp)mCmpOp, Right);
+        }
+    }
+
+    public interface IInQueryFieldReference
+    {
+        string Alias { get; }
+    }
+
+    internal class InQueryFieldReference : IInQueryFieldReference
+    {
+        public string Alias { get; }
+        public InQueryFieldReference(string alias)
+        {
+            Alias = alias;
         }
     }
 
@@ -97,6 +114,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public static SingleConditionBuilder In(this SingleConditionBuilder builder) => builder.Is(CmpOp.In);
 
+        public static SingleConditionBuilder IsNull(this SingleConditionBuilder builder) => builder.Is(CmpOp.IsNull);
+        public static SingleConditionBuilder NotNull(this SingleConditionBuilder builder) => builder.Is(CmpOp.NotNull);
+
         public static SingleConditionBuilder NotIn(this SingleConditionBuilder builder) => builder.Is(CmpOp.NotIn);
 
         public static SingleConditionBuilder Exists(this SingleConditionBuilder builder) => builder.Is(CmpOp.Exists);
@@ -109,22 +129,40 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public static SingleConditionBuilder Value(this SingleConditionBuilder builder, string value) => builder.Raw($"\"{value}\"");
 
-        public static SingleConditionBuilder Reference(this SingleConditionBuilder builder, ConditionEntityQueryBase.InQueryName reference) => builder.Raw(reference.Alias);
+        public static SingleConditionBuilder Reference(this SingleConditionBuilder builder, IInQueryFieldReference reference) => builder.Raw(reference.Alias);
 
         internal static SingleConditionBuilder Wrap(this SingleConditionBuilder builder, SqlFunctionId function)
         {
-            if (builder.Right != null)
+            bool done = false;
+            if (builder.HasOp)
             {
-                builder.Builder.UnwindToPosition();
-                builder.Right = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Right });
-                builder.Push();
+                if (builder.Right != null)
+                {
+                    builder.Right = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Right });
+                    done = true;
+                }
+                else if (function == SqlFunctionId.Count)
+                {
+                    builder.Right = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, Array.Empty<string>());
+                    done = true;
+                }
             }
-            else if (builder.Left != null)
-                builder.Left = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Left });
-            else if (function == SqlFunctionId.Count)
-                builder.Left = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, Array.Empty<string>());
             else
+            {
+                if (builder.Left != null)
+                {
+                    builder.Left = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Left });
+                    done = true;
+                }
+                else if (function == SqlFunctionId.Count)
+                {
+                    builder.Left = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, Array.Empty<string>());
+                    done = true;
+                }
+            }
+            if (!done)
                 throw new InvalidOperationException("Nothing to process with a function");
+
             return builder;
         }
 
@@ -145,22 +183,79 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public static SingleConditionBuilder Lower(this SingleConditionBuilder builder) => builder.Wrap(SqlFunctionId.Lower);
 
         public static SingleConditionBuilder Abs(this SingleConditionBuilder builder) => builder.Wrap(SqlFunctionId.Abs);
+
+        public static SingleConditionBuilder And(this SingleConditionBuilder builder) => builder.Add(LogOp.And);
+
+        public static SingleConditionBuilder Or(this SingleConditionBuilder builder) => builder.Add(LogOp.Or);
+
+        public static SingleConditionBuilder AndNot(this SingleConditionBuilder builder) => builder.Add(LogOp.And | LogOp.Not);
+
+        public static SingleConditionBuilder OrNot(this SingleConditionBuilder builder) => builder.Add(LogOp.Or | LogOp.Not);
+
+        public static ConditionBuilder And(this SingleConditionBuilder builder, Action<ConditionBuilder> action)
+        {
+            builder.Builder.And(action);
+            return builder.Builder;
+        }
+
+        public static ConditionBuilder Or(this SingleConditionBuilder builder, Action<ConditionBuilder> action)
+        {
+            builder.Builder.Or(action);
+            return builder.Builder;
+        }
+
+        public static ConditionBuilder AndNot(this SingleConditionBuilder builder, Action<ConditionBuilder> action)
+        {
+            builder.Builder.AndNot(action);
+            return builder.Builder;
+        }
+
+        public static ConditionBuilder OrNot(this SingleConditionBuilder builder, Action<ConditionBuilder> action)
+        {
+            builder.Builder.OrNot(action);
+            return builder.Builder;
+        }
     }
 
     public class ConditionBuilder : IOpBracketAcceptor
     {
         private readonly StringBuilder mWhere = new StringBuilder();
+
         private bool mConditionStarted = false;
+
         public IConditionBuilderInfoProvider InfoProvider { get; protected set; }
-        public bool IsEmpty => mWhere.Length == 0;
+
+        public bool IsEmpty
+        {
+            get
+            {
+                SetCurrentSignleConditionBuilder(null);
+                return mWhere.Length == 0;
+            }
+        }
 
         public ConditionBuilder(IConditionBuilderInfoProvider infoProvider)
         {
             InfoProvider = infoProvider;
         }
 
+        private SingleConditionBuilder mCurrentSingleConditionBuilder = null;
+
+        internal void SetCurrentSignleConditionBuilder(SingleConditionBuilder singleConditionBuilder)
+        {
+            if (mCurrentSingleConditionBuilder != null)
+            {
+                var c = mCurrentSingleConditionBuilder;
+                mCurrentSingleConditionBuilder = null;
+                c.Push();
+            }
+            mCurrentSingleConditionBuilder = singleConditionBuilder;
+        }
+
         public virtual void Add(LogOp logOp, string rawExpression)
         {
+            SetCurrentSignleConditionBuilder(null);
+
             if (string.IsNullOrWhiteSpace(rawExpression))
                 return;
 
@@ -178,26 +273,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mConditionStarted = true;
         }
 
-        private int mPosition = -1;
-
-        public virtual void RecordPosition()
-        {
-            mPosition = mWhere.Length;
-        }
-
-        public virtual void UnwindToPosition()
-        {
-            if (mPosition == -1)
-                throw new InvalidOperationException("Position is not saved");
-            else if (mPosition == 0)
-            {
-                mConditionStarted = false;
-                mWhere.Clear();
-            }
-            else
-                mWhere.Remove(mPosition, mWhere.Length - mPosition);
-        }
-
         public virtual void Add(LogOp logOp, string leftSide, CmpOp cmpOp, string rightSide) => Add(logOp, InfoProvider.Specifics.GetOp(cmpOp, leftSide, rightSide));
 
         public virtual void Add(string leftSide, CmpOp cmpOp, string rightSide) => Add(LogOp.And, InfoProvider.Specifics.GetOp(cmpOp, leftSide, rightSide));
@@ -210,7 +285,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public virtual string PropertyName(AggFn aggFn, TableDescriptor.ColumnInfo columnDescriptor) => InfoProvider.Specifics.GetAggFn(aggFn, InfoProvider.GetAlias(columnDescriptor, null));
 
-        public virtual string Parameter(string parameterName)
+        public virtual string ParameterName(string parameterName)
         {
             if (parameterName == null)
                 return null;
@@ -221,7 +296,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             return parameterName;
         }
 
-        public virtual string Parameters(string[] parameterNames)
+        public virtual string ParameterList(string[] parameterNames)
         {
             StringBuilder parameterName = new StringBuilder();
             foreach (string s in parameterNames)
@@ -229,7 +304,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 if (parameterName.Length > 0)
                     parameterName.Append(',');
 
-                parameterName.Append(Parameter(s));
+                parameterName.Append(ParameterName(s));
             }
             return parameterName.ToString();
         }
@@ -243,6 +318,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public virtual OpBracket AddGroup(LogOp logOp = LogOp.And)
         {
+            SetCurrentSignleConditionBuilder(null);
             if (!mConditionStarted)
             {
                 if ((logOp & LogOp.Not) == LogOp.Not)
@@ -258,15 +334,25 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public virtual void BracketClosed(OpBracket op)
         {
+            SetCurrentSignleConditionBuilder(null);
             if (!mConditionStarted)
                 throw new EfSqlException(EfExceptionCode.WhereBracketIsEmpty);
             mWhere.Append(")");
             mWhere.Append(InfoProvider.Specifics.CloseLogOp(op.LogOp));
         }
 
-        public override string ToString() => mWhere.ToString();
-
+        public override string ToString()
+        {
+            SetCurrentSignleConditionBuilder(null);
+            return mWhere.ToString();
+        }
         public SingleConditionBuilder Add(LogOp logOp) => new SingleConditionBuilder(this, logOp);
+
+        public void Add(LogOp logOp, Action<ConditionBuilder> builder)
+        {
+            using (var bracket = AddGroup(logOp))
+                builder.Invoke(this);
+        }
     }
 
     public static class ConditionBuilderExtension
@@ -275,11 +361,35 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public static SingleConditionBuilder Or(this ConditionBuilder builder) => new SingleConditionBuilder(builder, LogOp.Or);
 
+        public static SingleConditionBuilder Not(this ConditionBuilder builder) => AndNot(builder);
+
+        public static SingleConditionBuilder OrNot(this ConditionBuilder builder) => new SingleConditionBuilder(builder, LogOp.Or | LogOp.Not);
+
+        public static SingleConditionBuilder AndNot(this ConditionBuilder builder) => new SingleConditionBuilder(builder, LogOp.And | LogOp.Not);
+
+        public static void And(this ConditionBuilder builder, Action<ConditionBuilder> action) => builder.Add(LogOp.And, action);
+
+        public static void Or(this ConditionBuilder builder, Action<ConditionBuilder> action) => builder.Add(LogOp.Or, action);
+
+        public static void AndNot(this ConditionBuilder builder, Action<ConditionBuilder> action) => builder.Add(LogOp.And | LogOp.Not, action);
+
+        public static void OrNot(this ConditionBuilder builder, Action<ConditionBuilder> action) => builder.Add(LogOp.Or | LogOp.Not, action);
+
         public static SingleConditionBuilder Property(this ConditionBuilder builder, QueryBuilderEntity entity, TableDescriptor.ColumnInfo columnInfo) => builder.Raw(builder.PropertyName(entity, columnInfo));
 
         public static SingleConditionBuilder Property(this ConditionBuilder builder, TableDescriptor.ColumnInfo columnInfo) => builder.Raw(builder.PropertyName(columnInfo));
 
-        public static SingleConditionBuilder Reference(this ConditionBuilder builder, ConditionEntityQueryBase.InQueryName reference) => builder.Raw(reference.Alias);
+        public static SingleConditionBuilder Property(this ConditionBuilder builder, AggFn fn, QueryBuilderEntity entity, TableDescriptor.ColumnInfo columnInfo) => builder.Raw(builder.PropertyName(fn, entity, columnInfo));
+
+        public static SingleConditionBuilder Property(this ConditionBuilder builder, AggFn fn, TableDescriptor.ColumnInfo columnInfo) => builder.Raw(builder.PropertyName(fn, columnInfo));
+
+        public static SingleConditionBuilder Parameter(this ConditionBuilder builder, string parameter)
+        {
+            var b = new SingleConditionBuilder(builder, LogOp.And);
+            return b.Parameter(parameter);
+        }
+
+        public static SingleConditionBuilder Reference(this ConditionBuilder builder, IInQueryFieldReference reference) => builder.Raw(reference.Alias);
 
         public static SingleConditionBuilder Exists(this ConditionBuilder builder)
         {

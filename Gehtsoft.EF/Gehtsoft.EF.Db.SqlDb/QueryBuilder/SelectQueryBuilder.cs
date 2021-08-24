@@ -285,6 +285,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             query.Append(" FROM ");
             query.Append(BuildFrom());
 
+            Where.SetCurrentSignleConditionBuilder(null);
             if (!Where.IsEmpty)
             {
                 query.Append(" WHERE ");
@@ -294,6 +295,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (mGroupBy.Count > 0)
                 query.Append(BuildGroupBy());
 
+            Having.SetCurrentSignleConditionBuilder(null);
             if (!Having.IsEmpty)
             {
                 query.Append(" HAVING ");
@@ -491,6 +493,10 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
 
         public TableDescriptor QueryTableDescriptor => GetTableDescriptor();
+
+        public override IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column) => new InQueryFieldReference(GetAlias(column, null));
+
+        public virtual IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity) => new InQueryFieldReference(GetAlias(column, entity));
     }
 
     public static class SelectQueryWithWhereBuilderBackwardCompatibilityExtension
@@ -503,11 +509,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, LogOp logOp, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string parameterName = null)
-            => builder.Having.Add(logOp, builder.Having.PropertyName(entity, columnInfo), cmpOp, builder.Having.Parameter(parameterName));
+            => builder.Having.Add(logOp, builder.Having.PropertyName(entity, columnInfo), cmpOp, builder.Having.ParameterName(parameterName));
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, LogOp logOp, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string[] parameterNames)
-            => builder.Having.Add(logOp, builder.Having.PropertyName(entity, columnInfo), cmpOp, builder.Having.Parameters(parameterNames));
+            => builder.Having.Add(logOp, builder.Having.PropertyName(entity, columnInfo), cmpOp, builder.Having.ParameterList(parameterNames));
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, LogOp logOp, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, AQueryBuilder subquery)
@@ -515,11 +521,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, LogOp logOp, AggFn aggFn, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string parameterName = null)
-            => builder.Having.Add(logOp, builder.Having.PropertyName(aggFn, entity, columnInfo), cmpOp, builder.Having.Parameter(parameterName));
+            => builder.Having.Add(logOp, builder.Having.PropertyName(aggFn, entity, columnInfo), cmpOp, builder.Having.ParameterName(parameterName));
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, LogOp logOp, AggFn aggFn, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string[] parameterNames)
-            => builder.Having.Add(logOp, builder.Having.PropertyName(aggFn, entity, columnInfo), cmpOp, builder.Having.Parameters(parameterNames));
+            => builder.Having.Add(logOp, builder.Having.PropertyName(aggFn, entity, columnInfo), cmpOp, builder.Having.ParameterList(parameterNames));
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, LogOp logOp, AggFn aggFn, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, AQueryBuilder subquery)
@@ -531,18 +537,18 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, LogOp logOp, SelectQueryBuilderResultsetItem rsItem, CmpOp cmpOp, string parameterName = null)
-            => builder.Having.Add(logOp, rsItem.Expression, cmpOp, builder.Having.Parameter(parameterName));
+            => builder.Having.Add(logOp, rsItem.Expression, cmpOp, builder.Having.ParameterName(parameterName));
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static OpBracket AddHavingGroup(this SelectQueryBuilder builder, LogOp logOp) => builder.Having.AddGroup(logOp);
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string parameterName = null)
-            => builder.Having.Add(LogOp.And, builder.Having.PropertyName(entity, columnInfo), cmpOp, builder.Having.Parameter(parameterName));
+            => builder.Having.Add(LogOp.And, builder.Having.PropertyName(entity, columnInfo), cmpOp, builder.Having.ParameterName(parameterName));
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string[] parameterNames)
-            => builder.Having.Add(LogOp.And, builder.Having.PropertyName(entity, columnInfo), cmpOp, builder.Having.Parameters(parameterNames));
+            => builder.Having.Add(LogOp.And, builder.Having.PropertyName(entity, columnInfo), cmpOp, builder.Having.ParameterList(parameterNames));
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, AQueryBuilder subquery)
@@ -550,11 +556,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, AggFn aggFn, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string parameterName = null)
-            => builder.Having.Add(LogOp.And, builder.Having.PropertyName(aggFn, entity, columnInfo), cmpOp, builder.Having.Parameter(parameterName));
+            => builder.Having.Add(LogOp.And, builder.Having.PropertyName(aggFn, entity, columnInfo), cmpOp, builder.Having.ParameterName(parameterName));
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, AggFn aggFn, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string[] parameterNames)
-            => builder.Having.Add(LogOp.And, builder.Having.PropertyName(aggFn, entity, columnInfo), cmpOp, builder.Having.Parameters(parameterNames));
+            => builder.Having.Add(LogOp.And, builder.Having.PropertyName(aggFn, entity, columnInfo), cmpOp, builder.Having.ParameterList(parameterNames));
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, AggFn aggFn, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, AQueryBuilder subquery)
@@ -566,7 +572,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static void AddHaving(this SelectQueryBuilder builder, SelectQueryBuilderResultsetItem rsItem, CmpOp cmpOp, string parameterName = null)
-            => builder.Having.Add(LogOp.And, rsItem.Expression, cmpOp, builder.Having.Parameter(parameterName));
+            => builder.Having.Add(LogOp.And, rsItem.Expression, cmpOp, builder.Having.ParameterName(parameterName));
 
         [Obsolete("Upgrade your code to using query Having property")]
         public static OpBracket AddHavingGroup(this SelectQueryBuilder builder) => builder.Having.AddGroup(LogOp.And);

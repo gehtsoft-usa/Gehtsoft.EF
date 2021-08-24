@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
@@ -16,9 +17,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         protected internal string NextParam => $"{WhereParamPrefix}{mAutoParam++}";
 
-        protected readonly EntityQueryWithWhereBuilder mConditionQueryBuilder;
+        internal readonly EntityQueryWithWhereBuilder mConditionQueryBuilder;
 
-        public EntityQueryWithWhereBuilder ConditionQueryBuilder => mConditionQueryBuilder;
+        internal EntityQueryWithWhereBuilder ConditionQueryBuilder => mConditionQueryBuilder;
 
         public EntityQueryConditionBuilder Where { get; protected set; }
 
@@ -59,12 +60,18 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return mConditionQueryBuilder.FindPath(path);
         }
 
+        protected override void PrepareQuery()
+        {
+            Where.SetCurrentSingleEntityQueryConditionBuilder(null);
+            base.PrepareQuery();
+        }
+
         internal EntityQueryWithWhereBuilder.EntityQueryItem GetItem(Type type, string property, int occurrence = 0)
         {
             return mConditionQueryBuilder.FindItem(property, type, occurrence);
         }
 
-        public class InQueryName
+        public class InQueryName : IInQueryFieldReference
         {
             internal EntityQueryWithWhereBuilder.EntityQueryItem Item { get; }
 

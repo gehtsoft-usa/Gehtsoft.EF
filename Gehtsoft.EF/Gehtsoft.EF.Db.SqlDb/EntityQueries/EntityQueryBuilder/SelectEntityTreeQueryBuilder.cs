@@ -4,7 +4,7 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-    public class SelectEntityTreeQueryBuilder : SelectEntityQueryBuilderBase
+    internal class SelectEntityTreeQueryBuilder : SelectEntityQueryBuilderBase
     {
         private static int mRootID;
 

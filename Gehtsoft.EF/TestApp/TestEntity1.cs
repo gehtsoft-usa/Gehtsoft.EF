@@ -517,7 +517,7 @@ namespace TestApp
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery(typeof(Employee)))
             {
-                query.SelectBuilder.AddOrderBy(nameof(Employee.ID));
+                query.AddOrderBy(nameof(Employee.ID));
                 query.Execute();
                 EntityCollection<Employee> coll = query.ReadAll<EntityCollection<Employee>, Employee>();
                 Assert.AreEqual(7, coll.Count);

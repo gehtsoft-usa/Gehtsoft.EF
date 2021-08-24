@@ -5,7 +5,7 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-    public class SelectEntityQueryBuilderBase : EntityQueryWithWhereBuilder
+    internal class SelectEntityQueryBuilderBase : EntityQueryWithWhereBuilder
     {
         protected SelectQueryBuilder mSelectQueryBuilder;
         public SelectQueryBuilder SelectQueryBuilder => mSelectQueryBuilder;

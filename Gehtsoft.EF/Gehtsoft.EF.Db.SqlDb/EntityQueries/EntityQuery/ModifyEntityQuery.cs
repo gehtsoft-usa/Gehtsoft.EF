@@ -7,7 +7,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
     {
         protected UpdateQueryToTypeBinder mBinder;
 
-        protected ModifyEntityQuery(SqlDbQuery query, EntityQueryBuilder builder) : base(query, builder)
+        internal ModifyEntityQuery(SqlDbQuery query, EntityQueryBuilder builder) : base(query, builder)
         {
             mQuery = query;
             mBuilder = builder;

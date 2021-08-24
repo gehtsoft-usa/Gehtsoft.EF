@@ -379,7 +379,10 @@ namespace Gehtsoft.EF.Db.SqlDb
                     return $"MAX({args[0]})";
 
                 case SqlFunctionId.Count:
-                    return "COUNT(*)";
+                    if (args.Length < 1 || args[0] == null)
+                        return "COUNT(*)";
+                    else
+                        return $"COUNT({args[0]})";
 
                 case SqlFunctionId.Like:
                     return $"{args[0]} LIKE {args[1]}";

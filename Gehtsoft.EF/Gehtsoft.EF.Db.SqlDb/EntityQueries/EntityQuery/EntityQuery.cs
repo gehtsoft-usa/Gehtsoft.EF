@@ -5,17 +5,20 @@ using System.Data;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     public class EntityQuery : IDbQuery
     {
         protected SqlDbQuery mQuery;
-        protected EntityQueryBuilder mBuilder;
+        internal EntityQueryBuilder mBuilder;
 
         public SqlDbQuery Query => mQuery;
-        public EntityQueryBuilder Builder => mBuilder;
-        public SqlDbConnection Connection => mQuery.Connection;
+        internal EntityQueryBuilder EntityQueryBuilder => mBuilder;
+        public AQueryBuilder Builder => mBuilder.QueryBuilder;
+
+        internal SqlDbConnection Connection => mQuery.Connection;
 
         public virtual bool IsInsert => false;
 

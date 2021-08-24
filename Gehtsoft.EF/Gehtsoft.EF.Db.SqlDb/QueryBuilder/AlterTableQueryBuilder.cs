@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected SqlDbLanguageSpecifics mSpecifics;
         private bool mPrepared;
 
-        protected AlterTableQueryBuilder(SqlDbLanguageSpecifics specifics)
+        internal protected AlterTableQueryBuilder(SqlDbLanguageSpecifics specifics)
         {
             mSpecifics = specifics;
         }

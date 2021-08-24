@@ -162,7 +162,7 @@ grammar SqlTest
         IN_VALUE_ARGS -> EXPR (','! EXPR)*;
         IN_VALUE_LIST -> '('! IN_VALUE_ARGS^ ')'!;
 
-        EXISTS_PREDICATE -> EXISTS_OP^ '('! SELECT^ ')'!;
+        EXISTS_PREDICATE -> EXISTS_OP^ '('! SELECT ')'!;
 
         NULL_PREDICATE -> EXPR NULL_OP^;
 
@@ -257,10 +257,12 @@ grammar SqlTest
         FIELDS -> FIELD (','! FIELD)*;
         FIELDS_LIST -> '('! FIELDS^ ')'!;
 
-        VALUES -> CONSTANT (','! CONSTANT)*;
-        VALUES_LIST -> 'VALUES'! '('! VALUES^ ')'! ;
+        INSERT_VALUE -> CONSTANT | PARAM;
 
-        TO_INSERT -> VALUES_LIST^ | SELECT^;
+        INSERT_VALUES -> INSERT_VALUE (','! INSERT_VALUE)*;
+        INSERT_VALUES_LIST -> 'VALUES'! '('! INSERT_VALUES ')'! ;
+
+        TO_INSERT -> INSERT_VALUES_LIST^ | SELECT^;
 
         UPDATE -> 'UPDATE'!  TABLE_NAME 'SET'! UPDATE_LIST (WHERE_CLAUSE)?;
         UPDATE_LIST -> UPDATE_ASSIGN (','! UPDATE_ASSIGN)*;
@@ -317,16 +319,19 @@ grammar SqlTest
 
         DROP_FIELD_CLAUSE -> 'DROP'! 'COLUMN'! FIELD_DEFINITION_NAME;
 
-        ALTER_TABLE_CLAUSE -> ADD_FIELD_CLAUSE | DROP_FIELD_CLAUSE;
+        ADD_CONTRAINT_CLAUSE -> 'ADD'! FOREIGN_KEY_DEFINITION;
 
-        ALTER_TABLE_CLAUSES -> ALTER_TABLE_CLAUSE (','! ALTER_TABLE_CLAUSE)*;
+        ALTER_TABLE_CLAUSE -> ADD_FIELD_CLAUSE | DROP_FIELD_CLAUSE | ADD_CONTRAINT_CLAUSE;
 
-        ALTER_TABLE -> 'ALTER'! 'TABLE'!  TABLE_NAME ALTER_TABLE_CLAUSES;
+        ALTER_TABLE -> 'ALTER'! 'TABLE'!  TABLE_NAME ALTER_TABLE_CLAUSE;
+
+        DEBUG_EXPR -> 'DEBUG'! EXPR;
 
         STATEMENT  -> SELECT^ | INSERT^ | UPDATE^ | DELETE^ | 
                       CREATE_TABLE^ | CREATE_VIEW^ | CREATE_INDEX^ | 
                       ALTER_TABLE ^ | 
                       DROP_TABLE^ | DROP_INDEX^ | DROP_VIEW^ | 
+                      DEBUG_EXPR |
                       NOP;
 
         ROOT -> STATEMENT STATEMENT*;

@@ -217,11 +217,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     {
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, LogOp logOp, TableDescriptor.ColumnInfo columnInfo, CmpOp cmpOp, string parameterName = null)
-            => builder.Where.Add(logOp, builder.Where.PropertyName(null, columnInfo), cmpOp, (parameterName?.Contains(".") ?? false) ? parameterName : builder.Where.Parameter(parameterName));
+            => builder.Where.Add(logOp, builder.Where.PropertyName(null, columnInfo), cmpOp, (parameterName?.Contains(".") ?? false) ? parameterName : builder.Where.ParameterName(parameterName));
 
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, LogOp logOp, TableDescriptor.ColumnInfo columnInfo, CmpOp cmpOp, string[] parameterNames)
-            => builder.Where.Add(logOp, builder.Where.PropertyName(null, columnInfo), cmpOp, builder.Where.Parameters(parameterNames));
+            => builder.Where.Add(logOp, builder.Where.PropertyName(null, columnInfo), cmpOp, builder.Where.ParameterList(parameterNames));
 
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, LogOp logOp, TableDescriptor.ColumnInfo columnInfo, CmpOp cmpOp, AQueryBuilder subquery)
@@ -229,11 +229,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, LogOp logOp, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string parameterName = null)
-            => builder.Where.Add(logOp, builder.Where.PropertyName(entity, columnInfo), cmpOp, (parameterName?.Contains(".") ?? false) ? parameterName : builder.Where.Parameter(parameterName));
+            => builder.Where.Add(logOp, builder.Where.PropertyName(entity, columnInfo), cmpOp, (parameterName?.Contains(".") ?? false) ? parameterName : builder.Where.ParameterName(parameterName));
 
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, LogOp logOp, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string[] parameterNames)
-            => builder.Where.Add(logOp, builder.Where.PropertyName(entity, columnInfo), cmpOp, builder.Where.Parameters(parameterNames));
+            => builder.Where.Add(logOp, builder.Where.PropertyName(entity, columnInfo), cmpOp, builder.Where.ParameterList(parameterNames));
 
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, LogOp logOp, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, AQueryBuilder subquery)
@@ -248,11 +248,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, TableDescriptor.ColumnInfo columnInfo, CmpOp cmpOp, string parameterName = null)
-            => builder.Where.Add(LogOp.And, builder.Where.PropertyName(null, columnInfo), cmpOp, (parameterName?.Contains(".") ?? false) ? parameterName : builder.Where.Parameter(parameterName));
+            => builder.Where.Add(LogOp.And, builder.Where.PropertyName(null, columnInfo), cmpOp, (parameterName?.Contains(".") ?? false) ? parameterName : builder.Where.ParameterName(parameterName));
 
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, TableDescriptor.ColumnInfo columnInfo, CmpOp cmpOp, string[] parameterNames)
-            => builder.Where.Add(LogOp.And, builder.Where.PropertyName(null, columnInfo), cmpOp, builder.Where.Parameters(parameterNames));
+            => builder.Where.Add(LogOp.And, builder.Where.PropertyName(null, columnInfo), cmpOp, builder.Where.ParameterList(parameterNames));
 
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, TableDescriptor.ColumnInfo columnInfo, CmpOp cmpOp, AQueryBuilder subquery)
@@ -260,11 +260,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string parameterName = null)
-            => builder.Where.Add(LogOp.And, builder.Where.PropertyName(entity, columnInfo), cmpOp, (parameterName?.Contains(".") ?? false) ? parameterName : builder.Where.Parameter(parameterName));
+            => builder.Where.Add(LogOp.And, builder.Where.PropertyName(entity, columnInfo), cmpOp, (parameterName?.Contains(".") ?? false) ? parameterName : builder.Where.ParameterName(parameterName));
 
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, string[] parameterNames)
-            => builder.Where.Add(LogOp.And, builder.Where.PropertyName(entity, columnInfo), cmpOp, builder.Where.Parameters(parameterNames));
+            => builder.Where.Add(LogOp.And, builder.Where.PropertyName(entity, columnInfo), cmpOp, builder.Where.ParameterList(parameterNames));
 
         [Obsolete("Upgrade your code to using query Where property")]
         public static void AddWhereFilter(this QueryWithWhereBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, CmpOp cmpOp, AQueryBuilder subquery)
@@ -315,5 +315,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
             return $"{columnInfo.Table.Name}.{columnInfo.Name}";
         }
+
+        public override IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column) => new InQueryFieldReference(GetAlias(column, null));
     }
 }

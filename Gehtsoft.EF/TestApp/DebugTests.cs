@@ -66,7 +66,7 @@ namespace TestApp
                 {
                     q1.Distinct = true;
                     q1.AddToResultset(nameof(Employee.Code), "code");
-                    builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), q1.SelectBuilder.SelectQueryBuilder.QueryTableDescriptor);
+                    builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), q1.SelectBuilder.QueryTableDescriptor);
                     builder.AddToResultset(AggFn.Count);
                     using (SqlDbQuery q2 = connection.GetQuery(builder))
                     {

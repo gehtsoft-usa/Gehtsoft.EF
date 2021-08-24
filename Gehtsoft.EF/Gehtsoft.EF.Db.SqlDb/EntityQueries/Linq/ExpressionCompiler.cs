@@ -418,8 +418,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     {
                         object value = Expression.Lambda(argumentResults[0].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
-                        query.SelectBuilder.PrepareQuery();
-                        res.Expression.Append('(').Append(query.SelectBuilder.Query).Append(')');
+                        query.SelectEntityBuilder.PrepareQuery();
+                        res.Expression.Append('(').Append(query.SelectEntityBuilder.Query).Append(')');
                         res.Params.Add(new ExpressionParameter() { Value = query });
                         return res;
                     }
@@ -441,13 +441,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     {
                         object value = Expression.Lambda(argumentResults[1].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
-                        query.SelectBuilder.PrepareQuery();
+                        query.SelectEntityBuilder.PrepareQuery();
                         res
                             .Expression
                             .Append(' ')
                             .Append(argumentResults[0].Expression)
                             .Append(" IN (")
-                            .Append(query.SelectBuilder.Query)
+                            .Append(query.SelectEntityBuilder.Query)
                             .Append(')');
                         res.Params.Add(new ExpressionParameter() { Value = query });
                         return res;
@@ -484,13 +484,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     {
                         object value = Expression.Lambda(argumentResults[1].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
-                        query.SelectBuilder.PrepareQuery();
+                        query.SelectEntityBuilder.PrepareQuery();
                         res
                             .Expression
                             .Append(' ')
                             .Append(argumentResults[0].Expression)
                             .Append(" NOT IN (")
-                            .Append(query.SelectBuilder.Query)
+                            .Append(query.SelectEntityBuilder.Query)
                             .Append(')');
                         res.Params.Add(new ExpressionParameter() { Value = query });
                         return res;
@@ -527,11 +527,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     {
                         object value = Expression.Lambda(argumentResults[0].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
-                        query.SelectBuilder.PrepareQuery();
+                        query.SelectEntityBuilder.PrepareQuery();
                         res
                             .Expression
                             .Append(" EXISTS (")
-                            .Append(query.SelectBuilder.Query)
+                            .Append(query.SelectEntityBuilder.Query)
                             .Append(')');
                         res.Params.Add(new ExpressionParameter() { Value = query });
                         return res;
@@ -566,11 +566,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     {
                         object value = Expression.Lambda(argumentResults[0].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
-                        query.SelectBuilder.PrepareQuery();
+                        query.SelectEntityBuilder.PrepareQuery();
                         res
                             .Expression
                             .Append(" NOT EXISTS (")
-                            .Append(query.SelectBuilder.Query)
+                            .Append(query.SelectEntityBuilder.Query)
                             .Append(')');
                         res.Params.Add(new ExpressionParameter() { Value = query });
                         return res;

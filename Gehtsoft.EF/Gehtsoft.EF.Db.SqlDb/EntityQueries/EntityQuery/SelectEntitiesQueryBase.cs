@@ -12,11 +12,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     public class SelectEntitiesQueryBase : ConditionEntityQueryBase
     {
-        protected SelectEntityQueryBuilderBase mSelectBuilder;
+        internal SelectEntityQueryBuilderBase mSelectBuilder;
 
         protected override bool IsReader => true;
 
-        public SelectEntityQueryBuilderBase SelectBuilder => mSelectBuilder;
+        internal SelectEntityQueryBuilderBase SelectEntityBuilder => mSelectBuilder;
+
+        public SelectQueryBuilder SelectBuilder => mSelectBuilder.SelectQueryBuilder;
 
         public EntityQueryConditionBuilder Having { get; protected set; }
 
@@ -112,8 +114,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public void AddToResultset(SelectEntitiesQueryBase query, Type type, string alias = null)
         {
-            query.SelectBuilder.QueryBuilder.PrepareQuery();
-            AddExpressionToResultset($"({query.SelectBuilder.QueryBuilder.Query})", false, DbType.Object, type, alias);
+            query.SelectEntityBuilder.QueryBuilder.PrepareQuery();
+            AddExpressionToResultset($"({query.SelectEntityBuilder.QueryBuilder.Query})", false, DbType.Object, type, alias);
             CopyParametersFrom(query);
         }
 
@@ -302,6 +304,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return r;
         }
 
+        protected override void PrepareQuery()
+        {
+            Having.SetCurrentSingleEntityQueryConditionBuilder(null);
+            base.PrepareQuery();
+        }
         public void AddExpressionToResultset(string expression, DbType type, string alias) => mSelectBuilder.AddExpressionToResultset(expression, false, type, alias);
     }
 }

@@ -555,7 +555,7 @@ namespace Gehtsoft.EF.FTS
 
         public static void AddFtsSearch(this EntityQueryConditionBuilder condition, string text, QueryType queryType, string ftsType, int? limit = null)
         {
-            TableDescriptor.ColumnInfo primaryKey = condition.BaseQuery.Builder.Descriptor.PrimaryKey;
+            TableDescriptor.ColumnInfo primaryKey = condition.BaseQuery.EntityQueryBuilder.Descriptor.PrimaryKey;
             FtsSelectQueryBuilder.QueryType subqueryType;
             if (primaryKey.DbType == DbType.Int32)
                 subqueryType = FtsSelectQueryBuilder.QueryType.ObjectIdsAsInt;
