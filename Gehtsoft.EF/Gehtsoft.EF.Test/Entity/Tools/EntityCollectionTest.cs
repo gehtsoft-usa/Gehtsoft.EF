@@ -437,6 +437,5 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             remove.Should().BeTrue();
             index.Should().Be(1);
         }
-
     }
 }

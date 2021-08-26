@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
+    /// <summary>
+    /// Codes for `EfSqlException`
+    /// </summary>
     public enum EfExceptionCode
     {
         NotEntity,
@@ -84,11 +87,22 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
     }
 
+    /// <summary>
+    /// EF exception
+    /// </summary>
     [Serializable]
     public class EfSqlException : Exception
     {
+        /// <summary>
+        /// The code of the error
+        /// </summary>
         public EfExceptionCode ErrorCode { get; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="args"></param>
         public EfSqlException(EfExceptionCode code, params object[] args) : base(string.Format(EfExceptionMessages.Inst[code], args))
         {
             ErrorCode = code;

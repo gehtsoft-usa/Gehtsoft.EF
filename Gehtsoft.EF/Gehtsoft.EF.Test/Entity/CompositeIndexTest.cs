@@ -19,8 +19,10 @@ namespace Gehtsoft.EF.Test.Entity
         [Fact]
         public void Add1()
         {
-            CompositeIndex md = new CompositeIndex("test1");
-            md.Add("field1");
+            CompositeIndex md = new CompositeIndex("test1")
+            {
+                "field1"
+            };
             md.Should().HaveCount(1);
             md.Should().Contain(f => f.Name == "field1" && f.Function == null && f.Direction == SortDir.Asc);
         }
@@ -28,8 +30,10 @@ namespace Gehtsoft.EF.Test.Entity
         [Fact]
         public void Add2()
         {
-            CompositeIndex md = new CompositeIndex("test1");
-            md.Add("field1", SortDir.Desc);
+            CompositeIndex md = new CompositeIndex("test1")
+            {
+                { "field1", SortDir.Desc }
+            };
             md.Should().HaveCount(1);
             md.Should().Contain(f => f.Name == "field1" && f.Function == null && f.Direction == SortDir.Desc);
         }
@@ -37,8 +41,10 @@ namespace Gehtsoft.EF.Test.Entity
         [Fact]
         public void Add3()
         {
-            CompositeIndex md = new CompositeIndex("test1");
-            md.Add(SqlFunctionId.Abs, "field1");
+            CompositeIndex md = new CompositeIndex("test1")
+            {
+                { SqlFunctionId.Abs, "field1" }
+            };
             md.Should().HaveCount(1);
             md.Should().Contain(f => f.Name == "field1" && f.Function == SqlFunctionId.Abs && f.Direction == SortDir.Asc);
         }
@@ -46,8 +52,10 @@ namespace Gehtsoft.EF.Test.Entity
         [Fact]
         public void Add4()
         {
-            CompositeIndex md = new CompositeIndex("test1");
-            md.Add(SqlFunctionId.Upper, "field2", SortDir.Desc);
+            CompositeIndex md = new CompositeIndex("test1")
+            {
+                { SqlFunctionId.Upper, "field2", SortDir.Desc }
+            };
             md.Should().HaveCount(1);
             md.Should().Contain(f => f.Name == "field2" && f.Function == SqlFunctionId.Upper && f.Direction == SortDir.Desc);
         }
@@ -55,9 +63,11 @@ namespace Gehtsoft.EF.Test.Entity
         [Fact]
         public void Add5()
         {
-            CompositeIndex md = new CompositeIndex("test1");
-            md.Add("field1");
-            md.Add("field2");
+            CompositeIndex md = new CompositeIndex("test1")
+            {
+                "field1",
+                "field2"
+            };
             md.Should().HaveCount(2);
             md.Should().HaveOneElementAfterTheOther(f => f.Name == "field1", f => f.Name == "field2");
         }

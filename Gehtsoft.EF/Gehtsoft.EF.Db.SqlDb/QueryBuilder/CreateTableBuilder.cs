@@ -9,6 +9,11 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// The query builder for `CREATE TABLE` command.
+    ///
+    /// Use <see cref="SqlDbConnection.GetCreateTableBuilder(TableDescriptor)"/> to create an instance of this object.
+    /// </summary>
     public class CreateTableBuilder : AQueryBuilder
     {
         protected virtual TableDdlBuilder DdlBuilder { get; set; }

@@ -3,6 +3,11 @@ using System.Text;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// The query builder for `INSERT ... VALUES` command.
+    ///
+    /// Use <see cref="SqlDbConnection.GetInsertQueryBuilder(TableDescriptor, bool)"/> to create an instance of this object.
+    /// </summary>
     public class InsertQueryBuilder : AQueryBuilder
     {
         protected TableDescriptor mTable;

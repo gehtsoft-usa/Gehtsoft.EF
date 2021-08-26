@@ -3,6 +3,11 @@ using System.Text;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// The query builder for `INSERT ... SELECT` command.
+    ///
+    /// Use <see cref="SqlDbConnection.GetInsertSelectQueryBuilder(TableDescriptor, SelectQueryBuilder, bool)"/> to create an instance of this object.
+    /// </summary>
     public class InsertSelectQueryBuilder : AQueryBuilder
     {
         protected TableDescriptor mTable;

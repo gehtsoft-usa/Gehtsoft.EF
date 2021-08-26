@@ -1,4 +1,10 @@
 ﻿<settings >
+  <assembly name="Gehtsoft.EF.Utils" xmldoc="../../../bin/doc.xml" />
+  <assembly name="Gehtsoft.EF.Entities" xmldoc="../../../bin/doc.xml" />
+  <assembly name="Gehtsoft.EF.Db.SqlDb" xmldoc="../../../bin/doc.xml" />
+
+  <include type="public" />
+
   <strip-namespace name="System" />
   <strip-namespace name="System.Collections" />
   <strip-namespace name="System.Collections.Generic" />

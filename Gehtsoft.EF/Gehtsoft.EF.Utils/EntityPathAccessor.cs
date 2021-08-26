@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Utils
 {
+    /// <summary>
+    /// The extension to access value from any object tree by path.
+    ///
+    /// The path is the sequence of the property names separated by commas (`.`).
+    /// </summary>
     public static class EntityPathAccessor
     {
         private static readonly Dictionary<Tuple<Type, string>, PropertyInfo[]> mPathDictionary = new Dictionary<Tuple<Type, string>, PropertyInfo[]>();
@@ -45,6 +50,12 @@ namespace Gehtsoft.EF.Utils
             return result;
         }
 
+        /// <summary>
+        /// Gets value by the path
+        /// </summary>
+        /// <param name="entity">The root of the object tree</param>
+        /// <param name="path">The path</param>
+        /// <returns></returns>
         public static object ReadData(object entity, string path)
         {
             if (entity == null)
@@ -61,14 +72,36 @@ namespace Gehtsoft.EF.Utils
             return entity;
         }
 
+        /// <summary>
+        /// Gets value by the path (generic method)
+        /// </summary>
+        /// <typeparam name="TE">The type of the entity</typeparam>
+        /// <typeparam name="TR">The type of the result value</typeparam>
+        /// <param name="entity">The entity object</param>
+        /// <param name="path">The path to the value</param>
+        /// <returns></returns>
         public static TR ReadData<TE, TR>(TE entity, string path)
             => (TR)ReadData(entity, path);
 
+        /// <summary>
+        /// Parses and caches the path.
+        ///
+        /// This method is used to cache path explicitly. Otherwise,
+        /// the path will be cached at the first use.
+        /// </summary>
+        /// <param name="entityType">The type of the entity</param>
+        /// <param name="path">The path</param>
         public static void PreparePath(Type entityType, string path)
         {
             GetPath(entityType, path);
         }
 
+        /// <summary>
+        /// Checks whether the path is already cached.
+        /// </summary>
+        /// <param name="entityType"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static bool IsPathCached(Type entityType, string path)
             => mPathDictionary.ContainsKey(new Tuple<Type, string>(entityType, path));
     }

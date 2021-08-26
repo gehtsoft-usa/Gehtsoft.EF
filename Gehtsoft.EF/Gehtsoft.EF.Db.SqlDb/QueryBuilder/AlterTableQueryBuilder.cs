@@ -3,9 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// The query builder for the `ALTER TABLE` command.
+    ///
+    /// Use <see cref="SqlDbConnection.GetAlterTableQueryBuilder"/> to create an instance of this object.
+    ///
+    /// Please note that this builder is the only builder which is not derived from <see cref="AQueryBuilder"/>. Because
+    /// of the specified nature of `ALTER TABLE` command, it returns a sequence of the commands instead of
+    /// single query.
+    /// </summary>
     public class AlterTableQueryBuilder
     {
         protected TableDdlBuilder DdlBuilder { get; set; }
@@ -15,11 +25,18 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected SqlDbLanguageSpecifics mSpecifics;
         private bool mPrepared;
 
+        [DocgenIgnore]
         internal protected AlterTableQueryBuilder(SqlDbLanguageSpecifics specifics)
         {
             mSpecifics = specifics;
         }
 
+        /// <summary>
+        /// Sets the table to alter.
+        /// </summary>
+        /// <param name="descriptor">The table descriptor</param>
+        /// <param name="addColumns">The list of columns to add to the table</param>
+        /// <param name="dropColumns">The list of columns to drop</param>
         public virtual void SetTable(TableDescriptor descriptor, TableDescriptor.ColumnInfo[] addColumns, TableDescriptor.ColumnInfo[] dropColumns)
         {
             mDescriptor = descriptor;
@@ -31,6 +48,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         protected virtual TableDdlBuilder CreateDdlBuilder() => new TableDdlBuilder(mSpecifics, mDescriptor);
 
+        /// <summary>
+        /// Get queries to perform requested operations.
+        ///
+        /// The queries should be executed in the same order as they returned.
+        /// </summary>
+        /// <returns></returns>
         public string[] GetQueries()
         {
             if (DdlBuilder == null)

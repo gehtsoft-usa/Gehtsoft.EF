@@ -63,10 +63,10 @@ namespace TestApp
             [EntityProperty(Field = "passwordhash", DbType = DbType.String, Size = 128)]
             public string PasswordHash { get; set; }
 
-            [EntityProperty(Field = "roles", DbType = DbType.Int32, Alias = "Roles")]
+            [EntityProperty(Field = "roles", DbType = DbType.Int32)]
             public UserRoles Roles { get; set; }
 
-            [EntityProperty(Field = "status", DbType = DbType.Int32, Alias = "Status")]
+            [EntityProperty(Field = "status", DbType = DbType.Int32)]
             public UserStatus Status { get; set; }
 
             public User()

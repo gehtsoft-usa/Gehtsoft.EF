@@ -4,5 +4,6 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <Version>$(VersionMajor)</Version>
+	<DocumentationFile>bin/doc.xml</DocumentationFile>
   </PropertyGroup>
 </Project>

@@ -9,8 +9,14 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
+    /// <summary>
+    /// The class to create a connection by the driver name.
+    /// </summary>
     public static class UniversalSqlDbFactory
     {
+        /// <summary>
+        /// The name of Microsoft SQL driver.
+        /// </summary>
         public const string MSSQL = "mssql";
         internal const string MSSQL_ASSEMBLY = "Gehtsoft.EF.Db.MssqlDb";
         internal const string MSSQL_CLASS = "Gehtsoft.EF.Db.MssqlDb.MssqlDbConnectionFactory";
@@ -19,18 +25,30 @@ namespace Gehtsoft.EF.Db.SqlDb
         internal const string MYSQL_ASSEMBLY = "Gehtsoft.EF.Db.MysqlDb";
         internal const string MYSQL_CLASS = "Gehtsoft.EF.Db.MysqlDb.MysqlDbConnectionFactory";
 
+        /// <summary>
+        /// The name of the oracle driver.
+        /// </summary>
         public const string ORACLE = "oracle";
         internal const string ORACLE_ASSEMBLY = "Gehtsoft.EF.Db.OracleDb";
         internal const string ORACLE_CLASS = "Gehtsoft.EF.Db.OracleDb.OracleDbConnectionFactory";
 
+        /// <summary>
+        /// The name of the Postgres SQL driver.
+        /// </summary>
         public const string POSTGRES = "npgsql";
         internal const string POSTGRES_ASSEMBLY = "Gehtsoft.EF.Db.PostgresDb";
         internal const string POSTGRES_CLASS = "Gehtsoft.EF.Db.PostgresDb.PostgresDbConnectionFactory";
 
+        /// <summary>
+        /// The name of SQLite driver.
+        /// </summary>
         public const string SQLITE = "sqlite";
         internal const string SQLITE_ASSEMBLY = "Gehtsoft.EF.Db.SqliteDb";
         internal const string SQLITE_CLASS = "Gehtsoft.EF.Db.SqliteDb.SqliteDbConnectionFactory";
 
+        /// <summary>
+        /// The list of all supported databases.
+        /// </summary>
         public static string[] SupportedDatabases
         {
             get
@@ -39,6 +57,13 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
         }
 
+        /// <summary>
+        /// Find the assembly name and the class name of the driver specified.
+        /// </summary>
+        /// <param name="dbname"></param>
+        /// <param name="assemblyName"></param>
+        /// <param name="className"></param>
+        /// <returns></returns>
         public static bool FindDriver(string dbname, out string assemblyName, out string className)
         {
             if (dbname == MSSQL)
@@ -80,6 +105,11 @@ namespace Gehtsoft.EF.Db.SqlDb
             return false;
         }
 
+        /// <summary>
+        /// Loads the connection factory delegate.
+        /// </summary>
+        /// <param name="dbname"></param>
+        /// <returns></returns>
         public static SqlDbConnectionFactory LoadFactory(string dbname)
         {
             if (!FindDriver(dbname, out string assemblyName, out string className))
@@ -110,6 +140,12 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
             throw new ArgumentException($"The assembly {assemblyName} does not consists of class {className} that contains a static method with the expected signature");
         }
+
+        /// <summary>
+        /// Loads the asynchronous connection factory.
+        /// </summary>
+        /// <param name="dbname"></param>
+        /// <returns></returns>
         public static SqlDbConnectionFactoryAsync LoadAsyncFactory(string dbname)
         {
             if (!FindDriver(dbname, out string assemblyName, out string className))
@@ -142,6 +178,12 @@ namespace Gehtsoft.EF.Db.SqlDb
             throw new ArgumentException($"The assembly {assemblyName} does not consists of class {className} that contains a static method with the expected signature");
         }
 
+        /// <summary>
+        /// Creates the connection.
+        /// </summary>
+        /// <param name="dbname"></param>
+        /// <param name="connectionString"></param>
+        /// <returns></returns>
         public static SqlDbConnection Create(string dbname, string connectionString)
         {
             IResiliencyPolicy resiliencyPolicy = ResiliencyPolicyDictionary.Instance.GetPolicy(connectionString);
@@ -151,6 +193,12 @@ namespace Gehtsoft.EF.Db.SqlDb
                 return resiliencyPolicy.Execute(() => LoadFactory(dbname)?.Invoke(connectionString));
         }
 
+        /// <summary>
+        /// Creates the connection asyncronously.
+        /// </summary>
+        /// <param name="dbname"></param>
+        /// <param name="connectionString"></param>
+        /// <returns></returns>
         public static async Task<SqlDbConnection> CreateAsync(string dbname, string connectionString)
         {
             IResiliencyPolicy resiliencyPolicy = ResiliencyPolicyDictionary.Instance.GetPolicy(connectionString);
@@ -163,6 +211,13 @@ namespace Gehtsoft.EF.Db.SqlDb
                 return await resiliencyPolicy.ExecuteAsync(token1 => factory.Invoke(connectionString, token1), CancellationToken.None);
         }
 
+        /// <summary>
+        /// Creates the connection asyncronously with the specified cancellation token.
+        /// </summary>
+        /// <param name="dbname"></param>
+        /// <param name="connectionString"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public static async Task<SqlDbConnection> CreateAsync(string dbname, string connectionString, CancellationToken token)
         {
             IResiliencyPolicy resiliencyPolicy = ResiliencyPolicyDictionary.Instance.GetPolicy(connectionString);

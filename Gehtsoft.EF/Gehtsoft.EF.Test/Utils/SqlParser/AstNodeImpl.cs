@@ -6,6 +6,7 @@ namespace Gehtsoft.EF.Test.SqlParser
 {
     public sealed class AstNodeImpl : IAstNode
     {
+        public IAstNode Parent { get; set; }
         public string Symbol { get; set;  }
         public string Value { get; set; }
 
@@ -29,7 +30,7 @@ namespace Gehtsoft.EF.Test.SqlParser
             IEnumerator IEnumerable.GetEnumerator() => mChildren.GetEnumerator();
         }
 
-        public IAstNodeChildren Children { get; } 
+        public IAstNodeChildren Children { get; }
 
         public AstNodeImpl()
         {
@@ -42,7 +43,6 @@ namespace Gehtsoft.EF.Test.SqlParser
             Value = value;
         }
 
-      
         public void Add(IAstNode node) => mChildren.Add(node);
 
         public override string ToString()

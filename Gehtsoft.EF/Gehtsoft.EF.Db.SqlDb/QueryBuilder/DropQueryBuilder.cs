@@ -1,5 +1,10 @@
 ﻿namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// The query builder for `DROP TABLE` command.
+    ///
+    /// Use <see cref="SqlDbConnection.GetDropTableBuilder(TableDescriptor)"/> to create an instance of this object.
+    /// </summary>
     public class DropTableBuilder : AQueryBuilder
     {
         protected string mQuery;

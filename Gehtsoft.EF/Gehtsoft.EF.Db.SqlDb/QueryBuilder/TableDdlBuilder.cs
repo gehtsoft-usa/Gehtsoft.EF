@@ -2,6 +2,9 @@
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// Infrastructure class
+    /// </summary>
     public class TableDdlBuilder
     {
         protected TableDescriptor mDescriptor;

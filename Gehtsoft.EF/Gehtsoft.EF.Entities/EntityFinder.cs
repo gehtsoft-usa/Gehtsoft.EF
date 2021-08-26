@@ -4,31 +4,85 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Utils;
+
+#pragma warning disable S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
 
 namespace Gehtsoft.EF.Entities
 {
+    /// <summary>
+    /// The class to find all entity types.
+    /// </summary>
     public static class EntityFinder
     {
-#pragma warning disable S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
+        /// <summary>
+        /// The information about the entity type
+        /// </summary>
         public class EntityTypeInfo : IComparable<EntityTypeInfo>
-#pragma warning restore S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
         {
+            /// <summary>
+            /// The entity type
+            /// </summary>
             public string Scope { get; set; }
+            /// <summary>
+            /// Runtime type of the entity
+            /// </summary>
             public Type EntityType { get; set; }
+            /// <summary>
+            /// The flag indicating whether the entity is obsolete
+            /// </summary>
             public bool Obsolete { get; set; }
+            /// <summary>
+            /// The name of the table
+            /// </summary>
             public string Table { get; set; }
+            /// <summary>
+            /// The naming policy associated with the table
+            /// </summary>
             public EntityNamingPolicy NamingPolicy { get; set; }
+            /// <summary>
+            /// The list of the entity on which this entity depends
+            /// </summary>
             public List<Type> DependsOn { get; } = new List<Type>();
+            /// <summary>
+            /// The list of the entity information of the entities on which this entity depends
+            /// </summary>
             public List<EntityTypeInfo> DependsOnInfo { get; } = new List<EntityTypeInfo>();
+            /// <summary>
+            /// The flag indicating that the entity is associated with a view.
+            /// </summary>
             public bool View { get; set; }
+
+            /// <summary>
+            /// The type of the entity metadata object.
+            ///
+            /// The metadata object is used to provide additional
+            /// information about the entity. To provide that information
+            /// the metadata should implement appropriate interface,
+            /// for example
+            /// [clink=Gehtsoft.EF.Db.SqlDb.Metadata.ICompositeIndexMetadata]ICompositeIndexMetadata[/clink] or
+            /// [clink=Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata]IViewCreationMetadata[/clink].
+            /// </summary>
             public Type Metadata { get; set; }
 
+            /// <summary>
+            /// Compares the entity information to another object.
+            /// </summary>
+            /// <param name="obj"></param>
+            /// <returns></returns>
+            [DocgenIgnore]
             public int CompareTo(object obj)
             {
                 EntityTypeInfo other = obj as EntityTypeInfo;
                 return CompareTo(other);
             }
 
+            /// <summary>
+            /// Compares the entity information to another entity information.
+            /// </summary>
+            /// <param name="other"></param>
+            /// <returns></returns>
+            [DocgenIgnore]
             public int CompareTo(EntityTypeInfo other)
             {
                 if (other == null)
@@ -52,6 +106,11 @@ namespace Gehtsoft.EF.Entities
 
             private int CompareNames(EntityTypeInfo other) => string.Compare(Table ?? EntityType.Name, other.Table ?? EntityType.Name, StringComparison.OrdinalIgnoreCase);
 
+            /// <summary>
+            /// Checks whether this entity depends on the entity specified.
+            /// </summary>
+            /// <param name="info"></param>
+            /// <returns></returns>
             public bool DoesDependOn(EntityTypeInfo info)
             {
                 foreach (EntityTypeInfo dep in DependsOnInfo)
@@ -62,12 +121,24 @@ namespace Gehtsoft.EF.Entities
                 return false;
             }
 
+            /// <summary>
+            /// Returns the entity information title.
+            /// </summary>
+            /// <returns></returns>
+            [DocgenIgnore]
             public override string ToString()
             {
                 return $"{Table ?? EntityType.Name}({EntityType.Name})";
             }
         }
 
+        /// <summary>
+        /// Finds entities.
+        /// </summary>
+        /// <param name="assemblies">The list of the assemblies to search in</param>
+        /// <param name="scope">The scope to search or `null` to search in all scopes</param>
+        /// <param name="includeObsolete">The flag indicating whether the obsolete entities shall also be included</param>
+        /// <returns></returns>
         public static EntityTypeInfo[] FindEntities(IEnumerable<Assembly> assemblies, string scope, bool includeObsolete)
         {
             List<EntityTypeInfo> types = new List<EntityTypeInfo>();
@@ -160,6 +231,14 @@ namespace Gehtsoft.EF.Entities
             info.Add(entity);
         }
 
+        /// <summary>
+        /// Arranges entities according their dependency tree.
+        ///
+        /// After entities are properly arranged, you can use their
+        /// direct order to create DB objects and their reverse order
+        /// to drop them.
+        /// </summary>
+        /// <param name="entities"></param>
         public static void ArrageEntities(EntityTypeInfo[] entities)
         {
             List<EntityTypeInfo> output = new List<EntityTypeInfo>();

@@ -6,6 +6,7 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <Version>$(VersionMajor)</Version>
+	 <DocumentationFile>bin/doc.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +18,9 @@
     <Compile Include="Attributes\ObsoleteEntityAttribute.cs" />
     <Compile Include="Attributes\ObsoleteEntityPropertyAttribute.cs" />
     <Compile Include="Attributes\PrimaryKeyAttribute.cs" />
+    <Compile Include="EntityContext\EntityFilterConditionExtension.cs" />
     <Compile Include="EntityContext\IEntityTable.cs" />
+    <Compile Include="EntityContext\SelectQueryExtension.cs" />
     <Compile Include="Tools\EntityCollection.cs" />
     <Compile Include="EntityContext\EntityContextExtension.cs" />
     <Compile Include="EntityContext\EntityFilterBuilderExtension.cs" />
@@ -46,5 +49,9 @@
     <PackageReference Include="System.Data.Common">
       <Version>4.3.0</Version>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Utils\Gehtsoft.EF.Utils.csproj" />
   </ItemGroup>
 </Project>

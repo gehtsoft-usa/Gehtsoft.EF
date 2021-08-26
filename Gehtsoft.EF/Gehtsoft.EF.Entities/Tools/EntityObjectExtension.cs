@@ -5,8 +5,17 @@ using System.Reflection;
 
 namespace Gehtsoft.EF.Entities
 {
+    /// <summary>
+    /// The extensions to get entity-associated data from the object.
+    /// </summary>
     public static class EntityObjectExtension
     {
+        /// <summary>
+        /// The method checks whether the object is an entity.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsEfEntity(this object entity, Type type = null)
         {
             if (type == null && entity == null)
@@ -28,6 +37,11 @@ namespace Gehtsoft.EF.Entities
         /// <returns></returns>
         public static T GetEfEntityId<T>(this object entity) => (T)GetEfEntityId(entity, typeof(T), null);
 
+        /// <summary>
+        /// Gets the property information for the primary key property of the entity type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static PropertyInfo GetEfPrimaryKey(this Type type) => GetPrimaryKey(type);
 
         private static PropertyInfo GetPrimaryKey(Type entityType)
@@ -56,6 +70,13 @@ namespace Gehtsoft.EF.Entities
             return pk;
         }
 
+        /// <summary>
+        /// Gets the entity primary key value.
+        /// </summary>
+        /// <param name="entity">The entity object</param>
+        /// <param name="desiredType">The desired primary key type</param>
+        /// <param name="entityType"></param>
+        /// <returns></returns>
         public static object GetEfEntityId(this object entity, Type desiredType = null, Type entityType = null)
         {
             if (entityType == null && entity == null)

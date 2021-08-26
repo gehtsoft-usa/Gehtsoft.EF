@@ -4,6 +4,11 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// The query builder for `DROP INDEX` command.
+    ///
+    /// Use <see cref="SqlDbConnection.GetDropIndexBuilder(TableDescriptor, string)"/> to create an instance of this object.
+    /// </summary>
     public class DropIndexBuilder : AQueryBuilder
     {
         protected readonly string mTable;

@@ -91,7 +91,6 @@ namespace Gehtsoft.EF.Northwind
                             if (itIsOrder && v is Order order)
                                 orders.Add(order.OrderID);
 
-
                         }
                     }
                 }

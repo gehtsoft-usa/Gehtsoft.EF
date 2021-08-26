@@ -345,7 +345,7 @@ namespace Gehtsoft.EF.FTS
             {
                 if (types.Length > 1)
                 {
-                    ParameterGroupQueryBuilder subquery1 = connection.GetParameterGroupBuilder();
+                    ParameterGroupQueryBuilder subquery1 = connection.GetLanguageSpecifics().GetParameterGroupBuilder();
                     foreach (string type in types)
                     {
                         string paramName = $"{paramBase}{param++}";

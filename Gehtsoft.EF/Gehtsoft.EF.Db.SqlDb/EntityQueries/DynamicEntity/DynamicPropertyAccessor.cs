@@ -34,12 +34,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             callsite.Target(callsite, thisObject, value);
         }
 
-        public T GetCustomAttribute<T>() where T : Attribute
+        public Attribute GetCustomAttribute(Type attributeType)
         {
-            if (typeof(T) == typeof(EntityPropertyAttribute))
-                return mPropertyInfo.EntityPropertyAttribute as T;
-            if (typeof(T) == typeof(ObsoleteEntityPropertyAttribute))
-                return mPropertyInfo.ObsoleteEntityPropertyAttribute as T;
+            if (attributeType == typeof(EntityPropertyAttribute))
+                return mPropertyInfo.EntityPropertyAttribute;
+            if (attributeType == typeof(ObsoleteEntityPropertyAttribute))
+                return mPropertyInfo.ObsoleteEntityPropertyAttribute;
             return null;
         }
     }

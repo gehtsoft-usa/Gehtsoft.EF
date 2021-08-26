@@ -70,14 +70,12 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         {
             var builder = new ConditionBuilder(mProvider);
             builder.Property(mTable1[0]);
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("FIELD");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/FIELD/*", 1)
-                .Should().HaveSymbol("IDENTIFIER")
-                .And.HaveValue("table1");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/FIELD/*", 2)
-                .Should().HaveSymbol("IDENTIFIER")
-                .And.HaveValue("col1");
+
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprIsField().Should().BeTrue();
+            expr.ExprFieldAlias().Should().Be("table1");
+            expr.ExprFieldName().Should().Be("col1");
         }
 
         [Fact]
@@ -85,14 +83,12 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         {
             var builder = new ConditionBuilder(mProvider);
             builder.Property(new QueryBuilderEntity(mProvider), mTable1[0]);
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("FIELD");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/FIELD/*", 1)
-                .Should().HaveSymbol("IDENTIFIER")
-                .And.HaveValue("table1");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/FIELD/*", 2)
-                .Should().HaveSymbol("IDENTIFIER")
-                .And.HaveValue("col1");
+
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprIsField().Should().BeTrue();
+            expr.ExprFieldAlias().Should().Be("table1");
+            expr.ExprFieldName().Should().Be("col1");
         }
 
         [Theory]
@@ -104,23 +100,21 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         {
             var builder = new ConditionBuilder(mProvider);
             builder.Property(aggFn, mTable1[0]);
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("AGGR_FUNC");
+            
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
 
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/AGGR_FUNC/*", 1)
-                .Should().HaveSymbol(expected);
+            expr.ExprIsAggFnCall().Should().BeTrue();
+            expr.ExprFnCallName().Should().Be(expected);
 
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/AGGR_FUNC/*", 2)
-                .Should().HaveSymbol("FIELD");
+            expr.ExprExprFnCallArg(0)
+                .ExprIsField().Should().BeTrue();
 
-            var f = ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/AGGR_FUNC/*", 2);
+            expr.ExprExprFnCallArg(0)
+                .ExprFieldAlias().Should().Be("table1");
 
-            f.SelectNode("/*", 1)
-                .Should().HaveSymbol("IDENTIFIER")
-                .And.HaveValue("table1");
-            f.SelectNode("/*", 2)
-                .Should().HaveSymbol("IDENTIFIER")
-                .And.HaveValue("col1");
+            expr.ExprExprFnCallArg(0)
+                .ExprFieldName().Should().Be("col1");
+
         }
 
         [Fact]
@@ -128,11 +122,12 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         {
             var builder = new ConditionBuilder(mProvider);
             builder.Parameter("a");
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("PARAM");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/PARAM/*", 1)
-                .Should().HaveSymbol("IDENTIFIER")
-                .And.HaveValue("a");
+
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprIsParam().Should().BeTrue();
+            expr.ExprParamName().Should().Be("a");
+
         }
 
         [Fact]
@@ -140,17 +135,24 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         {
             var builder = new ConditionBuilder(mProvider);
             builder.Property(mTable1[0]).In().Parameters(new string[] { "a", "b", "c" });
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("EXACT_IN_OP");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/EXACT_IN_OP/*", 1)
-                .Should().HaveSymbol("FIELD");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/EXACT_IN_OP/*", 2)
-                .Should().HaveSymbol("IN_VALUE_ARGS")
-                .And.Subject.Select("/PARAM")
-                    .Should().HaveCount(3)
-                    .And.HaveElementMatching(m => m.SelectNode("*", 1).Value == "a")
-                    .And.HaveElementMatching(m => m.SelectNode("*", 1).Value == "b")
-                    .And.HaveElementMatching(m => m.SelectNode("*", 1).Value == "c");
+            
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+            expr.ExprOp().Should().Be("IN_OP");
+
+            expr.ExprOpArg(0).ExprIsField().Should().BeTrue();
+            expr.ExprOpArg(0).ExprFieldAlias().Should().Be("table1");
+            expr.ExprOpArg(0).ExprFieldName().Should().Be("col1");
+
+            var l = expr.ExprOpArg(1).Children;
+            l.Should().HaveCount(3);
+            l[0].ExprIsParam().Should().BeTrue();
+            l[1].ExprIsParam().Should().BeTrue();
+            l[2].ExprIsParam().Should().BeTrue();
+
+            l[0].ExprParamName().Should().Be("a");
+            l[1].ExprParamName().Should().Be("b");
+            l[2].ExprParamName().Should().Be("c");
+
         }
 
         [Theory]
@@ -160,18 +162,29 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         [InlineData(CmpOp.Le, "LE_OP")]
         [InlineData(CmpOp.Gt, "GT_OP")]
         [InlineData(CmpOp.Ge, "GE_OP")]
-        [InlineData(CmpOp.Like, "EXACT_LIKE_OP")]
+        [InlineData(CmpOp.Like, "LIKE_OP")]
         public void BinaryOp(CmpOp op, string expectedOp)
         {
             var builder = new ConditionBuilder(mProvider);
             builder.Raw("1").Is(op).Raw("2");
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1)
-                .Should().HaveSymbol(expectedOp)
-                .And.Subject.Select("/INT")
-                    .Should().HaveCount(2)
-                    .And.HaveElementMatchingAt(0, e => e.Symbol == "INT" && e.Value == "1")
-                    .And.HaveElementMatchingAt(1, e => e.Symbol == "INT" && e.Value == "2");
+            
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprIsOp()
+                .Should().BeTrue();
+
+            expr.ExprOp()
+                .Should().Be(expectedOp);
+
+            expr.ExprOpArg(0).ExprIsInt()
+                .Should().BeTrue();
+
+            expr.ExprOpArg(0).ExprConstValue().Should().Be(1);
+
+            expr.ExprOpArg(1).ExprIsInt()
+                .Should().BeTrue();
+
+            expr.ExprOpArg(1).ExprConstValue().Should().Be(2);
         }
 
         [Theory]
@@ -181,7 +194,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         [InlineData(nameof(CmpOp.Le), "LE_OP")]
         [InlineData(nameof(CmpOp.Gt), "GT_OP")]
         [InlineData(nameof(CmpOp.Ge), "GE_OP")]
-        [InlineData(nameof(CmpOp.Like), "EXACT_LIKE_OP")]
+        [InlineData(nameof(CmpOp.Like), "LIKE_OP")]
         public void BinaryOp_ByExtension(string op, string expectedOp)
         {
             var builder = new ConditionBuilder(mProvider);
@@ -196,32 +209,51 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             m.Invoke(null, new object[] { sb });
             sb.Raw("2");
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1)
-                .Should().HaveSymbol(expectedOp)
-                .And.Subject.Select("/INT")
-                    .Should().HaveCount(2)
-                    .And.HaveElementMatchingAt(0, e => e.Symbol == "INT" && e.Value == "1")
-                    .And.HaveElementMatchingAt(1, e => e.Symbol == "INT" && e.Value == "2");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprIsOp()
+                .Should().BeTrue();
+
+            expr.ExprOp()
+                .Should().Be(expectedOp);
+
+            expr.ExprOpArg(0).ExprIsInt()
+                .Should().BeTrue();
+
+            expr.ExprOpArg(0).ExprConstValue().Should().Be(1);
+
+            expr.ExprOpArg(1).ExprIsInt()
+                .Should().BeTrue();
+
+            expr.ExprOpArg(1).ExprConstValue().Should().Be(2);
         }
 
         [Theory]
-        [InlineData(CmpOp.IsNull, "EXACT_NULL_OP")]
+        [InlineData(CmpOp.IsNull, "NULL_OP")]
         [InlineData(CmpOp.NotNull, "NOT_NULL_OP")]
         public void Unart(CmpOp op, string expectedOp)
         {
             var builder = new ConditionBuilder(mProvider);
             builder.Raw("1").Is(op);
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1)
-                .Should().HaveSymbol(expectedOp)
-                .And.Subject.Select("/INT")
-                    .Should().HaveCount(1)
-                    .And.HaveElementMatchingAt(0, e => e.Symbol == "INT" && e.Value == "1");
+
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprIsOp()
+                .Should().BeTrue();
+
+            expr.ExprOp()
+                .Should().Be(expectedOp);
+
+            expr.ExprOpArgCount().Should().Be(1);
+
+            expr.ExprOpArg(0).ExprIsInt()
+                .Should().BeTrue();
+
+            expr.ExprOpArg(0).ExprConstValue().Should().Be(1);
         }
 
         [Theory]
-        [InlineData(nameof(CmpOp.IsNull), "EXACT_NULL_OP")]
+        [InlineData(nameof(CmpOp.IsNull), "NULL_OP")]
         [InlineData(nameof(CmpOp.NotNull), "NOT_NULL_OP")]
         public void Unart_ByExension(string op, string expectedOp)
         {
@@ -237,18 +269,26 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
 
             m.Invoke(null, new object[] { sb });
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1)
-                .Should().HaveSymbol(expectedOp)
-                .And.Subject.Select("/INT")
-                    .Should().HaveCount(1)
-                    .And.HaveElementMatchingAt(0, e => e.Symbol == "INT" && e.Value == "1");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprIsOp()
+                .Should().BeTrue();
+
+            expr.ExprOp()
+                .Should().Be(expectedOp);
+
+            expr.ExprOpArgCount().Should().Be(1);
+
+            expr.ExprOpArg(0).ExprIsInt()
+                .Should().BeTrue();
+
+            expr.ExprOpArg(0).ExprConstValue().Should().Be(1);
         }
 
         [Theory]
-        [InlineData(CmpOp.In, true, "EXACT_IN_OP")]
+        [InlineData(CmpOp.In, true, "IN_OP")]
         [InlineData(CmpOp.NotIn, true, "NOT_IN_OP")]
-        [InlineData(CmpOp.Exists, false, "EXACT_EXISTS_OP")]
+        [InlineData(CmpOp.Exists, false, "EXISTS_OP")]
         [InlineData(CmpOp.NotExists, false, "NOT_EXISTS_OP")]
         public void QueryOp(CmpOp op, bool hasLeft, string expectedOp)
         {
@@ -258,18 +298,19 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
 
             var builder = new ConditionBuilder(mProvider);
             builder.Add(hasLeft ? "1" : null, op, builder.Query(select));
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1)
-                .Should().HaveSymbol(expectedOp)
-                .And.Subject.Select("/*")
-                    .Should().HaveCount(hasLeft ? 2 : 1)
-                    .And.HaveElementMatchingAt(hasLeft ? 1 : 0, e => e.Symbol == "SELECT");
+            
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprOp().Should().Be(expectedOp);
+
+            var arg = expr.ExprOpArg(hasLeft ? 1 : 0);
+            arg.Should().HaveSymbol("SELECT");
         }
 
         [Theory]
-        [InlineData(nameof(CmpOp.In), true, "EXACT_IN_OP")]
+        [InlineData(nameof(CmpOp.In), true, "IN_OP")]
         [InlineData(nameof(CmpOp.NotIn), true, "NOT_IN_OP")]
-        [InlineData(nameof(CmpOp.Exists), false, "EXACT_EXISTS_OP")]
+        [InlineData(nameof(CmpOp.Exists), false, "EXISTS_OP")]
         [InlineData(nameof(CmpOp.NotExists), false, "NOT_EXISTS_OP")]
         public void QueryOp_ByExtension(string op, bool hasLeft, string expectedOp)
         {
@@ -297,12 +338,12 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
 
             sb.Query(select);
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1)
-                .Should().HaveSymbol(expectedOp)
-                .And.Subject.Select("/*")
-                    .Should().HaveCount(hasLeft ? 2 : 1)
-                    .And.HaveElementMatchingAt(hasLeft ? 1 : 0, e => e.Symbol == "SELECT");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprOp().Should().Be(expectedOp);
+
+            var arg = expr.ExprOpArg(hasLeft ? 1 : 0);
+            arg.Should().HaveSymbol("SELECT");
         }
 
         [Theory]
@@ -316,34 +357,30 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         public void WrapLeft(SqlFunctionId function, string expectedFunction)
         {
             var builder = new ConditionBuilder(mProvider);
+            
             builder.And()
                 .Property(mTable1[1]).Wrap(function)
                 .Gt().Value(2);
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1)
-                .Should().HaveSymbol("GT_OP");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
 
-            var a1 = ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/GT_OP/*", 1);
+            expr.ExprOp().Should().Be("GT_OP");
 
-            a1.Should().Match(n => n.Symbol.EndsWith("CALL") || n.Symbol == "AGGR_FUNC");
+            var l = expr.ExprOpArg(0);
 
-            a1.SelectNode("/*", 1)
-                .Should().HaveSymbol(expectedFunction);
+            l.ExprIsFnCall().Should().BeTrue();
+            l.ExprFnCallName().Should().Be(expectedFunction);
 
-            var f = a1.SelectNode("/*", 2);
-            f.Should().Exist()
-                .And.HaveSymbol("FIELD");
+            var a = l.ExprExprFnCallArg(0);
 
-            f.SelectNode("/*", 1)
-                .Should().HaveValue("table1");
-            f.SelectNode("/*", 2)
-                .Should().HaveValue("col2");
+            a.ExprIsField().Should().BeTrue();
+            a.ExprFieldAlias().Should().Be("table1");
+            a.ExprFieldName().Should().Be("col2");
 
-            var a2 = ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/GT_OP/*", 2);
-            a2.Should().Exist()
-                .And.HaveSymbol("INT")
-                .And.HaveValue("2");
+            var r = expr.ExprOpArg(1);
+
+            r.ExprIsConst().Should().BeTrue();
+            r.ExprConstValue().Should().Be(2);
         }
 
         [Theory]
@@ -366,30 +403,25 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
                 .Gt()
                 .Property(mTable1[1]).Wrap(function);
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1)
-                .Should().HaveSymbol("GT_OP");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
 
-            var a1 = ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/GT_OP/*", 2);
+            expr.ExprOp().Should().Be("GT_OP");
 
-            a1.Should().Match(n => n.Symbol.EndsWith("CALL") || n.Symbol == "AGGR_FUNC");
+            var l = expr.ExprOpArg(0);
 
-            a1.SelectNode("/*", 1)
-                .Should().HaveSymbol(expectedFunction);
+            l.ExprIsConst().Should().BeTrue();
+            l.ExprConstValue().Should().Be("a");
 
-            var f = a1.SelectNode("/*", 2);
-            f.Should().Exist()
-                .And.HaveSymbol("FIELD");
+            var r = expr.ExprOpArg(1);
 
-            f.SelectNode("/*", 1)
-                .Should().HaveValue("table1");
-            f.SelectNode("/*", 2)
-                .Should().HaveValue("col2");
+            r.ExprIsFnCall().Should().BeTrue();
+            r.ExprFnCallName().Should().Be(expectedFunction);
 
-            var a2 = ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/GT_OP/*", 1);
-            a2.Should().Exist()
-                .And.HaveSymbol("STRINGDQ")
-                .And.HaveValue("\"a\"");
+            var a = r.ExprExprFnCallArg(0);
+
+            a.ExprIsField().Should().BeTrue();
+            a.ExprFieldAlias().Should().Be("table1");
+            a.ExprFieldName().Should().Be("col2");
         }
 
         [Fact]
@@ -400,18 +432,16 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
                 .Count()
                 .Gt().Value(2);
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1)
-                .Should().HaveSymbol("GT_OP");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
 
-            var a1 = ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/GT_OP/*", 1);
+            expr.ExprIsOp().Should().BeTrue();
+            expr.ExprOp().Should().Be("GT_OP");
 
-            a1.Should().HaveSymbol("AGGR_COUNT_ALL");
 
-            var a2 = ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/GT_OP/*", 2);
-            a2.Should().Exist()
-                .And.HaveSymbol("INT")
-                .And.HaveValue("2");
+            expr.ExprOpArg(0).ExprIsCountAll().Should().BeTrue();
+
+            expr.ExprOpArg(1).ExprIsConst().Should().BeTrue();
+            expr.ExprOpArg(1).ExprConstValue().Should().Be(2);
         }
 
         [Fact]
@@ -426,18 +456,17 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
                 .Gt()
                 .Count();
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1)
-                .Should().HaveSymbol("GT_OP");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
 
-            var a1 = ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/GT_OP/*", 2);
+            expr.ExprIsOp().Should().BeTrue();
+            expr.ExprOp().Should().Be("GT_OP");
 
-            a1.Should().HaveSymbol("AGGR_COUNT_ALL");
+            expr.ExprOpArg(0).ExprIsConst().Should().BeTrue();
+            expr.ExprOpArg(0).ExprConstValue().Should().Be("a");
 
-            var a2 = ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/GT_OP/*", 1);
-            a2.Should().Exist()
-                .And.HaveSymbol("STRINGDQ")
-                .And.HaveValue("\"a\"");
+            expr.ExprOpArg(1).ExprIsCountAll().Should().BeTrue();
+
+            
         }
 
         private void Invoke(string name, ConditionBuilder builder)
@@ -454,6 +483,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
 
         private void And_IsDefault_Direct(ConditionBuilder builder) => builder.Add("a", CmpOp.Gt, "b");
         private void And_IsDefault_Extension(ConditionBuilder builder) => builder.Raw("a").Is(CmpOp.Gt).Raw("b");
+        
         [Theory]
         [InlineData(nameof(And_IsDefault_Direct))]
         [InlineData(nameof(And_IsDefault_Extension))]
@@ -463,14 +493,16 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
 
             Invoke(method, builder);
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("GT_OP");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprOp().Should().Be("GT_OP");
 
             builder.Add("c", CmpOp.Le, "d");
-            ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("AND_OP");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/AND_OP/*", 1).Should().HaveSymbol("GT_OP");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/AND_OP/*", 2).Should().HaveSymbol("LE_OP");
+            expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprOp().Should().Be("AND_OP");
+            expr.ExprOpArg(0).ExprOp().Should().Be("GT_OP");
+            expr.ExprOpArg(1).ExprOp().Should().Be("LE_OP");
         }
 
         private void FirstAnd_ShouldBeIgnored_Direct(ConditionBuilder builder) => builder.Add(LogOp.And, "TRUE");
@@ -489,8 +521,8 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
 
             Invoke(method, builder);
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("BOOLEAN_TRUE");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+            expr.ExprIsTrue().Should().BeTrue();
         }
 
         private void SecondAnd_ShouldBeAdded_Direct(ConditionBuilder builder)
@@ -514,10 +546,10 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
 
             Invoke(method, builder);
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("AND_OP");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/AND_OP/*", 1).Should().HaveSymbol("BOOLEAN_FALSE");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/AND_OP/*", 2).Should().HaveSymbol("BOOLEAN_TRUE");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+            expr.ExprOp().Should().Be("AND_OP");
+            expr.ExprOpArg(0).ExprIsFalse().Should().BeTrue();
+            expr.ExprOpArg(1).ExprIsTrue().Should().BeTrue();
         }
 
         private void SecondOr_ShouldBeAdded_Direct(ConditionBuilder builder)
@@ -541,10 +573,10 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
 
             Invoke(method, builder);
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("OR_OP");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/OR_OP/*", 1).Should().HaveSymbol("BOOLEAN_FALSE");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/OR_OP/*", 2).Should().HaveSymbol("BOOLEAN_TRUE");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+            expr.ExprOp().Should().Be("OR_OP");
+            expr.ExprOpArg(0).ExprIsFalse().Should().BeTrue();
+            expr.ExprOpArg(1).ExprIsTrue().Should().BeTrue();
         }
 
         private void Not_FirstArg1_Direct(ConditionBuilder builder) => builder.Add(LogOp.Not, "TRUE");
@@ -566,9 +598,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
 
             Invoke(method, builder);
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("NOT_OP");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/NOT_OP/*", 1).Should().HaveSymbol("BOOLEAN_TRUE");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+            expr.ExprOp().Should().Be("NOT_OP");
+            expr.ExprOpArg(0).ExprIsTrue().Should().BeTrue();
         }
 
         private void Not_FirstArg3_Direct(ConditionBuilder builder)
@@ -592,11 +624,11 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
 
             Invoke(method, builder);
 
-            var ast = ("DEBUG " + builder.ToString()).ParseSql();
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol("AND_OP");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/AND_OP/*", 1).Should().HaveSymbol("NOT_OP");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/AND_OP/*[1]/*", 1).Should().HaveSymbol("BOOLEAN_TRUE");
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/AND_OP/*", 2).Should().HaveSymbol("BOOLEAN_FALSE");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+            expr.ExprOp().Should().Be("AND_OP");
+            expr.ExprOpArg(0).ExprOp().Should().Be("NOT_OP");
+            expr.ExprOpArg(0).ExprOpArg(0).ExprIsTrue().Should().BeTrue();
+            expr.ExprOpArg(1).ExprIsFalse().Should().BeTrue();
         }
 
         private void Not_SecondArg1_Direct(ConditionBuilder builder)
@@ -641,10 +673,11 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             Invoke(method, builder);
             var ast = ("DEBUG " + builder.ToString()).ParseSql();
 
-            ast.SelectNode("/STATEMENT[1]/DEBUG_EXPR/*", 1).Should().HaveSymbol(op);
-            ast.SelectNode($"/STATEMENT[1]/DEBUG_EXPR/{op}/*", 2).Should().HaveSymbol("NOT_OP");
-            ast.SelectNode($"/STATEMENT[1]/DEBUG_EXPR/{op}/*[2]/*", 1).Should().HaveSymbol("BOOLEAN_FALSE");
-            ast.SelectNode($"/STATEMENT[1]/DEBUG_EXPR/{op}/*", 1).Should().HaveSymbol("BOOLEAN_TRUE");
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+            expr.ExprOp().Should().Be(op);
+            expr.ExprOpArg(0).ExprIsTrue().Should().BeTrue();
+            expr.ExprOpArg(1).ExprOp().Should().Be("NOT_OP");
+            expr.ExprOpArg(1).ExprOpArg(0).ExprIsFalse().Should().BeTrue();
         }
 
         [Fact]
@@ -662,11 +695,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.Where.Raw("TRUE");
 
             builder.PrepareQuery();
-            var ast = (builder.Query).ParseSql();
-            ast.SelectNode("/SELECT/TABLE_EXPRESSION/WHERE_CLAUSE")
-                .Should().Exist()
-                .And.Subject.SelectNode("*", 1)
-                    .Should().HaveSymbol("BOOLEAN_TRUE");
+            var select = (builder.Query).ParseSql().SelectStatement();
+            select.SelectWhere().Should().NotBeNull();
+            select.SelectWhere().ClauseCondition().ExprIsTrue().Should().BeTrue();
         }
 
         [Fact]
@@ -677,16 +708,16 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder1.Where.Raw("TRUE");
             var builder2 = connection.GetSelectQueryBuilder(mTable2);
             builder2.Where.Exists().Query(builder1);
-
             builder2.PrepareQuery();
-            var ast = (builder2.Query).ParseSql();
-            ast.SelectNode("/SELECT/TABLE_EXPRESSION/WHERE_CLAUSE")
-                .Should().Exist()
-                .And.Subject.SelectNode("*", 1)
-                    .Should().HaveSymbol("EXACT_EXISTS_OP")
-                    .And.Subject.SelectNode("/SELECT/TABLE_EXPRESSION/WHERE_CLAUSE/*", 1)
-                        .Should().Exist()
-                        .And.HaveSymbol("BOOLEAN_TRUE");
+
+            var select = (builder2.Query).ParseSql().SelectStatement();
+            select.SelectWhere().Should().NotBeNull();
+
+            select.SelectWhere().Should().NotBeNull();
+            select.SelectWhere().ClauseCondition().ExprOp().Should().Be("EXISTS_OP");
+
+            var subselect = select.SelectWhere().ClauseCondition().ExprOpArg(0);
+            subselect.SelectWhere().ClauseCondition().ExprIsTrue().Should().BeTrue();
         }
 
         [Fact]
@@ -699,15 +730,14 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
                 .And().Raw("FALSE");
 
             builder.PrepareQuery();
-            var ast = (builder.Query).ParseSql();
-            ast.SelectNode("/SELECT/TABLE_EXPRESSION/WHERE_CLAUSE")
-                .Should().Exist();
-            ast.SelectNode("/SELECT/TABLE_EXPRESSION/WHERE_CLAUSE/*", 1)
-                .Should().Exist()
-                .And.HaveSymbol("AND_OP")
-                .And.Subject.Should()
-                    .Match(n => n.SelectNode("/*", 1).Symbol == "BOOLEAN_TRUE")
-                    .And.Match(n => n.SelectNode("/*", 2).Symbol == "BOOLEAN_FALSE");
+            var select = (builder.Query).ParseSql().SelectStatement();
+
+            select.SelectWhere().Should().NotBeNull();
+            var expr = select.SelectWhere().ClauseCondition();
+
+            expr.ExprOp().Should().Be("AND_OP");
+            expr.ExprOpArg(0).ExprIsTrue().Should().BeTrue();
+            expr.ExprOpArg(1).ExprIsFalse().Should().BeTrue();
         }
 
         [Fact]
@@ -716,19 +746,19 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             using var connection = new DummySqlConnection();
             var builder = connection.GetSelectQueryBuilder(mTable1);
             builder.Where.Raw("TRUE")
-                .And(g => g.Raw("FALSE"));
-
+                .OrNot(g => g.Raw("FALSE"));
             builder.PrepareQuery();
-            var ast = (builder.Query).ParseSql();
-            ast.SelectNode("/SELECT/TABLE_EXPRESSION/WHERE_CLAUSE")
-                .Should().Exist();
-            ast.SelectNode("/SELECT/TABLE_EXPRESSION/WHERE_CLAUSE/*", 1)
-                .Should().Exist()
-                .And.HaveSymbol("AND_OP")
-                .And.Subject.Should()
-                    .Match(n => n.SelectNode("/*", 1).Symbol == "BOOLEAN_TRUE")
-                    .And.Match(n => n.SelectNode("/*", 2).Symbol == "BOOLEAN_FALSE");
+            var select = (builder.Query).ParseSql().SelectStatement();
+
+            select.SelectWhere().Should().NotBeNull();
+            var expr = select.SelectWhere().ClauseCondition();
+
+            expr.ExprOp().Should().Be("OR_OP");
+            expr.ExprOpArg(0).ExprIsTrue().Should().BeTrue();
+            expr.ExprOpArg(1).ExprOp().Should().Be("NOT_OP");
+            expr.ExprOpArg(1).ExprOpArg(0).ExprIsFalse().Should().BeTrue();
         }
     }
 }
+
 

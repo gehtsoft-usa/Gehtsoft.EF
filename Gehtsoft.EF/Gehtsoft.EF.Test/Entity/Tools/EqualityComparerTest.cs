@@ -92,7 +92,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
 
             var c = new EntityEqualityComparer<Data>();
             c.Equals(f, s).Should().Be(expected);
-
         }
 
         [Fact]

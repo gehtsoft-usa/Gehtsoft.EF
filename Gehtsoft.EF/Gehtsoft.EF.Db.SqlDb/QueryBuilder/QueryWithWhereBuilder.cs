@@ -4,22 +4,50 @@ using System.Collections.Generic;
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// The entity in the query.
+    /// </summary>
     public class QueryBuilderEntity
     {
         internal Type EntityType { get; set; }
         internal SelectEntitiesQueryBase SelectEntitiesQuery { get; set; }
 
+        /// <summary>
+        /// The table.
+        /// </summary>
         public TableDescriptor Table { get; internal set; }
+
+        /// <summary>
+        /// The table alias in the query.
+        /// </summary>
         public string Alias { get; internal set; }
+
+        /// <summary>
+        /// How to table is connected.
+        /// </summary>
         public TableJoinType JoinType { get; set; }
+
+        /// <summary>
+        /// The table to which this table is connected.
+        /// </summary>
         public QueryBuilderEntity ConnectedToTable { get; set; }
+
+        /// <summary>
+        /// The field to which this table is connected.
+        /// </summary>
         public TableDescriptor.ColumnInfo ConnectedToField { get; internal set; }
+
+        /// <summary>
+        /// The condition of connecting.
+        /// </summary>
         public ConditionBuilder On { get; }
 
         [Obsolete("Use ConnectedTo properties instead")]
+        [DocgenIgnore]
         public string Expression
         {
             set
@@ -29,6 +57,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
 
         [Obsolete("Use On property instead")]
+        [DocgenIgnore]
         public void SetJoin(TableJoinType type, string expression)
         {
             JoinType = type;
@@ -41,14 +70,29 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
     }
 
+    /// <summary>
+    /// The collection of the entities in the query.
+    /// </summary>
     public class QueryBuilderEntityCollection : IEnumerable<QueryBuilderEntity>
     {
         private readonly List<QueryBuilderEntity> mList = new List<QueryBuilderEntity>();
 
+        /// <summary>
+        /// The number of entities.
+        /// </summary>
         public int Count => mList.Count;
 
+        /// <summary>
+        /// Gets entity by the index.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public QueryBuilderEntity this[int index] => mList[index];
 
+        /// <summary>
+        /// Gets enumerator.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<QueryBuilderEntity> GetEnumerator()
         {
             return mList.GetEnumerator();
@@ -65,12 +109,23 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
     }
 
+    /// <summary>
+    /// The base class for all builders with the condition.
+    /// </summary>
     public abstract class QueryWithWhereBuilder : AQueryBuilder, IConditionBuilderInfoProvider
     {
+        /// <summary>
+        /// The language rules of the connection for which this query is created.
+        /// </summary>
         public SqlDbLanguageSpecifics Specifics => mSpecifics;
+
         private static int gAlias = 0;
         private static readonly object gAliasMutex = new object();
         protected ConditionBuilder mWhere = null;
+
+        /// <summary>
+        /// The query condition.
+        /// </summary>
         public ConditionBuilder Where => mWhere ?? (mWhere = new ConditionBuilder(this));
 
         protected static string NextAlias
@@ -93,6 +148,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         protected QueryBuilderEntityCollection mEntities = new QueryBuilderEntityCollection();
 
+        /// <summary>
+        /// All entities in the query.
+        /// </summary>
         public QueryBuilderEntityCollection Entities => mEntities;
 
         protected QueryBuilderEntity AddTable(TableDescriptor table, TableJoinType joinType, QueryBuilderEntity connectedToTable, TableDescriptor.ColumnInfo connectedToColumn)
@@ -209,10 +267,17 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             return AddTable(table, connectingColumn, joinType, connectToTable, connectToColumn);
         }
 
+        /// <summary>
+        /// Gets the alias of the column in the query.
+        /// </summary>
+        /// <param name="columnInfo"></param>
+        /// <param name="queryEntity"></param>
+        /// <returns></returns>
         public abstract string GetAlias(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity queryEntity);
     }
 
     [Obsolete("Upgrade your code to using query Where property")]
+    [DocgenIgnore]
     public static class QueryWithWhereBuilderBackwardCompatibilityExtension
     {
         [Obsolete("Upgrade your code to using query Where property")]
@@ -281,11 +346,19 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public static void AddWhereExpression(this QueryWithWhereBuilder builder, LogOp logOp, string rawExpression) => builder.Where.Add(logOp, rawExpression);
     }
 
+    /// <summary>
+    /// The base class for queries with the filter where only one table is involved.
+    /// </summary>
     public abstract class SingleTableQueryWithWhereBuilder : QueryWithWhereBuilder
     {
         protected TableDescriptor mDescriptor;
         protected string mQuery;
 
+        /// <summary>
+        /// Returns the query.
+        ///
+        /// Call <see cref="AQueryBuilder.PrepareQuery"/> before reading the query.
+        /// </summary>
         public override string Query
         {
             get { return mQuery; }
@@ -297,6 +370,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mDescriptor = tableDescriptor;
         }
 
+        /// <summary>
+        /// Add where filter to find the main entity by the primary key value.
+        ///
+        /// The primary key value is expected in the parameter with the name of the primary key column.
+        /// </summary>
         public void AddWhereFilterPrimaryKey()
         {
             if (mDescriptor.PrimaryKey == null)
@@ -305,6 +383,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             Where.Property(mDescriptor.PrimaryKey).Is(CmpOp.Eq).Parameter(mDescriptor.PrimaryKey.Name);
         }
 
+        /// <summary>
+        /// Gets the alias of the column in the query.
+        /// </summary>
+        /// <param name="columnInfo"></param>
+        /// <param name="queryEntity"></param>
+        /// <returns></returns>
         public override string GetAlias(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity queryEntity)
         {
             if (queryEntity == null)
@@ -316,6 +400,13 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             return $"{columnInfo.Table.Name}.{columnInfo.Name}";
         }
 
+        /// <summary>
+        /// Gets reference to a column of the query entity.
+        ///
+        /// The reference is used when a sub-query condition need to have a reference to an entity in the main query.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public override IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column) => new InQueryFieldReference(GetAlias(column, null));
     }
 }

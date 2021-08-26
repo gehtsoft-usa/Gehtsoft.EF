@@ -9,30 +9,99 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
+    /// <summary>
+    /// The rule for an update query binder.
+    /// </summary>
     public class UpdateQueryToTypeBinderRule
     {
+        /// <summary>
+        /// The name of the parameter in the query
+        /// </summary>
         public string ParameterName { get; set; }
+        /// <summary>
+        /// The name of the property
+        /// </summary>
         public string PropertyName { get; set; }
+        /// <summary>
+        /// The property accessor
+        /// </summary>
         public IPropertyAccessor PropertyInfo { get; set; }
+        /// <summary>
+        /// For foreign key field - the property accessor to the primary key of the associated entity
+        /// </summary>
         public IPropertyAccessor PkPropertyInfo { get; set; }
+        /// <summary>
+        /// The type of the parameter.
+        /// </summary>
         public DbType DbType { get; set; }
+        /// <summary>
+        /// The flag indicating that the parameter will be output for insert operation.
+        /// </summary>
         public bool OutputOnInsert { get; set; }
+        /// <summary>
+        /// The size of the value.
+        /// </summary>
         public int Size { get; set; }
     }
 
+    /// <summary>
+    /// The controller of data truncation.
+    /// 
+    /// Use <see cref="DefaultUpdateQueryTruncationController"/> as a default implementation of the interface.
+    /// 
+    /// Use <see cref="UpdateQueryTruncationRules"/> to set truncation rules.
+    /// </summary>
     public interface IUpdateQueryTruncationController
     {
+        /// <summary>
+        /// Truncates the value to the parameters of the type.
+        /// 
+        /// The controller truncates the value so it fits into
+        /// the column definition and supported value range.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="size"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         object Truncate(DbType type, int size, object value);
     }
 
+    /// <summary>
+    /// The default implementation of the data truncation controller.
+    /// </summary>
     public class DefaultUpdateQueryTruncationController
     {
+        /// <summary>
+        /// The flag indicating whether the controller should truncate strings.
+        /// </summary>
         public bool TruncateStrings { get; set; } = true;
+        /// <summary>
+        /// The flag indicating whether the controller should truncate numbers.
+        /// </summary>
         public bool TruncateNumbers { get; set; } = true;
+        /// <summary>
+        /// The flag indicating whether the controller should truncate dates.
+        /// </summary>
         public bool TruncateDates { get; set; } = true;
+        /// <summary>
+        /// The maximum date value supported
+        /// </summary>
         public DateTime MaximumDate { get; set; } = new DateTime(9999, 12, 31);
+        /// <summary>
+        /// The minimum date value supported.
+        /// </summary>
         public DateTime MinimumDate { get; set; } = new DateTime(1, 1, 1);
 
+        /// <summary>
+        /// Truncates the value to the parameters of the type.
+        /// 
+        /// The controller truncates the value so it fits into
+        /// the column definition and supported value range.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="size"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public virtual object Truncate(DbType type, int size, object value)
         {
             if (value == null)
@@ -132,38 +201,80 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
     }
 
+    /// <summary>
+    /// The truncation rules manager.
+    /// </summary>
     public class UpdateQueryTruncationRules
     {
+        /// <summary>
+        /// Default truncation rules.
+        /// </summary>
+        public IUpdateQueryTruncationController DefaultRules { get; set; } = null;
+
         private readonly ConcurrentDictionary<string, IUpdateQueryTruncationController> mRules = new ConcurrentDictionary<string, IUpdateQueryTruncationController>();
 
+        /// <summary>
+        /// Gets the truncation rules for the specified connection.
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <returns></returns>
         public IUpdateQueryTruncationController this[string connectionString]
         {
             get
             {
                 if (mRules.TryGetValue(connectionString, out var x))
                     return x;
-                return null;
+                return DefaultRules;
             }
         }
 
+        /// <summary>
+        /// Enables truncation for the connections with the specified connection string.
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <param name="truncationController"></param>
         public void EnableTruncation(string connectionString, IUpdateQueryTruncationController truncationController) => mRules.TryAdd(connectionString, truncationController);
 
+        /// <summary>
+        /// Disables truncation for the connection with the specified connection string.
+        /// </summary>
+        /// <param name="connectionString"></param>
         public void DisableTruncation(string connectionString) => mRules.TryRemove(connectionString, out _);
 
+        /// <summary>
+        /// Returns an instance of the singleton truncate rule manager.
+        /// </summary>
         public static UpdateQueryTruncationRules Instance { get; } = new UpdateQueryTruncationRules();
     }
 
+    /// <summary>
+    /// The binder of the entity data into an insert or update query.
+    /// </summary>
     public class UpdateQueryToTypeBinder
     {
         private readonly Type mType;
         private readonly List<UpdateQueryToTypeBinderRule> mRules = new List<UpdateQueryToTypeBinderRule>();
         private UpdateQueryToTypeBinderRule mAutoPkRule = null;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="type">The type that contains the data.</param>
         public UpdateQueryToTypeBinder(Type type)
         {
             mType = type;
         }
 
+        /// <summary>
+        /// Adds binding using a property accessor for foreign key property.
+        /// </summary>
+        /// <param name="parameterName"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="propertyInfo"></param>
+        /// <param name="pkPropertyInfo"></param>
+        /// <param name="dbType"></param>
+        /// <param name="size"></param>
+        /// <param name="outputOnInsert"></param>
         protected void AddBinding(string parameterName, string propertyName, IPropertyAccessor propertyInfo, IPropertyAccessor pkPropertyInfo, DbType dbType, int size, bool outputOnInsert)
         {
             UpdateQueryToTypeBinderRule rule = new UpdateQueryToTypeBinderRule()
@@ -183,22 +294,55 @@ namespace Gehtsoft.EF.Db.SqlDb
                 mAutoPkRule = rule;
         }
 
+        /// <summary>
+        /// Adds binding using property name.
+        /// </summary>
+        /// <param name="parameterName"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="dbType"></param>
+        /// <param name="size"></param>
+        /// <param name="outputOnInsert"></param>
         public void AddBinding(string parameterName, string propertyName, DbType dbType, int size, bool outputOnInsert = false)
         {
             PropertyAccessor propertyInfo = new PropertyAccessor(mType.GetProperty(propertyName));
             AddBinding(parameterName, propertyName, propertyInfo, null, dbType, size, outputOnInsert);
         }
 
+        /// <summary>
+        /// Adds binding using property accessor.
+        /// </summary>
+        /// <param name="parameterName"></param>
+        /// <param name="propertyInfo"></param>
+        /// <param name="dbType"></param>
+        /// <param name="size"></param>
+        /// <param name="outputOnInsert"></param>
         public void AddBinding(string parameterName, IPropertyAccessor propertyInfo, DbType dbType, int size, bool outputOnInsert = false)
         {
             AddBinding(parameterName, propertyInfo.Name, propertyInfo, null, dbType, size, outputOnInsert);
         }
 
+        /// <summary>
+        /// Adds binding using a property accessor for foreign key property.
+        /// </summary>
+        /// <param name="parameterName"></param>
+        /// <param name="propertyInfo"></param>
+        /// <param name="pkPropertyInfo"></param>
+        /// <param name="dbType"></param>
+        /// <param name="size"></param>
+        /// <param name="outputOnInsert"></param>
         internal void AddBinding(string parameterName, IPropertyAccessor propertyInfo, IPropertyAccessor pkPropertyInfo, DbType dbType, int size, bool outputOnInsert = false)
         {
             AddBinding(parameterName, propertyInfo.Name, propertyInfo, pkPropertyInfo, dbType, size, outputOnInsert);
         }
 
+        /// <summary>
+        /// Binds all columns in the table descriptor.
+        /// 
+        /// The binding defines the parameter names the same as column names. 
+        /// </summary>
+        /// <param name="tableDescriptor"></param>
+        /// <param name="dbprefix"></param>
+        /// <param name="typeprefix"></param>
         public void AutoBind(TableDescriptor tableDescriptor, string dbprefix = null, string typeprefix = null)
         {
             foreach (TableDescriptor.ColumnInfo column in tableDescriptor)
@@ -213,12 +357,26 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
         }
 
+        /// <summary>
+        /// Binds parameters and executes the query.
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="value"></param>
+        /// <param name="insert"></param>
         public virtual void BindAndExecute(SqlDbQuery query, object value, bool? insert = null) =>
             BindAndExecuteCore(false, query, value, insert, null)
                 .ConfigureAwait(false)
                 .GetAwaiter()
                 .GetResult();
 
+        /// <summary>
+        /// Binds parameters and executes the query asynchronously.
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="value"></param>
+        /// <param name="insert"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public virtual Task BindAndExecuteAsync(SqlDbQuery query, object value, bool? insert = null, CancellationToken? token = null) => BindAndExecuteCore(false, query, value, insert, token);
 
         protected virtual async Task BindAndExecuteCore(bool sync, SqlDbQuery query, object value, bool? insert, CancellationToken? token)

@@ -5,73 +5,182 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
+    /// <summary>
+    /// The set of the rules specific for a particular database driver.
+    /// </summary>
     public abstract class SqlDbLanguageSpecifics
     {
+        /// <summary>
+        /// Flag indicating whether the queries must be terminated with semicolon.
+        /// </summary>
         public virtual bool TerminateWithSemicolon
         {
             get { return true; }
         }
 
+        /// <summary>
+        /// The transaction support modes.
+        /// </summary>
         public enum TransactionSupport
         {
+            /// <summary>
+            /// Transactions aren't supported
+            /// </summary>
             None,
+            /// <summary>
+            /// Only plain (one at a time) transactions are supported.
+            /// </summary>
             Plain,
+            /// <summary>
+            /// Nested transactions are supported.
+            /// </summary>
             Nested,
         }
 
+        /// <summary>
+        /// The flag indicating whether the transactions are supported.
+        /// </summary>
         public virtual TransactionSupport SupportsTransactions => TransactionSupport.Nested;
 
+        /// <summary>
+        /// The paging support modes.
+        /// </summary>
         public enum PagingSupport
         {
+            /// <summary>
+            /// Paging is not supported.
+            ///
+            /// Take and Skip parameters of select query will be ignored.
+            /// </summary>
             None,
+            /// <summary>
+            /// DB has native support for paging.
+            /// </summary>
             Native,
+            /// <summary>
+            /// DB has means to emulate paging.
+            /// </summary>
             Emulated,
         }
 
+        /// <summary>
+        /// The flag indicating whether paging is supported.
+        /// </summary>
         public virtual PagingSupport SupportsPaging => PagingSupport.Native;
 
+        /// <summary>
+        /// The block of the code to use before the block of the SQL statements.
+        /// </summary>
         public virtual string PreBlock => "";
 
+        /// <summary>
+        /// The block of the code to use after the block of the SQL statements.
+        /// </summary>
         public virtual string PostBlock => "";
 
+        /// <summary>
+        /// The block of code to use before each SQL statement.
+        /// </summary>
         public virtual string PreQueryInBlock => "";
 
+        /// <summary>
+        /// The block of code to use after each SQL statement.
+        /// </summary>
         public virtual string PostQueryInBlock => "";
 
+        /// <summary>
+        /// The prefix of the parameter name inside the query.
+        /// </summary>
         public virtual string ParameterInQueryPrefix => "@";
 
+        /// <summary>
+        /// The prefix of the parameter when pass to ADO.NET query object.
+        /// </summary>
         public virtual string ParameterPrefix => "@";
 
+        /// <summary>
+        /// The keyword used to set table alias in `SELECT` queries.
+        /// </summary>
         public virtual string TableAliasInSelect => "AS";
 
+        /// <summary>
+        /// The flag indicating whether dialect requires to list all column that aren't aggregated in `GROUP BY` clause.
+        /// </summary>
         public virtual bool AllNonAggregatesInGroupBy => false;
 
+        /// <summary>
+        /// The flag indicating that right outer join is supported.
+        /// </summary>
         public virtual bool RightJoinSupported => true;
 
+        /// <summary>
+        /// The flag indicating that full outer join is supported.
+        /// </summary>
         public virtual bool OuterJoinSupported => true;
 
+        /// <summary>
+        /// The flag indicating that the drop column is supported.
+        /// </summary>
         public virtual bool DropColumnSupported => true;
 
+        /// <summary>
+        /// The flag indicating that modify column is supported.
+        /// </summary>
         public virtual bool ModifyColumnSupported => true;
 
+        /// <summary>
+        /// The flag indicating that functions may be used in the indexes.
+        /// </summary>
         public virtual bool SupportFunctionsInIndexes => false;
 
+        /// <summary>
+        /// The flag indicating that indexes are created for foreign key automatically.
+        /// </summary>
         public virtual bool IndexForFKCreatedAutomatically => false;
 
+        /// <summary>
+        /// Returns the name of the type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="size"></param>
+        /// <param name="precision"></param>
+        /// <param name="autoincrement"></param>
+        /// <returns></returns>
         public abstract string TypeName(DbType type, int size, int precision, bool autoincrement);
 
+        /// <summary>
+        /// The modes how dialect returns auto-assigned primary keys in the `INSERT` statements.
+        /// </summary>
         public enum AutoincrementReturnStyle
         {
+            /// <summary>
+            /// As output parameter.
+            /// </summary>
             Parameter,
+            /// <summary>
+            /// In the first resultset.
+            /// </summary>
             FirstResultset,
+            /// <summary>
+            /// In the second resultset.
+            /// </summary>
             SecondResultset,
         }
 
+        /// <summary>
+        /// The flag indicating how autoincrement is returned.
+        /// </summary>
         public virtual AutoincrementReturnStyle AutoincrementReturnedAs => AutoincrementReturnStyle.FirstResultset;
 
+        /// <summary>
+        /// Converts the logical operation to SQL code.
+        /// </summary>
+        /// <param name="op"></param>
+        /// <returns></returns>
         public virtual string GetLogOp(LogOp op)
         {
             if (op == LogOp.And)
@@ -87,6 +196,11 @@ namespace Gehtsoft.EF.Db.SqlDb
             throw new EfSqlException(EfExceptionCode.UnknownOperator);
         }
 
+        /// <summary>
+        /// Closes the logical opertion in SQL code.
+        /// </summary>
+        /// <param name="op"></param>
+        /// <returns></returns>
         public virtual string CloseLogOp(LogOp op)
         {
             if ((op & LogOp.Not) == LogOp.Not)
@@ -94,6 +208,13 @@ namespace Gehtsoft.EF.Db.SqlDb
             return "";
         }
 
+        /// <summary>
+        /// Gets comparison operation in SQL code.
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="leftSide"></param>
+        /// <param name="rightSide"></param>
+        /// <returns></returns>
         public virtual string GetOp(CmpOp op, string leftSide, string rightSide)
         {
             switch (op)
@@ -154,6 +275,12 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
         }
 
+        /// <summary>
+        /// Gets aggregate function in SQL code.
+        /// </summary>
+        /// <param name="aggregate"></param>
+        /// <param name="argument"></param>
+        /// <returns></returns>
         public virtual string GetAggFn(AggFn aggregate, string argument)
         {
             switch (aggregate)
@@ -184,6 +311,12 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
         }
 
+        /// <summary>
+        /// Converts run-time type to DB type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="dbtype"></param>
+        /// <returns></returns>
         public virtual bool TypeToDb(Type type, out DbType dbtype)
         {
             type = Nullable.GetUnderlyingType(type) ?? type;
@@ -255,6 +388,12 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
         }
 
+        /// <summary>
+        /// Converts the value of the type specified to DB-supported value.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="type"></param>
+        /// <param name="dbtype"></param>
         public virtual void ToDbValue(ref object value, Type type, out DbType dbtype)
         {
             Type type1 = Nullable.GetUnderlyingType(type) ?? type;
@@ -331,6 +470,12 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
         }
 
+        /// <summary>
+        /// Translates DB value to the expected value of the specified run-time type.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public virtual object TranslateValue(object value, Type type)
         {
             if (value == null)
@@ -362,6 +507,12 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
         }
 
+        /// <summary>
+        /// Gets SQL function in SQL code.
+        /// </summary>
+        /// <param name="function"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public virtual string GetSqlFunction(SqlFunctionId function, string[] args)
         {
             switch (function)
@@ -436,6 +587,11 @@ namespace Gehtsoft.EF.Db.SqlDb
             return null;
         }
 
+        /// <summary>
+        /// Formats constant in SQL
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public virtual string FormatValue(object value)
         {
             if (value is null)
@@ -459,14 +615,38 @@ namespace Gehtsoft.EF.Db.SqlDb
             throw new ArgumentException("Unsupported type", nameof(value));
         }
 
+        /// <summary>
+        /// Minimum date supported in date datatype.
+        /// </summary>
         public virtual DateTime? MinDate { get; } = null;
+        /// <summary>
+        /// Maximum date supported in date datatype.
+        /// </summary>
         public virtual DateTime? MaxDate { get; } = null;
+        /// <summary>
+        /// Minimum date supported in timestamp datatype.
+        /// </summary>
         public virtual DateTime? MinTimestamp { get; } = null;
+        /// <summary>
+        /// Maximum date supported in timestamp datatype.
+        /// </summary>
         public virtual DateTime? MaxTimestamp { get; } = null;
+        /// <summary>
+        /// The flag indicating whether the database compares string case sensitive by default.
+        /// </summary>
         public virtual bool CaseSensitiveStringComparison => true;
+
+        /// <summary>
+        /// Returns builder for group of parameters.
+        /// </summary>
+        /// <returns></returns>
+        public virtual ParameterGroupQueryBuilder GetParameterGroupBuilder()
+        {
+            return new ParameterGroupQueryBuilder(this);
+        }
     }
 
-    public class Sql92LanguageSpecifics : SqlDbLanguageSpecifics
+    internal class Sql92LanguageSpecifics : SqlDbLanguageSpecifics
     {
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
@@ -585,6 +765,9 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
     }
 
+    /// <summary>
+    /// The SQL function identifier.
+    /// </summary>
     public enum SqlFunctionId
     {
         ToString,

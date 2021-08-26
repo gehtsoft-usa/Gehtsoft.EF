@@ -143,7 +143,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
 
             var entity1 = entities.First(eti => eti.EntityType == typeof(Entity1));
             entity1.Metadata.Should().Be(typeof(TestEntityFinder));
-
         }
 
         [Fact]

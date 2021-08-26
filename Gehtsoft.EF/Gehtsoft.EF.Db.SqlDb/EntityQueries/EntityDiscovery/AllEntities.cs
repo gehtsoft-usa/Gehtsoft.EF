@@ -9,7 +9,7 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-    public class AllEntities : IEnumerable<Type>
+    public sealed class AllEntities : IEnumerable<Type>
     {
         public event EventHandler<EntityDescriptorEventArgs> OnEntityDiscovered;
 

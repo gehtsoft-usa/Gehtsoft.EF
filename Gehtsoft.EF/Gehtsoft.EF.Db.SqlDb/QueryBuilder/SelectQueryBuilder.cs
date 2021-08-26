@@ -6,14 +6,33 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// One item of the `SELECT` query resultset.
+    /// </summary>
     public class SelectQueryBuilderResultsetItem
     {
+        /// <summary>
+        /// The raw SQL expression
+        /// </summary>
         public string Expression { get; internal set; }
+
+        /// <summary>
+        /// Alias
+        /// </summary>
         public string Alias { get; internal set; }
+
+        /// <summary>
+        /// The flag indicating wheter the expression is an aggregate expression
+        /// </summary>
         public bool IsAggregate { get; internal set; }
+
+        /// <summary>
+        /// Column type.
+        /// </summary>
         public DbType DbType { get; internal set; }
 
         internal SelectQueryBuilderResultsetItem(string expression, string alias, bool aggregate, DbType type)
@@ -25,21 +44,35 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
     }
 
+    /// <summary>
+    /// The results of the `SELECT~ query.
+    /// </summary>
     public class SelectQueryBuilderResultset : IEnumerable<SelectQueryBuilderResultsetItem>
     {
         private readonly List<SelectQueryBuilderResultsetItem> mList = new List<SelectQueryBuilderResultsetItem>();
 
+        /// <summary>
+        /// The number of columns in a resultset.
+        /// </summary>
         public int Count => mList.Count;
 
+        /// <summary>
+        /// Gets column by its index.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public SelectQueryBuilderResultsetItem this[int index] => mList[index];
 
+        [DocgenIgnore]
         public int AggregateCount { get; private set; } = 0;
 
+        [DocgenIgnore]
         public IEnumerator<SelectQueryBuilderResultsetItem> GetEnumerator()
         {
             return mList.GetEnumerator();
         }
 
+        [DocgenIgnore]
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -53,12 +86,24 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
     }
 
+    /// <summary>
+    /// One element in `GROUP BY` or `ORDER BY` clause.
+    /// </summary>
     public class SelectQueryBuilderByItem
     {
+        /// <summary>
+        /// The raw SQL expression.
+        /// </summary>
         public string Expression { get; internal set; }
 
+        /// <summary>
+        /// The sorting direction.
+        ///
+        /// The sorting direction is ignored for `GROUP BY` clause.
+        /// </summary>
         public SortDir Direction { get; internal set; }
 
+        [DocgenIgnore]
         public SelectQueryBuilderByItem(string expression, SortDir direction = SortDir.Asc)
         {
             Expression = expression;
@@ -66,12 +111,23 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
     }
 
+    /// <summary>
+    /// The list of the expressions for `GROUP BY` or `ORDER BY` clauses.
+    /// </summary>
     public class SelectQueryBuilderByItemCollection : IEnumerable<SelectQueryBuilderByItem>
     {
         private readonly List<SelectQueryBuilderByItem> mList = new List<SelectQueryBuilderByItem>();
 
+        /// <summary>
+        /// Returns the number of the elements.
+        /// </summary>
         public int Count => mList.Count;
 
+        /// <summary>
+        /// Returns element by its index.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public SelectQueryBuilderByItem this[int index] => mList[index];
 
         internal void Add(SelectQueryBuilderByItem item)
@@ -79,17 +135,24 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mList.Add(item);
         }
 
+        [DocgenIgnore]
         public IEnumerator<SelectQueryBuilderByItem> GetEnumerator()
         {
             return mList.GetEnumerator();
         }
 
+        [DocgenIgnore]
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
     }
 
+    /// <summary>
+    /// The query builder for `SELECT` command.
+    ///
+    /// Use <see cref="SqlDbConnection.GetInsertSelectQueryBuilder(TableDescriptor, SelectQueryBuilder, bool)"/> to create an instance of this object.
+    /// </summary>
     public class SelectQueryBuilder : QueryWithWhereBuilder
     {
         public SelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor mainTable) : base(specifics, mainTable)
@@ -581,16 +644,20 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     public class ParameterGroupQueryBuilder : AQueryBuilder
     {
         private readonly StringBuilder mList = new StringBuilder();
+        private readonly string mPrefix;
 
         public ParameterGroupQueryBuilder(SqlDbLanguageSpecifics specifics) : base(specifics)
         {
+            mPrefix = mSpecifics.ParameterInQueryPrefix;
         }
 
         public void AddParameter(string parameter)
         {
             if (mList.Length > 0)
                 mList.Append(", ");
-            mList.Append(mSpecifics.ParameterInQueryPrefix);
+            if (!string.IsNullOrEmpty(mPrefix) &&
+                !parameter.StartsWith(mPrefix))
+                mList.Append(mPrefix);
             mList.Append(parameter);
         }
 

@@ -19,8 +19,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
     /// <summary>
     /// <para>Generic update record class for the generic accessor.</para>
     /// <para>
-    /// The whole idea of generic filter is that the developer just derives operation-specific update class from this one
-    /// and just defines a set of properties making them up using UpdateRecordProperty attribute.
+    /// The whole idea of generic filter is that the developer derives operation-specific update class from this one
+    /// and defines a set of properties making them up using UpdateRecordProperty attribute.
     /// </para>
     /// </summary>
     public class GenericEntityAccessorUpdateRecord
@@ -57,7 +57,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         /// </summary>
         /// <param name="filterPropertyName"></param>
         /// <param name="associatedPropertyName"></param>
-        /// <param name="operation"></param>
         protected void AddUpdateField(string filterPropertyName, string associatedPropertyName)
         {
             if (filterPropertyName == null)

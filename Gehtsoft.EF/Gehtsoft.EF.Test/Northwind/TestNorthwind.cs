@@ -32,7 +32,7 @@ namespace Gehtsoft.EF.Test.Northwind
         public void TablesCreated(string driver)
         {
             var connection = mFixture.GetInstance(driver);
-            var schema = connection.ExistingTables();
+            var schema = (connection as IEntityContext).ExistingTables();
 
             schema.Should().Contain(table => table.Name.Equals(
                                              AllEntities.Inst[typeof(Category), true].TableDescriptor.Name,

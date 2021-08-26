@@ -2,24 +2,33 @@
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// The query builder for `CREATE INDEX` command.
+    ///
+    /// Use <see cref="SqlDbConnection.GetCreateIndexBuilder(TableDescriptor, CompositeIndex)"/> to create an instance of this object.
+    /// </summary>
     public class CreateIndexBuilder : AQueryBuilder
     {
         protected string mQuery;
         protected TableDescriptor mDescriptor;
         protected CompositeIndex mIndex;
 
-        public CreateIndexBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, CompositeIndex index)
+        [DocgenIgnore]
+        internal protected CreateIndexBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, CompositeIndex index)
             : base(specifics)
         {
             mDescriptor = table;
             mIndex = index;
         }
 
+        [DocgenIgnore]
         public override string Query => mQuery;
 
+        [DocgenIgnore]
         public override void PrepareQuery()
         {
             if (mQuery != null)

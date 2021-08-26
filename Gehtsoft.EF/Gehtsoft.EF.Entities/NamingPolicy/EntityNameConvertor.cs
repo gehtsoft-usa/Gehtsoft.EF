@@ -6,8 +6,17 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Entities
 {
+    /// <summary>
+    /// The name converter used for entity policies
+    /// </summary>
     public static class EntityNameConvertor
     {
+        /// <summary>
+        /// Converts the table name according the policy specified.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="policy"></param>
+        /// <returns></returns>
         public static string ConvertTableName(string name, EntityNamingPolicy? policy)
         {
             if (name.Length > 2 && policy != EntityNamingPolicy.AsIs)
@@ -32,6 +41,12 @@ namespace Gehtsoft.EF.Entities
             return ConvertName(name, policy);
         }
 
+        /// <summary>
+        /// Converts a column name according the policy specified.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="policy"></param>
+        /// <returns></returns>
         public static string ConvertName(string name, EntityNamingPolicy? policy)
         {
             if (string.IsNullOrEmpty(name))

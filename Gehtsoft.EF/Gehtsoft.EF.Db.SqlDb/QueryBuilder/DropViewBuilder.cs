@@ -4,6 +4,11 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// The query builder for `DROP VIEW` command.
+    ///
+    /// Use <see cref="SqlDbConnection.GetDropViewBuilder(string)"/> to create an instance of this object.
+    /// </summary>
     public class DropViewBuilder : AQueryBuilder
     {
         protected readonly string mName;
@@ -25,7 +30,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             builder.Append(mSpecifics.PreBlock);
             builder.Append(mSpecifics.PreQueryInBlock);
 
-            builder.Append($"DROP VIEW IF EXISTS {mName}");
+            builder.Append("DROP VIEW IF EXISTS ").Append(mName);
 
             if (mSpecifics.TerminateWithSemicolon)
                 builder.Append(';');

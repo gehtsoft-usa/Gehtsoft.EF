@@ -2,6 +2,11 @@
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// The query builder for `SELECT` command that selects hierarchy for self-connected tables.
+    ///
+    /// Use <see cref="SqlDbConnection.GetHierarchicalSelectQueryBuilder(TableDescriptor, TableDescriptor.ColumnInfo, string)"/> to create an instance of this object.
+    /// </summary>
     public abstract class HierarchicalSelectQueryBuilder : AQueryBuilder
     {
         protected TableDescriptor.ColumnInfo mReferenceColumn;

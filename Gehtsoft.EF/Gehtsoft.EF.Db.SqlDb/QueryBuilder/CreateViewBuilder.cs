@@ -4,6 +4,11 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
+    /// <summary>
+    /// The query builder for `CREATE VIEW` command.
+    ///
+    /// Use <see cref="SqlDbConnection.GetCreateViewBuilder(string, SelectQueryBuilder)"/> to create an instance of this object.
+    /// </summary>
     public class CreateViewBuilder : AQueryBuilder
     {
         protected readonly string mName;

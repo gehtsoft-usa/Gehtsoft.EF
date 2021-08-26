@@ -4,8 +4,17 @@ using System.Reflection;
 
 namespace Gehtsoft.EF.Entities
 {
+    /// <summary>
+    /// The helper to compare object tree of two entities.
+    /// </summary>
     public static class EntityComparerHelper
     {
+        /// <summary>
+        /// Compares to objects.
+        /// </summary>
+        /// <param name="objectA"></param>
+        /// <param name="objectB"></param>
+        /// <returns></returns>
         public new static bool Equals(object objectA, object objectB)
         {
             if (objectA == null && objectB == null)
@@ -85,6 +94,11 @@ namespace Gehtsoft.EF.Entities
                 return false;
         }
 
+        /// <summary>
+        /// Gets hash code of an entity.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public static int GetHashCode(object obj)
         {
             if (obj == null)

@@ -34,7 +34,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
     /// </para>
     /// <para>2) Should IsNull comparison be made, the filter property should be bool?. Null means that filter is inactive, true means IsNull and false means IsNotNull.</para>
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public class GenericEntityAccessorFilter
     {
         private readonly Type mEntityType;

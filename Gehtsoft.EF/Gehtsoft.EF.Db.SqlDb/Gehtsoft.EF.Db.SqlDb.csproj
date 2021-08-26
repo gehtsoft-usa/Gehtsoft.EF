@@ -6,6 +6,7 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <Version>$(VersionMajor)</Version>
+	<DocumentationFile>bin/doc.xml</DocumentationFile>
   </PropertyGroup>
 
 
