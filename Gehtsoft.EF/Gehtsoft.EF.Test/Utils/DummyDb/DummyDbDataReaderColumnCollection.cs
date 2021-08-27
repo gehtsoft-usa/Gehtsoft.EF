@@ -6,7 +6,7 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 {
     internal class DummyDbDataReaderColumnCollection : IEnumerable<DummyDbDataReaderColumn>
     {
-        private readonly List<DummyDbDataReaderColumn> mColumns = new ();
+        private readonly List<DummyDbDataReaderColumn> mColumns = new();
 
         public int Count => mColumns.Count;
         public DummyDbDataReaderColumn this[int index] => mColumns[index];

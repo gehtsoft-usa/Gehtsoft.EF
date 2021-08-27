@@ -7,7 +7,7 @@ namespace Gehtsoft.EF.Test.SqlParser
     public sealed class AstNodeImpl : IAstNode
     {
         public IAstNode Parent { get; set; }
-        public string Symbol { get; set;  }
+        public string Symbol { get; set; }
         public string Value { get; set; }
 
         private readonly List<IAstNode> mChildren = new List<IAstNode>();

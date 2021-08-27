@@ -55,9 +55,9 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
                     s.Invoke();
                 })
                 .Returns(123);
-                
+
             ResiliencyPolicyDictionary.Instance.SetPolicy(
-                setPolicy ? "dummyConnectionString" : "wrongConnectionString", 
+                setPolicy ? "dummyConnectionString" : "wrongConnectionString",
                 policy.Object, true);
 
             using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };

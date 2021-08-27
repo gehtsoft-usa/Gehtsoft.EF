@@ -83,7 +83,7 @@ namespace TestApp
 
             //check select query
             {
-                var builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), goodDescriptor);
+                var builder = connection.GetSelectQueryBuilder(goodDescriptor);
                 ((Action)(() => builder.AddExpressionToResultset("'; --", DbType.String))).Should().Throw<ArgumentException>();
                 ((Action)(() => builder.AddExpressionToResultset("; --", DbType.String))).Should().Throw<ArgumentException>();
                 ((Action)(() => builder.AddToResultset(goodDescriptor["Name"], "';--"))).Should().Throw<ArgumentException>();

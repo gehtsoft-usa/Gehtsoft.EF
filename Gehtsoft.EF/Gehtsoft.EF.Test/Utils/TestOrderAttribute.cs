@@ -10,7 +10,7 @@ namespace Gehtsoft.EF.Test.Utils
     public class TestOrderAttribute : Attribute
     {
         public int Order { get; set; }
-        
+
         public TestOrderAttribute()
         {
             Order = int.MaxValue;

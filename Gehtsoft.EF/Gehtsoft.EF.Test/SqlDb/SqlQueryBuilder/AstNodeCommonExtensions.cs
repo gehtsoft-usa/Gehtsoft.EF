@@ -19,7 +19,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         public static bool ExprIsField(this IAstNode expr) => ExprIs(expr, "FIELD");
         public static bool ExprFieldHasAlias(this IAstNode expr) => expr.Select("/IDENTIFIER").Count() > 1;
         public static string ExprFieldAlias(this IAstNode expr) => ExprFieldHasAlias(expr) ? expr.SelectNode("/IDENTIFIER", 1).Value : null;
-        public static string ExprFieldName(this IAstNode expr) => ExprFieldHasAlias(expr) ? expr.SelectNode("/IDENTIFIER", 2).Value : expr.SelectNode("/IDENTIFIER", 2).Value;
+        public static string ExprFieldName(this IAstNode expr) => ExprFieldHasAlias(expr) ? expr.SelectNode("/IDENTIFIER", 2).Value : expr.SelectNode("/IDENTIFIER", 1).Value;
 
         public static bool ExprIsParam(this IAstNode expr) => ExprIs(expr, "PARAM");
         public static string ExprParamName(this IAstNode expr) => expr.SelectNode("/IDENTIFIER", 1).Value;
@@ -39,7 +39,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             if (ExprIsTrue(expr))
                 return true;
             if (ExprIsFalse(expr))
-                return true;
+                return false;
             if (ExprIsInt(expr))
                 return Int32.Parse(expr.Value, CultureInfo.InvariantCulture);
             if (ExprIsReal(expr))
@@ -75,7 +75,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             throw new ArgumentException("Expression is not a function call", nameof(expr));
         }
 
-        public static int ExprExprFnCallArgCount(this IAstNode expr)
+        public static int ExprFnCallArgCount(this IAstNode expr)
         {
             if (ExprIsCountAll(expr))
                 return 0;
@@ -86,7 +86,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             throw new ArgumentException("Expression is not a function call", nameof(expr));
         }
 
-        public static IAstNode ExprExprFnCallArg(this IAstNode expr, int index = 0)
+        public static IAstNode ExprFnCallArg(this IAstNode expr, int index = 0)
         {
             if (ExprIsCountAll(expr))
                 return null;
@@ -116,7 +116,6 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
                 return expr.SelectNode("/*", index + 1);
             throw new ArgumentException("The node is not an operator", nameof(expr));
         }
-
     }
 }
 

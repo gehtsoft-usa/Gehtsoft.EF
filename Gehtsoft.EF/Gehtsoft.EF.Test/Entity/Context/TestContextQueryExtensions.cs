@@ -174,12 +174,11 @@ namespace Gehtsoft.EF.Test.Entity.Context
             for (int i = 0; i < 10; i++)
                 c[i].Id.Should().Be(i + 1);
 
-
             select.Verify(s => s.ReadOne(), Times.Exactly(11));
         }
     }
 
-    public class IContextConditionExtensions
+    public class ContextConditionExtensions
     {
         [Fact]
         public void And()
@@ -226,7 +225,7 @@ namespace Gehtsoft.EF.Test.Entity.Context
                 .Verifiable();
 
             var condition1 = filter.Object.Property("property");
-            
+
             condition1.Should().BeSameAs(condition.Object);
 
             condition.Verify();
@@ -331,7 +330,7 @@ namespace Gehtsoft.EF.Test.Entity.Context
                 .Returns(condition.Object)
                 .Verifiable();
 
-            var method = typeof(EntityFilterBuilderExtension).GetMethod(name, new Type[] { typeof(IContextFilterCondition) });
+            var method = typeof(EntityFilterConditionExtension).GetMethod(name, new Type[] { typeof(IContextFilterCondition) });
             method.Should().NotBeNull()
                 .And.Subject.IsStatic.Should().BeTrue();
 

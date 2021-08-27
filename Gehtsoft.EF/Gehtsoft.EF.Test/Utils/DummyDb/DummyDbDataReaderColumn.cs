@@ -3,7 +3,7 @@ using System.Data;
 
 namespace Gehtsoft.EF.Test.Utils.DummyDb
 {
-    internal class DummyDbDataReaderColumn 
+    internal class DummyDbDataReaderColumn
     {
         public string Name { get; }
         public DbType DbType { get; }

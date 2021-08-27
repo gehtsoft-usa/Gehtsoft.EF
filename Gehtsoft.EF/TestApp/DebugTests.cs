@@ -66,7 +66,7 @@ namespace TestApp
                 {
                     q1.Distinct = true;
                     q1.AddToResultset(nameof(Employee.Code), "code");
-                    builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), q1.SelectBuilder.QueryTableDescriptor);
+                    builder = connection.GetSelectQueryBuilder(q1.SelectBuilder.QueryTableDescriptor);
                     builder.AddToResultset(AggFn.Count);
                     using (SqlDbQuery q2 = connection.GetQuery(builder))
                     {
@@ -80,7 +80,7 @@ namespace TestApp
                 Console.Write("{0}", count);
 
                 var entity = AllEntities.Inst[typeof(Employee)];
-                builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), entity.TableDescriptor);
+                builder = connection.GetSelectQueryBuilder(entity.TableDescriptor);
                 builder.AddExpressionToResultset($"count (distinct {entity[nameof(Employee.Code)].Name})", DbType.Int32, true, "mycount");
                 using (SqlDbQuery q2 = connection.GetQuery(builder))
                 {

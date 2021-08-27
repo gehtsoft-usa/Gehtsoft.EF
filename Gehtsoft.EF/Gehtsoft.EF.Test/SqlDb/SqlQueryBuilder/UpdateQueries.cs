@@ -473,7 +473,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             list[0].SelectNode("/FIELD/IDENTIFIER[1]").Should().HaveValue("f2");
 
             var subquery = list[0].SelectNode("/*[2]");
-            
+
             subquery.Should().HaveSymbol("SELECT");
 
             var from = subquery

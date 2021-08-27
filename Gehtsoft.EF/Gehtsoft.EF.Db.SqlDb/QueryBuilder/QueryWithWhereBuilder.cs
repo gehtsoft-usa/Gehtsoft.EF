@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
@@ -48,6 +49,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         [Obsolete("Use ConnectedTo properties instead")]
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public string Expression
         {
             set
@@ -58,6 +60,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         [Obsolete("Use On property instead")]
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public void SetJoin(TableJoinType type, string expression)
         {
             JoinType = type;
@@ -276,6 +279,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public abstract string GetAlias(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity queryEntity);
     }
 
+    [ExcludeFromCodeCoverage]
     [Obsolete("Upgrade your code to using query Where property")]
     [DocgenIgnore]
     public static class QueryWithWhereBuilderBackwardCompatibilityExtension

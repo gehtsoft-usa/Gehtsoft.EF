@@ -490,7 +490,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         {
             using var connection = new DummySqlConnection();
 
-            var table = StageCompositeIndexText(() => new [] { new CompositeIndex("index1") { { "f1", direction } } });
+            var table = StageCompositeIndexText(() => new[] { new CompositeIndex("index1") { { "f1", direction } } });
 
             var builder = connection.GetCreateTableBuilder(table);
             builder.PrepareQuery();
@@ -590,11 +590,12 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             using var connection = new DummySqlConnection();
             connection.DummyDbSpecifics.SupportFunctionsInIndexesSpec = true;
 
-            var table = StageCompositeIndexText(() => {
-                var r = new[] { new CompositeIndex("index1") {  { SqlFunctionId.Upper, "f1" } } };
+            var table = StageCompositeIndexText(() =>
+            {
+                var r = new[] { new CompositeIndex("index1") { { SqlFunctionId.Upper, "f1" } } };
                 r[0].FailIfUnsupported = true;
                 return r;
-                });
+            });
 
             var builder = connection.GetCreateTableBuilder(table);
             builder.PrepareQuery();
@@ -612,7 +613,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             indexNode.Select("/SORT_SPECIFICATION_LIST").Should().HaveCount(1);
             indexNode.SelectNode("//SORT_SPECIFICATION[1]/*_CALL/UPPER").Should().Exist();
             indexNode.SelectNode("//SORT_SPECIFICATION[1]/*_CALL/*[2]/IDENTIFIER").Should().HaveValue("f1");
-            indexNode.Select("//SORT_SPECIFICATION[1]/DESC").Should().HaveCount( 0 );
+            indexNode.Select("//SORT_SPECIFICATION[1]/DESC").Should().HaveCount(0);
         }
 
         [Fact]
@@ -621,7 +622,8 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             using var connection = new DummySqlConnection();
             connection.DummyDbSpecifics.SupportFunctionsInIndexesSpec = false;
 
-            var table = StageCompositeIndexText(() => {
+            var table = StageCompositeIndexText(() =>
+            {
                 var r = new[] { new CompositeIndex("index1") { { SqlFunctionId.Upper, "f1" } } };
                 r[0].FailIfUnsupported = false;
                 return r;
@@ -640,7 +642,8 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             using var connection = new DummySqlConnection();
             connection.DummyDbSpecifics.SupportFunctionsInIndexesSpec = false;
 
-            var table = StageCompositeIndexText(() => {
+            var table = StageCompositeIndexText(() =>
+            {
                 var r = new[] { new CompositeIndex("index1") { { SqlFunctionId.Upper, "f1" } } };
                 r[0].FailIfUnsupported = true;
                 return r;

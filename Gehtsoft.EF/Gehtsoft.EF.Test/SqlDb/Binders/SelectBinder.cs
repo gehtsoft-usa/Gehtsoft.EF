@@ -122,7 +122,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Binders
             e.F8.Should().Be(new TimeSpan(1, 22, 33));
             e.F9.Should().Be(true);
             e.F10.Should().Be(Guid.Parse("c25f12a3-36fb-4263-be31-773f675d9aa9"));
-            e.F11.Should().BeEquivalentTo(new byte[] { 1, 2, 3});
+            e.F11.Should().BeEquivalentTo(new byte[] { 1, 2, 3 });
             e.F12.Should().Be("abcd");
 
             query.ReadNext();

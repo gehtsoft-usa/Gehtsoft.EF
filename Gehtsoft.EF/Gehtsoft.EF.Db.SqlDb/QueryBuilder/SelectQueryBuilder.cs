@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -155,16 +156,35 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     /// </summary>
     public class SelectQueryBuilder : QueryWithWhereBuilder
     {
-        public SelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor mainTable) : base(specifics, mainTable)
+        [DocgenIgnore]
+        internal protected SelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor mainTable) : base(specifics, mainTable)
         {
         }
 
+        [DocgenIgnore]
         public new QueryBuilderEntity AddTable(TableDescriptor table, TableDescriptor.ColumnInfo connectingColumn, TableJoinType joinType, QueryBuilderEntity connectToTable, TableDescriptor.ColumnInfo connectToColumn) => base.AddTable(table, connectingColumn, joinType, connectToTable, connectToColumn);
 
+        /// <summary>
+        /// Adds a new table to the query.
+        ///
+        /// If auto-connection flag is set to `true` the table builder will try to connect the entity
+        /// to the first entity which is related to this entity by having a foreign key to this entity
+        /// or by being reference via foreign key from this entity.
+        ///
+        /// If the automatic connection does not product the desired result, please use disable auto-connection
+        /// <see cref="QueryBuilderEntity.On"/> property of the returned object to configure the join condition.
+        /// </summary>
+        /// <param name="table">The table descriptor</param>
+        /// <param name="autoConnect">The flag indicating whether the table needs to be auto-connected to the existing tables</param>
+        /// <returns></returns>
         public new QueryBuilderEntity AddTable(TableDescriptor table, bool autoConnect = true) => base.AddTable(table, autoConnect);
 
+        [DocgenIgnore]
         internal QueryBuilderEntity AddTable(TableDescriptor table, TableJoinType joinType) => base.AddTable(table, null, joinType, null, null);
 
+        /// <summary>
+        /// The flag indicating that the query must return only distinct resultset rows.
+        /// </summary>
         public bool Distinct { get; set; } = false;
         public int Skip { get; set; } = 0;
         public int Limit { get; set; } = 0;
@@ -333,8 +353,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         {
             StringBuilder query = PrepareSelectQueryCore();
 
-            if (Limit > 0 || Skip > 0)
+            if (Limit > 0 && Skip > 0)
                 query.Append(" LIMIT ").Append(Limit).Append(" OFFSET ").Append(Skip).Append(' ');
+            else if (Limit > 0)
+                query.Append(" LIMIT ").Append(Limit).Append(' ');
+            else if (Skip > 0)
+                query.Append(" OFFSET ").Append(Skip).Append(' ');
             mQuery = query.ToString();
         }
 
@@ -562,6 +586,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public virtual IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity) => new InQueryFieldReference(GetAlias(column, entity));
     }
 
+    [ExcludeFromCodeCoverage]
+    [Obsolete("Use Having, Where and On properties of the query builder")]
+    [DocgenIgnore]
     public static class SelectQueryWithWhereBuilderBackwardCompatibilityExtension
     {
         [Obsolete("Upgrade your code to using query Having property")]

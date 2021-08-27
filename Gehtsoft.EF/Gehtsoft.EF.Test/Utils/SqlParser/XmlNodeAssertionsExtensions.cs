@@ -75,7 +75,7 @@ namespace Gehtsoft.EF.Test.SqlParser
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .Given(() => Subject)
-                .ForCondition(node => !node.Select(path).Any() )
+                .ForCondition(node => !node.Select(path).Any())
                 .FailWith("Expected {context:node} to not contain node at the path {0} but it does have {1}", path, Subject.Select(path));
             return new AndConstraint<AstNodeAssertions>(this);
         }

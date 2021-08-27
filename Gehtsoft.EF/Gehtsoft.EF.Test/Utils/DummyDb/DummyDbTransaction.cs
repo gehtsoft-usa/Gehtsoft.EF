@@ -28,4 +28,4 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
             RollbackCalled = true;
         }
     }
-    }
+}

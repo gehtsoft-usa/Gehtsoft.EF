@@ -115,7 +115,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Binders
                 F10 = new byte[] { 1, 2, 3 },
                 F11 = "abcdef",
                 F12 = null,
-                F13 = new Dict() { ID = "dictid", Name = "dictvalue"}
+                F13 = new Dict() { ID = "dictid", Name = "dictvalue" }
             };
 
             binder.BindAndExecute(query, e, true);
@@ -387,14 +387,15 @@ namespace Gehtsoft.EF.Test.SqlDb.Binders
             using var query = efconnection.GetQuery("command");
 
             var truncateCalls = new List<Tuple<DbType, int, object>>();
-             var mockTruncate = new Mock<IUpdateQueryTruncationController>();
+            var mockTruncate = new Mock<IUpdateQueryTruncationController>();
             mockTruncate.Setup(c => c.Truncate(It.IsAny<DbType>(), It.IsAny<int>(), It.IsAny<object>()))
                 .Callback<DbType, int, object>((t, s, o) => truncateCalls.Add(new Tuple<DbType, int, object>(t, s, o)))
-                .Returns<DbType, int, object>((t, s, o) => {
+                .Returns<DbType, int, object>((t, s, o) =>
+                {
                     if (o is string str && str.Length > s)
                         return str.Substring(0, s);
                     return o;
-                    });
+                });
 
             UpdateQueryTruncationRules.Instance.EnableTruncation(dbconnection.ConnectionString, mockTruncate.Object);
             using var delay = new DelayedAction(() => UpdateQueryTruncationRules.Instance.DisableTruncation(dbconnection.ConnectionString));

@@ -77,7 +77,7 @@ namespace TestApp
                 t1.Commit();
             }
 
-            SelectQueryBuilder sbuilder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), gTable);
+            SelectQueryBuilder sbuilder = connection.GetSelectQueryBuilder(gTable);
             sbuilder.AddToResultset(AggFn.Count);
             sbuilder.Where.Property(gTable["vstring"]).Is(CmpOp.Eq).Parameter("vstring");
 

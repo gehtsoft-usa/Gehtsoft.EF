@@ -6,7 +6,7 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 {
     internal class DummyDbParameter : DbParameter
     {
-        public override DbType DbType { get; set; } 
+        public override DbType DbType { get; set; }
         public override ParameterDirection Direction { get; set; }
         public override bool IsNullable { get; set; }
         public override string ParameterName { get; set; }
