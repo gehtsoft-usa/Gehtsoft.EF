@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
@@ -13,14 +14,17 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     {
         protected readonly string mName;
         protected string mQuery;
+
+        [DocgenIgnore]
         override public string Query => mQuery;
 
-        public DropViewBuilder(SqlDbLanguageSpecifics specifics, string name) : base(specifics)
+        internal protected DropViewBuilder(SqlDbLanguageSpecifics specifics, string name) : base(specifics)
         {
             mSpecifics = specifics;
             mName = name;
         }
 
+        [DocgenIgnore]
         public override void PrepareQuery()
         {
             if (mQuery != null)

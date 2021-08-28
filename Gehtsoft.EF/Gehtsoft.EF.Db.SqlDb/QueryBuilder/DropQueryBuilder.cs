@@ -1,4 +1,6 @@
-﻿namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
+﻿using Gehtsoft.EF.Utils;
+
+namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
     /// <summary>
     /// The query builder for `DROP TABLE` command.
@@ -10,17 +12,20 @@
         protected string mQuery;
         protected TableDescriptor mDescriptor;
 
+        [DocgenIgnore]
         public override string Query
         {
             get { return mQuery; }
         }
 
-        public DropTableBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics)
+        [DocgenIgnore]
+        internal protected DropTableBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics)
         {
             mQuery = null;
             mDescriptor = tableDescriptor;
         }
 
+        [DocgenIgnore]
         public override void PrepareQuery()
         {
             if (mQuery != null)

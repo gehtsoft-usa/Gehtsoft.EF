@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
@@ -18,6 +19,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         private static int gAlias = 0;
         private static readonly object gAliasMutex = new object();
 
+        [DocgenIgnore]
         protected static string NextAlias
         {
             get
@@ -33,10 +35,13 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         protected string mQuery;
 
+        [DocgenIgnore]
         public override string Query
         {
             get { return mQuery; }
         }
+
+        [DocgenIgnore]
 
         protected HierarchicalSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, TableDescriptor.ColumnInfo parentReferenceColumn, string rootParameterName) : base(specifics)
         {
@@ -69,6 +74,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             return mQueryTableDescriptor;
         }
 
+        /// <summary>
+        /// Returns the table descriptor that represent the `SELECT` query result.
+        /// </summary>
         public TableDescriptor QueryTableDescriptor => GetTableDescriptor();
     }
 }

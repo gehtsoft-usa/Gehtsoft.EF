@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
@@ -14,9 +15,10 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected readonly string mTable;
         protected readonly string mName;
         protected string mQuery;
+        [DocgenIgnore]
         override public string Query => mQuery;
 
-        public DropIndexBuilder(SqlDbLanguageSpecifics specifics, string table, string name) : base(specifics)
+        protected internal DropIndexBuilder(SqlDbLanguageSpecifics specifics, string table, string name) : base(specifics)
         {
             mSpecifics = specifics;
             mTable = table;

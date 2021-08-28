@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Gehtsoft.EF.Utils
 {
+    [DocgenIgnore]
     [AttributeUsage(AttributeTargets.Class |
         AttributeTargets.Constructor |
         AttributeTargets.Property |

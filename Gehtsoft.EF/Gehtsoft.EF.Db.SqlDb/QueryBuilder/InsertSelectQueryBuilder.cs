@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
@@ -15,7 +16,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected bool mIgnoreAutoIncrement;
         protected HashSet<string> mInclude;
 
-        public InsertSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false) : base(specifics)
+        protected internal InsertSelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false) : base(specifics)
         {
             mTable = table;
             mIgnoreAutoIncrement = ignoreAutoIncrement;
@@ -23,6 +24,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mInclude = null;
         }
 
+        /// <summary>
+        /// Sets the columns to be inserted by the statement.
+        ///
+        /// If this method isn't called, all columns will be added.
+        /// </summary>
+        /// <param name="columns"></param>
         public void IncludeOnly(params string[] columns)
         {
             if (mInclude == null)
@@ -32,6 +39,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     mInclude.Add(s);
         }
 
+        [DocgenIgnore]
         public override void PrepareQuery()
         {
             StringBuilder leftSide = new StringBuilder();
@@ -61,6 +69,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mQuery = BuildQuery(leftSide, autoIncrement);
         }
 
+        [DocgenIgnore]
         protected virtual string BuildQuery(StringBuilder leftSide, TableDescriptor.ColumnInfo autoIncrement)
         {
             StringBuilder builder = new StringBuilder();
@@ -75,15 +84,19 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             return builder.ToString();
         }
 
+        [DocgenIgnore]
         protected virtual bool HasExpressionForAutoincrement => false;
 
+        [DocgenIgnore]
         protected virtual string ExpressionForAutoincrement(TableDescriptor.ColumnInfo autoIncrement)
         {
             return null;
         }
 
+        [DocgenIgnore]
         protected string mQuery;
 
+        [DocgenIgnore]
         public override string Query => mQuery;
     }
 }

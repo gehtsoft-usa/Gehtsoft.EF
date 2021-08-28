@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
@@ -10,15 +11,22 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     /// </summary>
     public class DeleteQueryBuilder : SingleTableQueryWithWhereBuilder
     {
-        public DeleteQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table) : base(specifics, table)
+        [DocgenIgnore]
+        internal protected DeleteQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table) : base(specifics, table)
         {
         }
 
+        /// <summary>
+        /// Creates a condition to delete an entity by ID.
+        ///
+        /// The parameter name to set the ID is named as the primary key column.
+        /// </summary>
         public void DeleteById()
         {
             Where.Property(mDescriptor.PrimaryKey).Is(CmpOp.Eq).Parameter(mDescriptor.PrimaryKey.Name);
         }
 
+        [DocgenIgnore]
         public override void PrepareQuery()
         {
             StringBuilder builder = new StringBuilder();

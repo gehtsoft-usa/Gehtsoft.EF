@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
@@ -7,18 +8,22 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     /// The query builder for `INSERT ... VALUES` command.
     ///
     /// Use <see cref="SqlDbConnection.GetInsertQueryBuilder(TableDescriptor, bool)"/> to create an instance of this object.
+    ///
+    /// You can also use <see cref="UpdateQueryToTypeBinder"/> to bind entity properties to the parameters of the query.
     /// </summary>
     public class InsertQueryBuilder : AQueryBuilder
     {
         protected TableDescriptor mTable;
         protected bool mIgnoreAutoIncrement;
 
-        public InsertQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, bool ignoreAutoIncrement = false) : base(specifics)
+        [DocgenIgnore]
+        protected internal InsertQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table, bool ignoreAutoIncrement = false) : base(specifics)
         {
             mTable = table;
             mIgnoreAutoIncrement = ignoreAutoIncrement;
         }
 
+        [DocgenIgnore]
         public override void PrepareQuery()
         {
             StringBuilder leftSide = new StringBuilder();
@@ -56,6 +61,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mQuery = BuildQuery(leftSide, rightSide, autoIncrement);
         }
 
+        [DocgenIgnore]
         protected virtual string BuildQuery(StringBuilder leftSide, StringBuilder rightSide, TableDescriptor.ColumnInfo autoIncrement)
         {
             StringBuilder builder = new StringBuilder();
@@ -69,15 +75,19 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             return builder.ToString();
         }
 
+        [DocgenIgnore]
         protected virtual bool HasExpressionForAutoincrement => false;
 
+        [DocgenIgnore]
         protected virtual string ExpressionForAutoincrement(TableDescriptor.ColumnInfo autoIncrement)
         {
             return null;
         }
 
+        [DocgenIgnore]
         protected string mQuery;
 
+        [DocgenIgnore]
         public override string Query => mQuery;
     }
 }

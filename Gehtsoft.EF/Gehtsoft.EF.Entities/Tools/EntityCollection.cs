@@ -5,6 +5,32 @@ using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Entities
 {
+    /// <summary>
+    /// The type of the change event
+    /// </summary>
+    public enum EntityCollectionEvent
+    {
+        Add,
+        Update,
+        Delete
+    }
+
+    /// <summary>
+    /// The collection change event arguments
+    /// </summary>
+    public class EntityCollectionEventArgs<T>
+    {
+        public EntityCollection<T> Collection { get; }
+        public int Index { get; }
+        public EntityCollectionEvent Event { get; }
+        internal EntityCollectionEventArgs(EntityCollectionEvent ev, EntityCollection<T> c, int index)
+        {
+            Index = index;
+            Collection = c;
+            Event = ev;
+        }
+    }
+
 #pragma warning disable S3897 // Classes that provide "Equals(<T>)" should implement "IEquatable<T>"
 #pragma warning disable S4035 // Classes implementing "IEquatable<T>" should be sealed
     /// <summary>
@@ -140,7 +166,7 @@ namespace Gehtsoft.EF.Entities
             set
             {
                 mList[index] = value;
-                OnChange?.Invoke(this, index);
+                OnChange?.Invoke(this, new EntityCollectionEventArgs<T>(EntityCollectionEvent.Update, this, index));
             }
         }
 
@@ -151,7 +177,7 @@ namespace Gehtsoft.EF.Entities
         public void Add(T item)
         {
             mList.Add(item);
-            AfterInsert?.Invoke(this, this.Count - 1);
+            AfterInsert?.Invoke(this, new EntityCollectionEventArgs<T>(EntityCollectionEvent.Add, this, this.Count - 1));
         }
 
         /// <summary>
@@ -179,7 +205,7 @@ namespace Gehtsoft.EF.Entities
         public void Insert(int index, T item)
         {
             mList.Insert(index, item);
-            AfterInsert?.Invoke(this, index);
+            AfterInsert?.Invoke(this, new EntityCollectionEventArgs<T>(EntityCollectionEvent.Add, this, index));
         }
 
         /// <summary>
@@ -188,7 +214,7 @@ namespace Gehtsoft.EF.Entities
         /// <param name="index"></param>
         public void RemoveAt(int index)
         {
-            BeforeDelete?.Invoke(this, index);
+            BeforeDelete?.Invoke(this, new EntityCollectionEventArgs<T>(EntityCollectionEvent.Delete, this, index));
             mList.RemoveAt(index);
         }
 
@@ -197,49 +223,28 @@ namespace Gehtsoft.EF.Entities
         /// </summary>
         public void Clear()
         {
-            BeforeDelete?.Invoke(this, -1);
+            BeforeDelete?.Invoke(this, new EntityCollectionEventArgs<T>(EntityCollectionEvent.Delete, this, -1));
             mList.Clear();
         }
 
         /// <summary>
-        /// The delegate to be called when a new item is inserted into <see cref="EntityCollection{T}" />
-        /// </summary>
-        /// <param name="sender">The collection</param>
-        /// <param name="index">The index of the element</param>
-        public delegate void AfterInsertDelegate(EntityCollection<T> sender, int index);
-
-        /// <summary>
-        /// The delegate to be called when the element is replaced at the position.
-        /// </summary>
-        /// <param name="sender">The collection</param>
-        /// <param name="index"></param>
-        public delegate void OnChangeDelegate(EntityCollection<T> sender, int index);
-
-        /// <summary>
-        /// The delegate to be called before the element is removed.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="index"></param>
-        public delegate void BeforeDeleteDelegate(EntityCollection<T> sender, int index);
-
-        /// <summary>
         /// The event to be fired when a new item is inserted the collection
         /// </summary>
-        public event AfterInsertDelegate AfterInsert;
+        public event EventHandler<EntityCollectionEventArgs<T>> AfterInsert;
 
         /// <summary>
         /// The event to be fired when an item is replaced.
         /// </summary>
-        public event AfterInsertDelegate OnChange;
+        public event EventHandler<EntityCollectionEventArgs<T>> OnChange;
 
         /// <summary>
         /// The event to be fired when the item is removed.
         /// </summary>
-        public event BeforeDeleteDelegate BeforeDelete;
+        public event EventHandler<EntityCollectionEventArgs<T>> BeforeDelete;
 
         internal void RaiseOnChange(int index)
         {
-            OnChange?.Invoke(this, index);
+            OnChange?.Invoke(this, new EntityCollectionEventArgs<T>(EntityCollectionEvent.Update, this, index));
         }
 
         /// <summary>

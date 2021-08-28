@@ -10,7 +10,7 @@ using Gehtsoft.EF.Utils;
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
     /// <summary>
-    /// The entity in the query.
+    /// The table used in the query.
     /// </summary>
     public class QueryBuilderEntity
     {
@@ -405,7 +405,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
 
         /// <summary>
-        /// Gets reference to a column of the query entity.
+        /// Gets reference to a column of the specified query table.
         ///
         /// The reference is used when a sub-query condition need to have a reference to an entity in the main query.
         /// </summary>

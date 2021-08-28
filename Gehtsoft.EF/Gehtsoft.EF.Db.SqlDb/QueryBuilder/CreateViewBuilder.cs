@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
@@ -14,9 +15,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected readonly string mName;
         protected readonly SelectQueryBuilder mSelectQuery;
         protected string mQuery;
+
+        [DocgenIgnore]
         override public string Query => mQuery;
 
-        public CreateViewBuilder(SqlDbLanguageSpecifics specifics, string name, SelectQueryBuilder selectQuery) : base(specifics)
+        [DocgenIgnore]
+        internal protected CreateViewBuilder(SqlDbLanguageSpecifics specifics, string name, SelectQueryBuilder selectQuery) : base(specifics)
         {
             mSpecifics = specifics;
             mName = name;

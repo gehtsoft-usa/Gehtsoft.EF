@@ -24,8 +24,10 @@ namespace Gehtsoft.EF.Test.Entity.Tools
         [Fact]
         public void Add()
         {
-            var collection = new EntityCollection<Data>();
-            collection.Add(new Data() { Id = 1, Name = "name1" });
+            var collection = new EntityCollection<Data>
+            {
+                new Data() { Id = 1, Name = "name1" }
+            };
             collection.Should().HaveCount(1);
             collection[0].Id.Should().Be(1);
             collection.Add(new Data() { Id = 2, Name = "name2" });
@@ -122,7 +124,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             collection.Should().Contain(e => e.Id == 4);
             collection.Should().Contain(e => e.Id == 5);
         }
-
 
         [Fact]
         public void Enumerator()
@@ -356,24 +357,23 @@ namespace Gehtsoft.EF.Test.Entity.Tools
 
             var collection1 = new EntityCollection<Data>();
 
-            collection1.AfterInsert += (s, idx) =>
+            collection1.AfterInsert += (s, args) =>
             {
                 add = true;
-                index = idx;
+                index = args.Index;
             };
 
-            collection1.OnChange += (s, idx) =>
+            collection1.OnChange += (s, args) =>
             {
                 change = true;
-                index = idx;
+                index = args.Index;
             };
 
-            collection1.BeforeDelete += (s, idx) =>
+            collection1.BeforeDelete += (s, args) =>
             {
                 remove = true;
-                index = idx;
+                index = args.Index;
             };
-
 
             index = -1;
             add = change = remove = false;
@@ -384,7 +384,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             change.Should().BeFalse();
             remove.Should().BeFalse();
             index.Should().Be(0);
-
 
             index = -1;
             add = change = remove = false;
@@ -425,7 +424,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             change.Should().BeTrue();
             remove.Should().BeFalse();
             index.Should().Be(1);
-
 
             index = -1;
             add = change = remove = false;

@@ -6,6 +6,7 @@ using System.Text;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
@@ -19,13 +20,17 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected virtual TableDdlBuilder DdlBuilder { get; set; }
         protected TableDescriptor mDescriptor;
         protected string mQuery;
+
+        [DocgenIgnore]
         public override string Query => mQuery;
 
-        public CreateTableBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics)
+        internal protected CreateTableBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics)
         {
             mSpecifics = specifics;
             mDescriptor = tableDescriptor;
         }
+
+        [DocgenIgnore]
 
         public override void PrepareQuery()
         {

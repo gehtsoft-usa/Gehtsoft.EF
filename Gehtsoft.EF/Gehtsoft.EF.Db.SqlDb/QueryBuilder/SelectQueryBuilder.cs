@@ -27,7 +27,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public string Alias { get; internal set; }
 
         /// <summary>
-        /// The flag indicating wheter the expression is an aggregate expression
+        /// The flag indicating whether the expression is an aggregate expression
         /// </summary>
         public bool IsAggregate { get; internal set; }
 
@@ -152,7 +152,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     /// <summary>
     /// The query builder for `SELECT` command.
     ///
-    /// Use <see cref="SqlDbConnection.GetInsertSelectQueryBuilder(TableDescriptor, SelectQueryBuilder, bool)"/> to create an instance of this object.
+    /// Use <see cref="SqlDbConnection.GetSelectQueryBuilder(TableDescriptor)"/> to create an instance of this object.
+    ///
+    /// You can also use <see cref="SelectQueryTypeBinder"/> to bind the resultset of a select query to a runtime object.
     /// </summary>
     public class SelectQueryBuilder : QueryWithWhereBuilder
     {
@@ -186,21 +188,49 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// The flag indicating that the query must return only distinct resultset rows.
         /// </summary>
         public bool Distinct { get; set; } = false;
+
+        /// <summary>
+        /// The number of rows to skip from the beginning of matching recordset.
+        ///
+        /// If value is `0` no rows will be skipped.
+        /// </summary>
         public int Skip { get; set; } = 0;
+
+        /// <summary>
+        /// The maximum number of the first rows to return.
+        ///
+        /// If value is `0` all rows will be returned.
+        /// </summary>
         public int Limit { get; set; } = 0;
 
         protected SelectQueryBuilderResultset mResultset = new SelectQueryBuilderResultset();
 
         protected ConditionBuilder mHaving = null;
 
+        /// <summary>
+        /// The condition for `HAVING` clause.
+        /// </summary>
         public ConditionBuilder Having => mHaving ?? (mHaving = new ConditionBuilder(this));
 
+        /// <summary>
+        /// The resultset.
+        /// </summary>
         public SelectQueryBuilderResultset Resultset => mResultset;
 
+        /// <summary>
+        /// Removes all elements from the query resultset.
+        /// </summary>
         public void ResetResultset() => mResultset = new SelectQueryBuilderResultset();
 
         private int mColumnAlias = 0;
 
+        /// <summary>
+        /// Adds a raw SQL expression to the resultset.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="type"></param>
+        /// <param name="isAggregate"></param>
+        /// <param name="alias"></param>
         public virtual void AddExpressionToResultset(string expression, DbType type, bool isAggregate = false, string alias = null)
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
@@ -216,6 +246,14 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mResultset.Add(new SelectQueryBuilderResultsetItem(expression, alias, isAggregate, type));
         }
 
+        /// <summary>
+        /// Adds a column of the specified table to the resultset.
+        ///
+        /// Use this query when a table is included into the query more than once.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="entity"></param>
+        /// <param name="alias"></param>
         public virtual void AddToResultset(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string alias = null)
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
@@ -226,6 +264,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mResultset.Add(new SelectQueryBuilderResultsetItem(GetAlias(column, entity), alias, false, column.DbType));
         }
 
+        /// <summary>
+        /// Adds a column to the resultset.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="alias"></param>
         public virtual void AddToResultset(TableDescriptor.ColumnInfo column, string alias = null)
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
@@ -237,6 +280,15 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mResultset.Add(new SelectQueryBuilderResultsetItem(GetAlias(column, null), alias, false, column.DbType));
         }
 
+        /// <summary>
+        /// Adds a column of the specified table aggregated with the specified function to the resultset.
+        ///
+        /// Use this query when a table is included into the query more than once.
+        /// </summary>
+        /// <param name="aggregate"></param>
+        /// <param name="column"></param>
+        /// <param name="entity"></param>
+        /// <param name="alias"></param>
         public virtual void AddToResultset(AggFn aggregate, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string alias = null)
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
@@ -250,6 +302,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mResultset.Add(new SelectQueryBuilderResultsetItem(mSpecifics.GetAggFn(aggregate, GetAlias(column, entity)), alias, true, column.DbType));
         }
 
+        /// <summary>
+        /// Adds a column aggregated with the specified function to the resultset.
+        /// </summary>
+        /// <param name="aggregate"></param>
+        /// <param name="column"></param>
+        /// <param name="alias"></param>
         public virtual void AddToResultset(AggFn aggregate, TableDescriptor.ColumnInfo column, string alias = null)
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
@@ -263,6 +321,13 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mResultset.Add(new SelectQueryBuilderResultsetItem(mSpecifics.GetAggFn(aggregate, GetAlias(column, null)), alias, true, column.DbType));
         }
 
+        /// <summary>
+        /// Adds an aggregate function without parameters to the resultset.
+        ///
+        /// Use this method to add <see cref="AggFn.Count"/> function.
+        /// </summary>
+        /// <param name="aggregate"></param>
+        /// <param name="alias"></param>
         public virtual void AddToResultset(AggFn aggregate, string alias = null)
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
@@ -277,6 +342,14 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mResultset.Add(new SelectQueryBuilderResultsetItem(mSpecifics.GetAggFn(aggregate, null), alias, true, DbType.Int32));
         }
 
+        /// <summary>
+        /// Adds the all the table columns of the specified table to the resultset.
+        ///
+        /// Use this method when table is used in the query more than once.
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="entity"></param>
+        /// <param name="aliasPrefix"></param>
         public virtual void AddToResultset(TableDescriptor table, QueryBuilderEntity entity, string aliasPrefix = "")
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
@@ -291,6 +364,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             }
         }
 
+        /// <summary>
+        /// Adds all columns of the table to the resultset.
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="aliasPrefix"></param>
         public virtual void AddToResultset(TableDescriptor table, string aliasPrefix = "")
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
@@ -308,21 +386,46 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected SelectQueryBuilderByItemCollection mOrderBy = new SelectQueryBuilderByItemCollection();
         protected SelectQueryBuilderByItemCollection mGroupBy = new SelectQueryBuilderByItemCollection();
 
+        /// <summary>
+        /// Adds the specified column to order by direction.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="direction"></param>
         public virtual void AddOrderBy(TableDescriptor.ColumnInfo column, SortDir direction = SortDir.Asc)
         {
             mOrderBy.Add(new SelectQueryBuilderByItem(GetAlias(column, null), direction));
         }
 
+        /// <summary>
+        /// Adds the specified column of the specified table to order by direction.
+        ///
+        /// Use this method when the table are used more than once in the query.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="entity"></param>
+        /// <param name="direction"></param>
         public virtual void AddOrderBy(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, SortDir direction = SortDir.Asc)
         {
             mOrderBy.Add(new SelectQueryBuilderByItem(GetAlias(column, entity), direction));
         }
 
+        /// <summary>
+        /// Adds a column of the specified table to the group specification.
+        ///
+        /// Use this method when the table are used more than once in the query.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="entity"></param>
         public virtual void AddGroupBy(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity)
         {
             mGroupBy.Add(new SelectQueryBuilderByItem(GetAlias(column, entity), SortDir.Asc));
         }
 
+        /// <summary>
+        /// Adds raw SQL expression to the order.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="direction"></param>
         protected internal void AddOrderByExpr(string expression, SortDir direction = SortDir.Asc)
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
@@ -344,11 +447,16 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mGroupBy.Add(new SelectQueryBuilderByItem(expression, SortDir.Asc));
         }
 
+        /// <summary>
+        /// Adds the specified column to group specification.
+        /// </summary>
+        /// <param name="column"></param>
         public virtual void AddGroupBy(TableDescriptor.ColumnInfo column)
         {
             mGroupBy.Add(new SelectQueryBuilderByItem(GetAlias(column, null), SortDir.Asc));
         }
 
+        [DocgenIgnore]
         public override void PrepareQuery()
         {
             StringBuilder query = PrepareSelectQueryCore();
@@ -362,6 +470,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mQuery = query.ToString();
         }
 
+        [DocgenIgnore]
         public virtual StringBuilder PrepareSelectQueryCore()
         {
             StringBuilder query = new StringBuilder();
@@ -541,11 +650,18 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         protected string mQuery;
 
+        [DocgenIgnore]
         public override string Query
         {
             get { return mQuery; }
         }
 
+        /// <summary>
+        /// Returns the alias of the specified column of the specified table in the query.
+        /// </summary>
+        /// <param name="columnInfo"></param>
+        /// <param name="queryEntity"></param>
+        /// <returns></returns>
         public override string GetAlias(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity queryEntity)
         {
             if (queryEntity == null)
@@ -579,10 +695,32 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             return mQueryTableDescriptor;
         }
 
+        /// <summary>
+        /// Returns the table descriptor that represents the resultset of the query.
+        /// </summary>
         public TableDescriptor QueryTableDescriptor => GetTableDescriptor();
 
+        /// <summary>
+        /// Gets the reference of a column in the query.
+        ///
+        /// Use this method when sub-query requires the reference to a column on the main query.
+        ///
+        /// You can use the reference in <see cref="SingleConditionBuilderExtension.Reference(SingleConditionBuilder, IInQueryFieldReference)"/> method.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public override IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column) => new InQueryFieldReference(GetAlias(column, null));
 
+        /// <summary>
+        /// Gets the reference of a column in the query.
+        ///
+        /// Use this method when sub-query requires the reference to a column on the main query.
+        ///
+        /// You can use the reference in <see cref="SingleConditionBuilderExtension.Reference(SingleConditionBuilder, IInQueryFieldReference)"/> method.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         public virtual IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity) => new InQueryFieldReference(GetAlias(column, entity));
     }
 
@@ -668,16 +806,25 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public static OpBracket AddHavingGroup(this SelectQueryBuilder builder) => builder.Having.AddGroup(LogOp.And);
     }
 
+    /// <summary>
+    /// A builder for the group of the parameters.
+    ///
+    /// Use <see cref="SqlDbLanguageSpecifics.GetParameterGroupBuilder"/> to get an instance of this class.
+    /// </summary>
     public class ParameterGroupQueryBuilder : AQueryBuilder
     {
         private readonly StringBuilder mList = new StringBuilder();
         private readonly string mPrefix;
 
-        public ParameterGroupQueryBuilder(SqlDbLanguageSpecifics specifics) : base(specifics)
+        protected internal ParameterGroupQueryBuilder(SqlDbLanguageSpecifics specifics) : base(specifics)
         {
             mPrefix = mSpecifics.ParameterInQueryPrefix;
         }
 
+        /// <summary>
+        /// Adds a parameter.
+        /// </summary>
+        /// <param name="parameter"></param>
         public void AddParameter(string parameter)
         {
             if (mList.Length > 0)
@@ -688,10 +835,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mList.Append(parameter);
         }
 
+        [DocgenIgnore]
         public override void PrepareQuery()
         {
         }
 
+        [DocgenIgnore]
         public override string Query => mList.ToString();
     }
 }

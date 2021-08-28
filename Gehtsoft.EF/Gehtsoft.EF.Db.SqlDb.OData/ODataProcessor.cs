@@ -481,7 +481,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 if (entityType == null)
                     throw new EfODataException(EfODataExceptionCode.NoEntityInBuildQuery);
                 EntityDescriptor entityDescriptor = AllEntities.Inst[entityType];
-                DeleteQueryBuilder builder = new DeleteQueryBuilder(connection.GetLanguageSpecifics(), entityDescriptor.TableDescriptor);
+                DeleteQueryBuilder builder = connection.GetDeleteQueryBuilder(entityDescriptor.TableDescriptor);
                 string pKey = builder.Where.PropertyName(null, entityDescriptor.TableDescriptor.PrimaryKey);
                 string expression = builder.Where.InfoProvider.Specifics.GetOp(CmpOp.Eq, pKey, id.ToString());
                 builder.Where.Add(LogOp.And, expression);
@@ -732,7 +732,9 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
         public void ReadXml(System.Xml.XmlReader reader)
         {
+#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
             throw new NotImplementedException();
+#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
         }
 
         public void WriteXml(System.Xml.XmlWriter writer)

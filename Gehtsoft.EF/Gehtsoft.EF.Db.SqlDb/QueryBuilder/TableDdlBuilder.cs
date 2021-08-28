@@ -1,10 +1,12 @@
 ﻿using System.Text;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
     /// <summary>
     /// Infrastructure class
     /// </summary>
+    [DocgenIgnore]
     public class TableDdlBuilder
     {
         protected TableDescriptor mDescriptor;

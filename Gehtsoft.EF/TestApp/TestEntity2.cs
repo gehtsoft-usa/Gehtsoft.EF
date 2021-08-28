@@ -63,7 +63,7 @@ namespace TestApp
 
             //check delete query
             {
-                var builder = new DeleteQueryBuilder(connection.GetLanguageSpecifics(), goodDescriptor);
+                var builder = connection.GetDeleteQueryBuilder(goodDescriptor);
                 ((Action)(() => builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("a"))).Should().Throw<ArgumentException>();
                 ((Action)(() => builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("'"))).Should().Throw<ArgumentException>();
                 ((Action)(() => builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("\""))).Should().Throw<ArgumentException>();
@@ -72,7 +72,7 @@ namespace TestApp
 
             //check update query
             {
-                var builder = new UpdateQueryBuilder(connection.GetLanguageSpecifics(), goodDescriptor);
+                var builder = connection.GetUpdateQueryBuilder(goodDescriptor);
 
                 ((Action)(() => builder.AddUpdateColumn(goodDescriptor["Name"], "'; -- '"))).Should().Throw<ArgumentException>();
                 ((Action)(() => builder.Where.And().Property(goodDescriptor["Name"]).Eq().Value("a"))).Should().Throw<ArgumentException>();
