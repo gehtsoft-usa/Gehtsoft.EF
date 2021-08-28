@@ -1,0 +1,1477 @@
+@article
+    @key=tutorialen_entities1
+    @title=Declaring Entities
+    @brief=
+    @ingroup=tutorialsen
+
+    [b]What is Entity?[/b]
+
+    In the entity framework an entity is supposed to be ... an entity, in other words a special kind of a class which
+    keeps only data and does not have any methods.
+
+    [b]How to Define Entity?[/b]
+
+    The entity which is good for an entity framework must:
+
+    @list
+        @list-item
+            be declared as a public class
+        @end
+        @list-item
+            have parameterless constructor
+        @end
+        @list-item
+            have entity data declared as public properties with get and set accessors defined.
+        @end
+    @end
+
+    The entity is attributed using [clink=Gehtsoft.EF.Entities.EntityAttribute]EntityAttribute[/clink]. The attribute sets the table name.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+        [Entity(Table = "entity_table")]
+        public class Entity
+        {
+        }
+    @end
+
+    [b]How to Define Property?[/b]
+
+    The properties are attributed using [clink=Gehtsoft.EF.Entities.EntityPropertyAttribute]EntityPropertyAttribute[/clink].
+    In the simplest case nothing additional needs to be set.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty()]
+       !    public int IntegerProperty { get; set; }
+       !}
+    @end
+
+    In this case the property name, type and parameters are all taken from the property definition.
+
+    [b]When To Configure Property Size?[/b]
+
+    For some types the property size cannot be get from the property definition (e.g. for strings) or may be not effective
+    if it is taken from the property definition (e.g. numbers).
+
+    In this case [c]Size[/c] and [c]Precision[/c] (for numbers) attribute properties can be utilized.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(Size = 64)]
+       !    public string StringProperty { get; set; }
+       !
+       !    //8-digit number, 2 digits after decimal point
+       !    [EntityProperty(Size = 8, Precision = 2)]
+       !    public string NumericProperty { get; set; }
+       !}
+    @end
+
+    [b]When To Set Property Type?[/b]
+
+    For some types the appropriate database type cannot be get from the property definition. For example, C# for not have special types for
+    date and timestamps, but the most of database do.
+
+    In this case the DB type needs to be specified.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !       [EntityProperty(DbType=DbType.Date)]
+       !       public DateTime DateProperty { get; set; }
+       !}
+    @end
+
+    [b]How to Make a Property Nullable?[/b]
+
+    To make a property nullable, set [c]Nullable[/c] property of the attribute to [c]true[/c]. Also, if the property type is a
+    value type, change the property type to nullable.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !       [EntityProperty(DbType=DbType.Date, Nullable=true)]
+       !       public DateTime? DateProperty { get; set; }
+       !}
+    @end
+
+    [b]How to Add an Index to the Property?[/b]
+
+    To add an index to the property use [c]Sorted[/c] property of the attribute.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !       [EntityProperty(DbType=DbType.Date, Sorted=true)]
+       !       public DateTime? DateProperty { get; set; }
+       !}
+    @end
+
+    [b]How to Customize Database Field Name?[/b]
+
+    If you want to customize the database field name use [c]Field[/c] property of the attribute.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !       [EntityProperty(Field="action_date", DbType=DbType.Date, Sorted=true)]
+       !       public DateTime? DateProperty { get; set; }
+       !}
+    @end
+@end
+
+@article
+    @key=tutorialen_entities2
+    @title=Primary Keys
+    @brief=
+    @ingroup=tutorialsen
+
+    The entity framework does not support complex primary keys. Only one property can be a primary key of the entity.
+
+    To mark the property as a primary key use [c]PrimaryKey[/c] property of the attribute. The property of any type except properties
+    mapped to BLOB and CLOB columns can be declared as primary key.
+
+    When a property is declared as a primary key, it will be used for:
+
+    @list
+        @list-item
+            Updating the entity in the database
+        @end
+        @list-item
+            Loading a single instance of the entity from the database
+        @end
+        @list-item
+            Establishing relationship with other entities
+        @end
+    @end
+
+    For integer artificial primary keys the [c]Autoincrement[/c] property can be used to create an sequence that starts from 1 and increases
+    by one every time when a new entity is saved to the database. This operation is atomic at the database level and uniqueness of the values
+    of guaranteed.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(PrimaryKey = true, Autoincrement = true)]
+       !    public int PK { get; set; }
+       !}
+    @end
+
+    A shortcut for and integer primary key with autoincrement is [c]AutoId[/c]
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int PK { get; set; }
+       !}
+    @end
+
+    Please note that autoincrement sequences ALWAYS start from 1 for each entity individually, so you can use [c]PK == 0[/c] condition
+    to check whether you are dealing with a new entity.
+@end
+
+@article
+    @key=tutorialen_entities3
+    @title=Foreign Keys
+    @brief=
+    @ingroup=tutorialsen
+
+    [b]Refer to Other Table[/b]
+
+    To create a reference to other entity:
+
+    @list
+        @list-item
+            Create a property that has the type of the other entity.
+        @end
+        @list-item
+            Mark it with [c]EntityProperty[/c] attribute with [c]ForeignKey[/c] property set to [c]true[/c].
+        @end
+    @end
+
+    In the case, the column with the type of the primary key of the other entity will be added to this table and the foreign key constraint
+    will be created.
+
+    When [c]0..*[/c] relationship needs to be established, use [c]Nullable[/c] property of the attribute.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+   ![Entity(Table = "dictionary_table")]
+   !public class Dictionary
+   !{
+   !    [EntityProperty(AutoId = true)]
+   !    public int ID { get; set; }
+   !
+   !}
+   !
+   !
+   ![Entity(Table = "entity_table")]
+   !public class Entity
+   !{
+   !    [EntityProperty(AutoId = true)]
+   !    public int ID { get; set; }
+   !
+   !    [EntityProperty(ForeignKey = true, Nullable = true)]
+   !    public Dictionary Dictionary { get; set; }
+   !}
+    @end
+
+
+    [b]Self-References Table[/b]
+
+    You can make self-reference to the entity in order to create a tree table.
+
+    Please note that:
+
+    @list
+        @list-item
+            The list reference must ALWAYS be nullable.
+        @end
+        @list-item
+            MySQL does NOT support tree queries, so using tree tables will exclude MySQL and MariaDb from the
+            list of the DB that can be used in the application.
+        @end
+    @end
+@end
+
+@article
+    @key=tutorialen_entities4
+    @title=Queries
+    @brief=
+    @ingroup=tutorialsen
+
+    There are a few entity queries that can be created using
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension]EntityConnectionExtension[/clink] extension class.
+
+    The methods of this class creates one of
+    subclasses of [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery]EntityQuery[/clink] classes. An entity query is
+    a disposable object and must be disposed after use and before the connection to which the query belongs is disposed.
+
+    An entity queries can be executed using method [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.Execute.0]Execute[/clink].
+
+    Depending on the query it may have a parameter if the query operates on a single instance of the entity (e.g. insert, update or delete).
+@end
+
+@article
+    @key=tutorialen_entities5
+    @title=Creating and Dropping Tables
+    @brief=
+    @ingroup=tutorialsen
+
+    [b]Dropping and Creating an Individual Table[/b]
+
+    There are entity queries to drop and to create entity tables. See example below for both available ways to create an entity query:
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+
+       !//Drop query: Option 1
+       !using (var query = connection.GetDropEntityQuery<Entity>())
+       !    query.Execute();
+       !//Drop query: Option 2
+       !using (var query = connection.GetDropEntityQuery(typeof(Entity)))
+       !    query.Execute();
+       !//Create query: Option 1
+       !using (var query = connection.GetCreateEntityQuery<Entity>())
+       !    query.Execute();
+       !//Create query: Option 2
+       !using (var query = connection.GetCreateEntityQuery(typeof(Entity)))
+       !    query.Execute();
+    @end
+
+    Please note that the order, in which tables are dropped or created, matters. In case, say, you have an entity B that refers via
+    a foreign key to an entity B, you have to drop B entity first and you have to create an entity A first.
+
+    [b]Using Entity Creation Controller[/b]
+
+    To simplify tables management, there are the class [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink]
+    provided. The class loads all entities (or all entities filtered by a [i]scope[/i] specified) from the assembly and then orders them
+    according relationships between assemblies. Then you can drop all entities or create all entities using just one call.
+
+    Of course, in case when you want to recreate all the entity tables, always drop entities first.
+
+    Please note that if you want your view automatically created and dropped, don't forget to
+    provide metadata type in the [clink=Gehtsoft.EF.Entities.EntityAttribute]EntityAttribute[/clink]
+    that implements [clink=Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata]IViewCreationMetadata[/clink]
+    interface.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+
+        CreateEntityController controller = new CreateEntityController(typeof(Entity).Assembly);
+        controller.DropTables(connection);
+        controller.CreateTables(connection);
+    @end
+
+    [b]Updating Entities[/b]
+
+    Often, during the application lifecycle, the database structure are changes to reflect new requirements and functionality. Not always
+    full recreation of the database is the right answer, sometime updates are the option.
+
+    There are two typical ways on how the application can handle this situation:
+
+    @list
+        @list-item
+            Provide the update script that prepares the database for running a new version.
+        @end
+        @list-item
+            Use automatic update procedure,
+            provided by [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink]
+            class (see [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateTables.0]Update()[/clink] method).
+        @end
+    @end
+
+    To update the database in the second way:
+
+    @list
+        @list-item
+            Create new entities and add new properties to the entities as usual.
+        @end
+        @list-item
+            Mark entities that won't be used anymore with [clink=Gehtsoft.EF.Entities.ObsoleteEntityAttribute]ObsoleteEntity[/clink] attribute.
+        @end
+        @list-item
+            Mark entity properties that won't be used anymore with [clink=Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute]ObsoleteEntityProperty[/clink] attribute.
+        @end
+        @list-item
+            If additional actions is required when entity is changed (created, dropped) or property is changed (created, dropped) use
+            the appropriate attribute that calls a static method that takes just one parameter - a connection. On drop actions are performed before
+            the operation and on create are performed after.
+            The attributes are:
+            @list
+                @list-item
+                    [c]OnEntityCreate[/c]
+                @end
+                @list-item
+                    [c]OnEntityDrop[/c]
+                @end
+                @list-item
+                    [c]OnEntityPropertyCreate[/c]
+                @end
+                @list-item
+                    [c]OnEntityPropertyDrop[/c]
+                @end
+            @end
+        @end
+        @list-item
+            Be aware of automatic updates limitations. The automatic update cannot:
+            @list
+                @list-item
+                    Change type, name or attributes of an existing property.
+                @end
+                @list-item
+                    Add or remove primary key of an existing entity.
+                @end
+                @list-item
+                    Create a new non-nullable property. All newly introduced properties must be nullable.
+                @end
+            @end
+        @end
+    @end
+
+    @example
+        @title=Example: Using update attributes
+        @show=yes
+        @highlight=cs
+         ![Entity(Table = "entity_table")]
+         ![b][OnEntityCreate(typeof(MyClass), nameof(MyClass.OnEntityCreate))][/b]
+         !public class Entity
+         !{
+         !    [EntityProperty(AutoId = true)]
+         !    public int ID { get; set; }
+         !
+         !    [EntityProperty(ForeignKey = true, Nullable = true)]
+         !    public Dictionary Dictionary { get; set; }
+         !
+         !    [EntityProperty(Size = 64, Nullable = true)]
+         !    [b][OnEntityPropertyCreate(typeof(MyClass), nameof(MyClass.OnEntityPropertyCreate))][/b]
+         !    public string MyNewProperty { get; set; }
+         !}
+         !
+         !public class MyClass
+         !{
+         !    [b]public static void OnEntityCreate(SqlDbConnection connection)[/b]
+         !    {
+         !
+         !    }
+         !
+         !    [b]public static void OnEntityPropertyCreate(SqlDbConnection connection)[/b]
+         !    {
+         !
+         !    }
+         !
+    @end
+@end
+
+@article
+    @key=tutorialen_entities6
+    @title=Inserting, Updating and Deleting Entities
+    @brief=
+    @ingroup=tutorialsen
+
+    There are [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ModifyEntityQuery]ModifyEntityQuery[/clink] that can be used
+    to create, update or delete a single instance of the entity.
+
+    This query is the only query that requires the instance of the entity to be specified as a
+    parameter of the [c]Execute[/c] method.
+
+    The using of the query is quite simple. Just get the query using
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension]EntityConnectionExtension[/clink] extension class
+    and call it for the instance. In case multiple entities must be handled, the same query may be reused multiple times.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+           !using (var query = connection.GetInsertEntityQuery<Entity>())
+           !    query.Execute(entity);
+           !
+           !using (var query = connection.GetUpdateEntityQuery<Entity>())
+           !    query.Execute(entity);
+           !
+           !using (var query = connection.GetDeleteEntityQuery<Entity>())
+           !    query.Execute(entity);
+    @end
+
+    If the primary key of the entity is integer autoincrement value, you can use universal approach that detects whether
+    the entity needs to be updated or it needs to be inserted.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+        !    using (var query = entity.ID < 1 ? connection.GetInsertEntityQuery<Entity>() : connection.GetUpdateEntityQuery<Entity>())
+        !        query.Execute(entity);
+    @end
+@end
+
+@article
+    @key=tutorialen_entities7
+    @title=Selecting Entities Count and Selecting All Entities
+    @brief=
+    @ingroup=tutorialsen
+
+    [b]Get Entities Count[/b]
+
+    To get number of entities use entity count query:
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesCountQuery<Entity>())
+       !    countOf = query.RowCount;
+    @end
+
+
+    [b]Read All Entities[/b]
+
+    To read all entities (with looking up for the whole tree of foreign keys references):
+
+    @example
+        @title=Example
+        @highlight=cs
+        @show=yes
+        !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+        !{
+        !   EntityCollection<Entity> all = query.ReadAll<Entity>();
+        !   ...
+        !}
+    @end
+
+    If you don't want to read all entities at once but want to handle them one-by-one:
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+        !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+        !{
+        !   Entity entity;
+        !   while ((entity = query.ReadOne<Entity>()) != null)
+        !   {
+        !       ......
+        !   }
+        !}
+    @end
+@end
+
+@article
+    @key=tutorialen_entities8
+    @title=Filtering and Ordering Query Results
+    @brief=
+    @ingroup=tutorialsen
+
+    Select queries (and, by the way, multiple entity modification and deletion queries) can be applied
+    to the filtered rows only.
+
+    To do it [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.Where.0]Where[/clink]
+    property is used.
+
+    There are a lot of options how the resultset can be filtered. Let's discuss major options of filtering.
+
+    [b]Adding Simple Compare Conditions[/b]
+
+    The easiest way to filter is to simply compare a column value with a constant value.
+
+    The column is simply referenced by the property name. C# [c]nameof[/c] operation is very useful to specify the property names, so, the chance
+    of mistype is reduced and no complex and boring replace operation would be needed if ever the property is renamed.
+
+    You can compare to all kind of equality comparison: is equal, is not equal, is greater, is greater or equal, is less, is less or equal.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+        ![Entity(Table = "entity_table")]
+        !public class Entity
+        !{
+        !    [EntityProperty(AutoId = true)]
+        !    public int ID { get; set; }
+        !
+        !    [EntityProperty]
+        !    public bool UpdateStatistics { get; set; }
+        !
+        !    [EntityProperty(Nullable = true)]
+        !    public int? Statistics { get; set; }
+        !}
+        !..................
+        !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+        !{
+        !    //select only rows where statistics is equal to zero
+        !    query.Where.Property(nameof(Entity.Statistics)).Is(CmpOp.Eq).Value(0);
+        !    //or select rows where statistics is between 20 and 100
+        !    query.Where.Property(nameof(Entity.Statistics)).Is(CmpOp.Ge).Value(20);
+        !    query.Where.And().Property(nameof(Entity.Statistics)).Is(CmpOp.Le).Value(100);
+        !
+        !}
+    @end
+
+    [b]Is Null/Is Not Null Conditions[/b]
+
+    Is null/is not null conditions are even simpler as they do not require parameters:
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+        ![Entity(Table = "entity_table")]
+        !public class Entity
+        !{
+        !    [EntityProperty(AutoId = true)]
+        !    public int ID { get; set; }
+        !
+        !    [EntityProperty]
+        !    public bool UpdateStatistics { get; set; }
+        !
+        !    [EntityProperty(Nullable = true)]
+        !    public int? Statistics { get; set; }
+        !}
+        !..................
+        !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+        !{
+        !    //select only rows where statistics is not set
+        !    query.Where.Property(nameof(Entity.Statistics)).Is(CmpOp.IsNull);
+        !
+        !}
+        @end
+
+    [b]Add Conditions for Referenced Entities[/b]
+
+    The default entity query loads not only the main entity, but all referenced entities as well. These entities can also be used
+    in the filter. All we need is to add the type of the entity referenced.
+
+    Let say we need to select entities that have referenced to dictionary entries that starts from the letter A.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "dictionary_table")]
+       !public class Dictionary
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Size = 64, Sorted = true)]
+       !    public string Name { get; set; }
+       !
+       !}
+       !
+       !
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true)]
+       !    public Dictionary Reference { get; set; }
+       !}
+       !
+       !....
+       !
+       !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+       !{
+       !    query.Where.PropertyOf<Dictionary>(nameof(Dictionary.Name)).Is(CmpOp.Like).Value("A%");
+       !    var collection = query.ReadAll<Entity>();
+       !}
+    @end
+
+
+    [b]Subquery Conditions (IN)[/b]
+
+    Another query can be used as a part of the query reference. Here we are using the information that will be provided in further articles (on how
+    to customize the resultset of an entity query), however, the examples below are quite simple and pretty much self-explaining.
+
+    Let say we need to select entities that have referenced to dictionary entries that starts from the letter A.
+
+    In this particular case this is just another (and less effective!) solution of the problem demonstrated in the previous example, however,
+    this method can be used for custom queries which do not have references resolved or to
+    more complex dictionary filtering, e.g. to select all dictionaries that have at least 10 entities referenced to them.
+
+    @example
+        @title=Example
+        @highlight=cs
+        @show=yes
+       ![Entity(Table = "dictionary_table")]
+       !public class Dictionary
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Size = 64, Sorted = true)]
+       !    public string Name { get; set; }
+       !
+       !}
+       !
+       !
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true)]
+       !    public Dictionary Reference { get; set; }
+       !}
+       !
+       !....
+       !
+       !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+       !{
+       !    using (var subquery = connection.GetGenericSelectEntityQuery<Dictionary>())
+       !    {
+       !        subquery.AddToResultset(nameof(Dictionary.ID));
+       !        subquery.Where.Property(nameof(Dictionary.Name)).Is(CmpOp.Like).Value("A%");
+       !
+       !        query.Where.Property(nameof(Entity.Reference)).Is(CmpOp.In).Query(subquery);
+       !    }
+       !
+       !    var collection = query.ReadAll<Entity>();
+       !}
+    @end
+
+    [b]Subquery Conditions With Cross-Reference[/b]
+
+    Sometimes subquery needs to be referenced to the parent query. Like in example below where we need to find all dictionary entries
+    that do not have any entities related to them. The cross references may be established using the result returned by
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.GetReference.0]GetReference()[/clink] method.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "dictionary_table")]
+       !public class Dictionary
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Size = 64, Sorted = true)]
+       !    public string Name { get; set; }
+       !
+       !}
+       !
+       !
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true)]
+       !    public Dictionary Reference { get; set; }
+       !}
+       !
+       !....
+        !using (var query = connection.GetSelectEntitiesQuery<Dictionary>())
+        !{
+        !    using (var subquery = connection.GetGenericSelectEntityQuery<Entity>())
+        !    {
+        !        subquery.Where.Property(nameof(Entity.Reference)).Is(CmpOp.Eq).Reference(query.GetReference(nameof(Dictionary.ID)));
+        !        query.Where.Add().Is(CmpOp.NotExists).Query(subquery);
+        !    }
+        !
+        !    var unusedDictionaryEntries = query.ReadAll<Dictionary>();
+        !}
+    @end
+
+    [b]Put Conditions into Bracket and Joining With OR[/b]
+
+    Sometimes conditions needs to be joined by OR instead of AND (i.e. ANY of the conditions is true rather than ALL of the conditions are true)
+
+    Example below selects all rows where statistics is not set or is less than 100.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+        !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+        !{
+        !    using (var bracket = query.Where.AddGroup())
+        !    {
+        !        query.Where.Or().Property(nameof(Entity.Statistics)).Is(CmpOp.IsNull);
+        !        query.Where.Or().Property(nameof(Entity.Statistics)).Is(CmpOp.Le).Value(100);
+        !    }
+        !
+        !}
+    @end
+
+    Sometimes, OR and AND conditions needs to be mixed. You must be aware that AND is always used first, before OR. In such cases the developer
+    may want to enclose a set of conditions into a group in sake of predictable behavior and better readability of the query. The brackets needs to
+    be used in this case. The principles of usage are example the same as using the brackets in the plain SQL or any other programming language.
+
+    The example below is equal to raw SQL [c]updateStatistics AND (statistics is NULL OR (statistics >= 20 AND statistics <= 180)[/c]
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+           !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+           !{
+           !
+           !    query.Where.Property(nameof(Entity.UpdateStatistics)).Is(CmpOp.Eq).Value(true);
+           !    using (var bracket = query.Where.AddGroup(LogOp.And))
+           !    {
+           !        query.Where.Or().Property(nameof(Entity.Statistics)).Is(CmpOp.IsNull);
+           !        using (var bracket1 = query.Where.AddGroup(LogOp.Or))
+           !        {
+           !            query.Where.Property(nameof(Entity.Statistics)).Is(CmpOp.Ge).Value(20);
+           !            query.Where.And().Property(nameof(Entity.Statistics)).Is(CmpOp.Le).Value(180);
+           !        }
+           !    }
+           !}
+    @end
+
+    [b]Ordering Resultset[/b]
+
+    To order the resultset use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddOrderBy.0]AddOrderBy()[/clink]
+    method of the query. The data can be ordered by any column of any entity involved into the query.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+       !{
+       !    //order by the name of the referenced dictionary entry
+       !    query.AddOrderBy(typeof(Dictionary), nameof(Dictionary.Name));
+       !    //and then by statistics in reverse order
+       !    query.AddOrderBy(nameof(Entity.Statistics), SortDir.Desc);
+       !    query.Limit = 20;
+       !    query.Skip = 100;
+       !    ...
+       !}
+    @end
+
+
+    [b]Limiting Rows[/b]
+
+    To limit the number of rows received or to skip rows from the beginning of the query use
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Limit.0]Limit[/clink]
+    and [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Skip.0]Skip[/clink] properties
+    of the query. The example below reads 20 entities starting at 100th entity.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+       !{
+       !    query.AddOrderBy(typeof(Dictionary), nameof(Dictionary.Name));
+       !    query.Limit = 20;
+       !    query.Skip = 100;
+       !    ...
+       !}
+    @end
+
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+       !{
+       !    query.AddOrderBy(typeof(Dictionary), nameof(Dictionary.Name));
+       !    query.Limit = 20;
+       !    query.Skip = 100;
+       !    ...
+       !}
+    @end
+
+    Please be aware that some of database requires the resultset to be ordered to use limit and skip features.
+@end
+
+@article
+    @key=tutorialen_entities9
+    @title=Limit Which Columns are Selected (the filter method).
+    @brief=
+    @ingroup=tutorialsen
+
+    Sometimes, especially when the entity consists of large data such as clob or blob, it is reasonable to skip loading of
+    this data when large amount of entities is received.
+
+    It is possible to do not load some columns while the entity is still loaded with all references resolved and is bound to
+    the entity object using column filters.
+
+    The column filter is passed to the method of obtaining of the select query. The column filter simply lists the entity type and the
+    column name to be skipped.
+
+    Skipped nullable properties will be filled with null values. Skipped non-nullable properties will be filled with default values of
+    the property type.
+
+    In the example below, the entity property "Statistics" and the referenced property aren't loaded, however can be referenced in
+    query filter.
+
+    The reference field may also be filtered, however this will affect only loading the data. The referenced entity will be included into the query
+    and so it may be used in filters and order specification.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "dictionary_table")]
+       !public class Dictionary
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Size = 64, Sorted = true)]
+       !    public string Name { get; set; }
+       !
+       !}
+       !
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true)]
+       !    public Dictionary Reference { get; set; }
+       !
+       !    [EntityProperty(Nullable = true)]
+       !    public int? Statistics { get; set; }
+       !}
+       !
+       !...
+       !
+       !SelectEntityQueryFilter[] filter = new SelectEntityQueryFilter[]
+       !{
+       !    new SelectEntityQueryFilter() {Property = nameof(Entity.Statistics)},
+       !    new SelectEntityQueryFilter() {EntityType = typeof(Dictionary), Property = nameof(Dictionary.Name)},
+       !};
+       !
+       !using (var query = connection.GetSelectEntitiesQuery<Entity>(filter))
+       !{
+       !    query.Where.PropertyOf<Dictionary>(nameof(Dictionary.Name)).Is(CmpOp.Like).Value("A%");
+       !    var all = query.ReadAll<Entity>();
+       !}
+    @end
+@end
+
+
+@article
+    @key=tutorialen_entities10
+    @title=Limit Which Columns are Selected (the generic query method) and Aggregating Queries.
+    @brief=
+    @ingroup=tutorialsen
+
+    In case query need to produce custom resultset and custom entity query, a generic entity select query needs to be used. The generic entity select
+    class is [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]
+
+    [b]Defining Resultset[/b]
+
+    The generic entity query does not have any resultset defined when the object is created.
+
+    Use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.2]AddToResultset()[/clink] method to specify which columns
+    needs to be returned.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "dictionary_table")]
+       !public class Dictionary
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Size = 64, Sorted = true)]
+       !    public string Name { get; set; }
+       !
+       !}
+       !
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true)]
+       !    public Dictionary Reference { get; set; }
+       !
+       !    [EntityProperty(Nullable = true)]
+       !    public int? Statistics { get; set; }
+       !}
+       !....
+       !using (var query = connection.GetGenericSelectEntityQuery<Entity>())
+       !{
+       !    query.AddToResultset(nameof(Entity.ID));
+       !    query.AddToResultset(nameof(Entity.Statistics));
+       !    ....
+       !}
+    @end
+
+    [b]Reading Resultset[/b]
+
+    There are two way to read the result of generic entity query.
+
+    First option is to read the resultset row-by-row and access each individual column using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.GetValue.0]GetValue()[/clink]
+    method.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !....
+       !using (var query = connection.GetGenericSelectEntityQuery<Entity>())
+       !{
+       !    query.AddToResultset(nameof(Entity.ID));
+       !    query.AddToResultset(nameof(Entity.Statistics));
+       !    while (query.ReadNext())
+       !    {
+       !        int id = query.GetValue<int>(0);
+       !        int stasitics = query.GetValue<int>(1);
+       !    }
+       !
+       !}
+    @end
+
+    The second option is to use dynamic objects. In this case it would be reasonable to explicitly
+    define the names of the columns as they will be used as property names of the dynamic object.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !....
+       !using (var query = connection.GetGenericSelectEntityQuery<Entity>())
+       !{
+       !    query.AddToResultset(nameof(Entity.ID), "id");
+       !    query.AddToResultset(nameof(Entity.Statistics), "stat");
+       !
+       !    var rs = query.ReadAllDynamic();
+       !    foreach (var row in rs)
+       !    {
+       !        int id = row.id;
+       !        int stat = row.stat;
+       !    }
+       !}
+    @end
+
+
+    [b]Aggregating the Data[/b]
+
+    The data in the generic query may be aggregated. Use [clink=Gehtsoft.EF.Entities.AggFn]AggFn[/clink] function id while adding the data
+    to the resultset.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true)]
+       !    public Dictionary Reference { get; set; }
+       !
+       !    [EntityProperty(Nullable = true)]
+       !    public int? Statistics { get; set; }
+       !}
+       !....................
+       !using (var query = connection.GetGenericSelectEntityQuery<Entity>())
+       !{
+       !     query.AddToResultset(AggFn.Max, nameof(Entity.Statistics), "max");
+       !     var rs = query.ReadOneDynamic()?.max;
+       !}
+    @end
+
+    When the data needs to be aggregated by some value, use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddGroupBy.0]AddGroupBy[/clink]
+    method. Some database requires all columns from the resultset that aren't aggregate function to be included into
+    group by clause. The framework automatically does this if at least one non-aggregated column exists in the resultset.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "subentity_table")]
+       !public class Subentity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true, Nullable = true)]
+       !    public Entity Entity { get; set; }
+       !
+       !}
+       !....
+       !using (var query = connection.GetGenericSelectEntityQuery<Subentity>())
+       !{
+       !    query.AddToResultset(nameof(Subentity.Entity), "entity_id");
+       !    query.AddToResultset(AggFn.Count, null, "count");
+       !    query.AddGroupBy(nameof(Subentity.Entity));
+       !    var rs = query.ReadAllDynamic();
+       !}
+    @end
+
+    [b]Joins[/b]
+
+    Generic select by default has only one entity table involved, which was set when the query is created.
+
+    You can add more entities using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddEntity.0]AddEntity[/clink] method.
+
+    The framework automatically recognizes the type of join (inner, left or right) using primary and foreign key information in the entities.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "dictionary_table")]
+       !public class Dictionary
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Size = 64, Sorted = true)]
+       !    public string Name { get; set; }
+       !
+       !}
+       !
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true)]
+       !    public Dictionary Reference { get; set; }
+       !
+       !    [EntityProperty(Nullable = true)]
+       !    public int? Statistics { get; set; }
+       !}
+       !
+       !...
+       !using (var query = connection.GetGenericSelectEntityQuery<Entity>())
+       !{
+       !    query.AddEntity(typeof(Dictionary));
+       !    query.AddToResultset(nameof(Entity.ID));
+       !    query.AddToResultset(typeof(Dictionary), nameof(Dictionary.Name));
+       !    var rs = query.ReadAllDynamic();
+       !}
+    @end
+
+    In rare cases, especially when one entity is referenced in the other more than once, it requires to explicitly specify which column
+    is used to join and which occurrence of the type in the query needs to be used in result set and/or the filter.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "dictionary_table")]
+       !public class Dictionary
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Size = 64, Sorted = true)]
+       !    public string Name { get; set; }
+       !
+       !}
+       !
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true)]
+       !    public Dictionary Reference { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true)]
+       !    public Dictionary SecondReference { get; set; }
+       !
+       !    [EntityProperty(Nullable = true)]
+       !    public int? Statistics { get; set; }
+       !}
+       !
+       !...
+       !using (var query = connection.GetGenericSelectEntityQuery<Entity>())
+       !{
+       !    query.AddEntity(typeof(Dictionary), nameof(Entity.Reference), false);
+       !    query.AddEntity(typeof(Dictionary), nameof(Entity.SecondReference), true);
+
+       !    query.AddToResultset(nameof(Entity.ID));
+       !    query.AddToResultset(typeof(Dictionary), nameof(Dictionary.Name), "firstname");
+       !    query.AddToResultset(typeof(Dictionary), 1, nameof(Dictionary.Name), "secondname");
+
+       !    var rs = query.ReadAllDynamic();
+       !}
+    @end
+@end
+
+@article
+    @key=tutorialen_entities16
+    @title=LINQ Methods of Queries
+    @brief=
+    @ingroup=tutorialsen
+
+    The LINQ extension class [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqExtension]EntityQueryLinqExtension[/clink]
+    extends entity queries with ability to use LINQ expressions instead of types and names in resultset, filter and grouping specifications.
+
+    In most cases using of the LINQ expressions does not affect generated SQL quality and performance, however the expression compilation itself is
+    slower than basic methods. The effect is not significant and can be ignored in applications that are not time or resource critical.
+
+
+    Sometimes the filters also may look simpler when specified via LINQ expression.
+
+    Let's look how we can alternatively specify the filtering condition (the entities will be the same for all examples in this article).
+
+    Let say we need to select entities that have value between 15 and 30 or that are lined to dictionary record with the name dict5.
+
+    First query in the example uses conventional approach to define the filter and the second query uses a LINQ expression for the same purpose.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "dictionary")]
+       !public class Dictionary
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Size = 64, Sorted = true)]
+       !    public string Name { get; set; }
+       !}
+       !
+       ![Entity(Table = "entity")]
+       !public class Entity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true)]
+       !    public Dictionary Reference { get; set; }
+       !
+       !    [EntityProperty(Sorted = true)]
+       !    public int Value { get; set; }
+       !
+       !    [EntityProperty(Size = 64, Sorted = true)]
+       !    public string Name { get; set; }
+       !}
+       !
+       !....
+       !//Conventional query
+       !using (var query = connection.GetSelectEntitiesCountQuery<Entity>())
+       !{
+       !
+       !    query.Where.PropertyOf<Dictionary>(nameof(Dictionary.Name)).Is(CmpOp.Eq).Value("dict5");
+       !    using (var b = query.Where.AddGroup(LogOp.Or))
+       !    {
+       !        query.Where.Property(nameof(Entity.Value)).Is(CmpOp.Gt).Value(15);
+       !        query.Where.Property(nameof(Entity.Value)).Is(CmpOp.Ls).Value(30);
+       !    }
+       !    int rc = query.RowCount;
+       !}
+       !
+       !
+       !//Equivalent LINQ based query
+       !using (var query = connection.GetSelectEntitiesCountQuery<Entity>())
+       !{
+       !    query.Where.And().Expression<Entity, Dictionary>((entity, dictionary) => (entity.Value > 15 && entity.Value < 30) || dictionary.Name == "dict5");
+       !    int rc = query.RowCount;
+       !}
+    @end
+
+    LINQ expressions offers a few options which are not available for regular queries, such as:
+
+    @list
+        @list-item
+            It is possible to set custom join expression in [c]AddEntity[/c] method.
+        @end
+        @list-item
+            It is possible to add an expression into resultset.
+        @end
+    @end
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !double coefficient = 11.2;
+       !
+       !using (var query = connection.GetGenericSelectEntityQuery<Entity>())
+       !{
+       !    query.AddEntity(typeof(Dictionary));
+       !    query.AddToResultset<Entity, int>(e => e.ID, "id");
+       !    query.AddToResultset<Entity, string>(e => e.Name, "ent_id");
+       !    query.AddToResultset<Dictionary, string>(d => d.Name, "dict_name");
+       !    query.AddToResultset<Entity, Dictionary, string>((e, d) => SqlFunction.Upper(SqlFunction.Concat(e.Name, "-", d.Name)), "name");
+       !    query.AddToResultset<Entity, double>(e => e.Value * coefficient, "value");
+       !
+       !    dynamic rs = query.ReadAllDynamic();
+       !}
+    @end
+
+    Pay attention that where function is used, a function from class [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction]SqlFunction[/clink] may
+    only be used. The same class is also used to specify aggregate functions,
+    when the operator does not exist in the C# language (e.g. like, in, exists) or when reference to
+    the value in parent query needs to be used.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !//select entities that have value above the average value of all entities
+       !//associated with the same dictionary record
+       !using (var query = connection.GetSelectEntitiesQuery<Entity>())
+       !{
+       !    using (var subquery = connection.GetGenericSelectEntityQuery<Entity>())
+       !    {
+       !        subquery.AddToResultset<Entity, double>(entity => SqlFunction.Avg(entity.Value));
+       !        subquery.Where.Expression<Entity>(entity => SqlFunction.Value<int>(subquery.GetReference(nameof(Entity.Reference))) == SqlFunction.Value<int>(query.GetReference(nameof(Entity.Reference))));
+       !        query.Where.Expression<Entity>(entity => entity.Value >= SqlFunction.Value<double>(subquery) && SqlFunction.Like(entity.Reference.Name, "%0%"));
+       !    }
+       !
+       !    query.Execute();
+       !    var rs = query.ReadAll<Entity>();
+       !}
+    @end
+
+    You can also have limited access to the entity using LINQ queries to a IQueriable collection of an entity.
+    Use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider]QueryableEntityProvider[/clink] to get such collection.
+
+    Only the following methods are supported: from, group, order and select.
+
+    Below there are few examples of LINQ queries. Again it is positively advised against using true LINQ queries, especially in connection with
+    the grouping operation because of poor performance of compiled SQL queries.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+           !QueryableEntityProvider provider = new QueryableEntityProvider(new QueryableEntityProviderConnection(connection));
+           !
+           !var query = from e in provider.Entities<Entity>()
+           !    where e.Value > 10
+           !    select e;
+           !
+           !Entity[] rs = query.ToArray();
+           !
+           !var query1 = from e in provider.Entities<Entity>()
+           !    group e by e.Reference.ID
+           !    into g
+           !    select new {DictRec = g.Key, MaxValue = g.Max(v => v.Value)};
+           !
+           !var rs1 = query1.ToArray();
+    @end
+@end
+
+@article
+    @key=tutorialen_entities18
+    @title=Using plain SQL on entities.
+    @brief=
+    @ingroup=tutorialsen
+
+    [b]SQL Queries on Entities[/b]
+
+    In some cases the job to be performed is more complex that supported by the current implementation of the
+    entity framework. In this case you can fallback to plain SQL (or to use an SQL builder).
+
+    To get the SQL table related to the entity:
+
+    @list
+        @list-item
+            Find the entity descriptor using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities]AllEntities[/clink] class.
+        @end
+        @list-item
+            Get the table descriptor using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor.TableDescriptor.0]TableDescriptor[/clink] property
+            of the entity descriptor.
+        @end
+    @end
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "subentity_table")]
+       !public class Subentity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(ForeignKey = true, Nullable = true)]
+       !    public Entity Entity { get; set; }
+       !
+       !}
+       !
+       ![Entity(Table = "entity_table")]
+       !public class Entity
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty]
+       !    public int Statistics { get; set; }
+       !}
+       !
+       !
+       !//.................
+       !//update statistics in all entities where statistics is zero
+       !//using subquery to calculate number of subentities for each entity updated
+       !TableDescriptor entityTable = AllEntities.Inst[typeof(Entity)].TableDescriptor;
+       !TableDescriptor subentityTable = AllEntities.Inst[typeof(Subentity)].TableDescriptor;
+       !
+       !UpdateQueryBuilder updateBuilder = new UpdateQueryBuilder(connection.GetLanguageSpecifics(), entityTable);
+       !
+       !SelectQueryBuilder selectQueryBuilder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), subentityTable);
+       !selectQueryBuilder.AddToResultset(AggFn.Count);
+       !selectQueryBuilder.Where.Property(subentityTable[nameof(Subentity.Entity)]).Is(CmpOp.Eq).Raw(updateBuilder.GetAlias(entityTable[nameof(Entity.ID)]));
+       !
+       !updateBuilder.AddUpdateColumnSubquery(entityTable[nameof(Entity.Statistics)], selectQueryBuilder);
+       !updateBuilder.Where.Property(entityTable[nameof(Entity.Statistics)]).Is(CmpOp.Eq).Parameter("param1");
+       !
+       !using (SqlDbQuery query = connection.GetQuery(updateBuilder))
+       !{
+       !    query.BindParam("param1", 0);
+       !    query.ExecuteNoData();
+       !}
+    @end
+
+    Note: You can always check what is the plain SQL select query by checking [c]SelectBuilder.SelectQueryBuilder.Query[/c] at your query
+    AFTER your entity query is executed.
+
+    [b]SQL Queries on the result of an entity query[/b]
+
+    You can always apply a plain SQL select query on the results of entity select query. To add the entity select query result as a table to
+    [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder]SelectQueryBuilder[/clink], use
+    [c]SelectBuilder.SelectQueryBuilder.QueryTableDescriptor[/c] property of your query. (NOTE: You do not NEED to execute your query, it will be executed
+    as a subquery of the plain SQL select query that you will construct).
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ! //MyEntity (*) --- (1) MyDictionary
+       ! //Let's count average count of entities per dictionary record
+       !using (SelectEntitiesQueryBase subquery = connection.GetGenericSelectEntityQuery<MyEntity>())
+       !{
+       !    subquery.AddEntity<MyDictionary>();
+       !    subquery.AddToResultset(typeof(MyDictionary), nameof(MyDictionary.ID), "dictid");
+       !    subquery.AddToResultset(typeof(MyDictionary), nameof(MyDictionary.Name), "dictname");
+       !    subquery.AddToResultset(AggFn.Count, null, "count");
+       !    subquery.AddGroupBy(typeof(MyDictionary), nameof(MyDictionary.ID));
+       !
+       !    SelectQueryBuilder builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), subquery.SelectBuilder.SelectQueryBuilder.QueryTableDescriptor);
+       !    builder.AddToResultset(AggFn.Avg, subquery.SelectBuilder.SelectQueryBuilder.QueryTableDescriptor["count"]);
+       !    using (SqlDbQuery query = connection.GetQuery(builder))
+       !    {
+       !            query.ExecuteReader();
+       !            query.ReadNext();
+       !            return query.GetValue<int>(0);
+       !    }
+       !}
+    @end
+@end
+
+@article
+    @key=tutorialen_entities19
+    @title=Other useful entity related things
+    @brief=
+    @ingroup=tutorialsen
+
+    Pay also attention at following features of the framework that aren't discussed above:
+
+    @list
+        @list-item
+        [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor]EntityGenericAccessor[/clink] and
+        [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates_T_TKey]GenericEntityAccessorWithAggregates[/clink]
+        classes that provides basic CRUD operations for entities.
+        @end
+        @list-item
+        [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.MultiUpdateEntityQuery]MultiUpdateEntityQuery[/clink] and
+        [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.MultiDeleteEntityQuery]MultiDeleteEntityQuery[/clink] queries.
+        @end
+        @list-item
+        Limited Bson and MongoDB support.
+        @end
+    @end
+@end

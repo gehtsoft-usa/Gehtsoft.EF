@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DocgenVersion>0.1.24</DocgenVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Gehtsoft.Build.DocGen" Version="$(DocgenVersion)" IncludeAssets="build" />
+    <PackageReference Include="Gehtsoft.Build.ContentDelivery" Version="0.1.10" IncludeAssets="build" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <DocTargetDir>$(MSBuildProjectDirectory)/dst</DocTargetDir>
+    <RawDir>$(MSBuildProjectDirectory)/src/raw</RawDir>
+  </PropertyGroup>
+
+ <ItemGroup>
+    <CustomFile Include="$(MSBuildProjectDirectory)/img/**/*.png;$(MSBuildProjectDirectory)/html/**/*.*" />
+    <CurrentDocTargetDir Include="$(DocTargetDir)" />
+    <CurrentRawDir Include="$(RawDir)" />
+ </ItemGroup>
+
+ <Target Name="CleanDoc">
+  <RemoveDir Directories="@(CurrentDocTargetDir)" />
+  <RemoveDir Directories="@(CurrentRawDir)" />
+ </Target>
+
+
+ <Target Name="MakeDoc">
+  <RemoveDir Directories="@(CurrentDocTargetDir)" />
+  <MakeDir Directories="$(DocTargetDir)" />
+  <DocGen Project="project.xml" />
+  <Copy SourceFiles="@(CustomFile)" DestinationFolder="$(DocTargetDir)" />
+  <ContentFromPackage Package="gehtsoft.build.docgen" Source="Content/template/html/res" Version="$(DocgenVersion)" Destination="$(DocTargetDir)/res" />
+  <ContentFromPackage Package="gehtsoft.build.docgen" Source="Content/template/html/highlighter" Version="$(DocgenVersion)" Destination="$(DocTargetDir)/highlighter" />
+  <ContentFromPackage Package="gehtsoft.build.docgen" Source="Content/template/html/menu" Version="$(DocgenVersion)" Destination="$(DocTargetDir)/menu" />
+  <ContentFromPackage Package="gehtsoft.build.docgen" Source="Content/template/html/pageImages" Version="$(DocgenVersion)" Destination="$(DocTargetDir)/pageImages" />
+ </Target>
+
+ <ItemGroup>
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Entities/bin/Debug/netstandard2.0/Gehtsoft.EF.Entities.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Utils/bin/Debug/netstandard2.0/Gehtsoft.EF.Utils.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb/bin/Debug/netstandard2.0/Gehtsoft.EF.Db.SqlDb.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.FTS/bin/Debug/netstandard2.0/Gehtsoft.EF.FTS.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb.Sql/bin/Debug/netstandard2.0/Gehtsoft.EF.Db.SqlDb.Sql.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb.OData/bin/Debug/netstandard2.0/Gehtsoft.EF.Db.SqlDb.OData.dll" />
+ </ItemGroup>
+
+ <Target Name="Scan">
+    <Asm2Xml Assemblies="@(DocSource)" OutputXml="obj/raw.xml" Mode="net50" />
+ </Target>
+
+ <Target Name="Prepare">
+    <RemoveDir Directories="@(CurrentRawDir)"/>
+    <MakeDir Directories="$(RawDir)" />
+    <DocGen Project="prepareproject.xml" />
+ </Target>
+
+
+</Project>

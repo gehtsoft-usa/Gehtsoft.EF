@@ -1,0 +1,27 @@
+﻿<settings >
+  <assembly name="Gehtsoft.EF.Utils" xmldoc="../../../bin/doc.xml" />
+  <assembly name="Gehtsoft.EF.Entities" xmldoc="../../../bin/doc.xml" />
+  <assembly name="Gehtsoft.EF.Db.SqlDb" xmldoc="../../../bin/doc.xml" />
+
+  <include type="public" />
+
+  <strip-namespace name="System" />
+  <strip-namespace name="System.Collections" />
+  <strip-namespace name="System.Collections.Generic" />
+  <strip-namespace name="System.Linq" />
+  <strip-namespace name="System.Data" />
+  <strip-namespace name="System.Linq.Expressions" />
+  <strip-namespace name="Microsoft.Extensions.DependencyInjection" />
+  <strip-namespace name="System.Threading.Tasks" />
+  <strip-namespace name="System.Runtime.Serialization" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.Sql" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.OData" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.EntityAccessor" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.EntityQueries" />
+  <strip-namespace name="Gehtsoft.EF.Entities" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.QueryBuilder" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.Metadata" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch" />
+  <strip-namespace name="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity" />
+</settings >

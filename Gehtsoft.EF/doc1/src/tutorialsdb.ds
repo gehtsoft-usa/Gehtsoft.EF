@@ -1,0 +1,542 @@
+@article
+    @key=tutorialdb1
+    @title=Creating DB connection
+    @brief=
+    @ingroup=tutorialsdb
+
+    The framework uses [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection]SqlDbConnection[/clink] class to perform all connection-related
+    operations.
+
+    To get an instance of the connection, the developer must use one of the database factory classes which are named as
+    `//DbName//DbConnectionFactory` (e.g) `//Mssql//ConnectionFactory` and always has a method named [c]Create[/c] which
+    always has a following prototype:
+
+    `SqlDbConnection **Create**(string connectionString)`
+
+    or for asynchronous version
+
+    `Task<SqlDbConnection> **CreateAsync**(string connectionString, CancellationToken?)`
+
+    The delegate definitions are [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactory]SqlDbConnectionFactory[/clink]
+    and [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactoryAsync]SqlDbConnectionFactoryAsync[/clink]
+
+    Use this method in order to get an instance of the connection.
+
+    Dispose the connection object when it is not in use.
+
+    You can also use [clink=Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory]UniversalSqlDbFactory[/clink]
+    to create a connection by the driver name.
+
+    [b]DB-specific Implementations[/b]
+
+    Wherever the application needs to know any platform specific,
+    an instance of [clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics]SqlDbLanguageSpecifics[/clink] may be obtained from 
+    the connection object via [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetLanguageSpecifics.3e5]GetLanguageSpecifics()[/clink]
+    method.
+
+    [b]Pooling[/b]
+
+    The framework is build over ADO.NET technology so it has a connection pooling embed. All connections that shares the same connection
+    string aren't actually closed at disposition, but are returned back to the connection pool for further reuse.
+
+    So, it is recommended to limit lifetime of the connection object to quite a short period of time, e.g. one request handling, and dispose it as soon
+    as it reasonably possible.
+
+    There is only once case when the behavior isn't clear and well-defined, it is in-memory SQLite database. In this case is it recommended to
+    keep one instance of the connection during the whole lifecycle of the application.
+
+    [b]Example[/b]
+
+    ```+csharp
+        using (SqlDbConnection connection = SqliteDbConnectionFactory.Create("Data File=c:/data/my.db"))
+        {
+            ...
+        }
+    ```
+@end
+
+
+
+@article
+    @key=tutorialdb2
+    @title=Executing a raw query
+    @brief=
+    @ingroup=tutorialsdb
+
+    The simplest way to work with the library is to use plain SQL queries.
+
+    To execute a query:
+
+    @list
+        @list-item
+            Get an instance of a query using [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetQuery]GetQuery()[/clink] method.
+        @end
+        @list-item
+            Bind parameters (if any) using [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindNull.5v7]BindNull()[/clink] and
+            [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindParam]BindParam()[/clink] methods.
+
+        @end
+        @list-item
+            Execute query using either [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ExecuteNoData.AiD]ExecuteNoData()[/clink] (for queries that
+            do not produce resultset, e.g. [c]UPDATE[/c]) or
+            [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ExecuteReader.5HC]ExecuteReader()[/clink] for [c]SELECT[/c] queries.
+        @end
+        @list-item
+            For the queries that has resultset, go trough the resultset using
+            [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ReadNext.tUA]ReadNext()[/clink] method and read
+            values using [clink=Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue]GetValue()[/clink] method).
+        @end
+    @end
+
+    In this mode the library provides almost no service over the regular ADO.NET library.
+
+    @example
+        @title=Example: Simple Queries
+        @show=yes
+        @highlight=cs
+       ``` 
+       using (SqlDbQuery query = connection.GetQuery("insert into table (id, name) values (@id, @name)"))
+       {
+           for (int i = 0; i < 10; i++)
+           {
+               query.BindParam<int>("id", i + 1);
+               query.BindParam<string>("name", $"name {i + 1}");
+               query.ExecuteNoData();
+           }
+       }
+       
+       using (SqlDbQuery query = connection.GetQuery("select * from table where name like @mask"))
+       {
+           query.BindParam<string>("mask", "n%");
+           query.ExecuteReader();
+           while(query.ReadNext())
+           {
+               int id = query.GetValue<int>(0);
+               string name = query.GetValue<string>("name");
+           }
+       }
+       ```
+    @end
+@end
+
+@article
+    @key=tutorialdb3
+    @title=Transactions
+    @brief=
+    @ingroup=tutorialsdb
+
+    To execute a few queries within a transaction using [clink=Gehtsoft.EF.Db.SqlDb.SqlDbConnection.BeginTransaction]BeginTransaction()[/clink]
+    of the connection.
+
+    When the transaction is finished, complete it using [clink=Gehtsoft.EF.Db.SqlDb.SqlDbTransaction.Commit.BU8]Commit()[/clink] method.
+
+    If the transaction is finished not successfully, roll back it using [clink=Gehtsoft.EF.Db.SqlDb.SqlDbTransaction.Rollback.8s6]Rollback()[/clink] method.
+
+    @example
+        @title=Example: Transactions
+        @show=yes
+        @highlight=cs
+        ```
+        using (SqlDbTransaction transaction = connection.BeginTransaction())
+        {
+            try
+            {
+                using (SqlDbQuery query = connection.GetQuery("insert into table (id, name) values (@id, @name)"))
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        query.BindParam<int>("id", i + 1);
+                        query.BindParam<string>("name", $"name {i + 1}");
+                        query.ExecuteNoData();
+                    }
+                }
+        
+                transaction.Commit();
+            }
+            catch (Exception )
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+        ```
+    @end
+
+    To check whether the database supports the transactions or whether it supports nested transactions use the method.
+    [clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics]SqlDbLanguageSpecifics[/clink].[clink=Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.SupportsTransactions.hbA]SupportsTransactions[/clink].
+
+    Please note that in case the database does not support nested transactions but it supports save points, the nested transaction will
+    be simulated via save points.
+@end
+
+@article
+   @key=tutorialdb4
+   @title=Table Descriptors and Query Builder for CREATE TABLE
+   @brief=
+   @ingroup=tutorialsdb
+
+    To make the application independent from the specifics of a particular SQL engine, the library offers the feature called "query builders".
+    The query builder is a class that relies on table metadata and creates a RAW SQL that reflects specific of certain SQL engine.
+    To start using this feature the developer must create metadata for all the tables used in the application. The metadata must
+    be described via [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] class.
+
+
+    @example
+        @title=Example: Table Descriptor (these tables will be used in all examples in this section
+        @show=yes
+        @highlight=cs
+        ```
+        TableDescriptor.ColumnInfo[] my_dictionary_columns = new TableDescriptor.ColumnInfo[]
+        {
+            new TableDescriptor.ColumnInfo() {Name = "id", DbType = DbType.Int32, PrimaryKey = true, Autoincrement = true, Nullable = false},
+            new TableDescriptor.ColumnInfo() {Name = "name", DbType = DbType.String, Size = 32, Nullable = false, Unique = true},
+        };
+        
+        TableDescriptor my_dictionary = new TableDescriptor("my_dictionary_name", my_dictionary_columns);
+        
+        TableDescriptor.ColumnInfo[] my_table_columns = new TableDescriptor.ColumnInfo[]
+        {
+            new TableDescriptor.ColumnInfo() { Name = "id", DbType = DbType.Int32, PrimaryKey = true, Autoincrement = true, Nullable = false},
+            new TableDescriptor.ColumnInfo() { Name = "reference", DbType = DbType.Int32, ForeignTable = my_dictionary, Nullable = false},
+            new TableDescriptor.ColumnInfo() { Name = "name", DbType = DbType.String, Size = 32, Nullable = false},
+            new TableDescriptor.ColumnInfo() { Name = "volume", DbType = DbType.Double, Size = 8, Precision = 2, Nullable = true, Sorted = true},
+        };
+        
+        TableDescriptor my_table = new TableDescriptor("my_table_name", my_table_columns);
+        ```
+    @end
+
+    Now you can create the table at any database using [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateTableBuilder]CreateTableBuilder[/clink] class.
+    This class will create a raw SQL that reflects all specifics related to implementation of [c]CREATE TABLE[/c] command and supported types/features
+    of the SQL engine to which the application is connected.
+
+
+    @example
+        @title=Example: Creating the table using the table descriptor
+        @show=yes
+        @highlight=cs
+        ```
+        using (SqlDbQuery query = connection.GetQuery(connection.GetCreateTableBuilder(my_table)))
+            query.ExecuteNoData();
+        ```
+    @end
+@end
+
+@article
+    @key=tutorialdb5
+    @title=Data Modification Query Builders
+    @brief=
+    @ingroup=tutorialsdb
+
+    [b][c]INSERT[/c][/b]
+
+    The [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.InsertQueryBuilder]InsertQueryBuilder[/clink] creates the SQL engine specific
+    query for the INSERT and defines all parameters. The parameters has example the same name as the columns to be inserted.
+    Please note that the query builder takes care about proper using of suffixes for the parameters (e.g. [c]@[/c] for MSSQL or [c]:[/c] for Oracle)
+    so wherever you are working with the SQL builder you can simply use the parameter name without any prefixes.
+    It also handles autoincrement columns and defines output parameter that accepts auto-assigned value.
+
+    @example
+        @title=Example: Inserting a row
+        @show=yes
+        @highlight=cs
+       ```
+       using (SqlDbQuery query = connection.GetQuery(connection.GetInsertQueryBuilder(my_table)))
+       {
+           query.BindParam("name", "name1");
+           query.BindParam("volume", 112.5);
+           query.ExecuteNoData();
+           int newid = query.GetParamValue<int>("id");
+       }
+       ```
+    @end
+
+    [b][c]DELETE[/c][/b]
+
+    The [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.DeleteQueryBuilder]DeleteQueryBuilder[/clink] creates the SQL engine specific query to delete
+    rows from the table. In this example we look at the simplest version that just deletes one row by its identifier.
+    Use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.DeleteQueryBuilder.DeleteById.H26]DeleteById()[/clink] method to create such query.
+    The parameter with the same name as a primary key column will be created.
+
+    @example
+        @title=Example: Deleting a row
+        @show=yes
+        @highlight=cs
+       ```
+       DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
+       deleteBuilder.DeleteById();
+       using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
+       {
+           query.BindParam("id", 1);
+           query.ExecuteNoData();
+       
+       }
+       ```
+    @end
+
+    [b][c]UPDATE[/c][/b]
+
+    The [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder]UpdateQueryBuilder[/clink] create the SQL engine specific query to update rows in the table.
+    In this example we look at the simplest version that just updates one row by its identifier. Use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.UpdateById.0]UpdateById[/clink]
+    method to create such query. Use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.AddUpdateColumn.xv3]AddUpdateColumn[/clink]
+    to add one column to update. Use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.AddUpdateAllColumns.wlF]AddUpdateAllColumns[/clink]
+    to add all columns except primary key to update. Both methods create parameter(s) with the same name as the column name to be updated.
+
+    @example
+        @title=Example: Updating a row
+        @show=yes
+        @highlight=cs
+       ```
+       UpdateQueryBuilder updateBuilder = connection.GetUpdateQueryBuilder(my_table);
+       updateBuilder.UpdateById();
+       updateBuilder.AddUpdateColumn(my_table["name"]);
+       using (SqlDbQuery query = connection.GetQuery(updateBuilder))
+       {
+           query.BindParam("id", 1);
+           query.BindParam("name", "new name for row 1");
+           query.ExecuteNoData();
+       
+       }
+       ```
+    @end
+@end
+
+@article
+    @key=tutorialdb6
+    @title=Adding Where Clause
+    @brief=
+    @ingroup=tutorialsdb
+
+    [b]Add a simple filter[/b]
+
+    To add a simple filtering to the query use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder.Where.4CB]QueryWithWhereBuilder.Where[/clink]
+    property. To add the filter you need to specify:
+
+    @list
+        @list-item
+            A logical operation to join the filter to the previous filters ([clink=Gehtsoft.EF.Entities.LogOp]LogOp[/clink]: AND(default) or OR).
+        @end
+        @list-item
+            The column to be filtered
+        @end
+        @list-item
+            The comparison operation [clink=Gehtsoft.EF.Entities.CmpOp]CmpOp[/clink] (e.g. equal, not equal, less, like and so on).
+        @end
+        @list-item
+            The name of the parameter, the reference to another column in query or a subquery to compare the column with.
+        @end
+    @end
+
+    @example
+        @title=Example: Deleting all rows that matches one or another condition
+        @show=yes
+        @highlight=cs
+        ```
+        //Build the query similar to "DELETE FROM my_table WHERE name like @mask OR volume < @maxvolume"
+        DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
+        deleteBuilder.Where.Or().Property(my_table["name"]).Is(CmpOp.Like).Parameter("mask");
+        deleteBuilder.Where.Or().Property(my_table["volume"]).Is(CmpOp.Ls).Parameter("maxvolume");
+        using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
+        {
+            query.BindParam("mask", "unused%");
+            query.BindParam("maxvolume", 10);
+            query.ExecuteNoData();
+        }
+        ```
+    @end
+
+    [b]Add a group of filters[/b]
+
+    Sometime, for better readability or to define strict precedence of the logical operations, a group is used. A group is logically
+    equal to brackets in SQL query expressions. Use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.AddGroup.qJ3]AddGroup()[/clink] to start a group of filters.
+    Dispose the object returned by this method to end the group.
+
+    @example
+        @title=Example: Deleting all rows that matches one or another condition
+        @show=yes
+        @highlight=cs
+        ```
+        //Build the query similar to "DELETE FROM my_table WHERE name like @mask AND (volume < @maxvolume OR volume IS NULL)"
+        DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
+        deleteBuilder.Where.Property(my_table["name"]).Is(CmpOp.Like).Parameter("mask");
+        using (var g = deleteBuilder.Where.AddGroup())
+        {
+            deleteBuilder.Where.Or().Property(my_table["volume"]).Is(CmpOp.Le).Parameter("maxvolume");
+            deleteBuilder.Where.Or().Property(my_table["volume"]).Is(CmpOp.IsNull);
+        }
+        
+        using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
+        {
+            query.BindParam("mask", "unused%");
+            query.BindParam("maxvolume", 10);
+            query.ExecuteNoData();
+        }
+        ```
+    @end
+@end
+
+@article
+    @key=tutorialdb7
+    @title=Select
+    @brief=
+    @ingroup=tutorialsdb
+
+    [b]Simple Select[/b]
+
+    To build a [c]SELECT[/c] query use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder]SelectQueryBuilder[/clink].
+    You can specify resultset, filter and ordering using methods available in this class. Below is an example of a simple single-table select
+    with simple filter and simple order.
+
+    @example
+        @title=Example: Simple Select
+        @show=yes
+        @highlight=cs
+        ```
+        SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
+        builder.AddToResultset(my_table["id"]);
+        builder.AddToResultset(my_table["name"]);
+        builder.AddToResultset(my_table["volume"]);
+        builder.Where.Property(my_table["volume"]).Is(CmpOp.Ge).Parameter("volume");
+        builder.AddOrderBy(my_table["name"]);
+        using (SqlDbQuery query = connection.GetQuery(builder))
+        {
+            query.BindParam("volume", 10);
+            query.ExecuteReader();
+            while (query.ReadNext())
+            {
+                ...
+            }
+        }
+        ```
+    @end
+
+    [b]Joining tables[/b]
+
+    Use the method 
+    [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.AddTable.7v7]AddTable[/clink] 
+    to add a table to the query.
+    In the most cases the table to be added has foreign key relationship to one of the tables in 
+    the query, so you don't have to specify the exact join condition. However, in case the tables 
+    do not have exactly defined relationships, you can always
+    disable automatic table connecting and condigure join 
+    via [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity]QueryBuilderEntity[/clink] or
+    simply use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder.Where.4CB]Where[/clink]
+    of the query to define join condition SQL89-style.
+    
+
+    @example
+        @title=Example: Simple Select
+        @show=yes
+        @highlight=cs
+        ```
+        SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
+        builder.AddToResultset(my_table["id"]);
+        builder.AddToResultset(my_table["name"]);
+        builder.AddToResultset(my_table["volume"]);
+        builder.Where.Property(my_table["volume"].Is(CmpOp.Ge).Parameter("volume");
+        builder.AddOrderBy(my_table["name"]);
+        
+        builder.AddTable(my_dictionary, true);
+        builder.AddToResultset(my_dictionary["name"], "reference_name");
+        
+        using (SqlDbQuery query = connection.GetQuery(builder))
+        {
+            query.BindParam("volume", 10);
+            query.ExecuteReader();
+            while (query.ReadNext())
+            {
+                ...
+            }
+        }
+        ```
+    @end
+
+    [b]More Examples[/b]
+
+    There are a few more self-explaining examples of using SELECT query.
+
+    @example
+        @title=Example: Using Aggregate Functions
+        @show=yes
+        @highlight=cs
+        ```
+        SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_dictionary);
+        
+        builder.AddTable(my_table, true);
+        
+        builder.AddToResultset(my_dictionary["name"]);
+        builder.AddToResultset(AggFn.Max, my_table["volume"]);
+        
+        builder.AddOrderBy(my_dictionary["name"]);
+        builder.AddGroupBy(my_dictionary["name"]);
+        
+        using (SqlDbQuery query = connection.GetQuery(builder))
+        {
+            query.ExecuteReader();
+            while (query.ReadNext())
+            {
+                ...
+            }
+        }
+        ```
+    @end
+
+    @example
+        @title=Example: Using Simple Subqueries
+        @show=yes
+        @highlight=cs
+        ```
+        //builder query SELECT id, name FROM my_table WHERE reference IN (SELECT id FROM my_dictionary WHERE name like @name_mask)"
+        SelectQueryBuilder builder1 = connection.GetSelectQueryBuilder(my_dictionary);
+        builder1.AddToResultset(my_dictionary["id"]);
+        builder1.Where.And().Property(my_dictionary["name"]).Is(CmpOp.Like).Parameter("name_mask");
+        
+        SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
+        builder.AddToResultset(my_table["id"]);
+        builder.AddToResultset(my_table["name"]);
+        builder.Where.And().Property(my_table["reference"]).Is(CmpOp.In).Query(builder1);
+        
+        using (SqlDbQuery query = connection.GetQuery(builder))
+        {
+            query.BindParam("name_mask", "a%");
+            query.ExecuteReader();
+            while (query.ReadNext())
+            {
+                ...
+            }
+        }
+        ```
+    @end
+
+    Sometime subqueries require references to the parent queries. In this case [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.GetReference]GetReference()[/clink]
+    method may be used to get a reference for further usage in
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.Where.ty7]Where[/clink] property.
+
+    @example
+        @title=Example: Using Subqueries with References Between Queries
+        @show=yes
+        @highlight=cs
+        ```
+        //builder query SELECT a.id, a.name FROM a.my_table WHERE a.volume > (SELECT AVG(b.volume) FROM my_table b WHERE b.reference = a.reference)"
+        SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
+        builder.AddToResultset(my_table["id"]);
+        builder.AddToResultset(my_table["name"]);
+        
+        SelectQueryBuilder builder1 = connection.GetSelectQueryBuilder(my_table);
+        builder1.AddToResultset(AggFn.Avg, my_table["volume"]);
+        builder1.Where.And().Property(my_table["reference"]).Is(CmpOp.Eq).Reference(builder.GetReference(my_table["reference"]));
+        
+        builder.Where.Property(my_table["volume"]).Is(CmpOp.Gt).Query(builder1);
+        
+        using (SqlDbQuery query = connection.GetQuery(builder))
+        {
+            query.ExecuteReader();
+            while (query.ReadNext())
+            {
+                ...
+            }
+        }
+        ```
+    @end
+@end
+

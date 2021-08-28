@@ -1,0 +1,99 @@
+@group
+    @key=main
+    @brief=Gehtsoft Entity Framework Library
+    @title=Index
+    @ingroup=
+    @transform=yes
+    @sortgroups=no
+
+    The Gehtsoft Entity Framework Library provides the following features:
+
+    1) Simplified and cross-platform basic ADO.NET query.
+
+    2) Cross-DB server query constructors for `CREATE TABLE`, `DROP TABLE`, 
+    `CREATE VIEW`, `DROP VIEW`, `CREATE INDEX`, `DROP INDEX`, `INSERT`, `UPDATE`,
+    `DELETE` and `SELECT` queries.
+
+    3) Entity-level CRUD operations.
+
+    The following Databases are supported:
+
+    1) Microsoft SQL Server 2002+
+
+    2) Oracle 11+
+
+    3) MySQL 5.5+
+
+    4) Postgres 8+
+
+    5) SQLite 3+
+
+    Why Gehtsoft.EF may be better than the standard EF framework for some projects?
+
+    There are a few reasons when Gehtsoft.EF framework would be more effective:
+
+    @list
+        @list-item
+            The framework is 100% pure code-first framework and does NOT require any kind of dependency between the project and the certain
+            database instance. This helps to run the project in distributed environment and even let different developers use different
+            database (not instances, but literally database engines, e.g. Postgres and SQLite) while working on the same project. This also lets
+            use SQLite for running unittests instead of mocking DAO behavior that saves time to develop unittests and improves the coverage.
+        @end
+
+        @list-item
+            While framework supports LINQ, it is heavily oriented to be used without LINQ. The reason is that LINQ is not 100% compatible with
+            SQL select query structure and therefore the LINQ queries compiled into SQL SELECT queries are far from optimal. Gehtsoft.EF framework
+            generates selects which are almost as good as written manually. Unfortunately, due to reason above, LINQ-produced queries are as bad as
+            for any other LINQ-based framework.
+        @end
+
+        @list-item
+            It is lighter and do not consists of needless dependencies. Actually, for the most queries it is as fast as it would be running these queries
+            directly to the database without EF at all.
+        @end
+
+        @list-item
+            It allows to use plain and raw SQL. Moreover, it allows to use SQL constructors which creates database-specific SQL SELECTs on the fly.
+        @end
+    @end
+
+
+@end
+
+@group
+    @key=tutorials
+    @brief=
+    @title=Tutorials
+    @ingroup=main
+    @transform=yes
+    @sortgroups=no
+    @sortarticles=no
+
+    This section of the documentation demonstrates some basic principles of using database framework.
+
+    Please not that tutorials do not cover every topic and nuance and are intended to introduce the reader into the library.
+
+    Careful reading of the API documentation is advised.
+@end
+
+@group
+    @key=tutorialsdb
+    @brief=This section explains how to create a connection and use it with plain SQL
+    @title=Database Connectivity
+    @ingroup=tutorials
+    @transform=yes
+    @sortgroups=no
+    @sortarticles=no
+
+@end
+
+
+@group
+    @key=tutorialsen
+    @brief=This section explains how to the framework to manage the persistent storage of the entities.
+    @title=Entity Operations
+    @ingroup=tutorials
+    @transform=yes
+    @sortgroups=no
+    @sortarticles=no
+@end
