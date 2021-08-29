@@ -5,6 +5,7 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Data;
+using System;
 
 namespace Gehtsoft.EF.Db.PostgresDb
 {
@@ -70,12 +71,12 @@ namespace Gehtsoft.EF.Db.PostgresDb
             return gSpecifics;
         }
 
-        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement)
+        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement = false)
         {
             return new PostgresInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);
         }
 
-        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement)
+        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false)
         {
             return new PostgresInsertSelectQueryBuilder(gSpecifics, descriptor, selectQuery, ignoreAutoIncrement);
         }
@@ -158,6 +159,42 @@ namespace Gehtsoft.EF.Db.PostgresDb
         public override CreateTableBuilder GetCreateTableBuilder(TableDescriptor descriptor)
         {
             return new PostgresCreateTableBuilder(GetLanguageSpecifics(), descriptor);
+        }
+
+        protected async override ValueTask<bool> DoesObjectExistCore(string tableName, string objectName, string objectType, bool executeAsync)
+        {
+            string query;
+            if (objectType == "index")
+            {
+                query = $"SELECT * FROM pg_indexes WHERE tablename='{tableName}' AND indexname='{tableName}_{objectName}';";
+            }
+            else if (objectType == "table")
+            {
+                query = $"SELECT * FROM pg_tables WHERE schemaname = current_schema()  AND tablename = '{tableName}';";
+            }
+            else if (objectType == "view")
+            {
+                query = $"SELECT * FROM pg_views WHERE schemaname = current_schema()  AND viewname = '{tableName}';";
+            }
+            else if (objectType == "column")
+            {
+                query = $"SELECT * FROM information_schema.columns WHERE table_schema = current_schema() and table_name='{tableName}' and column_name='{objectName}';";
+            }
+            else
+                throw new ArgumentException($"Unexpected type {objectType}", nameof(objectType));
+
+            using (var stmt = GetQuery(query, true))
+            {
+                if (executeAsync)
+                    await stmt.ExecuteReaderAsync();
+                else
+                    stmt.ExecuteReader();
+
+                if (executeAsync)
+                    return await stmt.ReadNextAsync();
+                else
+                    return stmt.ReadNext();
+            }
         }
     }
 

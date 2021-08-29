@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using MySqlConnector;
 using System.Data;
+using System;
 
 namespace Gehtsoft.EF.Db.MysqlDb
 {
@@ -65,12 +66,12 @@ namespace Gehtsoft.EF.Db.MysqlDb
             return new MysqlCreateTableBuilder(gSpecifics, descriptor);
         }
 
-        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement)
+        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement = false)
         {
             return new MysqlInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);
         }
 
-        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement)
+        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false)
         {
             return new MysqlInsertSelectQueryBuilder(gSpecifics, descriptor, selectQuery, ignoreAutoIncrement);
         }
@@ -126,6 +127,42 @@ namespace Gehtsoft.EF.Db.MysqlDb
         public override AlterTableQueryBuilder GetAlterTableQueryBuilder()
         {
             return new MysqlAlterTableQueryBuilder(GetLanguageSpecifics());
+        }
+
+        protected async override ValueTask<bool> DoesObjectExistCore(string tableName, string objectName, string objectType, bool executeAsync)
+        {
+            string query;
+            if (objectType == "index")
+            {
+                if (!await DoesObjectExistCore(tableName, null, "table", executeAsync))
+                    return false;
+                query = $"SHOW INDEX FROM {tableName} WHERE Key_name = '{tableName}_{objectName}';";
+            }
+            else if (objectType == "table" || objectType == "view")
+            {
+                query = $"SHOW TABLES LIKE '{tableName}';";
+            }
+            else if (objectType == "column")
+            {
+                if (!await DoesObjectExistCore(tableName, null, "table", executeAsync) && !await DoesObjectExistCore(tableName, null, "view", executeAsync))
+                    return false;
+                query = $"SHOW COLUMNS FROM {tableName} LIKE '{objectName}'";
+            }
+            else
+                throw new ArgumentException($"Unexpected type {objectType}", nameof(objectType));
+
+            using (var stmt = GetQuery(query, true))
+            {
+                if (executeAsync)
+                    await stmt.ExecuteReaderAsync();
+                else
+                    stmt.ExecuteReader();
+
+                if (executeAsync)
+                    return await stmt.ReadNextAsync();
+                else
+                    return stmt.ReadNext();
+            }
         }
     }
 

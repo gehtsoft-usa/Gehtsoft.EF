@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Collections;
 using FluentAssertions.Execution;
-using FluentAssertions.Primitives;
 using Gehtsoft.Tools.TypeUtils;
 
 namespace Gehtsoft.EF.Test.Entity.Utils
 {
+
     public static class GenericCollectionAssertionExtension
     {
         public static AndConstraint<GenericCollectionAssertions<T>> HaveElementMatching<T>(this GenericCollectionAssertions<T> collection, Expression<Func<T, bool>> predicate, string because = null, params object[] args)

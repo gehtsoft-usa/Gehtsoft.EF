@@ -99,7 +99,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
             return new MssqlDropIndexBuilder(gSpecifics, descriptor.Name, name);
         }
 
-        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement)
+        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement = false)
         {
             return new MssqlInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);
         }
@@ -114,7 +114,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
             return new MssqlSelectQueryBuilder(gSpecifics, descriptor);
         }
 
-        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement)
+        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false)
         {
             return new MssqlInsertSelectQueryBuilder(gSpecifics, descriptor, selectQuery, ignoreAutoIncrement);
         }
@@ -174,6 +174,43 @@ namespace Gehtsoft.EF.Db.MssqlDb
         public override CreateTableBuilder GetCreateTableBuilder(TableDescriptor descriptor)
         {
             return new MssqlCreateTableBuilder(GetLanguageSpecifics(), descriptor);
+        }
+
+        protected async override ValueTask<bool> DoesObjectExistCore(string tableName, string objectName, string objectType, bool executeAsync)
+        {
+            string query;
+            if (objectType == "index")
+            {
+                query = $"IndexProperty(Object_Id('{tableName}'), '{tableName}_{objectName}', 'IndexID')";
+            }
+            else if (objectType == "table")
+            {
+                query = $"OBJECT_ID ('{tableName}', 'U')";
+            }
+            else if (objectType == "view")
+            {
+                query = $"OBJECT_ID ('{tableName}', 'V')";
+            }
+            else if (objectType == "column")
+            {
+                query = $"COL_LENGTH('{tableName}','{objectName}')";
+            }
+            else
+                throw new ArgumentException($"Unexpected type {objectType}", nameof(objectType));
+
+            using (var stmt = GetQuery($"SELECT {query};", true))
+            {
+                if (executeAsync)
+                    await stmt.ExecuteReaderAsync();
+                else
+                    stmt.ExecuteReader();
+
+                if (executeAsync)
+                    await stmt.ReadNextAsync();
+                else
+                    stmt.ReadNext();
+                return !stmt.IsNull(0);
+            }
         }
     }
 

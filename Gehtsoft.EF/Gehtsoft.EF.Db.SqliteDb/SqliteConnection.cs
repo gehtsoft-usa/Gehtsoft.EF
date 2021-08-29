@@ -9,6 +9,7 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Data;
+using System;
 
 namespace Gehtsoft.EF.Db.SqliteDb
 {
@@ -46,12 +47,12 @@ namespace Gehtsoft.EF.Db.SqliteDb
             return new SqliteCreateTableBuilder(gSpecifics, descriptor);
         }
 
-        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement)
+        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement = false)
         {
             return new SqliteInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);
         }
 
-        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement)
+        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false)
         {
             return new SqliteInsertSelectQueryBuilder(gSpecifics, descriptor, selectQuery, ignoreAutoIncrement);
         }
@@ -161,6 +162,42 @@ namespace Gehtsoft.EF.Db.SqliteDb
         public override DropIndexBuilder GetDropIndexBuilder(TableDescriptor descriptor, string name)
         {
             return new SqliteDropIndexBuilder(GetLanguageSpecifics(), descriptor.Name, name);
+        }
+
+        protected async override ValueTask<bool> DoesObjectExistCore(string tableName, string objectName, string objectType, bool executeAsync)
+        {
+            string query;
+            if (objectType == "index")
+            {
+                query = $"SELECT NAME FROM SQLITE_MASTER WHERE TYPE='index' and NAME='{tableName}_{objectName}';";
+            }
+            else if (objectType == "table")
+            {
+                query = $"SELECT NAME FROM SQLITE_MASTER WHERE TYPE='table' and NAME='{tableName}';";
+            }
+            else if (objectType == "view")
+            {
+                query = $"SELECT NAME FROM SQLITE_MASTER WHERE TYPE='view' and NAME='{tableName}';";
+            }
+            else if (objectType == "column")
+            {
+                query = $"SELECT * FROM PRAGMA_TABLE_INFO('{tableName}') WHERE NAME='{objectName}';";
+            }
+            else
+                throw new ArgumentException($"Unexpected type {objectType}", nameof(objectType));
+
+            using (var stmt = GetQuery(query, true))
+            {
+                if (executeAsync)
+                    await stmt.ExecuteReaderAsync();
+                else
+                    stmt.ExecuteReader();
+
+                if (executeAsync)
+                    return await stmt.ReadNextAsync();
+                else
+                    return stmt.ReadNext();
+            }
         }
     }
 

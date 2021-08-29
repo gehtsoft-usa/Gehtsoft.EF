@@ -57,17 +57,17 @@ namespace Gehtsoft.EF.Db.OracleDb
             return new OracleDropViewBuilder(gSpecifics, name);
         }
 
-        public override DropIndexBuilder GetDropIndexBuilder(TableDescriptor table, string name)
+        public override DropIndexBuilder GetDropIndexBuilder(TableDescriptor descriptor, string name)
         {
-            return new OracleDropIndexBuilder(gSpecifics, table.Name, name);
+            return new OracleDropIndexBuilder(gSpecifics, descriptor.Name, name);
         }
 
-        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement)
+        public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement = false)
         {
             return new OracleInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);
         }
 
-        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement)
+        public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false)
         {
             return new OracleInsertSelectQueryBuilder(gSpecifics, descriptor, selectQuery, ignoreAutoIncrement);
         }
@@ -193,6 +193,42 @@ namespace Gehtsoft.EF.Db.OracleDb
                 throw new ArgumentException("The entity does not have auto id", nameof(type));
 
             UpdateSequence(descriptor);
+        }
+
+        protected async override ValueTask<bool> DoesObjectExistCore(string tableName, string objectName, string objectType, bool executeAsync)
+        {
+            string query;
+            if (objectType == "index")
+            {
+                query = $"SELECT * FROM ALL_INDEXES WHERE OWNER = (SELECT USER FROM DUAL) AND TABLE_NAME='{tableName.ToUpper()}' AND INDEX_NAME='{tableName.ToUpper()}_{objectName.ToUpper()}'";
+            }
+            else if (objectType == "table")
+            {
+                query = $"SELECT * FROM ALL_TABLES WHERE OWNER = (SELECT USER FROM DUAL) AND TABLE_NAME='{tableName.ToUpper()}'";
+            }
+            else if (objectType == "view")
+            {
+                query = $"SELECT * FROM ALL_VIEWS WHERE OWNER = (SELECT USER FROM DUAL) AND VIEW_NAME='{tableName.ToUpper()}'";
+            }
+            else if (objectType == "column")
+            {
+                query = $"SELECT * FROM user_tab_cols WHERE TABLE_NAME='{tableName.ToUpper()}' AND COLUMN_NAME='{objectName.ToUpper()}'";
+            }
+            else
+                throw new ArgumentException($"Unexpected type {objectType}", nameof(objectType));
+
+            using (var stmt = GetQuery(query, true))
+            {
+                if (executeAsync)
+                    await stmt.ExecuteReaderAsync();
+                else
+                    stmt.ExecuteReader();
+
+                if (executeAsync)
+                    return await stmt.ReadNextAsync();
+                else
+                    return stmt.ReadNext();
+            }
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +26,19 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 
         public DummySqlConnection(DbConnection connection) : base(connection)
         {
+        }
+
+        private readonly Dictionary<Tuple<string, string>, bool> mObjectExist = new Dictionary<Tuple<string, string>, bool>();
+
+        public void SetObjectExist(string name, string type, bool value) => mObjectExist[new Tuple<string, string>(name, type)] = value;
+
+        protected override ValueTask<bool> DoesObjectExistCore(string tableName, string objectName, string objectType, bool executeAsync)
+        {
+            if (objectName != null)
+                tableName += "_" + objectName;
+            if (mObjectExist.TryGetValue(new Tuple<string, string>(tableName, objectType), out var v))
+                return ValueTask.FromResult(v);
+            return ValueTask.FromResult(v);
         }
     }
 }

@@ -13,31 +13,16 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.Northwind
 {
-    public sealed class NorthwindFixture : IDisposable
+    public sealed class NorthwindFixture : ConnectionFixtureBase
     {
-        private readonly Dictionary<string, SqlDbConnection> gConnections = new Dictionary<string, SqlDbConnection>();
-
         public Snapshot Snapshot { get; } = new Snapshot();
 
         public NorthwindFixture()
         {
         }
 
-        public SqlDbConnection GetInstance(string connection) => GetInstance(connection, AppConfiguration.Instance.Get("connections:" + connection));
-
-        public SqlDbConnection GetInstance(string connectionName, string connectionString)
+        protected override void ConfigureConnection(SqlDbConnection connection)
         {
-            var key = connectionName;
-            var config = AppConfiguration.Instance.GetSqlConnection(connectionName);
-
-            if (gConnections.TryGetValue(key, out var connection))
-                return connection;
-
-            connection = UniversalSqlDbFactory.Create(config.Driver, config.ConnectionString);
-
-            if (connection == null)
-                throw new ArgumentException($"Incorrect driver name or connection settings {connectionName}:{connectionString}");
-
             Snapshot.Create(connection, 100);
             if (connection.ConnectionType == UniversalSqlDbFactory.ORACLE &&
                 connection is OracleDbConnection oracleConnection)
@@ -50,14 +35,7 @@ namespace Gehtsoft.EF.Test.Northwind
                 oracleConnection.UpdateSequence(typeof(Shipper));
                 oracleConnection.UpdateSequence(typeof(Supplier));
             }
-            gConnections[key] = connection;
-            return connection;
-        }
-
-        public void Dispose()
-        {
-            foreach (var connection in gConnections.Values)
-                connection?.Dispose();
+            base.ConfigureConnection(connection);
         }
     }
 

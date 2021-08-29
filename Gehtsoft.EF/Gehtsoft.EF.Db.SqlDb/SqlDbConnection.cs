@@ -129,19 +129,28 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// Creates a query object.
         /// </summary>
         /// <returns></returns>
-        public virtual SqlDbQuery GetQuery() => ConstructQuery();
+        public SqlDbQuery GetQuery() => ConstructQuery();
 
         /// <summary>
         /// Creates a query object with the specified command text.
         /// </summary>
         /// <param name="queryText"></param>
         /// <returns></returns>
-        public virtual SqlDbQuery GetQuery(string queryText)
+        public SqlDbQuery GetQuery(string queryText) => GetQuery(queryText, false);
+
+        protected internal SqlDbQuery GetQuery(string queryText, bool suppressScalarProtection)
+        {
+            if (!suppressScalarProtection)
+                CheckForScalars(queryText);
+
+            return ConstructQuery(queryText);
+        }
+
+        protected internal void CheckForScalars(string queryText)
         {
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
                 if (queryText.ContainsScalar(true))
                     throw new ArgumentException("The query cannot contains string scalars", nameof(queryText));
-            return ConstructQuery(queryText);
         }
 
         /// <summary>
@@ -149,7 +158,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public virtual SqlDbQuery GetQuery(QueryBuilder.AQueryBuilder builder)
+        public SqlDbQuery GetQuery(QueryBuilder.AQueryBuilder builder)
         {
             if (builder.Query == null)
                 builder.PrepareQuery();
@@ -272,6 +281,40 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// </summary>
         /// <returns></returns>
         public virtual TableDescriptor[] Schema() => SchemaCore(true, null).ConfigureAwait(false).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Checks whether the object exists.
+        /// </summary>
+        /// <param name="tableName">The name of the object (table or view).</param>
+        /// <param name="objectName">The optional name of the sub-object, e.g. index</param>
+        /// <param name="objectType">The type of the object. The type could be `"table"`, `"index"` or `"view"`.</param>
+        /// <returns></returns>
+        public bool DoesObjectExist(string tableName, string objectName, string objectType)
+        {
+            CheckForScalars(tableName);
+            if (!string.IsNullOrEmpty(objectType))
+                CheckForScalars(objectName);
+
+            return DoesObjectExistCore(tableName, objectName, objectType, false).Result;
+        }
+
+        /// <summary>
+        /// Checks whether the object exists.
+        /// </summary>
+        /// <param name="tableName">The name of the object (table or view).</param>
+        /// <param name="objectName">The optional name of the sub-object, e.g. index</param>
+        /// <param name="objectType">The type of the object. The type could be `"table"`, `"index"` or `"view"`.</param>
+        /// <returns></returns>
+        public Task<bool> DoesObjectExistAsync(string tableName, string objectName, string objectType)
+        {
+            CheckForScalars(tableName);
+            if (!string.IsNullOrEmpty(objectType))
+                CheckForScalars(objectName);
+
+            return DoesObjectExistCore(tableName, objectName, objectType, true).AsTask();
+        }
+
+        protected abstract ValueTask<bool> DoesObjectExistCore(string tableName, string objectName, string objectType, bool executeAsync);
 
         /// <summary>
         /// Returns the schema asynchronously.
