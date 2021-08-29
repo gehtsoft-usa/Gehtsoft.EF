@@ -16,7 +16,8 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.SqlDb
 {
-    public class SchemaTest : IClassFixture<SchemaTest.SchemaTestFixture>
+
+    public class SchemaTest : IClassFixture<SchemaTest.Fixture>
     {
         [Entity(Scope = "SchemaTest", Table = "st_entity")]
         public class Entity
@@ -50,9 +51,9 @@ namespace Gehtsoft.EF.Test.SqlDb
             }
         }
 
-        public class SchemaTestFixture : ConnectionFixtureBase
+        public class Fixture : ConnectionFixtureBase
         {
-            public SchemaTestFixture()
+            public Fixture()
             {
             }
 
@@ -82,9 +83,9 @@ namespace Gehtsoft.EF.Test.SqlDb
             }
         }
 
-        private readonly SchemaTestFixture mFixture;
+        private readonly Fixture mFixture;
 
-        public SchemaTest(SchemaTestFixture fixture)
+        public SchemaTest(Fixture fixture)
         {
             mFixture = fixture;
         }
