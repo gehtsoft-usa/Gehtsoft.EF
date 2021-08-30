@@ -73,7 +73,7 @@ namespace Gehtsoft.EF.TestInfrastructure.Test.Utils
         {
             string json = "{ \"sql-connections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" }, \"connection2\" : { \"driver\" : \"driver2\", \"connectionString\" : \"connection-string2\", \"enabled\" : \"true\" } } }";
             var config = new AppConfiguration1(json);
-            var infos = SqlConnectionSources.Connections(config, "connection1").ToArray();
+            var infos = SqlConnectionSources.Connections(config, "-connection1").ToArray();
 
             infos.Should().HaveCount(1);
             infos[0].Name.Should().Be("connection2");
@@ -84,7 +84,7 @@ namespace Gehtsoft.EF.TestInfrastructure.Test.Utils
         {
             string json = "{ \"sql-connections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" }, \"connection2\" : { \"driver\" : \"driver2\", \"connectionString\" : \"connection-string2\", \"enabled\" : \"false\" } } }";
             var config = new AppConfiguration1(json);
-            var infos = SqlConnectionSources.Connections(config, "driver2").ToArray();
+            var infos = SqlConnectionSources.Connections(config, "-driver2").ToArray();
 
             infos.Should().HaveCount(1);
             infos[0].Name.Should().Be("connection1");

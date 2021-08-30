@@ -50,7 +50,7 @@ namespace Gehtsoft.EF.Test.Entity.Context
             using var count = connection.Count<Order>();
             var customer = mFixture.Snapshot.Orders[0].Customer;
             count.Where.Property(nameof(Order.Customer)).Eq(customer);
-            count.GetCount().Should().Be(mFixture.Snapshot.Orders.Count(o => o.Customer.CustomerID == customer.CustomerID)); ;
+            count.GetCount().Should().Be(mFixture.Snapshot.Orders.Count(o => o.Customer.CustomerID == customer.CustomerID));
         }
 
         [Theory]

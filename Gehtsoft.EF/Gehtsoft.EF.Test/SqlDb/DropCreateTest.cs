@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Runtime.InteropServices;
 using FluentAssertions;
@@ -194,6 +195,8 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         private readonly Fixture mFixture;
 
+        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.ConnectionNames(flags);
+
         public DropCreateTest(Fixture fixture)
         {
             mFixture = fixture;
@@ -201,7 +204,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(1)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T1_CreateTable(string connectionName)
         {
             var connection = mFixture.GetInstance(connectionName);
@@ -217,7 +220,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(2)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T2_AlterTable(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -254,7 +257,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(3)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T3_CreateIndex(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -278,7 +281,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(4)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T4_DropIndex(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -296,7 +299,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(5)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T5_DropTable(string connectionName)
         {
             if (!mFixture.Started(connectionName))

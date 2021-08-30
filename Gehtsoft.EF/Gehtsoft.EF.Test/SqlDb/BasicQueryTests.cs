@@ -253,6 +253,8 @@ namespace Gehtsoft.EF.Test.SqlDb
         }
         #endregion
 
+        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.ConnectionNames(flags);
+
         private readonly Fixture mFixture;
 
         public BasicQueryTests(Fixture fixture)
@@ -262,7 +264,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(11)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T1_1_Insert(string connectionName)
         {
             var connection = mFixture.GetInstance(connectionName);
@@ -352,7 +354,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(12)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T1_2_GetCountUsingSelect(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -374,7 +376,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(13)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T1_3_ReadAllUsingQuery(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -431,7 +433,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(14)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T1_4_ReadAllBinder(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -485,7 +487,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(21)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T2_1_Insert_IgnoringAutoincrement(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -597,7 +599,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(22)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T2_2_UpdateRecord(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -671,7 +673,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(23)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T2_3_UpdateMultipleRecords(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -728,7 +730,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(24)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T2_4_UpdateUsingSelect(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -779,7 +781,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(25)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void T2_5_Delete(string connectionName)
         {
             if (!mFixture.Started(connectionName))

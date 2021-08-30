@@ -46,7 +46,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     }
 
     /// <summary>
-    /// The results of the `SELECT~ query.
+    /// The results of the `SELECT` query.
     /// </summary>
     public class SelectQueryBuilderResultset : IEnumerable<SelectQueryBuilderResultsetItem>
     {
@@ -408,6 +408,8 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         {
             mOrderBy.Add(new SelectQueryBuilderByItem(GetAlias(column, entity), direction));
         }
+
+        public bool HasOrderBy => mOrderBy.Count > 0;
 
         /// <summary>
         /// Adds a column of the specified table to the group specification.
@@ -842,5 +844,118 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         [DocgenIgnore]
         public override string Query => mList.ToString();
+    }
+
+    /// <summary>
+    /// The query builder for `UNION` query.
+    /// 
+    /// Use <see cref="SqlDbConnection.GetUnionQueryBuilder(SelectQueryBuilder)"/> to get an instance of this object.
+    /// </summary>
+    public class UnionQueryBuilder : AQueryBuilder
+    {
+        private readonly List<Tuple<bool, SelectQueryBuilder>> mBuilders = new List<Tuple<bool, SelectQueryBuilder>>();
+        private TableDescriptor mTableDescriptor;
+        private readonly List<SelectQueryBuilderByItem> mSortOrder = new List<SelectQueryBuilderByItem>();
+
+        protected virtual TableDescriptor GetTableDescriptor() => mTableDescriptor;
+
+        /// <summary>
+        /// Adds a query to the union.
+        /// 
+        /// The query must:
+        /// * Have the same number of columns
+        /// * The columns should be name the same way
+        /// * The columns should have the same data type
+        /// * Order should not be defined.
+        /// </summary>
+        /// <param name="builder">The query to add</param>
+        /// <param name="distinct">A flag indicating whether the union should take only distinct record (`true`) or all record, including duplicates (`false)</param>
+        public virtual void AddQuery(SelectQueryBuilder builder, bool distinct)
+        {
+            if (mBuilders.Count == 0)
+                mTableDescriptor = builder.QueryTableDescriptor;
+            else
+            {
+                var td = builder.QueryTableDescriptor;
+                if (td.Count != mTableDescriptor.Count)
+                    throw new ArgumentException("Each query in union must have the same number of columns in resultset", nameof(builder));
+
+                for (int i = 0; i < td.Count; i++)
+                {
+                    if (td[i].Name != mTableDescriptor[i].Name ||
+                        td[i].DbType != mTableDescriptor[i].DbType)
+                        throw new ArgumentException($"Each query should have columns with exactly the same name and type. Column {i + 1}th is different", nameof(builder));
+                }
+            }
+
+            if (builder.HasOrderBy)
+                throw new ArgumentException($"The query should not have ORDER BY clause, use UNION to order", nameof(builder));
+
+            mBuilders.Add(new Tuple<bool, SelectQueryBuilder>(distinct, builder));
+        }
+
+        /// <summary>
+        /// Returns the table descriptor of the query resultset.
+        /// </summary>
+        public TableDescriptor QueryTableDescriptor => GetTableDescriptor();
+
+        /// <summary>
+        /// Adds order by column for the union.
+        /// 
+        /// The column must be a column of the union's resultset (see <see cref="QueryTableDescriptor"/>)
+        /// </summary>
+        /// <param name="columnInfo"></param>
+        /// <param name="direction"></param>
+        public void AddOrderBy(TableDescriptor.ColumnInfo columnInfo, SortDir direction = SortDir.Asc)
+        {
+            if (columnInfo.Table != mTableDescriptor)
+                throw new ArgumentException("Use resultset columns to define the sort order for UNION.", nameof(columnInfo));
+            mSortOrder.Add(new SelectQueryBuilderByItem(columnInfo.Name, direction));
+        }
+
+        private string mQuery = null;
+
+        internal protected UnionQueryBuilder(SqlDbLanguageSpecifics specifics) : base(specifics)
+        {
+        }
+
+        [DocgenIgnore]
+        public override void PrepareQuery()
+        {
+            if (mBuilders.Count < 2)
+                throw new InvalidOperationException("At least two select builders must be added to the query");
+
+            StringBuilder builder = new StringBuilder();
+            
+            for (int i = 0; i < mBuilders.Count; i++)
+            {
+                if (i > 0)
+                {
+                    builder.Append(" UNION ");
+                    if (!mBuilders[i].Item1)
+                        builder.Append(" ALL ");
+                }
+                mBuilders[i].Item2.PrepareQuery();
+                builder.Append(mBuilders[i].Item2.Query);
+            }
+
+            if (mSortOrder.Count > 0)
+            {
+                builder.Append(" ORDER BY ");
+                for (int i = 0; i < mSortOrder.Count; i++)
+                {
+                    if (i > 0)
+                        builder.Append(", ");
+                    builder.Append(mSortOrder[i].Expression);
+                    if (mSortOrder[i].Direction == SortDir.Desc)
+                        builder.Append(" DESC");
+                }
+            }
+
+            mQuery = builder.ToString();
+        }
+
+        [DocgenIgnore]
+        public override string Query => mQuery;
     }
 }

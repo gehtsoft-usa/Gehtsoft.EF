@@ -88,13 +88,15 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         private readonly Fixture mFixture;
 
+        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.ConnectionNames(flags);
+
         public SchemaTest(Fixture fixture)
         {
             mFixture = fixture;
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void Schema(string connectionName)
         {
             var entity = AllEntities.Get<Entity>().TableDescriptor;
@@ -121,7 +123,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void CheckTable(string connectionName)
         {
             var entity = AllEntities.Get<Entity>().TableDescriptor;
@@ -132,7 +134,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public async Task CheckTableAsync(string connectionName)
         {
             var entity = AllEntities.Get<Entity>().TableDescriptor;
@@ -141,7 +143,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void CheckView(string connectionName)
         {
             var view = AllEntities.Get<View>().TableDescriptor;
@@ -151,7 +153,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void CheckColumn(string connectionName)
         {
             var entity = AllEntities.Get<Entity>().TableDescriptor;
@@ -169,7 +171,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void CheckIndex(string connectionName)
         {
             var entity = AllEntities.Get<Entity>().TableDescriptor;
@@ -181,7 +183,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public void PreventInjections(string connectionName)
         {
             var connection = mFixture.GetInstance(connectionName);

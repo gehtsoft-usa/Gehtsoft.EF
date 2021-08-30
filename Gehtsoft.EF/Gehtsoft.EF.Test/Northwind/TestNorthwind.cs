@@ -35,49 +35,49 @@ namespace Gehtsoft.EF.Test.Northwind
             var schema = (connection as IEntityContext).ExistingTables();
 
             schema.Should().Contain(table => table.Name.Equals(
-                                             AllEntities.Inst[typeof(Category), true].TableDescriptor.Name,
+                                             mFixture.CategoryTable.Name,
                                              StringComparison.OrdinalIgnoreCase) &&
                                              table.EntityType == typeof(Category));
 
             schema.Should().Contain(table => table.Name.Equals(
-                                             AllEntities.Inst[typeof(Customer), true].TableDescriptor.Name,
+                                             mFixture.CustomerTable.Name,
                                              StringComparison.OrdinalIgnoreCase));
 
             schema.Should().Contain(table => table.Name.Equals(
-                                             AllEntities.Inst[typeof(Employee), true].TableDescriptor.Name,
+                                             mFixture.EmployeeTable.Name,
                                              StringComparison.OrdinalIgnoreCase));
 
             schema.Should().Contain(table => table.Name.Equals(
-                                             AllEntities.Inst[typeof(EmployeeTerritory), true].TableDescriptor.Name,
+                                             mFixture.EmployeeTerritoryTable.Name,
                                              StringComparison.OrdinalIgnoreCase));
 
             schema.Should().Contain(table => table.Name.Equals(
-                                             AllEntities.Inst[typeof(Order), true].TableDescriptor.Name,
+                                             mFixture.OrderTable.Name,
                                              StringComparison.OrdinalIgnoreCase));
 
             schema.Should().Contain(table => table.Name.Equals(
-                                 AllEntities.Inst[typeof(OrderDetail), true].TableDescriptor.Name,
-                                 StringComparison.OrdinalIgnoreCase));
+                                             mFixture.OrderDetailTable.Name,
+                                             StringComparison.OrdinalIgnoreCase));
 
             schema.Should().Contain(table => table.Name.Equals(
-                                 AllEntities.Inst[typeof(Product), true].TableDescriptor.Name,
-                                 StringComparison.OrdinalIgnoreCase));
+                                             mFixture.ProductTable.Name,
+                                             StringComparison.OrdinalIgnoreCase));
 
             schema.Should().Contain(table => table.Name.Equals(
-                                 AllEntities.Inst[typeof(Region), true].TableDescriptor.Name,
-                                 StringComparison.OrdinalIgnoreCase));
+                                             mFixture.RegionTable.Name,
+                                             StringComparison.OrdinalIgnoreCase));
 
             schema.Should().Contain(table => table.Name.Equals(
-                                 AllEntities.Inst[typeof(Shipper), true].TableDescriptor.Name,
-                                 StringComparison.OrdinalIgnoreCase));
+                                             mFixture.ShipperTable.Name,
+                                             StringComparison.OrdinalIgnoreCase));
 
             schema.Should().Contain(table => table.Name.Equals(
-                                 AllEntities.Inst[typeof(Supplier), true].TableDescriptor.Name,
-                                 StringComparison.OrdinalIgnoreCase));
+                                             mFixture.SupplierTable.Name,
+                                             StringComparison.OrdinalIgnoreCase));
 
             schema.Should().Contain(table => table.Name.Equals(
-                                 AllEntities.Inst[typeof(Territory), true].TableDescriptor.Name,
-                                 StringComparison.OrdinalIgnoreCase));
+                                             mFixture.TerritoryTable.Name,
+                                             StringComparison.OrdinalIgnoreCase));
         }
 
         [Theory]

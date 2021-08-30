@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -67,8 +68,10 @@ namespace Gehtsoft.EF.Test.SqlDb
             }
         }
         #endregion
-
+        
         private readonly Fixture mFixture;
+
+        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.ConnectionNames(flags);
 
         public QueryAsyncMethodsTest(Fixture fixture)
         {
@@ -77,7 +80,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(1)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public async Task T1_CreateTable(string connectionName)
         {
             var connection = mFixture.GetInstance(connectionName);
@@ -93,7 +96,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(2)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public async Task T2_Insert(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -121,7 +124,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(3)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public async Task T3_Read(string connectionName)
         {
             if (!mFixture.Started(connectionName))
@@ -142,7 +145,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         [Theory]
         [TestOrder(4)]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(ConnectionNames), "")]
         public async Task T4_DropTable(string connectionName)
         {
             if (!mFixture.Started(connectionName))

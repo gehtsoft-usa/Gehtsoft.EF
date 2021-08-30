@@ -21,7 +21,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
     {
         private readonly NorthwindFixture mNorthwind;
 
-        private void ResetPolicies()
+        private static void ResetPolicies()
         {
             ResiliencyPolicyDictionary.Instance.SetPolicy(
                 "dummyConnectionString",

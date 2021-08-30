@@ -14,41 +14,56 @@ namespace Gehtsoft.EF.Test.Utils
 
         public static IEnumerable<AppConfiguration.ConnectionInfo> Connections(AppConfiguration config, string exclude = null)
         {
-            string[] _exclude;
+            HashSet<string> _exclude = new HashSet<string>();
+            HashSet<string> _includeOnly = new HashSet<string>();
+
+            void processFilter(string filter)
+            {
+                var t = filter.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in t)
+                {
+                    if (s.Length > 0 && s[0] == '-')
+                    {
+                        var s1 = s.Substring(1);
+                        if (!_exclude.Contains(s1))
+                            _exclude.Add(s1);
+                    }
+                    else if (s.Length > 0 && s[0] == '+')
+                    {
+                        var s1 = s.Substring(1);
+                        if (!_includeOnly.Contains(s1))
+                            _includeOnly.Add(s1);
+                    }
+                }
+            }
 
             if (!string.IsNullOrEmpty(exclude))
-                _exclude = exclude.Split(',', StringSplitOptions.RemoveEmptyEntries);
-            else
-                _exclude = new string[] { };
-
-            string[] _includeOnly = null;
+                processFilter(exclude);
+          
 
             var globalFilter = config.Get("global-filter:sql-drivers", "all");
-            if (globalFilter != "all")
-                _includeOnly = globalFilter.Split(",", StringSplitOptions.RemoveEmptyEntries);
-
-            for (int i = 0; i < _exclude.Length; i++)
-            {
-                if (_exclude[i].StartsWith("+"))
-                    _exclude[i] = "";
-                else if (_exclude[i].StartsWith("-"))
-                    _exclude[i] = _exclude[i].Substring(1);
-            }
+            if (globalFilter != "all" && !string.IsNullOrEmpty(globalFilter))
+                processFilter(globalFilter);
 
             foreach (var connection in config.GetSqlConnections())
             {
-                if (_exclude.Any(s => s == connection.Name || s == connection.Driver) || !connection.Enabled)
+                if (_exclude.Contains(connection.Name) || _exclude.Contains(connection.Driver) || (!connection.Enabled && !_includeOnly.Contains(connection.Name)))
                     continue;
 
-                if (_includeOnly != null && _includeOnly.Length > 0)
-                    if (!_includeOnly.Any(s => s == connection.Name || s == connection.Driver))
+                if (_includeOnly.Count > 0)
+                    if (!_includeOnly.Contains(connection.Name) && !_includeOnly.Contains(connection.Driver))
                         continue;
 
                 yield return connection;
             }
         }
 
-        public static IEnumerable<object[]> ConnectionNames(string exclude = null)
-            => Connections(exclude).Select(c => new object[] { c.Name });
+        /// <summary>
+        /// Gets list of the connections from the config
+        /// </summary>
+        /// <param name="flags">Comma-separated list of the connection or driver names with `+` prefix to include only and `-` prefix to exclude</param>
+        /// <returns></returns>
+        public static IEnumerable<object[]> ConnectionNames(string flags = null)
+            => Connections(flags).Select(c => new object[] { c.Name });
     }
 }

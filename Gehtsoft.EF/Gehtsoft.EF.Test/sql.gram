@@ -324,11 +324,19 @@ grammar SqlTest
 
         DEBUG_EXPR -> 'DEBUG'! EXPR;
 
+        UNION_DISTINCT -> 'UNION'!;
+
+        UNION_ALL -> 'UNION'! 'ALL'!;
+
+        UNION_OP -> UNION_DISTINCT | UNION_ALL;
+
+        UNION -> SELECT UNION_OP SELECT (UNION_OP SELECT)* ORDER_BY?;
+
         STATEMENT  -> SELECT^ | INSERT^ | UPDATE^ | DELETE^ | 
                       CREATE_TABLE^ | CREATE_VIEW^ | CREATE_INDEX^ | 
                       ALTER_TABLE ^ | 
                       DROP_TABLE^ | DROP_INDEX^ | DROP_VIEW^ | 
-                      DEBUG_EXPR |
+                      DEBUG_EXPR | UNION^ |
                       NOP;
 
         ROOT -> STATEMENT STATEMENT*;

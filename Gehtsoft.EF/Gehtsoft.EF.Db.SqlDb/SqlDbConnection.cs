@@ -446,5 +446,17 @@ namespace Gehtsoft.EF.Db.SqlDb
             }
             return r;
         }
+
+        /// <summary>
+        /// Gets query builder for union query.
+        /// </summary>
+        /// <param name="firstQuery">The first query in union</param>
+        /// <returns></returns>
+        public virtual UnionQueryBuilder GetUnionQueryBuilder(SelectQueryBuilder firstQuery) 
+        {
+            var u = new UnionQueryBuilder(GetLanguageSpecifics());
+            u.AddQuery(firstQuery, false);
+            return u;
+        }
     }
 }
