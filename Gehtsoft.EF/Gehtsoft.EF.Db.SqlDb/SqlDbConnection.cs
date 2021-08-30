@@ -138,7 +138,13 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <returns></returns>
         public SqlDbQuery GetQuery(string queryText) => GetQuery(queryText, false);
 
-        protected internal SqlDbQuery GetQuery(string queryText, bool suppressScalarProtection)
+        /// <summary>
+        /// Creates a query suppressing the SQL injection protection.
+        /// </summary>
+        /// <param name="queryText"></param>
+        /// <param name="suppressScalarProtection"></param>
+        /// <returns></returns>
+        public SqlDbQuery GetQuery(string queryText, bool suppressScalarProtection)
         {
             if (!suppressScalarProtection)
                 CheckForScalars(queryText);

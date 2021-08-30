@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Gehtsoft.EF.Utils;
 
@@ -23,6 +24,23 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mIgnoreAutoIncrement = ignoreAutoIncrement;
         }
 
+        protected HashSet<string> mInclude;
+
+        /// <summary>
+        /// Sets the columns to be inserted by the statement.
+        ///
+        /// If this method isn't called, all columns will be added.
+        /// </summary>
+        /// <param name="columns"></param>
+        public void IncludeOnly(params string[] columns)
+        {
+            if (mInclude == null)
+                mInclude = new HashSet<string>();
+            foreach (string s in columns)
+                if (!mInclude.Contains(s))
+                    mInclude.Add(s);
+        }
+
         [DocgenIgnore]
         public override void PrepareQuery()
         {
@@ -37,6 +55,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     autoIncrement = info;
                     continue;
                 }
+
+                if (mInclude != null && !mInclude.Contains(info.Name))
+                    continue;
 
                 if (first)
                     first = false;

@@ -27,5 +27,13 @@ namespace Gehtsoft.EF.Db.OracleDb
             if (column.Autoincrement)
                 mQueries.Add($"DROP SEQUENCE {mDescriptor.Name}_{column.Name}");
         }
+
+        protected override void HandleCreateQuery(TableDescriptor.ColumnInfo column)
+        {
+            int cc = mQueries.Count;
+            base.HandleCreateQuery(column);
+            for (int i = cc; i < mQueries.Count; i++)
+                mQueries[i] = mQueries[i].Replace("''", "'");
+        }
     }
 }

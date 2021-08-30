@@ -119,6 +119,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected virtual void HandleCreateQuery(TableDescriptor.ColumnInfo column)
         {
             StringBuilder sb = new StringBuilder();
+        
             sb.Append("ALTER TABLE ")
                 .Append(mDescriptor.Name)
                 .Append(' ')
@@ -129,11 +130,14 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mQueries.Add(sb.ToString());
 
             sb = new StringBuilder();
+
             sb.Append("ALTER TABLE ")
                 .Append(mDescriptor.Name)
                 .Append(" ADD ");
+            
             var l = sb.Length;
             DdlBuilder.HandlePostfixDDL(sb, column, true);
+            
             if (sb.Length > l)
                 mQueries.Add(sb.ToString());
         }

@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         public class Fixture : ConnectionFixtureBase
         {
             public static bool DropAtEnd { get; set; } = false;
-            
+
             public const string TableName = "dropcreate_test";
             public const string Dict1Name = "dropcreate_dict1";
             public const string Dict2Name = "dropcreate_dict2";
@@ -104,7 +104,6 @@ namespace Gehtsoft.EF.Test.SqlDb
                     Size = 32,
                 });
 
-
                 TableV2 = new TableDescriptor()
                 {
                     Name = TableName,
@@ -174,8 +173,6 @@ namespace Gehtsoft.EF.Test.SqlDb
                 if (DropAtEnd)
                     Drop(connection);
 
-                
-
                 base.TearDownConnection(connection);
             }
 
@@ -213,7 +210,6 @@ namespace Gehtsoft.EF.Test.SqlDb
 
             connection.DoesObjectExist(mFixture.TableV1.Name, null, "table").Should().BeTrue();
             connection.DoesObjectExist(mFixture.TableV1.Name, "name", "index");
-
         }
 
         [Theory]
@@ -228,7 +224,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
             var qb = connection.GetAlterTableQueryBuilder();
             TableDescriptor.ColumnInfo[] drop = null;
-            
+
             if (connection.GetLanguageSpecifics().DropColumnSupported)
                 drop = new[] { mFixture.TableV1["description"] };
 
@@ -265,9 +261,11 @@ namespace Gehtsoft.EF.Test.SqlDb
 
             connection.DoesObjectExist(mFixture.TableV2.Name, "composite", "index").Should().BeFalse();
 
-            CompositeIndex index = new CompositeIndex("composite");
-            index.Add("due");
-            index.Add("name");
+            CompositeIndex index = new CompositeIndex("composite")
+            {
+                "due",
+                "name"
+            };
 
             using (var query = connection.GetQuery(connection.GetCreateIndexBuilder(mFixture.TableV2, index)))
                 query.ExecuteNoData();
@@ -299,7 +297,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         public void DropTable(string connectionName)
         {
             var connection = mFixture.GetInstance(connectionName);
-            
+
             if (!connection.DoesObjectExist(mFixture.TableV1.Name, null, "table"))
                 CreateTable(connectionName);
 
