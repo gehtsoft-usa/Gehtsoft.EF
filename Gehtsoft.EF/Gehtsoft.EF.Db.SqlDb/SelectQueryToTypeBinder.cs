@@ -106,7 +106,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
 
         /// <summary>
-        /// Adds binding of a column by the index to the property by the name for a simple type. 
+        /// Adds binding of a column by the index to the property by the name for a simple type.
         /// </summary>
         /// <param name="columnIndex"></param>
         /// <param name="property"></param>
@@ -148,8 +148,8 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
 
         /// <summary>
-        /// Creates binding automatically. 
-        /// 
+        /// Creates binding automatically.
+        ///
         /// Auto-binding:
         /// * does not recognizes and creates binding of a complex types automatically
         /// * assumes that the names of the properties equals to the name of the columns in resulset.
@@ -232,7 +232,7 @@ namespace Gehtsoft.EF.Db.SqlDb
             {
                 if (rule.ColumnDoesNotExist)
                     continue;
-                
+
                 if (rule.PropertyInfo == null)
                 {
                     rule.PropertyInfo = new PropertyAccessor(mType.GetProperty(rule.PropertyName));

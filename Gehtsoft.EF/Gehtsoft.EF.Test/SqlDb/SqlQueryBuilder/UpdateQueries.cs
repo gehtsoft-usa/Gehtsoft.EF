@@ -305,6 +305,88 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         }
 
         [Fact]
+        public void Insert_Values_ColumnFilter()
+        {
+            var table = StageTable(false);
+            using var connection = new DummySqlConnection();
+            var builder = connection.GetInsertQueryBuilder(table);
+            builder.IncludeOnly(new string[] { "f1", "f3" });
+
+            builder.PrepareQuery();
+            var ast = builder.Query.ParseSql();
+
+            ast.Select("/INSERT")
+                .Should().HaveCount(1);
+
+            var stmt = ast.SelectNode("/INSERT");
+
+            stmt.SelectNode("/*", 1)
+                .Should().HaveSymbol("TABLE_NAME")
+                .And.Subject.SelectNode("/*", 1)
+                    .Should().HaveSymbol("IDENTIFIER")
+                    .And.HaveValue("tableName");
+
+            stmt.SelectNode("/*", 2)
+                .Should().HaveSymbol("FIELDS");
+
+            var f = stmt.Select("/*[2]/FIELD").ToArray();
+            f.Should().HaveCount(2);
+
+            f[0].Should().ContainMatching("/*", n => n.Value == "f1");
+            f[1].Should().ContainMatching("/*", n => n.Value == "f3");
+
+            stmt.SelectNode("/*", 3)
+                .Should().HaveSymbol("INSERT_VALUES_LIST");
+
+            f = stmt.Select("/*[3]/INSERT_VALUES/INSERT_VALUE/PARAM").ToArray();
+
+            f.Should().HaveCount(2);
+
+            f[0].Should().ContainMatching("/*", n => n.Value == "f1");
+            f[1].Should().ContainMatching("/*", n => n.Value == "f3");
+        }
+
+        [Fact]
+        public void Insert_Select_ColumnFilter()
+        {
+            var table = StageTable(true);
+            using var connection = new DummySqlConnection();
+
+            var builder1 = connection.GetSelectQueryBuilder(table);
+            builder1.AddToResultset(table["f1"]);
+            builder1.AddToResultset(table["f3"]);
+
+            var builder = connection.GetInsertSelectQueryBuilder(table, builder1);
+            builder.IncludeOnly(new string[] { "f1", "f3" });
+
+            builder.PrepareQuery();
+            var ast = builder.Query.ParseSql();
+
+            ast.Select("/INSERT")
+                .Should().HaveCount(1);
+
+            var stmt = ast.SelectNode("/INSERT");
+
+            stmt.SelectNode("/*", 1)
+                .Should().HaveSymbol("TABLE_NAME")
+                .And.Subject.SelectNode("/*", 1)
+                    .Should().HaveSymbol("IDENTIFIER")
+                    .And.HaveValue("tableName");
+
+            stmt.SelectNode("/*", 2)
+                .Should().HaveSymbol("FIELDS");
+
+            var f = stmt.Select("/*[2]/FIELD").ToArray();
+            f.Should().HaveCount(2);
+
+            f[0].Should().ContainMatching("/*", n => n.Value == "f1");
+            f[1].Should().ContainMatching("/*", n => n.Value == "f3");
+
+            stmt.SelectNode("/*", 3)
+                .Should().HaveSymbol("SELECT");
+        }
+
+        [Fact]
         public void UpdateQuery_AllColumns_ById()
         {
             var table = StageTable(true);

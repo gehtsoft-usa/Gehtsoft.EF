@@ -636,6 +636,8 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// </summary>
         public virtual bool CaseSensitiveStringComparison => true;
 
+        public virtual double MaxNumericValue => Double.MaxValue;
+
         /// <summary>
         /// Returns builder for group of parameters.
         /// </summary>

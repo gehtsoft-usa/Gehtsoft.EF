@@ -10,7 +10,9 @@ namespace Gehtsoft.EF.Test.Utils
 {
     public class ConnectionFixtureBase : IDisposable
     {
-        private readonly Dictionary<string, SqlDbConnection> gConnections = new Dictionary<string, SqlDbConnection>();
+        private readonly Dictionary<string, SqlDbConnection> mConnection = new Dictionary<string, SqlDbConnection>();
+
+        public bool Started(string connectionName) => mConnection.ContainsKey(connectionName);
 
         public ConnectionFixtureBase()
         {
@@ -29,7 +31,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         protected virtual void Dispose(bool disposing)
         {
-            foreach (var connection in gConnections.Values)
+            foreach (var connection in mConnection.Values)
             {
                 TearDownConnection(connection);
                 connection?.Dispose();
@@ -43,7 +45,7 @@ namespace Gehtsoft.EF.Test.Utils
             var key = connectionName;
             var config = AppConfiguration.Instance.GetSqlConnection(connectionName);
 
-            if (gConnections.TryGetValue(key, out var connection))
+            if (mConnection.TryGetValue(key, out var connection))
                 return connection;
 
             connection = UniversalSqlDbFactory.Create(config.Driver, config.ConnectionString);
@@ -53,7 +55,7 @@ namespace Gehtsoft.EF.Test.Utils
 
             ConfigureConnection(connection);
 
-            gConnections[key] = connection;
+            mConnection[key] = connection;
 
             return connection;
         }

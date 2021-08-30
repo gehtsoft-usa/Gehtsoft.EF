@@ -36,7 +36,7 @@ namespace Gehtsoft.EF.Db.OracleDb
                     break;
                 case DbType.Double:
                     if (size == 0 && precision == 0)
-                        typeName = "number(38, 8)";
+                        typeName = "number";
                     else if (size == 0 && precision != 0)
                         typeName = $"number(38, {precision})";
                     else
@@ -220,8 +220,8 @@ namespace Gehtsoft.EF.Db.OracleDb
         public override DateTime? MaxDate => new DateTime(9999, 12, 31);
         public override DateTime? MinTimestamp => new DateTime(-4712, 1, 1);
         public override DateTime? MaxTimestamp => new DateTime(9999, 12, 31);
+        public override double MaxNumericValue => 1e126;
         public override PagingSupport SupportsPaging => PagingSupport.Emulated;
-
         public override bool SupportFunctionsInIndexes => true;
     }
 }

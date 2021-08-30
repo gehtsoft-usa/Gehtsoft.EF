@@ -16,9 +16,9 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.SqlDb
 {
-
     public class SchemaTest : IClassFixture<SchemaTest.Fixture>
     {
+        #region entities
         [Entity(Scope = "SchemaTest", Table = "st_entity")]
         public class Entity
         {
@@ -50,7 +50,9 @@ namespace Gehtsoft.EF.Test.SqlDb
                 return b;
             }
         }
+        #endregion
 
+        #region fixture
         public class Fixture : ConnectionFixtureBase
         {
             public Fixture()
@@ -64,7 +66,7 @@ namespace Gehtsoft.EF.Test.SqlDb
                     query.ExecuteNoData();
 
                 using (var query = connection.GetQuery(
-                    connection.GetCreateViewBuilder(AllEntities.Get<View>().TableDescriptor.Name, 
+                    connection.GetCreateViewBuilder(AllEntities.Get<View>().TableDescriptor.Name,
                     AllEntities.Get<View>().TableDescriptor.Metadata.As<IViewCreationMetadata>().GetSelectQuery(connection))))
                     query.ExecuteNoData();
 
@@ -82,6 +84,7 @@ namespace Gehtsoft.EF.Test.SqlDb
                 base.TearDownConnection(connection);
             }
         }
+        #endregion
 
         private readonly Fixture mFixture;
 

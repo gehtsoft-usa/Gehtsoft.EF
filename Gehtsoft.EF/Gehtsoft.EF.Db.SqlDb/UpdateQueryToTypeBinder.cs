@@ -46,16 +46,16 @@ namespace Gehtsoft.EF.Db.SqlDb
 
     /// <summary>
     /// The controller of data truncation.
-    /// 
+    ///
     /// Use <see cref="DefaultUpdateQueryTruncationController"/> as a default implementation of the interface.
-    /// 
+    ///
     /// Use <see cref="UpdateQueryTruncationRules"/> to set truncation rules.
     /// </summary>
     public interface IUpdateQueryTruncationController
     {
         /// <summary>
         /// Truncates the value to the parameters of the type.
-        /// 
+        ///
         /// The controller truncates the value so it fits into
         /// the column definition and supported value range.
         /// </summary>
@@ -94,7 +94,7 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         /// <summary>
         /// Truncates the value to the parameters of the type.
-        /// 
+        ///
         /// The controller truncates the value so it fits into
         /// the column definition and supported value range.
         /// </summary>
@@ -337,8 +337,8 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         /// <summary>
         /// Binds all columns in the table descriptor.
-        /// 
-        /// The binding defines the parameter names the same as column names. 
+        ///
+        /// The binding defines the parameter names the same as column names.
         /// </summary>
         /// <param name="tableDescriptor"></param>
         /// <param name="dbprefix"></param>

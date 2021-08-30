@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
@@ -12,6 +13,7 @@ namespace Gehtsoft.EF.Test.SqlDb
     [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
     public class DropCreateTest : IClassFixture<DropCreateTest.Fixture>
     {
+        #region fixture
         public class Fixture : ConnectionFixtureBase
         {
             public static bool DropAtEnd { get; set; } = false;
@@ -188,6 +190,7 @@ namespace Gehtsoft.EF.Test.SqlDb
                     query.ExecuteNoData();
             }
         }
+        #endregion
 
         private readonly Fixture mFixture;
 
@@ -199,7 +202,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Theory]
         [TestOrder(1)]
         [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
-        public void CreateTable(string connectionName)
+        public void T1_CreateTable(string connectionName)
         {
             var connection = mFixture.GetInstance(connectionName);
 
@@ -215,12 +218,12 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Theory]
         [TestOrder(2)]
         [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
-        public void AlterTable(string connectionName)
+        public void T2_AlterTable(string connectionName)
         {
-            var connection = mFixture.GetInstance(connectionName);
+            if (!mFixture.Started(connectionName))
+                T1_CreateTable(connectionName);
 
-            if (!connection.DoesObjectExist(mFixture.TableV1.Name, null, "table"))
-                CreateTable(connectionName);
+            var connection = mFixture.GetInstance(connectionName);
 
             var qb = connection.GetAlterTableQueryBuilder();
             TableDescriptor.ColumnInfo[] drop = null;
@@ -252,12 +255,12 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Theory]
         [TestOrder(3)]
         [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
-        public void CreateIndex(string connectionName)
+        public void T3_CreateIndex(string connectionName)
         {
-            var connection = mFixture.GetInstance(connectionName);
+            if (!mFixture.Started(connectionName))
+                T2_AlterTable(connectionName);
 
-            if (!connection.DoesObjectExist(mFixture.TableV1.Name, null, "table"))
-                AlterTable(connectionName);
+            var connection = mFixture.GetInstance(connectionName);
 
             connection.DoesObjectExist(mFixture.TableV2.Name, "composite", "index").Should().BeFalse();
 
@@ -276,12 +279,12 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Theory]
         [TestOrder(4)]
         [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
-        public void DropIndex(string connectionName)
+        public void T4_DropIndex(string connectionName)
         {
-            var connection = mFixture.GetInstance(connectionName);
+            if (!mFixture.Started(connectionName))
+                T3_CreateIndex(connectionName);
 
-            if (!connection.DoesObjectExist(mFixture.TableV1.Name, null, "table"))
-                CreateIndex(connectionName);
+            var connection = mFixture.GetInstance(connectionName);
 
             connection.DoesObjectExist(mFixture.TableV2.Name, "composite", "index").Should().BeTrue();
 
@@ -294,12 +297,12 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Theory]
         [TestOrder(5)]
         [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
-        public void DropTable(string connectionName)
+        public void T5_DropTable(string connectionName)
         {
-            var connection = mFixture.GetInstance(connectionName);
+            if (!mFixture.Started(connectionName))
+                T1_CreateTable(connectionName);
 
-            if (!connection.DoesObjectExist(mFixture.TableV1.Name, null, "table"))
-                CreateTable(connectionName);
+            var connection = mFixture.GetInstance(connectionName);
 
             connection.DoesObjectExist(mFixture.TableV2.Name, null, "table").Should().BeTrue();
 
