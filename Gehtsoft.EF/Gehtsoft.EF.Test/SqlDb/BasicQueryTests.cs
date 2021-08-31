@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Gehtsoft.EF.Db.OracleDb;
 using Gehtsoft.EF.Db.SqlDb;
@@ -125,10 +126,12 @@ namespace Gehtsoft.EF.Test.SqlDb
             public static bool DropAtEnd { get; set; } = false;
 
             public const string TableName = "iu_test";
+            public const string TableName1 = "iu_test1";
             public const string DictName = "iu_dict";
 
             public TableDescriptor Dict { get; }
             public TableDescriptor Table { get; }
+            public TableDescriptor Table1 { get; }
 
             public Fixture()
             {
@@ -219,6 +222,27 @@ namespace Gehtsoft.EF.Test.SqlDb
                     DbType = DbType.DateTime,
                     Nullable = true,
                 });
+
+                Table1 = new TableDescriptor()
+                {
+                    Name = TableName1,
+                };
+
+                Table1.Add(new TableDescriptor.ColumnInfo()
+                {
+                    Name = "id",
+                    PrimaryKey = true,
+                    Autoincrement = true,
+                    DbType = DbType.Int32
+                });
+
+                Table1.Add(new TableDescriptor.ColumnInfo()
+                {
+                    Name = "name",
+                    DbType = DbType.String,
+                    Size = 32,
+                    Sorted = true,
+                });
             }
 
             protected override void ConfigureConnection(SqlDbConnection connection)
@@ -229,6 +253,9 @@ namespace Gehtsoft.EF.Test.SqlDb
                     query.ExecuteNoData();
 
                 using (var query = connection.GetQuery(connection.GetCreateTableBuilder(Table)))
+                    query.ExecuteNoData();
+
+                using (var query = connection.GetQuery(connection.GetCreateTableBuilder(Table1)))
                     query.ExecuteNoData();
 
                 base.ConfigureConnection(connection);
@@ -244,6 +271,9 @@ namespace Gehtsoft.EF.Test.SqlDb
 
             private void Drop(SqlDbConnection connection)
             {
+                using (var query = connection.GetQuery(connection.GetDropTableBuilder(Table1)))
+                    query.ExecuteNoData();
+
                 using (var query = connection.GetQuery(connection.GetDropTableBuilder(Table)))
                     query.ExecuteNoData();
 
@@ -442,11 +472,11 @@ namespace Gehtsoft.EF.Test.SqlDb
             var connection = mFixture.GetInstance(connectionName);
             var table = mFixture.TableContent(connectionName);
 
-            var dictBinder = new SelectQueryTypeBinder(typeof(DictRecord));
+            var dictBinder = new SelectQueryResultBinder(typeof(DictRecord));
             dictBinder.AddBinding("dict_id", nameof(DictRecord.Id));
             dictBinder.AddBinding("dict_name", nameof(DictRecord.Name));
 
-            var tableBinder = new SelectQueryTypeBinder(typeof(TableRecord));
+            var tableBinder = new SelectQueryResultBinder(typeof(TableRecord));
             tableBinder.AddBinding("id", nameof(TableRecord.Id));
             tableBinder.AddBinding("name", nameof(TableRecord.Name));
             tableBinder.AddBinding(dictBinder, nameof(TableRecord.Dict));
@@ -466,6 +496,7 @@ namespace Gehtsoft.EF.Test.SqlDb
             using (var query = connection.GetQuery(builder))
             {
                 query.ExecuteReader();
+
                 while (query.ReadNext())
                 {
                     var t1 = tableBinder.Read<TableRecord>(query);
@@ -672,6 +703,21 @@ namespace Gehtsoft.EF.Test.SqlDb
         }
 
         [Theory]
+        [TestOrder(22)]
+        [MemberData(nameof(ConnectionNames), "+sqlite")]
+        public void T2_2_SqlInjectionProtectionInUpdate(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                T2_1_Insert_IgnoringAutoincrement(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+            var update = connection.GetUpdateQueryBuilder(mFixture.Table);
+
+            ((Action)(() => update.AddUpdateColumn(mFixture.Table[0], "'param"))).Should().Throw<ArgumentException>();
+            ((Action)(() => update.AddUpdateColumnExpression(mFixture.Table[0], "'expr"))).Should().Throw<ArgumentException>();
+        }
+
+            [Theory]
         [TestOrder(23)]
         [MemberData(nameof(ConnectionNames), "")]
         public void T2_3_UpdateMultipleRecords(string connectionName)
@@ -817,5 +863,253 @@ namespace Gehtsoft.EF.Test.SqlDb
                 query.ReadNext().Should().BeFalse();
             }
         }
+
+        [Theory]
+        [TestOrder(26)]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void T2_6_InsertSelect_IgnoreAutoIncrement(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                T1_1_Insert(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+            var table = mFixture.TableContent(connectionName);
+
+            var select1 = connection.GetSelectQueryBuilder(mFixture.Table);
+            select1.AddToResultset(mFixture.Table["id"]);
+            select1.AddToResultset(mFixture.Table["name"]);
+            select1.Where.Property(mFixture.Table["id"]).Ge().Value(table[1].Id);
+            select1.Where.Property(mFixture.Table["id"]).Le().Value(table[3].Id);
+
+            var insert = connection.GetInsertSelectQueryBuilder(mFixture.Table1, select1, true);
+            using (var query = connection.GetQuery(insert))
+            {
+                query.ExecuteNoData().Should().Be(3);
+            }
+
+            if (connection is OracleDbConnection oracle)
+                oracle.UpdateSequence(mFixture.Table1);
+        }
+
+        [Theory]
+        [TestOrder(27)]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void T2_7_InsertSelect_AutoIncrement(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                T2_6_InsertSelect_IgnoreAutoIncrement(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+            var table = mFixture.TableContent(connectionName);
+
+            var select1 = connection.GetSelectQueryBuilder(mFixture.Table);
+            select1.AddToResultset(mFixture.Table["name"]);
+            select1.Where.Property(mFixture.Table["id"]).Eq().Value(table[5].Id);
+
+            var insert = connection.GetInsertSelectQueryBuilder(mFixture.Table1, select1, false);
+            using (var query = connection.GetQuery(insert))
+            {
+                if (connection.GetLanguageSpecifics().AutoincrementReturnedAs == SqlDbLanguageSpecifics.AutoincrementReturnStyle.Parameter)
+                    query.BindOutput("id", DbType.Int32);
+
+                var rc = query.ExecuteNoData();
+                if (connection.ConnectionType != UniversalSqlDbFactory.ORACLE)
+                    rc.Should().Be(1);
+            }
+        }
+
+        [Theory]
+        [TestOrder(28)]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void T2_8_InsertSelect_Validate(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                T2_7_InsertSelect_AutoIncrement(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+            var table = mFixture.TableContent(connectionName);
+
+            var select = connection.GetSelectQueryBuilder(mFixture.Table1);
+            select.AddToResultset(mFixture.Table1);
+            var records = new List<Tuple<int, string>>();
+
+            using (var query = connection.GetQuery(select))
+            {
+                query.ExecuteReader();
+                while(query.ReadNext())
+                    records.Add(new Tuple<int, string>(query.GetValue<int>(0), query.GetValue<string>(1)));
+            }
+
+            records.Should().HaveCount(4);
+
+            records[0].Item1.Should().Be(table[1].Id);
+            records[1].Item1.Should().Be(table[2].Id);
+            records[2].Item1.Should().Be(table[3].Id);
+
+            records[3].Item1.Should().NotBe(records[0].Item1);
+            records[3].Item1.Should().NotBe(records[1].Item1);
+            records[3].Item1.Should().NotBe(records[2].Item1);
+
+            records[0].Item2.Should().Be(table[1].Name);
+            records[1].Item2.Should().Be(table[2].Name);
+            records[2].Item2.Should().Be(table[3].Name);
+            records[3].Item2.Should().Be(table[5].Name);
+        }
+
+        [Theory]
+        [TestOrder(31)]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void T3_1_SimpleTransaction_Rollback(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                T2_7_InsertSelect_AutoIncrement(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+            var table = mFixture.TableContent(connectionName);
+
+            using (var transaction = connection.BeginTransaction(IsolationLevel.Serializable))
+            {
+                var delete = connection.GetDeleteQueryBuilder(mFixture.Table1);
+                delete.Where.Property(mFixture.Table1["id"]).Eq().Value(table[1].Id);
+                using (var query = connection.GetQuery(delete))
+                    query.ExecuteNoData();
+
+                transaction.Rollback();
+            }
+
+            var select = connection.GetSelectQueryBuilder(mFixture.Table1);
+            select.AddToResultset(AggFn.Count);
+            select.Where.Property(mFixture.Table1["id"]).Eq().Value(table[1].Id);
+            using (var query = connection.GetQuery(select))
+            {
+                query.ExecuteReader();
+                query.ReadNext();
+                query.GetValue<int>(0).Should().Be(1);
+            }
+        }
+
+        [Theory]
+        [TestOrder(31)]
+        [MemberData(nameof(ConnectionNames), "")]
+        public async Task T3_1_SimpleTransaction_Rollback_Async(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                T2_7_InsertSelect_AutoIncrement(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+            var table = mFixture.TableContent(connectionName);
+
+            using (var transaction = connection.BeginTransaction(IsolationLevel.Serializable))
+            {
+                var delete = connection.GetDeleteQueryBuilder(mFixture.Table1);
+                delete.Where.Property(mFixture.Table1["id"]).Eq().Value(table[1].Id);
+                using (var query = connection.GetQuery(delete))
+                    query.ExecuteNoData();
+
+                await transaction.RollbackAsync();
+            }
+
+            var select = connection.GetSelectQueryBuilder(mFixture.Table1);
+            select.AddToResultset(AggFn.Count);
+            select.Where.Property(mFixture.Table1["id"]).Eq().Value(table[1].Id);
+            using (var query = connection.GetQuery(select))
+            {
+                await query.ExecuteReaderAsync();
+                await query.ReadNextAsync();
+                query.GetValue<int>(0).Should().Be(1);
+            }
+        }
+
+        [Theory]
+        [TestOrder(32)]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void T3_2_SimpleTransaction_Commit(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                T2_7_InsertSelect_AutoIncrement(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+            var table = mFixture.TableContent(connectionName);
+
+            using (var transaction = connection.BeginTransaction())
+            {
+                var delete = connection.GetDeleteQueryBuilder(mFixture.Table1);
+                delete.Where.Property(mFixture.Table1["id"]).Eq().Value(table[1].Id);
+                using (var query = connection.GetQuery(delete))
+                    query.ExecuteNoData();
+
+                transaction.Commit();
+            }
+
+            var select = connection.GetSelectQueryBuilder(mFixture.Table1);
+            select.AddToResultset(AggFn.Count);
+            select.Where.Property(mFixture.Table1["id"]).Eq().Value(table[1].Id);
+            using (var query = connection.GetQuery(select))
+            {
+                query.ExecuteReader();
+                query.ReadNext();
+                query.GetValue<int>(0).Should().Be(0);
+            }
+        }
+
+        [Theory]
+        [TestOrder(33)]
+        [MemberData(nameof(ConnectionNames), "-mysql,-oracle")]
+        public void T3_3_NestedTransaction(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                T2_7_InsertSelect_AutoIncrement(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+
+            connection.GetLanguageSpecifics().SupportsTransactions.Should().Be(SqlDbLanguageSpecifics.TransactionSupport.Nested);
+
+            var table = mFixture.TableContent(connectionName);
+
+            using (var transaction = connection.BeginTransaction())
+            {
+                var delete1 = connection.GetDeleteQueryBuilder(mFixture.Table1);
+                delete1.Where.Property(mFixture.Table1["id"]).Eq().Parameter("id");
+
+                using (var transaction1 = connection.BeginTransaction())
+                {
+                    using (var query = connection.GetQuery(delete1))
+                    {
+                        query.BindParam("id", table[2].Id);
+                        query.ExecuteNoData();
+                    }
+
+                    transaction1.Rollback();
+                }
+
+                using (var query = connection.GetQuery(delete1))
+                {
+                    query.BindParam("id", table[3].Id);
+                    query.ExecuteNoData();
+                }
+
+                transaction.Commit();
+            }
+
+            var select = connection.GetSelectQueryBuilder(mFixture.Table1);
+            select.AddToResultset(AggFn.Count);
+            select.Where.Property(mFixture.Table1["id"]).Eq().Parameter("id");
+            using (var query = connection.GetQuery(select))
+            {
+                query.BindParam("id", table[2].Id);
+                query.ExecuteReader();
+                query.ReadNext();
+                query.GetValue<int>(0).Should().Be(1);
+            }
+
+            using (var query = connection.GetQuery(select))
+            {
+                query.BindParam("id", table[3].Id);
+                query.ExecuteReader();
+                query.ReadNext();
+                query.GetValue<int>(0).Should().Be(0);
+            }
+        }
     }
 }
+

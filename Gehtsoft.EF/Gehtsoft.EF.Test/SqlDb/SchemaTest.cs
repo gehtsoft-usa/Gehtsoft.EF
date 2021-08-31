@@ -107,7 +107,6 @@ namespace Gehtsoft.EF.Test.SqlDb
 
             var e = Array.Find(schema, td => td.Name.Equals(entity.Name, StringComparison.OrdinalIgnoreCase));
             e.Should().NotBeNull();
-
             e.View.Should().BeFalse();
             e.Count.Should().Be(2);
             e[0].Name.Should().Be(entity[0].Name, StringComparison.OrdinalIgnoreCase);
@@ -115,11 +114,65 @@ namespace Gehtsoft.EF.Test.SqlDb
 
             e = Array.Find(schema, td => td.Name.Equals(view.Name, StringComparison.OrdinalIgnoreCase));
             e.Should().NotBeNull();
-
             e.View.Should().BeTrue();
             e.Count.Should().Be(2);
             e[0].Name.Should().Be(view[0].Name, StringComparison.OrdinalIgnoreCase);
             e[1].Name.Should().Be(view[1].Name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public async Task SchemaAsync(string connectionName)
+        {
+            var entity = AllEntities.Get<Entity>().TableDescriptor;
+            var view = AllEntities.Get<View>().TableDescriptor;
+
+            var connection = mFixture.GetInstance(connectionName);
+            var schema = await connection.SchemaAsync();
+
+            var e = Array.Find(schema, td => td.Name.Equals(entity.Name, StringComparison.OrdinalIgnoreCase));
+            e.Should().NotBeNull();
+            e.View.Should().BeFalse();
+            e.Count.Should().Be(2);
+            e[0].Name.Should().Be(entity[0].Name, StringComparison.OrdinalIgnoreCase);
+            e[1].Name.Should().Be(entity[1].Name, StringComparison.OrdinalIgnoreCase);
+
+            e = Array.Find(schema, td => td.Name.Equals(view.Name, StringComparison.OrdinalIgnoreCase));
+            e.Should().NotBeNull();
+            e.View.Should().BeTrue();
+            e.Count.Should().Be(2);
+            e[0].Name.Should().Be(view[0].Name, StringComparison.OrdinalIgnoreCase);
+            e[1].Name.Should().Be(view[1].Name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "+sqlite")]
+        public void SchemaArrayExtensions(string connectionName)
+        {
+            var entity = AllEntities.Get<Entity>().TableDescriptor;
+            var view = AllEntities.Get<View>().TableDescriptor;
+
+            var connection = mFixture.GetInstance(connectionName);
+            var schema = connection.Schema();
+
+            schema.Find(entity.Name)
+                .Should().NotBeNull()
+                         .And.Subject.As<TableDescriptor>().Name.Should().Be(entity.Name);
+
+            schema.Contains(entity.Name).Should().BeTrue();
+            schema.Find("nonexistent").Should().BeNull();
+            schema.Contains("nonexistent").Should().BeFalse();
+
+            schema.ContainsView(view.Name).Should().BeTrue();
+            schema.ContainsView(entity.Name).Should().BeFalse();
+
+            schema.Find(entity.Name, entity[0].Name)
+                .Should().NotBeNull()
+                .And.Subject.As<TableDescriptor.ColumnInfo>()
+                    .Name.Should().Be(entity[0].Name);
+
+            schema.Find(entity.Name, "nonexistent").Should().BeNull();
+            schema.Find("nonexistent", "nonexistent").Should().BeNull();
         }
 
         [Theory]

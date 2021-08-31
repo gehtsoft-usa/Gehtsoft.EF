@@ -71,7 +71,8 @@ namespace Gehtsoft.EF.Entities
                                 if (Math.Abs(a - b) > Math.Pow(10, -attribute.Precision))
                                     return false;
                             }
-                            else if (attribute.DbType == DbType.Binary && objectAA is byte[] && objectBB is byte[])
+                            else if ((attribute.DbType == DbType.Binary || attribute.DbType == DbType.Object) &&
+                                     objectAA is byte[] && objectBB is byte[])
                             {
                                 byte[] a = (byte[])objectAA;
                                 byte[] b = (byte[])objectBB;
@@ -123,6 +124,15 @@ namespace Gehtsoft.EF.Entities
                         var entityAttribute = propertyType.GetCustomAttribute<EntityAttribute>();
                         if (entityAttribute != null)
                             valueHash = GetHashCode(value);
+                        else if (value is byte[] b)
+                        {
+                            int hash1 =  -1923861349;
+                            for (int i = 0; i < b.Length; i++)
+                            {
+                                unchecked { hash1 = hash1 * -1521134295 + b[i].GetHashCode(); }
+                            }
+                            valueHash = hash1;
+                        }
                         else
                             valueHash = value.GetHashCode();
                     }

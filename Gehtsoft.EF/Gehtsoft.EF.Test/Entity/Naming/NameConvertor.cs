@@ -79,6 +79,27 @@ namespace Gehtsoft.EF.Test.Entity.Naming
             => EntityNameConvertor.ConvertName(originalName, policy).Should().Be(expectedResult);
 
         [Theory]
+        [InlineData("apple", EntityNamingPolicy.AsIs, "apple")]
+        [InlineData("apple", EntityNamingPolicy.LowerCase, "apples")]
+        [InlineData("matrix", EntityNamingPolicy.LowerCase, "matrixes")]
+        [InlineData("mantis", EntityNamingPolicy.LowerCase, "mantises")]
+        [InlineData("pantry", EntityNamingPolicy.LowerCase, "pantries")]
+        [InlineData("virus", EntityNamingPolicy.LowerCase, "viruses")]
+        [InlineData("bush", EntityNamingPolicy.LowerCase, "bushes")]
+        [InlineData("blitz", EntityNamingPolicy.LowerCase, "blitzes")]
+        [InlineData("fez", EntityNamingPolicy.LowerCase, "fezzes")]
+        [InlineData("gas", EntityNamingPolicy.LowerCase, "gasses")]
+        [InlineData("wife", EntityNamingPolicy.LowerCase, "wives")]
+        [InlineData("housewife", EntityNamingPolicy.LowerCase, "housewives")]
+        [InlineData("wolf", EntityNamingPolicy.LowerCase, "wolves")]
+        [InlineData("ray", EntityNamingPolicy.LowerCase, "rays")]
+        [InlineData("potato", EntityNamingPolicy.LowerCase, "potatoes")]
+        [InlineData("magichero", EntityNamingPolicy.LowerCase, "magicheroes")]
+        [InlineData("photo", EntityNamingPolicy.LowerCase, "photos")]
+        public void TableName(string originalName, EntityNamingPolicy policy, string expectedResult)
+            => EntityNameConvertor.ConvertTableName(originalName, policy).Should().Be(expectedResult);
+
+        [Theory]
         [InlineData("a", EntityNamingPolicy.AsIs, "a")]
         [InlineData("a", EntityNamingPolicy.UpperCase, "A")]
         [InlineData("entity", EntityNamingPolicy.AsIs, "entity")]

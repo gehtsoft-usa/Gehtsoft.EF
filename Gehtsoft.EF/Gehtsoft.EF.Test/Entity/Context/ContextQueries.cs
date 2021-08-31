@@ -374,5 +374,50 @@ namespace Gehtsoft.EF.Test.Entity.Context
             cat1.CategoryName.Should().Be("New Category1");
             cat1.Description.Should().Be("Description2");
         }
+
+        [Theory]
+        [InlineData("sqlite-memory")]
+        public async Task SelectEntities_SaveAsync(string driver)
+        {
+            var connection = mFixture.GetInstance(driver);
+
+            var cat = new Category()
+            {
+                CategoryID = 10000,
+                CategoryName = "New Category",
+                Description = "Description"
+            };
+
+            using var postpone = new DelayedAction(() =>
+            {
+                using var q = connection.DeleteMultiple<Category>();
+                q.Where.Property(nameof(Category.CategoryID)).Ge(10000);
+                q.Execute();
+            });
+
+            await connection.SaveAsync(cat, false);
+            cat.CategoryID.Should().Be(10000);
+
+            using (var count = connection.Count<Category>())
+                (await count.GetCountAsync()).Should().Be(mFixture.Snapshot.Categories.Count + 1);
+
+            var cat1 = await connection.GetAsync<Category>(cat.CategoryID);
+            cat1.Should().NotBeNull();
+            cat1.CategoryName.Should().Be("New Category");
+            cat1.Description.Should().Be("Description");
+
+            cat.CategoryName += "1";
+            cat.Description += "2";
+
+            await connection.SaveAsync(cat);
+
+            using (var count = connection.Count<Category>())
+                (await count.GetCountAsync()).Should().Be(mFixture.Snapshot.Categories.Count + 1);
+
+            cat1 = await connection.GetAsync<Category>(cat.CategoryID);
+            cat1.Should().NotBeNull();
+            cat1.CategoryName.Should().Be("New Category1");
+            cat1.Description.Should().Be("Description2");
+        }
     }
 }

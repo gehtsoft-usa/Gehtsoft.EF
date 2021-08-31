@@ -68,9 +68,8 @@ namespace Gehtsoft.EF.Test.SqlDb
             }
         }
         #endregion
-        
-        private readonly Fixture mFixture;
 
+        private readonly Fixture mFixture;
         public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.ConnectionNames(flags);
 
         public QueryAsyncMethodsTest(Fixture fixture)

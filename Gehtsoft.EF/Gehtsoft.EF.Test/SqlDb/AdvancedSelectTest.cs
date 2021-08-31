@@ -133,7 +133,6 @@ namespace Gehtsoft.EF.Test.SqlDb
                             select.GetAlias(mFixture.OrderDetailTable[nameof(OrderDetail.UnitPrice)], e1)
                 }), DbType.Double, true, "total");
 
-
             select.AddGroupBy(mFixture.ProductTable[nameof(Product.ProductID)]);
 
             using (var query = connection.GetQuery(select))
@@ -144,7 +143,6 @@ namespace Gehtsoft.EF.Test.SqlDb
                 {
                     cc++;
                     var id = query.GetValue<int>(0);
-                    var name = query.GetValue<string>(1);
                     var v = query.GetValue<double?>(2);
 
                     if (v != null)
@@ -251,13 +249,13 @@ namespace Gehtsoft.EF.Test.SqlDb
                 }
             }
         }
-        
+
         [Theory]
         [MemberData(nameof(ConnectionNames), "")]
         public void Union(string connectionName)
         {
             var connection = mFixture.GetInstance(connectionName);
-            
+
             var select1 = connection.GetSelectQueryBuilder(mFixture.OrderDetailTable);
             select1.AddToResultset(mFixture.OrderDetailTable);
             select1.Where.Property(mFixture.OrderDetailTable[nameof(OrderDetail.Order)]).Eq().Parameter("ord1");
@@ -274,7 +272,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
             using (var query = connection.GetQuery(union))
             {
-                int ord1 = mFixture.Snapshot.Orders[0].OrderID, 
+                int ord1 = mFixture.Snapshot.Orders[0].OrderID,
                     ord2 = mFixture.Snapshot.Orders[1].OrderID;
 
                 query.BindParam("ord1", ord1);
@@ -290,14 +288,99 @@ namespace Gehtsoft.EF.Test.SqlDb
 
                     if (cc > 1)
                         q.Should().BeGreaterOrEqualTo(lq);
-                    
+
                     (oid == mFixture.Snapshot.Orders[0].OrderID ||
                      oid == mFixture.Snapshot.Orders[1].OrderID).Should().BeTrue();
 
                     lq = q;
                 }
                 cc.Should().BeGreaterThan(0);
-                cc.Should().Be(mFixture.Snapshot.OrderDetails.Where(r => r.Order.OrderID == ord1 || r.Order.OrderID == ord2).Count());
+                cc.Should().Be(mFixture.Snapshot.OrderDetails.Count(r => r.Order.OrderID == ord1 || r.Order.OrderID == ord2));
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Skip(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var data = mFixture.Snapshot.Categories.OrderBy(c => c.CategoryName).ToArray();
+
+            connection.GetLanguageSpecifics().SupportsPaging.Should().NotBe(SqlDbLanguageSpecifics.PagingSupport.None);
+
+            var select = connection.GetSelectQueryBuilder(mFixture.CategoryTable);
+            select.AddToResultset(mFixture.CategoryTable[nameof(Category.CategoryID)]);
+            select.AddOrderBy(mFixture.CategoryTable[nameof(Category.CategoryName)]);
+            select.Skip = 2;
+
+            using (var query = connection.GetQuery(select))
+            {
+                query.ExecuteReader();
+                int i = 0;
+                while (query.ReadNext())
+                {
+                    var id = query.GetValue<int>(0);
+                    id.Should().Be(data[i + 2].CategoryID);
+                    i++;
+                }
+                i.Should().Be(data.Length - 2);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Take(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var data = mFixture.Snapshot.Categories.OrderBy(c => c.CategoryName).ToArray();
+
+            connection.GetLanguageSpecifics().SupportsPaging.Should().NotBe(SqlDbLanguageSpecifics.PagingSupport.None);
+
+            var select = connection.GetSelectQueryBuilder(mFixture.CategoryTable);
+            select.AddToResultset(mFixture.CategoryTable[nameof(Category.CategoryID)]);
+            select.AddOrderBy(mFixture.CategoryTable[nameof(Category.CategoryName)]);
+            select.Limit = 2;
+
+            using (var query = connection.GetQuery(select))
+            {
+                query.ExecuteReader();
+                int i = 0;
+                while (query.ReadNext())
+                {
+                    var id = query.GetValue<int>(0);
+                    id.Should().Be(data[i].CategoryID);
+                    i++;
+                }
+                i.Should().Be(2);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void SkipTake(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var data = mFixture.Snapshot.Categories.OrderBy(c => c.CategoryName).ToArray();
+
+            connection.GetLanguageSpecifics().SupportsPaging.Should().NotBe(SqlDbLanguageSpecifics.PagingSupport.None);
+
+            var select = connection.GetSelectQueryBuilder(mFixture.CategoryTable);
+            select.AddToResultset(mFixture.CategoryTable[nameof(Category.CategoryID)]);
+            select.AddOrderBy(mFixture.CategoryTable[nameof(Category.CategoryName)]);
+            select.Skip = 1;
+            select.Limit = 2;
+
+            using (var query = connection.GetQuery(select))
+            {
+                query.ExecuteReader();
+                int i = 0;
+                while (query.ReadNext())
+                {
+                    var id = query.GetValue<int>(0);
+                    id.Should().Be(data[i + 1].CategoryID);
+                    i++;
+                }
+                i.Should().Be(2);
             }
         }
     }

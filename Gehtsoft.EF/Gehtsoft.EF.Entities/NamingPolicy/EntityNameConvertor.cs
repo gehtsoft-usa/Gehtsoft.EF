@@ -11,6 +11,8 @@ namespace Gehtsoft.EF.Entities
     /// </summary>
     public static class EntityNameConvertor
     {
+        private static bool IsVowel(char c) => c == 'a' || c == 'o' || c == 'i' || c == 'e' || c == 'y' || c == 'u';
+
         /// <summary>
         /// Converts the table name according the policy specified.
         /// </summary>
@@ -23,11 +25,17 @@ namespace Gehtsoft.EF.Entities
             {
                 char preLast = char.ToLower(name[name.Length - 2]);
                 char last = char.ToLower(name[name.Length - 1]);
-                if (last == 'y')
+                if (last == 'y' && !IsVowel(preLast))
                     name = name.Substring(0, name.Length - 1) + "ies";
-                else if (last == 's' || last == 'x' || (last == 'h' && (preLast == 'c' || preLast == 's')))
+                else if (last == 's' || last == 'x' || last == 'z' || (last == 'h' && (preLast == 'c' || preLast == 's')))
+                {
+                    if (name.Equals("fez", StringComparison.OrdinalIgnoreCase))
+                        name = "fezz";
+                    else if (name.Equals("gas", StringComparison.OrdinalIgnoreCase))
+                        name = "gass";
                     name += "es";
-                else if (last == 'o' && (preLast != 'a' && preLast != 'o' && preLast != 'i' && preLast != 'e' && preLast != 'y' && preLast != 'u'))
+                }
+                else if (last == 'o' && !IsVowel(preLast))
                 {
                     if (name.EndsWith("hero", StringComparison.OrdinalIgnoreCase) || name.EndsWith("potato", StringComparison.OrdinalIgnoreCase) ||
                         name.EndsWith("tomato", StringComparison.OrdinalIgnoreCase) || name.EndsWith("volcano", StringComparison.OrdinalIgnoreCase))
@@ -35,6 +43,12 @@ namespace Gehtsoft.EF.Entities
                     else
                         name += "s";
                 }
+                else if ((last == 'f' || (last == 'e' && preLast == 'f')) &&
+                    !name.EndsWith("roof", StringComparison.OrdinalIgnoreCase) &&
+                    !name.EndsWith("belief", StringComparison.OrdinalIgnoreCase) &&
+                    !name.EndsWith("chief", StringComparison.OrdinalIgnoreCase) &&
+                    !name.EndsWith("chef", StringComparison.OrdinalIgnoreCase))
+                    name = name.Substring(0, name.Length - (last == 'f' ? 1 : 2)) + "ves";
                 else
                     name += "s";
             }

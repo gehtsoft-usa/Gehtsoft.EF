@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Reflection;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
     /// <summary>
     /// The binding rule for the select query binder.
     /// </summary>
+    [DocgenIgnore]
+    [Obsolete("Use SelectQueryResultBinder instead")]
     public class SelectQueryTypeBinderRule
     {
         /// <summary>
@@ -69,6 +72,8 @@ namespace Gehtsoft.EF.Db.SqlDb
     /// <summary>
     /// The binder of a select resultset into object(s).
     /// </summary>
+    [DocgenIgnore]
+    [Obsolete("Use SelectQueryResultBinder instead")]
     public class SelectQueryTypeBinder
     {
         private readonly Type mType;
@@ -151,7 +156,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// Creates binding automatically.
         ///
         /// Auto-binding:
-        /// * does not recognizes and creates binding of a complex types automatically
+        /// * does not recognizes and does not create binding of a complex types automatically
         /// * assumes that the names of the properties equals to the name of the columns in resulset.
         /// </summary>
         /// <param name="prefix"></param>
@@ -221,7 +226,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <param name="query"></param>
         /// <param name="expandoObject"></param>
         /// <returns></returns>
-        public bool BindToDynamic(IDbQuery query, ExpandoObject expandoObject)
+        internal bool BindToDynamic(IDbQuery query, ExpandoObject expandoObject)
         {
             if (mRules.Count == 0)
                 AutoBind();
@@ -262,7 +267,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
 
         /// <summary>
-        /// Associate actual columns of the query resultset with the existing binding rules.
+        /// Checks whether the column is bound to the entity
         /// </summary>
         /// <param name="index"></param>
         /// <param name="query"></param>

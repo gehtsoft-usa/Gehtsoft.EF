@@ -172,5 +172,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
         public override DateTime? MaxTimestamp => new DateTime(9999, 12, 31);
 
         public override bool CaseSensitiveStringComparison => false;
+
+        public override bool SelectRequiresLimitWhenOffsetIsSet => true;
     }
 }

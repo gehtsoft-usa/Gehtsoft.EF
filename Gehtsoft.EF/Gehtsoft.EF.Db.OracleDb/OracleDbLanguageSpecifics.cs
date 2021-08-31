@@ -223,5 +223,6 @@ namespace Gehtsoft.EF.Db.OracleDb
         public override double MaxNumericValue => 1e126;
         public override PagingSupport SupportsPaging => PagingSupport.Emulated;
         public override bool SupportFunctionsInIndexes => true;
+        public override bool SelectRequiresLimitWhenOffsetIsSet => true;
     }
 }

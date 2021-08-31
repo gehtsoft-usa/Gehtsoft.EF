@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Test.Entity.Utils;
 using Xunit;
 
 namespace Gehtsoft.EF.Test.Entity.Tools
@@ -123,25 +124,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             collection.Should().Contain(e => e.Id == 3);
             collection.Should().Contain(e => e.Id == 4);
             collection.Should().Contain(e => e.Id == 5);
-        }
-
-        [Fact]
-        public void Enumerator()
-        {
-            var collection = new EntityCollection<Data>()
-            {
-                new Data() { Id = 1, Name = "name1" },
-                new Data() { Id = 2, Name = "name2" },
-                new Data() { Id = 3, Name = "name3" },
-                new Data() { Id = 4, Name = "name4" },
-                new Data() { Id = 5, Name = "name5" }
-            };
-
-            ((IEnumerable<Data>)collection).Should().Contain(e => e.Id == 1);
-            ((IEnumerable<Data>)collection).Should().Contain(e => e.Id == 2);
-            ((IEnumerable<Data>)collection).Should().Contain(e => e.Id == 3);
-            ((IEnumerable<Data>)collection).Should().Contain(e => e.Id == 4);
-            ((IEnumerable<Data>)collection).Should().Contain(e => e.Id == 5);
         }
 
         [Fact]
@@ -288,6 +270,26 @@ namespace Gehtsoft.EF.Test.Entity.Tools
         }
 
         [Fact]
+        public void Enumerator()
+        {
+            var collection1 = new EntityCollection<Data>()
+            {
+                new Data() { Id = 1, Name = "name1" },
+                new Data() { Id = 2, Name = "name2" },
+                new Data() { Id = 3, Name = "name3" },
+                new Data() { Id = 4, Name = "name4" },
+                new Data() { Id = 5, Name = "name5" }
+            };
+
+            ((IEnumerable<Data>)collection1).Should().HaveCount(5);
+            ((IEnumerable<Data>)collection1).Should().HaveElementMatching(p => p.Id == 1);
+            ((IEnumerable<Data>)collection1).Should().HaveElementMatching(p => p.Id == 2);
+            ((IEnumerable<Data>)collection1).Should().HaveElementMatching(p => p.Id == 3);
+            ((IEnumerable<Data>)collection1).Should().HaveElementMatching(p => p.Id == 4);
+            ((IEnumerable<Data>)collection1).Should().HaveElementMatching(p => p.Id == 5);
+        }
+
+        [Fact]
         public void Countains_Success()
         {
             var d3 = new Data() { Id = 3, Name = "name3" };
@@ -347,6 +349,34 @@ namespace Gehtsoft.EF.Test.Entity.Tools
                 new Data() { Id = 5, Name = "name5" }
             };
             collection1.IndexOf(d3).Should().BeLessThan(0);
+        }
+
+        [Fact]
+        public void Find_Predicate_Success()
+        {
+            var collection1 = new EntityCollection<Data>()
+            {
+                new Data() { Id = 1, Name = "name1" },
+                new Data() { Id = 2, Name = "name2" },
+                new Data() { Id = 3, Name = "name3" },
+                new Data() { Id = 4, Name = "name4" },
+                new Data() { Id = 5, Name = "name5" }
+            };
+            collection1.Find(p => p.Name == "name3").Should().Be(2);
+        }
+
+        [Fact]
+        public void Find_Predicate_Fail()
+        {
+            var collection1 = new EntityCollection<Data>()
+            {
+                new Data() { Id = 1, Name = "name1" },
+                new Data() { Id = 2, Name = "name2" },
+                new Data() { Id = 3, Name = "name3" },
+                new Data() { Id = 4, Name = "name4" },
+                new Data() { Id = 5, Name = "name5" }
+            };
+            collection1.Find(p => p.Name == "name0").Should().BeLessThan(0);
         }
 
         [Fact]

@@ -114,3 +114,9 @@ dotnet_diagnostic.CS1591.severity = none
 
 # IDE0057: Use range operator
 dotnet_diagnostic.IDE0057.severity = none
+
+# CA1806: Do not ignore method results
+dotnet_diagnostic.CA1806.severity = none
+
+# IDE0016: Use 'throw' expression
+dotnet_diagnostic.IDE0016.severity = none

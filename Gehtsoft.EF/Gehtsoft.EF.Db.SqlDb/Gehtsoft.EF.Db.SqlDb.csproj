@@ -121,6 +121,7 @@
     <Compile Include="QueryBuilder\TableDescriptor.cs" />
     <Compile Include="QueryBuilder\UpdateQueryBuilder.cs" />
     <Compile Include="ResiliencyPolicy.cs" />
+    <Compile Include="SelectQueryResultBinder.cs" />
     <Compile Include="SelectQueryToTypeBinder.cs" />
     <Compile Include="SqlDbConnection.cs" />
     <Compile Include="SqlDbEntityCollectionExtension.cs" />

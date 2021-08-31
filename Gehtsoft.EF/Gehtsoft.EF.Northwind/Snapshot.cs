@@ -90,7 +90,6 @@ namespace Gehtsoft.EF.Northwind
 
                             if (itIsOrder && v is Order order)
                                 orders.Add(order.OrderID);
-
                         }
                     }
                 }
@@ -150,8 +149,6 @@ namespace Gehtsoft.EF.Northwind
                         query.Execute();
             }
         }
-
-
 
         public IReadOnlyList<Customer> Customers { get; internal set; }
         public IReadOnlyList<Category> Categories { get; internal set; }

@@ -237,5 +237,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
         }
 
         public override bool SupportFunctionsInIndexes => true;
+
+        public override bool SelectRequiresLimitWhenOffsetIsSet => true;
     }
 }

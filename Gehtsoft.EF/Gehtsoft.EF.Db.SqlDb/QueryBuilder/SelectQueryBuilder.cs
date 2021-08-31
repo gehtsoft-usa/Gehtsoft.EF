@@ -468,7 +468,13 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             else if (Limit > 0)
                 query.Append(" LIMIT ").Append(Limit).Append(' ');
             else if (Skip > 0)
-                query.Append(" OFFSET ").Append(Skip).Append(' ');
+            {
+                if (mSpecifics.SelectRequiresLimitWhenOffsetIsSet)
+                    query.Append(" LIMIT ").Append(1000000).Append(" OFFSET ").Append(Skip).Append(' ');
+                else
+                    query.Append(" OFFSET ").Append(Skip).Append(' ');
+            }
+
             mQuery = query.ToString();
         }
 
@@ -701,29 +707,6 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// Returns the table descriptor that represents the resultset of the query.
         /// </summary>
         public TableDescriptor QueryTableDescriptor => GetTableDescriptor();
-
-        /// <summary>
-        /// Gets the reference of a column in the query.
-        ///
-        /// Use this method when sub-query requires the reference to a column on the main query.
-        ///
-        /// You can use the reference in <see cref="SingleConditionBuilderExtension.Reference(SingleConditionBuilder, IInQueryFieldReference)"/> method.
-        /// </summary>
-        /// <param name="column"></param>
-        /// <returns></returns>
-        public override IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column) => new InQueryFieldReference(GetAlias(column, null));
-
-        /// <summary>
-        /// Gets the reference of a column in the query.
-        ///
-        /// Use this method when sub-query requires the reference to a column on the main query.
-        ///
-        /// You can use the reference in <see cref="SingleConditionBuilderExtension.Reference(SingleConditionBuilder, IInQueryFieldReference)"/> method.
-        /// </summary>
-        /// <param name="column"></param>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        public virtual IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity) => new InQueryFieldReference(GetAlias(column, entity));
     }
 
     [ExcludeFromCodeCoverage]
@@ -848,7 +831,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
     /// <summary>
     /// The query builder for `UNION` query.
-    /// 
+    ///
     /// Use <see cref="SqlDbConnection.GetUnionQueryBuilder(SelectQueryBuilder)"/> to get an instance of this object.
     /// </summary>
     public class UnionQueryBuilder : AQueryBuilder
@@ -861,7 +844,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         /// <summary>
         /// Adds a query to the union.
-        /// 
+        ///
         /// The query must:
         /// * Have the same number of columns
         /// * The columns should be name the same way
@@ -889,7 +872,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             }
 
             if (builder.HasOrderBy)
-                throw new ArgumentException($"The query should not have ORDER BY clause, use UNION to order", nameof(builder));
+                throw new ArgumentException("The query should not have ORDER BY clause, use UNION to order", nameof(builder));
 
             mBuilders.Add(new Tuple<bool, SelectQueryBuilder>(distinct, builder));
         }
@@ -901,7 +884,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         /// <summary>
         /// Adds order by column for the union.
-        /// 
+        ///
         /// The column must be a column of the union's resultset (see <see cref="QueryTableDescriptor"/>)
         /// </summary>
         /// <param name="columnInfo"></param>
@@ -926,7 +909,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 throw new InvalidOperationException("At least two select builders must be added to the query");
 
             StringBuilder builder = new StringBuilder();
-            
+
             for (int i = 0; i < mBuilders.Count; i++)
             {
                 if (i > 0)

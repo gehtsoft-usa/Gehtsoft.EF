@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Entities
@@ -18,6 +19,7 @@ namespace Gehtsoft.EF.Entities
     /// <summary>
     /// The collection change event arguments
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class EntityCollectionEventArgs<T>
     {
         public EntityCollection<T> Collection { get; }
@@ -45,6 +47,7 @@ namespace Gehtsoft.EF.Entities
         /// Returns the flag indicating whether the collection is read-only
         /// </summary>
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public bool IsReadOnly { get; set; } = false;
 
         /// <summary>
@@ -57,6 +60,7 @@ namespace Gehtsoft.EF.Entities
             return mList.GetEnumerator();
         }
 
+        [ExcludeFromCodeCoverage]
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable)mList).GetEnumerator();
@@ -241,11 +245,6 @@ namespace Gehtsoft.EF.Entities
         /// The event to be fired when the item is removed.
         /// </summary>
         public event EventHandler<EntityCollectionEventArgs<T>> BeforeDelete;
-
-        internal void RaiseOnChange(int index)
-        {
-            OnChange?.Invoke(this, new EntityCollectionEventArgs<T>(EntityCollectionEvent.Update, this, index));
-        }
 
         /// <summary>
         /// Converts the collection to an array.

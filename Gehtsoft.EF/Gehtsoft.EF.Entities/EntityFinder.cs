@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 #pragma warning disable S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
 
@@ -126,6 +127,7 @@ namespace Gehtsoft.EF.Entities
             /// </summary>
             /// <returns></returns>
             [DocgenIgnore]
+            [ExcludeFromCodeCoverage]
             public override string ToString()
             {
                 return $"{Table ?? EntityType.Name}({EntityType.Name})";
@@ -167,7 +169,7 @@ namespace Gehtsoft.EF.Entities
 
                         types.Add(eti);
                         dict[type] = eti;
-                        FindDependencies(eti);
+                        FindDependencies(eti, includeObsolete);
                     }
                     else
                     {
@@ -186,7 +188,7 @@ namespace Gehtsoft.EF.Entities
                                     View = obsoleteEntityAttribute.View,
                                     Metadata = obsoleteEntityAttribute.Metadata,
                                 };
-                                FindDependencies(eti);
+                                FindDependencies(eti, includeObsolete);
                                 types.Add(eti);
                                 dict[type] = eti;
                             }
@@ -207,7 +209,7 @@ namespace Gehtsoft.EF.Entities
             return types.ToArray();
         }
 
-        private static void FindDependencies(EntityTypeInfo eti)
+        private static void FindDependencies(EntityTypeInfo eti, bool includeObsolete)
         {
             foreach (PropertyInfo property in eti.EntityType.GetTypeInfo().GetProperties())
             {
@@ -215,9 +217,12 @@ namespace Gehtsoft.EF.Entities
                 if (propertyAttribute != null && propertyAttribute.ForeignKey)
                     eti.DependsOn.Add(property.PropertyType);
 
-                ObsoleteEntityPropertyAttribute obsoletePropertyAttribute = property.GetCustomAttribute<ObsoleteEntityPropertyAttribute>();
-                if (obsoletePropertyAttribute != null && obsoletePropertyAttribute.ForeignKey)
-                    eti.DependsOn.Add(property.PropertyType);
+                if (includeObsolete)
+                {
+                    ObsoleteEntityPropertyAttribute obsoletePropertyAttribute = property.GetCustomAttribute<ObsoleteEntityPropertyAttribute>();
+                    if (obsoletePropertyAttribute != null && obsoletePropertyAttribute.ForeignKey)
+                        eti.DependsOn.Add(property.PropertyType);
+                }
             }
         }
 

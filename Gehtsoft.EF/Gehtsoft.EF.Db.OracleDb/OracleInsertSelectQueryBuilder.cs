@@ -13,7 +13,7 @@ namespace Gehtsoft.EF.Db.OracleDb
         protected override string BuildQuery(StringBuilder leftSide, TableDescriptor.ColumnInfo autoIncrement)
         {
             StringBuilder builder = new StringBuilder();
-            if (autoIncrement != null)
+            if (autoIncrement != null && !mIgnoreAutoIncrement)
             {
                 builder.Append("BEGIN \r\n");
                 var expr = $"{mTable.Name}_{autoIncrement.Name}.nextval";
@@ -21,7 +21,7 @@ namespace Gehtsoft.EF.Db.OracleDb
                     mSelect.AddExpressionToResultset(expr, System.Data.DbType.Int32, false);
             }
             builder.Append(base.BuildQuery(leftSide, autoIncrement));
-            if (autoIncrement != null)
+            if (autoIncrement != null && !mIgnoreAutoIncrement)
             {
                 builder
                     .Append(";\r\n")

@@ -101,6 +101,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             return mList.GetEnumerator();
         }
 
+        [ExcludeFromCodeCoverage]
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -229,43 +230,8 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     }
                 }
 
-                if (connectToTable == null)
+                if (connectToTable == null || connectToColumn == null)
                     throw new EfSqlException(EfExceptionCode.NoTableToConnect);
-
-                if (connectToColumn == null)
-                {
-                    //try to connect as other(fk)->this(pk)
-                    pk = table.PrimaryKey;
-
-                    if (pk == null)
-                        throw new EfSqlException(EfExceptionCode.NoPrimaryKeyInTable, table.Name);
-
-                    foreach (TableDescriptor.ColumnInfo column in connectToTable.Table)
-                    {
-                        if (column.ForeignKey && column.ForeignTable == table)
-                        {
-                            connectingColumn = pk;
-                            connectToColumn = column;
-                        }
-                    }
-
-                    //try to connect as other(pk)->this(fk)
-                    if (connectToColumn == null)
-                    {
-                        pk = connectToTable.Table.PrimaryKey;
-                        foreach (TableDescriptor.ColumnInfo column in table)
-                        {
-                            if (column.ForeignKey && column.ForeignTable == connectToTable.Table)
-                            {
-                                connectingColumn = pk;
-                                connectToColumn = column;
-                            }
-                        }
-                    }
-
-                    if (connectToColumn == null)
-                        throw new EfSqlException(EfExceptionCode.NoColumnToConnect);
-                }
             }
             return AddTable(table, connectingColumn, joinType, connectToTable, connectToColumn);
         }
@@ -277,6 +243,25 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="queryEntity"></param>
         /// <returns></returns>
         public abstract string GetAlias(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity queryEntity);
+
+        /// <summary>
+        /// Gets reference to a column of the specified query table.
+        ///
+        /// The reference is used when a sub-query condition need to have a reference to an entity in the main query.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column) => new InQueryFieldReference(GetAlias(column, null));
+
+        /// <summary>
+        /// Gets reference to a column of the specified query table.
+        ///
+        /// The reference is used when a sub-query condition need to have a reference to an entity in the main query.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="entity">The table involved into the query to which the column belongs to</param>
+        /// <returns></returns>
+        public IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity) => new InQueryFieldReference(GetAlias(column, entity));
     }
 
     [ExcludeFromCodeCoverage]
@@ -403,14 +388,5 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
             return $"{columnInfo.Table.Name}.{columnInfo.Name}";
         }
-
-        /// <summary>
-        /// Gets reference to a column of the specified query table.
-        ///
-        /// The reference is used when a sub-query condition need to have a reference to an entity in the main query.
-        /// </summary>
-        /// <param name="column"></param>
-        /// <returns></returns>
-        public override IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column) => new InQueryFieldReference(GetAlias(column, null));
     }
 }

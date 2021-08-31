@@ -49,10 +49,13 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             [EntityProperty]
             public int? Nullable { get; set; }
 
+            [EntityProperty]
+            public byte[] Binary { get; set; }
+
             public int NotToBeConsidered { get; set; }
         }
 
-        private Data Create(int dataKey = 1, int dictionaryKey = 2, string dictionaryName = "dictname",
+        private static Data Create(int dataKey = 1, int dictionaryKey = 2, string dictionaryName = "dictname",
                             DateTime? date = null,
                             DateTime? stamp = null,
                             double number = 1.234, int integer = 1234, bool flag = true, int? nullable = 123)
@@ -73,6 +76,8 @@ namespace Gehtsoft.EF.Test.Entity.Tools
                 Number = number,
                 Integer = integer,
                 Nullable = nullable,
+                Flag = flag,
+                Binary = new byte[] { 1, 2, 3 }
             };
         }
 
@@ -121,11 +126,11 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             var f = Create();
 
             var s = Create();
-            s.Key += 1;
+            s.Key += 2;
             EntityComparerHelper.Equals(f, s).Should().BeFalse();
 
             s = Create();
-            s.Dictionary.Key += 1;
+            s.Dictionary.Key += 2;
             EntityComparerHelper.Equals(f, s).Should().BeFalse();
 
             s = Create();
@@ -133,11 +138,11 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             EntityComparerHelper.Equals(f, s).Should().BeFalse();
 
             s = Create();
-            s.Number += 1;
+            s.Number += 2;
             EntityComparerHelper.Equals(f, s).Should().BeFalse();
 
             s = Create();
-            s.Integer += 1;
+            s.Integer += 2;
             EntityComparerHelper.Equals(f, s).Should().BeFalse();
 
             s = Create();
@@ -145,8 +150,30 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             EntityComparerHelper.Equals(f, s).Should().BeFalse();
 
             s = Create();
-            s.Number += 1;
+            s.Number += 2;
             EntityComparerHelper.Equals(f, s).Should().BeFalse();
+
+            s = Create();
+            s.Date = s.Date.AddDays(1);
+            EntityComparerHelper.Equals(f, s).Should().BeFalse();
+
+            s = Create();
+            s.Stamp = s.Date.AddSeconds(1);
+            EntityComparerHelper.Equals(f, s).Should().BeFalse();
+
+            s = Create();
+            s.Binary = null;
+            EntityComparerHelper.Equals(f, s).Should().BeFalse();
+
+            s = Create();
+            s.Binary = new byte[] { 1, 2 };
+            EntityComparerHelper.Equals(f, s).Should().BeFalse();
+
+            s = Create();
+            s.Binary = new byte[] { 1, 2, 4 };
+            EntityComparerHelper.Equals(f, s).Should().BeFalse();
+
+            EntityComparerHelper.Equals(f, "").Should().BeFalse();
         }
 
         [Fact]
@@ -163,17 +190,23 @@ namespace Gehtsoft.EF.Test.Entity.Tools
         }
 
         [Fact]
+        public void HashNull()
+        {
+            EntityComparerHelper.GetHashCode(null).Should().Be(0.GetHashCode());
+        }
+
+        [Fact]
         public void HashDifferent()
         {
             var f = Create();
 
             var s = Create();
-            s.Key += 1;
+            s.Key += 2;
             (EntityComparerHelper.GetHashCode(f) == EntityComparerHelper.GetHashCode(s))
                .Should().BeFalse();
 
             s = Create();
-            s.Dictionary.Key += 1;
+            s.Dictionary.Key += 2;
             (EntityComparerHelper.GetHashCode(f) == EntityComparerHelper.GetHashCode(s))
                .Should().BeFalse();
 
@@ -183,12 +216,12 @@ namespace Gehtsoft.EF.Test.Entity.Tools
                .Should().BeFalse();
 
             s = Create();
-            s.Number += 1;
+            s.Number += 2;
             (EntityComparerHelper.GetHashCode(f) == EntityComparerHelper.GetHashCode(s))
                .Should().BeFalse();
 
             s = Create();
-            s.Integer += 1;
+            s.Integer += 2;
             (EntityComparerHelper.GetHashCode(f) == EntityComparerHelper.GetHashCode(s))
                .Should().BeFalse();
 
@@ -198,7 +231,7 @@ namespace Gehtsoft.EF.Test.Entity.Tools
                .Should().BeFalse();
 
             s = Create();
-            s.Number += 1;
+            s.Number += 2;
             (EntityComparerHelper.GetHashCode(f) == EntityComparerHelper.GetHashCode(s))
                .Should().BeFalse();
         }
@@ -216,7 +249,7 @@ namespace Gehtsoft.EF.Test.Entity.Tools
                .Should().BeTrue();
         }
 
-        private void AddCode(Dictionary<int, int> codes, int code)
+        private static void AddCode(Dictionary<int, int> codes, int code)
         {
             if (codes.TryGetValue(code, out var count))
                 codes[code] = count + 1;
@@ -271,3 +304,5 @@ namespace Gehtsoft.EF.Test.Entity.Tools
         }
     }
 }
+
+

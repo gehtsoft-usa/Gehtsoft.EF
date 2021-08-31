@@ -54,6 +54,14 @@ namespace Gehtsoft.EF.Test.Entity.Tools
                 .NotBeNull()
                 .And.BeOfType<string>()
                 .And.Be("789");
+
+            var e3 = new Entity2 { Id = null, Name = "name" };
+
+            e3.GetEfEntityId().Should().BeNull();
+
+            e3.GetEfEntityId(typeof(int)).Should().Be(0);
+
+            ((Action)(() => ((object)null).GetEfEntityId())).Should().Throw<ArgumentException>();
         }
 
         [Fact]

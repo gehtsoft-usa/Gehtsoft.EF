@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Gehtsoft.EF.Utils;
 
@@ -297,6 +298,13 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public ColumnInfo this[string id] => mColumnsIndex[id];
 
         /// <summary>
+        /// Checks whether the table has the column with the ID specified.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public bool HasColumn(string id) => mColumnsIndex.ContainsKey(id);
+
+        /// <summary>
         /// Constructor
         /// </summary>
         public TableDescriptor()
@@ -359,12 +367,14 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable)mColumns).GetEnumerator();
         }
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public bool Equals(TableDescriptor other)
         {
             if (other is null) return false;
@@ -373,6 +383,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public override bool Equals(object obj)
         {
             if (obj is null) return false;
@@ -382,6 +393,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public override int GetHashCode()
         {
             unchecked

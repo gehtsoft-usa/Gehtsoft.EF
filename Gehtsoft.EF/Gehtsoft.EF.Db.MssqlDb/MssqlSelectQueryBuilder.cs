@@ -62,7 +62,12 @@ namespace Gehtsoft.EF.Db.MssqlDb
                 query
                     .Append(" OFFSET ")
                     .Append(Skip)
-                    .Append(" ROWS FETCH NEXT ")
+                    .Append(" ROW ");
+            }
+
+            if (Limit > 0)
+            {
+                query.Append(" FETCH NEXT ")
                     .Append(Limit)
                     .Append(" ROWS ONLY");
             }

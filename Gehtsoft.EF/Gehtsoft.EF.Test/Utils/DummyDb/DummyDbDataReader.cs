@@ -4,6 +4,8 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
+#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
+
 namespace Gehtsoft.EF.Test.Utils.DummyDb
 {
     internal class DummyDbDataReader : DbDataReader

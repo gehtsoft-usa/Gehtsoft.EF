@@ -338,5 +338,28 @@ namespace Gehtsoft.EF.Test.Entity.Context
 
             condition.Verify();
         }
+
+        [Theory]
+        [InlineData(nameof(EntityFilterBuilderExtension.And), LogOp.And)]
+        [InlineData(nameof(EntityFilterBuilderExtension.AndNot), LogOp.And | LogOp.Not)]
+        [InlineData(nameof(EntityFilterBuilderExtension.Or), LogOp.Or)]
+        [InlineData(nameof(EntityFilterBuilderExtension.OrNot), LogOp.Or | LogOp.Not)]
+        public void GroupCondition_Simple(string name, LogOp op)
+        {
+            var condition = new Mock<IContextFilterCondition>(MockBehavior.Strict);
+
+            var filter = new Mock<IContextFilter>(MockBehavior.Strict);
+            filter.Setup(c => c.Add(It.Is<LogOp>(v => v == op)))
+                .Returns(condition.Object)
+                .Verifiable();
+
+            var method = typeof(EntityFilterBuilderExtension).GetMethod(name, new Type[] { typeof(IContextFilter) });
+            method.Should().NotBeNull()
+                .And.Subject.IsStatic.Should().BeTrue();
+
+            method.Invoke(null, new object[] { filter.Object });
+
+            filter.Verify();
+        }
     }
 }

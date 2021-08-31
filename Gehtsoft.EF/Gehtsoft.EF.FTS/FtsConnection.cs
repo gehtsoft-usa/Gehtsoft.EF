@@ -11,6 +11,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 using Gehtsoft.Tools.TypeUtils;
 
 namespace Gehtsoft.EF.FTS
@@ -19,7 +20,7 @@ namespace Gehtsoft.EF.FTS
     {
         private static readonly Type[] gTypes = new Type[] { typeof(FtsWordEntity), typeof(FtsObjectEntity), typeof(FtsWord2ObjectEntity) };
 
-        private static async Task FtsCreateTablesCore(this SqlDbConnection connection, bool sync, CancellationToken? token)
+        private static async ValueTask FtsCreateTablesCore(this SqlDbConnection connection, bool sync, CancellationToken? token)
         {
             foreach (Type t in gTypes.Reverse())
             {
@@ -44,8 +45,11 @@ namespace Gehtsoft.EF.FTS
             }
         }
 
-        public static void FtsCreateTables(this SqlDbConnection connection) => connection.FtsCreateTablesCore(true, null).ConfigureAwait(false).GetAwaiter().GetResult();
-        public static Task FtsCreateTablesAsync(this SqlDbConnection connection, CancellationToken? token = null) => connection.FtsCreateTablesCore(false, token);
+        public static void FtsCreateTables(this SqlDbConnection connection)
+            => connection.FtsCreateTablesCore(true, null).SyncOp();
+        public static Task FtsCreateTablesAsync(this SqlDbConnection connection, CancellationToken? token = null)
+            => connection.FtsCreateTablesCore(false, token).AsTask();
+
         public static void FtsDropTables(this SqlDbConnection connection)
         {
             foreach (Type t in gTypes.Reverse())
@@ -63,7 +67,7 @@ namespace Gehtsoft.EF.FTS
             }
         }
 
-        private static async Task<bool> DoesFtsTableExistCore(this SqlDbConnection connection, bool sync, CancellationToken? token)
+        private static async ValueTask<bool> DoesFtsTableExistCore(this SqlDbConnection connection, bool sync, CancellationToken? token)
         {
             TableDescriptor[] schema;
 
@@ -91,11 +95,13 @@ namespace Gehtsoft.EF.FTS
 #pragma warning restore S2589 
         }
 
-        public static bool DoesFtsTableExist(this SqlDbConnection connection) => connection.DoesFtsTableExistCore(true, null).ConfigureAwait(false).GetAwaiter().GetResult();
+        public static bool DoesFtsTableExist(this SqlDbConnection connection)
+            => connection.DoesFtsTableExistCore(true, null).SyncResult();
 
-        public static Task<bool> DoesFtsTableExistAsync(this SqlDbConnection connection, CancellationToken? token = null) => connection.DoesFtsTableExistCore(false, token);
+        public static Task<bool> DoesFtsTableExistAsync(this SqlDbConnection connection, CancellationToken? token = null)
+            => connection.DoesFtsTableExistCore(false, token).AsTask();
 
-        private static async Task<FtsObjectEntity> FtsFindOrCreateObjectCore(this SqlDbConnection connection, bool sync, string objectID, string objectType, string sorter, bool forceCreate, CancellationToken? token)
+        private static async ValueTask<FtsObjectEntity> FtsFindOrCreateObjectCore(this SqlDbConnection connection, bool sync, string objectID, string objectType, string sorter, bool forceCreate, CancellationToken? token)
         {
             FtsObjectEntity entity;
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery(typeof(FtsObjectEntity)))
@@ -125,7 +131,7 @@ namespace Gehtsoft.EF.FTS
             }
         }
 
-        private static async Task<FtsWordEntity> FtsFindOrCreateWordCore(this SqlDbConnection connection, bool sync, string word, CancellationToken? token)
+        private static async ValueTask<FtsWordEntity> FtsFindOrCreateWordCore(this SqlDbConnection connection, bool sync, string word, CancellationToken? token)
         {
             word = word.ToUpper();
             FtsWordEntity entity;
@@ -156,12 +162,12 @@ namespace Gehtsoft.EF.FTS
             connection.FtsSetObjectText(type, objectID, objectID, text);
         }
 
-        public static async Task FtsSetObjectTextAsync(this SqlDbConnection connection, string type, string objectID, string text, CancellationToken? token = null)
+        public static Task FtsSetObjectTextAsync(this SqlDbConnection connection, string type, string objectID, string text, CancellationToken? token = null)
         {
-            await connection.FtsSetObjectTextAsync(type, objectID, objectID, text, token);
+            return connection.FtsSetObjectTextAsync(type, objectID, objectID, text, token);
         }
 
-        private static async Task FtsSetObjectTextCore(this SqlDbConnection connection, bool sync, string type, string objectID, string sorter, string text, CancellationToken? token)
+        private static async ValueTask FtsSetObjectTextCore(this SqlDbConnection connection, bool sync, string type, string objectID, string sorter, string text, CancellationToken? token)
         {
             string[] words = StringUtils.ParseToWords(text, false);
             FtsObjectEntity objectEntity;
@@ -200,10 +206,12 @@ namespace Gehtsoft.EF.FTS
             }
         }
 
-        public static void FtsSetObjectText(this SqlDbConnection connection, string type, string objectID, string sorter, string text) => connection.FtsSetObjectTextCore(true, type, objectID, sorter, text, null).ConfigureAwait(false).GetAwaiter().GetResult();
-        public static Task FtsSetObjectTextAsync(this SqlDbConnection connection, string type, string objectID, string sorter, string text, CancellationToken? token = null) => connection.FtsSetObjectTextCore(false, type, objectID, sorter, text, token);
+        public static void FtsSetObjectText(this SqlDbConnection connection, string type, string objectID, string sorter, string text)
+            => connection.FtsSetObjectTextCore(true, type, objectID, sorter, text, null).SyncOp();
+        public static Task FtsSetObjectTextAsync(this SqlDbConnection connection, string type, string objectID, string sorter, string text, CancellationToken? token = null)
+            => connection.FtsSetObjectTextCore(false, type, objectID, sorter, text, token).AsTask();
 
-        private static async Task FtsDeleteObjectCore(this SqlDbConnection connection, bool sync, string type, string objectID, CancellationToken? token)
+        private static async ValueTask FtsDeleteObjectCore(this SqlDbConnection connection, bool sync, string type, string objectID, CancellationToken? token)
         {
             FtsObjectEntity entity;
 
@@ -237,11 +245,13 @@ namespace Gehtsoft.EF.FTS
             }
         }
 
-        public static void FtsDeleteObject(this SqlDbConnection connection, string type, string objectID) => FtsDeleteObjectCore(connection, true, type, objectID, null).ConfigureAwait(false).GetAwaiter().GetResult();
+        public static void FtsDeleteObject(this SqlDbConnection connection, string type, string objectID)
+            => FtsDeleteObjectCore(connection, true, type, objectID, null).SyncOp();
 
-        public static Task FtsDeleteObjectAsync(this SqlDbConnection connection, string type, string objectID, CancellationToken? token = null) => FtsDeleteObjectCore(connection, false, type, objectID, token);
+        public static Task FtsDeleteObjectAsync(this SqlDbConnection connection, string type, string objectID, CancellationToken? token = null)
+            => FtsDeleteObjectCore(connection, false, type, objectID, token).AsTask();
 
-        private static async Task FtsCleanupWordsCore(this SqlDbConnection connection, bool sync, CancellationToken? token)
+        private static async ValueTask FtsCleanupWordsCore(this SqlDbConnection connection, bool sync, CancellationToken? token)
         {
             TableDescriptor words = AllEntities.Inst[typeof(FtsWordEntity)].TableDescriptor;
             TableDescriptor words2objects = AllEntities.Inst[typeof(FtsWord2ObjectEntity)].TableDescriptor;
@@ -301,8 +311,11 @@ namespace Gehtsoft.EF.FTS
             }
         }
 
-        public static void FtsCleanupWords(this SqlDbConnection connection) => FtsCleanupWordsCore(connection, true, null).ConfigureAwait(false).GetAwaiter().GetResult();
-        public static Task FtsCleanupWordsAsync(this SqlDbConnection connection, CancellationToken? token = null) => FtsCleanupWordsCore(connection, false, token);
+        public static void FtsCleanupWords(this SqlDbConnection connection)
+            => FtsCleanupWordsCore(connection, true, null).SyncOp();
+
+        public static Task FtsCleanupWordsAsync(this SqlDbConnection connection, CancellationToken? token = null)
+            => FtsCleanupWordsCore(connection, false, token).AsTask();
 
         private static int gParamBase = 1;
 
@@ -415,7 +428,7 @@ namespace Gehtsoft.EF.FTS
             return builder;
         }
 
-        private static async Task<int> FtsCountObjectsCore(this SqlDbConnection connection, bool sync, string text, bool allWords, string[] types, CancellationToken? token)
+        private static async ValueTask<int> FtsCountObjectsCore(this SqlDbConnection connection, bool sync, string text, bool allWords, string[] types, CancellationToken? token)
         {
             FtsSelectQueryBuilder builder = FtsBuildQuery(connection, FtsSelectQueryBuilder.QueryType.Count, text, true, allWords, types, 0, 0);
             using (SqlDbQuery query = connection.GetQuery(builder))
@@ -438,11 +451,13 @@ namespace Gehtsoft.EF.FTS
             }
         }
 
-        public static int FtsCountObjects(this SqlDbConnection connection, string text, bool allWords = false, string[] types = null) => FtsCountObjectsCore(connection, true, text, allWords, types, null).ConfigureAwait(false).GetAwaiter().GetResult();
+        public static int FtsCountObjects(this SqlDbConnection connection, string text, bool allWords = false, string[] types = null)
+            => FtsCountObjectsCore(connection, true, text, allWords, types, null).SyncResult();
 
-        public static Task<int> FtsCountObjectsAsync(this SqlDbConnection connection, string text, bool allWords = false, string[] types = null, CancellationToken? token = null) => FtsCountObjectsCore(connection, false, text, allWords, types, token);
+        public static Task<int> FtsCountObjectsAsync(this SqlDbConnection connection, string text, bool allWords = false, string[] types = null, CancellationToken? token = null)
+            => FtsCountObjectsCore(connection, false, text, allWords, types, token).AsTask();
 
-        private static async Task<FtsObjectEntityCollection> FtsGetObjectsCore(this SqlDbConnection connection, bool sync, string text, bool allWords, string[] types, int limit, int skip, CancellationToken? token)
+        private static async ValueTask<FtsObjectEntityCollection> FtsGetObjectsCore(this SqlDbConnection connection, bool sync, string text, bool allWords, string[] types, int limit, int skip, CancellationToken? token)
         {
             FtsSelectQueryBuilder builder = FtsBuildQuery(connection, FtsSelectQueryBuilder.QueryType.ObjectList, text, true, allWords, types, limit, skip);
             using (SqlDbQuery query = connection.GetQuery(builder))
@@ -454,9 +469,9 @@ namespace Gehtsoft.EF.FTS
                     await query.ExecuteReaderAsync(token);
 
                 FtsObjectEntityCollection collection = new FtsObjectEntityCollection();
-                SelectQueryTypeBinder binder = new SelectQueryTypeBinder(typeof(FtsObjectEntity));
+                SelectQueryResultBinder binder = new SelectQueryResultBinder(typeof(FtsObjectEntity));
                 foreach (TableDescriptor.ColumnInfo ci in AllEntities.Inst[typeof(FtsObjectEntity)].TableDescriptor)
-                    binder.AddBinding(ci.Name, ci.PropertyAccessor, ci.PrimaryKey);
+                    binder.AddBinding(-1, ci.Name, ci.PropertyAccessor, ci.PrimaryKey);
 
                 if (sync)
                 {
@@ -474,12 +489,12 @@ namespace Gehtsoft.EF.FTS
         }
 
         public static FtsObjectEntityCollection FtsGetObjects(this SqlDbConnection connection, string text, bool allWords = false, string[] types = null, int limit = 0, int skip = 0)
-            => connection.FtsGetObjectsCore(true, text, allWords, types, limit, skip, null).ConfigureAwait(false).GetAwaiter().GetResult();
+            => connection.FtsGetObjectsCore(true, text, allWords, types, limit, skip, null).SyncResult();
 
         public static Task<FtsObjectEntityCollection> FtsGetObjectsAsync(this SqlDbConnection connection, string text, bool allWords = false, string[] types = null, int limit = 0, int skip = 0, CancellationToken? token = null)
-            => connection.FtsGetObjectsCore(false, text, allWords, types, limit, skip, token);
+            => connection.FtsGetObjectsCore(false, text, allWords, types, limit, skip, token).AsTask();
 
-        private static async Task<FtsWordEntityCollection> FtsGetWordsCore(this SqlDbConnection connection, bool sync, string mask, int limit, int skip, CancellationToken? token)
+        private static async ValueTask<FtsWordEntityCollection> FtsGetWordsCore(this SqlDbConnection connection, bool sync, string mask, int limit, int skip, CancellationToken? token)
         {
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery(typeof(FtsWordEntity)))
             {
@@ -501,10 +516,10 @@ namespace Gehtsoft.EF.FTS
         }
 
         public static FtsWordEntityCollection FtsGetWords(this SqlDbConnection connection, string mask, int limit, int skip)
-            => connection.FtsGetWordsCore(true, mask, limit, skip, null).ConfigureAwait(false).GetAwaiter().GetResult();
+            => connection.FtsGetWordsCore(true, mask, limit, skip, null).SyncResult();
 
         public static Task<FtsWordEntityCollection> FtsGetWordsAsync(this SqlDbConnection connection, string mask, int limit, int skip, CancellationToken? token = null)
-            => connection.FtsGetWordsCore(true, mask, limit, skip, token);
+            => connection.FtsGetWordsCore(true, mask, limit, skip, token).AsTask();
     }
 
     public class FtsSelectQueryBuilder : AQueryBuilder

@@ -187,8 +187,8 @@ namespace TestApp
 
             SelectQueryBuilder sbuilder = connection.GetSelectQueryBuilder(gCreateDropTable);
             sbuilder.AddOrderBy(gCreateDropTable["vint_pk"]);
-            SelectQueryTypeBinder binder = new SelectQueryTypeBinder(typeof(TestEntity));
-            binder.AutoBind(null);
+            SelectQueryResultBinder binder = new SelectQueryResultBinder(typeof(TestEntity));
+            binder.AutoBindType();
 
             TestEntity e;
             using (query = connection.GetQuery(sbuilder))

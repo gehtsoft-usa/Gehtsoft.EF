@@ -25,14 +25,5 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// You must call <see cref="PrepareQuery"/> before getting the query.
         /// </summary>
         public abstract string Query { get; }
-
-        /// <summary>
-        /// Gets a reference to a column of the associated entity.
-        ///
-        /// The reference is used when sub-query condition must have a reference to the main query.
-        /// </summary>
-        /// <param name="column"></param>
-        /// <returns></returns>
-        public virtual IInQueryFieldReference GetReference(TableDescriptor.ColumnInfo column) => throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
     }
 }

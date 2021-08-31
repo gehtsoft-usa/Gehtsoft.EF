@@ -25,6 +25,9 @@ namespace Gehtsoft.EF.Test.Entity.Tools
         {
             [AutoId]
             public int ID { get; set; }
+
+            [ObsoleteEntityProperty(ForeignKey = true)]
+            public Entity2Obsolete ObsoleteFK { get; set; }
         }
 
         [ObsoleteEntity(Scope = "finder1")]
@@ -36,6 +39,29 @@ namespace Gehtsoft.EF.Test.Entity.Tools
 
         [ObsoleteEntity(Scope = "finder2")]
         public class Entity2Obsolete
+        {
+            [AutoId]
+            public int ID { get; set; }
+        }
+
+        [Entity(Scope = "finder3", View = true)]
+        public class Entity3View
+        {
+            [AutoId]
+            public int ID { get; set; }
+        }
+
+        [Entity(Scope = "finder3")]
+        public class Entity3Table1
+        {
+            [AutoId]
+            public int ID { get; set; }
+            [ForeignKey]
+            public Entity3Table2 Key { get; set; }
+        }
+
+        [Entity(Scope = "finder3")]
+        public class Entity3Table2
         {
             [AutoId]
             public int ID { get; set; }
@@ -124,6 +150,28 @@ namespace Gehtsoft.EF.Test.Entity.Tools
 
             entities.Should().HaveOneElementAfterTheOther(product, order_detail);
             entities.Should().HaveOneElementAfterTheOther(order, order_detail);
+        }
+
+        [Fact]
+        public void ProperOrder_Obsolete()
+        {
+            var entities = EntityFinder.FindEntities(new Assembly[] { typeof(Entity2).Assembly }, "finder2", true);
+            EntityFinder.ArrageEntities(entities);
+            var e1 = entities.First(eti => eti.EntityType == typeof(Entity2));
+            var e2 = entities.First(eti => eti.EntityType == typeof(Entity2Obsolete));
+            entities.Should().HaveOneElementAfterTheOther(e2, e1);
+        }
+
+        [Fact]
+        public void ProperOrder_ViewLast()
+        {
+            var entities = EntityFinder.FindEntities(new Assembly[] { typeof(Entity2).Assembly }, "finder3", true);
+
+            EntityFinder.ArrageEntities(entities);
+
+            entities[0].EntityType.Should().Be(typeof(Entity3Table2));
+            entities[1].EntityType.Should().Be(typeof(Entity3Table1));
+            entities[2].EntityType.Should().Be(typeof(Entity3View));
         }
 
         [Fact]

@@ -702,6 +702,9 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <returns></returns>
         public virtual object GetValue(int column, Type type)
         {
+            if (type == typeof(object))
+                return GetValue(column);
+
             return mSpecifics.TranslateValue(IsNull(column) ? null : GetValue(column), type);
         }
 

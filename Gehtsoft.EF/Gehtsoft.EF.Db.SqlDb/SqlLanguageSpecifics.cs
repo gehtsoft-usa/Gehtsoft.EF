@@ -646,6 +646,8 @@ namespace Gehtsoft.EF.Db.SqlDb
         {
             return new ParameterGroupQueryBuilder(this);
         }
+
+        public virtual bool SelectRequiresLimitWhenOffsetIsSet => false;
     }
 
     internal class Sql92LanguageSpecifics : SqlDbLanguageSpecifics

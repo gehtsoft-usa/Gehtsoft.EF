@@ -371,6 +371,47 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
                                               .And.HaveFieldName("col2")));
         }
 
+        [Theory]
+        [InlineData(nameof(SqlFunctionId.Abs), "ABS")]
+        [InlineData(nameof(SqlFunctionId.Upper), "UPPER")]
+        [InlineData(nameof(SqlFunctionId.Lower), "LOWER")]
+        [InlineData(nameof(SqlFunctionId.Max), "MAX")]
+        [InlineData(nameof(SqlFunctionId.Min), "MIN")]
+        [InlineData(nameof(SqlFunctionId.Avg), "AVG")]
+        [InlineData(nameof(SqlFunctionId.Sum), "SUM")]
+        public void WrapViaExension(string function, string expectedFunction)
+        {
+            var builder = new ConditionBuilder(mProvider);
+
+            var m = typeof(SingleConditionBuilderExtension).GetMethod(function);
+            m.Should().NotBeNull()
+                .And.Subject.GetParameters()
+                    .Should().HaveCount(1)
+                    .And.Subject.As<ParameterInfo[]>()[0].ParameterType
+                        .Should().Be(typeof(SingleConditionBuilder));
+
+            var sb = builder.And().Property(mTable1[1]);
+            sb = (SingleConditionBuilder)m.Invoke(null, new object[] { sb });
+            sb.Gt().Value(2);
+
+            var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
+
+            expr.ExprOp().Should().Be("GT_OP");
+
+            var l = expr.ExprOpArg(0);
+
+            l.Should().BeCallExpression(expectedFunction);
+
+            var a = l.ExprFnCallArg(0);
+
+            a.Should().BeFieldExpression()
+                .And.HaveFieldAlias("table1")
+                .And.HaveFieldName("col2");
+
+            expr.ExprOpArg(1)
+                .Should().BeConstant(2);
+        }
+
         [Fact]
         public void CountLeft()
         {
@@ -475,15 +516,31 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.Add(LogOp.And, "TRUE");
         }
 
-        private void SecondAnd_ShouldBeAdded_Extension(ConditionBuilder builder)
+        private void SecondAnd_ShouldBeAdded_Extension1(ConditionBuilder builder)
         {
             builder.And().Raw("FALSE");
             builder.And().Raw("TRUE");
         }
 
+        private void SecondAnd_ShouldBeAdded_Extension2(ConditionBuilder builder)
+        {
+            builder.And()
+                .Raw("FALSE")
+                .And().Raw("TRUE");
+        }
+
+        private void SecondAnd_ShouldBeAdded_Extension3(ConditionBuilder builder)
+        {
+            builder.And()
+                .Raw("FALSE")
+                .And(g => g.Raw("TRUE"));
+        }
+
         [Theory]
         [InlineData(nameof(SecondAnd_ShouldBeAdded_Direct))]
-        [InlineData(nameof(SecondAnd_ShouldBeAdded_Extension))]
+        [InlineData(nameof(SecondAnd_ShouldBeAdded_Extension1))]
+        [InlineData(nameof(SecondAnd_ShouldBeAdded_Extension2))]
+        [InlineData(nameof(SecondAnd_ShouldBeAdded_Extension3))]
         public void SecondAnd_ShouldBeAdded(string method)
         {
             var builder = new ConditionBuilder(mProvider);
@@ -503,15 +560,29 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.Add(LogOp.Or, "TRUE");
         }
 
-        private void SecondOr_ShouldBeAdded_Extension(ConditionBuilder builder)
+        private void SecondOr_ShouldBeAdded_Extension1(ConditionBuilder builder)
         {
             builder.Or().Raw("FALSE");
             builder.Or().Raw("TRUE");
         }
 
+        private void SecondOr_ShouldBeAdded_Extension2(ConditionBuilder builder)
+        {
+            builder.Or().Raw("FALSE")
+                .Or().Raw("TRUE");
+        }
+
+        private void SecondOr_ShouldBeAdded_Extension3(ConditionBuilder builder)
+        {
+            builder.Or().Raw("FALSE")
+                .Or(g => g.Raw("TRUE"));
+        }
+
         [Theory]
         [InlineData(nameof(SecondOr_ShouldBeAdded_Direct))]
-        [InlineData(nameof(SecondOr_ShouldBeAdded_Extension))]
+        [InlineData(nameof(SecondOr_ShouldBeAdded_Extension1))]
+        [InlineData(nameof(SecondOr_ShouldBeAdded_Extension2))]
+        [InlineData(nameof(SecondOr_ShouldBeAdded_Extension3))]
         public void SecondOr_ShouldBeAdded(string method)
         {
             var builder = new ConditionBuilder(mProvider);
@@ -528,14 +599,16 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         private void Not_FirstArg1_Extension(ConditionBuilder builder) => builder.Not().Raw("TRUE");
         private void Not_FirstArg1_ViaGroup(ConditionBuilder builder) => builder.Add(LogOp.Not, g => g.Raw("TRUE"));
         private void Not_FirstArg2_Direct(ConditionBuilder builder) => builder.Add(LogOp.Not | LogOp.And, "TRUE");
-        private void Not_FirstArg2_Extension(ConditionBuilder builder) => builder.AndNot().Raw("TRUE");
+        private void Not_FirstArg2_Extension1(ConditionBuilder builder) => builder.AndNot().Raw("TRUE");
+        private void Not_FirstArg2_Extension2(ConditionBuilder builder) => builder.OrNot().Raw("TRUE");
 
         [Theory]
         [InlineData(nameof(Not_FirstArg1_Direct))]
         [InlineData(nameof(Not_FirstArg1_Extension))]
         [InlineData(nameof(Not_FirstArg1_ViaGroup))]
         [InlineData(nameof(Not_FirstArg2_Direct))]
-        [InlineData(nameof(Not_FirstArg2_Extension))]
+        [InlineData(nameof(Not_FirstArg2_Extension1))]
+        [InlineData(nameof(Not_FirstArg2_Extension2))]
 
         public void Not_FirstArg1(string method)
         {
