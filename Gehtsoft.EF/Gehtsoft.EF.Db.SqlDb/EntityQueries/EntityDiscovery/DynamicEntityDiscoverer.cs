@@ -4,7 +4,7 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-    internal class DynamicEntityDiscoverer : ColumnDisoverer, IEntityDisoverer
+    internal class DynamicEntityDiscoverer : ColumnDisoverer, IEntityDisoverer, IEntityProbe
     {
         private static readonly Type DynamicEntityType = typeof(DynamicEntity);
 
@@ -58,6 +58,80 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 CreateColumnDescriptor(type, entities, namingPolicy, descriptor, new DynamicPropertyAccessor(property));
             
             return descriptor;
+        }
+
+        public EntityFinder.EntityTypeInfo ProbeClass(Type type, string scope, bool includeObsolete)
+        {
+            EntityAttribute entityAttribute;
+            ObsoleteEntityAttribute obsoleteEntityAttribute;
+
+            if (!DynamicEntityType.IsAssignableFrom(type))
+                return null;
+
+            var dynamicEntity = (DynamicEntity)Activator.CreateInstance(type);
+            entityAttribute = dynamicEntity.EntityAttribute;
+
+            if (entityAttribute != null)
+            {
+                if (!string.IsNullOrEmpty(scope) && entityAttribute.Scope != scope)
+                    return null;
+
+                var eti = new EntityFinder.EntityTypeInfo()
+                {
+                    EntityType = type,
+                    Table = entityAttribute.Table,
+                    Scope = entityAttribute.Scope,
+                    NamingPolicy = entityAttribute.NamingPolicy,
+                    Obsolete = false,
+                    View = entityAttribute.View,
+                    Metadata = entityAttribute.Metadata,
+                };
+                FindDependencies(dynamicEntity, eti, includeObsolete);
+                return eti;
+            }
+            else
+            {
+                if (includeObsolete)
+                {
+                    obsoleteEntityAttribute = dynamicEntity.ObsoleteEntityAttribute;
+                    if (obsoleteEntityAttribute != null)
+                    {
+                        if (!string.IsNullOrEmpty(scope) && obsoleteEntityAttribute.Scope != scope)
+                            return null;
+
+                        var eti = new EntityFinder.EntityTypeInfo
+                        {
+                            EntityType = type,
+                            Scope = obsoleteEntityAttribute.Scope,
+                            Table = obsoleteEntityAttribute.Table,
+                            NamingPolicy = obsoleteEntityAttribute.NamingPolicy,
+                            Obsolete = true,
+                            View = obsoleteEntityAttribute.View,
+                            Metadata = obsoleteEntityAttribute.Metadata,
+                        };
+                        FindDependencies(dynamicEntity, eti, includeObsolete);
+                        return eti;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static void FindDependencies(DynamicEntity dynamicEntity, EntityFinder.EntityTypeInfo eti, bool includeObsolete)
+        {
+            foreach (var property in dynamicEntity.Properties)
+            {
+                EntityPropertyAttribute propertyAttribute = property.EntityPropertyAttribute;
+                if (propertyAttribute != null && propertyAttribute.ForeignKey)
+                    eti.DependsOn.Add(property.PropertyType);
+
+                if (includeObsolete)
+                {
+                    ObsoleteEntityPropertyAttribute obsoletePropertyAttribute = property.ObsoleteEntityPropertyAttribute;
+                    if (obsoletePropertyAttribute != null && obsoletePropertyAttribute.ForeignKey)
+                        eti.DependsOn.Add(property.PropertyType);
+                }
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -219,15 +220,110 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             }
         }
 
-        [Theory]
-        [InlineData(typeof(Order), typeof(Customer), true)]
-        [InlineData(typeof(Order), typeof(Employee), true)]
-        [InlineData(typeof(EmployeeTerritory), typeof(Employee), true)]
-        [InlineData(typeof(Order), typeof(Shipper), true)]
-        [InlineData(typeof(Employee), typeof(Order), false)]
-        public void DependsOn(Type type1, Type type2, bool dependsOn)
+        public class DynamicEntity1 : DynamicEntity
         {
-            var entities = EntityFinder.FindEntities(new Assembly[] { typeof(Order).Assembly }, "northwind", false);
+            public override EntityAttribute EntityAttribute => new EntityAttribute() { Scope = "finder4" };
+
+            protected override IEnumerable<IDynamicEntityProperty> InitializeProperties()
+            {
+                yield return new DynamicEntityProperty()
+                {
+                    PropertyType = typeof(int),
+                    Name = "Id",
+                    EntityPropertyAttribute = new EntityPropertyAttribute()
+                    {
+                        DbType = DbType.Int32,
+                        PrimaryKey = true,
+                        Autoincrement = true,
+                        AutoId = true,
+                    }
+                };
+            }
+        }
+
+        public class DynamicEntity2 : DynamicEntity
+        {
+            public override EntityAttribute EntityAttribute => new EntityAttribute() { Scope = "finder4" };
+
+            protected override IEnumerable<IDynamicEntityProperty> InitializeProperties()
+            {
+                yield return new DynamicEntityProperty()
+                {
+                    PropertyType = typeof(int),
+                    Name = "Id",
+                    EntityPropertyAttribute = new EntityPropertyAttribute()
+                    {
+                        DbType = DbType.Int32,
+                        PrimaryKey = true,
+                        Autoincrement = true,
+                        AutoId = true,
+                    }
+                };
+            }
+        }
+
+        public class DynamicEntity3 : DynamicEntity
+        {
+            public override EntityAttribute EntityAttribute => new EntityAttribute() { Scope = "finder4" };
+
+            protected override IEnumerable<IDynamicEntityProperty> InitializeProperties()
+            {
+                yield return new DynamicEntityProperty()
+                {
+                    PropertyType = typeof(int),
+                    Name = "Id",
+                    EntityPropertyAttribute = new EntityPropertyAttribute()
+                    {
+                        DbType = DbType.Int32,
+                        PrimaryKey = true,
+                        Autoincrement = true,
+                        AutoId = true,
+                    }
+                };
+
+                yield return new DynamicEntityProperty()
+                {
+                    PropertyType = typeof(DynamicEntity1),
+                    Name = "Ref",
+                    EntityPropertyAttribute = new EntityPropertyAttribute()
+                    {
+                        DbType = DbType.Int32,
+                        ForeignKey = true,
+                    }
+                };
+            }
+        }
+
+        static TestEntityFinder()
+        {
+            AllEntities.EnableDynamicEntityDiscoveryInEntityFinder();
+        }
+
+        [Fact]
+        public void FindsDynamic()
+        {
+            var entities = EntityFinder.FindEntities(new Assembly[] { GetType().Assembly }, "finder4", false);
+
+            entities.Should().HaveCount(3);
+            entities.Should().HaveElementMatching(m => m.EntityType == typeof(DynamicEntity1));
+            entities.Should().HaveElementMatching(m => m.EntityType == typeof(DynamicEntity2));
+            entities.Should().HaveElementMatching(m => m.EntityType == typeof(DynamicEntity3));
+        }
+
+        [Theory]
+        [InlineData(typeof(Order), typeof(Customer), true, "northwind")]
+        [InlineData(typeof(Order), typeof(Employee), true, "northwind")]
+        [InlineData(typeof(EmployeeTerritory), typeof(Employee), true, "northwind")]
+        [InlineData(typeof(Order), typeof(Shipper), true, "northwind")]
+        [InlineData(typeof(Employee), typeof(Order), false, "northwind")]
+
+        [InlineData(typeof(DynamicEntity1), typeof(DynamicEntity2), false, "finder4")]
+        [InlineData(typeof(DynamicEntity1), typeof(DynamicEntity3), false, "finder4")]
+        [InlineData(typeof(DynamicEntity3), typeof(DynamicEntity1), true, "finder4")]
+        public void DependsOn(Type type1, Type type2, bool dependsOn, string scope)
+        {
+
+            var entities = EntityFinder.FindEntities(new Assembly[] { GetType().Assembly, typeof(Order).Assembly }, scope, false);
 
             var e1 = entities.First(e => e.EntityType == type1);
             var e2 = entities.First(e => e.EntityType == type2);

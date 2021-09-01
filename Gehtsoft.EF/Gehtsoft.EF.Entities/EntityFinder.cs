@@ -12,6 +12,98 @@ using System.Diagnostics.CodeAnalysis;
 namespace Gehtsoft.EF.Entities
 {
     /// <summary>
+    /// The interface for custom entity probe.
+    /// 
+    /// Implement this interface to provide the custom way to 
+    /// recognize the entity.
+    /// </summary>
+    public interface IEntityProbe
+    {
+        /// <summary>
+        /// Probes the class whether it is an entity and 
+        /// returns the entity description if it is.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="scope"></param>
+        /// <param name="includeObsolete"></param>
+        /// <returns></returns>
+        EntityFinder.EntityTypeInfo ProbeClass(Type type, string scope, bool includeObsolete);
+    }
+
+    internal class EntityAttributeProbe : IEntityProbe
+    {
+        public EntityFinder.EntityTypeInfo ProbeClass(Type type, string scope, bool includeObsolete)
+        {
+            EntityAttribute entityAttribute;
+            ObsoleteEntityAttribute obsoleteEntityAttribute;
+
+            entityAttribute = type.GetTypeInfo().GetCustomAttribute<EntityAttribute>();
+            if (entityAttribute != null)
+            {
+                if (!string.IsNullOrEmpty(scope) && entityAttribute.Scope != scope)
+                    return null;
+
+                var eti = new EntityFinder.EntityTypeInfo()
+                {
+                    EntityType = type,
+                    Table = entityAttribute.Table,
+                    Scope = entityAttribute.Scope,
+                    NamingPolicy = entityAttribute.NamingPolicy,
+                    Obsolete = false,
+                    View = entityAttribute.View,
+                    Metadata = entityAttribute.Metadata,
+                };
+                FindDependencies(eti, includeObsolete);
+                return eti;
+            }
+            else
+            {
+                if (includeObsolete)
+                {
+                    obsoleteEntityAttribute = type.GetTypeInfo().GetCustomAttribute<ObsoleteEntityAttribute>();
+
+                    if (obsoleteEntityAttribute != null)
+                    {
+                        if (!string.IsNullOrEmpty(scope) && obsoleteEntityAttribute.Scope != scope)
+                            return null;
+
+                        var eti = new EntityFinder.EntityTypeInfo
+                        {
+                            EntityType = type,
+                            Scope = obsoleteEntityAttribute.Scope,
+                            Table = obsoleteEntityAttribute.Table,
+                            NamingPolicy = obsoleteEntityAttribute.NamingPolicy,
+                            Obsolete = true,
+                            View = obsoleteEntityAttribute.View,
+                            Metadata = obsoleteEntityAttribute.Metadata,
+                        };
+                        FindDependencies(eti, includeObsolete);
+                        return eti;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static void FindDependencies(EntityFinder.EntityTypeInfo eti, bool includeObsolete)
+        {
+            foreach (PropertyInfo property in eti.EntityType.GetTypeInfo().GetProperties())
+            {
+                EntityPropertyAttribute propertyAttribute = property.GetCustomAttribute<EntityPropertyAttribute>();
+                if (propertyAttribute != null && propertyAttribute.ForeignKey)
+                    eti.DependsOn.Add(property.PropertyType);
+
+                if (includeObsolete)
+                {
+                    ObsoleteEntityPropertyAttribute obsoletePropertyAttribute = property.GetCustomAttribute<ObsoleteEntityPropertyAttribute>();
+                    if (obsoletePropertyAttribute != null && obsoletePropertyAttribute.ForeignKey)
+                        eti.DependsOn.Add(property.PropertyType);
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// The class to find all entity types.
     /// </summary>
     public static class EntityFinder
@@ -134,6 +226,22 @@ namespace Gehtsoft.EF.Entities
             }
         }
 
+        private static List<IEntityProbe> mProbes = new List<IEntityProbe>();
+
+        public static bool AddProbe(IEntityProbe probe)
+        {
+            for (int i = 0; i < mProbes.Count; i++)
+                if (mProbes[i].GetType() == probe.GetType())
+                    return false;
+            mProbes.Add(probe);
+            return true;
+        }
+
+        static EntityFinder()
+        {
+            AddProbe(new EntityAttributeProbe());
+        }
+
         /// <summary>
         /// Finds entities.
         /// </summary>
@@ -150,52 +258,18 @@ namespace Gehtsoft.EF.Entities
             {
                 foreach (Type type in asm.GetTypes())
                 {
-                    EntityAttribute entityAttribute;
-                    ObsoleteEntityAttribute obsoleteEntityAttribute;
+                    EntityTypeInfo eti = null;
+                    for (int i = 0; i < mProbes.Count && eti == null; i++)
+                        eti = mProbes[i].ProbeClass(type, scope, includeObsolete);
 
-                    entityAttribute = type.GetTypeInfo().GetCustomAttribute<EntityAttribute>();
-                    if (entityAttribute != null && (scope == null || scope == entityAttribute.Scope))
+                    if (eti != null)
                     {
-                        EntityTypeInfo eti = new EntityTypeInfo()
-                        {
-                            EntityType = type,
-                            Table = entityAttribute.Table,
-                            Scope = entityAttribute.Scope,
-                            NamingPolicy = entityAttribute.NamingPolicy,
-                            Obsolete = false,
-                            View = entityAttribute.View,
-                            Metadata = entityAttribute.Metadata,
-                        };
-
                         types.Add(eti);
                         dict[type] = eti;
-                        FindDependencies(eti, includeObsolete);
-                    }
-                    else
-                    {
-                        if (includeObsolete)
-                        {
-                            obsoleteEntityAttribute = type.GetTypeInfo().GetCustomAttribute<ObsoleteEntityAttribute>();
-                            if (obsoleteEntityAttribute != null && (scope == null || obsoleteEntityAttribute.Scope == scope))
-                            {
-                                EntityTypeInfo eti = new EntityTypeInfo
-                                {
-                                    EntityType = type,
-                                    Scope = obsoleteEntityAttribute.Scope,
-                                    Table = obsoleteEntityAttribute.Table,
-                                    NamingPolicy = obsoleteEntityAttribute.NamingPolicy,
-                                    Obsolete = true,
-                                    View = obsoleteEntityAttribute.View,
-                                    Metadata = obsoleteEntityAttribute.Metadata,
-                                };
-                                FindDependencies(eti, includeObsolete);
-                                types.Add(eti);
-                                dict[type] = eti;
-                            }
-                        }
                     }
                 }
             }
+
             //resolve dependency types to info
             foreach (EntityTypeInfo eti in types)
             {
@@ -207,23 +281,6 @@ namespace Gehtsoft.EF.Entities
                 }
             }
             return types.ToArray();
-        }
-
-        private static void FindDependencies(EntityTypeInfo eti, bool includeObsolete)
-        {
-            foreach (PropertyInfo property in eti.EntityType.GetTypeInfo().GetProperties())
-            {
-                EntityPropertyAttribute propertyAttribute = property.GetCustomAttribute<EntityPropertyAttribute>();
-                if (propertyAttribute != null && propertyAttribute.ForeignKey)
-                    eti.DependsOn.Add(property.PropertyType);
-
-                if (includeObsolete)
-                {
-                    ObsoleteEntityPropertyAttribute obsoletePropertyAttribute = property.GetCustomAttribute<ObsoleteEntityPropertyAttribute>();
-                    if (obsoletePropertyAttribute != null && obsoletePropertyAttribute.ForeignKey)
-                        eti.DependsOn.Add(property.PropertyType);
-                }
-            }
         }
 
         private static void InsertIntoList(List<EntityTypeInfo> info, EntityTypeInfo entity)
