@@ -322,7 +322,6 @@ namespace Gehtsoft.EF.Test.Entity.Tools
         [InlineData(typeof(DynamicEntity3), typeof(DynamicEntity1), true, "finder4")]
         public void DependsOn(Type type1, Type type2, bool dependsOn, string scope)
         {
-
             var entities = EntityFinder.FindEntities(new Assembly[] { GetType().Assembly, typeof(Order).Assembly }, scope, false);
 
             var e1 = entities.First(e => e.EntityType == type1);

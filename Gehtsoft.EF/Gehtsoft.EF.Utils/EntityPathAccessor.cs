@@ -14,9 +14,56 @@ namespace Gehtsoft.EF.Utils
     /// </summary>
     public static class EntityPathAccessor
     {
-        private static readonly Dictionary<Tuple<Type, string>, PropertyInfo[]> mPathDictionary = new Dictionary<Tuple<Type, string>, PropertyInfo[]>();
+        private interface IAccessor
+        {
+            object GetValue(object thisObject);
+        }
 
-        private static PropertyInfo[] ParsePath(Type baseType, string path)
+        private class PropertyAccessor : IAccessor
+        {
+            private readonly PropertyInfo mPropertyInfo;
+
+            public object GetValue(object thisObject) => mPropertyInfo?.GetValue(thisObject);
+
+            public PropertyAccessor(PropertyInfo propertyInfo)
+            {
+                mPropertyInfo = propertyInfo;
+            }
+        }
+
+        private class ObjectAccessor : IAccessor
+        {
+            private readonly string mPropertyName;
+
+            public object GetValue(object thisObject)
+            {
+                if (thisObject != null)
+                {
+                    var p = thisObject.GetType().GetProperty(mPropertyName);
+                    if (p == null)
+                    {
+                        if (thisObject is IDictionary<string, object> dict)
+                        {
+                            if (dict.TryGetValue(mPropertyName, out var r))
+                                return r;
+                        }
+                    }
+                    else
+                        return p.GetValue(thisObject);
+                }
+                return null;
+            }
+
+            public ObjectAccessor(string propertyInfo)
+            {
+                mPropertyName = propertyInfo;
+            }
+        }
+
+        private static readonly Dictionary<Tuple<Type, string>, IAccessor[]> gPathDictionary = new Dictionary<Tuple<Type, string>, IAccessor[]>();
+        private static readonly Type gDictType = typeof(IDictionary<string, object>);
+
+        private static IAccessor[] ParsePath(Type baseType, string path)
         {
             string[] parts;
 
@@ -25,28 +72,39 @@ namespace Gehtsoft.EF.Utils
             else
                 parts = new string[] { path };
 
-            TypeInfo currInfo = baseType.GetTypeInfo();
-            PropertyInfo[] result = new PropertyInfo[parts.Length];
+            Type currentType = baseType;
+            IAccessor[] result = new IAccessor[parts.Length];
 
             int i = 0;
             foreach (string part in parts)
             {
-                PropertyInfo info = currInfo.GetProperty(part);
-                result[i] = info ?? throw new ArgumentException(nameof(path), $"Property {part} is not found in type {currInfo.Name}");
-                currInfo = info.PropertyType.GetTypeInfo();
+                if (currentType == typeof(object) || gDictType.IsAssignableFrom(currentType))
+                {
+                    result[i] = new ObjectAccessor(part);
+                    currentType = typeof(object);
+                }
+                else
+                {
+                    var propertyInfo = currentType.GetProperty(part);
+                    if (propertyInfo == null)
+                        throw new ArgumentException(nameof(path), $"Property {part} is not found in type {currentType.Name}");
+
+                    result[i] = new PropertyAccessor(propertyInfo);
+                    currentType = propertyInfo.PropertyType.GetTypeInfo();
+                }
                 i++;
             }
 
             return result;
         }
 
-        private static PropertyInfo[] GetPath(Type baseType, string path)
+        private static IAccessor[] GetPath(Type baseType, string path)
         {
             Tuple<Type, string> key = new Tuple<Type, string>(baseType, path);
-            if (mPathDictionary.TryGetValue(key, out PropertyInfo[] result))
+            if (gPathDictionary.TryGetValue(key, out var result))
                 return result;
             result = ParsePath(baseType, path);
-            mPathDictionary[key] = result;
+            gPathDictionary[key] = result;
             return result;
         }
 
@@ -65,8 +123,8 @@ namespace Gehtsoft.EF.Utils
             if (path.Length == 0)
                 throw new ArgumentException("Path shall not be empty", nameof(path));
 
-            PropertyInfo[] parsedPath = GetPath(entity.GetType(), path);
-            foreach (PropertyInfo info in parsedPath)
+            var parsedPath = GetPath(entity.GetType(), path);
+            foreach (var info in parsedPath)
                 entity = entity == null ? null : info.GetValue(entity);
 
             return entity;
@@ -103,6 +161,6 @@ namespace Gehtsoft.EF.Utils
         /// <param name="path"></param>
         /// <returns></returns>
         public static bool IsPathCached(Type entityType, string path)
-            => mPathDictionary.ContainsKey(new Tuple<Type, string>(entityType, path));
+            => gPathDictionary.ContainsKey(new Tuple<Type, string>(entityType, path));
     }
 }

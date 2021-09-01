@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -9,6 +10,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Test.Utils;
+using MongoDB.Driver;
 using Xunit;
 
 namespace Gehtsoft.EF.Test.SqlDb
@@ -127,11 +129,13 @@ namespace Gehtsoft.EF.Test.SqlDb
 
             public const string TableName = "iu_test";
             public const string TableName1 = "iu_test1";
+            public const string TableName2 = "iu_test2";
             public const string DictName = "iu_dict";
 
             public TableDescriptor Dict { get; }
             public TableDescriptor Table { get; }
             public TableDescriptor Table1 { get; }
+            public TableDescriptor TableWithBlob { get; }
 
             public Fixture()
             {
@@ -243,6 +247,25 @@ namespace Gehtsoft.EF.Test.SqlDb
                     Size = 32,
                     Sorted = true,
                 });
+
+                TableWithBlob = new TableDescriptor()
+                {
+                    Name = TableName2,
+                };
+
+                TableWithBlob.Add(new TableDescriptor.ColumnInfo()
+                {
+                    Name = "id",
+                    PrimaryKey = true,
+                    Autoincrement = true,
+                    DbType = DbType.Int32
+                });
+
+                TableWithBlob.Add(new TableDescriptor.ColumnInfo()
+                {
+                    Name = "name",
+                    DbType = DbType.Binary,
+                });
             }
 
             protected override void ConfigureConnection(SqlDbConnection connection)
@@ -256,6 +279,9 @@ namespace Gehtsoft.EF.Test.SqlDb
                     query.ExecuteNoData();
 
                 using (var query = connection.GetQuery(connection.GetCreateTableBuilder(Table1)))
+                    query.ExecuteNoData();
+
+                using (var query = connection.GetQuery(connection.GetCreateTableBuilder(TableWithBlob)))
                     query.ExecuteNoData();
 
                 base.ConfigureConnection(connection);
@@ -272,6 +298,9 @@ namespace Gehtsoft.EF.Test.SqlDb
             private void Drop(SqlDbConnection connection)
             {
                 using (var query = connection.GetQuery(connection.GetDropTableBuilder(Table1)))
+                    query.ExecuteNoData();
+
+                using (var query = connection.GetQuery(connection.GetDropTableBuilder(TableWithBlob)))
                     query.ExecuteNoData();
 
                 using (var query = connection.GetQuery(connection.GetDropTableBuilder(Table)))
@@ -717,7 +746,7 @@ namespace Gehtsoft.EF.Test.SqlDb
             ((Action)(() => update.AddUpdateColumnExpression(mFixture.Table[0], "'expr"))).Should().Throw<ArgumentException>();
         }
 
-            [Theory]
+        [Theory]
         [TestOrder(23)]
         [MemberData(nameof(ConnectionNames), "")]
         public void T2_3_UpdateMultipleRecords(string connectionName)
@@ -936,7 +965,7 @@ namespace Gehtsoft.EF.Test.SqlDb
             using (var query = connection.GetQuery(select))
             {
                 query.ExecuteReader();
-                while(query.ReadNext())
+                while (query.ReadNext())
                     records.Add(new Tuple<int, string>(query.GetValue<int>(0), query.GetValue<string>(1)));
             }
 
@@ -1108,6 +1137,104 @@ namespace Gehtsoft.EF.Test.SqlDb
                 query.ExecuteReader();
                 query.ReadNext();
                 query.GetValue<int>(0).Should().Be(0);
+            }
+        }
+
+        [Theory]
+        [TestOrder(41)]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void T4_1_InsertBlob(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var buff = new byte[1024];
+            for (int i = 0; i < 1024; i++)
+                buff[i] = (byte)(i & 255);
+            var builder = connection.GetInsertQueryBuilder(mFixture.TableWithBlob, true);
+            using (var query = connection.GetQuery(builder))
+            {
+                query.BindParam("id", 1);
+                query.BindParam(mFixture.TableWithBlob[1].Name, buff);
+                query.ExecuteNoData().Should().Be(1);
+            }
+        }
+
+        [Theory]
+        [TestOrder(42)]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void T4_2_ReadBlob_GetValue(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                T4_1_InsertBlob(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+            
+            var builder = connection.GetSelectQueryBuilder(mFixture.TableWithBlob);
+            using (var query = connection.GetQuery(builder))
+            {
+                query.ExecuteReader();
+                query.ReadNext();
+                var buff = query.GetValue<byte[]>(1);
+                buff.Should().HaveCount(1024);
+                for (int i = 0; i < 1024; i++)
+                {
+                    buff[i].Should().Be((byte)(i % 256));
+                }
+            }
+        }
+
+        [Theory]
+        [TestOrder(42)]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void T4_2_ReadBlob_GetStream(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                T4_1_InsertBlob(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+
+            var builder = connection.GetSelectQueryBuilder(mFixture.TableWithBlob);
+            using (var query = connection.GetQuery(builder))
+            {
+                query.ReadBlobAsStream = true;
+                query.ExecuteReader();
+                query.ReadNext();
+                using var s = query.GetStream(1);
+                using var ms = new MemoryStream();
+                s.CopyTo(ms);
+                var buff = ms.ToArray();
+                buff.Should().HaveCount(1024);
+                for (int i = 0; i < 1024; i++)
+                {
+                    buff[i].Should().Be((byte)(i % 256));
+                }
+            }
+        }
+
+        [Theory]
+        [TestOrder(42)]
+        [MemberData(nameof(ConnectionNames), "")]
+        public async Task T4_2_ReadBlob_GetStreamAsync(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                T4_1_InsertBlob(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+
+            var builder = connection.GetSelectQueryBuilder(mFixture.TableWithBlob);
+            using (var query = connection.GetQuery(builder))
+            {
+                query.ReadBlobAsStream = true;
+                await query.ExecuteReaderAsync();
+                await query.ReadNextAsync();
+                using var s = query.GetStream(1);
+                using var ms = new MemoryStream();
+                await s.CopyToAsync(ms);
+                var buff = ms.ToArray();
+                buff.Should().HaveCount(1024);
+                for (int i = 0; i < 1024; i++)
+                {
+                    buff[i].Should().Be((byte)(i % 256));
+                }
             }
         }
     }

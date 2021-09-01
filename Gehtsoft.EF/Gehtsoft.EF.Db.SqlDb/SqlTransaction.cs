@@ -7,11 +7,11 @@ namespace Gehtsoft.EF.Db.SqlDb
 {
     /// <summary>
     /// The database transaction.
-    /// 
+    ///
     /// Use <see cref="SqlDbConnection.BeginTransaction()"/> to create a transaction.
-    /// 
-    /// The transaction is considered ended when the object is disposed. The transaction 
-    /// should be committed explicitly, otherwise the driver will roll it back at 
+    ///
+    /// The transaction is considered ended when the object is disposed. The transaction
+    /// should be committed explicitly, otherwise the driver will roll it back at
     /// the disposal.
     /// </summary>
     public class SqlDbTransaction : IDisposable

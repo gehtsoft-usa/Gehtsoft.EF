@@ -8,6 +8,13 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 {
+    /// <summary>
+    /// The list of SQL functions to be used in the query-related expression.
+    ///
+    /// Using this function forces the compiler to execute the function on the server side. For example, is `string.Upper()` is used
+    /// and the arguments can be calculated locally, it will be calculated locally. But if `SqlFunction.Upper()` is used
+    /// the function will always be executed on the server side.
+    /// </summary>
     public static class SqlFunction
     {
         public static string ToString(object value) => value?.ToString() ?? "null";

@@ -100,7 +100,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 }
                 else
                 {
-                    Result arg = Visit(((UnaryExpression)node).Operand);
+                    Result arg = Visit((unaryExpression).Operand);
                     if (arg.IsParameterExpression)
                     {
                         arg.Params[0].Value = node;
@@ -108,7 +108,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     }
                     else
                     {
-                        return ProcessUnary((UnaryExpression)node, arg);
+                        return ProcessUnary(unaryExpression, arg);
                     }
                 }
             }

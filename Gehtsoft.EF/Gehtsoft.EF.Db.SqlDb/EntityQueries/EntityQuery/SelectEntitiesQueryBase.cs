@@ -7,9 +7,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
+    /// <summary>
+    /// The base query to all entity select operation.
+    ///
+    /// Use <see cref="EntityConnectionExtension.GetSelectEntitiesQueryBase(SqlDbConnection, Type)"/> to get an instance of this object.
+    ///
+    /// You can use this query type directly to fine tune the resulset or
+    /// use <see cref="SelectEntitiesCountQuery"/> or
+    /// <see cref="SelectEntitiesQuery"/>.
+    ///
+    /// The object instance must be disposed after use. Some databases requires the query to be disposed before the next query may be executed.
+    /// </summary>
     public class SelectEntitiesQueryBase : ConditionEntityQueryBase
     {
         internal SelectEntityQueryBuilderBase mSelectBuilder;
@@ -18,8 +30,16 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         internal SelectEntityQueryBuilderBase SelectEntityBuilder => mSelectBuilder;
 
+        /// <summary>
+        /// Gets associated select builder.
+        /// </summary>
         public SelectQueryBuilder SelectBuilder => mSelectBuilder.SelectQueryBuilder;
 
+        /// <summary>
+        /// The having condition builder.
+        ///
+        /// For where condition use <see cref="ConditionEntityQueryBase.Where"/> property.
+        /// </summary>
         public EntityQueryConditionBuilder Having { get; protected set; }
 
         internal SelectEntitiesQueryBase(SqlDbQuery query, SelectEntityQueryBuilderBase builder) : base(query, builder)
@@ -32,18 +52,27 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
         }
 
+        /// <summary>
+        /// Gets or sets flag to select only distinct rows.
+        /// </summary>
         public bool Distinct
         {
             get { return mSelectBuilder.Distinct; }
             set { mSelectBuilder.Distinct = value; }
         }
 
+        /// <summary>
+        /// Gets or sets how much entities should be skipped from the beginning
+        /// </summary>
         public int Skip
         {
             get { return mSelectBuilder.Skip; }
             set { mSelectBuilder.Skip = value; }
         }
 
+        /// <summary>
+        /// Gets or sets how much entities must be read.
+        /// </summary>
         public int Limit
         {
             get { return mSelectBuilder.Limit; }
@@ -52,6 +81,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         private readonly List<Type> mResultsetTypes = new List<Type>();
 
+        /// <summary>
+        /// Adds the property to the resulset.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="alias"></param>
         public void AddToResultset(string property, string alias = null)
         {
             mSelectBuilder.AddToResultset(property, alias);
@@ -62,8 +96,21 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 mResultsetTypes.Add(v.Item.Column.ForeignTable.PrimaryKey.PropertyAccessor.PropertyType);
         }
 
+        /// <summary>
+        /// Adds the property of the first occurrence of the specified type to the resulset.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="property"></param>
+        /// <param name="alias"></param>
         public void AddToResultset(Type type, string property, string alias = null) => AddToResultset(type, 0, property, alias);
 
+        /// <summary>
+        /// Adds the property of the specified occurrence of the specified type to the resulset.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="occurrence"></param>
+        /// <param name="property"></param>
+        /// <param name="alias"></param>
         public void AddToResultset(Type type, int occurrence, string property, string alias = null)
         {
             mSelectBuilder.AddToResultset(type, occurrence, property, alias);
@@ -74,6 +121,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 mResultsetTypes.Add(v.Item.Column.ForeignTable.PrimaryKey.PropertyAccessor.PropertyType);
         }
 
+        /// <summary>
+        /// Adds a property aggregated with the specified function to the resulset.
+        /// </summary>
+        /// <param name="aggregation"></param>
+        /// <param name="property"></param>
+        /// <param name="alias"></param>
         public void AddToResultset(AggFn aggregation, string property, string alias = null)
         {
             mSelectBuilder.AddToResultset(aggregation, property, alias);
@@ -89,8 +142,23 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
         }
 
+        /// <summary>
+        /// Adds the property of the first occurrence of the specified type aggregated by the specified function to the resulset.
+        /// </summary>
+        /// <param name="aggregation"></param>
+        /// <param name="type"></param>
+        /// <param name="property"></param>
+        /// <param name="alias"></param>
         public void AddToResultset(AggFn aggregation, Type type, string property, string alias = null) => AddToResultset(aggregation, type, 0, property, alias);
 
+        /// <summary>
+        /// Adds the property of the specified occurrence of the specified type aggregated by the specified function to the resulset.
+        /// </summary>
+        /// <param name="aggregation"></param>
+        /// <param name="type"></param>
+        /// <param name="occurrence"></param>
+        /// <param name="property"></param>
+        /// <param name="alias"></param>
         public void AddToResultset(AggFn aggregation, Type type, int occurrence, string property, string alias = null)
         {
             mSelectBuilder.AddToResultset(aggregation, type, occurrence, property, alias);
@@ -106,12 +174,28 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
         }
 
+        /// <summary>
+        /// Adds RAW expression to the resulset.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="isaggregate"></param>
+        /// <param name="dbType"></param>
+        /// <param name="type"></param>
+        /// <param name="alias"></param>
         internal void AddExpressionToResultset(string expression, bool isaggregate, DbType dbType, Type type, string alias)
         {
             mSelectBuilder.AddExpressionToResultset(expression, isaggregate, dbType, alias);
             mResultsetTypes.Add(type);
         }
 
+        /// <summary>
+        /// Adds a query result to the resulset.
+        ///
+        /// The query must select one column and one row!
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="type"></param>
+        /// <param name="alias"></param>
         public void AddToResultset(SelectEntitiesQueryBase query, Type type, string alias = null)
         {
             query.SelectEntityBuilder.QueryBuilder.PrepareQuery();
@@ -119,27 +203,74 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             CopyParametersFrom(query);
         }
 
+        /// <summary>
+        /// Adds the property to the order by.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="direction"></param>
         public void AddOrderBy(string property, SortDir direction = SortDir.Asc) => mSelectBuilder.AddOrderBy(property, direction);
 
+        /// <summary>
+        /// Adds the property of the first occurrence of the specified type to the order by.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="property"></param>
+        /// <param name="direction"></param>
         public void AddOrderBy(Type type, string property, SortDir direction = SortDir.Asc) => mSelectBuilder.AddOrderBy(type, property, direction);
 
+        /// <summary>
+        /// Adds the property of the specified occurrence of the specified type to the order by.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="occurrence"></param>
+        /// <param name="property"></param>
+        /// <param name="direction"></param>
         public void AddOrderBy(Type type, int occurrence, string property, SortDir direction = SortDir.Asc) => mSelectBuilder.AddOrderBy(type, occurrence, property, direction);
 
+        /// <summary>
+        /// Adds the property to the group by.
+        /// </summary>
+        /// <param name="property"></param>
         public void AddGroupBy(string property) => mSelectBuilder.AddGroupBy(property);
 
+        /// <summary>
+        /// Adds the property of the first occurrence of the specified type to the group by.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="property"></param>
         public void AddGroupBy(Type type, string property) => mSelectBuilder.AddGroupBy(type, property);
 
+        /// <summary>
+        /// Adds the property of the specified occurrence of the specified type to the group by.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="occurrence"></param>
+        /// <param name="property"></param>
         public void AddGroupBy(Type type, int occurrence, string property) => mSelectBuilder.AddGroupBy(type, occurrence, property);
 
+        /// <summary>
+        /// Adds the entity to the query and auto-connect it to the rest of entities.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="connectToProperty"></param>
+        /// <param name="open"></param>
         public void AddEntity(Type type, string connectToProperty = null, bool open = false) => mSelectBuilder.AddEntity(type, connectToProperty, open);
 
+        /// <summary>
+        /// Adds the entity to the query and auto-connect it to the rest of entities. (generic version).
+        /// </summary>
+        /// <param name="connectToProperty"></param>
+        /// <param name="open"></param>
         public void AddEntity<T>(string connectToProperty = null, bool open = false) => AddEntity(typeof(T), connectToProperty, open);
 
+        /// <summary>
+        /// Add the whole tree of entities for the current main entity of the query.
+        /// </summary>
         public void AddWholeTree() => mSelectBuilder.AddEntitiesTree();
 
         protected List<Tuple<string, bool>> mDynamicNames;
 
-        protected virtual bool IgnoreOnDynamic(int index, SqlDbQuery.FieldInfo field) => false;
+        protected virtual bool IgnoreOnDynamic(int index, FieldInfo field) => false;
 
         protected virtual List<Tuple<string, bool>> DynamicNames
         {
@@ -150,7 +281,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     mDynamicNames = new List<Tuple<string, bool>>();
                     for (int i = 0, a = 0; i < mQuery.FieldCount; i++)
                     {
-                        SqlDbQuery.FieldInfo field = mQuery.Field(i);
+                        FieldInfo field = mQuery.Field(i);
                         string name = mSelectBuilder.ResultColumn(i).Alias?.Trim();
                         if (string.IsNullOrEmpty(name))
                             name = field.Name?.Trim();
@@ -189,11 +320,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
         }
 
+        [DocgenIgnore]
         public void AddOrderByExpr(string expression, SortDir direction = SortDir.Asc)
         {
             mSelectBuilder.AddOrderByExpr(expression, direction);
         }
 
+        [DocgenIgnore]
         internal void AddGroupByExpr(string expression)
         {
             mSelectBuilder.AddGroupByExpr(expression);
@@ -219,6 +352,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return true;
         }
 
+        /// <summary>
+        /// Read one entity to a dynamic object.
+        /// </summary>
+        /// <returns></returns>
         public dynamic ReadOneDynamic()
         {
             if (!Executed)
@@ -236,6 +373,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return null;
         }
 
+        /// <summary>
+        /// Read one entity to a dynamic object asynchronously.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public async Task<dynamic> ReadOneDynamicAsync(CancellationToken? token = null)
         {
             if (!Executed)
@@ -253,6 +395,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return null;
         }
 
+        /// <summary>
+        /// Read all entities as a dynamic objects.
+        /// </summary>
+        /// <returns></returns>
         public IList<dynamic> ReadAllDynamic()
         {
             List<dynamic> rc = new List<dynamic>();
@@ -264,6 +410,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return rc;
         }
 
+        /// <summary>
+        /// Read all entities as a dynamic objects asynchronously.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public async Task<IList<dynamic>> ReadAllDynamicAsync(CancellationToken? token = null)
         {
             List<dynamic> rc = new List<dynamic>();
@@ -275,10 +426,20 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return rc;
         }
 
+        [DocgenIgnore]
         public SelectQueryBuilderResultsetItem ResultColumn(int index) => mSelectBuilder.ResultColumn(index);
 
+        [DocgenIgnore]
         public QueryBuilderEntity FindType(Type type, int occurrence = 1) => mSelectBuilder.FindType(type, occurrence);
 
+        /// <summary>
+        /// Adds the entity to the query.
+        ///
+        /// The condition needs to be set directly via returned object.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="joinType"></param>
+        /// <returns></returns>
         public QueryBuilderEntity AddEntity(Type type, TableJoinType joinType)
         {
             QueryBuilderEntity r = mSelectBuilder.AddEntity(type, joinType);
@@ -286,8 +447,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return r;
         }
 
+        [DocgenIgnore]
         public QueryBuilderEntity AddEntity(Type type, TableJoinType joinType, Type typeLeft, string propertyLeft, CmpOp op, Type typeRight, string propertyRight) => AddEntity(type, joinType, typeLeft, 0, propertyLeft, op, typeRight, 0, propertyRight);
 
+        [DocgenIgnore]
         public QueryBuilderEntity AddEntity(Type type, TableJoinType joinType, Type typeLeft, int occurrenceLeft, string propertyLeft, CmpOp op, Type typeRight, int occurrenceRight, string propertyRight)
         {
             var r = mSelectBuilder.AddEntity(type, joinType);
@@ -309,6 +472,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             Having.SetCurrentSingleEntityQueryConditionBuilder(null);
             base.PrepareQuery();
         }
+
+        [DocgenIgnore]
         public void AddExpressionToResultset(string expression, DbType type, string alias) => mSelectBuilder.AddExpressionToResultset(expression, false, type, alias);
     }
 }

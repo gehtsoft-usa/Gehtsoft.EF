@@ -2,6 +2,14 @@
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
+    /// <summary>
+    /// The class to select the count of the queries.
+    ///
+    /// Use <see cref="EntityConnectionExtension.GetSelectEntitiesCountQuery(SqlDbConnection, Type)"/>
+    /// to get the instance of this object.
+    ///
+    /// The object instance must be disposed after use. Some databases requires the query to be disposed before the next query may be executed.
+    /// </summary>
     public class SelectEntitiesCountQuery : SelectEntitiesQueryBase
     {
         internal SelectEntitiesCountQuery(SqlDbQuery query, SelectEntityQueryBuilderBase builder) : base(query, builder)
@@ -14,6 +22,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         protected int mCount = -1;
 
+        /// <summary>
+        /// The count of the rows that matches the condition.
+        /// </summary>
         public virtual int RowCount
         {
             get

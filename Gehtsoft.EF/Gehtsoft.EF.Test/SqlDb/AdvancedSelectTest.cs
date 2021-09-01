@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Northwind;
@@ -383,6 +384,145 @@ namespace Gehtsoft.EF.Test.SqlDb
                 i.Should().Be(2);
             }
         }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void QueryInResultset(string connectionName)
+        {
+            //select order and the maximum size of the order position
+            var connection = mFixture.GetInstance(connectionName);
+
+            var select = connection.GetSelectQueryBuilder(mFixture.OrderTable);
+            select.AddToResultset(mFixture.OrderTable[nameof(Order.OrderID)]);
+
+            var referenceOrder = select.GetReference(mFixture.OrderTable[nameof(Order.OrderID)]);
+            
+            var select1 = connection.GetSelectQueryBuilder(mFixture.OrderDetailTable);
+            select1.AddToResultset(AggFn.Max, mFixture.OrderDetailTable[nameof(OrderDetail.Quantity)]);
+            select1.Where.Property(mFixture.OrderDetailTable[nameof(OrderDetail.Order)]).Eq().Reference(referenceOrder);
+
+            select.AddToResultset(select1, DbType.Double, "maxQuantity");
+
+            select.PrepareQuery();
+
+            using (var query = connection.GetQuery(select))
+            {
+                query.ExecuteReader();
+                int cc = 0;
+                while (query.ReadNext())
+                {
+                    cc++;
+                    var id = query.GetValue<int>(0);
+                    var maxQuantity = query.GetValue<double>(1);
+
+                    maxQuantity.Should()
+                        .BeApproximately(mFixture.Snapshot.OrderDetails.Where(o => o.Order.OrderID == id)
+                                                                       .Max(o => o.Quantity), 1e-7);
+                }
+                cc.Should().Be(mFixture.Snapshot.Orders.Count);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void QueryInWhere(string connectionName)
+        {
+            //select order and the minimum size of the order position
+            var connection = mFixture.GetInstance(connectionName);
+
+            var select = connection.GetSelectQueryBuilder(mFixture.OrderDetailTable);
+            select.Distinct = true; //there could be more than 1 position with minimum amount in the order
+            select.AddToResultset(mFixture.OrderDetailTable[nameof(OrderDetail.Order)]);
+            select.AddToResultset(mFixture.OrderDetailTable[nameof(OrderDetail.Quantity)]);
+
+            var referenceOrder = select.GetReference(mFixture.OrderDetailTable[nameof(OrderDetail.Order)]);
+            var select1 = connection.GetSelectQueryBuilder(mFixture.OrderDetailTable);
+            select1.AddToResultset(AggFn.Min, mFixture.OrderDetailTable[nameof(OrderDetail.Quantity)]);
+            select1.Where.Property(mFixture.OrderDetailTable[nameof(OrderDetail.Order)]).Eq().Reference(referenceOrder);
+
+            select.Where.Property(mFixture.OrderDetailTable[nameof(OrderDetail.Quantity)]).Eq().Query(select1);
+
+            using (var query = connection.GetQuery(select))
+            {
+                query.ExecuteReader();
+                int cc = 0;
+                while (query.ReadNext())
+                {
+                    cc++;
+                    var id = query.GetValue<int>(0);
+                    var maxQuantity = query.GetValue<double>(1);
+
+                    maxQuantity.Should()
+                        .BeApproximately(mFixture.Snapshot.OrderDetails.Where(o => o.Order.OrderID == id)
+                                                                       .Min(o => o.Quantity), 1e-7);
+                }
+                cc.Should().Be(mFixture.Snapshot.Orders.Count);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Pivot(string connectionName)
+        {
+            //selects total for each order (in rows) and category (in columns)
+            //the solution is not really optimal and rather is designed to demonstrated
+            //a complex case of handling the query.
+
+            var connection = mFixture.GetInstance(connectionName);
+
+            var pivotSelect = connection.GetSelectQueryBuilder(mFixture.OrderTable);
+            pivotSelect.AddToResultset(mFixture.OrderTable[nameof(Order.OrderID)], "orderid");
+            var orderReference = pivotSelect.GetReference(mFixture.OrderTable[nameof(Order.OrderID)]);
+
+            //source select - find total per category per order
+            var sourceSelect = connection.GetSelectQueryBuilder(mFixture.CategoryTable);
+            var j1 = sourceSelect.AddTable(mFixture.ProductTable);
+            j1.JoinType = TableJoinType.Left;
+            var j2 = sourceSelect.AddTable(mFixture.OrderDetailTable);
+            j2.JoinType = TableJoinType.Left;
+            sourceSelect.AddToResultset(mFixture.CategoryTable[nameof(Category.CategoryID)], "category");
+            sourceSelect.AddToResultset(mFixture.OrderDetailTable[nameof(OrderDetail.Order)], "orderid");
+            sourceSelect.AddToResultset(AggFn.Sum, mFixture.OrderDetailTable[nameof(OrderDetail.Quantity)], "total");
+            sourceSelect.AddGroupBy(mFixture.CategoryTable[nameof(Category.CategoryID)]);
+            sourceSelect.AddGroupBy(mFixture.OrderDetailTable[nameof(OrderDetail.Order)]);
+
+            //pivot select from the source select
+            for (int i = 0; i < mFixture.Snapshot.Categories.Count; i++)
+            {
+                var j = pivotSelect.AddTable(sourceSelect.QueryTableDescriptor, false);
+                j.JoinType = TableJoinType.Left;
+                
+                j.On.Property(sourceSelect.QueryTableDescriptor["orderid"], j).Eq().Property(mFixture.OrderTable[nameof(Order.OrderID)])
+                    .And().Property(sourceSelect.QueryTableDescriptor["category"], j).Eq().Value(mFixture.Snapshot.Categories[i].CategoryID);
+                
+                pivotSelect.AddToResultset(sourceSelect.QueryTableDescriptor["total"], j, $"cat{mFixture.Snapshot.Categories[i].CategoryID}");
+            }
+
+            EntityCollection<OrderDetail> orderDetails;
+            using (var query = connection.GetSelectEntitiesQuery<OrderDetail>())
+                orderDetails = query.ReadAll<OrderDetail>();
+
+            using (var query = connection.GetQuery(pivotSelect))
+            {
+                query.ExecuteReader();
+                int cc = 0;
+                while (query.ReadNext())
+                {
+                    cc++;
+                    var order = query.GetValue<int>(0);
+                    for (int i = 0; i < mFixture.Snapshot.Categories.Count; i++)
+                    {
+                        var total = query.GetValue<double>(i + 1);
+                        total.Should()
+                            .BeApproximately(orderDetails.Where(o => o.Order.OrderID == order &&
+                                                                     o.Product.Category.CategoryID == mFixture.Snapshot.Categories[i].CategoryID)
+                                                         .Sum(o => o.Quantity), 1e-7);
+                    }
+                }
+                cc.Should().Be(mFixture.Snapshot.Orders.Count);
+            }
+        }
     }
 }
+
 

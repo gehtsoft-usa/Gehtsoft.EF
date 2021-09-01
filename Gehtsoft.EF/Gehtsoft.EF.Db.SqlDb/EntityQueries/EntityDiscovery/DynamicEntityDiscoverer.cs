@@ -14,7 +14,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             ObsoleteEntityAttribute obsoleteTypeAttribute = null;
             DynamicEntity dynamicEntity;
             TableDescriptor descriptor;
-            
+
             if (DynamicEntityType.IsAssignableFrom(type))
             {
                 dynamicEntity = (DynamicEntity)Activator.CreateInstance(type);
@@ -24,7 +24,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
             else
                 return null;
-            
+
             EntityNamingPolicy namingPolicy = EntityNamingPolicy.Default;
 
             string tableScope;
@@ -56,7 +56,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             foreach (IDynamicEntityProperty property in dynamicEntity.Properties)
                 CreateColumnDescriptor(type, entities, namingPolicy, descriptor, new DynamicPropertyAccessor(property));
-            
+
             return descriptor;
         }
 

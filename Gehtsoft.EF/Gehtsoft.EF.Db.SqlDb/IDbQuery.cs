@@ -44,7 +44,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <param name="valueType"></param>
         void BindParam(string name, ParameterDirection direction, object value, Type valueType);
         /// <summary>
-        /// Binds an input parameter (generic method). 
+        /// Binds an input parameter (generic method).
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
@@ -75,7 +75,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// Executes query that return data.
         /// </summary>
         void ExecuteReader();
-        
+
         /// <summary>
         /// Reads next row of the result set.
         /// </summary>
@@ -88,7 +88,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <param name="column"></param>
         /// <returns></returns>
         bool IsNull(int column);
-        
+
         /// <summary>
         /// Checks whether the column is null (by column name).
         /// </summary>
@@ -103,7 +103,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <param name="column"></param>
         /// <returns></returns>
         T GetValue<T>(int column);
-        
+
         /// <summary>
         /// Gets the value (by column name, generic method).
         /// </summary>
@@ -129,11 +129,23 @@ namespace Gehtsoft.EF.Db.SqlDb
         object GetValue(string column, Type type);
 
         /// <summary>
-        /// Finds field index by its name. 
+        /// Returns the number of the fields.
+        /// </summary>
+        int FieldCount { get; }
+
+        /// <summary>
+        /// Finds field index by its name.
         /// </summary>
         /// <param name="column"></param>
         /// <param name="ignoreCase"></param>
         /// <returns></returns>
         int FindField(string column, bool ignoreCase = false);
+
+        /// <summary>
+        /// Returns the column information by its index.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        FieldInfo Field(int column);
     }
 }

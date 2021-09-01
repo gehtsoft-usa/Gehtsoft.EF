@@ -207,7 +207,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
         public override DateTime? MaxTimestamp => new DateTime(9999, 12, 31);
         public override bool CaseSensitiveStringComparison => false;
         public override bool IndexForFKCreatedAutomatically => true;
-
         public override bool SelectRequiresLimitWhenOffsetIsSet => true;
+        public override bool HierarchicalQuerySupported => false;
     }
 }

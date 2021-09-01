@@ -178,6 +178,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         public static SelectEntitiesQuery GetSelectEntitiesQuery<T>(this SqlDbConnection connection, SelectEntityQueryFilter[] exclusions = null) => new SelectEntitiesQuery(connection.GetQuery(), new SelectEntityQueryBuilder(typeof(T), connection, exclusions));
 
+        public static SelectEntitiesQueryBase GetSelectEntitiesQueryBase(this SqlDbConnection connection, Type type) => new SelectEntitiesQueryBase(connection.GetQuery(), new SelectEntityQueryBuilderBase(type, connection));
         public static SelectEntitiesQueryBase GetSelectEntitiesQueryBase<T>(this SqlDbConnection connection) => new SelectEntitiesQueryBase(connection.GetQuery(), new SelectEntityQueryBuilderBase(typeof(T), connection));
 
         public static SelectEntitiesTreeQuery GetSelectEntitiesTreeQuery<T>(this SqlDbConnection connection, bool hasRootParameter = true) => new SelectEntitiesTreeQuery(connection.GetQuery(), new SelectEntityTreeQueryBuilder(typeof(T), connection, hasRootParameter));

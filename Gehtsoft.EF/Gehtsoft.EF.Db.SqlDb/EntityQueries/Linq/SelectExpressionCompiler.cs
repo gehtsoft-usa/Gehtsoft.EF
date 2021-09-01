@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 {
-    public class SelectExpressionCompiler
+    internal class SelectExpressionCompiler
     {
         public Type EntityType { get; private set; }
 

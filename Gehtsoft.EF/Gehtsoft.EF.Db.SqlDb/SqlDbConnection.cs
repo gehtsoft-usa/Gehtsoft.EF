@@ -452,7 +452,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// </summary>
         /// <param name="firstQuery">The first query in union</param>
         /// <returns></returns>
-        public virtual UnionQueryBuilder GetUnionQueryBuilder(SelectQueryBuilder firstQuery) 
+        public virtual UnionQueryBuilder GetUnionQueryBuilder(SelectQueryBuilder firstQuery)
         {
             var u = new UnionQueryBuilder(GetLanguageSpecifics());
             u.AddQuery(firstQuery, false);

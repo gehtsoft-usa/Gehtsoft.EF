@@ -40,7 +40,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         /// <summary>
         /// Gets or sets a tag associated with the entity.
-        /// 
+        ///
         /// Tag is any user-specific information the application may associated with the entity.
         /// </summary>
         /// <param name="type"></param>
@@ -65,7 +65,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         /// <summary>
         /// Sets the tag.
-        /// 
+        ///
         /// Tag is any user-specific information the application may associated with the entity.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -73,7 +73,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public void SetTag<T>(T tag) where T : class => this[typeof(T)] = tag;
         /// <summary>
         /// Gets the tag.
-        /// 
+        ///
         /// Tag is any user-specific information the application may associated with the entity.
         /// </summary>
         /// <typeparam name="T"></typeparam>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,17 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
+    /// <summary>
+    /// The query to select the entity and all dependent entities (dictionaries).
+    ///
+    /// Use <see cref="EntityConnectionExtension.GetSelectEntitiesQuery(SqlDbConnection, Type, SelectEntityQueryFilter[])"/> to
+    /// get an instance of this query.
+    ///
+    /// In cause you don't need complete tree/all columns, use <see cref="SelectEntitiesQueryBase"/> to minimize DB load
+    /// and traffic between the application and database.
+    ///
+    /// The object instance must be disposed after use. Some databases requires the query to be disposed before the next query may be executed.
+    /// </summary>
     public class SelectEntitiesQuery : SelectEntitiesQueryBase
     {
         internal SelectEntityQueryBuilder mSelectBuilder1;
@@ -25,6 +37,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
         }
 
+        /// <summary>
+        /// Reads one entity.
+        /// </summary>
+        /// <returns></returns>
         public object ReadOne()
         {
             if (!Executed)
@@ -45,6 +61,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return null;
         }
 
+        /// <summary>
+        /// Reads one entity asynchronously
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public async Task<object> ReadOneAsync(CancellationToken? token = null)
         {
             if (!Executed)
@@ -63,23 +84,50 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return null;
         }
 
+        /// <summary>
+        /// Reads one entity (generic version)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T ReadOne<T>() where T : class
         {
             return ReadOne() as T;
         }
 
+        /// <summary>
+        /// Reads one entity asynchronously (generic version)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public async Task<T> ReadOneAsync<T>(CancellationToken? token = null) where T : class
         {
             return await ReadOneAsync(token) as T;
         }
 
-        public delegate void OnRow<in T>(T row, SelectEntitiesQuery query);
-
+        /// <summary>
+        /// Reads all entities
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public virtual EntityCollection<T> ReadAll<T>() where T : class => ReadAll<EntityCollection<T>, T>();
 
+        /// <summary>
+        /// Reads all entities asynchronously.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public virtual Task<EntityCollection<T>> ReadAllAsync<T>(CancellationToken? token = null) where T : class => ReadAllAsync<EntityCollection<T>, T>(null, token);
 
-        public virtual TC ReadAll<TC, T>(OnRow<T> onrow = null) where TC : IList<T>, new()
+        /// <summary>
+        /// Reads all entities into collection and call the specified action for each row
+        /// </summary>
+        /// <typeparam name="TC"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="onrow"></param>
+        /// <returns></returns>
+        public virtual TC ReadAll<TC, T>(Action<T, SelectEntitiesQuery> onrow = null) where TC : IList<T>, new()
             where T : class
         {
             if (!Executed)
@@ -96,7 +144,15 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return coll;
         }
 
-        public virtual async Task<TC> ReadAllAsync<TC, T>(OnRow<T> onrow = null, CancellationToken? token = null) where TC : IList<T>, new()
+        /// <summary>
+        /// Reads all entities asynchronously into collection and call the specified action for each row
+        /// </summary>
+        /// <typeparam name="TC"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="onrow"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public virtual async Task<TC> ReadAllAsync<TC, T>(Action<T, SelectEntitiesQuery> onrow = null, CancellationToken? token = null) where TC : IList<T>, new()
             where T : class
         {
             if (!Executed)
@@ -131,11 +187,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return collection;
         }
 
-        protected override bool IgnoreOnDynamic(int index, SqlDbQuery.FieldInfo field) => mSelectBuilder1.Binder.BindsColumn(index, mQuery);
+        protected override bool IgnoreOnDynamic(int index, FieldInfo field) => mSelectBuilder1.Binder.Rules.Any(r => r.ColumnIndex == index);
 
         protected override bool BindOneDynamic(ExpandoObject dynObj)
         {
-            if (!mSelectBuilder1.Binder.BindToDynamic(mQuery, dynObj))
+            if (!mSelectBuilder1.Binder.Read(mQuery, dynObj))
                 return false;
             return base.BindOneDynamic(dynObj);
         }

@@ -16,6 +16,9 @@ namespace Gehtsoft.EF.Db.MssqlDb
 
         public override string Query(AQueryBuilder queryBuilder)
         {
+            if (queryBuilder.Query == null)
+                queryBuilder.PrepareQuery();
+
             if (queryBuilder is MssqlHierarchicalSelectQueryBuilder)
             {
                 mBuilder.With = (queryBuilder as MssqlHierarchicalSelectQueryBuilder).With;

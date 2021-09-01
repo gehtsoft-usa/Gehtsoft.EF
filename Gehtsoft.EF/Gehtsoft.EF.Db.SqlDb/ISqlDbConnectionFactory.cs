@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
@@ -45,6 +46,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <summary>
         /// The flag indicating whether the connections needs to be disposed.
         /// </summary>
+        [DocgenIgnore]
         public bool NeedDispose => true;
 
         /// <summary>
@@ -62,6 +64,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// Gets connection.
         /// </summary>
         /// <returns></returns>
+        [DocgenIgnore]
         public SqlDbConnection GetConnection() => UniversalSqlDbFactory.Create(mDriver, mConnectionString);
 
         /// <summary>
@@ -69,6 +72,39 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
+        [DocgenIgnore]
         public Task<SqlDbConnection> GetConnectionAsync(CancellationToken? token = null) => UniversalSqlDbFactory.CreateAsync(mDriver, mConnectionString, token ?? CancellationToken.None);
+    }
+
+    /// <summary>
+    /// The factory that uses the existing connection
+    /// </summary>
+    public class ExistingConnectionFactory : ISqlDbConnectionFactory
+    {
+        private readonly SqlDbConnection mConnection;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="connection"></param>
+        public ExistingConnectionFactory(SqlDbConnection connection)
+        {
+            mConnection = connection;
+        }
+
+        [DocgenIgnore]
+        public bool NeedDispose => false;
+
+        [DocgenIgnore]
+        public SqlDbConnection GetConnection()
+        {
+            return mConnection;
+        }
+
+        [DocgenIgnore]
+        public Task<SqlDbConnection> GetConnectionAsync(CancellationToken? token = null)
+        {
+            return Task.FromResult(mConnection);
+        }
     }
 }

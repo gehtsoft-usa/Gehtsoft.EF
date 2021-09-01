@@ -8,11 +8,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     /// <summary>
     /// The base class for dynamic entities.
-    /// 
+    ///
     /// Note: dynamic entities will not be discovered by default by <see cref="EntityFinder"/>.
     /// In order to enable discovery them in finder, call <see cref="AllEntities.EnableDynamicEntityDiscoveryInEntityFinder"/> method.
-    /// 
-    /// To implement a dynamic property, override 
+    ///
+    /// To implement a dynamic property, override
     /// <see cref="EntityAttribute"/> property and <see cref="DynamicEntity.InitializeProperties"/> method.
     /// </summary>
     public abstract class DynamicEntity : DynamicObject

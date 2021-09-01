@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,6 +41,31 @@ namespace Gehtsoft.EF.Test.Entity.Tools
         {
             CA ca = new CA();
             EntityPathAccessor.ReadData(ca, path).Should().Be(valueExpected);
+        }
+
+        [Fact]
+        public void ReadDataFromDynamic()
+        {
+            dynamic d = new { a = 1, b = new { c = "abcd" } };
+
+            ((object)EntityPathAccessor.ReadData(d, "a")).Should().Be(1);
+            ((object)EntityPathAccessor.ReadData(d, "b.c")).Should().Be("abcd");
+        }
+
+        [Fact]
+        public void ReadDataFromExpando()
+        {
+            dynamic b = new ExpandoObject();
+            ((IDictionary<string, object>)b).Add("c", "abcd");
+            dynamic d = new ExpandoObject();
+            ((IDictionary<string, object>)d).Add("a", 1);
+            ((IDictionary<string, object>)d).Add("b", b);
+
+            ((object)d.a).Should().Be(1);
+            ((object)d.b.c).Should().Be("abcd");
+
+            ((object)EntityPathAccessor.ReadData(d, "a")).Should().Be(1);
+            ((object)EntityPathAccessor.ReadData(d, "b.c")).Should().Be("abcd");
         }
 
         [Fact]

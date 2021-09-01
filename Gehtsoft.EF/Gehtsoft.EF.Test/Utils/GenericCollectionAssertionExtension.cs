@@ -38,7 +38,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
                .FailWith("Expected {context:the collection} to exists but it does not")
                .Then
                .ForCondition(e => e.Skip(index).Take(1).Any(i => p(i)))
-               .FailWith("Expected {context:the collection} have element matching predicate at {1} but it does not", index);
+               .FailWith("Expected {context:the collection} have element matching predicate at {0} but it does not", index);
 
             return new AndConstraint<GenericCollectionAssertions<T>>(collection);
         }

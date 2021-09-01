@@ -83,7 +83,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         public void PropertyWithEntity()
         {
             var builder = new ConditionBuilder(mProvider);
-            builder.Property(new QueryBuilderEntity(mProvider), mTable1[0]);
+            builder.Property(mTable1[0], new QueryBuilderEntity(mProvider));
 
             var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
 

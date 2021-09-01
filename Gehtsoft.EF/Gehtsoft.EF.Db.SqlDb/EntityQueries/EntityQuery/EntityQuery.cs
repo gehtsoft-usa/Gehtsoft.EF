@@ -6,27 +6,54 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
+    /// <summary>
+    /// The base query for all entity queries
+    ///
+    /// This class is abstract class. Use <see cref="InsertEntityQuery"/>, <see cref="MultiUpdateEntityQuery"/>,
+    /// <see cref="UpdateEntityQuery"/>, <see cref="DeleteEntityQuery"/>,
+    /// <see cref="MultiDeleteEntityQuery"/>, <see cref="SelectEntitiesCountQuery"/>,
+    /// <see cref="SelectEntitiesQueryBase"/> or
+    /// <see cref="SelectEntitiesQuery"/>.
+    ///
+    /// The object instance must be disposed after use. Some databases requires the query to be disposed before the next query may be executed.
+    /// </summary>
     public class EntityQuery : IDbQuery
     {
         protected SqlDbQuery mQuery;
         internal EntityQueryBuilder mBuilder;
 
+        /// <summary>
+        /// Underlying SQL query.
+        /// </summary>
         public SqlDbQuery Query => mQuery;
+
         internal EntityQueryBuilder EntityQueryBuilder => mBuilder;
+
+        /// <summary>
+        /// Underlying SQL query builder.
+        /// </summary>
         public AQueryBuilder Builder => mBuilder.QueryBuilder;
 
-        internal SqlDbConnection Connection => mQuery.Connection;
-
+        /// <summary>
+        /// The flag indicating whether the query is an insert query.
+        /// </summary>
         public virtual bool IsInsert => false;
 
+        /// <summary>
+        /// The flag indicating whether the query can read an entity.
+        /// </summary>
         public bool CanRead
         {
             get { return mQuery.CanRead; }
         }
 
+        /// <summary>
+        /// The language specific of the associated connection.
+        /// </summary>
         public SqlDbLanguageSpecifics LanguageSpecifics
         {
             get { return mQuery.LanguageSpecifics; }
@@ -38,6 +65,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             mBuilder = builder;
         }
 
+        [DocgenIgnore]
         protected virtual void PrepareQuery()
         {
             if (string.IsNullOrEmpty(mQuery.CommandText))
@@ -48,117 +76,235 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
         }
 
+        /// <summary>
+        /// Execute query
+        /// </summary>
+        /// <returns></returns>
         public virtual int Execute()
         {
             PrepareQuery();
             return mQuery.ExecuteNoData();
         }
 
-        public Task<int> ExecuteAsync() => ExecuteAsync(null);
-
-        public virtual async Task<int> ExecuteAsync(CancellationToken? token)
+        /// <summary>
+        /// Execute query asynchronously.
+        /// </summary>
+        /// <returns></returns>
+        public virtual async Task<int> ExecuteAsync(CancellationToken? token = null)
         {
             PrepareQuery();
             return await mQuery.ExecuteNoDataAsync(token);
         }
 
+        /// <summary>
+        /// Binds parameter of the specified type and direction to the query
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="direction"></param>
+        /// <param name="value"></param>
+        /// <param name="valueType"></param>
         public void BindParam(string name, ParameterDirection direction, object value, Type valueType)
         {
             mQuery.BindParam(name, direction, value, valueType);
         }
 
+        /// <summary>
+        /// Binds input parameter.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
         public virtual void BindParam<T>(string name, T value) => mQuery.BindParam<T>(name, value);
 
+        /// <summary>
+        /// Gets parameter value.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public object GetParamValue(string name, Type type)
         {
             return mQuery.GetParamValue(name, type);
         }
 
+        /// <summary>
+        /// Gets parameter value (generic version).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public T GetParamValue<T>(string name)
         {
             return mQuery.GetParamValue<T>(name);
         }
 
+        /// <summary>
+        /// Returns the number of the rows affected by a data change query (insert, update or delete).
+        /// </summary>
         public int RowsAffected { get; protected set; } = 0;
 
+        /// <summary>
+        /// Execute update query.
+        /// </summary>
+        /// <returns></returns>
         public int ExecuteNoData()
         {
             RowsAffected = mQuery.ExecuteNoData();
             return RowsAffected;
         }
 
+        /// <summary>
+        /// Execute select query.
+        /// </summary>
         public void ExecuteReader()
         {
             mQuery.ExecuteReader();
         }
 
-        public Task<int> ExecuteNoDataAsync() => ExecuteNoDataAsync(null);
-
-        public Task<int> ExecuteNoDataAsync(CancellationToken? token)
+        /// <summary>
+        /// Execute update query asynchronously
+        /// <param name="token"/>
+        /// </summary>
+        public Task<int> ExecuteNoDataAsync(CancellationToken? token = null)
         {
             return mQuery.ExecuteNoDataAsync(token);
         }
 
-        public Task ExecuteReaderAsync() => ExecuteReaderAsync(null);
-
-        public Task ExecuteReaderAsync(CancellationToken? token)
+        /// <summary>
+        /// Execute select query asynchronously.
+        /// <param name="token"/>
+        /// </summary>
+        /// <returns></returns>
+        public Task ExecuteReaderAsync(CancellationToken? token = null)
         {
             return mQuery.ExecuteReaderAsync(token);
         }
 
+        /// <summary>
+        /// Binds input parameter with the `null` value
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="type"></param>
         public virtual void BindNull(string name, DbType type) => mQuery.BindNull(name, type);
 
+        /// <summary>
+        /// Binds output parameter of the specified type.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="type"></param>
         public void BindOutputParam(string name, DbType type)
         {
             mQuery.BindOutputParam(name, type);
         }
 
+        /// <summary>
+        /// Returns the number of the fields in the resultset.
+        /// </summary>
         public int FieldCount => mQuery.FieldCount;
 
-        public SqlDbQuery.FieldInfo Field(string name) => mQuery.Field(name);
+        /// <summary>
+        /// Returns the field description by its name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public FieldInfo Field(string name) => mQuery.Field(name);
 
-        public SqlDbQuery.FieldInfo Field(int column) => mQuery.Field(column);
+        /// <summary>
+        /// Returns the field description by its index.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public FieldInfo Field(int column) => mQuery.Field(column);
 
+        /// <summary>
+        /// Gets column value by the index (generic version).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public T GetValue<T>(int column) => mQuery.GetValue<T>(column);
 
+        /// <summary>
+        /// Gets column value by the name (generic version).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public T GetValue<T>(string column) => mQuery.GetValue<T>(column);
 
+        /// <summary>
+        /// Gets column value by the index.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public object GetValue(int column, Type type)
         {
             return mQuery.GetValue(column, type);
         }
 
+        /// <summary>
+        /// Gets column value by the name
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public object GetValue(string column, Type type)
         {
             return mQuery.GetValue(column, type);
         }
 
+        /// <summary>
+        /// Finds the field by its index.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="ignoreCase"></param>
+        /// <returns></returns>
         public int FindField(string column, bool ignoreCase = false)
         {
             return mQuery.FindField(column, ignoreCase);
         }
 
+        /// <summary>
+        /// Checks whether the column is null by column index.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public bool IsNull(int column) => mQuery.IsNull(column);
 
+        /// <summary>
+        /// Checks whether the column is null by the column name.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public bool IsNull(string column) => mQuery.IsNull(column);
 
+        /// <summary>
+        /// Reads the next row.
+        /// </summary>
+        /// <returns></returns>
         public bool ReadNext() => mQuery.ReadNext();
 
-        public Task<bool> ReadNextAsync() => ReadNextAsync(null);
-
-        public Task<bool> ReadNextAsync(CancellationToken? token) => mQuery.ReadNextAsync(token);
+        /// <summary>
+        /// Reads the next row asynchronously.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public Task<bool> ReadNextAsync(CancellationToken? token = null) => mQuery.ReadNextAsync(token);
 
         ~EntityQuery()
         {
             Dispose(false);
         }
 
+        [DocgenIgnore]
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        [DocgenIgnore]
         protected virtual void Dispose(bool disposing)
         {
             mQuery?.Dispose();
@@ -167,6 +313,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         private Dictionary<Type, object> mTags;
 
+        /// <summary>
+        /// Gets a tag (user-defined data) associated with the query.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T GetTag<T>()
         {
             if (mTags == null)
@@ -176,6 +327,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return (T)value;
         }
 
+        /// <summary>
+        /// Sets a tag (user-defined data) to the query.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
         public void SetTag<T>(T value)
         {
             if (mTags == null)

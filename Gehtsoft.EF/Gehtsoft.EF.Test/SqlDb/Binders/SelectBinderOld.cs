@@ -13,6 +13,8 @@ using Gehtsoft.EF.Test.Utils;
 using Gehtsoft.EF.Test.Utils.DummyDb;
 using Xunit;
 
+#pragma warning disable CS0618 // Type or member is obsolete
+
 namespace Gehtsoft.EF.Test.SqlDb.Binders
 {
     public class SelectBinderOld

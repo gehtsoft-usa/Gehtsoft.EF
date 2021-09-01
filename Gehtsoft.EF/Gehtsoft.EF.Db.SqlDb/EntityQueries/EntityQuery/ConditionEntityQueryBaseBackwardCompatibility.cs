@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
+    [DocgenIgnore]
+    [ExcludeFromCodeCoverage]
+    [Obsolete("Use Where property of the entity query instead")]
     public static class ConditionEntityQueryBaseBackwardCompatibility
     {
         [Obsolete("Use Where property of the entity query instead")]

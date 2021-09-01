@@ -71,6 +71,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             builder.AddUpdateColumn(columnInfo, propertyName);
         }
 
+        public void AddUpdateColumnByExpression(string propertyName, string rawExpression)
+        {
+            TableDescriptor.ColumnInfo columnInfo = mEntityDescriptor.TableDescriptor[propertyName];
+            UpdateQueryBuilder builder = (mQueryBuilder as UpdateQueryBuilder);
+            builder.AddUpdateColumnExpression(columnInfo, rawExpression);
+        }
+
         public void PrepareBinder()
         {
             mBinder = new UpdateQueryToTypeBinder(mEntityDescriptor.EntityType);

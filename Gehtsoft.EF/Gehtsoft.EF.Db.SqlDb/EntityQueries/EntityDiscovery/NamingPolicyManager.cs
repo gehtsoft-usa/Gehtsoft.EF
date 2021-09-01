@@ -10,7 +10,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
     {
         /// <summary>
         /// Default naming policy.
-        /// 
+        ///
         /// The default naming policy is <see cref="EntityNamingPolicy.BackwardCompatibility"/>
         /// </summary>
         public EntityNamingPolicy Default { get; set; } = EntityNamingPolicy.BackwardCompatibility;

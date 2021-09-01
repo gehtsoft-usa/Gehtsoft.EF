@@ -7,7 +7,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
     {
         private readonly SelectEntityQueryFilter[] mExclusions;
 
-        public SelectQueryTypeBinder Binder { get; }
+        public SelectQueryResultBinder Binder { get; }
 
         public SelectEntityQueryBuilder(Type type, SqlDbConnection connection, SelectEntityQueryFilter[] exclusions = null) : base(type, connection)
         {
@@ -22,9 +22,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             Binder = CreateBinder(mSelectQueryBuilder.Entities[0], mEntityDescriptor.EntityType);
         }
 
-        protected SelectQueryTypeBinder CreateBinder(QueryBuilderEntity entity, Type type)
+        protected SelectQueryResultBinder CreateBinder(QueryBuilderEntity entity, Type type)
         {
-            SelectQueryTypeBinder binder = new SelectQueryTypeBinder(type);
+            SelectQueryResultBinder binder = new SelectQueryResultBinder(type);
             foreach (TableDescriptor.ColumnInfo column in entity.Table)
             {
                 if (mExclusions != null)
@@ -44,7 +44,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
                 if (!column.ForeignKey)
                 {
-                    binder.AddBinding(mSelectQueryBuilder.Resultset.Count, column.PropertyAccessor, column.PrimaryKey);
+                    binder.AddBinding(mSelectQueryBuilder.Resultset.Count, column.Name, column.PropertyAccessor, column.PrimaryKey);
                     mSelectQueryBuilder.AddExpressionToResultset($"{entity.Alias}.{column.Name}", column.DbType, false);
                 }
                 else
@@ -60,10 +60,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                             break;
                         }
                     }
+
                     if (!found)
                     {
-                        SelectQueryTypeBinder binder1 = new SelectQueryTypeBinder(column.PropertyAccessor.PropertyType);
-                        binder1.AddBinding(mSelectQueryBuilder.Resultset.Count, column.ForeignTable.PrimaryKey.PropertyAccessor, true);
+                        var binder1 = new SelectQueryResultBinder(column.PropertyAccessor.PropertyType);
+                        binder1.AddBinding(mSelectQueryBuilder.Resultset.Count, column.Name, column.ForeignTable.PrimaryKey.PropertyAccessor, true);
                         mSelectQueryBuilder.AddExpressionToResultset($"{entity.Alias}.{column.Name}", column.DbType, false);
                         binder.AddBinding(binder1, column.PropertyAccessor);
                     }

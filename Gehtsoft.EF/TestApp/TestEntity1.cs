@@ -1273,8 +1273,8 @@ namespace TestApp
                 query.AddToResultset(nameof(Sale.Total), nameof(CustomSaleTargetClass.Total));
 
                 SelectEntityQueryReader<CustomSaleTargetClass> reader = new SelectEntityQueryReader<CustomSaleTargetClass>(query);
-                reader.Bind(m => m.AdjustedTotal, q => q.GetValue<double>(nameof(CustomSaleTargetClass.Total)) * 0.3);
-                reader.Bind((m, q) =>
+                reader.AddAction<CustomSaleTargetClass>((o, q) => q.GetValue<double>(nameof(CustomSaleTargetClass.Total)) * 0.3, nameof(CustomSaleTargetClass.AdjustedTotal));
+                reader.AddAction<CustomSaleTargetClass>((m, q) =>
                 {
                     DateTime saleDate = q.GetValue<DateTime>(nameof(CustomSaleTargetClass.SalesDate));
                     m.SaleDay = saleDate.Day;
@@ -1671,7 +1671,7 @@ namespace TestApp
 
         private static void TestLinqQueryable(SqlDbConnection connection)
         {
-            QueryableEntityProvider provider = new QueryableEntityProvider(new QueryableEntityProviderConnection(connection));
+            QueryableEntityProvider provider = new QueryableEntityProvider(new ExistingConnectionFactory(connection));
             QueryableEntity<Sale> sales = provider.Entities<Sale>();
             Sale[] allSales, tempSales;
             int[] ids;
@@ -1745,7 +1745,7 @@ namespace TestApp
 
         private static void TestLinqQueryable1(SqlDbConnection connection)
         {
-            QueryableEntityProvider provider = new QueryableEntityProvider(new QueryableEntityProviderConnection(connection));
+            QueryableEntityProvider provider = new QueryableEntityProvider(new ExistingConnectionFactory(connection));
             QueryableEntity<Sale> sales = provider.Entities<Sale>();
             Sale[] allSales = (from s in sales orderby s.SalesDate select s).ToArray();
             Sale prevSale = null;

@@ -106,28 +106,4 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return ConditionBuilder.ToString();
         }
     }
-
-    //syntax sugars for where and having filters
-    internal static class EntityConditionBuilderExtension
-    {
-        public static SingleEntityConditionBuilder And(this EntityConditionBuilder builder) => new SingleEntityConditionBuilder(LogOp.And, builder);
-        public static SingleEntityConditionBuilder Or(this EntityConditionBuilder builder) => new SingleEntityConditionBuilder(LogOp.Or, builder);
-        public static SingleEntityConditionBuilder Eq(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.Eq);
-        public static SingleEntityConditionBuilder Neq(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.Neq);
-        public static SingleEntityConditionBuilder Le(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.Le);
-        public static SingleEntityConditionBuilder Ls(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.Ls);
-        public static SingleEntityConditionBuilder Ge(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.Ge);
-        public static SingleEntityConditionBuilder Gt(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.Gt);
-        public static SingleEntityConditionBuilder Like(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.Like);
-        public static SingleEntityConditionBuilder Exists(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.Exists);
-        public static SingleEntityConditionBuilder NotExists(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.NotExists);
-        public static SingleEntityConditionBuilder In(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.In);
-        public static SingleEntityConditionBuilder NotIn(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.NotIn);
-        public static SingleEntityConditionBuilder IsNull(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.IsNull);
-        public static SingleEntityConditionBuilder NotNull(this SingleEntityConditionBuilder builder) => builder.Is(CmpOp.NotNull);
-        public static SingleEntityConditionBuilder Exists(this SingleEntityConditionBuilder builder, AQueryBuilder query) => builder.Is(CmpOp.Exists).Query(query);
-        public static SingleEntityConditionBuilder NotExists(this SingleEntityConditionBuilder builder, AQueryBuilder query) => builder.Is(CmpOp.NotExists).Query(query);
-        public static SingleEntityConditionBuilder In(this SingleEntityConditionBuilder builder, AQueryBuilder query) => builder.Is(CmpOp.In).Query(query);
-        public static SingleEntityConditionBuilder NotIn(this SingleEntityConditionBuilder builder, AQueryBuilder query) => builder.Is(CmpOp.NotIn).Query(query);
-    }
 }

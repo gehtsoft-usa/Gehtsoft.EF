@@ -84,7 +84,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="entity"></param>
         /// <param name="columnInfo"></param>
         /// <returns></returns>
-        public SingleConditionBuilder Property(AggFn aggFn, QueryBuilderEntity entity, TableDescriptor.ColumnInfo columnInfo) => Raw(Builder.PropertyName(aggFn, entity, columnInfo));
+        public SingleConditionBuilder Property(AggFn aggFn, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity) => Raw(Builder.PropertyName(aggFn, entity, columnInfo));
 
         /// <summary>
         /// Adds a property of the first table in the query aggregated using the specified function.
@@ -100,7 +100,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="entity"></param>
         /// <param name="columnInfo"></param>
         /// <returns></returns>
-        public SingleConditionBuilder Property(QueryBuilderEntity entity, TableDescriptor.ColumnInfo columnInfo) => Raw(Builder.PropertyName(entity, columnInfo));
+        public SingleConditionBuilder Property(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity) => Raw(Builder.PropertyName(entity, columnInfo));
 
         /// <summary>
         /// Adds a property of the first table in the query.
@@ -790,7 +790,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="entity"></param>
         /// <param name="columnInfo"></param>
         /// <returns></returns>
-        public static SingleConditionBuilder Property(this ConditionBuilder builder, QueryBuilderEntity entity, TableDescriptor.ColumnInfo columnInfo) => builder.Raw(builder.PropertyName(entity, columnInfo));
+        public static SingleConditionBuilder Property(this ConditionBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity) => builder.Raw(builder.PropertyName(entity, columnInfo));
 
         /// <summary>
         /// Starts a new single condition, sets the a column of the first table in the query as the first argument and connect it to the previous condition with logical and.

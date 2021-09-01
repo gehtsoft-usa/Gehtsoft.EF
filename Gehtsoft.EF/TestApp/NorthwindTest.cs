@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TestApp
@@ -21,7 +22,7 @@ namespace TestApp
             Snapshot snapshot = new Snapshot();
             snapshot.Create(context, maxRecords);
 
-            var queriableProvider = new QueryableEntityProvider(new QueryableEntityProviderConnection(context));
+            var queriableProvider = new QueryableEntityProvider(new ExistingConnectionFactory(context));
 
             var orders = queriableProvider.Entities<Order>();
             var details = queriableProvider.Entities<OrderDetail>();

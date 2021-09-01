@@ -25,14 +25,15 @@ namespace Gehtsoft.EF.Db.SqlDb
             IsPrimaryKey = isPrimaryKey;
         }
     }
-    internal class SelectQuerySubBinderRule
+
+    internal class SelectQueryResultBinderAction
     {
-        public SelectQueryResultBinder Binder { get; }
+        public Func<object, IDbQuery, object> Action { get; }
         public IPropertyAccessor PropertyAccessor { get; }
 
-        public SelectQuerySubBinderRule(SelectQueryResultBinder binder, IPropertyAccessor propertyAccessor)
+        public SelectQueryResultBinderAction(Func<object, IDbQuery, object> action, IPropertyAccessor propertyAccessor)
         {
-            Binder = binder;
+            Action = action;
             PropertyAccessor = propertyAccessor;
         }
     }
@@ -116,10 +117,10 @@ namespace Gehtsoft.EF.Db.SqlDb
     {
         private readonly Type mTargetType;
         private readonly List<SelectQueryResultBinderRule> mRules = new List<SelectQueryResultBinderRule>();
-        private readonly List<SelectQuerySubBinderRule> mSubBinders = new List<SelectQuerySubBinderRule>();
+        private readonly List<SelectQueryResultBinderAction> mActions = new List<SelectQueryResultBinderAction>();
 
         internal IReadOnlyList<SelectQueryResultBinderRule> Rules => mRules;
-        internal IReadOnlyList<SelectQuerySubBinderRule> SubBinders => mSubBinders;
+        internal IReadOnlyList<SelectQueryResultBinderAction> SubBinders => mActions;
 
         internal void AddBinding(int columnIndex, string columnName, IPropertyAccessor accessor, bool isPrimaryKey)
         {
@@ -167,22 +168,45 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <param name="binder"></param>
         /// <param name="propertyName"></param>
         public void AddBinding(SelectQueryResultBinder binder, string propertyName)
-            => AddBinding(binder, PropertyAcessorFactory.Create(mTargetType, propertyName));
-
-        /// <summary>
-        /// Adds binding of a property which consists of another type.
-        /// </summary>
-        /// <param name="binder"></param>
-        /// <param name="propertyAccessor"></param>
-        internal void AddBinding(SelectQueryResultBinder binder, IPropertyAccessor propertyAccessor)
         {
             if (binder == null)
                 throw new ArgumentNullException(nameof(binder));
 
-            if (propertyAccessor == null)
-                throw new ArgumentNullException(nameof(propertyAccessor), "Check whether the expected property exists in the target type");
+            var accessor = PropertyAcessorFactory.Create(mTargetType, propertyName);
+            if (accessor == null)
+                throw new ArgumentException("The property is not found", nameof(propertyName));
 
-            mSubBinders.Add(new SelectQuerySubBinderRule(binder, propertyAccessor));
+            AddAction((o, q) => binder.Read(q), accessor);
+        }
+
+        internal void AddBinding(SelectQueryResultBinder binder, IPropertyAccessor property)
+            => AddAction((o, q) => binder.Read(q), property);
+
+        /// <summary>
+        /// Adds binding of a calculated property.
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="propertyName"></param>
+        public void AddAction<T>(Func<T, IDbQuery, object> action, string propertyName)
+            => AddAction((o, q) => action((T)o, q), string.IsNullOrEmpty(propertyName) ? null : PropertyAcessorFactory.Create(mTargetType, propertyName));
+
+        /// <summary>
+        /// Adds binding of a calculated property.
+        /// </summary>
+        /// <param name="action"></param>
+        public void AddAction<T>(Action<T, IDbQuery> action) => AddAction<T>((o, q) => { action(o, q); return null; }, null);
+
+        /// <summary>
+        /// Adds binding of a property which consists of another type.
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="propertyAccessor"></param>
+        internal void AddAction(Func<object, IDbQuery, object> action, IPropertyAccessor propertyAccessor)
+        {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+
+            mActions.Add(new SelectQueryResultBinderAction(action, propertyAccessor));
         }
 
         /// <summary>
@@ -190,7 +214,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// </summary>
         /// <param name="query"></param>
         /// <param name="prefix"></param>
-        public void AutoBindQuery(SqlDbQuery query, string prefix = null)
+        public void AutoBindQuery(IDbQuery query, string prefix = null)
         {
             if (mRules.Count != 0)
                 throw new InvalidOperationException("The binder is already bound");
@@ -278,7 +302,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <param name="query"></param>
         /// <param name="toBind"></param>
         /// <returns></returns>
-        public bool Read(SqlDbQuery query, object toBind)
+        public bool Read(IDbQuery query, object toBind)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -319,11 +343,12 @@ namespace Gehtsoft.EF.Db.SqlDb
                 Assign(rule.PropertyAccessor, r);
             }
 
-            for (int i = 0; i < mSubBinders.Count; i++)
+            for (int i = 0; i < mActions.Count; i++)
             {
-                var rule = mSubBinders[i];
-                var r = rule.Binder.Read(query);
-                Assign(rule.PropertyAccessor, r);
+                var rule = mActions[i];
+                var r = rule.Action(toBind, query);
+                if (rule.PropertyAccessor != null)
+                    Assign(rule.PropertyAccessor, r);
             }
 
             return true;
@@ -342,7 +367,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
-        public object Read(SqlDbQuery query)
+        public object Read(IDbQuery query)
         {
             var o = Activator.CreateInstance(mTargetType);
             if (!Read(query, o))
@@ -351,16 +376,50 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
     }
 
+    /// <summary>
+    /// The extension for <see cref="SelectQueryResultBinder"/>
+    /// </summary>
     public static class SelectQueryResultBinderExension
     {
-        public static T Read<T>(this SelectQueryResultBinder binder, SqlDbQuery query) where T : new()
+        /// <summary>
+        /// Reads one object (generic version)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="binder"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public static T Read<T>(this SelectQueryResultBinder binder, IDbQuery query) where T : new()
         {
             var t = new T();
             binder.Read(query, t);
             return t;
         }
 
-        public static dynamic ReadToDynamic(this SelectQueryResultBinder binder, SqlDbQuery query)
+        /// <summary>
+        /// Reads all objects into a collection.
+        /// </summary>
+        /// <typeparam name="TC"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="binder"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public static TC ReadAll<TC, T>(this SelectQueryResultBinder binder, IDbQuery query)
+            where TC : IList<T>, new()
+            where T : new()
+        {
+            var r = new TC();
+            while (query.ReadNext())
+                r.Add(binder.Read<T>(query));
+            return r;
+        }
+
+        /// <summary>
+        /// Reads an object as a dynamic object.
+        /// </summary>
+        /// <param name="binder"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public static dynamic ReadToDynamic(this SelectQueryResultBinder binder, IDbQuery query)
         {
             var t = new ExpandoObject();
             binder.Read(query, t);

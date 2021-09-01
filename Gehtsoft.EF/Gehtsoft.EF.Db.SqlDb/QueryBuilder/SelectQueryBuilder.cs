@@ -383,6 +383,29 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             }
         }
 
+        /// <summary>
+        /// Adds query to resultset.
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="type"></param>
+        /// <param name="alias"></param>
+        public virtual void AddToResultset(SelectQueryBuilder query, DbType type, string alias = null)
+        {
+            if (string.IsNullOrEmpty(query.Query))
+                query.PrepareQuery();
+
+            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            {
+                if (query.Query.ContainsScalar())
+                    throw new ArgumentException("Query should not consists of string scalars", nameof(query));
+
+                if (!string.IsNullOrEmpty(alias) && alias.ContainsScalar())
+                    throw new ArgumentException("Query should not consists of string scalars", nameof(alias));
+            }
+
+            AddExpressionToResultset($"({query.Query})", type, false, alias);
+        }
+
         protected SelectQueryBuilderByItemCollection mOrderBy = new SelectQueryBuilderByItemCollection();
         protected SelectQueryBuilderByItemCollection mGroupBy = new SelectQueryBuilderByItemCollection();
 

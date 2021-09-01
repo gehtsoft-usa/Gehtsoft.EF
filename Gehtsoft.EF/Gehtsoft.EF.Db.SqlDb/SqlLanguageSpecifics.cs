@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
@@ -647,7 +648,13 @@ namespace Gehtsoft.EF.Db.SqlDb
             return new ParameterGroupQueryBuilder(this);
         }
 
+        [DocgenIgnore]
         public virtual bool SelectRequiresLimitWhenOffsetIsSet => false;
+
+        /// <summary>
+        /// The flag indicating whether hierarchal queries are supported.
+        /// </summary>
+        public virtual bool HierarchicalQuerySupported => true;
     }
 
     internal class Sql92LanguageSpecifics : SqlDbLanguageSpecifics
@@ -767,6 +774,8 @@ namespace Gehtsoft.EF.Db.SqlDb
             else
                 return base.TranslateValue(value, type);
         }
+
+        public override bool HierarchicalQuerySupported => false;
     }
 
     /// <summary>

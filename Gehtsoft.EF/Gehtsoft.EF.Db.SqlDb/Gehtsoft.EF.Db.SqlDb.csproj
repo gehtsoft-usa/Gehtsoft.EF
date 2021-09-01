@@ -59,7 +59,6 @@
     <Compile Include="EntityQueries\EntityQueryBuilder\EntityConditionBuilder.cs" />
     <Compile Include="EntityQueries\EntityQueryBuilder\EntityQueryBuilder.cs" />
     <Compile Include="EntityQueries\EntityQueryBuilder\EntityQueryWithWhereBuilder.cs" />
-    <Compile Include="EntityQueries\EntityQueryBuilder\EntityQueryWithWhereBuilderBackwardCompatibility.cs" />
     <Compile Include="EntityQueries\EntityQueryBuilder\ModifyEntityQuery.cs" />
     <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityCountQueryBuilder.cs" />
     <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityQueryBuilder.cs" />
@@ -96,6 +95,7 @@
     <Compile Include="EntityQueries\EntityQuery\SelectEntitiesQuery.cs" />
     <Compile Include="EntityQueries\EntityQuery\SelectEntitiesQueryBase.cs" />
     <Compile Include="EntityQueries\EntityQuery\UpdateEntityQuery.cs" />
+    <Compile Include="FieldInfo.cs" />
     <Compile Include="IDbQuery.cs" />
     <Compile Include="Metadata\CompositeIndex.cs" />
     <Compile Include="Metadata\ICompositeIndexMetadata.cs" />

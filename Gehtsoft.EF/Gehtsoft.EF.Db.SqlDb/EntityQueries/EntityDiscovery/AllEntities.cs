@@ -13,7 +13,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     /// <summary>
     /// The class that discovers and keeps information about all entities for SQL-related tables purpose.
-    /// 
+    ///
     /// The class is a signleton. Use <see cref="Inst"/> method to get an instance of the class.
     /// </summary>
     public sealed class AllEntities : IEnumerable<Type>
@@ -46,7 +46,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         /// <summary>
         /// Gets all already discovered entities.
-        /// 
+        ///
         /// The entity must be requested in order to be included to this list. This method
         /// do not search for entities. Use <see cref="EntityFinder"/> to find all entities in the assemblies.
         /// </summary>
@@ -85,9 +85,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         /// <summary>
         /// Adds custom discoverer of the entity.
-        /// 
+        ///
         /// By default, two discoverer are added - discoverer for entities
-        /// defined by <see cref="EntityPropertyAttribute"/> and for entities derived from 
+        /// defined by <see cref="EntityPropertyAttribute"/> and for entities derived from
         /// <see cref="DynamicEntity"/>
         /// </summary>
         /// <param name="discoverer"></param>
@@ -181,9 +181,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <summary>
         /// Preloads entities from the list of the assemblies.
         /// </summary>
-        /// <param name="assembly"></param>
+        /// <param name="assemblies"></param>
         /// <param name="scope"></param>
-
         public void PreloadEntities(IEnumerable<Assembly> assemblies, string scope = null)
         {
             lock (mMutex)

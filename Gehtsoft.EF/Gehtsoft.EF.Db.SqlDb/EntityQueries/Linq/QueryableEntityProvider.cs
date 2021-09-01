@@ -9,20 +9,22 @@ using System.Text;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 {
+    /// <summary>
+    /// The provider for LINQ queryable entities.
+    /// </summary>
     public class QueryableEntityProvider : IQueryProvider
     {
-        public interface IConnectionProvider
-        {
-            SqlDbConnection Connection { get; }
-            bool NeedToDispose { get; }
-        }
+        protected readonly ISqlDbConnectionFactory mConnectionProvider;
 
-        protected readonly IConnectionProvider mConnectionProvider;
-
-        public QueryableEntityProvider(IConnectionProvider connectionProvider)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="connectionProvider"></param>
+        public QueryableEntityProvider(ISqlDbConnectionFactory connectionProvider)
         {
             mConnectionProvider = connectionProvider;
         }
@@ -42,16 +44,19 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             }
         }
 
+        [DocgenIgnore]
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
             return new QueryableEntity<TElement>(this, expression);
         }
 
+        [DocgenIgnore]
         public object Execute(Expression expression)
         {
             return Execute(expression, false);
         }
 
+        [DocgenIgnore]
         public TResult Execute<TResult>(Expression expression)
         {
             object r = Execute(expression, typeof(TResult).Name == "IEnumerable`1");
@@ -329,7 +334,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             SqlDbConnection connection = null;
             try
             {
-                connection = mConnectionProvider.Connection;
+                connection = mConnectionProvider.GetConnection();
 
                 using (CompiledQuery compiledQuery = CompileToQuery(connection, expression))
                 {
@@ -368,82 +373,72 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             }
             finally
             {
-                if (mConnectionProvider.NeedToDispose)
+                if (mConnectionProvider.NeedDispose)
                     connection?.Dispose();
             }
         }
 
+        /// <summary>
+        /// Inserts the object into the database.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="o"></param>
         public void Insert<T>(object o)
         {
             SqlDbConnection connection = null;
             try
             {
-                connection = mConnectionProvider.Connection;
+                connection = mConnectionProvider.GetConnection();
                 using (ModifyEntityQuery query = connection.GetInsertEntityQuery<T>())
                     query.Execute(o);
             }
             finally
             {
-                if (mConnectionProvider.NeedToDispose)
+                if (mConnectionProvider.NeedDispose)
                     connection?.Dispose();
             }
         }
 
+        /// <summary>
+        /// Updates the object in the database.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="o"></param>
         public void Update<T>(object o)
         {
             SqlDbConnection connection = null;
             try
             {
-                connection = mConnectionProvider.Connection;
+                connection = mConnectionProvider.GetConnection();
                 using (ModifyEntityQuery query = connection.GetUpdateEntityQuery<T>())
                     query.Execute(o);
             }
             finally
             {
-                if (mConnectionProvider.NeedToDispose)
+                if (mConnectionProvider.NeedDispose)
                     connection?.Dispose();
             }
         }
 
+        /// <summary>
+        /// Deletes the object from the database.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="o"></param>
         public void Delete<T>(object o)
         {
             SqlDbConnection connection = null;
             try
             {
-                connection = mConnectionProvider.Connection;
+                connection = mConnectionProvider.GetConnection();
                 using (ModifyEntityQuery query = connection.GetDeleteEntityQuery<T>())
                     query.Execute(o);
             }
             finally
             {
-                if (mConnectionProvider.NeedToDispose)
+                if (mConnectionProvider.NeedDispose)
                     connection?.Dispose();
             }
-        }
-    }
-
-    public class QueryableEntityProviderConnection : QueryableEntityProvider.IConnectionProvider
-    {
-        public SqlDbConnection Connection { get; }
-        public bool NeedToDispose => false;
-
-        public QueryableEntityProviderConnection(SqlDbConnection connection)
-        {
-            Connection = connection;
-        }
-    }
-
-    public class QueryableEntityProviderConnectionFactory : QueryableEntityProvider.IConnectionProvider
-    {
-        private readonly SqlDbConnectionFactory mFactory;
-        private readonly string mConnectionString;
-        public SqlDbConnection Connection => mFactory(mConnectionString);
-        public bool NeedToDispose => true;
-
-        public QueryableEntityProviderConnectionFactory(SqlDbConnectionFactory factory, string connectionString)
-        {
-            mFactory = factory;
-            mConnectionString = connectionString;
         }
     }
 }

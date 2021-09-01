@@ -174,12 +174,12 @@ namespace Gehtsoft.EF.FTS
             FtsWordEntity wordEntity;
 
             if (sync)
-                objectEntity = connection.FtsFindOrCreateObjectCore(true, objectID, type, sorter, true, token).ConfigureAwait(false).GetAwaiter().GetResult();
+                objectEntity = connection.FtsFindOrCreateObjectCore(true, objectID, type, sorter, true, token).SyncResult();
             else
                 objectEntity = await connection.FtsFindOrCreateObjectCore(false, objectID, type, sorter, true, token);
 
             DeleteEntityQueryBuilder builder = connection.GetDeleteEntityQueryBuilder(typeof(FtsWord2ObjectEntity));
-            builder.Where.And().PropertyOf(nameof(FtsWord2ObjectEntity.Object), typeof(FtsWord2ObjectEntity)).Is(CmpOp.Eq).Parameter("objID");
+            builder.Where.Add(LogOp.And).PropertyOf(nameof(FtsWord2ObjectEntity.Object), typeof(FtsWord2ObjectEntity)).Is(CmpOp.Eq).Parameter("objID");
             using (SqlDbQuery query = connection.GetQuery(builder.QueryBuilder))
             {
                 query.BindParam("objID", objectEntity.ID);
@@ -192,9 +192,10 @@ namespace Gehtsoft.EF.FTS
             foreach (string word in words)
             {
                 if (sync)
-                    wordEntity = connection.FtsFindOrCreateWordCore(true, word, token).ConfigureAwait(false).GetAwaiter().GetResult();
+                    wordEntity = connection.FtsFindOrCreateWordCore(true, word, token).SyncResult();
                 else
                     wordEntity = await connection.FtsFindOrCreateWordCore(false, word, token);
+
                 FtsWord2ObjectEntity word2object = new FtsWord2ObjectEntity() { Object = objectEntity, Word = wordEntity };
                 using (ModifyEntityQuery query = connection.GetInsertEntityQuery(typeof(FtsWord2ObjectEntity)))
                 {
@@ -223,7 +224,7 @@ namespace Gehtsoft.EF.FTS
             if (entity != null)
             {
                 DeleteEntityQueryBuilder builder = connection.GetDeleteEntityQueryBuilder(typeof(FtsWord2ObjectEntity));
-                builder.Where.And().PropertyOf(nameof(FtsWord2ObjectEntity.Object), typeof(FtsWord2ObjectEntity)).Is(CmpOp.Eq).Parameter("objID");
+                builder.Where.Add(LogOp.And).PropertyOf(nameof(FtsWord2ObjectEntity.Object), typeof(FtsWord2ObjectEntity)).Is(CmpOp.Eq).Parameter("objID");
 
                 using (SqlDbQuery query = connection.GetQuery(builder))
                 {
@@ -508,6 +509,7 @@ namespace Gehtsoft.EF.FTS
                 query.Limit = limit;
                 query.Skip = skip;
                 query.AddOrderBy(nameof(FtsWordEntity.Word));
+
                 if (sync)
                     return query.ReadAll<FtsWordEntityCollection, FtsWordEntity>();
                 else
@@ -519,7 +521,7 @@ namespace Gehtsoft.EF.FTS
             => connection.FtsGetWordsCore(true, mask, limit, skip, null).SyncResult();
 
         public static Task<FtsWordEntityCollection> FtsGetWordsAsync(this SqlDbConnection connection, string mask, int limit, int skip, CancellationToken? token = null)
-            => connection.FtsGetWordsCore(true, mask, limit, skip, token).AsTask();
+            => connection.FtsGetWordsCore(false, mask, limit, skip, token).AsTask();
     }
 
     public class FtsSelectQueryBuilder : AQueryBuilder

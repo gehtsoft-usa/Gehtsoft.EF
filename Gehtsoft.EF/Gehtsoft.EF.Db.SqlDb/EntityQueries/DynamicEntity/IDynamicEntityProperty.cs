@@ -5,9 +5,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     /// <summary>
     /// The default implementation of the dynamic entity property information interface.
-    /// 
+    ///
     /// The interface is used to return entity information from the <see cref="DynamicEntity"/>.
-    /// 
+    ///
     /// Use <see cref="DynamicEntityProperty"/> as a dynamic implementation.
     /// </summary>
     public interface IDynamicEntityProperty

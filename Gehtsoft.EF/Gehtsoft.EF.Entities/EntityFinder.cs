@@ -13,14 +13,14 @@ namespace Gehtsoft.EF.Entities
 {
     /// <summary>
     /// The interface for custom entity probe.
-    /// 
-    /// Implement this interface to provide the custom way to 
+    ///
+    /// Implement this interface to provide the custom way to
     /// recognize the entity.
     /// </summary>
     public interface IEntityProbe
     {
         /// <summary>
-        /// Probes the class whether it is an entity and 
+        /// Probes the class whether it is an entity and
         /// returns the entity description if it is.
         /// </summary>
         /// <param name="type"></param>
@@ -226,7 +226,7 @@ namespace Gehtsoft.EF.Entities
             }
         }
 
-        private static List<IEntityProbe> mProbes = new List<IEntityProbe>();
+        private readonly static List<IEntityProbe> mProbes = new List<IEntityProbe>();
 
         public static bool AddProbe(IEntityProbe probe)
         {
