@@ -94,7 +94,18 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public void AddDiscoverer(IEntityDisoverer discoverer)
         {
             lock (mMutex)
-                mDisoverer.Add(discoverer);
+            {
+                if (!mDisoverer.Contains(discoverer))
+                    mDisoverer.Add(discoverer);
+            }
+        }
+
+        public void RemoveDiscoverer(IEntityDisoverer discoverer)
+        {
+            lock (mMutex)
+            {
+                mDisoverer.Remove(discoverer);
+            }
         }
 
         /// <summary>
@@ -237,5 +248,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
             return mEntities.Keys.GetEnumerator();
         }
+
+        [DocgenIgnore]
+        public bool IsEntityKnown(Type type) => mEntities.Keys.Contains(type);
     }
 }

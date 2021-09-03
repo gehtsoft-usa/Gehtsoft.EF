@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using FluentAssertions;
@@ -22,7 +23,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             [AutoId]
             public int Id { get; set; }
             [EntityProperty(Field = "n1")]
-            public int N1 { get; set; }
+            public string N1 { get; set; }
         }
 
         [Entity(Scope = "select_queries", Table = "dict2")]
@@ -30,10 +31,12 @@ namespace Gehtsoft.EF.Test.Entity.Query
         {
             [AutoId]
             public int Id { get; set; }
-            [EntityProperty(Field = "n2")]
-            public int N2 { get; set; }
+
             [ForeignKey(Field = "d1")]
             public Dict1 D1 { get; set; }
+
+            [EntityProperty(Field = "n2")]
+            public string N2 { get; set; }
         }
 
         [Entity(Scope = "select_queries", Table = "table1")]
@@ -404,6 +407,26 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 .And.HaveFieldName("d1");
         }
 
+        [Theory]
+        [InlineData(typeof(Entity1), 0, nameof(Entity1.A), "A")]
+        [InlineData(typeof(Dict1), 0, nameof(Dict1.N1), "D1.N1")]
+        [InlineData(typeof(Dict2), 0, nameof(Dict2.N2), "D2.N2")]
+        [InlineData(typeof(Dict1), 1, nameof(Dict1.N1), "D2.D1.N1")]
+        public void InQueryReference(Type type, int occurrence, string name, string path)
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetSelectEntitiesCountQuery<Entity1>();
+
+            var r1 = query.GetReference(type, occurrence, name);
+            r1.Should().NotBeNull();
+            r1.Item.QueryEntity.Table.Should().BeSameAs(AllEntities.Get(type).TableDescriptor);
+            r1.Item.Column.ID.Should().Be(name);
+            r1.Path.Should().Be(path);
+
+            var r2 = query.GetReference(path);
+            r2.Item.Should().BeSameAs(r1.Item);
+        }
+
         [Fact]
         public void Join_Auto_WholeTree_ByDemand()
         {
@@ -556,16 +579,18 @@ namespace Gehtsoft.EF.Test.Entity.Query
         }
 
         [Fact]
-        public void Count_Execute_Explicit()
+        public void Execute_Count_Explicit()
         {
             using var connection = new DummySqlConnection();
             using var query = connection.GetSelectEntitiesCountQuery<Dict1>();
             query.PrepareQuery();
-            
+
             var command = query.Query.Command as DummyDbCommand;
-            var result = new DummyDbDataReaderResult();
-            result.Columns = new DummyDbDataReaderColumnCollection() { new DummyDbDataReaderColumn("", DbType.Int32) };
-            result.Data = new DummyDbDataReaderColumnDataRows() { new DummyDbDataReaderColumnDataCollection(15) };
+            var result = new DummyDbDataReaderResult
+            {
+                Columns = new DummyDbDataReaderColumnCollection() { new DummyDbDataReaderColumn("", DbType.Int32) },
+                Data = new DummyDbDataReaderColumnDataRows() { new DummyDbDataReaderColumnDataCollection(15) }
+            };
             command.ReturnReader = new DummyDbDataReader() { result };
 
             query.Execute();
@@ -573,16 +598,18 @@ namespace Gehtsoft.EF.Test.Entity.Query
         }
 
         [Fact]
-        public void Count_Execute_Implicit()
+        public void Execute_Count_Implicit()
         {
             using var connection = new DummySqlConnection();
             using var query = connection.GetSelectEntitiesCountQuery<Dict1>();
             query.PrepareQuery();
 
             var command = query.Query.Command as DummyDbCommand;
-            var result = new DummyDbDataReaderResult();
-            result.Columns = new DummyDbDataReaderColumnCollection() { new DummyDbDataReaderColumn("", DbType.Int32) };
-            result.Data = new DummyDbDataReaderColumnDataRows() { new DummyDbDataReaderColumnDataCollection(15) };
+            var result = new DummyDbDataReaderResult
+            {
+                Columns = new DummyDbDataReaderColumnCollection() { new DummyDbDataReaderColumn("", DbType.Int32) },
+                Data = new DummyDbDataReaderColumnDataRows() { new DummyDbDataReaderColumnDataCollection(15) }
+            };
             command.ReturnReader = new DummyDbDataReader() { result };
 
             query.RowCount.Should().Be(15);
@@ -590,16 +617,18 @@ namespace Gehtsoft.EF.Test.Entity.Query
         }
 
         [Fact]
-        public async Task Count_Execute_Async()
+        public async Task Execute_Count_Async()
         {
             using var connection = new DummySqlConnection();
             using var query = connection.GetSelectEntitiesCountQuery<Dict1>();
             query.PrepareQuery();
 
             var command = query.Query.Command as DummyDbCommand;
-            var result = new DummyDbDataReaderResult();
-            result.Columns = new DummyDbDataReaderColumnCollection() { new DummyDbDataReaderColumn("", DbType.Int32) };
-            result.Data = new DummyDbDataReaderColumnDataRows() { new DummyDbDataReaderColumnDataCollection(15) };
+            var result = new DummyDbDataReaderResult
+            {
+                Columns = new DummyDbDataReaderColumnCollection() { new DummyDbDataReaderColumn("", DbType.Int32) },
+                Data = new DummyDbDataReaderColumnDataRows() { new DummyDbDataReaderColumnDataCollection(15) }
+            };
             command.ReturnReader = new DummyDbDataReader() { result };
 
             await query.ExecuteAsync();
@@ -759,12 +788,12 @@ namespace Gehtsoft.EF.Test.Entity.Query
             using var connection = new DummySqlConnection();
             using var query = connection.GetGenericSelectEntityQuery<Entity1>();
             query.AddWholeTree();
-            
+
             if (typeOccurrence == 0)
                 query.AddToResultset(type, property);
             else
                 query.AddToResultset(type, typeOccurrence, property);
-            
+
             query.PrepareQuery();
             var select = query.Builder.Query.ParseSql().SelectStatement();
 
@@ -850,9 +879,9 @@ namespace Gehtsoft.EF.Test.Entity.Query
             using var query = connection.GetGenericSelectEntityQuery<Entity1>();
             query.AddWholeTree();
             var e = query.FindType(propertyType, propertyOccurrence);
-            
+
             query.AddExpressionToResultset($"{expectedFunction}({e.Alias}.{e.Table[property].Name})", DbType.Double, "my");
-            
+
             query.PrepareQuery();
             var select = query.Builder.Query.ParseSql().SelectStatement();
 
@@ -874,6 +903,342 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 expr.Should().BeCountAllCall();
         }
 
+        [Fact]
+        public void Resultset_Auto()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetSelectEntitiesQuery<Entity1>();
+
+            query.PrepareQuery();
+            var select = query.Builder.Query.ParseSql().SelectStatement();
+
+            var e1 = query.FindType(typeof(Entity1));   //3 properties + 2 dict
+            var e2 = query.FindType(typeof(Dict1));     //2 properties
+            var e3 = query.FindType(typeof(Dict2));     //2 properties + 1 dict
+            var e4 = query.FindType(typeof(Dict1), 1);  //2 properties
+
+            select.Should().HaveResultsetSize(9);
+
+            select.ResultsetItem(0)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e1.Alias, "id");
+
+            select.ResultsetItem(1)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e1.Alias, "a");
+
+            select.ResultsetItem(2)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e1.Alias, "b");
+
+            select.ResultsetItem(3)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e2.Alias, "id");
+
+            select.ResultsetItem(4)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e2.Alias, "n1");
+
+            select.ResultsetItem(5)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e3.Alias, "id");
+
+            select.ResultsetItem(6)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e4.Alias, "id");
+
+            select.ResultsetItem(7)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e4.Alias, "n1");
+
+            select.ResultsetItem(8)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e3.Alias, "n2");
+        }
+
+        [Fact]
+        public void Resultset_Auto_Filter_Ordinary()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetSelectEntitiesQuery<Entity1>(new[] { new SelectEntityQueryFilter() { EntityType = typeof(Dict1), Property = "N1" } });
+
+            query.PrepareQuery();
+            var select = query.Builder.Query.ParseSql().SelectStatement();
+
+            var e1 = query.FindType(typeof(Entity1));   //3 properties + 2 dict
+            var e2 = query.FindType(typeof(Dict1));     //2 properties
+            var e3 = query.FindType(typeof(Dict2));     //2 properties + 1 dict
+            var e4 = query.FindType(typeof(Dict1), 1);  //2 properties
+
+            select.Should().HaveResultsetSize(7);
+
+            select.ResultsetItem(0)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e1.Alias, "id");
+
+            select.ResultsetItem(1)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e1.Alias, "a");
+
+            select.ResultsetItem(2)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e1.Alias, "b");
+
+            select.ResultsetItem(3)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e2.Alias, "id");
+
+            select.ResultsetItem(4)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e3.Alias, "id");
+
+            select.ResultsetItem(5)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e4.Alias, "id");
+
+            select.ResultsetItem(6)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e3.Alias, "n2");
+        }
+
+        [Fact]
+        public void Resultset_Auto_Filter_FK()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetSelectEntitiesQuery<Entity1>(new[] { new SelectEntityQueryFilter() { EntityType = typeof(Entity1), Property = nameof(Entity1.D2) } });
+
+            query.PrepareQuery();
+            var select = query.Builder.Query.ParseSql().SelectStatement();
+
+            var e1 = query.FindType(typeof(Entity1));   //3 properties + 2 dict
+            var e2 = query.FindType(typeof(Dict1));     //2 properties
+
+            select.Should().HaveResultsetSize(5);
+
+            select.ResultsetItem(0)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e1.Alias, "id");
+
+            select.ResultsetItem(1)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e1.Alias, "a");
+
+            select.ResultsetItem(2)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e1.Alias, "b");
+
+            select.ResultsetItem(3)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e2.Alias, "id");
+
+            select.ResultsetItem(4)
+                .ResultsetExpr()
+                .Should().BeFieldExpression(e2.Alias, "n1");
+        }
+
+        [Fact]
+        public void Execute_ReadAll()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetSelectEntitiesQuery<Dict2>();
+            query.PrepareQuery();
+
+            var command = query.Query.Command as DummyDbCommand;
+            var result = new DummyDbDataReaderResult
+            {
+                Columns =
+                    new DummyDbDataReaderColumnCollection()
+                    {
+                        new DummyDbDataReaderColumn(query.ResultColumn(0).Alias, query.ResultColumn(0).DbType),
+                        new DummyDbDataReaderColumn(query.ResultColumn(1).Alias, query.ResultColumn(1).DbType),
+                        new DummyDbDataReaderColumn(query.ResultColumn(2).Alias, query.ResultColumn(2).DbType),
+                        new DummyDbDataReaderColumn(query.ResultColumn(3).Alias, query.ResultColumn(3).DbType),
+                    },
+                Data =
+                    new DummyDbDataReaderColumnDataRows()
+                    {
+                        new DummyDbDataReaderColumnDataCollection(1, 10, "dict1", "record1"),
+                        new DummyDbDataReaderColumnDataCollection(2, 11, "dict2", "record2"),
+                        new DummyDbDataReaderColumnDataCollection(3, DBNull.Value, DBNull.Value, "record3"),
+                    }
+            };
+            command.ReturnReader = new DummyDbDataReader() { result };
+
+            query.Execute();
+
+            var e = query.ReadAll<Dict2>();
+
+            e.Should().HaveCount(3);
+
+            e[0].Id.Should().Be(1);
+            e[0].N2.Should().Be("record1");
+            e[0].D1.Should().NotBeNull();
+            e[0].D1.Id.Should().Be(10);
+            e[0].D1.N1.Should().Be("dict1");
+
+            e[1].Id.Should().Be(2);
+            e[1].N2.Should().Be("record2");
+            e[1].D1.Should().NotBeNull();
+            e[1].D1.Id.Should().Be(11);
+            e[1].D1.N1.Should().Be("dict2");
+
+            e[2].Id.Should().Be(3);
+            e[2].N2.Should().Be("record3");
+            e[2].D1.Should().BeNull();
+        }
+
+        [Fact]
+        public void Execute_ExcludeColumn()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetSelectEntitiesQuery<Dict2>(new[] { new SelectEntityQueryFilter() { EntityType = typeof(Dict1), Property = "N1" } });
+            query.PrepareQuery();
+
+            var command = query.Query.Command as DummyDbCommand;
+            var result = new DummyDbDataReaderResult
+            {
+                Columns =
+                    new DummyDbDataReaderColumnCollection()
+                    {
+                        new DummyDbDataReaderColumn(query.ResultColumn(0).Alias, query.ResultColumn(0).DbType),
+                        new DummyDbDataReaderColumn(query.ResultColumn(1).Alias, query.ResultColumn(1).DbType),
+                        new DummyDbDataReaderColumn(query.ResultColumn(2).Alias, query.ResultColumn(2).DbType),
+                    },
+                Data =
+                    new DummyDbDataReaderColumnDataRows()
+                    {
+                        new DummyDbDataReaderColumnDataCollection(1, 10, "record1"),
+                        new DummyDbDataReaderColumnDataCollection(2, 11, "record2"),
+                        new DummyDbDataReaderColumnDataCollection(3, DBNull.Value, "record3"),
+                    }
+            };
+            command.ReturnReader = new DummyDbDataReader() { result };
+
+            query.Execute();
+
+            var e = query.ReadAll<Dict2>();
+
+            e.Should().HaveCount(3);
+
+            e[0].Id.Should().Be(1);
+            e[0].N2.Should().Be("record1");
+            e[0].D1.Should().NotBeNull();
+            e[0].D1.Id.Should().Be(10);
+            e[0].D1.N1.Should().BeNull();
+
+            e[1].Id.Should().Be(2);
+            e[1].N2.Should().Be("record2");
+            e[1].D1.Should().NotBeNull();
+            e[1].D1.Id.Should().Be(11);
+            e[1].D1.N1.Should().BeNull();
+
+            e[2].Id.Should().Be(3);
+            e[2].N2.Should().Be("record3");
+            e[2].D1.Should().BeNull();
+        }
+
+        [Fact]
+        public void Execute_ReadAllDynamic()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetSelectEntitiesQuery<Dict2>();
+            query.PrepareQuery();
+
+            var command = query.Query.Command as DummyDbCommand;
+            var result = new DummyDbDataReaderResult
+            {
+                Columns =
+                    new DummyDbDataReaderColumnCollection()
+                    {
+                        new DummyDbDataReaderColumn(query.ResultColumn(0).Alias, query.ResultColumn(0).DbType),
+                        new DummyDbDataReaderColumn(query.ResultColumn(1).Alias, query.ResultColumn(1).DbType),
+                        new DummyDbDataReaderColumn(query.ResultColumn(2).Alias, query.ResultColumn(2).DbType),
+                        new DummyDbDataReaderColumn(query.ResultColumn(3).Alias, query.ResultColumn(3).DbType),
+                    },
+                Data =
+                    new DummyDbDataReaderColumnDataRows()
+                    {
+                        new DummyDbDataReaderColumnDataCollection(1, 10, "dict1", "record1"),
+                        new DummyDbDataReaderColumnDataCollection(2, 11, "dict2", "record2"),
+                        new DummyDbDataReaderColumnDataCollection(3, DBNull.Value, DBNull.Value, "record3"),
+                    }
+            };
+            command.ReturnReader = new DummyDbDataReader() { result };
+
+            query.Execute();
+
+            var e = query.ReadAllDynamic();
+
+            e.Should().HaveCount(3);
+
+            ((object)e[0].Id).Should().Be(1);
+            ((object)e[0].N2).Should().Be("record1");
+            ((object)e[0].D1).Should().NotBeNull();
+            ((object)e[0].D1.Id).Should().Be(10);
+            ((object)e[0].D1.N1).Should().Be("dict1");
+
+            ((object)e[1].Id).Should().Be(2);
+            ((object)e[1].N2).Should().Be("record2");
+            ((object)e[1].D1).Should().NotBeNull();
+            ((object)e[1].D1.Id).Should().Be(11);
+            ((object)e[1].D1.N1).Should().Be("dict2");
+
+            ((object)e[2].Id).Should().Be(3);
+            ((object)e[2].N2).Should().Be("record3");
+            ((object)e[2].D1).Should().BeNull();
+        }
+
+        [Fact]
+        public void Execute_ReadManually()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetSelectEntitiesQuery<Dict2>();
+            query.PrepareQuery();
+
+            var command = query.Query.Command as DummyDbCommand;
+            var result = new DummyDbDataReaderResult
+            {
+                Columns =
+                    new DummyDbDataReaderColumnCollection()
+                    {
+                        new DummyDbDataReaderColumn(query.ResultColumn(0).Alias, query.ResultColumn(0).DbType),
+                        new DummyDbDataReaderColumn(query.ResultColumn(1).Alias, query.ResultColumn(1).DbType),
+                        new DummyDbDataReaderColumn(query.ResultColumn(2).Alias, query.ResultColumn(2).DbType),
+                    },
+                Data =
+                    new DummyDbDataReaderColumnDataRows()
+                    {
+                        new DummyDbDataReaderColumnDataCollection(1, "record1", 10, "dict1"),
+                        new DummyDbDataReaderColumnDataCollection(2, "record2", 11, "dict2"),
+                        new DummyDbDataReaderColumnDataCollection(3, "record3", DBNull.Value, DBNull.Value),
+                    }
+            };
+            command.ReturnReader = new DummyDbDataReader() { result };
+
+            query.Execute();
+
+            query.ReadNext().Should().BeTrue();
+
+            query.GetValue<int>(0).Should().Be(1);
+            query.GetValue<string>(1).Should().Be("record1");
+            query.GetValue<int>(2).Should().Be(10);
+            query.GetValue<string>(3).Should().Be("dict1");
+
+            query.ReadNext().Should().BeTrue();
+
+            query.GetValue<int>(0).Should().Be(2);
+            query.GetValue<string>(1).Should().Be("record2");
+            query.GetValue<int>(2).Should().Be(11);
+            query.GetValue<string>(3).Should().Be("dict2");
+
+            query.ReadNext().Should().BeTrue();
+
+            query.GetValue<int>(0).Should().Be(3);
+            query.GetValue<string>(1).Should().Be("record3");
+            query.IsNull(2).Should().BeTrue();
+
+            query.ReadNext().Should().BeFalse();
+        }
     }
 }
 

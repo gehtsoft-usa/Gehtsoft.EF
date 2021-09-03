@@ -8,14 +8,16 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Test.Utils;
 using SharpCompress.Common;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Gehtsoft.EF.Test.Entity.Discovery
 {
-    public class Dicoverer
+    public class Discoverer
     {
         [Entity(Scope = "tablebuilder", Table = "t1", Metadata = typeof(ExactSpecMetadata))]
         public class ExactSpec
@@ -308,6 +310,71 @@ namespace Gehtsoft.EF.Test.Entity.Discovery
             AllEntities.Get<ExactSpecMetadata>(false).Should().BeNull();
             ((Action)(() => AllEntities.Get<ExactSpecMetadata>(true))).Should().Throw<EfSqlException>();
             ((Action)(() => AllEntities.Get<ExactSpecMetadata>())).Should().Throw<EfSqlException>();
+        }
+
+        [Fact]
+        public void PreploadEntities()
+        {
+            AllEntities.Inst.ForgetScope("tablebuilder");
+            AllEntities.Inst.IsEntityKnown(typeof(ExactSpec)).Should().BeFalse();
+
+            AllEntities.Inst.PreloadEntities(typeof(ExactSpec).Assembly, "tablebuilder");
+
+            AllEntities.Inst.IsEntityKnown(typeof(ExactSpec)).Should().BeTrue();
+            AllEntities.Inst.IsEntityKnown(typeof(Dict1)).Should().BeTrue();
+            AllEntities.Inst.IsEntityKnown(typeof(Dict2)).Should().BeTrue();
+
+            AllEntities.Inst.ForgetType(typeof(Dict1));
+            AllEntities.Inst.IsEntityKnown(typeof(ExactSpec)).Should().BeTrue();
+            AllEntities.Inst.IsEntityKnown(typeof(Dict1)).Should().BeFalse();
+            AllEntities.Inst.IsEntityKnown(typeof(Dict2)).Should().BeTrue();
+        }
+
+        public class CustomEntity
+        {
+            public int Id { get; set; }
+        }
+
+        public class CustomEntityDiscoverer : IEntityDisoverer
+        {
+            public TableDescriptor Discover(AllEntities entities, Type type)
+            {
+                if (type == typeof(CustomEntity))
+                {
+                    var td = new TableDescriptor()
+                    {
+                        Scope = "tablebuilder",
+                        Name = "customtable"
+                    };
+
+                    td.Add(new TableDescriptor.ColumnInfo()
+                    {
+                        ID = "Id",
+                        Name = "id",
+                        PropertyAccessor = new PropertyAccessor(typeof(CustomEntity).GetProperty(nameof(CustomEntity.Id))),
+                        DbType = DbType.Int32,
+                        PrimaryKey = true,
+                        Autoincrement = true,
+                    });
+                    return td;
+                }
+                return null;
+            }
+        }
+
+        [Fact]
+        public void CustomDiscoverer()
+        {
+            AllEntities.Inst.RemoveDiscoverer(new CustomEntityDiscoverer());
+
+            AllEntities.Get(typeof(CustomEntity), false).Should().BeNull();
+
+            AllEntities.Inst.AddDiscoverer(new CustomEntityDiscoverer());
+
+            var ei = AllEntities.Get(typeof(CustomEntity), false);
+            ei.Should().NotBeNull();
+            ei.EntityType.Should().Be(typeof(CustomEntity));
+            ei.TableDescriptor.Name.Should().Be("customtable");
         }
     }
 }

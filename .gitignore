@@ -2,6 +2,7 @@
 .git/
 .vs/
 .nuget/
+.sonarqube/
 bin/
 obj/
 packagedoc/ef/

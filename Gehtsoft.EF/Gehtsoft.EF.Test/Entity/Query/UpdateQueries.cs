@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
@@ -19,10 +21,11 @@ namespace Gehtsoft.EF.Test.Entity.Query
         public class Entity1
         {
             [AutoId(Field = "id")]
-            public int Id { get; }
+            public int Id { get; protected set; }
 
             [EntityProperty(Field = "f1")]
             public int F1 { get; set; }
+
             [EntityProperty(Field = "f2")]
             public string F2 { get; set; }
 
@@ -34,10 +37,11 @@ namespace Gehtsoft.EF.Test.Entity.Query
         public class Entity2
         {
             [PrimaryKey(Field = "id")]
-            public int Id { get; }
+            public int Id { get; set; }
 
             [EntityProperty(Field = "f1")]
             public int F1 { get; set; }
+
             [EntityProperty(Field = "f2")]
             public string F2 { get; set; }
 
@@ -89,6 +93,45 @@ namespace Gehtsoft.EF.Test.Entity.Query
         }
 
         [Fact]
+        public void Insert_Values_NoAutoIncrement_Execute()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetInsertEntityQuery<Entity2>();
+            var command = query.Query.Command as DummyDbCommand;
+            command.ExecuteNonQueryReturnValue = 1;
+
+            var e = new Entity2()
+            {
+                Id = 1,
+                F1 = 10,
+                F2 = "text",
+                F3 = DateTime.Now
+            };
+
+            query.Execute(e);
+
+            command.Parameters["@id"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.Id);
+
+            command.Parameters["@f1"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F1);
+
+            command.Parameters["@f2"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F2);
+
+            command.Parameters["@f3"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F3);
+        }
+
+        [Fact]
         public void Insert_Values_AutoIncrement()
         {
             using var connection = new DummySqlConnection();
@@ -127,6 +170,48 @@ namespace Gehtsoft.EF.Test.Entity.Query
             f[0].Should().ContainMatching("/*", n => n.Value == "f1");
             f[1].Should().ContainMatching("/*", n => n.Value == "f2");
             f[2].Should().ContainMatching("/*", n => n.Value == "f3");
+        }
+
+        [Fact]
+        public void Insert_Values_AutoIncrement_Execute()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetInsertEntityQuery<Entity1>();
+            var command = query.Query.Command as DummyDbCommand;
+            
+            var result = new DummyDbDataReaderResult
+            {
+                Columns = new DummyDbDataReaderColumnCollection() { new DummyDbDataReaderColumn("", DbType.Int32) },
+                Data = new DummyDbDataReaderColumnDataRows() { new DummyDbDataReaderColumnDataCollection(15) }
+            };
+            command.ReturnReader = new DummyDbDataReader() { result };
+
+            var e = new Entity1()
+            {
+                F1 = 10,
+                F2 = "text",
+                F3 = DateTime.Now
+            };
+
+            query.Execute(e);
+
+            command.Parameters["@f1"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F1);
+
+            command.Parameters["@f2"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F2);
+
+            command.Parameters["@f3"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F3);
+
+            e.Id.Should().Be(15);
+
         }
 
         [Fact]
@@ -173,7 +258,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
         }
 
         [Fact]
-        public void UpdateQuery_AllColumns_ById()
+        public void Update_AllColumns_ById()
         {
             using var connection = new DummySqlConnection();
             using var query = connection.GetUpdateEntityQuery<Entity1>();
@@ -241,6 +326,32 @@ namespace Gehtsoft.EF.Test.Entity.Query
         }
 
         [Fact]
+        public void Delete_ById_Execute()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetDeleteEntityQuery<Entity2>();
+            var command = query.Query.Command as DummyDbCommand;
+            command.ExecuteNonQueryReturnValue = 1;
+
+            var e = new Entity2()
+            {
+                Id = 1,
+                F1 = 10,
+                F2 = "text",
+                F3 = DateTime.Now
+            };
+
+            query.Execute(e);
+
+            command.Parameters.Count.Should().Be(1);
+
+            command.Parameters["@id"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.Id);
+        }
+
+        [Fact]
         public void Delete_ByCondition()
         {
             using var connection = new DummySqlConnection();
@@ -266,6 +377,84 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             whereOp.SelectNode("*", 2).Should().HaveSymbol("PARAM");
             whereOp.SelectNode("*", 2).SelectNode("IDENTIFIER").Should().HaveValue("p1");
+        }
+
+        [Fact]
+        public void Update_AllColumns_ById_Execute()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetUpdateEntityQuery<Entity2>();
+            var command = query.Query.Command as DummyDbCommand;
+            command.ExecuteNonQueryReturnValue = 1;
+
+            var e = new Entity2()
+            {
+                Id = 1,
+                F1 = 10,
+                F2 = "text",
+                F3 = DateTime.Now
+            };
+
+            query.Execute(e);
+
+            command.Parameters["@id"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.Id);
+
+            command.Parameters["@f1"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F1);
+
+            command.Parameters["@f2"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F2);
+
+            command.Parameters["@f3"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F3);
+        }
+
+        [Fact]
+        public async Task Update_AllColumns_ById_Execute_Async()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetUpdateEntityQuery<Entity2>();
+            var command = query.Query.Command as DummyDbCommand;
+            command.ExecuteNonQueryReturnValue = 1;
+
+            var e = new Entity2()
+            {
+                Id = 1,
+                F1 = 10,
+                F2 = "text",
+                F3 = DateTime.Now
+            };
+
+            await query.ExecuteAsync(e);
+
+            command.Parameters["@id"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.Id);
+
+            command.Parameters["@f1"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F1);
+
+            command.Parameters["@f2"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F2);
+
+            command.Parameters["@f3"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(e.F3);
         }
 
         [Fact]
@@ -305,6 +494,60 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             whereOp.SelectNode("*", 2).Should().HaveSymbol("PARAM");
             whereOp.SelectNode("*", 2).SelectNode("IDENTIFIER").Should().HaveValue("p1");
+        }
+
+        [Fact]
+        public void Update_ByCondition_Execute()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetMultiUpdateEntityQuery<Entity2>();
+            
+            query.Where.Property("F1").Gt().Parameter("p1");
+            query.AddUpdateColumn("F2", "text");
+
+            var command = query.Query.Command as DummyDbCommand;
+            command.ExecuteNonQueryReturnValue = 1;
+
+            query.BindParam("p1", 20);
+
+            query.Execute();
+
+            command.Parameters["@p1"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(20);
+
+            command.Parameters["@F2"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be("text");
+        }
+
+        [Fact]
+        public async Task Update_ByCondition_Execute_Async()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetMultiUpdateEntityQuery<Entity2>();
+
+            query.Where.Property("F1").Gt().Parameter("p1");
+            query.AddUpdateColumn("F2", "text");
+
+            var command = query.Query.Command as DummyDbCommand;
+            command.ExecuteNonQueryReturnValue = 1;
+
+            query.BindParam("p1", 20);
+
+            await query.ExecuteAsync();
+
+            command.Parameters["@p1"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be(20);
+
+            command.Parameters["@F2"]
+                .Should().NotBeNull()
+                .And.Subject.As<DbParameter>()
+                    .Value.Should().Be("text");
         }
     }
 }
