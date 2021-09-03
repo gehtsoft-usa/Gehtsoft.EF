@@ -145,7 +145,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         {
             ExpressionCompiler compiler = new ExpressionCompiler(query);
             ExpressionCompiler.Result result = compiler.Visit(expression);
-            query.AddUpdateColumn(propertyName, result.Expression.ToString());
+            query.AddUpdateColumnByExpression(propertyName, result.Expression.ToString());
             query.BindExpressionParameters(result);
         }
     }

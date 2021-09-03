@@ -49,7 +49,7 @@
     <Compile Include="EntityQueries\DynamicEntity\DynamicEntityPropertyCollection.cs" />
     <Compile Include="EntityQueries\DynamicEntity\DynamicPropertyAccessor.cs" />
     <Compile Include="EntityQueries\DynamicEntity\IDynamicEntityProperty.cs" />
-    <Compile Include="EntityQueries\EntityDiscovery\ColumnDisoverer.cs" />
+    <Compile Include="EntityQueries\EntityDiscovery\ColumnDiscoverer.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\DynamicEntityDiscoverer.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\EntityDescriptor.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\EntityDescriptorEventArgs.cs" />

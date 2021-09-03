@@ -429,13 +429,18 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         [DocgenIgnore]
         public SelectQueryBuilderResultsetItem ResultColumn(int index) => mSelectBuilder.ResultColumn(index);
 
-        [DocgenIgnore]
-        public QueryBuilderEntity FindType(Type type, int occurrence = 1) => mSelectBuilder.FindType(type, occurrence);
+        /// <summary>
+        /// Find the query builder table associated with the specified occurrence of the specified entity type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="occurrence"></param>
+        /// <returns></returns>
+        public QueryBuilderEntity FindType(Type type, int occurrence = 0) => mSelectBuilder.FindType(type, occurrence);
 
         /// <summary>
-        /// Adds the entity to the query.
+        /// Adds the entity to the query without automatic connection.
         ///
-        /// The condition needs to be set directly via returned object.
+        /// The condition needs to be set directly via <see cref="QueryBuilderEntity.On"/> of the returned object.
         /// </summary>
         /// <param name="type"></param>
         /// <param name="joinType"></param>
@@ -447,10 +452,36 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return r;
         }
 
-        [DocgenIgnore]
+        /// <summary>
+        /// Adds entity to the query and set a connection using a one operator comparison.
+        ///
+        /// If more complex connection is required, use <see cref="AddEntity(Type, TableJoinType)"/> method.
+        /// </summary>
+        /// <param name="type">The type to be connected</param>
+        /// <param name="joinType">The join type</param>
+        /// <param name="typeLeft">The type on the left side of the on condition</param>
+        /// <param name="propertyLeft">The property on the left side of the on condition</param>
+        /// <param name="op">The comparison op</param>
+        /// <param name="typeRight">The type on the right side of the on condition</param>
+        /// <param name="propertyRight">The property on the right side of the on condition</param>
+        /// <returns></returns>
         public QueryBuilderEntity AddEntity(Type type, TableJoinType joinType, Type typeLeft, string propertyLeft, CmpOp op, Type typeRight, string propertyRight) => AddEntity(type, joinType, typeLeft, 0, propertyLeft, op, typeRight, 0, propertyRight);
 
-        [DocgenIgnore]
+        /// <summary>
+        /// Adds entity to the query and set a connection using a one operator comparison (when entity is used more than once in the query).
+        ///
+        /// If more complex connection is required, use <see cref="AddEntity(Type, TableJoinType)"/> method.
+        /// </summary>
+        /// <param name="type">The type to be connected</param>
+        /// <param name="joinType">The join type</param>
+        /// <param name="typeLeft">The type on the left side of the on condition</param>
+        /// <param name="occurrenceLeft">The occurrence of type on the left in the query. 0 means first occurrence</param>
+        /// <param name="propertyLeft">The property on the left side of the on condition</param>
+        /// <param name="op">The comparison op</param>
+        /// <param name="typeRight">The type on the right side of the on condition</param>
+        /// <param name="occurrenceRight">The occurrence of type on the right in the query. 0 means first occurrence</param>
+        /// <param name="propertyRight">The property on the right side of the on condition</param>
+        /// <returns></returns>
         public QueryBuilderEntity AddEntity(Type type, TableJoinType joinType, Type typeLeft, int occurrenceLeft, string propertyLeft, CmpOp op, Type typeRight, int occurrenceRight, string propertyRight)
         {
             var r = mSelectBuilder.AddEntity(type, joinType);
@@ -467,7 +498,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return r;
         }
 
-        protected override void PrepareQuery()
+        [DocgenIgnore]
+        public override void PrepareQuery()
         {
             Having.SetCurrentSingleEntityQueryConditionBuilder(null);
             base.PrepareQuery();

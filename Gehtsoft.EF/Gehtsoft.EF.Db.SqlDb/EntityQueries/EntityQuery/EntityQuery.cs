@@ -65,8 +65,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             mBuilder = builder;
         }
 
-        [DocgenIgnore]
-        protected virtual void PrepareQuery()
+        /// <summary>
+        /// Prepares query to be used.
+        ///
+        /// The method is called automatically when query is executed or reused as a sub-query,
+        /// however call it if you want to get the underlying RAW SQL query.
+        /// </summary>
+        public virtual void PrepareQuery()
         {
             if (string.IsNullOrEmpty(mQuery.CommandText))
             {

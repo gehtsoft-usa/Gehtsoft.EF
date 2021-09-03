@@ -5,11 +5,9 @@ using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
-using Gehtsoft.EF.Test.Entity.Utils;
 using Gehtsoft.EF.Test.SqlParser;
 using Gehtsoft.EF.Test.Utils;
 using Gehtsoft.EF.Test.Utils.DummyDb;
-using Hime.SDK.Grammars.LR;
 using Moq;
 using Xunit;
 

@@ -4,7 +4,7 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-    internal class DynamicEntityDiscoverer : ColumnDisoverer, IEntityDisoverer, IEntityProbe
+    internal class DynamicEntityDiscoverer : ColumnDiscoverer, IEntityDisoverer, IEntityProbe
     {
         private static readonly Type DynamicEntityType = typeof(DynamicEntity);
 

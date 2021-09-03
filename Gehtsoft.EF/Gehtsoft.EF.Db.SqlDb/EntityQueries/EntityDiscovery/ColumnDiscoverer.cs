@@ -5,7 +5,7 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-    internal class ColumnDisoverer
+    internal class ColumnDiscoverer
     {
         protected void CreateColumnDescriptor(Type type, AllEntities entities, EntityNamingPolicy policy, TableDescriptor descriptor, IPropertyAccessor propertyAccessor)
         {

@@ -78,7 +78,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return mConditionQueryBuilder.FindPath(path);
         }
 
-        protected override void PrepareQuery()
+        [DocgenIgnore]
+        public override void PrepareQuery()
         {
             Where.SetCurrentSingleEntityQueryConditionBuilder(null);
             base.PrepareQuery();

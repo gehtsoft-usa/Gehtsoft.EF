@@ -104,7 +104,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     if (column.ForeignKey && column.PropertyAccessor.PropertyType == item.Entity.EntityType)
                     {
                         connectingColumn = column;
-                        joinType = (item.Column.Nullable || open) ? TableJoinType.Right : TableJoinType.Inner;
+                        if (open)
+                            joinType = TableJoinType.Left;
+                        else
+                            joinType = column.Nullable ? TableJoinType.Right : TableJoinType.Inner;
                         pathBase = entity.EntityType.Name;
                         break;
                     }
@@ -258,8 +261,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         protected internal SelectQueryBuilderResultsetItem ResultColumn(int index) => mSelectQueryBuilder.ResultColumn(index);
 
-        public QueryBuilderEntity FindType(Type type, int occurrence = 1)
+        public QueryBuilderEntity FindType(Type type, int occurrence = 0)
         {
+            occurrence++;
             EntityDescriptor entity = AllEntities.Inst[type];
 
             foreach (QueryBuilderEntity table in mQueryWithWhereBuilder.Entities)

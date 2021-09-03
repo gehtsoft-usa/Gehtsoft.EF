@@ -190,7 +190,6 @@ namespace Gehtsoft.EF.Test.SqlDb
                 tree.Should().HaveElementMatching(t => t.Id == 8 && t.Parent == 6 && t.Level == 4);
                 tree.Should().HaveElementMatching(t => t.Id == 9 && t.Parent == 3 && t.Level == 3);
                 tree.Should().HaveElementMatching(t => t.Id == 10 && t.Parent == 1 && t.Level == 2);
-                
             }
         }
 
@@ -238,7 +237,6 @@ namespace Gehtsoft.EF.Test.SqlDb
                 tree.Should().HaveElementMatching(t => t.Id == 8 && t.Parent == 6 && t.Level == 4);
                 tree.Should().HaveElementMatching(t => t.Id == 9 && t.Parent == 3 && t.Level == 3);
                 tree.Should().HaveElementMatching(t => t.Id == 10 && t.Parent == 1 && t.Level == 2);
-
             }
         }
 
@@ -267,7 +265,6 @@ namespace Gehtsoft.EF.Test.SqlDb
                 tree.Should().HaveElementMatching(t => t.Id == 7 && t.Parent == 6 && t.Level == 3);
                 tree.Should().HaveElementMatching(t => t.Id == 8 && t.Parent == 6 && t.Level == 3);
                 tree.Should().HaveElementMatching(t => t.Id == 9 && t.Parent == 3 && t.Level == 2);
-
             }
         }
 
@@ -296,7 +293,6 @@ namespace Gehtsoft.EF.Test.SqlDb
                 tree.Should().HaveElementMatching(t => t.Id == 7);
                 tree.Should().HaveElementMatching(t => t.Id == 8);
                 tree.Should().HaveElementMatching(t => t.Id == 9);
-
             }
         }
 
@@ -329,7 +325,6 @@ namespace Gehtsoft.EF.Test.SqlDb
                 tree.Should().HaveElementMatching(t => t.Id == 7 && t.Parent == 6 && t.Name == "1=>3=>6=>7");
                 tree.Should().HaveElementMatching(t => t.Id == 8 && t.Parent == 6 && t.Name == "1=>3=>6=>8");
                 tree.Should().HaveElementMatching(t => t.Id == 9 && t.Parent == 3 && t.Name == "1=>3=>9");
-
             }
         }
     }

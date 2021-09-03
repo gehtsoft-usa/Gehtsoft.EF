@@ -16,10 +16,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
         }
 
-        protected SelectEntitiesCountQuery(Type type, SqlDbConnection connection) : this(connection.GetQuery(), new SelectEntityQueryBuilderBase(type, connection))
-        {
-        }
-
         protected int mCount = -1;
 
         /// <summary>

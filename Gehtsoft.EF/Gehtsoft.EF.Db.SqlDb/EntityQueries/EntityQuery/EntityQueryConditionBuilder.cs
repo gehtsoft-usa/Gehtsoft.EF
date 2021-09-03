@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Net.Sockets;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Utils;
@@ -23,6 +26,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         internal string Left { get; set; }
 
         internal string Right { get; set; }
+
+        internal CmpOp? Op => mCmpOp;
 
         [DocgenIgnore]
         public EntityQueryConditionBuilder Builder { get; }
@@ -77,6 +82,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public virtual SingleEntityQueryConditionBuilder Is(CmpOp op)
         {
+            if (mCmpOp != null)
+                throw new InvalidOperationException("Operation is already set");
             mCmpOp = op;
             return this;
         }
@@ -324,18 +331,23 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public virtual string PropertyName(string propertyPath) => propertyPath == null ? null : BaseWhere.PropertyName(propertyPath);
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public virtual string PropertyOfName(string name, Type type = null, int occurrence = 0) => BaseWhere.PropertyOfName(name, type, occurrence);
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public virtual string PropertyOfName<T>(string name, int occurrence = 0) => BaseWhere.PropertyOfName<T>(name, occurrence);
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public virtual string ReferenceName(ConditionEntityQueryBase.InQueryName reference) => $"{reference.Item.QueryEntity.Alias}.{reference.Item.Column.Name}";
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public virtual string Value(object parameterValue, DbType dbType)
         {
             string name = BaseQuery.NextParam;
@@ -347,15 +359,19 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public virtual string Parameter(string parameterName) => BaseWhere.Parameter(parameterName);
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public virtual string Parameters(string[] parameterNames) => BaseWhere.Parameters(parameterNames);
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public virtual string Query(AQueryBuilder queryBuilder) => BaseWhere.Query(queryBuilder);
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public virtual string Query(SelectEntitiesQueryBase query)
         {
             BaseQuery.CopyParametersFrom(query);
@@ -387,12 +403,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public virtual EntityQueryConditionBuilder AddGroup(LogOp logOp, Action<EntityQueryConditionBuilder> group)
         {
-            SetCurrentSingleEntityQueryConditionBuilder(null);
-            using (var g = BaseWhere.AddGroup(logOp))
-            {
-                g.OnClose += (s, e) => this.SetCurrentSingleEntityQueryConditionBuilder(null);
+            using (var g = AddGroup(logOp))
                 group(this);
-            }
             return this;
         }
 
@@ -451,6 +463,19 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
 
         /// <summary>
+        /// Starts raw condition connects it to the other conditions using logical and.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="raw"></param>
+        /// <returns></returns>
+        public static SingleEntityQueryConditionBuilder Raw(this EntityQueryConditionBuilder builder, string raw)
+        {
+            var rc = new SingleEntityQueryConditionBuilder(LogOp.And, builder);
+            rc.Raw(raw);
+            return rc;
+        }
+
+        /// <summary>
         /// Starts condition that compares a property of the specified type and connects it to the other conditions using logical and.
         /// </summary>
         /// <param name="builder"></param>
@@ -474,11 +499,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="occurrence"></param>
         /// <returns></returns>
         public static SingleEntityQueryConditionBuilder PropertyOf<T>(this EntityQueryConditionBuilder builder, string property, int occurrence = 0)
-        {
-            var rc = new SingleEntityQueryConditionBuilder(LogOp.And, builder);
-            rc.PropertyOf(property, typeof(T), occurrence);
-            return rc;
-        }
+            => PropertyOf(builder, property, typeof(T), occurrence);
 
         internal static SingleEntityQueryConditionBuilder Is(this EntityQueryConditionBuilder builder, CmpOp op)
         {
@@ -776,16 +797,24 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public static SingleEntityQueryConditionBuilder NotIn(this SingleEntityQueryConditionBuilder builder, SelectEntitiesQueryBase query) => builder.Is(CmpOp.NotIn).Query(query);
 
+        private static string Wrap(this SingleEntityQueryConditionBuilder builder, string arg, SqlFunctionId function)
+        {
+            if (string.IsNullOrEmpty(arg))
+            {
+                if (function == SqlFunctionId.Count)
+                    return builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { });
+                throw new InvalidOperationException("Nothing to wrap");
+            }
+            else
+                return builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { arg });
+        }
+
         internal static SingleEntityQueryConditionBuilder Wrap(this SingleEntityQueryConditionBuilder builder, SqlFunctionId function)
         {
-            if (builder.Right != null)
-                builder.Right = builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Right });
-            else if (builder.Left != null)
-                builder.Left = builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Left });
-            else if (function == SqlFunctionId.Count)
-                builder.Left = builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { });
+            if (builder.Op == null)
+                builder.Left = Wrap(builder, builder.Left, function);
             else
-                throw new InvalidOperationException("Nothing to wrap");
+                builder.Right = Wrap(builder, builder.Right, function);
             return builder;
         }
 

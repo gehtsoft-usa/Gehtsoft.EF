@@ -11,7 +11,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
     {
         /// <summary>
         /// Returns select query builder.
-        /// 
+        ///
         /// Note: you can use
         /// <see cref="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.SelectBuilder">SelectEntitiesQueryBase.SelectBuilder</see>
         /// to create a select query from an entity query.

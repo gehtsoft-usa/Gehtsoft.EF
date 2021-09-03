@@ -1,4 +1,5 @@
 ﻿using System;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
@@ -10,6 +11,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
     public class EntityDescriptorEventArgs : EventArgs
     {
         public EntityDescriptor Entity { get; }
+
+        [DocgenIgnore]
         public EntityDescriptorEventArgs(EntityDescriptor entity)
         {
             Entity = entity;

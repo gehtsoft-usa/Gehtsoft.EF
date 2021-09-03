@@ -182,7 +182,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
                                  lastApplied.MinorVersion * 10000 +
                                  lastApplied.PatchVersion;
 
-
                         for (int i = 0; i < patches.Count && startFrom == null; i++)
                         {
                             int v = patches[i].Version.MajorVersion * 10000000 +

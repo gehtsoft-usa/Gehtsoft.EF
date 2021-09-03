@@ -7,14 +7,55 @@ using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
+    /// <summary>
+    /// The delegate type of the action called when entity is created.
+    ///
+    /// The delegate prototype is:
+    /// ```cs
+    /// public delegate void EntityActionDelegate(SqlDbConnection connection);
+    /// ```
+    ///
+    /// The action is invoked only when <see cref="CreateEntityController"/> is used
+    /// to create the entity.
+    ///
+    /// To set the action use <see cref="OnEntityCreateAttribute"/>, <see cref="OnEntityDropAttribute"/>,
+    /// <see cref="OnEntityPropertyCreateAttribute"/> or <see cref="OnEntityPropertyDropAttribute"/>.
+    /// </summary>
+    /// <param name="connection"></param>
     public delegate void EntityActionDelegate(SqlDbConnection connection);
+
+    /// <summary>
+    /// The delegate type of the action called when entity is created (asynchronous version).
+    ///
+    /// The delegate prototype is:
+    /// ```cs
+    /// public delegate Task EntityActionAsyncDelegate(SqlDbConnection connection);
+    /// ```
+    ///
+    /// The action is invoked only when <see cref="CreateEntityController"/> is used
+    /// to create the entity.
+    ///
+    /// To set the action use <see cref="OnEntityCreateAttribute"/>, <see cref="OnEntityDropAttribute"/>,
+    /// <see cref="OnEntityPropertyCreateAttribute"/> or <see cref="OnEntityPropertyDropAttribute"/>.
+    /// </summary>
+    /// <param name="connection"></param>
+    /// <returns></returns>
     public delegate Task EntityActionAsyncDelegate(SqlDbConnection connection);
 
+    /// <summary>
+    /// Event arguments for `OnAction` event of `CreateEntityController`
+    ///
+    /// See also <see cref="CreateEntityController.OnAction"/>
+    /// </summary>
     public class CreateEntityControllerEventArgs : EventArgs
     {
+        /// <summary>
+        /// The action type.
+        /// </summary>
         public enum Action
         {
             Create,
@@ -23,10 +64,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             Processing,
         }
 
+        /// <summary>
+        /// The action.
+        /// </summary>
         public Action EventAction { get; set; }
 
+        /// <summary>
+        /// The table name.
+        /// </summary>
         public string Table { get; set; }
 
+        [DocgenIgnore]
         public CreateEntityControllerEventArgs(Action action, string table)
         {
             EventAction = action;
@@ -34,9 +82,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
     }
 
-    public delegate void CreateEntityControllerEventDelegate(object sender, CreateEntityControllerEventArgs args);
-
+    /// <summary>
+    /// The base class for attribute to set the action when entity or property is created by `CreateEntityController`.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
+    [DocgenIgnore]
     public abstract class OnEntityActionAttribute : Attribute
     {
         private readonly Type mType;
@@ -130,56 +180,138 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
     }
 
+    /// <summary>
+    /// The attribute to set the action to be called when entity is created.
+    ///
+    /// The action will be called only if the entity is created using
+    /// <see cref="CreateEntityController"/>.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class OnEntityCreateAttribute : OnEntityActionAttribute
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="containerType">The type that consists of action method.</param>
+        /// <param name="delegateName">The action method name. The method should match either <see cref="EntityActionDelegate"/> or <see cref="EntityActionAsyncDelegate"/></param>
         public OnEntityCreateAttribute(Type containerType, string delegateName) : base(containerType, delegateName)
         {
         }
     }
 
+    /// <summary>
+    /// The attribute to set the action to be called when entity is dropped.
+    ///
+    /// The action will be called only if the entity is dropped using
+    /// <see cref="CreateEntityController"/>.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class OnEntityDropAttribute : OnEntityActionAttribute
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="containerType">The type that consists of action method.</param>
+        /// <param name="delegateName">The action method name. The method should match either <see cref="EntityActionDelegate"/> or <see cref="EntityActionAsyncDelegate"/></param>
         public OnEntityDropAttribute(Type containerType, string delegateName) : base(containerType, delegateName)
         {
         }
     }
 
+    /// <summary>
+    /// The attribute to set the action to be called when property is created.
+    ///
+    /// The action will be called only if the entity is created using
+    /// <see cref="CreateEntityController"/>.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class OnEntityPropertyCreateAttribute : OnEntityActionAttribute
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="containerType">The type that consists of action method.</param>
+        /// <param name="delegateName">The action method name. The method should match either <see cref="EntityActionDelegate"/> or <see cref="EntityActionAsyncDelegate"/></param>
         public OnEntityPropertyCreateAttribute(Type containerType, string delegateName) : base(containerType, delegateName)
         {
         }
     }
 
+    /// <summary>
+    /// The attribute to set the action to be called when property is dropped.
+    ///
+    /// The action will be called only if the property is dropped using
+    /// <see cref="CreateEntityController"/>.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class OnEntityPropertyDropAttribute : OnEntityActionAttribute
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="containerType">The type that consists of action method.</param>
+        /// <param name="delegateName">The action method name. The method should match either <see cref="EntityActionDelegate"/> or <see cref="EntityActionAsyncDelegate"/></param>
         public OnEntityPropertyDropAttribute(Type containerType, string delegateName) : base(containerType, delegateName)
         {
         }
     }
 
+    /// <summary>
+    /// The controller to create, drop or update entities automatically.
+    ///
+    /// The method recognizes and handles the following cases:
+    /// * Create table for the entity if the table does not exist.
+    /// * Drop table for the entity if the table is attributed using <see cref="ObsoleteEntityAttribute"/>
+    /// * Add column for the entity if the column does not exist.
+    /// * Drops column if the column attributed using <see cref="ObsoleteEntityPropertyAttribute"/>
+    ///
+    /// If you need to enrich the operation with the custom logic, you can use action (see <see cref="EntityActionDelegate"/>)
+    /// or events <see cref="CreateEntityController.OnAction"/>.
+    ///
+    /// Note: Some connections do not support dropping of the columns. Check <see cref="SqlDbLanguageSpecifics.DropColumnSupported"/> flag to verify the connection.
+    /// If connection does not support columns dropping, the columns will remain in the table.
+    ///
+    /// Note: The controller does not recognize the situations when:
+    /// * The type, name or other parameters of the column has changed.
+    /// * The property deleted from the entity.
+    /// * A new index is added via <see cref="ICompositeIndexMetadata"/>
+    /// * View changed.
+    ///
+    /// In case the change is too complex to be handled automatically,
+    /// use the patches (see <see cref="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch"/>.
+    /// </summary>
     public class CreateEntityController
     {
         private readonly IEnumerable<Assembly> mAssemblies;
         private readonly string mScope;
         private EntityFinder.EntityTypeInfo[] mTypes;
 
+        /// <summary>
+        /// The event raised when action is performed.
+        /// </summary>
         public event EventHandler<CreateEntityControllerEventArgs> OnAction;
 
+        [DocgenIgnore]
         public CreateEntityController(Type findNearThisType, string scope = null) :
                this(findNearThisType.GetTypeInfo().Assembly, scope)
         {
         }
 
+        /// <summary>
+        /// Constructor to search entities in one assembly.
+        /// </summary>
+        /// <param name="entityAssembly"></param>
+        /// <param name="scope"></param>
         public CreateEntityController(Assembly entityAssembly, string scope = null) :
                this(new Assembly[] { entityAssembly }, scope)
         {
         }
 
+        /// <summary>
+        /// Constructor to search entities in multiple assemblies.
+        /// </summary>
+        /// <param name="assemblies"></param>
+        /// <param name="scope"></param>
         public CreateEntityController(IEnumerable<Assembly> assemblies, string scope = null)
         {
             mAssemblies = assemblies;
@@ -235,8 +367,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
         }
 
+        /// <summary>
+        /// Drop tables.
+        /// </summary>
+        /// <param name="connection"></param>
         public void DropTables(SqlDbConnection connection) => DropTablesCore(connection, false).GetAwaiter().GetResult();
 
+        /// <summary>
+        /// Drop tables (async version).
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <returns></returns>
         public Task DropTablesAsync(SqlDbConnection connection) => DropTablesCore(connection, true).AsTask();
 
         private async ValueTask CreateTablesCore(SqlDbConnection connection, bool asyncCall)
@@ -271,23 +412,59 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
         }
 
+        /// <summary>
+        /// Creates tables.
+        /// </summary>
+        /// <param name="connection"></param>
         public void CreateTables(SqlDbConnection connection) => CreateTablesCore(connection, false).GetAwaiter().GetResult();
 
+        /// <summary>
+        /// Creates tables (async version).
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <returns></returns>
         public Task CreateTablesAsync(SqlDbConnection connection) => CreateTablesCore(connection, true).AsTask();
 
+        /// <summary>
+        /// The mode of update operation.
+        /// </summary>
         public enum UpdateMode
         {
+            /// <summary>
+            /// Drop and create table.
+            /// </summary>
             Recreate,
+            /// <summary>
+            /// Create new tables, update tables where columns are added or dropped.
+            /// </summary>
             Update,
+            /// <summary>
+            /// Only creates new tables.
+            /// </summary>
             CreateNew,
         }
 
         private readonly static TableDescriptor mDummyTable = new TableDescriptor("dummytable");
 
+        /// <summary>
+        /// Update tables (asynchronous version).
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="defaultUpdateMode">The default mode for update.</param>
+        /// <param name="individualUpdateModes">Update modes for individual types.</param>
+        /// <returns></returns>
         public Task UpdateTablesAsync(SqlDbConnection connection, UpdateMode defaultUpdateMode, IDictionary<Type, UpdateMode> individualUpdateModes = null)
             => UpdateTablesCore(false, connection, defaultUpdateMode, individualUpdateModes);
+
+        /// <summary>
+        /// Update tables.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="defaultUpdateMode">The default mode for update.</param>
+        /// <param name="individualUpdateModes">Update modes for individual types.</param>
         public void UpdateTables(SqlDbConnection connection, UpdateMode defaultUpdateMode, IDictionary<Type, UpdateMode> individualUpdateModes = null)
             => UpdateTablesCore(true, connection, defaultUpdateMode, individualUpdateModes).ConfigureAwait(false).GetAwaiter().GetResult();
+
         private async Task UpdateTablesCore(bool sync, SqlDbConnection connection, UpdateMode defaultUpdateMode, IDictionary<Type, UpdateMode> individualUpdateModes = null)
         {
             LoadTypes(true);

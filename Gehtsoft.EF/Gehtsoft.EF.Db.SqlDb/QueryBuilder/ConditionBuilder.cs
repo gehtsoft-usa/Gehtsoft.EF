@@ -81,8 +81,8 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// Adds a property of the specified table in the query aggregated using the specified function.
         /// </summary>
         /// <param name="aggFn"></param>
-        /// <param name="entity"></param>
         /// <param name="columnInfo"></param>
+        /// <param name="entity"></param>
         /// <returns></returns>
         public SingleConditionBuilder Property(AggFn aggFn, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity) => Raw(Builder.PropertyName(aggFn, entity, columnInfo));
 
@@ -97,8 +97,8 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <summary>
         /// Adds a property of the specified table in the query.
         /// </summary>
-        /// <param name="entity"></param>
         /// <param name="columnInfo"></param>
+        /// <param name="entity"></param>
         /// <returns></returns>
         public SingleConditionBuilder Property(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity) => Raw(Builder.PropertyName(entity, columnInfo));
 
@@ -787,8 +787,8 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// Starts a new single condition, sets the a column of the specified table in the query as the first argument and connect it to the previous condition with logical and.
         /// </summary>
         /// <param name="builder"></param>
-        /// <param name="entity"></param>
         /// <param name="columnInfo"></param>
+        /// <param name="entity"></param>
         /// <returns></returns>
         public static SingleConditionBuilder Property(this ConditionBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity) => builder.Raw(builder.PropertyName(entity, columnInfo));
 

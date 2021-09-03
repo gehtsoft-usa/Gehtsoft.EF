@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
-    public class DynamicEntityPropertyCollection : IList<IDynamicEntityProperty>
+    internal class DynamicEntityPropertyCollection : IList<IDynamicEntityProperty>
     {
         private const string READONLY = "Collection is readonly";
 
