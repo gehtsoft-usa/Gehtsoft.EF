@@ -1167,7 +1167,7 @@ namespace Gehtsoft.EF.Test.SqlDb
                 T4_1_InsertBlob(connectionName);
 
             var connection = mFixture.GetInstance(connectionName);
-            
+
             var builder = connection.GetSelectQueryBuilder(mFixture.TableWithBlob);
             using (var query = connection.GetQuery(builder))
             {

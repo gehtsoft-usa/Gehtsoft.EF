@@ -114,12 +114,13 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             for (int i = 0; i < index.Fields.Count; i++)
             {
                 var field = index.Fields[i];
+                var name = mDescriptor.FirstOrDefault(c => c.ID == field.Name || c.Name == field.Name)?.Name ?? field.Name;
                 if (i > 0)
                     builder.Append(", ");
                 if (field.Function != null)
-                    builder.Append(mSpecifics.GetSqlFunction(field.Function.Value, new string[] { field.Name }));
+                    builder.Append(mSpecifics.GetSqlFunction(field.Function.Value, new string[] { name }));
                 else
-                    builder.Append(field.Name);
+                    builder.Append(name);
                 if (field.Direction == SortDir.Desc)
                     builder.Append(" DESC");
             }

@@ -53,7 +53,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     Path = $"{basePath}{column.ID}",
                     Entity = entity,
                     QueryEntity = queryEntity,
-                    Column = column
+                    Column = column,
                 };
 
                 mItems.Add(item);

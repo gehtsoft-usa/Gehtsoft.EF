@@ -62,6 +62,31 @@ namespace Gehtsoft.EF.Test.Utils
         /// Gets list of the connections from the config
         /// </summary>
         /// <param name="flags">Comma-separated list of the connection or driver names with `+` prefix to include only and `-` prefix to exclude</param>
+        /// <param name="flags1">more flags</param>
+        /// <returns></returns>
+        public static IEnumerable<object[]> ConnectionNames(string flags, params string[] flags1)
+        {
+            StringBuilder t = new StringBuilder();
+            if (!string.IsNullOrEmpty(flags))
+                t.Append(flags);
+
+            foreach (var flag in flags1)
+            {
+                if (!string.IsNullOrEmpty(flag))
+                {
+                    if (t.Length > 0)
+                        t.Append(",");
+                    t.Append(flag);
+                }
+            }
+
+            return ConnectionNames(t.ToString());
+        }
+
+        /// <summary>
+        /// Gets list of the connections from the config
+        /// </summary>
+        /// <param name="flags">Comma-separated list of the connection or driver names with `+` prefix to include only and `-` prefix to exclude</param>
         /// <returns></returns>
         public static IEnumerable<object[]> ConnectionNames(string flags = null)
             => Connections(flags).Select(c => new object[] { c.Name });

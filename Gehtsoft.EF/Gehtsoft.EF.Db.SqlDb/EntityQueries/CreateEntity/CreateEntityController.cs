@@ -12,251 +12,6 @@ using Gehtsoft.EF.Utils;
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     /// <summary>
-    /// The delegate type of the action called when entity is created.
-    ///
-    /// The delegate prototype is:
-    /// ```cs
-    /// public delegate void EntityActionDelegate(SqlDbConnection connection);
-    /// ```
-    ///
-    /// The action is invoked only when <see cref="CreateEntityController"/> is used
-    /// to create the entity.
-    ///
-    /// To set the action use <see cref="OnEntityCreateAttribute"/>, <see cref="OnEntityDropAttribute"/>,
-    /// <see cref="OnEntityPropertyCreateAttribute"/> or <see cref="OnEntityPropertyDropAttribute"/>.
-    /// </summary>
-    /// <param name="connection"></param>
-    public delegate void EntityActionDelegate(SqlDbConnection connection);
-
-    /// <summary>
-    /// The delegate type of the action called when entity is created (asynchronous version).
-    ///
-    /// The delegate prototype is:
-    /// ```cs
-    /// public delegate Task EntityActionAsyncDelegate(SqlDbConnection connection);
-    /// ```
-    ///
-    /// The action is invoked only when <see cref="CreateEntityController"/> is used
-    /// to create the entity.
-    ///
-    /// To set the action use <see cref="OnEntityCreateAttribute"/>, <see cref="OnEntityDropAttribute"/>,
-    /// <see cref="OnEntityPropertyCreateAttribute"/> or <see cref="OnEntityPropertyDropAttribute"/>.
-    /// </summary>
-    /// <param name="connection"></param>
-    /// <returns></returns>
-    public delegate Task EntityActionAsyncDelegate(SqlDbConnection connection);
-
-    /// <summary>
-    /// Event arguments for `OnAction` event of `CreateEntityController`
-    ///
-    /// See also <see cref="CreateEntityController.OnAction"/>
-    /// </summary>
-    public class CreateEntityControllerEventArgs : EventArgs
-    {
-        /// <summary>
-        /// The action type.
-        /// </summary>
-        public enum Action
-        {
-            Create,
-            Drop,
-            Update,
-            Processing,
-        }
-
-        /// <summary>
-        /// The action.
-        /// </summary>
-        public Action EventAction { get; set; }
-
-        /// <summary>
-        /// The table name.
-        /// </summary>
-        public string Table { get; set; }
-
-        [DocgenIgnore]
-        public CreateEntityControllerEventArgs(Action action, string table)
-        {
-            EventAction = action;
-            Table = table;
-        }
-    }
-
-    /// <summary>
-    /// The base class for attribute to set the action when entity or property is created by `CreateEntityController`.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
-    [DocgenIgnore]
-    public abstract class OnEntityActionAttribute : Attribute
-    {
-        private readonly Type mType;
-        private readonly string mName;
-        private EntityActionDelegate mAction;
-        private EntityActionAsyncDelegate mAsyncAction;
-        private bool mInit = false;
-
-        private void Initialize()
-        {
-            mInit = true;
-            mAction = null;
-            mAsyncAction = null;
-
-            MethodInfo mi = mType.GetTypeInfo().GetMethod(mName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-            if (mi == null)
-                throw new ArgumentException($"Action method {mName} isn't found");
-
-            var parameters = mi.GetParameters();
-            if (parameters.Length != 1 || parameters[0].ParameterType != typeof(SqlDbConnection))
-                throw new ArgumentException("Action method should have only one parameter and this parameter must accepts Sql connection");
-
-            if (mi.ReturnType == typeof(void))
-            {
-                mAction = mi.CreateDelegate(typeof(EntityActionDelegate)) as EntityActionDelegate;
-            }
-            else if (mi.ReturnType == typeof(Task))
-            {
-                mAsyncAction = mi.CreateDelegate(typeof(EntityActionAsyncDelegate)) as EntityActionAsyncDelegate;
-            }
-            else
-            {
-                throw new ArgumentException("Action method should either return void or Task");
-            }
-
-            if (mAction == null && mAsyncAction == null)
-                throw new ArgumentException("Delegate signature does not match");
-        }
-
-        protected EntityActionAsyncDelegate AsyncAction
-        {
-            get
-            {
-                if (!mInit)
-                    Initialize();
-
-                return mAsyncAction;
-            }
-        }
-
-        protected EntityActionDelegate Action
-        {
-            get
-            {
-                if (!mInit)
-                    Initialize();
-
-                return mAction;
-            }
-        }
-
-        protected OnEntityActionAttribute(Type containerType, string delegateName)
-        {
-            mType = containerType;
-            mName = delegateName;
-        }
-
-        public void Invoke(SqlDbConnection connection)
-        {
-            if (!mInit)
-                Initialize();
-            if (mAction != null)
-                mAction(connection);
-            else if (mAsyncAction != null)
-                mAsyncAction(connection).GetAwaiter().GetResult();
-        }
-
-        public async Task InvokeAsync(SqlDbConnection connection)
-        {
-            if (!mInit)
-                Initialize();
-
-            if (mAction != null)
-            {
-                mAction(connection);
-            }
-            else if (mAsyncAction != null)
-            {
-                await mAsyncAction(connection);
-            }
-        }
-    }
-
-    /// <summary>
-    /// The attribute to set the action to be called when entity is created.
-    ///
-    /// The action will be called only if the entity is created using
-    /// <see cref="CreateEntityController"/>.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public class OnEntityCreateAttribute : OnEntityActionAttribute
-    {
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="containerType">The type that consists of action method.</param>
-        /// <param name="delegateName">The action method name. The method should match either <see cref="EntityActionDelegate"/> or <see cref="EntityActionAsyncDelegate"/></param>
-        public OnEntityCreateAttribute(Type containerType, string delegateName) : base(containerType, delegateName)
-        {
-        }
-    }
-
-    /// <summary>
-    /// The attribute to set the action to be called when entity is dropped.
-    ///
-    /// The action will be called only if the entity is dropped using
-    /// <see cref="CreateEntityController"/>.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public class OnEntityDropAttribute : OnEntityActionAttribute
-    {
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="containerType">The type that consists of action method.</param>
-        /// <param name="delegateName">The action method name. The method should match either <see cref="EntityActionDelegate"/> or <see cref="EntityActionAsyncDelegate"/></param>
-        public OnEntityDropAttribute(Type containerType, string delegateName) : base(containerType, delegateName)
-        {
-        }
-    }
-
-    /// <summary>
-    /// The attribute to set the action to be called when property is created.
-    ///
-    /// The action will be called only if the entity is created using
-    /// <see cref="CreateEntityController"/>.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class OnEntityPropertyCreateAttribute : OnEntityActionAttribute
-    {
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="containerType">The type that consists of action method.</param>
-        /// <param name="delegateName">The action method name. The method should match either <see cref="EntityActionDelegate"/> or <see cref="EntityActionAsyncDelegate"/></param>
-        public OnEntityPropertyCreateAttribute(Type containerType, string delegateName) : base(containerType, delegateName)
-        {
-        }
-    }
-
-    /// <summary>
-    /// The attribute to set the action to be called when property is dropped.
-    ///
-    /// The action will be called only if the property is dropped using
-    /// <see cref="CreateEntityController"/>.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class OnEntityPropertyDropAttribute : OnEntityActionAttribute
-    {
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="containerType">The type that consists of action method.</param>
-        /// <param name="delegateName">The action method name. The method should match either <see cref="EntityActionDelegate"/> or <see cref="EntityActionAsyncDelegate"/></param>
-        public OnEntityPropertyDropAttribute(Type containerType, string delegateName) : base(containerType, delegateName)
-        {
-        }
-    }
-
-    /// <summary>
     /// The controller to create, drop or update entities automatically.
     ///
     /// The method recognizes and handles the following cases:
@@ -320,50 +75,134 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         private void LoadTypes(bool includeObsolete = false)
         {
-            if (mTypes == null)
+            mTypes = ActionController.FindEntities(mAssemblies, mScope, includeObsolete);
+            foreach (EntityFinder.EntityTypeInfo type in mTypes)
             {
-                mTypes = EntityFinder.FindEntities(mAssemblies, mScope, includeObsolete);
-                foreach (EntityFinder.EntityTypeInfo type in mTypes)
+                if (type.Table == null)
                 {
-                    if (type.Table == null)
-                    {
-                        var namingPolicy = (type.NamingPolicy == EntityNamingPolicy.Default ? AllEntities.Inst.NamingPolicy[type.Scope] : type.NamingPolicy);
-                        type.Table = EntityNameConvertor.ConvertTableName(type.EntityType.Name, namingPolicy == EntityNamingPolicy.BackwardCompatibility ? EntityNamingPolicy.AsIs : namingPolicy);
-                    }
+                    var namingPolicy = (type.NamingPolicy == EntityNamingPolicy.Default ? AllEntities.Inst.NamingPolicy[type.Scope] : type.NamingPolicy);
+                    type.Table = EntityNameConvertor.ConvertTableName(type.EntityType.Name, namingPolicy == EntityNamingPolicy.BackwardCompatibility ? EntityNamingPolicy.AsIs : namingPolicy);
                 }
-                EntityFinder.ArrageEntities(mTypes);
             }
+            EntityFinder.ArrageEntities(mTypes);
         }
 
-        protected async ValueTask DropTablesCore(SqlDbConnection connection, bool asyncCall)
+        internal interface ICreateEntityControllerAction
         {
-            LoadTypes();
-            foreach (EntityFinder.EntityTypeInfo info in mTypes.Reverse())
+            EntityFinder.EntityTypeInfo[] FindEntities(IEnumerable<Assembly> assemblies, string scope, bool includeObsolete);
+            void Create(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType);
+            void Drop(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType);
+            void AddColumns(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType, TableDescriptor td, TableDescriptor.ColumnInfo[] columns);
+            void DropColumns(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType, TableDescriptor td, TableDescriptor.ColumnInfo[] columns);
+        }
+
+        private class CreateEntityControllerAction : ICreateEntityControllerAction
+        {
+            public void AddColumns(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType, TableDescriptor td, TableDescriptor.ColumnInfo[] columns)
             {
-                OnEntityDropAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityDropAttribute>();
-                if (attribute != null)
+                var builder = connection.GetAlterTableQueryBuilder();
+                builder.SetTable(td, columns, null);
+                foreach (var queryText in builder.GetQueries())
+                    using (var query = connection.GetQuery(queryText))
+                        query.ExecuteNoData();
+            }
+
+            private static readonly Type gViewCreationMetata = typeof(IViewCreationMetadata);
+
+            public void Create(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType)
+            {
+                EntityQuery query = null;
+                try
                 {
-                    RaiseProcessing(info.Table);
-                    if (asyncCall)
-                        await attribute.InvokeAsync(connection);
+                    if (!entityType.View)
+                        query = connection.GetCreateEntityQuery(entityType.EntityType);
                     else
-                        attribute.Invoke(connection);
+                    {
+                        if (entityType.Metadata != null && gViewCreationMetata.IsAssignableFrom(entityType.Metadata))
+                            query = connection.GetCreateViewQuery(entityType.EntityType);
+                    }
+                    if (query != null)
+                        query.Execute();
                 }
-
-                bool view = info.View && info.Metadata != null && typeof(IViewCreationMetadata).IsAssignableFrom(info.Metadata);
-
-                if (info.View && !view)
-                    continue;
-
-                using (EntityQuery drop = view ? connection.GetDropViewQuery(info.EntityType) :
-                                                 connection.GetDropEntityQuery(info.EntityType))
+                finally
                 {
-                    RaiseDrop(info.Table);
-                    if (asyncCall)
-                        await drop.ExecuteAsync();
-                    else
-                        drop.Execute();
+                    query?.Dispose();
                 }
+            }
+
+            public void Drop(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType)
+            {
+                EntityQuery query = null;
+                try
+                {
+                    if (!entityType.View)
+                        query = connection.GetDropEntityQuery(entityType.EntityType);
+                    else
+                    {
+                        if (entityType.Metadata != null && 
+                            gViewCreationMetata.IsAssignableFrom(entityType.Metadata) && 
+                            connection.DoesObjectExist(entityType.Table, null, "view"))
+                            query = connection.GetDropViewQuery(entityType.EntityType);
+                    }
+                    if (query != null)
+                        query.Execute();
+                }
+                finally
+                {
+                    query?.Dispose();
+                }
+            }
+
+            public void DropColumns(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType, TableDescriptor td, TableDescriptor.ColumnInfo[] columns)
+            {
+                var builder = connection.GetAlterTableQueryBuilder();
+                builder.SetTable(td, null, columns);
+                foreach (var queryText in builder.GetQueries())
+                    using (var query = connection.GetQuery(queryText))
+                        query.ExecuteNoData();
+            }
+
+            public EntityFinder.EntityTypeInfo[] FindEntities(IEnumerable<Assembly> assemblies, string scope, bool includeObsolete)
+                => EntityFinder.FindEntities(assemblies, scope, includeObsolete);
+        }
+
+        internal ICreateEntityControllerAction ActionController { get; set; } = new CreateEntityControllerAction();
+
+        private static void InvokeAttribute<T>(object target, SqlDbConnection connection)
+            where T : OnEntityActionAttribute
+        {
+            OnEntityActionAttribute attribute = null;
+            if (target is Type type)
+                attribute = type.GetCustomAttribute<T>();
+            else if (target is EntityFinder.EntityTypeInfo typeInfo)
+                attribute = typeInfo.EntityType.GetCustomAttribute<T>();
+            else if (target is PropertyInfo propertyInfo)
+                attribute = propertyInfo.GetCustomAttribute<T>();
+            else if (target is IPropertyAccessor accessor)
+                attribute = accessor.GetCustomAttribute<T>();
+            else if (target is TableDescriptor.ColumnInfo columnInfo)
+                attribute = columnInfo.PropertyAccessor?.GetCustomAttribute<T>();
+
+            if (attribute != null)
+                attribute.Invoke(connection);
+        }
+
+        private class UpdateModeHelper
+        {
+            private readonly UpdateMode mDefaultMode;
+            private readonly IDictionary<Type, UpdateMode> mSpecificModes;
+
+            public UpdateModeHelper(UpdateMode defaultMode, IDictionary<Type, UpdateMode> specificModes)
+            {
+                mDefaultMode = defaultMode;
+                mSpecificModes = specificModes;
+            }
+
+            public UpdateMode GetUpdateMode(Type type)
+            {
+                if (mSpecificModes != null && mSpecificModes.TryGetValue(type, out var mode))
+                    return mode;
+                return mDefaultMode;
             }
         }
 
@@ -371,59 +210,45 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// Drop tables.
         /// </summary>
         /// <param name="connection"></param>
-        public void DropTables(SqlDbConnection connection) => DropTablesCore(connection, false).GetAwaiter().GetResult();
+        public void DropTables(SqlDbConnection connection)
+        {
+            LoadTypes(includeObsolete: true);
+            foreach (EntityFinder.EntityTypeInfo info in mTypes.Reverse())
+            {
+                InvokeAttribute<OnEntityActionAttribute>(info, connection);
+                RaiseDrop(info.Table);
+                ActionController.Drop(connection, info);
+            }
+        }
 
         /// <summary>
         /// Drop tables (async version).
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public Task DropTablesAsync(SqlDbConnection connection) => DropTablesCore(connection, true).AsTask();
-
-        private async ValueTask CreateTablesCore(SqlDbConnection connection, bool asyncCall)
-        {
-            LoadTypes();
-            foreach (EntityFinder.EntityTypeInfo info in mTypes)
-            {
-                bool view = info.View && info.Metadata != null && typeof(IViewCreationMetadata).IsAssignableFrom(info.Metadata);
-
-                if (info.View && !view)
-                    continue;
-
-                using (EntityQuery create = view ? connection.GetCreateViewQuery(info.EntityType) :
-                                                    connection.GetCreateEntityQuery(info.EntityType))
-                {
-                    RaiseCreate(info.Table);
-                    if (asyncCall)
-                        await create.ExecuteAsync();
-                    else
-                        create.Execute();
-                }
-
-                OnEntityCreateAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityCreateAttribute>();
-                if (attribute != null)
-                {
-                    RaiseProcessing(info.Table);
-                    if (asyncCall)
-                        await attribute.InvokeAsync(connection);
-                    else
-                        attribute.Invoke(connection);
-                }
-            }
-        }
+        public Task DropTablesAsync(SqlDbConnection connection) => Task.Run(() => DropTables(connection));
 
         /// <summary>
         /// Creates tables.
         /// </summary>
         /// <param name="connection"></param>
-        public void CreateTables(SqlDbConnection connection) => CreateTablesCore(connection, false).GetAwaiter().GetResult();
-
+        public void CreateTables(SqlDbConnection connection)
+        {
+            LoadTypes(includeObsolete: false);
+            foreach (EntityFinder.EntityTypeInfo info in mTypes)
+            {
+                RaiseCreate(info.Table);
+                ActionController.Create(connection, info);
+                InvokeAttribute<OnEntityCreateAttribute>(info, connection);
+            }
+        }
+        
         /// <summary>
         /// Creates tables (async version).
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public Task CreateTablesAsync(SqlDbConnection connection) => CreateTablesCore(connection, true).AsTask();
+        public Task CreateTablesAsync(SqlDbConnection connection) => Task.Run(() => CreateTables(connection));
 
         /// <summary>
         /// The mode of update operation.
@@ -454,7 +279,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="individualUpdateModes">Update modes for individual types.</param>
         /// <returns></returns>
         public Task UpdateTablesAsync(SqlDbConnection connection, UpdateMode defaultUpdateMode, IDictionary<Type, UpdateMode> individualUpdateModes = null)
-            => UpdateTablesCore(false, connection, defaultUpdateMode, individualUpdateModes);
+            => Task.Run(() => UpdateTables(connection, defaultUpdateMode, individualUpdateModes));
 
         /// <summary>
         /// Update tables.
@@ -463,40 +288,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="defaultUpdateMode">The default mode for update.</param>
         /// <param name="individualUpdateModes">Update modes for individual types.</param>
         public void UpdateTables(SqlDbConnection connection, UpdateMode defaultUpdateMode, IDictionary<Type, UpdateMode> individualUpdateModes = null)
-            => UpdateTablesCore(true, connection, defaultUpdateMode, individualUpdateModes).ConfigureAwait(false).GetAwaiter().GetResult();
-
-        private async Task UpdateTablesCore(bool sync, SqlDbConnection connection, UpdateMode defaultUpdateMode, IDictionary<Type, UpdateMode> individualUpdateModes = null)
         {
-            LoadTypes(true);
-            TableDescriptor[] schema = null;
+            var updateModes = new UpdateModeHelper(defaultUpdateMode, individualUpdateModes);
 
-            if (sync)
-                schema = connection.Schema();
-            else
-                schema = await connection.SchemaAsync();
+            LoadTypes(includeObsolete: true);
+            var schema = connection.Schema();
 
             foreach (EntityFinder.EntityTypeInfo info in mTypes.Where(info => info.View))
             {
-                if (info.Metadata != null && typeof(IViewCreationMetadata).IsAssignableFrom(info.Metadata))
-                {
-                    OnEntityDropAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityDropAttribute>();
-                    if (attribute != null)
-                    {
-                        RaiseProcessing(info.Table);
-                        if (sync)
-                            attribute.Invoke(connection);
-                        else
-                            await attribute.InvokeAsync(connection);
-                    }
-                    using (EntityQuery drop = connection.GetDropViewQuery(info.EntityType))
-                    {
-                        RaiseDrop(info.Table);
-                        if (sync)
-                            drop.Execute();
-                        else
-                            await drop.ExecuteAsync();
-                    }
-                }
+                InvokeAttribute<OnEntityDropAttribute>(info, connection);
+                RaiseDrop(info.Table);
+                ActionController.Drop(connection, info);
             }
 
             //drop obsolete tables and/or columns and tables which are forced to be recreated
@@ -504,28 +306,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             {
                 if (schema.Contains(info.Table))
                 {
-                    if (info.Obsolete ||
-                        defaultUpdateMode == UpdateMode.Recreate ||
-                        (individualUpdateModes != null && individualUpdateModes.ContainsKey(info.EntityType) &&
-                         individualUpdateModes[info.EntityType] == UpdateMode.Recreate))
+                    if (info.Obsolete || updateModes.GetUpdateMode(info.EntityType) == UpdateMode.Recreate)
                     {
-                        OnEntityDropAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityDropAttribute>();
-                        if (attribute != null)
-                        {
-                            RaiseProcessing(info.Table);
-                            if (sync)
-                                attribute.Invoke(connection);
-                            else
-                                await attribute.InvokeAsync(connection);
-                        }
-                        using (EntityQuery drop = connection.GetDropEntityQuery(info.EntityType))
-                        {
-                            RaiseDrop(info.Table);
-                            if (sync)
-                                drop.Execute();
-                            else
-                                await drop.ExecuteAsync();
-                        }
+                        InvokeAttribute<OnEntityDropAttribute>(info, connection);
+                        RaiseDrop(info.Table);
+                        ActionController.Drop(connection, info);
                     }
                     else
                     {
@@ -546,33 +331,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                                         Sorted = attribute.Sorted,
                                     });
 
-                                    OnEntityPropertyDropAttribute attribute1 = property.GetCustomAttribute<OnEntityPropertyDropAttribute>();
-                                    if (attribute1 != null)
-                                    {
-                                        RaiseProcessing(info.Table);
-                                        if (sync)
-                                            attribute1.Invoke(connection);
-                                        else
-                                            await attribute1.InvokeAsync(connection);
-                                    }
+                                    InvokeAttribute<OnEntityPropertyDropAttribute>(property, connection);
                                 }
                             }
                             if (dropColumns != null)
-                            {
-                                AlterTableQueryBuilder builder = connection.GetAlterTableQueryBuilder();
-                                builder.SetTable(new TableDescriptor(info.Table), null, dropColumns.ToArray());
-                                RaiseUpdate(info.Table);
-                                foreach (string queryText in builder.GetQueries())
-                                {
-                                    using (SqlDbQuery query = connection.GetQuery(queryText))
-                                    {
-                                        if (sync)
-                                            query.ExecuteNoData();
-                                        else
-                                            await query.ExecuteNoDataAsync();
-                                    }
-                                }
-                            }
+                                ActionController.DropColumns(connection, info, new TableDescriptor(info.Table), dropColumns.ToArray());
                         }
                     }
                 }
@@ -585,26 +348,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     continue;
 
                 if (!schema.Contains(info.Table) ||
-                    defaultUpdateMode == UpdateMode.Recreate ||
-                    (individualUpdateModes != null && individualUpdateModes.ContainsKey(info.EntityType) && individualUpdateModes[info.EntityType] == UpdateMode.Recreate))
+                     updateModes.GetUpdateMode(info.EntityType) == UpdateMode.Recreate)
                 {
-                    using (EntityQuery create = connection.GetCreateEntityQuery(info.EntityType))
-                    {
-                        RaiseCreate(info.Table);
-                        if (sync)
-                            create.Execute();
-                        else
-                            await create.ExecuteAsync();
-                    }
-                    OnEntityCreateAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityCreateAttribute>();
-                    if (attribute != null)
-                    {
-                        RaiseProcessing(info.Table);
-                        if (sync)
-                            attribute.Invoke(connection);
-                        else
-                            await attribute.InvokeAsync(connection);
-                    }
+                    RaiseCreate(info.Table);
+                    ActionController.Create(connection, info);
+                    InvokeAttribute<OnEntityCreateAttribute>(info, connection);
                 }
                 else
                 {
@@ -622,61 +370,26 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                             if (delegates == null)
                                 delegates = new List<OnEntityPropertyCreateAttribute>();
                             addColumns.Add(column);
-                            OnEntityPropertyCreateAttribute attribute1 = column.PropertyAccessor.GetCustomAttribute<OnEntityPropertyCreateAttribute>();
-                            if (attribute1 != null)
-                                delegates.Add(attribute1);
                         }
                     }
                     if (addColumns != null)
                     {
-                        AlterTableQueryBuilder builder = connection.GetAlterTableQueryBuilder();
-                        builder.SetTable(new TableDescriptor(info.Table), addColumns.ToArray(), null);
+                        ActionController.AddColumns(connection, info, new TableDescriptor(info.Table), addColumns.ToArray());
                         RaiseUpdate(info.Table);
-                        foreach (string queryText in builder.GetQueries())
-                        {
-                            using (SqlDbQuery query = connection.GetQuery(queryText))
-                            {
-                                if (sync)
-                                    query.ExecuteNoData();
-                                else
-                                    await query.ExecuteNoDataAsync();
-                            }
-                        }
-                        if (delegates != null)
-                        {
-                            RaiseProcessing(info.Table);
-                            foreach (var action in delegates)
-                            {
-                                if (sync)
-                                    action.Invoke(connection);
-                                else
-                                    await action.InvokeAsync(connection);
-                            }
-                        }
+
+                        for (int i = 0; i < addColumns.Count; i++)
+                            InvokeAttribute<OnEntityPropertyCreateAttribute>(addColumns[i], connection);
                     }
                 }
             }
 
             foreach (EntityFinder.EntityTypeInfo info in mTypes.Where(info => info.View))
             {
-                using (EntityQuery create = connection.GetCreateViewQuery(info.EntityType))
-                {
-                    RaiseCreate(info.Table);
-                    if (sync)
-                        create.Execute();
-                    else
-                        await create.ExecuteAsync();
-                }
-
-                OnEntityCreateAttribute attribute = info.EntityType.GetTypeInfo().GetCustomAttribute<OnEntityCreateAttribute>();
-                if (attribute != null)
-                {
-                    RaiseProcessing(info.Table);
-                    if (sync)
-                        attribute.Invoke(connection);
-                    else
-                        await attribute.InvokeAsync(connection);
-                }
+                if (info.Obsolete)
+                    continue;
+                RaiseCreate(info.Table);
+                ActionController.Create(connection, info);
+                InvokeAttribute<OnEntityCreateAttribute>(info, connection);
             }
         }
 

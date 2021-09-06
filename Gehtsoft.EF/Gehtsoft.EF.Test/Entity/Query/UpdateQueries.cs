@@ -178,7 +178,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             using var connection = new DummySqlConnection();
             using var query = connection.GetInsertEntityQuery<Entity1>();
             var command = query.Query.Command as DummyDbCommand;
-            
+
             var result = new DummyDbDataReaderResult
             {
                 Columns = new DummyDbDataReaderColumnCollection() { new DummyDbDataReaderColumn("", DbType.Int32) },
@@ -211,7 +211,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
                     .Value.Should().Be(e.F3);
 
             e.Id.Should().Be(15);
-
         }
 
         [Fact]
@@ -501,7 +500,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
         {
             using var connection = new DummySqlConnection();
             using var query = connection.GetMultiUpdateEntityQuery<Entity2>();
-            
+
             query.Where.Property("F1").Gt().Parameter("p1");
             query.AddUpdateColumn("F2", "text");
 

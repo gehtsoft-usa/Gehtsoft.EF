@@ -40,6 +40,12 @@
     <Compile Include="EntityQueries\Context\ContextQuery.cs" />
     <Compile Include="EntityQueries\Context\ContextTransaction.cs" />
     <Compile Include="EntityQueries\Context\EntityContent.cs" />
+    <Compile Include="EntityQueries\CreateEntity\CreateEntityControllerEventArgs.cs" />
+    <Compile Include="EntityQueries\CreateEntity\OnEntityActionAttribute.cs" />
+    <Compile Include="EntityQueries\CreateEntity\OnEntityCreateAttribute.cs" />
+    <Compile Include="EntityQueries\CreateEntity\OnEntityDropAttribute.cs" />
+    <Compile Include="EntityQueries\CreateEntity\OnEntityPropertyCreateAttribute.cs" />
+    <Compile Include="EntityQueries\CreateEntity\OnEntityPropertyDropAttribute.cs" />
     <Compile Include="EntityQueries\CreateEntity\Patch\EfPatchAttribute.cs" />
     <Compile Include="EntityQueries\CreateEntity\Patch\EfPatchProcessor.cs" />
     <Compile Include="EntityQueries\CreateEntity\Patch\IEfPatch.cs" />
@@ -96,6 +102,7 @@
     <Compile Include="EntityQueries\EntityQuery\SelectEntitiesQueryBase.cs" />
     <Compile Include="EntityQueries\EntityQuery\UpdateEntityQuery.cs" />
     <Compile Include="FieldInfo.cs" />
+    <Compile Include="EntityQueries\CreateEntity\EntityActionDelegate.cs" />
     <Compile Include="IDbQuery.cs" />
     <Compile Include="Metadata\CompositeIndex.cs" />
     <Compile Include="Metadata\ICompositeIndexMetadata.cs" />

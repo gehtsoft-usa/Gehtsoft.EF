@@ -86,8 +86,11 @@ namespace TestApp
 
             SqlDbQuery query;
 
-            using (query = connection.GetQuery(didxbuilder))
-                query.ExecuteNoData();
+            if (connection.DoesObjectExist(gCreateDropTable1.Name, null, "table"))
+            {
+                using (query = connection.GetQuery(didxbuilder))
+                    query.ExecuteNoData();
+            }
             using (query = connection.GetQuery(viewDropBuilder))
                 query.ExecuteNoData();
             using (query = connection.GetQuery(dbuilder))

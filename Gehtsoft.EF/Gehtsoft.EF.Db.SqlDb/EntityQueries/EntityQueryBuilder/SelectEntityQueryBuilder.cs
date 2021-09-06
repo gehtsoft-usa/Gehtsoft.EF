@@ -45,7 +45,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 if (!column.ForeignKey)
                 {
                     binder.AddBinding(mSelectQueryBuilder.Resultset.Count, column.Name, column.PropertyAccessor, column.PrimaryKey);
-                    mSelectQueryBuilder.AddExpressionToResultset($"{entity.Alias}.{column.Name}", column.DbType, false);
+                    mSelectQueryBuilder.AddExpressionToResultset($"{entity.Alias}.{column.Name}", column.DbType, false, $"{entity.Alias}_{column.Name}");
                 }
                 else
                 {
@@ -65,7 +65,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     {
                         var binder1 = new SelectQueryResultBinder(column.PropertyAccessor.PropertyType);
                         binder1.AddBinding(mSelectQueryBuilder.Resultset.Count, column.Name, column.ForeignTable.PrimaryKey.PropertyAccessor, true);
-                        mSelectQueryBuilder.AddExpressionToResultset($"{entity.Alias}.{column.Name}", column.DbType, false);
+                        mSelectQueryBuilder.AddExpressionToResultset($"{entity.Alias}.{column.Name}", column.DbType, false, $"{entity.Alias}_{column.Name}");
                         binder.AddBinding(binder1, column.PropertyAccessor);
                     }
                 }
