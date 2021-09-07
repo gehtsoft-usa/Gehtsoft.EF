@@ -70,6 +70,7 @@ namespace Gehtsoft.EF.Entities
             {
                 case EntityNamingPolicy.AsIs:
                     return name;
+                case EntityNamingPolicy.BackwardCompatibility:
                 case EntityNamingPolicy.LowerCase:
                     return name.ToLower();
                 case EntityNamingPolicy.UpperCase:

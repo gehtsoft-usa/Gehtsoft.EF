@@ -10,5 +10,7 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
         public bool OuterJoinSupportedSpec { get; set; } = false;
         public override bool SupportFunctionsInIndexes => SupportFunctionsInIndexesSpec;
         public bool SupportFunctionsInIndexesSpec { get; set; } = false;
+        public override bool DropColumnSupported => DropColumnSupportedSpec;
+        public bool DropColumnSupportedSpec { get; set; } = true;
     }
 }

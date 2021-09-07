@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
@@ -215,7 +216,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             LoadTypes(includeObsolete: true);
             foreach (EntityFinder.EntityTypeInfo info in mTypes.Reverse())
             {
-                InvokeAttribute<OnEntityActionAttribute>(info, connection);
+                InvokeAttribute<OnEntityDropAttribute>(info, connection);
                 RaiseDrop(info.Table);
                 ActionController.Drop(connection, info);
             }
@@ -296,9 +297,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             foreach (EntityFinder.EntityTypeInfo info in mTypes.Where(info => info.View))
             {
-                InvokeAttribute<OnEntityDropAttribute>(info, connection);
-                RaiseDrop(info.Table);
-                ActionController.Drop(connection, info);
+                if (schema.Contains(info.Table))
+                {
+                    InvokeAttribute<OnEntityDropAttribute>(info, connection);
+                    RaiseDrop(info.Table);
+                    ActionController.Drop(connection, info);
+                }
             }
 
             //drop obsolete tables and/or columns and tables which are forced to be recreated
@@ -308,9 +312,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 {
                     if (info.Obsolete || updateModes.GetUpdateMode(info.EntityType) == UpdateMode.Recreate)
                     {
-                        InvokeAttribute<OnEntityDropAttribute>(info, connection);
-                        RaiseDrop(info.Table);
-                        ActionController.Drop(connection, info);
+                        if (connection.GetLanguageSpecifics().DropColumnSupported ||
+                            Array.Find(mTypes, i => i != info &&
+                                               i.DependsOn.FirstOrDefault(i1 => i1 == info.EntityType) != null) == null)
+                        {
+                            InvokeAttribute<OnEntityDropAttribute>(info, connection);
+                            RaiseDrop(info.Table);
+                            ActionController.Drop(connection, info);
+                        }
                     }
                     else
                     {
@@ -320,18 +329,30 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                             foreach (PropertyInfo property in info.EntityType.GetProperties())
                             {
                                 ObsoleteEntityPropertyAttribute attribute = property.GetCustomAttribute<ObsoleteEntityPropertyAttribute>();
-                                if (attribute != null && schema.Contains(info.Table, attribute.Field))
+                                
+                                if (attribute != null)
                                 {
-                                    if (dropColumns == null)
-                                        dropColumns = new List<TableDescriptor.ColumnInfo>();
-                                    dropColumns.Add(new TableDescriptor.ColumnInfo()
-                                    {
-                                        Name = attribute.Field,
-                                        ForeignTable = attribute.ForeignKey ? mDummyTable : null,
-                                        Sorted = attribute.Sorted,
-                                    });
+                                    var policy = info.NamingPolicy;
+                                    if (policy == EntityNamingPolicy.Default)
+                                        policy = AllEntities.Inst.NamingPolicy[mScope]; 
 
-                                    InvokeAttribute<OnEntityPropertyDropAttribute>(property, connection);
+                                    string field = attribute.Field;
+                                    if (field == null)
+                                        field = EntityNameConvertor.ConvertName(property.Name, policy);
+
+                                    if (schema.Contains(info.Table, field))
+                                    {
+                                        if (dropColumns == null)
+                                            dropColumns = new List<TableDescriptor.ColumnInfo>();
+                                        dropColumns.Add(new TableDescriptor.ColumnInfo()
+                                        {
+                                            Name = field,
+                                            ForeignTable = attribute.ForeignKey ? mDummyTable : null,
+                                            Sorted = attribute.Sorted,
+                                        });
+
+                                        InvokeAttribute<OnEntityPropertyDropAttribute>(property, connection);
+                                    }
                                 }
                             }
                             if (dropColumns != null)
@@ -416,15 +437,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             if (OnAction != null)
             {
                 CreateEntityControllerEventArgs args = new CreateEntityControllerEventArgs(CreateEntityControllerEventArgs.Action.Update, table);
-                OnAction.Invoke(this, args);
-            }
-        }
-
-        private void RaiseProcessing(string table)
-        {
-            if (OnAction != null)
-            {
-                CreateEntityControllerEventArgs args = new CreateEntityControllerEventArgs(CreateEntityControllerEventArgs.Action.Processing, table);
                 OnAction.Invoke(this, args);
             }
         }

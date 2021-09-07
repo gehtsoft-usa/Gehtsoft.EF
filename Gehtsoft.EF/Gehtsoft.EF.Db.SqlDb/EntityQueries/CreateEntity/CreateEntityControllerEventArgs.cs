@@ -18,7 +18,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             Create,
             Drop,
             Update,
-            Processing,
         }
 
         /// <summary>

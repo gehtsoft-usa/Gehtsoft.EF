@@ -18,7 +18,11 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 
         public override SqlDbLanguageSpecifics GetLanguageSpecifics() => DummyDbSpecifics;
 
-        protected override Task<TableDescriptor[]> SchemaCore(bool sync, CancellationToken? token) => throw new NotFiniteNumberException();
+        private TableDescriptor[] mScheme = null;
+
+        public void SetSchema(TableDescriptor[] scheme) => mScheme = scheme;
+
+        protected override Task<TableDescriptor[]> SchemaCore(bool sync, CancellationToken? token) => Task.FromResult(mScheme) ?? throw new NotFiniteNumberException();
 
         public DummySqlConnection() : this(new DummyDbConnection())
         {

@@ -142,7 +142,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             public string Note { get; set; }
 
             [EntityProperty]
-            public string Comment { get; set; }
+            public string Note1 { get; set; }
 
             [ForeignKey]
             public Dict1_V2 Dict { get; set; }
@@ -238,11 +238,21 @@ namespace Gehtsoft.EF.Test.Entity.Query
             creator.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
 
             connection.DoesObjectExist("ce_dict0", null, "table").Should().BeTrue();
+            connection.DoesObjectExist("ce_dict0", "id", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_dict0", "name", "column").Should().BeTrue();
+
             connection.DoesObjectExist("ce_dict1", null, "table").Should().BeTrue();
+            connection.DoesObjectExist("ce_dict1", "id", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_dict1", "name", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_dict1", "dict", "column").Should().BeTrue();
+
             connection.DoesObjectExist("ce_table1", null, "table").Should().BeTrue();
+            connection.DoesObjectExist("ce_table1", "id", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_table1", "name", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_table1", "note", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_table1", "dict", "column").Should().BeTrue();
         }
 
-        /*
         [TestOrder(21)]
         [Theory]
         [MemberData(nameof(ConnectionNames), "")]
@@ -255,8 +265,37 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             var creator = new CreateEntityController(this.GetType().Assembly, "createntity2");
             creator.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+
+            var canDrop = connection.GetLanguageSpecifics().DropColumnSupported;
+
+            if (canDrop)
+                connection.DoesObjectExist("ce_dict0", null, "table").Should().BeFalse();
+            else
+                connection.DoesObjectExist("ce_dict0", null, "table").Should().BeTrue();
+
+            connection.DoesObjectExist("ce_dict2", null, "table").Should().BeTrue();
+            connection.DoesObjectExist("ce_dict2", "id", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_dict2", "name", "column").Should().BeTrue();
+
+            connection.DoesObjectExist("ce_dict1", null, "table").Should().BeTrue();
+            connection.DoesObjectExist("ce_dict1", "id", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_dict1", "name", "column").Should().BeTrue();           
+            if (canDrop)
+                connection.DoesObjectExist("ce_dict1", "dict", "column").Should().BeFalse();
+            else
+                connection.DoesObjectExist("ce_dict1", "dict", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_dict1", "dict1", "column").Should().BeTrue();
+
+            connection.DoesObjectExist("ce_table1", null, "table").Should().BeTrue();
+            connection.DoesObjectExist("ce_table1", "id", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_table1", "name", "column").Should().BeTrue();
+            if (canDrop)
+                connection.DoesObjectExist("ce_table1", "note", "column").Should().BeFalse();
+            else
+                connection.DoesObjectExist("ce_table1", "note", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_table1", "note1", "column").Should().BeTrue();
+            connection.DoesObjectExist("ce_table1", "dict", "column").Should().BeTrue();
         }
-        */
     }
 
     [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]

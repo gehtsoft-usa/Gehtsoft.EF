@@ -8,7 +8,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
     /// <summary>
     /// The base class for attribute to set the action when entity or property is created by `CreateEntityController`.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
     [DocgenIgnore]
     public abstract class OnEntityActionAttribute : Attribute
     {
