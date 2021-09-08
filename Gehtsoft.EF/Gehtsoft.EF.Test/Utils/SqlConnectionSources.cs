@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using FluentAssertions;
 
 namespace Gehtsoft.EF.Test.Utils
 {
@@ -90,5 +92,33 @@ namespace Gehtsoft.EF.Test.Utils
         /// <returns></returns>
         public static IEnumerable<object[]> ConnectionNames(string flags = null)
             => Connections(flags).Select(c => new object[] { c.Name });
+
+        /// <summary>
+        /// Gets list of the connections from the config
+        /// </summary>
+        /// <param name="flags">Comma-separated list of the connection or driver names with `+` prefix to include only and `-` prefix to exclude</param>
+        /// <returns></returns>
+        public static IEnumerable<object[]> ConnectionNamesWithArgs(string flags, Type argsSourceType, string argsName)
+        {
+            var m = argsSourceType.GetMethod(argsName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            if (m == null)
+                throw new ArgumentException($"Type {argsSourceType.Name} doesn't have method {argsName}");
+            if (!m.IsStatic || m.GetParameters()?.Length != 1 || m.GetParameters()[0].ParameterType != typeof(string) || m.ReturnType != typeof(IEnumerable<object[]>))
+                throw new ArgumentException($"Method {argsSourceType.Name}.{argsName} is not a static method than take a string (connection name) that returns IEnumerable<object[]>");
+
+            foreach (var connection in Connections(flags))
+            {
+                var parameterSets = m.Invoke(null, new string[] { connection.Driver }) as IEnumerable<object[]>;
+
+                foreach (var args in parameterSets)
+                {
+                    var r = new object[args.Length + 1];
+                    r[0] = connection.Name;
+                    for (int i = 0; i < args.Length; i++)
+                        r[i + 1] = args[i];
+                    yield return r;
+                }
+            }
+        }
     }
 }

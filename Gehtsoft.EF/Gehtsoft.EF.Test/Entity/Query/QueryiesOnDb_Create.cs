@@ -297,27 +297,4 @@ namespace Gehtsoft.EF.Test.Entity.Query
             connection.DoesObjectExist("ce_table1", "dict", "column").Should().BeTrue();
         }
     }
-
-    [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
-    public class QueryiesOnDb_UpdateAndBasicSelect : IClassFixture<QueryiesOnDb_UpdateAndBasicSelect.Fixture>
-    {
-        private const string mFlags = "+sqlite";
-        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
-
-        public class Fixture : ConnectionFixtureBase
-        {
-            public bool DeleteOnDispose { get; } = false;
-
-            protected override void ConfigureConnection(SqlDbConnection connection)
-            {
-                base.ConfigureConnection(connection);
-            }
-
-            protected override void TearDownConnection(SqlDbConnection connection)
-            {
-                base.TearDownConnection(connection);
-            }
-        }
-    }
 }
-

@@ -20,6 +20,8 @@ namespace Gehtsoft.EF.Db.OracleDb
         {
             if (type == DbType.Boolean)
                 type = DbType.Int32;
+            else if (type == DbType.Guid)
+                type = DbType.String;
             base.BindNull(name, type);
         }
 

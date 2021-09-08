@@ -82,6 +82,33 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         private readonly List<Type> mResultsetTypes = new List<Type>();
 
         /// <summary>
+        /// Add all columns of the type specified into the resultset.
+        /// </summary>
+        /// <param name="entityType"></param>
+        /// <param name="occurrence"></param>
+        /// <param name="exclusion"></param>
+        public void AddToResultset(Type entityType, int occurrence = 0, string[] exclusion = null)
+        {
+            var ei = AllEntities.Get(entityType);
+            for (int i = 0; i < ei.TableDescriptor.Count; i++)
+            {
+                var ci = ei.TableDescriptor[i];
+                if (exclusion == null || Array.Find(exclusion, s => s.Equals(ci.ID, StringComparison.OrdinalIgnoreCase)) == null)
+                    AddToResultset(entityType, occurrence, ci.ID);
+            }
+        }
+
+        /// <summary>
+        /// Add all columns of the type specified into the resultset (generic version).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="occurrence"></param>
+        /// <param name="exclusion"></param>
+        public void AddToResultset<T>(int occurrence = 0, string[] exclusion = null)
+            => AddToResultset(typeof(T), occurrence, exclusion);
+
+
+        /// <summary>
         /// Adds the property to the resulset.
         /// </summary>
         /// <param name="property"></param>

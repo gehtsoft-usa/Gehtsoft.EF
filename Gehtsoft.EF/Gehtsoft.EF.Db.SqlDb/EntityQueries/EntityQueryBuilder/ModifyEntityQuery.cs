@@ -26,6 +26,31 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
     }
 
+    internal class InsertSelectEntityQueryBuilder : EntityQueryBuilder
+    {
+        protected bool mIgnoreAutoIncrement;
+
+        public bool IgnoreAutoIncrement => mIgnoreAutoIncrement;
+
+        protected readonly InsertSelectQueryBuilder mInsertSelectBuilder;
+
+        public InsertSelectEntityQueryBuilder(Type type, SqlDbConnection connection, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement, string[] includeOnlyProperties) : base(connection.GetLanguageSpecifics(), type)
+        {
+            mIgnoreAutoIncrement = ignoreAutoIncrement;
+            mQueryBuilder = mInsertSelectBuilder = connection.GetInsertSelectQueryBuilder(mEntityDescriptor.TableDescriptor, selectQuery, ignoreAutoIncrement);
+            if (includeOnlyProperties != null && includeOnlyProperties.Length > 0)
+            {
+                var ei = AllEntities.Get(type);
+                var cols = new string[includeOnlyProperties.Length];
+                for (int i = 0; i < includeOnlyProperties.Length; i++)
+                    cols[i] = ei[includeOnlyProperties[i]].Name;
+                mInsertSelectBuilder.IncludeOnly(cols);
+            }
+        }
+
+
+    }
+
     internal class DeleteEntityQueryBuilder : EntityQueryWithWhereBuilder
     {
         protected UpdateQueryToTypeBinder mBinder;

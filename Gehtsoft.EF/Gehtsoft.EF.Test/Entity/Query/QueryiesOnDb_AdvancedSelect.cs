@@ -11,14 +11,14 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.Entity.Query
 {
-    public class QueryiesOnDb_Select: IClassFixture<NorthwindFixture>
+    public class QueryiesOnDb_AdvancedSelect: IClassFixture<NorthwindFixture>
     {
         private const string mFlags = "+sqlite";
         public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
 
         public NorthwindFixture mFixture;
 
-        public QueryiesOnDb_Select(NorthwindFixture fixture)
+        public QueryiesOnDb_AdvancedSelect(NorthwindFixture fixture)
         {
             mFixture = fixture;
         }

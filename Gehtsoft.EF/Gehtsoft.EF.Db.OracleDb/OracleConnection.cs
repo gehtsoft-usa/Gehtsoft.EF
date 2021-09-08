@@ -122,21 +122,27 @@ namespace Gehtsoft.EF.Db.OracleDb
             }
             foreach (TableDescriptor descriptor in tables)
             {
-                using (SqlDbQuery query = GetQuery($"select * from {descriptor.Name} where 1 < 0"))
+                var queryText = $"SELECT * FROM user_tab_cols WHERE TABLE_NAME='{descriptor.Name.ToUpper()}'";
+                using (SqlDbQuery query = GetQuery(queryText, true))
                 {
                     if (sync)
-                    {
                         query.ExecuteReader();
-                        query.ReadNext();
-                        for (int i = 0; i < query.FieldCount; i++)
-                            descriptor.Add(new TableDescriptor.ColumnInfo() { Name = query.Reader.GetName(i) });
-                    }
                     else
+                        await query.ExecuteReaderAsync();
+
+                    while (true)
                     {
-                        await query.ExecuteReaderAsync(token);
-                        await query.ReadNextAsync(token);
-                        for (int i = 0; i < query.FieldCount; i++)
-                            descriptor.Add(new TableDescriptor.ColumnInfo() { Name = query.Reader.GetName(i) });
+                        bool rc;
+                        if (sync)
+                            rc = query.ReadNext();
+                        else
+                            rc = await query.ReadNextAsync();
+
+                        if (!rc)
+                            break;
+
+                        var cn = query.GetValue<string>("COLUMN_NAME");
+                        descriptor.Add(new TableDescriptor.ColumnInfo() { Name = cn });
                     }
                 }
             }
@@ -182,6 +188,8 @@ namespace Gehtsoft.EF.Db.OracleDb
         }
 
         public void UpdateSequence(TableDescriptor descriptor) => UpdateSequence(descriptor, descriptor.PrimaryKey);
+
+        public void UpdateSequence<T>() => UpdateSequence(typeof(T));
 
         public void UpdateSequence(Type type)
         {

@@ -83,6 +83,29 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             }
 
             if (connectToProperty == null)
+            {
+                //find first match from other(pk)->this(fk)
+                for (int i = 0; i < mItems.Count; i++)
+                {
+                    if (mItems[i].Column.PrimaryKey)
+                    {
+                        for (int j = 0; j < entity.TableDescriptor.Count; j++)
+                        {
+                            if (entity.TableDescriptor[j].ForeignKey &&
+                                entity.TableDescriptor[j].PropertyAccessor.PropertyType == mItems[i].Entity.EntityType)
+                            {
+                                connectToProperty = mItems[i].Path;
+                                break;
+                            }
+                        }
+
+                        if (connectToProperty != null)
+                            break;
+                    }
+                }
+            }
+
+            if (connectToProperty == null)
                 throw new EfSqlException(EfExceptionCode.IncorrectJoin);
 
             EntityQueryItem item = mItemIndex[connectToProperty];

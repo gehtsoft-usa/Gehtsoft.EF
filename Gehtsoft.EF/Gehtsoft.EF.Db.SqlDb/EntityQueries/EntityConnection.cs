@@ -423,6 +423,55 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public static MultiUpdateEntityQuery GetMultiUpdateEntityQuery<T>(this SqlDbConnection connection) => new MultiUpdateEntityQuery(connection.GetQuery(), connection.GetUpdateEntityQueryBuilder(typeof(T)));
 
         /// <summary>
+        /// Returns the query that selects the entity by its identifier.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="entity"></param>
+        /// <param name="primaryKey"></param>
+        /// <returns></returns>
+        public static SelectEntitiesQuery GetSelectOneEntityQuery(this SqlDbConnection connection, Type entity, object primaryKey)
+        {
+            var query = connection.GetSelectEntitiesQuery(entity);
+            query.Where.Property(entity.GetEfPrimaryKey().Name).Eq(primaryKey);
+            return query;
+        }
+
+        /// <summary>
+        /// Returns the query that selects the entity by its identifier (generic version).
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="primaryKey"></param>
+        /// <returns></returns>
+        public static SelectEntitiesQuery GetSelectOneEntityQuery<T>(this SqlDbConnection connection, object primaryKey)
+            => connection.GetSelectOneEntityQuery(typeof(T), primaryKey);
+
+        /// <summary>
+        /// Returns the query that inserts the results of an entity select query into another entity.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="entityType"></param>
+        /// <param name="selectQuery"></param>
+        /// <param name="ignoreAutoIncrement"></param>
+        /// <param name="includeOnlyProperties"></param>
+        /// <returns></returns>
+        public static InsertSelectEntityQuery GetInsertSelectEntityQuery(this SqlDbConnection connection, Type entityType, SelectEntitiesQueryBase selectQuery, bool ignoreAutoIncrement = false, string[] includeOnlyProperties = null)
+            => new InsertSelectEntityQuery(connection.GetQuery(), entityType, selectQuery.SelectBuilder, ignoreAutoIncrement, includeOnlyProperties);
+
+        /// <summary>
+        /// Returns the query that inserts the results of an entity select query into another entity (generic version).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="connection"></param>
+        /// <param name="selectQuery"></param>
+        /// <param name="ignoreAutoIncrement"></param>
+        /// <param name="includeOnlyProperties"></param>
+        /// <returns></returns>
+        public static InsertSelectEntityQuery GetInsertSelectEntityQuery<T>(this SqlDbConnection connection, SelectEntitiesQueryBase selectQuery, bool ignoreAutoIncrement = false, string[] includeOnlyProperties = null)
+            => connection.GetInsertSelectEntityQuery(typeof(T), selectQuery, ignoreAutoIncrement, includeOnlyProperties);
+
+
+
+        /// <summary>
         /// Checks whether entity has no dependencies and can be deleted.
         /// </summary>
         /// <typeparam name="T"></typeparam>

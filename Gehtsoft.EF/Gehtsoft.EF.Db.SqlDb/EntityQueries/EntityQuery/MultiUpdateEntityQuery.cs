@@ -39,7 +39,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="rawExpression"></param>
         public void AddUpdateColumnByExpression(string propertyName, string rawExpression)
         {
-            mUpdateBuilder.AddUpdateColumn(propertyName);
+            mUpdateBuilder.AddUpdateColumnByExpression(propertyName, rawExpression);
         }
     }
 }

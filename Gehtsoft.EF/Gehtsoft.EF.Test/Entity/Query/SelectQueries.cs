@@ -298,7 +298,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
         {
             using var connection = new DummySqlConnection();
             using var query = connection.GetGenericSelectEntityQuery<Dict1>();
-            query.AddEntity<Entity2>("Id", false);
+            query.AddEntity<Entity2>();
             query.AddToResultset("N1");
             query.PrepareQuery();
             var select = query.Builder.Query.ParseSql().SelectStatement();
