@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Castle.Core.Internal;
 using FluentAssertions;
@@ -14,7 +15,6 @@ using Xunit;
 #pragma warning disable RCS1049 // Simplify boolean comparison.
 #pragma warning disable S1125 // Boolean literals should not be redundant
 #pragma warning disable S1172 // Unused method parameters should be removed
-
 
 namespace Gehtsoft.EF.Test.Entity.Query
 {
@@ -109,12 +109,11 @@ namespace Gehtsoft.EF.Test.Entity.Query
             using var connection = new DummySqlConnection();
             var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
-            
-            var probe = new EntityAttributeProbe();
+
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
 
             var es = EntityFinder.FindEntities(assemblies, "creator_order_1", false);
-            
+
             var e1 = es.Find(e => e.EntityType == typeof(TestOrder_Entity));
             var d1 = es.Find(e => e.EntityType == typeof(TestOrder_Dict1));
             var d2 = es.Find(e => e.EntityType == typeof(TestOrder_Dict2));
@@ -173,7 +172,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
 
-            var probe = new EntityAttributeProbe();
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
 
             var es = EntityFinder.FindEntities(assemblies, "creator_order_1", true);
@@ -246,11 +244,10 @@ namespace Gehtsoft.EF.Test.Entity.Query
         public void Update_FirstRun()
         {
             using var connection = new DummySqlConnection();
-            
+
             var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
 
-            var probe = new EntityAttributeProbe();
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
 
             var es = EntityFinder.FindEntities(assemblies, "creator_order_1", true);
@@ -262,7 +259,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var d4 = es.Find(e => e.EntityType == typeof(TestOrder_Dict4));
             var v1 = es.Find(e => e.EntityType == typeof(TestOrder_View));
 
-            connection.SetSchema(new TableDescriptor[] { });
+            connection.SetSchema(Array.Empty<TableDescriptor>());
 
             action.Setup(x => x.FindEntities(
                 It.Is<IEnumerable<Assembly>>(e => e == assemblies),
@@ -317,7 +314,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
 
-            var probe = new EntityAttributeProbe();
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
 
             var es = EntityFinder.FindEntities(assemblies, "creator_order_1", true);
@@ -390,11 +386,10 @@ namespace Gehtsoft.EF.Test.Entity.Query
         {
             using var connection = new DummySqlConnection();
             connection.DummyDbSpecifics.DropColumnSupportedSpec = true;
-            
+
             var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
 
-            var probe = new EntityAttributeProbe();
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
 
             var es = EntityFinder.FindEntities(assemblies, "creator_order_1", true);
@@ -445,7 +440,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
             {
                 Name = nameof(TestOrder_View)
             };
-
 
             connection.SetSchema(new TableDescriptor[] { td1, td2, td3, te1, tv1, td4 });
 
@@ -493,8 +487,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 ActionController = action.Object
             };
 
-            List<string> actions = new List<string>();
-
             controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
 
             action.Verify();
@@ -509,7 +501,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
 
-            var probe = new EntityAttributeProbe();
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
 
             var es = EntityFinder.FindEntities(assemblies, "creator_order_1", true);
@@ -561,7 +552,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 Name = nameof(TestOrder_View)
             };
 
-
             connection.SetSchema(new TableDescriptor[] { td1, td2, td3, te1, tv1, td4 });
 
             action.Setup(x => x.FindEntities(
@@ -594,8 +584,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
             {
                 ActionController = action.Object
             };
-
-            List<string> actions = new List<string>();
 
             controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
 

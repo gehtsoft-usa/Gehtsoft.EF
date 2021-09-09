@@ -134,6 +134,14 @@ namespace Gehtsoft.EF.Db.MssqlDb
                     return $"CONVERT(date, {args[0]})";
                 case SqlFunctionId.ToTimestamp:
                     return $"CONVERT(datetime, {args[0]})";
+                case SqlFunctionId.Trim:
+                    return $"LTRIM(RTRIM({args[0]}))";
+                case SqlFunctionId.Hour:
+                    return $"DATEPART(HOUR, {args[0]})";
+                case SqlFunctionId.Minute:
+                    return $"DATEPART(MINUTE, {args[0]})";
+                case SqlFunctionId.Second:
+                    return $"DATEPART(SECOND, {args[0]})";
                 case SqlFunctionId.Concat:
                     {
                         StringBuilder builder = new StringBuilder("CONCAT(");

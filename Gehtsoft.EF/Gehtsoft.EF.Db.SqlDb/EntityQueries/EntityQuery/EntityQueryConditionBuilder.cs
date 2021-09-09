@@ -175,6 +175,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public SingleEntityQueryConditionBuilder Query(AQueryBuilder builder, DbType? columnType = null)
         {
+            builder.PrepareQuery();
             return Raw(Builder.Query(builder), columnType);
         }
 
@@ -187,7 +188,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public SingleEntityQueryConditionBuilder Query(SelectEntitiesQueryBase query)
         {
-            query.Where.SetCurrentSingleEntityQueryConditionBuilder(null);
+            query.PrepareQuery();
             Builder.BaseQuery.CopyParametersFrom(query);
             SelectQueryBuilderResultsetItem firstColumn = query.ResultColumn(0);
             return Raw(Builder.Query(query.EntityQueryBuilder.QueryBuilder), firstColumn.DbType);
@@ -797,7 +798,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public static SingleEntityQueryConditionBuilder NotIn(this SingleEntityQueryConditionBuilder builder, SelectEntitiesQueryBase query) => builder.Is(CmpOp.NotIn).Query(query);
 
-        private static string Wrap(this SingleEntityQueryConditionBuilder builder, string arg, SqlFunctionId function)
+        private static string Wrap(this SingleEntityQueryConditionBuilder builder, string arg, SqlFunctionId function, string arg2)
         {
             if (string.IsNullOrEmpty(arg))
             {
@@ -805,16 +806,18 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     return builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { });
                 throw new InvalidOperationException("Nothing to wrap");
             }
+            else if (!string.IsNullOrEmpty(arg2))
+                return builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { arg, arg2 });
             else
                 return builder.Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { arg });
         }
 
-        internal static SingleEntityQueryConditionBuilder Wrap(this SingleEntityQueryConditionBuilder builder, SqlFunctionId function)
+        internal static SingleEntityQueryConditionBuilder Wrap(this SingleEntityQueryConditionBuilder builder, SqlFunctionId function, string arg2 = null)
         {
             if (builder.Op == null)
-                builder.Left = Wrap(builder, builder.Left, function);
+                builder.Left = Wrap(builder, builder.Left, function, arg2);
             else
-                builder.Right = Wrap(builder, builder.Right, function);
+                builder.Right = Wrap(builder, builder.Right, function, arg2);
             return builder;
         }
 
@@ -915,6 +918,64 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="builder"></param>
         /// <returns></returns>
         public static SingleEntityQueryConditionBuilder Abs(this SingleEntityQueryConditionBuilder builder) => builder.Wrap(SqlFunctionId.Abs);
+
+        /// <summary>
+        /// Wraps argument into Year function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleEntityQueryConditionBuilder Year(this SingleEntityQueryConditionBuilder builder) => builder.Wrap(SqlFunctionId.Year);
+
+        /// <summary>
+        /// Wraps argument into Month function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleEntityQueryConditionBuilder Month(this SingleEntityQueryConditionBuilder builder) => builder.Wrap(SqlFunctionId.Month);
+
+        /// <summary>
+        /// Wraps argument into Day function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleEntityQueryConditionBuilder Day(this SingleEntityQueryConditionBuilder builder) => builder.Wrap(SqlFunctionId.Day);
+
+        /// <summary>
+        /// Wraps argument into Hour function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleEntityQueryConditionBuilder Hour(this SingleEntityQueryConditionBuilder builder) => builder.Wrap(SqlFunctionId.Hour);
+
+        /// <summary>
+        /// Wraps argument into Minute function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleEntityQueryConditionBuilder Minute(this SingleEntityQueryConditionBuilder builder) => builder.Wrap(SqlFunctionId.Minute);
+
+        /// <summary>
+        /// Wraps argument into Second function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleEntityQueryConditionBuilder Second(this SingleEntityQueryConditionBuilder builder) => builder.Wrap(SqlFunctionId.Second);
+
+        /// <summary>
+        /// Wraps argument into Round function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="digitsAfterDecimalPoint"></param>
+        /// <returns></returns>
+        public static SingleEntityQueryConditionBuilder Round(this SingleEntityQueryConditionBuilder builder, int digitsAfterDecimalPoint = 0) => builder.Wrap(SqlFunctionId.Round, digitsAfterDecimalPoint == 0 ? null : digitsAfterDecimalPoint.ToString());
+
+        /// <summary>
+        /// Wraps argument into Left function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="characters"></param>
+        /// <returns></returns>
+        public static SingleEntityQueryConditionBuilder Left(this SingleEntityQueryConditionBuilder builder, int characters) => builder.Wrap(SqlFunctionId.Left, characters.ToString());
 
         /// <summary>
         /// Adds another single condition and connects it to other conditions using logical and.

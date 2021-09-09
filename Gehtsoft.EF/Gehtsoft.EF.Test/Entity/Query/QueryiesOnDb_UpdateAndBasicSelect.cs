@@ -76,7 +76,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                     {
                         var d = new Dict1()
                         {
-                            Name = $"Dict {(i + 1):D2}",
+                            Name = $"Dict {i + 1:D2}",
                             Value = i,
                         };
                         query.Execute(d);
@@ -100,7 +100,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                         var d = new Dict2()
                         {
                             ID = i + 1,
-                            Name = $"Dict {(i + 1):D2}"
+                            Name = $"Dict {i + 1:D2}"
                         };
                         query.Execute(d);
                         dict2.Add(d);
@@ -126,7 +126,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                     {
                         var d = new Entity()
                         {
-                            Name = $"Entity {(i + 1):D2}",
+                            Name = $"Entity {i + 1:D2}",
                             Value = i + 1,
                             Dict = dict[i % dict.Count]
                         };
@@ -672,7 +672,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             using var delayed = new DelayedAction(() => ClearAll(connection));
 
             FillDict1(connection, 10);
-            var entities = FillEntity(connection, 50);
+            FillEntity(connection, 50);
 
             using (var query = connection.GetSelectEntitiesCountQuery<Entity>())
                 query.RowCount.Should().Be(50);
@@ -850,7 +850,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
             FillDict1(connection, 10);
             var entities = FillEntity(connection, 50);
             entities.Sort((a, b) => a.ID.CompareTo(b.ID));
-            var mid = entities.Max(d => d.ID);
             var id1 = entities[0].ID;
             var id2 = entities[5].ID;
             var id3 = entities[12].ID;

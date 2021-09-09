@@ -941,19 +941,30 @@ namespace Gehtsoft.EF.Test.Entity.Query
         [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Count), "COUNT")]
 
         [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Abs), "ABS")]
+        [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Round), "ROUND", 1)]
+        [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Left), "LEFT", 1)]
         [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Trim), "TRIM")]
         [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.ToLower), "LOWER")]
         [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.ToUpper), "UPPER")]
-        public void Function_Wrap(string name, string function)
+        [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Year), "YEAR")]
+        [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Month), "MONTH")]
+        [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Day), "DAY")]
+        [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Hour), "HOUR")]
+        [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Minute), "MINUTE")]
+        [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Second), "SECOND")]
+        public void Function_Wrap(string name, string function, object arg1 = null)
         {
             using var connection = new DummySqlConnection();
             using var query = connection.GetSelectEntitiesQuery<Entity1>();
 
-            var m = typeof(SingleEntityQueryConditionBuilderExtension).GetMethod(name, new Type[] { typeof(SingleEntityQueryConditionBuilder) });
+            var m = typeof(SingleEntityQueryConditionBuilderExtension)
+                .GetMethod(name,
+                    arg1 == null ? new Type[] { typeof(SingleEntityQueryConditionBuilder) }
+                                 : new Type[] { typeof(SingleEntityQueryConditionBuilder), arg1.GetType() });
             m.Should().NotBeNull();
 
             var sb = query.Where.Add().Property("A").Eq().Property("B");
-            m.Invoke(null, new object[] { sb });
+            m.Invoke(null, arg1 == null ? new object[] { sb } : new object[] { sb, arg1 });
 
             var expr = ("DEBUG " + query.Where.ToString()).ParseSql().Statement(0).DebugExpr();
 

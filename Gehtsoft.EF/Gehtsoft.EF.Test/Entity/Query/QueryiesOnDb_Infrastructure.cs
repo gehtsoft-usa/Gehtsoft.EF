@@ -2,15 +2,21 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.Net;
+using System.Runtime.CompilerServices;
 using FluentAssertions;
+using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Test.Utils;
+using Hime.SDK.Output;
 using Xunit;
 
 namespace Gehtsoft.EF.Test.Entity.Query
 {
-    public class QueryiesOnDb_Infrastructure: IClassFixture<QueryiesOnDb_Infrastructure.Fixture>
+    public class QueryiesOnDb_Infrastructure : IClassFixture<QueryiesOnDb_Infrastructure.Fixture>
     {
         private const string mFlags = "";
         public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
@@ -34,7 +40,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 {
                     return new EntityAttribute()
                     {
-                        Scope = "updateentity0",
+                        Scope = "ifrstructure",
                         Table = "dynamictest",
                     };
                 }
@@ -192,10 +198,11 @@ namespace Gehtsoft.EF.Test.Entity.Query
             using (var query = connection.GetCreateEntityQuery<EntityWithCallback>())
                 query.Execute();
 
-            var e = new EntityWithCallback();
-
-            e.Value = "abcd";
-            e.IntValue = 123;
+            var e = new EntityWithCallback
+            {
+                Value = "abcd",
+                IntValue = 123
+            };
 
             using (var query = connection.GetInsertEntityQuery<EntityWithCallback>())
                 query.Execute(e);
@@ -226,6 +233,387 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 e1.DoubleIntValue.Should().Be(24);
             }
         }
+
+        [Entity(Scope = "ifrstructure")]
+        public class TestFunctionEntity
+        {
+            [PrimaryKey]
+            public int ID { get; set; } = 1;
+
+            [EntityProperty]
+            public int IntValue { get; set; }
+
+            [EntityProperty]
+            public double RealValue { get; set; }
+
+            [EntityProperty(Size = 32, Nullable = true)]
+            public string StringValue { get; set; }
+
+            [EntityProperty(Size = 32, Nullable = true)]
+            public string StringValue1 { get; set; }
+
+            [EntityProperty(Nullable = true)]
+            public DateTime? DateValue { get; set; }
+        }
+
+        private IDisposable SetupFunctionTest(string connectionName, out SqlDbConnection connection)
+        {
+            var c = mFixture.GetInstance(connectionName);
+            using (var query = c.GetDropEntityQuery<TestFunctionEntity>())
+                query.Execute();
+            using (var query = c.GetCreateEntityQuery<TestFunctionEntity>())
+                query.Execute();
+
+            connection = c;
+            return new DelayedAction(() =>
+            {
+                using (var query = c.GetDropEntityQuery<TestFunctionEntity>())
+                    query.Execute();
+            });
+        }
+
+        private static void TestFunctionInsert(SqlDbConnection connection, string propertyName, object value)
+        {
+            var e = new TestFunctionEntity();
+            e.GetType().GetProperty(propertyName).SetValue(e, value);
+            using (var query = connection.GetInsertEntityQuery<TestFunctionEntity>())
+                query.Execute(e);
+        }
+
+        private static T TestFunctionRead<T>(SqlDbConnection connection, string propertyName, SqlFunctionId functionId)
+        {
+            using (var query = connection.GetGenericSelectEntityQuery<TestFunctionEntity>())
+            {
+                query.Where.Property(nameof(TestFunctionEntity.ID)).Eq(1);
+                query.AddExpressionToResultset(connection.GetLanguageSpecifics().GetSqlFunction(
+                    functionId, new[] { query.GetReference(propertyName).Alias }
+                    ), DbType.Object, "fn");
+                query.Execute();
+                if (!query.ReadNext())
+                    return default;
+
+                return query.GetValue<T>(0);
+            }
+        }
+
+        private static T TestFunctionRead<T>(SqlDbConnection connection, string propertyName, SqlFunctionId functionId, object arg2)
+        {
+            using (var query = connection.GetGenericSelectEntityQuery<TestFunctionEntity>())
+            {
+                query.Where.Property(nameof(TestFunctionEntity.ID)).Eq(1);
+                query.AddExpressionToResultset(connection.GetLanguageSpecifics().GetSqlFunction(
+                    functionId, new[] { query.GetReference(propertyName).Alias, arg2.ToString() }
+                    ), DbType.Object, "fn");
+                query.Execute();
+                if (!query.ReadNext())
+                    return default;
+
+                return query.GetValue<T>(0);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Abs(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.IntValue), -5);
+            TestFunctionRead<int>(connection, nameof(TestFunctionEntity.IntValue), SqlFunctionId.Abs)
+                .Should().Be(5);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_AbsReal(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.RealValue), -5.123);
+            TestFunctionRead<double>(connection, nameof(TestFunctionEntity.RealValue), SqlFunctionId.Abs)
+                .Should().Be(5.123);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Round1(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.RealValue), 5.123);
+            TestFunctionRead<double>(connection, nameof(TestFunctionEntity.RealValue), SqlFunctionId.Round)
+                .Should().Be(5);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Round2(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.RealValue), 5.553);
+            TestFunctionRead<double>(connection, nameof(TestFunctionEntity.RealValue), SqlFunctionId.Round)
+                .Should().Be(6);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Round3(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.RealValue), 5.553);
+            TestFunctionRead<double>(connection, nameof(TestFunctionEntity.RealValue), SqlFunctionId.Round, 1)
+                .Should().Be(5.6);
+            TestFunctionRead<double>(connection, nameof(TestFunctionEntity.RealValue), SqlFunctionId.Round, 2)
+                .Should().Be(5.55);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Trim(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.StringValue), " abcdef ");
+            TestFunctionRead<string>(connection, nameof(TestFunctionEntity.StringValue), SqlFunctionId.Trim)
+                .Should().Be("abcdef");
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Left(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.StringValue), "abcdef");
+            TestFunctionRead<string>(connection, nameof(TestFunctionEntity.StringValue), SqlFunctionId.Left, 3)
+                .Should().Be("abc");
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_TrimLeft(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.StringValue), " abcdef ");
+            TestFunctionRead<string>(connection, nameof(TestFunctionEntity.StringValue), SqlFunctionId.TrimLeft)
+                .Should().Be("abcdef ");
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_TrimRight(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.StringValue), " abcdef ");
+            TestFunctionRead<string>(connection, nameof(TestFunctionEntity.StringValue), SqlFunctionId.TrimRight)
+                .Should().Be(" abcdef");
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Upper(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.StringValue), "abcdef");
+            TestFunctionRead<string>(connection, nameof(TestFunctionEntity.StringValue), SqlFunctionId.Upper)
+                .Should().Be("ABCDEF");
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Lower(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.StringValue), "ABCDEF");
+            TestFunctionRead<string>(connection, nameof(TestFunctionEntity.StringValue), SqlFunctionId.Lower)
+                .Should().Be("abcdef");
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_ToString(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.IntValue), 123);
+            TestFunctionRead<string>(connection, nameof(TestFunctionEntity.IntValue), SqlFunctionId.ToString)
+                .Should().Be("123");
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_ToInt(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.StringValue), "123");
+            TestFunctionRead<int>(connection, nameof(TestFunctionEntity.StringValue), SqlFunctionId.ToInteger)
+                .Should().Be(123);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_ToDouble(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.StringValue), "123.456");
+            TestFunctionRead<double>(connection, nameof(TestFunctionEntity.StringValue), SqlFunctionId.ToDouble)
+                .Should().Be(123.456);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Year(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.DateValue), new DateTime(2010, 11, 25));
+            TestFunctionRead<int>(connection, nameof(TestFunctionEntity.DateValue), SqlFunctionId.Year)
+                .Should().Be(2010);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Hour(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.DateValue), new DateTime(2010, 11, 25, 22, 45, 58));
+            TestFunctionRead<int>(connection, nameof(TestFunctionEntity.DateValue), SqlFunctionId.Hour)
+                .Should().Be(22);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Minute(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.DateValue), new DateTime(2010, 11, 25, 22, 45, 58));
+            TestFunctionRead<int>(connection, nameof(TestFunctionEntity.DateValue), SqlFunctionId.Minute)
+                .Should().Be(45);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Second(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.DateValue), new DateTime(2010, 11, 25, 22, 45, 58));
+            TestFunctionRead<int>(connection, nameof(TestFunctionEntity.DateValue), SqlFunctionId.Second)
+                .Should().Be(58);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Month(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.DateValue), new DateTime(2010, 11, 25));
+            TestFunctionRead<int>(connection, nameof(TestFunctionEntity.DateValue), SqlFunctionId.Month)
+                .Should().Be(11);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Day(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            TestFunctionInsert(connection, nameof(TestFunctionEntity.DateValue), new DateTime(2010, 11, 25));
+            TestFunctionRead<int>(connection, nameof(TestFunctionEntity.DateValue), SqlFunctionId.Day)
+                .Should().Be(25);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Concat(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            var e = new TestFunctionEntity()
+            {
+                StringValue = "abc",
+                StringValue1 = "def"
+            };
+
+            using (var query = connection.GetInsertEntityQuery<TestFunctionEntity>())
+                query.Execute(e);
+
+            using (var query = connection.GetGenericSelectEntityQuery<TestFunctionEntity>())
+            {
+                query.Where.Property(nameof(TestFunctionEntity.ID)).Eq(1);
+                query.AddExpressionToResultset(
+                    connection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.Concat,
+                        new[]
+                        {
+                            query.GetReference(nameof(TestFunctionEntity.StringValue)).Alias,
+                            query.GetReference(nameof(TestFunctionEntity.StringValue1)).Alias,
+                        }),
+                    DbType.String, "r");
+
+                query.Execute();
+                query.ReadNext();
+                query.GetValue<string>(0).Should().Be("abcdef");
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void SqliteDate_StoreDateMode(bool mode)
+        {
+            SqliteGlobalOptions.StoreDateAsString.Should().BeFalse();
+            using var delayedAction = new DelayedAction(() => SqliteGlobalOptions.StoreDateAsString = false);
+            SqliteGlobalOptions.StoreDateAsString = mode;
+            using var connection = SqliteDbConnectionFactory.CreateMemory();
+
+            using (var query = connection.GetCreateEntityQuery<TestFunctionEntity>())
+                query.Execute();
+
+            var e = new TestFunctionEntity() { DateValue = new DateTime(2010, 05, 23, 22, 12, 55, DateTimeKind.Utc) };
+
+            using (var query = connection.GetInsertEntityQuery<TestFunctionEntity>())
+                query.Execute(e);
+
+            using (var query = connection.GetSelectEntitiesQueryBase<TestFunctionEntity>())
+            {
+                var r = query.GetReference(nameof(TestFunctionEntity.DateValue));
+                query.AddToResultset(nameof(TestFunctionEntity.DateValue), "dt");
+                query.AddExpressionToResultset($"YEAR({r.Alias})", DbType.Int32, "y");
+                query.AddExpressionToResultset($"MONTH({r.Alias})", DbType.Int32, "m");
+                query.AddExpressionToResultset($"DAY({r.Alias})", DbType.Int32, "d");
+                query.AddExpressionToResultset($"HOUR({r.Alias})", DbType.Int32, "h");
+                query.AddExpressionToResultset($"MINUTE({r.Alias})", DbType.Int32, "n");
+                query.AddExpressionToResultset($"SECOND({r.Alias})", DbType.Int32, "s");
+
+                query.Execute();
+                query.ReadNext();
+
+                if (mode)
+                    query.GetValue<string>(0).Should().Be("2010-05-23 22:12:55");
+                else
+                    query.GetValue<double>(0).Should().BeApproximately(e.DateValue.Value.ToOADate(), 1.0 / 86400.0);
+
+                query.GetValue<int>(1).Should().Be(2010);
+                query.GetValue<int>(2).Should().Be(05);
+                query.GetValue<int>(3).Should().Be(23);
+                query.GetValue<int>(4).Should().Be(22);
+                query.GetValue<int>(5).Should().Be(12);
+                query.GetValue<int>(6).Should().Be(55);
+            }
+        }
     }
 }
+
+
 

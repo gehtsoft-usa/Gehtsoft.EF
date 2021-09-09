@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
 using System.Linq;
 using FluentAssertions;
+using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Northwind;
+using Gehtsoft.EF.Test.Entity.Utils;
 using Gehtsoft.EF.Test.Northwind;
 using Gehtsoft.EF.Test.Utils;
 using Xunit;
 
 namespace Gehtsoft.EF.Test.Entity.Query
 {
-    public class QueryiesOnDb_AdvancedSelect: IClassFixture<NorthwindFixture>
+    public class QueryiesOnDb_AdvancedSelect : IClassFixture<NorthwindFixture>
     {
-        private const string mFlags = "+sqlite";
+        private const string mFlags = "";
         public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
 
         public NorthwindFixture mFixture;
@@ -250,6 +254,118 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 e.ReportsTo.ReportsTo.Should().NotBeNull();
                 e.ReportsTo.ReportsTo.EmployeeID.Should().Be(e1.ReportsTo.EmployeeID);
                 e.ReportsTo.ReportsTo.LastName.Should().BeNull(because: "we don't connect to 2nd level of self-connections");
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Resultset_Function(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+
+            using (var query = connection.GetSelectEntitiesQueryBase<Category>())
+            {
+                query.AddEntity<Product>();
+
+                var r1 = query.GetReference(nameof(Category.CategoryName));
+                var r2 = query.GetReference(typeof(Product), nameof(Product.ProductName));
+                var ls = connection.GetLanguageSpecifics();
+                query.AddToResultset(typeof(Product), nameof(Product.ProductID), "pid");
+                query.AddExpressionToResultset(
+                    ls.GetSqlFunction(SqlFunctionId.Concat,
+                        new string[]
+                        {
+                            ls.GetSqlFunction(SqlFunctionId.Left, new [] { r1.Alias, "2" }),
+                            ls.GetSqlFunction(SqlFunctionId.Left, new [] { r2.Alias, "3" })
+                        }
+                    ), DbType.String, "n");
+
+                var ss = mFixture.Snapshot;
+
+                var all = query.ReadAllDynamic();
+
+                foreach (var a in all)
+                {
+                    int id = (int)a.pid;
+                    string n = (string)a.n;
+
+                    var p = ss.Products.First(p => p.ProductID == id);
+                    var c = ss.Categories.First(c => c.CategoryID == p.Category.CategoryID);
+
+                    n.Should().Be(c.CategoryName.Substring(0, 2) + p.ProductName.Substring(0, 3));
+                }
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Resultset_Query(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+
+            using (var subquery = connection.GetSelectEntitiesQueryBase<Product>())
+            using (var query = connection.GetSelectEntitiesQueryBase<Category>())
+            {
+                var r1 = query.GetReference(nameof(Category.CategoryID));
+
+                subquery.AddToResultset(AggFn.Count, null);
+                subquery.Where.Property(nameof(Product.Category)).Eq().Reference(r1);
+
+                query.AddToResultset(nameof(Category.CategoryID), "cid");
+                query.AddToResultset(subquery, typeof(double), "ccnt");
+
+                var ss = mFixture.Snapshot;
+                var all = query.ReadAllDynamic();
+                foreach (var a in all)
+                {
+                    int cid = (int)a.cid;
+                    double ccnt = (double)a.ccnt;
+
+                    ccnt.Should().Be(ss.Products.Count(p => p.Category.CategoryID == cid));
+                }
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Where_Function(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+
+            using (var query = connection.GetSelectEntitiesQuery<Product>())
+            {
+                query.Where.Property(nameof(Product.ProductName)).Left(1).ToUpper().Gt("C");
+                var ps = query.ReadAll<Product>();
+
+                ps.Should().HaveCount(mFixture.Snapshot.Products.Count(p => p.ProductName[0] > 'C'));
+                ps.Count.Should().BeGreaterThan(0);
+                ps.Should().HaveAllElementsMatching(p => p.ProductName[0] > 'C');
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Where_Query(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+
+            var ss = mFixture.Snapshot;
+
+            int threshold = 5;
+
+            ss.Categories.Any(c => ss.Products.Count(p => p.Category.CategoryID == c.CategoryID) <= threshold).Should().BeTrue();
+            ss.Categories.Any(c => ss.Products.Count(p => p.Category.CategoryID == c.CategoryID) > threshold).Should().BeTrue();
+
+            using (var query = connection.GetSelectEntitiesQuery<Category>())
+            using (var subquery = connection.GetSelectEntitiesCountQuery<Product>())
+            {
+                var r = query.GetReference(nameof(Category.CategoryID));
+                subquery.Where.Property(nameof(Product.Category)).Eq().Reference(r);
+
+                query.Where.And().Query(subquery).Gt(threshold);
+                var cs = query.ReadAll<Category>();
+                cs.Count.Should().BeGreaterThan(0);
+                cs.Should().HaveAllElementsMatching(c => ss.Products.Count(p => p.Category.CategoryID == c.CategoryID) > threshold);
             }
         }
     }

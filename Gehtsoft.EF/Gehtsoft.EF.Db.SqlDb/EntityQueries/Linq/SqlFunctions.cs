@@ -66,8 +66,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         public static int Abs(int value) => Math.Abs(value);
 
         public static double Abs(double value) => Math.Abs(value);
+        public static double Round(double value, int count = 0) => Math.Round(value, count);
 
         public static string Trim(string value) => value.Trim();
+
+        public static string Left(string value, int count) => value.Substring(0, count);
 
         public static string TrimLeft(string value) => value.TrimStart();
 
@@ -76,6 +79,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         public static string Upper(string value) => value.ToUpper();
 
         public static string Lower(string value) => value.ToLower();
+
+        public static int Year(DateTime dt) => dt.Year;
+        public static int Month(DateTime dt) => dt.Month;
+        public static int Day(DateTime dt) => dt.Day;
+        public static int Hour(DateTime dt) => dt.Hour;
+        public static int Minute(DateTime dt) => dt.Minute;
+        public static int Second(DateTime dt) => dt.Second;
 
         public static bool In(object value, SelectEntitiesQueryBase query)
         {

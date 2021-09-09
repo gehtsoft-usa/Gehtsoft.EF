@@ -75,21 +75,21 @@ namespace Gehtsoft.EF.Db.PostgresDb
 
         public override string GetSqlFunction(SqlFunctionId function, string[] args)
         {
-            switch (function)
+            return function switch
             {
-                case SqlFunctionId.ToString:
-                    return $"CAST({args[0]} AS VARCHAR)";
-                case SqlFunctionId.ToInteger:
-                    return $"CAST({args[0]} AS INT)";
-                case SqlFunctionId.ToDouble:
-                    return $"CAST({args[0]} AS NUMERIC)";
-                case SqlFunctionId.ToDate:
-                    return $"CAST({args[0]} AS DATE)";
-                case SqlFunctionId.ToTimestamp:
-                    return $"CAST({args[0]} AS TIMESTAMP)";
-                default:
-                    return base.GetSqlFunction(function, args);
-            }
+                SqlFunctionId.ToString => $"CAST({args[0]} AS VARCHAR)",
+                SqlFunctionId.ToInteger => $"CAST({args[0]} AS INT)",
+                SqlFunctionId.ToDouble => $"CAST({args[0]} AS NUMERIC)",
+                SqlFunctionId.ToDate => $"CAST({args[0]} AS DATE)",
+                SqlFunctionId.ToTimestamp => $"CAST({args[0]} AS TIMESTAMP)",
+                SqlFunctionId.Year => $"EXTRACT(YEAR FROM {args[0]})",
+                SqlFunctionId.Month => $"EXTRACT(MONTH FROM {args[0]})",
+                SqlFunctionId.Day => $"EXTRACT(DAY FROM {args[0]})",
+                SqlFunctionId.Hour => $"EXTRACT(HOUR FROM {args[0]})",
+                SqlFunctionId.Minute => $"EXTRACT(MINUTE FROM {args[0]})",
+                SqlFunctionId.Second => $"EXTRACT(SECOND FROM {args[0]})",
+                _ => base.GetSqlFunction(function, args),
+            };
         }
 
         public override string FormatValue(object value)

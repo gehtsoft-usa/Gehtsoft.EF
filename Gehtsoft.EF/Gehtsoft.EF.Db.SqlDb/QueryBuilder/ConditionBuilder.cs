@@ -327,15 +327,19 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="function"></param>
+        /// <param name="arg1">The second argument for two-argument functions, e.g. `Round` or `Left`</param>
         /// <returns></returns>
-        internal static SingleConditionBuilder Wrap(this SingleConditionBuilder builder, SqlFunctionId function)
+        internal static SingleConditionBuilder Wrap(this SingleConditionBuilder builder, SqlFunctionId function, string arg1 = null)
         {
             bool done = false;
             if (builder.HasOp)
             {
                 if (builder.Right != null)
                 {
-                    builder.Right = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Right });
+                    if (arg1 != null)
+                        builder.Right = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Right, arg1 });
+                    else
+                        builder.Right = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Right });
                     done = true;
                 }
                 else if (function == SqlFunctionId.Count)
@@ -348,7 +352,10 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             {
                 if (builder.Left != null)
                 {
-                    builder.Left = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Left });
+                    if (arg1 != null)
+                        builder.Left = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Left, arg1 });
+                    else
+                        builder.Left = builder.Builder.InfoProvider.Specifics.GetSqlFunction(function, new string[] { builder.Left });
                     done = true;
                 }
                 else if (function == SqlFunctionId.Count)
@@ -437,6 +444,64 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="builder"></param>
         /// <returns></returns>
         public static SingleConditionBuilder Abs(this SingleConditionBuilder builder) => builder.Wrap(SqlFunctionId.Abs);
+
+        /// <summary>
+        /// Wraps argument into Year function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleConditionBuilder Year(this SingleConditionBuilder builder) => builder.Wrap(SqlFunctionId.Year);
+
+        /// <summary>
+        /// Wraps argument into Month function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleConditionBuilder Month(this SingleConditionBuilder builder) => builder.Wrap(SqlFunctionId.Month);
+
+        /// <summary>
+        /// Wraps argument into Day function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleConditionBuilder Day(this SingleConditionBuilder builder) => builder.Wrap(SqlFunctionId.Day);
+
+        /// <summary>
+        /// Wraps argument into Hour function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleConditionBuilder Hour(this SingleConditionBuilder builder) => builder.Wrap(SqlFunctionId.Hour);
+
+        /// <summary>
+        /// Wraps argument into Minute function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleConditionBuilder Minute(this SingleConditionBuilder builder) => builder.Wrap(SqlFunctionId.Minute);
+
+        /// <summary>
+        /// Wraps argument into Second function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleConditionBuilder Second(this SingleConditionBuilder builder) => builder.Wrap(SqlFunctionId.Second);
+
+        /// <summary>
+        /// Wraps argument into Round function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="digitsAfterDecimalPoint"></param>
+        /// <returns></returns>
+        public static SingleConditionBuilder Round(this SingleConditionBuilder builder, int digitsAfterDecimalPoint = 0) => builder.Wrap(SqlFunctionId.Round, digitsAfterDecimalPoint == 0 ? null : digitsAfterDecimalPoint.ToString());
+
+        /// <summary>
+        /// Wraps argument into Left function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="characters"></param>
+        /// <returns></returns>
+        public static SingleConditionBuilder Left(this SingleConditionBuilder builder, int characters) => builder.Wrap(SqlFunctionId.Left, characters.ToString());
 
         /// <summary>
         /// Adds another condition and connect it using logical and.

@@ -307,6 +307,16 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         [InlineData(SqlFunctionId.Abs, "ABS")]
         [InlineData(SqlFunctionId.Upper, "UPPER")]
         [InlineData(SqlFunctionId.Lower, "LOWER")]
+        [InlineData(SqlFunctionId.Trim, "TRIM")]
+        [InlineData(SqlFunctionId.TrimLeft, "LTRIM")]
+        [InlineData(SqlFunctionId.TrimRight, "RTRIM")]
+        [InlineData(SqlFunctionId.Round, "ROUND")]
+        [InlineData(SqlFunctionId.Year, "YEAR")]
+        [InlineData(SqlFunctionId.Month, "MONTH")]
+        [InlineData(SqlFunctionId.Day, "DAY")]
+        [InlineData(SqlFunctionId.Hour, "HOUR")]
+        [InlineData(SqlFunctionId.Minute, "MINUTE")]
+        [InlineData(SqlFunctionId.Second, "SECOND")]
         [InlineData(SqlFunctionId.Max, "MAX")]
         [InlineData(SqlFunctionId.Min, "MIN")]
         [InlineData(SqlFunctionId.Avg, "AVG")]
@@ -341,10 +351,19 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         [InlineData(SqlFunctionId.Abs, "ABS")]
         [InlineData(SqlFunctionId.Upper, "UPPER")]
         [InlineData(SqlFunctionId.Lower, "LOWER")]
+        [InlineData(SqlFunctionId.Trim, "TRIM")]
+        [InlineData(SqlFunctionId.TrimLeft, "LTRIM")]
+        [InlineData(SqlFunctionId.TrimRight, "RTRIM")]
+        [InlineData(SqlFunctionId.Round, "ROUND")]
+        [InlineData(SqlFunctionId.Year, "YEAR")]
+        [InlineData(SqlFunctionId.Month, "MONTH")]
+        [InlineData(SqlFunctionId.Day, "DAY")]
+        [InlineData(SqlFunctionId.Hour, "HOUR")]
+        [InlineData(SqlFunctionId.Minute, "MINUTE")]
+        [InlineData(SqlFunctionId.Second, "SECOND")]
         [InlineData(SqlFunctionId.Max, "MAX")]
         [InlineData(SqlFunctionId.Min, "MIN")]
         [InlineData(SqlFunctionId.Avg, "AVG")]
-        [InlineData(SqlFunctionId.Sum, "SUM")]
         [InlineData(SqlFunctionId.Count, "COUNT")]
         public void WrapRight(SqlFunctionId function, string expectedFunction)
         {
@@ -370,26 +389,34 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         }
 
         [Theory]
-        [InlineData(nameof(SqlFunctionId.Abs), "ABS")]
-        [InlineData(nameof(SqlFunctionId.Upper), "UPPER")]
-        [InlineData(nameof(SqlFunctionId.Lower), "LOWER")]
-        [InlineData(nameof(SqlFunctionId.Max), "MAX")]
-        [InlineData(nameof(SqlFunctionId.Min), "MIN")]
-        [InlineData(nameof(SqlFunctionId.Avg), "AVG")]
-        [InlineData(nameof(SqlFunctionId.Sum), "SUM")]
-        public void WrapViaExension(string function, string expectedFunction)
+        [InlineData(SqlFunctionId.Abs, "ABS")]
+        [InlineData(SqlFunctionId.Upper, "UPPER")]
+        [InlineData(SqlFunctionId.Lower, "LOWER")]
+        [InlineData(SqlFunctionId.Trim, "TRIM")]
+        [InlineData(SqlFunctionId.Round, "ROUND", 0)]
+        [InlineData(SqlFunctionId.Left, "LEFT", 5)]
+        [InlineData(SqlFunctionId.Year, "YEAR")]
+        [InlineData(SqlFunctionId.Month, "MONTH")]
+        [InlineData(SqlFunctionId.Day, "DAY")]
+        [InlineData(SqlFunctionId.Hour, "HOUR")]
+        [InlineData(SqlFunctionId.Minute, "MINUTE")]
+        [InlineData(SqlFunctionId.Second, "SECOND")]
+        [InlineData(SqlFunctionId.Max, "MAX")]
+        [InlineData(SqlFunctionId.Min, "MIN")]
+        [InlineData(SqlFunctionId.Avg, "AVG")]
+        public void WrapViaExension(SqlFunctionId function, string expectedFunction, object additionalArg = null)
         {
             var builder = new ConditionBuilder(mProvider);
 
-            var m = typeof(SingleConditionBuilderExtension).GetMethod(function);
+            var m = typeof(SingleConditionBuilderExtension).GetMethod(function.ToString());
             m.Should().NotBeNull()
                 .And.Subject.GetParameters()
-                    .Should().HaveCount(1)
+                    .Should().HaveCount(additionalArg == null ? 1 : 2)
                     .And.Subject.As<ParameterInfo[]>()[0].ParameterType
                         .Should().Be(typeof(SingleConditionBuilder));
 
             var sb = builder.And().Property(mTable1[1]);
-            sb = (SingleConditionBuilder)m.Invoke(null, new object[] { sb });
+            sb = (SingleConditionBuilder)m.Invoke(null, additionalArg == null ? new object[] { sb } : new object[] { sb, additionalArg });
             sb.Gt().Value(2);
 
             var expr = ("DEBUG " + builder.ToString()).ParseSql().Statement(0).DebugExpr();
@@ -780,5 +807,6 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         }
     }
 }
+
 
 

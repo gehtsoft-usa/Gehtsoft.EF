@@ -25,7 +25,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             mQueryBuilder = queryBuilder;
         }
 
-        public override void PrepareQuery() => mQueryBuilder.PrepareQuery();
+        public override void PrepareQuery()
+        {
+            mQueryBuilder.PrepareQuery();
+        }
         public override string Query => mQueryBuilder.Query;
     }
 }

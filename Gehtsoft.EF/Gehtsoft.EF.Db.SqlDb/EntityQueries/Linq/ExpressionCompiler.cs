@@ -334,7 +334,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     EntityQueryWithWhereBuilder.EntityQueryItem rleft = IsQueryPath((MemberExpression)node.Expression);
                     if (rleft == null)
                         return null;
-
                     EntityQueryWithWhereBuilder.EntityQueryItem res = mQuery.GetItem($"{rleft.Path}.{node.Member.Name}");
                     if (res == null)
                         throw new ArgumentException("The property does not exists. Check whether the related type is added to the query", nameof(node));
@@ -676,9 +675,45 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Abs, stringResults));
             }
+            else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Round))
+            {
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Round, stringResults));
+            }
+            else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Left))
+            {
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Left, stringResults));
+            }
+            else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Year))
+            {
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Year, stringResults));
+            }
+            else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Month))
+            {
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Month, stringResults));
+            }
+            else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Day))
+            {
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Day, stringResults));
+            }
+            else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Hour))
+            {
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Hour, stringResults));
+            }
+            else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Minute))
+            {
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Minute, stringResults));
+            }
+            else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Second))
+            {
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Second, stringResults));
+            }
             else if (callNode.Method.DeclaringType == typeof(Math) && callNode.Method.Name == nameof(Math.Abs))
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Abs, stringResults));
+            }
+            else if (callNode.Method.DeclaringType == typeof(Math) && callNode.Method.Name == nameof(Math.Round))
+            {
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Round, stringResults));
             }
             else if (callNode.Method.DeclaringType == typeof(string) && callNode.Method.Name == nameof(string.StartsWith))
             {

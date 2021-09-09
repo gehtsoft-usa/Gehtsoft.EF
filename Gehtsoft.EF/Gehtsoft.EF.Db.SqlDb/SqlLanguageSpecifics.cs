@@ -557,6 +557,30 @@ namespace Gehtsoft.EF.Db.SqlDb
                 case SqlFunctionId.Abs:
                     return $"ABS({args[0]})";
 
+                case SqlFunctionId.Round:
+                    if (args.Length == 1)
+                        return $"ROUND({args[0]}, 0)";
+                    else
+                        return $"ROUND({args[0]}, {args[1]})";
+
+                case SqlFunctionId.Year:
+                    return $"YEAR({args[0]})";
+
+                case SqlFunctionId.Month:
+                    return $"MONTH({args[0]})";
+
+                case SqlFunctionId.Day:
+                    return $"DAY({args[0]})";
+
+                case SqlFunctionId.Hour:
+                    return $"HOUR({args[0]})";
+
+                case SqlFunctionId.Minute:
+                    return $"MINUTE({args[0]})";
+
+                case SqlFunctionId.Second:
+                    return $"SECOND({args[0]})";
+
                 case SqlFunctionId.Trim:
                     return $"TRIM({args[0]})";
 
@@ -571,6 +595,9 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                 case SqlFunctionId.Lower:
                     return $"LOWER({args[0]})";
+
+                case SqlFunctionId.Left:
+                    return $"LEFT({args[0]}, {args[1]})";
 
                 case SqlFunctionId.Concat:
                     {
@@ -801,5 +828,13 @@ namespace Gehtsoft.EF.Db.SqlDb
         Upper,
         Lower,
         Concat,
+        Year,
+        Month,
+        Day,
+        Hour,
+        Minute,
+        Second,
+        Round,
+        Left,
     }
 }

@@ -92,11 +92,17 @@ grammar SqlTest
         CALL_ARGS -> EXPR (','! EXPR)*;
         CALL_BRACKET -> '('! CALL_ARGS^ ')'!;
 
-        MATH_FUNC_NAME -> 'ABS'^;
+        MATH_FUNC_NAME -> 'ABS'^ | 'ROUND'^;
         MATH_FUNC_CALL -> MATH_FUNC_NAME  '('! EXPR ')'!;
 
+        TWO_ARG_FUNC_NAME -> 'ROUND'^ | 'LEFT'^;
+        TWO_ARG_FUNC_CALL -> TWO_ARG_FUNC_NAME  '('! EXPR ','! EXPR ')'!;
+
+        DATE_FUNC_NAME -> 'YEAR'^ | 'MONTH'^ | 'DAY'^  | 'HOUR'^ | 'MINUTE'^ | 'SECOND'^;
+        DATE_FUNC_CALL -> DATE_FUNC_NAME '('! EXPR ')'!;
+
         CAST_FUNC_NAME -> 'TOSTRING'^ | 'TOINT'^ | 'TODOUBLE'^ | 'TODATE'^ | 'TOTIMESTAMP'^;
-        CAST_FUNC_CALL -> CAST_FUNC_NAME  '('! EXPR ')'!;
+        CAST_FUNC_CALL -> CAST_FUNC_NAME  '('! CALL_ARGS ')'!;
 
         STR_FUNC_NAME -> 'TRIM'^ | 'LTRIM'^ | 'RTRIM'^ | 'UPPER'^ | 'LOWER'^;
         STR_FUNC_CALL -> STR_FUNC_NAME  '('! CONCAT_EXPR ')'!;
@@ -110,7 +116,7 @@ grammar SqlTest
         TRIM_SPECIFICATION -> TRIM_LEADING^ | TRIM_TRAILING^ | TRIM_BOTH^ ;
         TRIM_CALL -> 'TRIM'! '('! TRIM_SPECIFICATION? CONCAT_EXPR ')'!;
 
-        FUNC_CALL -> MATH_FUNC_CALL^ | BOOL_STR_FUNC_CALL^ | CAST_FUNC_CALL^ | STR_FUNC_CALL^ | TRIM_CALL^;
+        FUNC_CALL -> MATH_FUNC_CALL^ | BOOL_STR_FUNC_CALL^ | CAST_FUNC_CALL^ | STR_FUNC_CALL^ | TRIM_CALL^ | DATE_FUNC_CALL^ | TWO_ARG_FUNC_CALL^;
 
         BRACKET_EXPR -> '('! EXPR^ ')'!;
 

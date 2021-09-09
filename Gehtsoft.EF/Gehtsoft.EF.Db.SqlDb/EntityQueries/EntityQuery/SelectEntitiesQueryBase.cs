@@ -225,7 +225,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="alias"></param>
         public void AddToResultset(SelectEntitiesQueryBase query, Type type, string alias = null)
         {
-            query.SelectEntityBuilder.QueryBuilder.PrepareQuery();
+            query.PrepareQuery();
             AddExpressionToResultset($"({query.SelectEntityBuilder.QueryBuilder.Query})", false, DbType.Object, type, alias);
             CopyParametersFrom(query);
         }

@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// Constructor.
         /// </summary>
         /// <param name="containerType">The type that consists of action method.</param>
-        /// <param name="delegateName">The action method name. The method should match either <see cref="EntityActionDelegate"/> or <see cref="EntityActionAsyncDelegate"/></param>
+        /// <param name="delegateName">The action method name. The method should match either <see cref="EntityActionDelegate"/></param>
         public OnEntityPropertyCreateAttribute(Type containerType, string delegateName) : base(containerType, delegateName)
         {
         }

@@ -61,8 +61,10 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         public static bool ExprIsCastFnCall(this IAstNode expr) => ExprIs(expr, "CAST_FUNC_CALL");
         public static bool ExprIsStrFnCall(this IAstNode expr) => ExprIs(expr, "STR_FUNC_CALL");
         public static bool ExprIsTrimFnCall(this IAstNode expr) => ExprIs(expr, "TRIM_CALL");
+        public static bool ExprIsDateCall(this IAstNode expr) => ExprIs(expr, "DATE_FUNC_CALL");
+        public static bool ExprIsTwoArgCall(this IAstNode expr) => ExprIs(expr, "TWO_ARG_FUNC_CALL");
 
-        public static bool ExprIsFnCall(this IAstNode expr) => ExprIsCountAll(expr) || ExprIsAggFnCall(expr) || ExprIsMathFnCall(expr) || ExprIsBoolFnCall(expr) || ExprIsCastFnCall(expr) || ExprIsStrFnCall(expr) || ExprIsTrimFnCall(expr);
+        public static bool ExprIsFnCall(this IAstNode expr) => ExprIsCountAll(expr) || ExprIsAggFnCall(expr) || ExprIsMathFnCall(expr) || ExprIsBoolFnCall(expr) || ExprIsCastFnCall(expr) || ExprIsStrFnCall(expr) || ExprIsTrimFnCall(expr) || ExprIsDateCall(expr) || ExprIsTwoArgCall(expr);
 
         public static string ExprFnCallName(this IAstNode expr)
         {
@@ -70,7 +72,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
                 return "COUNT";
             if (ExprIsTrimFnCall(expr))
                 return "TRIM";
-            if (ExprIsAggFnCall(expr) || ExprIsStrFnCall(expr) || ExprIsMathFnCall(expr) || ExprIsCastFnCall(expr) || ExprIsBoolFnCall(expr))
+            if (ExprIsAggFnCall(expr) || ExprIsStrFnCall(expr) || ExprIsMathFnCall(expr) || ExprIsCastFnCall(expr) || ExprIsBoolFnCall(expr) || ExprIsDateCall(expr) || ExprIsTwoArgCall(expr))
                 return expr.SelectNode("/*", 1).Value;
             throw new ArgumentException("Expression is not a function call", nameof(expr));
         }
@@ -81,7 +83,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
                 return 0;
             if (ExprIsTrimFnCall(expr))
                 return 1;
-            if (ExprIsAggFnCall(expr) || ExprIsStrFnCall(expr) || ExprIsMathFnCall(expr) || ExprIsCastFnCall(expr) || ExprIsBoolFnCall(expr))
+            if (ExprIsAggFnCall(expr) || ExprIsStrFnCall(expr) || ExprIsMathFnCall(expr) || ExprIsCastFnCall(expr) || ExprIsBoolFnCall(expr) || ExprIsDateCall(expr) || ExprIsTwoArgCall(expr))
                 return expr.Select("/*").Count() - 1;
             throw new ArgumentException("Expression is not a function call", nameof(expr));
         }
@@ -92,7 +94,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
                 return null;
             if (ExprIsTrimFnCall(expr))
                 return expr.SelectNode("/*", 1);
-            if (ExprIsAggFnCall(expr) || ExprIsStrFnCall(expr) || ExprIsMathFnCall(expr) || ExprIsCastFnCall(expr) || ExprIsBoolFnCall(expr))
+            if (ExprIsAggFnCall(expr) || ExprIsStrFnCall(expr) || ExprIsMathFnCall(expr) || ExprIsCastFnCall(expr) || ExprIsBoolFnCall(expr) || ExprIsDateCall(expr) || ExprIsTwoArgCall(expr))
                 return expr.SelectNode("/*", index + 2);
             throw new ArgumentException("Expression is not a function call", nameof(expr));
         }

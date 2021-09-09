@@ -197,6 +197,13 @@ namespace Gehtsoft.EF.Db.OracleDb
                 SqlFunctionId.ToDouble => $"CAST({args[0]} AS BINARY_DOUBLE)",
                 SqlFunctionId.ToDate => $"CAST({args[0]} AS DATE)",
                 SqlFunctionId.ToTimestamp => $"CAST({args[0]} AS TIMESTAMP)",
+                SqlFunctionId.Year => $"EXTRACT(YEAR FROM {args[0]})",
+                SqlFunctionId.Month => $"EXTRACT(MONTH FROM {args[0]})",
+                SqlFunctionId.Day => $"EXTRACT(DAY FROM {args[0]})",
+                SqlFunctionId.Hour => $"EXTRACT(HOUR FROM {args[0]})",
+                SqlFunctionId.Minute => $"EXTRACT(MINUTE FROM {args[0]})",
+                SqlFunctionId.Second => $"EXTRACT(SECOND FROM {args[0]})",
+                SqlFunctionId.Left => $"SUBSTR({args[0]}, 1, {args[1]})",
                 _ => base.GetSqlFunction(function, args),
             };
         }

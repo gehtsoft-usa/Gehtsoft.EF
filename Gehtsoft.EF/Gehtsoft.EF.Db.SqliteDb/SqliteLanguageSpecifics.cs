@@ -97,6 +97,8 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 {
                     dbtype = DbType.String;
                     DateTime dt = (DateTime)value;
+                    if (dt.Kind != DateTimeKind.Utc)
+                        dt = dt.ToUniversalTime();
                     if (dt.Ticks == 0)
                         value = DBNull.Value;
                     else
@@ -222,6 +224,8 @@ namespace Gehtsoft.EF.Db.SqliteDb
                     throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
                 case SqlFunctionId.ToTimestamp:
                     throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+                case SqlFunctionId.Left:
+                    return $"SLEFT({args[0]}, {args[1]})";
                 default:
                     return base.GetSqlFunction(function, args);
             }

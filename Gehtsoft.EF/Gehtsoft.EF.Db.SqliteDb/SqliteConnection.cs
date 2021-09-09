@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
-
 using Microsoft.Data.Sqlite;
-
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Data;
 using System;
+using System.Globalization;
 
 namespace Gehtsoft.EF.Db.SqliteDb
 {
@@ -23,6 +22,140 @@ namespace Gehtsoft.EF.Db.SqliteDb
         public SqliteDbConnection(SqliteConnection connection) : base(connection)
         {
             mSqlConnection = connection;
+            SetupFunctions(connection);
+        }
+
+        private static void SetupFunctions(SqliteConnection connection)
+        {
+            if (SqliteGlobalOptions.StoreDateAsString)
+            {
+                connection.CreateFunction("YEAR", (string s) =>
+                {
+                    if (string.IsNullOrEmpty(s))
+                        return 0;
+                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    {
+                        d = d.ToUniversalTime();
+                        return d.Year;
+                    }
+                    return 0;
+                });
+
+                connection.CreateFunction("MONTH", (string s) =>
+                {
+                    if (string.IsNullOrEmpty(s))
+                        return 0;
+                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    {
+                        d = d.ToUniversalTime();
+                        return d.Month;
+                    }
+                    return 0;
+                });
+
+                connection.CreateFunction("DAY", (string s) =>
+                {
+                    if (string.IsNullOrEmpty(s))
+                        return 0;
+                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    {
+                        d = d.ToUniversalTime();
+                        return d.Day;
+                    }
+                    return 0;
+                });
+
+                connection.CreateFunction("HOUR", (string s) =>
+                {
+                    if (string.IsNullOrEmpty(s))
+                        return 0;
+                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    {
+                        d = d.ToUniversalTime();
+                        return d.Hour;
+                    }
+                    return 0;
+                });
+
+                connection.CreateFunction("MINUTE", (string s) =>
+                {
+                    if (string.IsNullOrEmpty(s))
+                        return 0;
+                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    {
+                        d = d.ToUniversalTime();
+                        return d.Minute;
+                    }
+                    return 0;
+                });
+
+                connection.CreateFunction("SECOND", (string s) =>
+                {
+                    if (string.IsNullOrEmpty(s))
+                        return 0;
+                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    {
+                        d = d.ToUniversalTime();
+                        return d.Second;
+                    }
+                    return 0;
+                });
+            }
+            else
+            {
+                connection.CreateFunction("YEAR", (double? d) =>
+                {
+                    if (d == null)
+                        return (double?)null;
+                    return DateTime.FromOADate(d.Value).Year;
+                });
+
+                connection.CreateFunction("MONTH", (double? d) =>
+                {
+                    if (d == null)
+                        return (double?)null;
+                    return DateTime.FromOADate(d.Value).Month;
+                });
+
+                connection.CreateFunction("DAY", (double? d) =>
+                {
+                    if (d == null)
+                        return (double?)null;
+                    return DateTime.FromOADate(d.Value).Day;
+                });
+
+                connection.CreateFunction("HOUR", (double? d) =>
+                {
+                    if (d == null)
+                        return (double?)null;
+                    return DateTime.FromOADate(d.Value).Hour;
+                });
+
+                connection.CreateFunction("MINUTE", (double? d) =>
+                {
+                    if (d == null)
+                        return (double?)null;
+                    return DateTime.FromOADate(d.Value).Minute;
+                });
+
+                connection.CreateFunction("SECOND", (double? d) =>
+                {
+                    if (d == null)
+                        return (double?)null;
+                    return DateTime.FromOADate(d.Value).Second;
+                });
+            }
+
+            connection.CreateFunction("SLEFT", (string s, int l) =>
+            {
+                if (s == null)
+                    return null;
+                if (l > s.Length)
+                    l = s.Length;
+                if (l == s.Length)
+                    return s;
+                return s.Substring(0, l);
+            });
         }
 
         protected override SqlDbQuery ConstructQuery()
