@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Text;
 using System.Threading;
@@ -106,7 +107,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="exclusion"></param>
         public void AddToResultset<T>(int occurrence = 0, string[] exclusion = null)
             => AddToResultset(typeof(T), occurrence, exclusion);
-
 
         /// <summary>
         /// Adds the property to the resulset.
@@ -348,12 +348,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public void AddOrderByExpr(string expression, SortDir direction = SortDir.Asc)
         {
             mSelectBuilder.AddOrderByExpr(expression, direction);
         }
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         internal void AddGroupByExpr(string expression)
         {
             mSelectBuilder.AddGroupByExpr(expression);

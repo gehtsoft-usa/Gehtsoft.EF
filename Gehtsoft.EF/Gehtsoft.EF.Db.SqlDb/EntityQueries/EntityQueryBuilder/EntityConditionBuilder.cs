@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
@@ -12,6 +13,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         string Alias(Type type, int occurrence, string propertyName, out DbType columnType);
     }
 
+    [ExcludeFromCodeCoverage]
     internal class SingleEntityConditionBuilder
     {
         private readonly EntityConditionBuilder mBuilder;
@@ -70,6 +72,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public virtual SingleEntityConditionBuilder Query(AQueryBuilder queryBuilder) => Raw(mBuilder.Query(queryBuilder));
     }
 
+    [ExcludeFromCodeCoverage]
     internal class EntityConditionBuilder
     {
         public ConditionBuilder ConditionBuilder { get; }

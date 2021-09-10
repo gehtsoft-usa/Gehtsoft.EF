@@ -56,7 +56,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             foreach (IDynamicEntityProperty property in mProperties)
             {
                 object value = null;
-                if (property.PropertyType.IsValueType)
+                if (property.PropertyType != null && property.PropertyType.IsValueType)
                     value = Activator.CreateInstance(property.PropertyType);
                 mValues[property.Name] = new Container() { PropertyInfo = property, Value = value };
             }

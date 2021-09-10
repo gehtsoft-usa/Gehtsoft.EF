@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Gehtsoft.EF.Utils;
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     [DocgenIgnore]
+    [ExcludeFromCodeCoverage]
     public static class EntityConnectionBuilderExtension
     {
         /// <summary>
@@ -324,7 +326,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public static EntityQuery GetCreateEntityQuery<T>(this SqlDbConnection connection) => connection.GetCreateEntityQuery(typeof(T));
+        public static EntityQuery GetCreateEntityQuery<T>(this SqlDbConnection connection)
+            => connection.GetCreateEntityQuery(typeof(T));
 
         /// <summary>
         /// Returns the query that drops the entity table (generic version).
@@ -332,7 +335,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public static EntityQuery GetDropEntityQuery<T>(this SqlDbConnection connection) => GetDropEntityQuery(connection, typeof(T));
+        public static EntityQuery GetDropEntityQuery<T>(this SqlDbConnection connection)
+            => GetDropEntityQuery(connection, typeof(T));
 
         /// <summary>
         /// Returns the query that inserts one entity (generic version).
@@ -341,7 +345,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="connection"></param>
         /// <param name="ignoreAutoIncrement"></param>
         /// <returns></returns>
-        public static ModifyEntityQuery GetInsertEntityQuery<T>(this SqlDbConnection connection, bool ignoreAutoIncrement = false) => GetInsertEntityQuery(connection, typeof(T), ignoreAutoIncrement);
+        public static ModifyEntityQuery GetInsertEntityQuery<T>(this SqlDbConnection connection, bool ignoreAutoIncrement = false)
+            => GetInsertEntityQuery(connection, typeof(T), ignoreAutoIncrement);
 
         /// <summary>
         /// Returns the query that updates one entity by id (generic version).
@@ -349,7 +354,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public static ModifyEntityQuery GetUpdateEntityQuery<T>(this SqlDbConnection connection) => GetUpdateEntityQuery(connection, typeof(T));
+        public static ModifyEntityQuery GetUpdateEntityQuery<T>(this SqlDbConnection connection)
+            => GetUpdateEntityQuery(connection, typeof(T));
 
         /// <summary>
         /// Returns the query that deletes one entity by id (generic version).
@@ -357,7 +363,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public static ModifyEntityQuery GetDeleteEntityQuery<T>(this SqlDbConnection connection) => GetDeleteEntityQuery(connection, typeof(T));
+        public static ModifyEntityQuery GetDeleteEntityQuery<T>(this SqlDbConnection connection)
+            => GetDeleteEntityQuery(connection, typeof(T));
 
         /// <summary>
         /// Returns the query to construct free-from select entity query (generic version).
@@ -365,9 +372,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public static SelectEntitiesQueryBase GetGenericSelectEntityQuery<T>(this SqlDbConnection connection) => new SelectEntitiesQueryBase(connection.GetQuery(), new SelectEntityQueryBuilderBase(typeof(T), connection));
+        public static SelectEntitiesQueryBase GetGenericSelectEntityQuery<T>(this SqlDbConnection connection)
+            => GetGenericSelectEntityQuery(connection, typeof(T));
 
-        public static SelectEntitiesCountQuery GetSelectEntitiesCountQuery<T>(this SqlDbConnection connection) => new SelectEntitiesCountQuery(connection.GetQuery(), connection.GetSelectEntityCountQueryBuilder(typeof(T)));
+        public static SelectEntitiesCountQuery GetSelectEntitiesCountQuery<T>(this SqlDbConnection connection)
+            => GetSelectEntitiesCountQuery(connection, typeof(T));
 
         /// <summary>
         /// Returns the query to select the entities completely (generic version).
@@ -376,7 +385,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="connection"></param>
         /// <param name="exclusions"></param>
         /// <returns></returns>
-        public static SelectEntitiesQuery GetSelectEntitiesQuery<T>(this SqlDbConnection connection, SelectEntityQueryFilter[] exclusions = null) => new SelectEntitiesQuery(connection.GetQuery(), new SelectEntityQueryBuilder(typeof(T), connection, exclusions));
+        public static SelectEntitiesQuery GetSelectEntitiesQuery<T>(this SqlDbConnection connection, SelectEntityQueryFilter[] exclusions = null)
+            => GetSelectEntitiesQuery(connection, typeof(T), exclusions);
 
         /// <summary>
         /// Gets query to construct a free-form entity select query.
@@ -386,7 +396,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="connection"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static SelectEntitiesQueryBase GetSelectEntitiesQueryBase(this SqlDbConnection connection, Type type) => new SelectEntitiesQueryBase(connection.GetQuery(), new SelectEntityQueryBuilderBase(type, connection));
+        public static SelectEntitiesQueryBase GetSelectEntitiesQueryBase(this SqlDbConnection connection, Type type)
+            => new SelectEntitiesQueryBase(connection.GetQuery(), new SelectEntityQueryBuilderBase(type, connection));
 
         /// <summary>
         /// Gets query to construct a free-form entity select query (generic version).
@@ -396,7 +407,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public static SelectEntitiesQueryBase GetSelectEntitiesQueryBase<T>(this SqlDbConnection connection) => new SelectEntitiesQueryBase(connection.GetQuery(), new SelectEntityQueryBuilderBase(typeof(T), connection));
+        public static SelectEntitiesQueryBase GetSelectEntitiesQueryBase<T>(this SqlDbConnection connection)
+            => GetSelectEntitiesQueryBase(connection, typeof(T));
 
         /// <summary>
         /// Returns the query to select a tree of self-connected entities.
@@ -404,7 +416,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
         /// <param name="hasRootParameter"></param>
-        public static SelectEntitiesTreeQuery GetSelectEntitiesTreeQuery<T>(this SqlDbConnection connection, bool hasRootParameter = true) => new SelectEntitiesTreeQuery(connection.GetQuery(), new SelectEntityTreeQueryBuilder(typeof(T), connection, hasRootParameter));
+        public static SelectEntitiesTreeQuery GetSelectEntitiesTreeQuery<T>(this SqlDbConnection connection, bool hasRootParameter = true)
+            => new SelectEntitiesTreeQuery(connection.GetQuery(), new SelectEntityTreeQueryBuilder(typeof(T), connection, hasRootParameter));
 
         /// <summary>
         /// Returns the query that deletes multiple entities by condition (generic version).
@@ -412,7 +425,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public static MultiDeleteEntityQuery GetMultiDeleteEntityQuery<T>(this SqlDbConnection connection) => new MultiDeleteEntityQuery(connection.GetQuery(), connection.GetDeleteEntityQueryBuilder(typeof(T)));
+        public static MultiDeleteEntityQuery GetMultiDeleteEntityQuery<T>(this SqlDbConnection connection)
+            => GetMultiDeleteEntityQuery(connection, typeof(T));
 
         /// <summary>
         /// Returns the query that updates multiple entities by condition (generic version).
@@ -420,7 +434,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
         /// <returns></returns>
-        public static MultiUpdateEntityQuery GetMultiUpdateEntityQuery<T>(this SqlDbConnection connection) => new MultiUpdateEntityQuery(connection.GetQuery(), connection.GetUpdateEntityQueryBuilder(typeof(T)));
+        public static MultiUpdateEntityQuery GetMultiUpdateEntityQuery<T>(this SqlDbConnection connection)
+            => GetMultiUpdateEntityQuery(connection, typeof(T));
 
         /// <summary>
         /// Returns the query that selects the entity by its identifier.
@@ -468,8 +483,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public static InsertSelectEntityQuery GetInsertSelectEntityQuery<T>(this SqlDbConnection connection, SelectEntitiesQueryBase selectQuery, bool ignoreAutoIncrement = false, string[] includeOnlyProperties = null)
             => connection.GetInsertSelectEntityQuery(typeof(T), selectQuery, ignoreAutoIncrement, includeOnlyProperties);
-
-
 
         /// <summary>
         /// Checks whether entity has no dependencies and can be deleted.

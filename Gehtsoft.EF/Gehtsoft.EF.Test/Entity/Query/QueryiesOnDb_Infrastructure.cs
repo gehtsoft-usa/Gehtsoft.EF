@@ -282,7 +282,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
         private static T TestFunctionRead<T>(SqlDbConnection connection, string propertyName, SqlFunctionId functionId)
         {
-            using (var query = connection.GetGenericSelectEntityQuery<TestFunctionEntity>())
+            using (var query = connection.GetSelectEntitiesQueryBase<TestFunctionEntity>())
             {
                 query.Where.Property(nameof(TestFunctionEntity.ID)).Eq(1);
                 query.AddExpressionToResultset(connection.GetLanguageSpecifics().GetSqlFunction(

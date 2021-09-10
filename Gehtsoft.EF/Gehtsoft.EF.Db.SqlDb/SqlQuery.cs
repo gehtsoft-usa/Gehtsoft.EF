@@ -123,17 +123,6 @@ namespace Gehtsoft.EF.Db.SqlDb
             public object Value { get; set; }
             public ParameterDirection Direction { get; set; }
             public IDbDataParameter DbParameter { get; set; } = null;
-
-            public Param Clone()
-            {
-                return new Param()
-                {
-                    Name = this.Name,
-                    DbType = this.DbType,
-                    Value = this.Value,
-                    Direction = this.Direction,
-                };
-            }
         }
 
         protected List<Param> Parameters { get; } = new List<Param>();
@@ -171,7 +160,8 @@ namespace Gehtsoft.EF.Db.SqlDb
                     {
                         t = ed.TableDescriptor.PrimaryKey.PropertyAccessor.PropertyType;
                         mSpecifics.TypeToDb(t, out dbt);
-                        value = ed.TableDescriptor.PrimaryKey.PropertyAccessor.GetValue(value) ?? DBNull.Value;
+
+                        value = (value == null ? null : ed.TableDescriptor.PrimaryKey.PropertyAccessor.GetValue(value)) ?? DBNull.Value;
                     }
                     else
                         throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
@@ -659,6 +649,8 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <returns></returns>
         public virtual object GetValue(int column)
         {
+            if (mReader == null)
+                throw new InvalidOperationException(READER_IS_NOT_INIT);
             return mReader.GetValue(column);
         }
 
@@ -683,6 +675,9 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <returns></returns>
         public virtual Stream GetStream(int column)
         {
+            if (mReader == null)
+                throw new InvalidOperationException(READER_IS_NOT_INIT);
+
             return mReader.GetStream(column);
         }
 

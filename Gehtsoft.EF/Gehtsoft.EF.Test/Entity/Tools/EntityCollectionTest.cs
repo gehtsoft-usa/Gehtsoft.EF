@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Test.Entity.Utils;
 using Xunit;
+using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 
 namespace Gehtsoft.EF.Test.Entity.Tools
 {
@@ -18,7 +20,7 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             [AutoId]
             public int Id { get; set; }
 
-            [EntityProperty]
+            [EntityProperty(Field = "n")]
             public string Name { get; set; }
         }
 
@@ -464,6 +466,25 @@ namespace Gehtsoft.EF.Test.Entity.Tools
             change.Should().BeFalse();
             remove.Should().BeTrue();
             index.Should().Be(1);
+        }
+
+        [Fact]
+        public void FindByExtension()
+        {
+            var collection1 = new EntityCollection<Data>()
+            {
+                new Data() { Id = 1, Name = "name1" },
+                new Data() { Id = 2, Name = "name2" },
+                new Data() { Id = 3, Name = "name3" },
+                new Data() { Id = 4, Name = "name4" },
+                new Data() { Id = 5, Name = "name5" }
+            };
+
+            collection1.Find<Data>("Name", "name3").Should().Be(2);
+            collection1.Find<Data>("Name", "name0").Should().Be(-1);
+
+            collection1.FindByPK<Data>(3).Should().Be(2);
+            collection1.FindByPK<Data>(0).Should().Be(-1);
         }
     }
 }

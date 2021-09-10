@@ -1037,6 +1037,17 @@ namespace Gehtsoft.EF.Test.Entity.Query
         }
 
         [Fact]
+        public void Tags()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetSelectEntitiesQuery<Entity1>(new[] { new SelectEntityQueryFilter() { EntityType = typeof(Entity1), Property = nameof(Entity1.D2) } });
+
+            query.GetTag<string>().Should().BeNull();
+            query.SetTag<string>("abc");
+            query.GetTag<string>().Should().Be("abc");
+        }
+
+        [Fact]
         public void Execute_ReadAll()
         {
             using var connection = new DummySqlConnection();
@@ -1236,6 +1247,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             query.GetValue<int>(0).Should().Be(3);
             query.GetValue<string>(1).Should().Be("record3");
             query.IsNull(2).Should().BeTrue();
+            query.IsNull(query.ResultColumn(2).Alias).Should().BeTrue();
 
             query.ReadNext().Should().BeFalse();
         }

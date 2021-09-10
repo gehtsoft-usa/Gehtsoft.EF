@@ -376,6 +376,16 @@ namespace Gehtsoft.EF.Test.Entity.Discovery
             ei.EntityType.Should().Be(typeof(CustomEntity));
             ei.TableDescriptor.Name.Should().Be("customtable");
         }
+
+        [Fact]
+        public void Tags()
+        {
+            var ei = AllEntities.Get(typeof(Dict1));
+
+            ei.GetTag<string>().Should().Be(null);
+            ei.SetTag<string>("abcd");
+            ei.GetTag<string>().Should().Be("abcd");
+        }
     }
 }
 

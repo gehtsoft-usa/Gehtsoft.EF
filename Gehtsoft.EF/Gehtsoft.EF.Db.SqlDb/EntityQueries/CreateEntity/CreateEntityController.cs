@@ -140,8 +140,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         query = connection.GetDropEntityQuery(entityType.EntityType);
                     else
                     {
-                        if (entityType.Metadata != null && 
-                            gViewCreationMetata.IsAssignableFrom(entityType.Metadata) && 
+                        if (entityType.Metadata != null &&
+                            gViewCreationMetata.IsAssignableFrom(entityType.Metadata) &&
                             connection.DoesObjectExist(entityType.Table, null, "view"))
                             query = connection.GetDropViewQuery(entityType.EntityType);
                     }
@@ -243,7 +243,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 InvokeAttribute<OnEntityCreateAttribute>(info, connection);
             }
         }
-        
+
         /// <summary>
         /// Creates tables (async version).
         /// </summary>
@@ -314,7 +314,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     {
                         if (connection.GetLanguageSpecifics().DropColumnSupported ||
                             Array.Find(mTypes, i => i != info &&
-                                               i.DependsOn.FirstOrDefault(i1 => i1 == info.EntityType) != null) == null)
+                                               i.DependsOn.Find(i1 => i1 == info.EntityType) != null) == null)
                         {
                             InvokeAttribute<OnEntityDropAttribute>(info, connection);
                             RaiseDrop(info.Table);
@@ -329,16 +329,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                             foreach (PropertyInfo property in info.EntityType.GetProperties())
                             {
                                 ObsoleteEntityPropertyAttribute attribute = property.GetCustomAttribute<ObsoleteEntityPropertyAttribute>();
-                                
+
                                 if (attribute != null)
                                 {
                                     var policy = info.NamingPolicy;
                                     if (policy == EntityNamingPolicy.Default)
-                                        policy = AllEntities.Inst.NamingPolicy[mScope]; 
+                                        policy = AllEntities.Inst.NamingPolicy[mScope];
 
-                                    string field = attribute.Field;
-                                    if (field == null)
-                                        field = EntityNameConvertor.ConvertName(property.Name, policy);
+                                    string field = attribute.Field ?? EntityNameConvertor.ConvertName(property.Name, policy);
 
                                     if (schema.Contains(info.Table, field))
                                     {

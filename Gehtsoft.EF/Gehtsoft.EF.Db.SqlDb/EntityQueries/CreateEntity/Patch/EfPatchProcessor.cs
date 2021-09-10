@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
@@ -217,9 +218,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
             => ApplyPatchesCore(connection, true, patches, scope, serviceProvider).AsTask();
 
         public static void ApplyPatches(this SqlDbConnection connection, IList<EfPatchInstance> patches, string scope, IServiceProvider serviceProvider = null)
-        {
-            if (!ApplyPatchesCore(connection, false, patches, scope, serviceProvider).IsCompleted)
-                throw new InvalidOperationException("Sync task expected to be already completed");
-        }
+            => ApplyPatchesCore(connection, false, patches, scope, serviceProvider).SyncOp();
     }
 }

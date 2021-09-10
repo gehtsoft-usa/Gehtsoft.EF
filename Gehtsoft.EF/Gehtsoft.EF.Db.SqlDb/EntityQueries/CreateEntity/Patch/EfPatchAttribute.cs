@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
@@ -12,10 +13,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
         public int MinorVersion { get; set; }
         public int PatchVersion { get; set; }
 
+        [ExcludeFromCodeCoverage]
         public EfPatchAttribute()
         {
         }
 
+        [ExcludeFromCodeCoverage]
         public EfPatchAttribute(int major, int minor, int patch)
         {
             MajorVersion = major;

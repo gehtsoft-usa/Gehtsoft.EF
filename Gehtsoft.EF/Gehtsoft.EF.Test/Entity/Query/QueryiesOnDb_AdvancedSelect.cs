@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
@@ -53,9 +54,15 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 query.Field(2)
                     .Name.ToUpper().Should().EndWith(td[nameof(Employee.LastName)].Name.ToUpper());
 
+                var f = query.Field(0);
+                var f1 = query.Field(f.Name);
+                f1.Should().BeSameAs(f);
+                query.FindField(f.Name).Should().Be(0);
+
                 query.ReadNext().Should().BeTrue();
 
                 query.GetValue<int>(0).Should().Be(e0.EmployeeID);
+                query.GetValue<int>(f.Name).Should().Be(e0.EmployeeID);
                 query.GetValue<string>(1).Should().Be(e0.FirstName);
                 query.GetValue<string>(2).Should().Be(e0.LastName);
 
@@ -65,7 +72,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
         [Theory]
         [MemberData(nameof(ConnectionNames), "")]
-        public void Resultset_AggFn_Count(string connectionName)
+        public async Task Resultset_AggFn_Count(string connectionName)
         {
             var connection = mFixture.GetInstance(connectionName);
 
@@ -75,7 +82,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 query.AddToResultset(AggFn.Count, null, "ordcnt");
                 query.AddGroupBy(nameof(OrderDetail.Order));
 
-                var all = query.ReadAllDynamic();
+                var all = await query.ReadAllDynamicAsync();
                 foreach (var a in all)
                 {
                     int id = (int)a.ordid;
@@ -351,7 +358,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             var ss = mFixture.Snapshot;
 
-            int threshold = 5;
+            const int threshold = 5;
 
             ss.Categories.Any(c => ss.Products.Count(p => p.Category.CategoryID == c.CategoryID) <= threshold).Should().BeTrue();
             ss.Categories.Any(c => ss.Products.Count(p => p.Category.CategoryID == c.CategoryID) > threshold).Should().BeTrue();
@@ -366,6 +373,58 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 var cs = query.ReadAll<Category>();
                 cs.Count.Should().BeGreaterThan(0);
                 cs.Should().HaveAllElementsMatching(c => ss.Products.Count(p => p.Category.CategoryID == c.CategoryID) > threshold);
+            }
+        }
+
+        public class SelectReaderTargetClass
+        {
+            public int Id { get; set; }
+            public DateTime SaleDate { get; set; }
+            public string ProductName { get; set; }
+            public double Quantity { get; set; }
+            public double Total { get; set; }
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "+sqlite")]
+        public void SelectReader(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+
+            using (var query = connection.GetGenericSelectEntityQuery<OrderDetail>())
+            {
+                query.AddEntity(typeof(Product));
+                query.AddEntity(typeof(Order));
+
+                query.AddToResultset(nameof(OrderDetail.Id), nameof(SelectReaderTargetClass.Id));
+                query.AddToResultset(typeof(Order), nameof(Order.OrderDate), nameof(SelectReaderTargetClass.SaleDate));
+                query.AddToResultset(typeof(Product), nameof(Product.ProductName), nameof(SelectReaderTargetClass.ProductName));
+                query.AddToResultset(nameof(OrderDetail.Quantity), nameof(SelectReaderTargetClass.Quantity));
+                query.AddToResultset(nameof(OrderDetail.UnitPrice), "price");
+                query.Limit = 5;
+
+                SelectEntityQueryReader<SelectReaderTargetClass> reader = new SelectEntityQueryReader<SelectReaderTargetClass>(query);
+                reader.AddAction<SelectReaderTargetClass>((o, q) => o.Total = o.Quantity * q.GetValue<double>("price"));
+
+                query.Execute();
+                var list = reader.ReadAll<List<SelectReaderTargetClass>>();
+                list.Should().NotBeEmpty();
+                list.Should().HaveCount(5);
+
+                list.Select(o => o.Id).Should().OnlyHaveUniqueItems();
+
+                for (int i = 0; i < 5; i++)
+                {
+                    var id = list[i].Id;
+                    var od = mFixture.Snapshot.OrderDetails.First(o => o.Id == id);
+                    var or = mFixture.Snapshot.Orders.First(o => o.OrderID == od.Order.OrderID);
+                    var p = mFixture.Snapshot.Products.First(p => p.ProductID == od.Product.ProductID);
+
+                    list[i].ProductName.Should().Be(p.ProductName);
+                    list[i].SaleDate.Should().Be(or.OrderDate);
+                    list[i].Quantity.Should().Be(od.Quantity);
+                    list[i].Total.Should().Be(od.UnitPrice * od.Quantity);
+                }
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Utils;
 
@@ -25,6 +26,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
 
         [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public override int Execute()
         {
             throw new EfSqlException(EfExceptionCode.InvalidOperation);

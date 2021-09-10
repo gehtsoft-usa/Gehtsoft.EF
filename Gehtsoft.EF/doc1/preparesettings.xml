@@ -5,6 +5,12 @@
 
   <include type="public" />
   <include signature="M:Gehtsoft.EF.Db.SqlDb.EntityQueries.DynamicEntity.InitializeProperties" />
+  <include signature="M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.AddFilterField(System.String,System.String,Gehtsoft.EF.Entities.CmpOp)" />
+  <include signature="M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.BindToQueryImpl(Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase)" />
+  <include signature="M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorUpdateRecord.AddUpdateField(System.String,System.String)" />
+  <include signature="M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorUpdateRecord.InitializeRecordData" />
+  <include signature="M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorUpdateRecord.BindToQueryImpl(Gehtsoft.EF.Db.SqlDb.EntityQueries.MultiUpdateEntityQuery)" />
+  <include signature="M:Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.InitializeFilterData" />
 
   <strip-namespace name="System" />
   <strip-namespace name="System.Collections" />

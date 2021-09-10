@@ -8,13 +8,26 @@ using System.Xml;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 {
+    /// <summary>
+    /// The action for widow aggregates 
+    /// </summary>
     public enum OnWidowNextContentAction
     {
+        /// <summary>
+        /// Ignore
+        /// </summary>
         Ignore,
+        /// <summary>
+        /// Add to database
+        /// </summary>
         Insert,
+        /// <summary>
+        /// Raise exception
+        /// </summary>
         Exception,
     }
 
@@ -43,15 +56,36 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         public bool ContainsKey(Tuple<Type, Type> key) => gReferringColumn.ContainsKey(key);
     }
 
+    /// <summary>
+    /// The CRUD accessor for an entity with aggregated.
+    ///
+    /// Aggregate is an entity related to the main entity with one to many. An example of
+    /// aggregates would be order details for an order.
+    /// 
+    /// The accessor modifies some operations, e.g. when an aggregating entity is deleted,
+    /// all aggregates are deleted automatically.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TKey"></typeparam>
     public class GenericEntityAccessorWithAggregates<T, TKey> : GenericEntityAccessor<T, TKey> where T : class
     {
         private readonly TableDescriptor.ColumnInfo mPK;
         private readonly Type[] mAggregates;
 
+        /// <summary>
+        /// Constructor for one aggregated type.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="aggregate"></param>
         public GenericEntityAccessorWithAggregates(SqlDbConnection connection, Type aggregate) : this(connection, new Type[] { aggregate })
         {
         }
 
+        /// <summary>
+        /// Constructor for multiple aggregated types.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="aggregates"></param>
         public GenericEntityAccessorWithAggregates(SqlDbConnection connection, IEnumerable<Type> aggregates) : base(connection)
         {
             EntityDescriptor descriptor = AllEntities.Inst[typeof(T)];
@@ -86,25 +120,46 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             }
         }
 
+        /// <summary>
+        /// Gets aggregates of the aggregating entity specified.
+        /// </summary>
+        /// <typeparam name="TAC">The type of the aggregates collection.</typeparam>
+        /// <typeparam name="TA">The type of the aggregate</typeparam>
+        /// <param name="entity"></param>
+        /// <param name="filter"></param>
+        /// <param name="sortOrder"></param>
+        /// <param name="skip"></param>
+        /// <param name="limit"></param>
+        /// <param name="propertiesExclusion"></param>
+        /// <returns></returns>
         public virtual TAC GetAggregates<TAC, TA>(T entity, GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion = null)
-            where TAC : EntityCollection<TA>, new()
+            where TAC : IList<TA>, new()
             where TA : class, new()
         {
-            return GetAggregatesCore<TAC, TA>(true, entity, filter, sortOrder, skip, limit, propertiesExclusion)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+            return GetAggregatesCore<TAC, TA>(true, entity, filter, sortOrder, skip, limit, propertiesExclusion).SyncResult();
         }
 
+        /// <summary>
+        /// Gets aggregates of the aggregating entity specified (async version).
+        /// </summary>
+        /// <typeparam name="TAC"></typeparam>
+        /// <typeparam name="TA"></typeparam>
+        /// <param name="entity"></param>
+        /// <param name="filter"></param>
+        /// <param name="sortOrder"></param>
+        /// <param name="skip"></param>
+        /// <param name="limit"></param>
+        /// <param name="propertiesExclusion"></param>
+        /// <returns></returns>
         public virtual Task<TAC> GetAggregatesAsync<TAC, TA>(T entity, GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion = null)
-            where TAC : EntityCollection<TA>, new()
+            where TAC : IList<TA>, new()
             where TA : class, new()
         {
-            return GetAggregatesCore<TAC, TA>(false, entity, filter, sortOrder, skip, limit, propertiesExclusion);
+            return GetAggregatesCore<TAC, TA>(false, entity, filter, sortOrder, skip, limit, propertiesExclusion).AsTask();
         }
 
-        protected virtual async Task<TAC> GetAggregatesCore<TAC, TA>(bool sync, T entity, GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion = null)
-            where TAC : EntityCollection<TA>, new()
+        protected virtual async ValueTask<TAC> GetAggregatesCore<TAC, TA>(bool sync, T entity, GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion = null)
+            where TAC : IList<TA>, new()
             where TA : class, new()
         {
             Tuple<Type, Type> key = new Tuple<Type, Type>(typeof(T), typeof(TA));
@@ -129,21 +184,35 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
                     return await query.ReadAllAsync<TAC, TA>();
             }
         }
+
+        /// <summary>
+        /// Gets count of the aggregates.
+        /// </summary>
+        /// <typeparam name="TA"></typeparam>
+        /// <param name="entity"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
         public virtual int GetAggregatesCount<TA>(T entity, GenericEntityAccessorFilter filter)
             where TA : class, new()
         {
-            return GetAggregatesCountCore<TA>(false, entity, filter, null).ConfigureAwait(false).GetAwaiter().GetResult();
+            return GetAggregatesCountCore<TA>(true, entity, filter, null).SyncResult();
         }
 
-        public virtual Task<int> GetAggregatesCountAsync<TA>(T entity, GenericEntityAccessorFilter filter)
-            where TA : class, new() => GetAggregatesCountAsync<TA>(entity, filter, null);
-
-        public virtual Task<int> GetAggregatesCountAsync<TA>(T entity, GenericEntityAccessorFilter filter, CancellationToken? token)
+        /// <summary>
+        /// Gets count of the aggregates (async version).
+        /// </summary>
+        /// <typeparam name="TA"></typeparam>
+        /// <param name="entity"></param>
+        /// <param name="filter"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public virtual Task<int> GetAggregatesCountAsync<TA>(T entity, GenericEntityAccessorFilter filter, CancellationToken? token = null)
             where TA : class, new()
         {
-            return GetAggregatesCountCore<TA>(false, entity, filter, token);
+            return GetAggregatesCountCore<TA>(false, entity, filter, token).AsTask();
         }
-        protected virtual async Task<int> GetAggregatesCountCore<TA>(bool sync, T entity, GenericEntityAccessorFilter filter, CancellationToken? token)
+
+        protected virtual async ValueTask<int> GetAggregatesCountCore<TA>(bool sync, T entity, GenericEntityAccessorFilter filter, CancellationToken? token)
             where TA : class, new()
         {
             Tuple<Type, Type> key = new Tuple<Type, Type>(typeof(T), typeof(TA));
@@ -158,7 +227,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             }
         }
 
-        protected override async Task DeleteCore(bool sync, T value, CancellationToken? token)
+        protected override async ValueTask DeleteCore(bool sync, T value, CancellationToken? token)
         {
             foreach (Type type in mAggregates)
             {
@@ -179,11 +248,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
                 await base.DeleteCore(false, value, token);
         }
 
+        [DocgenIgnore]
         public override bool CanDelete(T value) => Connection.CanDelete<T>(value, mAggregates);
 
-        public override Task<bool> CanDeleteAsync(T value, CancellationToken? token) => Connection.CanDeleteAsync<T>(value, mAggregates, token);
+        [DocgenIgnore]
+        public override Task<bool> CanDeleteAsync(T value, CancellationToken? token = null) => Connection.CanDeleteAsync<T>(value, mAggregates, token);
 
-        protected override async Task<int> DeleteMultipleCore(bool sync, GenericEntityAccessorFilter filter, CancellationToken? token)
+        protected override async ValueTask<int> DeleteMultipleCore(bool sync, GenericEntityAccessorFilter filter, CancellationToken? token)
         {
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
@@ -226,20 +297,48 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             return null;
         }
 
+        /// <summary>
+        /// Saves the collection of aggregates
+        /// </summary>
+        /// <typeparam name="TA">The type of aggregated entity</typeparam>
+        /// <param name="entity">The aggregating entity</param>
+        /// <param name="originalAggregates">The current state of the aggregates in the DB</param>
+        /// <param name="newAggregates">The new state of the aggregates</param>
+        /// <param name="areDataEqual">The function to check whether two aggregates are the same. The function is used to identify the aggregates that are changed.</param>
+        /// <param name="areIDEqual">The function to check whether primary key of two aggregates are the same. The function is used to compare the old and new state of the aggregates.</param>
+        /// <param name="isDefined">The function to check whether the aggregate record is defined. Undefined records are ignore. </param>
+        /// <param name="isNew">The function to check whether the aggregate record is a new one.</param>
+        /// <param name="widowAction">The action to perform on the aggregates which aren't new and do not exist in the current state.</param>
+        /// <returns></returns>
         public virtual int SaveAggregates<TA>(T entity, IEnumerable<TA> originalAggregates, IEnumerable<TA> newAggregates, Func<TA, TA, bool> areDataEqual, Func<TA, TA, bool> areIDEqual, Func<TA, bool> isDefined, Func<TA, bool> isNew, OnWidowNextContentAction widowAction = OnWidowNextContentAction.Ignore) where TA : class
         {
             return SaveAggregatesCore(true, entity, originalAggregates, newAggregates, areDataEqual, areIDEqual, isDefined, isNew, widowAction, null)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+                .SyncResult();
         }
 
+        /// <summary>
+        /// Saves the collection of aggregates (async version).
+        /// 
+        /// See <see cref="SaveAggregates{TA}(T, IEnumerable{TA}, IEnumerable{TA}, Func{TA, TA, bool}, Func{TA, TA, bool}, Func{TA, bool}, Func{TA, bool}, OnWidowNextContentAction)"/>
+        /// for details.
+        /// </summary>
+        /// <typeparam name="TA"></typeparam>
+        /// <param name="entity"></param>
+        /// <param name="originalAggregates"></param>
+        /// <param name="newAggregates"></param>
+        /// <param name="areDataEqual"></param>
+        /// <param name="areIDEqual"></param>
+        /// <param name="isDefined"></param>
+        /// <param name="isNew"></param>
+        /// <param name="widowAction"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public virtual Task<int> SaveAggregatesAsync<TA>(T entity, IEnumerable<TA> originalAggregates, IEnumerable<TA> newAggregates, Func<TA, TA, bool> areDataEqual, Func<TA, TA, bool> areIDEqual, Func<TA, bool> isDefined, Func<TA, bool> isNew, OnWidowNextContentAction widowAction = OnWidowNextContentAction.Ignore, CancellationToken? token = null) where TA : class
         {
-            return SaveAggregatesCore(false, entity, originalAggregates, newAggregates, areDataEqual, areIDEqual, isDefined, isNew, widowAction, token);
+            return SaveAggregatesCore(false, entity, originalAggregates, newAggregates, areDataEqual, areIDEqual, isDefined, isNew, widowAction, token).AsTask();
         }
 
-        protected virtual async Task<int> SaveAggregatesCore<TA>(bool sync, T entity, IEnumerable<TA> originalAggregates, IEnumerable<TA> newAggregates, Func<TA, TA, bool> areDataEqual, Func<TA, TA, bool> areIDEqual, Func<TA, bool> isDefined, Func<TA, bool> isNew, OnWidowNextContentAction widowAction, CancellationToken? token) where TA : class
+        protected virtual async ValueTask<int> SaveAggregatesCore<TA>(bool sync, T entity, IEnumerable<TA> originalAggregates, IEnumerable<TA> newAggregates, Func<TA, TA, bool> areDataEqual, Func<TA, TA, bool> areIDEqual, Func<TA, bool> isDefined, Func<TA, bool> isNew, OnWidowNextContentAction widowAction, CancellationToken? token) where TA : class
         {
             Tuple<Type, Type> key = new Tuple<Type, Type>(typeof(T), typeof(TA));
             TableDescriptor.ColumnInfo refColumn = ColumnReferences.Inst[key];

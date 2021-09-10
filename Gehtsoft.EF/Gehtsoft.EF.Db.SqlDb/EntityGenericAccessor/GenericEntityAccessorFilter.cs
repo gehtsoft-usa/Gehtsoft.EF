@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
@@ -8,6 +9,12 @@ using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 {
+    /// <summary>
+    /// The attribute to mark a generic accessor filter property.
+    /// 
+    /// Apply it to a property of a class derived from <see cref="GenericEntityAccessorFilter"/>
+    /// to bind the property automatically.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class FilterPropertyAttribute : Attribute
     {
@@ -23,10 +30,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
     /// <summary>
     /// <para>Generic filter class for the generic accessor.</para>
+    /// 
     /// <para>
     /// The whole idea of generic filter is that the developer just derives type-specific filter class from this one
     /// and just defines a set of properties making them up using FilterProperty attribute.
     /// </para>
+    /// 
     /// <para>All filters are joined by AND</para>
     /// <para>
     /// 1) The filter properties types must be equal to entity property types in their nullable version, i.e. if the field is
@@ -112,6 +121,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             mCache[this.GetType()] = mFields;
         }
 
+        /// <summary>
+        /// Resets all filter conditions.
+        /// </summary>
         public virtual void Reset()
         {
             if (mFields == null)
@@ -121,6 +133,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
                 fieldInfo.FilterProperty.SetValue(this, null);
         }
 
+        /// <summary>
+        /// Binds the filter to a query.
+        /// </summary>
+        /// <param name="query"></param>
         public void BindToQuery(ConditionEntityQueryBase query) => BindToQueryImpl(query);
 
         /// <summary>
@@ -156,13 +172,23 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
                     continue;
                 }
 
+                if ((op == CmpOp.In || op == CmpOp.NotIn) && (value is ICollection || value is Array))
+                {
+                    query.Where.Property(fieldInfo.EntityPath).Is(op).Values(value);
+                    continue;
+                }
+
                 query.Where.Add().Property(fieldInfo.EntityPath).Is(op).Value(value);
             }
         }
 
         private static readonly Dictionary<Type, List<FieldInfo>> mCache = new Dictionary<Type, List<FieldInfo>>();
 
-        public GenericEntityAccessorFilter(Type t)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="t"></param>
+        protected GenericEntityAccessorFilter(Type t)
         {
             var filterType = this.GetType();
             mFilterTypeInfo = filterType.GetTypeInfo();

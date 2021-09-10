@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
 namespace Gehtsoft.EF.Db.SqlDb
@@ -25,6 +26,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         TypeIsUnsupported,
     }
 
+    [ExcludeFromCodeCoverage]
     internal class EfExceptionMessages
     {
         public static EfExceptionMessages Inst { get; } = new EfExceptionMessages();
@@ -91,6 +93,7 @@ namespace Gehtsoft.EF.Db.SqlDb
     /// EF exception
     /// </summary>
     [Serializable]
+    [ExcludeFromCodeCoverage]
     public class EfSqlException : Exception
     {
         /// <summary>

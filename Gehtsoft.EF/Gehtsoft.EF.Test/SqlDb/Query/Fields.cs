@@ -153,6 +153,38 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
         }
 
         [Fact]
+        public void FailBeforeReadExecuted()
+        {
+            using var dbconnection = new DummyDbConnection();
+            using var efconnection = new DummySqlConnection(dbconnection);
+            using var query = efconnection.GetQuery("command");
+            var dbquery = query.Command as DummyDbCommand;
+            dbquery.ReturnReader = CreateReader();
+
+            ((Action)(() => query.IsNull(0))).Should().Throw<InvalidOperationException>();
+            ((Action)(() => query.GetValue(0))).Should().Throw<InvalidOperationException>();
+            ((Action)(() => query.GetStream(0))).Should().Throw<InvalidOperationException>();
+            ((Action)(() => query.IsNull("f1"))).Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void AccessViaColumnName()
+        {
+            using var dbconnection = new DummyDbConnection();
+            using var efconnection = new DummySqlConnection(dbconnection);
+            using var query = efconnection.GetQuery("command");
+            var dbquery = query.Command as DummyDbCommand;
+            dbquery.ReturnReader = CreateReader();
+
+            query.ExecuteReader();
+            query.ReadNext();
+
+            query.IsNull("f1").Should().BeFalse();
+            query.GetValue("f1").Should().Be(1);
+            query.GetValue<int>("f1").Should().Be(1);
+        }
+
+        [Fact]
         public void FieldCount()
         {
             using var dbconnection = new DummyDbConnection();

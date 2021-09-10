@@ -396,7 +396,7 @@ namespace Gehtsoft.EF.Test.SqlDb
             select.AddToResultset(mFixture.OrderTable[nameof(Order.OrderID)]);
 
             var referenceOrder = select.GetReference(mFixture.OrderTable[nameof(Order.OrderID)]);
-            
+
             var select1 = connection.GetSelectQueryBuilder(mFixture.OrderDetailTable);
             select1.AddToResultset(AggFn.Max, mFixture.OrderDetailTable[nameof(OrderDetail.Quantity)]);
             select1.Where.Property(mFixture.OrderDetailTable[nameof(OrderDetail.Order)]).Eq().Reference(referenceOrder);
@@ -472,7 +472,6 @@ namespace Gehtsoft.EF.Test.SqlDb
 
             var pivotSelect = connection.GetSelectQueryBuilder(mFixture.OrderTable);
             pivotSelect.AddToResultset(mFixture.OrderTable[nameof(Order.OrderID)], "orderid");
-            var orderReference = pivotSelect.GetReference(mFixture.OrderTable[nameof(Order.OrderID)]);
 
             //source select - find total per category per order
             var sourceSelect = connection.GetSelectQueryBuilder(mFixture.CategoryTable);
@@ -491,10 +490,10 @@ namespace Gehtsoft.EF.Test.SqlDb
             {
                 var j = pivotSelect.AddTable(sourceSelect.QueryTableDescriptor, false);
                 j.JoinType = TableJoinType.Left;
-                
+
                 j.On.Property(sourceSelect.QueryTableDescriptor["orderid"], j).Eq().Property(mFixture.OrderTable[nameof(Order.OrderID)])
                     .And().Property(sourceSelect.QueryTableDescriptor["category"], j).Eq().Value(mFixture.Snapshot.Categories[i].CategoryID);
-                
+
                 pivotSelect.AddToResultset(sourceSelect.QueryTableDescriptor["total"], j, $"cat{mFixture.Snapshot.Categories[i].CategoryID}");
             }
 

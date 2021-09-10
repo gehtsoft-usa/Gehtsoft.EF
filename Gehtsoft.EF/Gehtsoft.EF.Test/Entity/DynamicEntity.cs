@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
-using Gehtsoft.EF.Northwind;
 using Microsoft.CSharp.RuntimeBinder;
 using Xunit;
 
@@ -52,6 +51,28 @@ namespace Gehtsoft.EF.Test.Entity
             }
         }
 
+        public class ObsoleteDynamicTestEntity : DynamicEntity
+        {
+            public override EntityAttribute EntityAttribute => null;
+
+            public override ObsoleteEntityAttribute ObsoleteEntityAttribute
+            {
+                get
+                {
+                    return new ObsoleteEntityAttribute()
+                    {
+                        Scope = "dynamicentity",
+                        Table = "dynamictable",
+                    };
+                }
+            }
+
+            protected override IEnumerable<IDynamicEntityProperty> InitializeProperties()
+            {
+                yield break;
+            }
+        }
+
         [Fact]
         public void DynamicBehavior()
         {
@@ -82,53 +103,34 @@ namespace Gehtsoft.EF.Test.Entity
             ((Action)(() => GetNonExistentProperty(entity))).Should().Throw<RuntimeBinderException>();
         }
 
+        [Fact]
+        public void PropertyList()
+        {
+            dynamic entity = new DynamicTestEntity();
+
+            ((IEnumerable<string>)entity.GetDynamicMemberNames())
+                .Should()
+                .HaveCount(4)
+                .And.Contain("Property1")
+                .And.Contain("Property2")
+                .And.Contain("Property3")
+                .And.Contain("Property4");
+        }
+
+        [Fact]
+        public void ObsoleteEntity()
+        {
+            var discoverer = new DynamicEntityDiscoverer();
+
+            var d = discoverer.Discover(AllEntities.Inst, typeof(ObsoleteDynamicTestEntity));
+            d.Should().NotBeNull();
+            d.Obsolete.Should().BeTrue();
+
+            var ti = discoverer.ProbeClass(typeof(ObsoleteDynamicTestEntity), null, true);
+            ti.Should().NotBeNull();
+            ti.Obsolete.Should().BeTrue();
+        }
+
         public object GetNonExistentProperty(dynamic entity) => entity.RandomProperty;
-    }
-
-    public class EntityDescriptorTest
-    {
-        private readonly EntityFinder.EntityTypeInfo[] mEntities = EntityFinder.FindEntities(new[] { typeof(Order).Assembly }, "northwind", false);
-
-        [Fact]
-        public void Compare_ToNull()
-        {
-            mEntities[0].CompareTo(null).Should().BeGreaterThan(0);
-        }
-
-        [Fact]
-        public void Compare_ADependsOnB()
-        {
-            var a = Array.Find(mEntities, e => e.EntityType == typeof(Product));
-            var b = Array.Find(mEntities, e => e.EntityType == typeof(Category));
-
-            a.CompareTo(b).Should().BeGreaterThan(0);
-        }
-
-        [Fact]
-        public void Compare_BDependsOnA()
-        {
-            var a = Array.Find(mEntities, e => e.EntityType == typeof(Product));
-            var b = Array.Find(mEntities, e => e.EntityType == typeof(Category));
-
-            b.CompareTo(a).Should().BeLessThan(0);
-        }
-
-        [Fact]
-        public void Compare_DependsIndirectly()
-        {
-            var a = Array.Find(mEntities, e => e.EntityType == typeof(OrderDetail));
-            var b = Array.Find(mEntities, e => e.EntityType == typeof(Category));
-
-            a.CompareTo(b).Should().BeGreaterThan(0);
-        }
-
-        [Fact]
-        public void Compare_Independent()
-        {
-            var a = Array.Find(mEntities, e => e.EntityType == typeof(Category));
-            var b = Array.Find(mEntities, e => e.EntityType == typeof(Territory));
-
-            a.CompareTo(b).Should().BeLessThan(0);
-        }
     }
 }

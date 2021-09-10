@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
@@ -245,6 +247,20 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             if (mParameterType == null)
                 throw new InvalidOperationException("If parameter values are used, the parameter type must be either specified implicitly or be discoverable from the left side of the expression");
+
+            if (values.Length == 1 && (values[0] is Array arr))
+            {
+                values = new object[arr.Length];
+                for (int i = 0; i < values.Length; i++)
+                    values[i] = arr.GetValue(i);
+            }
+            else if (values.Length == 1 && (values[0] is ICollection coll))
+            {
+                values = new object[coll.Count];
+                int i = 0;
+                foreach (var o in coll)
+                    values[i++] = o;
+            }
 
             string[] names = new string[values.Length];
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Reflection;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
@@ -12,6 +13,7 @@ namespace Gehtsoft.EF.Db.SqlDb
     /// </summary>
     [DocgenIgnore]
     [Obsolete("Use SelectQueryResultBinder instead")]
+    [ExcludeFromCodeCoverage]
     public class SelectQueryTypeBinderRule
     {
         /// <summary>
@@ -74,6 +76,7 @@ namespace Gehtsoft.EF.Db.SqlDb
     /// </summary>
     [DocgenIgnore]
     [Obsolete("Use SelectQueryResultBinder instead")]
+    [ExcludeFromCodeCoverage]
     public class SelectQueryTypeBinder
     {
         private readonly Type mType;

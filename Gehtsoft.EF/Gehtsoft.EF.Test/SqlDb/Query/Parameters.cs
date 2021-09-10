@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using FluentAssertions;
+using Gehtsoft.EF.Northwind;
 using Gehtsoft.EF.Test.Entity.Utils;
 using Gehtsoft.EF.Test.Utils;
 using Gehtsoft.EF.Test.Utils.DummyDb;
@@ -68,6 +69,34 @@ namespace Gehtsoft.EF.Test.SqlDb.Query
 
             query.GetParamValue(name).Should().Be(null);
             query.GetParamValue(name, expectedValueType).Should().BeEquivalentTo(expectedValue);
+        }
+
+        [Fact]
+        public void BindFK()
+        {
+            using var dbconnection = new DummyDbConnection() { ConnectionString = "dummyConnectionString" };
+            using var efconnection = new DummySqlConnection(dbconnection);
+            using var query = efconnection.GetQuery("command");
+            var dbquery = query.Command as DummyDbCommand;
+            var pp = efconnection.GetLanguageSpecifics().ParameterPrefix;
+
+            Category category = new Category()
+            {
+                CategoryID = 123,
+                CategoryName = "567"
+            };
+
+            query.BindParam("p1", category);
+            query.BindParam<Category>("p2", null);
+            query.ExecuteNoData();
+
+            dbquery.Parameters[pp + "p1"].Direction.Should().Be(ParameterDirection.Input);
+            dbquery.Parameters[pp + "p1"].DbType.Should().Be(DbType.Int32);
+            dbquery.Parameters[pp + "p1"].Value = 123;
+
+            dbquery.Parameters[pp + "p2"].Direction.Should().Be(ParameterDirection.Input);
+            dbquery.Parameters[pp + "p2"].DbType.Should().Be(DbType.Int32);
+            dbquery.Parameters[pp + "p2"].Value = DBNull.Value;
         }
 
         [Fact]

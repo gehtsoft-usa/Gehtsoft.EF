@@ -7,6 +7,9 @@ using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 {
+    /// <summary>
+    /// The attribute to mark a field of an update record.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class UpdateRecordPropertyAttribute : Attribute
     {

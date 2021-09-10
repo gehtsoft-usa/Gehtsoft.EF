@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
@@ -179,7 +180,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Patch
             gInvocations.Should().BeEmpty();
         }
 
-        private void Match<T>(EntityCollection<EfPatchHistoryRecord> collection, int index)
+        private static void Match<T>(EntityCollection<EfPatchHistoryRecord> collection, int index)
         {
             Count<T>().Should().Be(1);
             collection.Count.Should().BeGreaterThan(index);
@@ -231,6 +232,55 @@ namespace Gehtsoft.EF.Test.SqlDb.Patch
             }
 
             connection.ApplyPatches(patches, "patchtest1");
+
+            Count<Patch111>().Should().Be(0);
+            Count<Patch112>().Should().Be(0);
+            Count<Patch121>().Should().Be(0);
+
+            var c = connection.GetAllPatches("patchtest1");
+
+            Match<Patch122>(c, 2);
+            Match<Patch123>(c, 3);
+            Match<Patch211>(c, 4);
+            Match<Patch221>(c, 5);
+            Match<Patch321>(c, 6);
+        }
+
+        [Fact]
+        public async Task ApplyPatchesAsync()
+        {
+            ClearInvokations();
+            var patches = EfPatchProcessor.FindAllPatches(new Assembly[] { this.GetType().Assembly }, "patchtest1");
+
+            using var connection = SqliteDbConnectionFactory.CreateMemory();
+
+            using (var query = connection.GetCreateEntityQuery<EfPatchHistoryRecord>())
+                query.Execute();
+
+            using (var query = connection.GetInsertEntityQuery<EfPatchHistoryRecord>())
+            {
+                var r = new EfPatchHistoryRecord()
+                {
+                    Scope = "patchtest1",
+                    MajorVersion = 1,
+                    MinorVersion = 1,
+                    PatchVersion = 1,
+                    Applied = new DateTime(2020, 1, 1)
+                };
+                query.Execute(r);
+
+                r = new EfPatchHistoryRecord()
+                {
+                    Scope = "patchtest1",
+                    MajorVersion = 1,
+                    MinorVersion = 2,
+                    PatchVersion = 1,
+                    Applied = new DateTime(2020, 1, 2)
+                };
+                query.Execute(r);
+            }
+
+            await connection.ApplyPatchesAsync(patches, "patchtest1");
 
             Count<Patch111>().Should().Be(0);
             Count<Patch112>().Should().Be(0);

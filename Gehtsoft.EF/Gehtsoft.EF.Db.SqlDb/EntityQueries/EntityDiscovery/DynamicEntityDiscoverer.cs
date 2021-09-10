@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             DynamicEntity dynamicEntity;
             TableDescriptor descriptor;
 
-            if (DynamicEntityType.IsAssignableFrom(type))
+            if (DynamicEntityType.IsAssignableFrom(type) && !type.IsAbstract)
             {
                 dynamicEntity = (DynamicEntity)Activator.CreateInstance(type);
                 typeAttribute = dynamicEntity.EntityAttribute;
@@ -65,7 +65,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             EntityAttribute entityAttribute;
             ObsoleteEntityAttribute obsoleteEntityAttribute;
 
-            if (!DynamicEntityType.IsAssignableFrom(type))
+            if (!DynamicEntityType.IsAssignableFrom(type) || type.IsAbstract)
                 return null;
 
             var dynamicEntity = (DynamicEntity)Activator.CreateInstance(type);

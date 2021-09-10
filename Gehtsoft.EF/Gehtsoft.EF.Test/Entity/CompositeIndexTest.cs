@@ -71,5 +71,28 @@ namespace Gehtsoft.EF.Test.Entity
             md.Should().HaveCount(2);
             md.Should().HaveOneElementAfterTheOther(f => f.Name == "field1", f => f.Name == "field2");
         }
+
+        [Entity(Scope = "compsiteindextest")]
+        public class Entity
+        {
+            [EntityProperty(Field = "x")]
+            public int F1 { get; set; }
+
+            [EntityProperty(Field = "y")]
+            public int F2 { get; set; }
+        }
+
+        [Fact]
+        public void TroughEntity()
+        {
+            CompositeIndex md = new CompositeIndex(typeof(Entity), "test1")
+            {
+                "y",
+                "F1"
+            };
+            md.EntityType.Should().Be(typeof(Entity));
+            md.Should().HaveCount(2);
+            md.Should().HaveOneElementAfterTheOther(f => f.Name == "y", f => f.Name == "x");
+        }
     }
 }

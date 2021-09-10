@@ -102,16 +102,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             /// </summary>
             public string Path => Item.Path;
 
-            private readonly string mAlias;
-
             /// <summary>
             /// Alias of the field in the query.
             /// </summary>
-            public string Alias => mAlias ?? $"{Item.QueryEntity.Alias}.{Item.Column.Name}";
+            public string Alias { get; }
 
-            internal InQueryName(EntityQueryWithWhereBuilder.EntityQueryItem item, string alias = null)
+            internal InQueryName(EntityQueryWithWhereBuilder.EntityQueryItem item, string alias)
             {
-                mAlias = alias;
+                if (alias == null)
+                    Alias = $"{Item.QueryEntity.Alias}.{Item.Column.Name}";
+
+                Alias = alias;
                 Item = item;
             }
         }

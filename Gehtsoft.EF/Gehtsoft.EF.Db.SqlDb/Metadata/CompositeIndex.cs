@@ -4,6 +4,7 @@ using Gehtsoft.EF.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Gehtsoft.EF.Db.SqlDb.Metadata
 {
@@ -29,18 +30,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
             /// The sorting direction
             /// </summary>
             public SortDir Direction { get; }
-
-            internal Field(string name) : this(null, name, SortDir.Asc)
-            {
-            }
-
-            internal Field(string name, SortDir direction) : this(null, name, direction)
-            {
-            }
-
-            internal Field(SqlFunctionId? function, string name) : this(function, name, SortDir.Asc)
-            {
-            }
 
             internal Field(SqlFunctionId? function, string name, SortDir direction)
             {
@@ -155,6 +144,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
             return ((IEnumerable<Field>)mFields).GetEnumerator();
         }
 
+        [ExcludeFromCodeCoverage]
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable)mFields).GetEnumerator();

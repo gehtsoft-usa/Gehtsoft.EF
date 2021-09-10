@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
@@ -272,11 +274,15 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             mSelectQueryBuilder.AddGroupBy(item.Column, item.QueryEntity);
         }
 
+        [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         public void AddOrderByExpr(string expression, SortDir direction = SortDir.Asc)
         {
             mSelectQueryBuilder.AddOrderByExpr(expression, direction);
         }
 
+        [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
         internal void AddGroupByExpr(string expression)
         {
             mSelectQueryBuilder.AddGroupByExpr(expression);

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -152,6 +153,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// Execute update query.
         /// </summary>
         /// <returns></returns>
+        [ExcludeFromCodeCoverage]
         public int ExecuteNoData()
         {
             RowsAffected = mQuery.ExecuteNoData();
@@ -161,6 +163,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <summary>
         /// Execute select query.
         /// </summary>
+        [ExcludeFromCodeCoverage]
         public void ExecuteReader()
         {
             mQuery.ExecuteReader();
@@ -170,6 +173,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// Execute update query asynchronously
         /// <param name="token"/>
         /// </summary>
+        [ExcludeFromCodeCoverage]
         public Task<int> ExecuteNoDataAsync(CancellationToken? token = null)
         {
             return mQuery.ExecuteNoDataAsync(token);
@@ -180,6 +184,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="token"/>
         /// </summary>
         /// <returns></returns>
+        [ExcludeFromCodeCoverage]
         public Task ExecuteReaderAsync(CancellationToken? token = null)
         {
             return mQuery.ExecuteReaderAsync(token);
@@ -190,6 +195,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// </summary>
         /// <param name="name"></param>
         /// <param name="type"></param>
+        [ExcludeFromCodeCoverage]
         public virtual void BindNull(string name, DbType type) => mQuery.BindNull(name, type);
 
         /// <summary>
@@ -197,6 +203,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// </summary>
         /// <param name="name"></param>
         /// <param name="type"></param>
+        [ExcludeFromCodeCoverage]
         public void BindOutputParam(string name, DbType type)
         {
             mQuery.BindOutputParam(name, type);
@@ -297,6 +304,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public Task<bool> ReadNextAsync(CancellationToken? token = null) => mQuery.ReadNextAsync(token);
 
+        [ExcludeFromCodeCoverage]
         ~EntityQuery()
         {
             Dispose(false);

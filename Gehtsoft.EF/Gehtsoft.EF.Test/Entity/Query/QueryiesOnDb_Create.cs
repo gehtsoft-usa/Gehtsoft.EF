@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
     [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
     public class QueryiesOnDb_Create : IClassFixture<QueryiesOnDb_Create.Fixture>
     {
-        private const string mFlags = "";//"+sqlite";
+        private const string mFlags = "";
         public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
 
         [Entity(Scope = "createntity0", Table = "ce_table0", Metadata = typeof(Entity0Metadata))]
@@ -279,7 +279,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             connection.DoesObjectExist("ce_dict1", null, "table").Should().BeTrue();
             connection.DoesObjectExist("ce_dict1", "id", "column").Should().BeTrue();
-            connection.DoesObjectExist("ce_dict1", "name", "column").Should().BeTrue();           
+            connection.DoesObjectExist("ce_dict1", "name", "column").Should().BeTrue();
             if (canDrop)
                 connection.DoesObjectExist("ce_dict1", "dict", "column").Should().BeFalse();
             else

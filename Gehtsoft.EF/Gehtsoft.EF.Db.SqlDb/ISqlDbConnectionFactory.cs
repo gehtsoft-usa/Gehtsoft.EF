@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -39,6 +40,7 @@ namespace Gehtsoft.EF.Db.SqlDb
     ///
     /// The implementation uses <see cref="UniversalSqlDbFactory"/>
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class SqlDbUniversalConnectionFactory : ISqlDbConnectionFactory
     {
         private readonly string mDriver, mConnectionString;
@@ -79,6 +81,7 @@ namespace Gehtsoft.EF.Db.SqlDb
     /// <summary>
     /// The factory that uses the existing connection
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class ExistingConnectionFactory : ISqlDbConnectionFactory
     {
         private readonly SqlDbConnection mConnection;
