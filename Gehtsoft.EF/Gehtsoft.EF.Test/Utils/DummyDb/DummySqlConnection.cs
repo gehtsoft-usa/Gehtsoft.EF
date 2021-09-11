@@ -44,5 +44,12 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
                 return ValueTask.FromResult(v);
             return ValueTask.FromResult(v);
         }
+
+        public override AlterTableQueryBuilder GetAlterTableQueryBuilder()
+        {
+#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
+            throw new NotImplementedException();
+#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
+        }
     }
 }

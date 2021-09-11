@@ -75,9 +75,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         /// <summary>
         /// Generates new GUID primary key for the value
-        /// 
+        ///
         /// The method makes 100 attempts to generate a new GUID key.
-        /// 
+        ///
         /// The entity must have GUID primary key.
         /// </summary>
         /// <param name="value"></param>
@@ -85,9 +85,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         /// <summary>
         /// Generates new GUID primary key for the value (async version).
-        /// 
+        ///
         /// The method makes 100 attempts to generate a new GUID key.
-        /// 
+        ///
         /// The entity must have GUID primary key.
         /// </summary>
         /// <param name="value"></param>
@@ -143,11 +143,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         /// <summary>
         /// Saves entity (async version).
-        /// 
+        ///
         /// The entity considered new and is inserted into DB when
         /// * The entity has an `int` primary key and its value is `0`
         /// * The entity has a `GUID` primary key and its value is `Guid.Empty`
-        /// 
+        ///
         /// Entities with non-auto generated primary key aren't supported.
         /// </summary>
         /// <param name="value"></param>
@@ -157,11 +157,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         /// <summary>
         /// Saves entity.
-        /// 
+        ///
         /// The entity considered new and is inserted into DB when
         /// * The entity has an `int` primary key and its value is `0`
         /// * The entity has a `GUID` primary key and its value is `Guid.Empty`
-        /// 
+        ///
         /// Entities with non-auto generated primary key aren't supported.
         /// </summary>
         /// <param name="value"></param>
@@ -197,7 +197,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         /// <summary>
         /// Checks whether the entity can be deleted
-        /// 
+        ///
         /// The method checks whether the entity isn't used in other entities via foreign key references.
         /// </summary>
         /// <param name="value"></param>
@@ -206,7 +206,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         /// <summary>
         /// Checks whether the entity can be deleted (async version)
-        /// 
+        ///
         /// The method checks whether the entity isn't used in other entities via foreign key references.
         /// </summary>
         /// <param name="value"></param>
@@ -215,8 +215,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         public virtual Task<bool> CanDeleteAsync(T value, CancellationToken? token = null) => Connection.CanDeleteAsync<T>(value, null, token);
 
         /// <summary>
-        /// Checks whether the entity can be deleted with exemption of some entity types. 
-        /// 
+        /// Checks whether the entity can be deleted with exemption of some entity types.
+        ///
         /// The method checks whether the entity isn't used in other entities via foreign key references.
         /// </summary>
         /// <param name="value"></param>
@@ -225,8 +225,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         public virtual bool CanDelete(T value, Type[] exceptTypes) => Connection.CanDelete<T>(value, exceptTypes);
 
         /// <summary>
-        /// Checks whether the entity can be deleted with exemption of some entity types (async version). 
-        /// 
+        /// Checks whether the entity can be deleted with exemption of some entity types (async version).
+        ///
         /// The method checks whether the entity isn't used in other entities via foreign key references.
         /// </summary>
         /// <param name="value"></param>
@@ -235,10 +235,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         public virtual Task<bool> CanDeleteAsync(T value, Type[] exceptTypes, CancellationToken? token = null) => Connection.CanDeleteAsync<T>(value, exceptTypes, token);
 
         /// <summary>
-        /// Deletes multiple records using the filter. 
-        /// 
+        /// Deletes multiple records using the filter.
+        ///
         /// The method fails if filter is `null` to avoid unintentional deletion of all records.
-        /// 
+        ///
         /// To delete all pass a filter with no filters defined.
         /// </summary>
         /// <param name="filter"></param>
@@ -246,10 +246,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         public virtual int DeleteMultiple(GenericEntityAccessorFilter filter) => DeleteMultipleCore(true, filter, null).SyncResult();
 
         /// <summary>
-        /// Deletes multiple records using the filter (async version). 
-        /// 
+        /// Deletes multiple records using the filter (async version).
+        ///
         /// The method fails if filter is `null` to avoid unintentional deletion of all records.
-        /// 
+        ///
         /// To delete all pass a filter with no filters defined.
         /// </summary>
         /// <param name="filter"></param>
@@ -294,29 +294,29 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         /// <summary>
         /// Updates multiple entities using update record (async version).
-        /// 
+        ///
         /// The method fails if filter is `null` to avoid unintentional changing of all records.
-        /// 
+        ///
         /// To delete all pass a filter with no filters defined.
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="update"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public virtual Task<int> UpdateMultipleAsync(GenericEntityAccessorFilter filter, GenericEntityAccessorUpdateRecord update, CancellationToken? token = null) 
+        public virtual Task<int> UpdateMultipleAsync(GenericEntityAccessorFilter filter, GenericEntityAccessorUpdateRecord update, CancellationToken? token = null)
             => UpdateMultipleCore(false, filter, update, token).AsTask();
 
         /// <summary>
         /// Updates multiple entities using update record (async version).
-        /// 
+        ///
         /// The method fails if filter is `null` to avoid unintentional changing of all records.
-        /// 
+        ///
         /// To delete all pass a filter with no filters defined.
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="update"></param>
         /// <returns></returns>
-        public virtual int UpdateMultiple(GenericEntityAccessorFilter filter, GenericEntityAccessorUpdateRecord update) 
+        public virtual int UpdateMultiple(GenericEntityAccessorFilter filter, GenericEntityAccessorUpdateRecord update)
             => UpdateMultipleCore(true, filter, update, null).SyncResult();
 
         protected virtual async ValueTask<int> UpdateMultipleCore(bool sync, GenericEntityAccessorFilter filter, string property, object value, CancellationToken? token)
@@ -340,30 +340,31 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         /// <summary>
         /// Updates one property of multiple entities (async version).
-        /// 
+        ///
         /// The method fails if filter is `null` to avoid unintentional changing of all records.
-        /// 
+        ///
         /// To delete all pass a filter with no filters defined.
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="property"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public virtual int UpdateMultiple(GenericEntityAccessorFilter filter, string property, object value) 
+        public virtual int UpdateMultiple(GenericEntityAccessorFilter filter, string property, object value)
             => UpdateMultipleCore(true, filter, property, value, null).SyncResult();
 
         /// <summary>
         /// Updates one property of multiple entities (async version).
-        /// 
+        ///
         /// The method fails if filter is `null` to avoid unintentional changing of all records.
-        /// 
+        ///
         /// To delete all pass a filter with no filters defined.
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="property"></param>
         /// <param name="value"></param>
+        /// <param name="token"></param>
         /// <returns></returns>
-        public virtual Task<int> UpdateMultipleAsync(GenericEntityAccessorFilter filter, string property, object value, CancellationToken? token = null) 
+        public virtual Task<int> UpdateMultipleAsync(GenericEntityAccessorFilter filter, string property, object value, CancellationToken? token = null)
             => UpdateMultipleCore(false, filter, property, value, token).AsTask();
 
         protected virtual async ValueTask<T> GetCore(bool sync, TKey id, CancellationToken? token)
@@ -383,7 +384,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-
         public virtual T Get(TKey id) => GetCore(true, id, null).SyncResult();
 
         /// <summary>
@@ -430,7 +430,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         /// <param name="limit"></param>
         /// <param name="propertiesExclusion"></param>
         /// <returns></returns>
-        public virtual TC Read<TC>(GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion = null)
+        public virtual TC Read<TC>(GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion)
             where TC : IList<T>, new()
             => ReadCore<TC>(true, filter, sortOrder, skip, limit, propertiesExclusion, null).SyncResult();
 
@@ -448,7 +448,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         public virtual Task<TC> ReadAsync<TC>(GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, SelectEntityQueryFilter[] propertiesExclusion, CancellationToken? token = null)
             where TC : IList<T>, new()
             => ReadCore<TC>(false, filter, sortOrder, skip, limit, propertiesExclusion, token).AsTask();
-        
+
         /// <summary>
         /// Reads multiple entities.
         /// </summary>
@@ -457,7 +457,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         /// <param name="sortOrder"></param>
         /// <param name="skip"></param>
         /// <param name="limit"></param>
-        /// <param name="propertiesExclusion"></param>
         /// <returns></returns>
         public virtual TC Read<TC>(GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit)
             where TC : IList<T>, new()
@@ -471,7 +470,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         /// <param name="sortOrder"></param>
         /// <param name="skip"></param>
         /// <param name="limit"></param>
-        /// <param name="propertiesExclusion"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         public virtual Task<TC> ReadAsync<TC>(GenericEntityAccessorFilter filter, IEnumerable<GenericEntitySortOrder> sortOrder, int? skip, int? limit, CancellationToken? token = null)
@@ -578,7 +576,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
         /// <param name="reverseDirection"></param>
         /// <param name="propertiesExclusion"></param>
         /// <returns></returns>
-
         public virtual T NextEntity(T entity, IEnumerable<GenericEntitySortOrder> sortOrder, GenericEntityAccessorFilter filter, bool reverseDirection = false, SelectEntityQueryFilter[] propertiesExclusion = null)
             => NextEntityCore(true, entity, sortOrder, filter, reverseDirection, propertiesExclusion, null).SyncResult();
 

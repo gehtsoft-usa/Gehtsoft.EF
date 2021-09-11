@@ -194,7 +194,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
 
         /// <summary>
-        /// Creates the connection asyncronously.
+        /// Creates the connection asynchronously.
         /// </summary>
         /// <param name="dbname"></param>
         /// <param name="connectionString"></param>

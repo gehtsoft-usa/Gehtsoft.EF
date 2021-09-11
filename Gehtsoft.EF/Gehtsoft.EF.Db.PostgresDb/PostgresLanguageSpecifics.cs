@@ -97,7 +97,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
             if (value is bool b)
                 return b ? "TRUE" : "FALSE";
             if (value is DateTime dt)
-                return $"CAST('{dt.Year:0000}-{dt.Month:00}-{dt.Day:00}' AS DATE) ";
+                return $"CAST('{dt.Year:0000}-{dt.Month:00}-{dt.Day:00}' AS DATE)";
             return base.FormatValue(value);
         }
 

@@ -335,10 +335,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// Gets query builder to modify the table.
         /// </summary>
         /// <returns></returns>
-        public virtual AlterTableQueryBuilder GetAlterTableQueryBuilder()
-        {
-            throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
-        }
+        public abstract AlterTableQueryBuilder GetAlterTableQueryBuilder();
 
         /// <summary>
         /// Gets builder to create a view.

@@ -236,7 +236,10 @@ namespace Gehtsoft.EF.Db.SqliteDb
             if (value is bool b)
                 return FormatValue(b ? 1 : 0);
             if (value is DateTime dt)
-                return FormatValue(DateTimeTool.ToOADate(dt));
+            {
+                ToDbValue(ref value, typeof(DateTime), out DbType _);
+                return FormatValue(value);
+            }
             return base.FormatValue(value);
         }
 

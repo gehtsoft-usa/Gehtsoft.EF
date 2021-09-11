@@ -7,6 +7,8 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Utils;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {
@@ -625,15 +627,17 @@ namespace Gehtsoft.EF.Db.SqlDb
             if (value is null)
                 return "NULL";
             if (value is short sw)
-                return (sw).ToString();
+                return (sw).ToString(CultureInfo.InvariantCulture);
             if (value is int iv)
-                return (iv).ToString();
+                return (iv).ToString(CultureInfo.InvariantCulture);
             if (value is long lv)
-                return (lv).ToString();
+                return (lv).ToString(CultureInfo.InvariantCulture);
             if (value is float flt)
-                return (flt).ToString();
+                return (flt).ToString(CultureInfo.InvariantCulture);
             if (value is double dblV)
-                return (dblV).ToString();
+                return (dblV).ToString(CultureInfo.InvariantCulture);
+            if (value is decimal dcV)
+                return (dcV).ToString(CultureInfo.InvariantCulture);
             if (value is string s)
             {
                 if (s.Contains("\r") || s.Contains("\n") || s.Contains("'"))
@@ -684,6 +688,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         public virtual bool HierarchicalQuerySupported => true;
     }
 
+    [ExcludeFromCodeCoverage]
     internal class Sql92LanguageSpecifics : SqlDbLanguageSpecifics
     {
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
