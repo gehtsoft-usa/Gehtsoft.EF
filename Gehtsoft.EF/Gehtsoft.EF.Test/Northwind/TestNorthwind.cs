@@ -174,5 +174,26 @@ namespace Gehtsoft.EF.Test.Northwind
                 query.GetCount().Should().Be(1);
             }
         }
+
+        [Theory]
+        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [TestOrder(20)]
+        public void Select1(string driver)
+        {
+            var connection = mFixture.GetInstance(driver) as IEntityContext;
+            var cats = mFixture.Snapshot.Categories.OrderBy(o => o.CategoryID).ToArray();
+
+            using (var query = connection.Select<Category>())
+            {
+                query.Order.Add(nameof(Category.CategoryName));
+                query.Skip = 2;
+                query.Take = 5;
+
+                var cats1 = query.ReadAll<Category>();
+                cats1.Should().HaveCount(5);
+                cats1[0].CategoryID.Should().Be(cats[2].CategoryID);
+                cats1.Should().BeInAscendingOrder(o => o.CategoryID);
+            }
+        }
     }
 }

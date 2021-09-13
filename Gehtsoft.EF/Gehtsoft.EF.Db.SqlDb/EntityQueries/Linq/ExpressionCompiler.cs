@@ -24,6 +24,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             internal QueryBuilderEntity QueryBuilderEntity { get; set; }
         }
 
+        /*
         private List<ForcedTypeInfo> mForcedTypes = null;
 
         internal void AddForcedType(QueryBuilderEntity entity)
@@ -33,6 +34,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
             mForcedTypes.Add(new ForcedTypeInfo() { EntityType = entity.EntityType, QueryBuilderEntity = entity });
         }
+        */
 
         internal class Result
         {
@@ -84,6 +86,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
         public void ThrowReferenceArgument() => throw new ArgumentException("The operation requires a reference as an argument", "reference");
 #pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one 
+
+        public Result Visit<T, TR>(Expression<Func<T, TR>> expression) => Visit(expression.Body);
+
+        public Result Visit<T, T1, TR>(Expression<Func<T, T1, TR>> expression) => Visit(expression.Body);
 
         public Result Visit(Expression node)
         {
@@ -348,6 +354,24 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         int occurrence = (int)Expression.Lambda(arrayExpression.Right).Compile().DynamicInvoke();
                         EntityQueryWithWhereBuilder.EntityQueryItem r = mQuery.GetItem(parameterType, node.Member.Name, occurrence);
                         return r;
+                    }
+                }
+                else if (node.Expression.NodeType == ExpressionType.Call)
+                {
+                    MethodCallExpression call = (MethodCallExpression)node.Expression;
+                    if (call.Object.NodeType == ExpressionType.Parameter &&
+                        call.Method.Name == "Get" &&
+                        call.Arguments.Count == 1 &&
+                        call.Arguments[0].Type == typeof(int))
+                    {
+                        var pe = (ParameterExpression)call.Object;
+                        if (pe.Type.IsArray)
+                        {
+                            var elementType = pe.Type.GetElementType();
+                            int occurrence = (int)Expression.Lambda(call.Arguments[0]).Compile().DynamicInvoke();
+                            EntityQueryWithWhereBuilder.EntityQueryItem r = mQuery.GetItem(elementType, node.Member.Name, occurrence);
+                            return r;
+                        }
                     }
                 }
                 else if (node.Expression.Type == typeof(ConditionEntityQueryBase.InQueryName))

@@ -339,6 +339,15 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             => GetDropEntityQuery(connection, typeof(T));
 
         /// <summary>
+        /// Returns the query that drops the entity view (generic version).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="connection"></param>
+        /// <returns></returns>
+        public static EntityQuery GetDropViewQuery<T>(this SqlDbConnection connection)
+            => GetDropViewQuery(connection, typeof(T));
+
+        /// <summary>
         /// Returns the query that inserts one entity (generic version).
         /// </summary>
         /// <typeparam name="T"></typeparam>

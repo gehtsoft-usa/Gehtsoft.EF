@@ -136,7 +136,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
             public int Value { get; set; }
         }
 
-
         public class Fixture : ConnectionFixtureBase
         {
             public bool DeleteOnDispose { get; } = true;
@@ -445,7 +444,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var accessor = new GenericEntityAccessor<Dict, int>(connection);
             using var delayed = new DelayedAction(() => accessor.DeleteMultiple(new DictFilter()));
 
-            var src = CreateDict(accessor, 20);
+            CreateDict(accessor, 20);
             var all = accessor.Read<EntityCollection<Dict>>(new DictFilter() { Name = "%5%" }, new[] { new GenericEntitySortOrder("Id") }, null, null);
             all.Should().NotBeEmpty();
             all.Should().HaveAllElementsMatching(m => m.Name.Contains('5'));
@@ -461,7 +460,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var accessor = new GenericEntityAccessor<Dict, int>(connection);
             using var delayed = new DelayedAction(() => accessor.DeleteMultiple(new DictFilter()));
 
-            var src = CreateDict(accessor, 20);
+            CreateDict(accessor, 20);
             var all = await accessor.ReadAsync<EntityCollection<Dict>>(new DictFilter() { Name = "%5%" }, new[] { new GenericEntitySortOrder("Id") }, null, null);
             all.Should().NotBeEmpty();
             all.Should().HaveAllElementsMatching(m => m.Name.Contains('5'));
@@ -559,7 +558,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             });
 
             var dict = CreateDict(dictAccessor, 5);
-            var entities = CreateEntity(entityAccessor, 10, dict, false);
+            CreateEntity(entityAccessor, 10, dict, false);
 
             var filter = new EntityFilter()
             {
@@ -597,7 +596,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             });
 
             var dict = CreateDict(dictAccessor, 5);
-            var entities = CreateEntity(entityAccessor, 10, dict, false);
+            CreateEntity(entityAccessor, 10, dict, false);
 
             var filter = new EntityFilter()
             {
@@ -642,7 +641,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             });
 
             var dict = CreateDict(dictAccessor, 3);
-            var entities = CreateEntity(entityAccessor, 10, dict, false);
+            CreateEntity(entityAccessor, 10, dict, false);
 
             List<int> ids = new List<int>();
             var all = entityAccessor.Read<List<Entity>>(null, null, null, null);
@@ -689,7 +688,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             });
 
             var dict = CreateDict(dictAccessor, 3);
-            var entities = CreateEntity(entityAccessor, 10, dict, false);
+            CreateEntity(entityAccessor, 10, dict, false);
 
             List<int> ids = new List<int>();
             var all = entityAccessor.Read<List<Entity>>(null, null, null, null);
@@ -836,10 +835,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
         {
             var connection = mFixture.GetInstance(connectionName);
             var dictAccessor = new GenericEntityAccessor<Dict, int>(connection);
-            using var delayed = new DelayedAction(() =>
-            {
-                dictAccessor.DeleteMultiple(new DictFilter());
-            });
+            using var delayed = new DelayedAction(() => dictAccessor.DeleteMultiple(new DictFilter()));
 
             var dict = CreateDict(dictAccessor, 15);
 
@@ -912,7 +908,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
             using var delayed = new DelayedAction(() => ClearAggregateStage(connection));
 
             var aggregatorAccessor = new GenericEntityAccessorWithAggregates<Aggregator, int>(connection, typeof(Aggregat));
-            var aggregatAccessor = new GenericEntityAccessor<Aggregat, int>(connection);
 
             SetAggregateStage(connection);
 
@@ -955,7 +950,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
             using var delayed = new DelayedAction(() => ClearAggregateStage(connection));
 
             var aggregatorAccessor = new GenericEntityAccessorWithAggregates<Aggregator, int>(connection, typeof(Aggregat));
-            var aggregatAccessor = new GenericEntityAccessor<Aggregat, int>(connection);
 
             SetAggregateStage(connection);
 
@@ -973,7 +967,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             (await connection.CanDeleteAsync<Aggregator>(agg[1])).Should().BeFalse();
             (await aggregatorAccessor.CanDeleteAsync(agg[1])).Should().BeTrue();
-
 
             aggregatorAccessor.Delete(agg[1]);
             aggregatorAccessor.Get(agg[1].Id).Should().BeNull();
@@ -1116,7 +1109,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var savedState = aggregatorAccessor.GetAggregates<List<Aggregat>, Aggregat>(aggregator, null, null, null, null);
 
             savedState.Should().HaveCount(4);
-            
+
             savedState.Should().HaveNoElementMatching(e => e.Id == currentState[0].Id);
             savedState.Should().HaveNoElementMatching(e => e.Id == currentState[2].Id);
             savedState.Should().HaveElementMatching(e => e.Id == newItem.Id);

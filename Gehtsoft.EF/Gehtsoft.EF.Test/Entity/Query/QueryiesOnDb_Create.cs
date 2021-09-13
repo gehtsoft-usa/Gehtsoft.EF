@@ -6,6 +6,7 @@ using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Test.Utils;
 using LiquidTestReports.Core.Filters;
@@ -148,6 +149,31 @@ namespace Gehtsoft.EF.Test.Entity.Query
             public Dict1_V2 Dict { get; set; }
         }
 
+        public class View0Metadata<T> : IViewCreationMetadata
+        {
+            public SelectQueryBuilder GetSelectQuery(SqlDbConnection connection)
+            {
+                var td = AllEntities.Get<T>().TableDescriptor;
+                var builder = connection.GetSelectQueryBuilder(td);
+                builder.AddToResultset(td[nameof(Dict0_V1.Name)], nameof(Dict0_V1.Name));
+                return builder;
+            }
+        }
+
+        [Entity(Scope = "createntity1", Table = "ce_view", View = true, Metadata = typeof(View0Metadata<Dict0_V1>))]
+        public class View0_V1
+        {
+            [EntityProperty]
+            public string Name { get; set; }
+        }
+
+        [Entity(Scope = "createntity2", Table = "ce_view", View = true, Metadata = typeof(View0Metadata<Dict2_V2>))]
+        public class View0_V2
+        {
+            [EntityProperty]
+            public string Name { get; set; }
+        }
+
         public class Fixture : ConnectionFixtureBase
         {
             public bool DeleteOnDispose { get; } = false;
@@ -167,6 +193,9 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             private static void Drop(SqlDbConnection connection)
             {
+                using (var query = connection.GetDropViewQuery<View0_V2>())
+                    query.Execute();
+
                 using (var query = connection.GetDropEntityQuery<Entity0>())
                     query.Execute();
 
@@ -251,6 +280,8 @@ namespace Gehtsoft.EF.Test.Entity.Query
             connection.DoesObjectExist("ce_table1", "name", "column").Should().BeTrue();
             connection.DoesObjectExist("ce_table1", "note", "column").Should().BeTrue();
             connection.DoesObjectExist("ce_table1", "dict", "column").Should().BeTrue();
+
+            connection.DoesObjectExist("ce_view", null, "view").Should().BeTrue();
         }
 
         [TestOrder(21)]
@@ -295,6 +326,8 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 connection.DoesObjectExist("ce_table1", "note", "column").Should().BeTrue();
             connection.DoesObjectExist("ce_table1", "note1", "column").Should().BeTrue();
             connection.DoesObjectExist("ce_table1", "dict", "column").Should().BeTrue();
+
+            connection.DoesObjectExist("ce_view", null, "view").Should().BeTrue();
         }
     }
 }

@@ -150,7 +150,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 connectingColumn = entity.TableDescriptor.PrimaryKey;
 
                 joinType = (item.Column.Nullable || open) ? TableJoinType.Left : TableJoinType.Inner;
-                pathBase = item.Column.Name;
+                pathBase = item.Column.ID;
             }
 
             if (connectToEntity == null || connectToColumn == null)

@@ -13,7 +13,7 @@ using Gehtsoft.EF.Utils;
 namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 {
     /// <summary>
-    /// The action for widow aggregates 
+    /// The action for widow aggregates
     /// </summary>
     public enum OnWidowNextContentAction
     {
@@ -61,7 +61,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
     ///
     /// Aggregate is an entity related to the main entity with one to many. An example of
     /// aggregates would be order details for an order.
-    /// 
+    ///
     /// The accessor modifies some operations, e.g. when an aggregating entity is deleted,
     /// all aggregates are deleted automatically.
     /// </summary>
@@ -318,7 +318,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 
         /// <summary>
         /// Saves the collection of aggregates (async version).
-        /// 
+        ///
         /// See <see cref="SaveAggregates{TA}(T, IEnumerable{TA}, IEnumerable{TA}, Func{TA, TA, bool}, Func{TA, TA, bool}, Func{TA, bool}, Func{TA, bool}, OnWidowNextContentAction)"/>
         /// for details.
         /// </summary>
