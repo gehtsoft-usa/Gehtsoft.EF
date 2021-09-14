@@ -156,6 +156,41 @@ namespace Gehtsoft.EF.Db.SqliteDb
                     return s;
                 return s.Substring(0, l);
             });
+
+            connection.CreateFunction("TOSTRING", (object v) =>
+            {
+                if (v == null)
+                    return null;
+                if (v is int i)
+                    return i.ToString(CultureInfo.InvariantCulture);
+                if (v is double d)
+                    return d.ToString(CultureInfo.InvariantCulture);
+                if (v is float f)
+                    return f.ToString(CultureInfo.InvariantCulture);
+                if (v is decimal dc)
+                    return dc.ToString(CultureInfo.InvariantCulture);
+                if (v is string s)
+                    return s;
+                return v.ToString();
+            });
+
+            connection.CreateFunction("TOREAL", (object v) =>
+            {
+                if (v == null)
+                    return 0;
+                if (v is int i)
+                    return (double)i;
+                if (v is double d)
+                    return d;
+                if (v is float f)
+                    return (double)f;
+                if (v is decimal dc)
+                    return (double)dc;
+                if (v is string s)
+                    return double.TryParse(s, out double dv) ? dv : 0;
+                return 0;
+            });
+
         }
 
         protected override SqlDbQuery ConstructQuery()

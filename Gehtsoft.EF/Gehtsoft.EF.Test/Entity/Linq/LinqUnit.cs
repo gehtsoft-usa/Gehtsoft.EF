@@ -20,8 +20,11 @@ namespace Gehtsoft.EF.Test.Entity.Linq
     public static class StringAssertionsExtension
     {
         public static AndConstraint<StringAssertions> MatchPattern(this StringAssertions s, string pattern, string because = null, params object[] args)
+            => MatchPattern(s, null, pattern, because, args);
+
+        public static AndConstraint<StringAssertions> MatchPattern(this StringAssertions s, SelectEntitiesQueryBase query, string pattern, string because = null, params object[] args)
         {
-            var re = new Regex(ProcessRegex(pattern));
+            var re = new Regex(ProcessRegex(pattern, query));
             Execute.Assertion
                 .BecauseOf(because, args)
                 .Given(() => s.Subject)
@@ -30,18 +33,18 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             return new AndConstraint<StringAssertions>(s);
         }
 
-        private static string ProcessRegex(string mask)
+        private static string ProcessRegex(string pattern, SelectEntitiesQueryBase query)
         {
             StringBuilder r = new StringBuilder();
             r.Append('^');
-            for (int i = 0; i < mask.Length; i++)
+            for (int i = 0; i < pattern.Length; i++)
             {
-                var c = mask[i];
+                var c = pattern[i];
                 switch (c)
                 {
                     case '@':
                         i++;
-                        c = mask[i];
+                        c = pattern[i];
                         switch (c)
                         {
                             case '@':
@@ -52,6 +55,19 @@ namespace Gehtsoft.EF.Test.Entity.Linq
                                 break;
                             case 'p':
                                 r.Append(@"@leq(\d+)");
+                                break;
+                            case '1':
+                            case '2':
+                            case '3':
+                            case '4':
+                            case '5':
+                            case '6':
+                            case '7':
+                            case '8':
+                            case '9':
+                                if (query == null)
+                                    throw new ArgumentException("Specify query in order to use references to the alias (e.g. @1)", nameof(pattern));
+                                r.Append(query.SelectBuilder.Entities[c - '1'].Alias);
                                 break;
                             default:
                                 r.Append(c);
@@ -159,7 +175,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
         }
 
         [Fact]
-        public void Field1_OneEntityQuery()
+        public void Field_OneEntityQuery()
         {
             var parameter = Expression.Parameter(typeof(Dict));
             var ex = Expression.PropertyOrField(parameter, nameof(Dict.Name));
@@ -173,7 +189,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
         }
 
         [Fact]
-        public void Field2_DictionaryOfMainEntity()
+        public void Field_DictionaryOfMainEntity()
         {
             var parameter = Expression.Parameter(typeof(Entity));
             var ex = Expression.PropertyOrField(Expression.PropertyOrField(parameter, nameof(Entity.Reference)), nameof(Dict.Name));
@@ -189,7 +205,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
         }
 
         [Fact]
-        public void Field3_ConnectedEntity()
+        public void Field_ConnectedEntity()
         {
             var parameter = Expression.Parameter(typeof(Entity));
             var ex = Expression.PropertyOrField(parameter, nameof(Entity.IntValue));
@@ -205,7 +221,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
         }
 
         [Fact]
-        public void Field4_SecondOccurrenceOfEntity()
+        public void Field_SecondOccurrenceOfEntity()
         {
             var parameter = Expression.Parameter(typeof(Entity[]));
             var ex = Expression.PropertyOrField(
@@ -224,7 +240,346 @@ namespace Gehtsoft.EF.Test.Entity.Linq
         }
 
         [Fact]
-        public void Field5_SecondOccurrenceOfEntity()
+        public void Functions_Concat()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+            
+            var ec = new ExpressionCompiler(query);
+            var r = ec.Visit<Entity, string>(e => e.StringValue + e.Reference.Name);
+
+            r.Expression.ToString().Should().MatchPattern(query, "@1.stringvalue || @1.name");
+        }
+
+        [Fact]
+        public void Field_NullableFieldValue_NotNull()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Entity, bool>(e => e.NullableIntValue != null);
+            r.Expression.ToString().Should().MatchPattern(query, "(@1.nullableintvalue˽IS˽NOT˽NULL)");
+        }
+
+        [Fact]
+        public void Field_NullableFieldValue_IsNull()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Entity, bool>(e => e.NullableIntValue == null);
+            r.Expression.ToString().Should().MatchPattern(query, "(@1.nullableintvalue˽IS˽NULL)");
+        }
+
+        [Fact]
+        public void Field_NullableFieldValue_Value()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Entity, bool>(e => e.NullableIntValue != null && e.NullableIntValue.Value > 5);
+            r.Expression.ToString().Should().MatchPattern(query, "((@1.nullableintvalue˽IS˽NOT˽NULL) AND (@1.nullableintvalue > @p))");
+        }
+
+        [Fact]
+        public void Functions_ImplicitConversion()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Entity, double>(e => Math.Abs((double)e.IntValue));
+            r.Expression.ToString().Should().MatchPattern(query, "ABS((TOREAL(@1.intvalue)))");
+
+            r = ec.Visit<Entity, int>(e => (int)e.RealValue + 1);
+            r.Expression.ToString().Should().MatchPattern(query, "((TOINT(@1.realvalue)) + @p)");
+
+            r = ec.Visit<Entity, string>(e => e.IntValue.ToString());
+            r.Expression.ToString().Should().MatchPattern(query, "TOSTRING(@1.intvalue)");
+
+            r = ec.Visit<Entity, string>(e => e.RealValue.ToString());
+            r.Expression.ToString().Should().MatchPattern(query, "TOSTRING(@1.realvalue)");
+
+            r = ec.Visit<Entity, string>(e => e.BooleanValue.ToString());
+            r.Expression.ToString().Should().MatchPattern(query, "TOSTRING(@1.booleanvalue)");
+
+            r = ec.Visit<Entity, string>(e => e.NullableIntValue.ToString());
+            r.Expression.ToString().Should().MatchPattern(query, "TOSTRING(@1.nullableintvalue)");
+
+            r = ec.Visit<Entity, string>(e => e.DateTimeValue.ToString());
+            r.Expression.ToString().Should().MatchPattern(query, "TOSTRING(@1.datetimevalue)");
+
+            r = ec.Visit<Entity, string>(e => e.NullableDataTime.ToString());
+            r.Expression.ToString().Should().MatchPattern(query, "TOSTRING(@1.nullabledatatime)");
+        }
+
+        [Fact]
+        public void Functions_Aggregate()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Entity, int>(e => SqlFunction.Count());
+            r.Expression.ToString().Should().MatchPattern(query, "COUNT(*)");
+            r.HasAggregates.Should().BeTrue();
+
+            r = ec.Visit<Entity, double>(e => SqlFunction.Sum<double>(e.RealValue));
+            r.Expression.ToString().Should().MatchPattern(query, "SUM(@1.realvalue)");
+            r.HasAggregates.Should().BeTrue();
+
+            r = ec.Visit<Entity, double>(e => SqlFunction.Min<double>(e.RealValue));
+            r.Expression.ToString().Should().MatchPattern(query, "MIN(@1.realvalue)");
+            r.HasAggregates.Should().BeTrue();
+
+            r = ec.Visit<Entity, double>(e => SqlFunction.Max<double>(e.RealValue));
+            r.Expression.ToString().Should().MatchPattern(query, "MAX(@1.realvalue)");
+            r.HasAggregates.Should().BeTrue();
+
+            r = ec.Visit<Entity, double>(e => SqlFunction.Avg<double>(e.RealValue));
+            r.Expression.ToString().Should().MatchPattern(query, "AVG(@1.realvalue)");
+            r.HasAggregates.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Functions_Numeric()
+        {
+
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Entity, double>(e => Math.Abs(e.RealValue));
+            r.Expression.ToString().Should().MatchPattern(query, "ABS(@1.realvalue)");
+
+            r = ec.Visit<Entity, double>(e => Math.Round(e.RealValue));
+            r.Expression.ToString().Should().MatchPattern(query, "ROUND(@1.realvalue, 0)");
+
+            r = ec.Visit<Entity, double>(e => Math.Round(e.RealValue, 2));
+            r.Expression.ToString().Should().MatchPattern(query, "ROUND(@1.realvalue, @p)");
+            r.Params[0].Value.Should().Be(2);
+        }
+
+        [Fact]
+        public void Functions_SqlFunctions()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Entity, double>(e => SqlFunction.Abs(e.RealValue));
+            r.Expression.ToString().Should().MatchPattern(query, "ABS(@1.realvalue)");
+
+            r = ec.Visit<Entity, double>(e => SqlFunction.Round(e.RealValue, 0));
+            r.Expression.ToString().Should().MatchPattern(query, "ROUND(@1.realvalue, @p)");
+            r.Params[0].Value.Should().Be(0);
+
+            r = ec.Visit<Entity, double>(e => SqlFunction.Round(e.RealValue, 2));
+            r.Expression.ToString().Should().MatchPattern(query, "ROUND(@1.realvalue, @p)");
+            r.Params[0].Value.Should().Be(2);
+
+            r = ec.Visit<Entity, double>(e => SqlFunction.Round(1.2345, 2));
+            r.Expression.ToString().Should().MatchPattern(query, "ROUND(@p, @p)");
+            r.Params[0].Value.Should().Be(1.2345);
+            r.Params[1].Value.Should().Be(2);
+
+            r = ec.Visit<Entity, string>(e => SqlFunction.Trim(e.StringValue));
+            r.Expression.ToString().Should().MatchPattern(query, "TRIM(@1.stringvalue)");
+
+            r = ec.Visit<Entity, string>(e => SqlFunction.TrimLeft(e.StringValue));
+            r.Expression.ToString().Should().MatchPattern(query, "LTRIM(@1.stringvalue)");
+
+            r = ec.Visit<Entity, string>(e => SqlFunction.TrimRight(e.StringValue));
+            r.Expression.ToString().Should().MatchPattern(query, "RTRIM(@1.stringvalue)");
+
+            r = ec.Visit<Entity, string>(e => SqlFunction.Upper(e.StringValue));
+            r.Expression.ToString().Should().MatchPattern(query, "UPPER(@1.stringvalue)");
+
+            r = ec.Visit<Entity, string>(e => SqlFunction.Lower(e.StringValue));
+            r.Expression.ToString().Should().MatchPattern(query, "LOWER(@1.stringvalue)");
+
+            r = ec.Visit<Entity, string>(e => SqlFunction.Lower("abc"));
+            r.Expression.ToString().Should().MatchPattern(query, "LOWER(@p)");
+            r.Params[0].Value.Should().Be("abc");
+
+            r = ec.Visit<Entity, string>(e => SqlFunction.Left(e.StringValue, 5));
+            r.Expression.ToString().Should().MatchPattern(query, "LEFT(@1.stringvalue, @p)");
+            r.Params[0].Value.Should().Be(5);
+
+            r = ec.Visit<Entity, bool>(e => SqlFunction.Like(e.StringValue, "abc%"));
+            r.Expression.ToString().Should().MatchPattern(query, "@1.stringvalue LIKE @p");
+            r.Params[0].Value.Should().Be("abc%");
+
+            r = ec.Visit<Entity, string>(e => SqlFunction.ToString(e.IntValue));
+            r.Expression.ToString().Should().MatchPattern(query, "TOSTRING(@1.intvalue)");
+
+            r = ec.Visit<Entity, int>(e => SqlFunction.ToInteger(e.StringValue));
+            r.Expression.ToString().Should().MatchPattern(query, "TOINT(@1.stringvalue)");
+
+            r = ec.Visit<Entity, double>(e => SqlFunction.ToDouble(e.StringValue));
+            r.Expression.ToString().Should().MatchPattern(query, "TOREAL(@1.stringvalue)");
+
+            r = ec.Visit<Entity, DateTime>(e => SqlFunction.ToDate(e.StringValue));
+            r.Expression.ToString().Should().MatchPattern(query, "TODATE(@1.stringvalue)");
+
+            r = ec.Visit<Entity, DateTime>(e => SqlFunction.ToTimestamp(e.StringValue));
+            r.Expression.ToString().Should().MatchPattern(query, "TODATETIME(@1.stringvalue)");
+
+            r = ec.Visit<Entity, int>(e => SqlFunction.Year(e.DateTimeValue));
+            r.Expression.ToString().Should().MatchPattern(query, "YEAR(@1.datetimevalue)");
+
+            r = ec.Visit<Entity, int>(e => SqlFunction.Month(e.DateTimeValue));
+            r.Expression.ToString().Should().MatchPattern(query, "MONTH(@1.datetimevalue)");
+
+            r = ec.Visit<Entity, int>(e => SqlFunction.Day(e.DateTimeValue));
+            r.Expression.ToString().Should().MatchPattern(query, "DAY(@1.datetimevalue)");
+
+            r = ec.Visit<Entity, int>(e => SqlFunction.Hour(e.DateTimeValue));
+            r.Expression.ToString().Should().MatchPattern(query, "HOUR(@1.datetimevalue)");
+
+            r = ec.Visit<Entity, int>(e => SqlFunction.Minute(e.DateTimeValue));
+            r.Expression.ToString().Should().MatchPattern(query, "MINUTE(@1.datetimevalue)");
+
+            r = ec.Visit<Entity, int>(e => SqlFunction.Second(e.DateTimeValue));
+            r.Expression.ToString().Should().MatchPattern(query, "SECOND(@1.datetimevalue)");
+
+            r = ec.Visit<Entity, string>(e => SqlFunction.Concat(e.StringValue, e.Reference.Name));
+            r.Expression.ToString().Should().MatchPattern(query, "@1.stringvalue || @2.name");
+        }
+
+        [Fact]
+        public void Functions_SqlFunctions_In()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+            using var subquery = dummyConnection.GetSelectEntitiesQueryBase<Dict>();
+            subquery.AddToResultset(nameof(Dict.ID));
+            subquery.Where.Property(nameof(Dict.Name)).Eq().Reference(query.GetReference(typeof(Dict), nameof(Dict.Name)));
+
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Dict, bool>(d => SqlFunction.In(d, subquery));
+            r.Expression.ToString().Should().MatchPattern(query, " @2.id IN (SELECT @a.id FROM Dict AS @a WHERE @a.name = @2.name)");
+
+            r = ec.Visit<Dict, bool>(d => SqlFunction.In(d, subquery.SelectBuilder));
+            r.Expression.ToString().Should().MatchPattern(query, " @2.id IN (SELECT @a.id FROM Dict AS @a WHERE @a.name = @2.name)");
+        }
+
+        [Fact]
+        public void Functions_SqlFunctions_NotIn()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+            using var subquery = dummyConnection.GetSelectEntitiesQueryBase<Dict>();
+            subquery.AddToResultset(nameof(Dict.ID));
+            subquery.Where.Property(nameof(Dict.Name)).Eq().Reference(query.GetReference(typeof(Dict), nameof(Dict.Name)));
+
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Dict, bool>(d => SqlFunction.NotIn(d, subquery));
+            r.Expression.ToString().Should().MatchPattern(query, " @2.id NOT IN (SELECT @a.id FROM Dict AS @a WHERE @a.name = @2.name)");
+
+            r = ec.Visit<Dict, bool>(d => SqlFunction.NotIn(d, subquery.SelectBuilder));
+            r.Expression.ToString().Should().MatchPattern(query, " @2.id NOT IN (SELECT @a.id FROM Dict AS @a WHERE @a.name = @2.name)");
+        }
+
+        [Fact]
+        public void Functions_SqlFunctions_Exist()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+            using var subquery = dummyConnection.GetSelectEntitiesQueryBase<Dict>();
+            subquery.AddToResultset(nameof(Dict.ID));
+            subquery.Where.Property(nameof(Dict.Name)).Eq().Reference(query.GetReference(typeof(Dict), nameof(Dict.Name)));
+
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Dict, bool>(d => SqlFunction.Exists(subquery));
+            r.Expression.ToString().Should().MatchPattern(query, " EXISTS (SELECT @a.id FROM Dict AS @a WHERE @a.name = @2.name)");
+
+            r = ec.Visit<Dict, bool>(d => SqlFunction.Exists(subquery.SelectBuilder));
+            r.Expression.ToString().Should().MatchPattern(query, " EXISTS (SELECT @a.id FROM Dict AS @a WHERE @a.name = @2.name)");
+        }
+
+        [Fact]
+        public void Functions_SqlFunctions_QueryValue()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+            using var subquery = dummyConnection.GetSelectEntitiesQueryBase<Dict>();
+            subquery.AddToResultset(nameof(Dict.ID));
+            subquery.Where.Property(nameof(Dict.Name)).Eq().Reference(query.GetReference(typeof(Dict), nameof(Dict.Name)));
+
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Dict, bool>(d => SqlFunction.Value<int>(subquery)>5);
+            r.Expression.ToString().Should().MatchPattern(query, "((SELECT @a.id FROM Dict AS @a WHERE @a.name = @2.name) > @p)");
+        }
+
+        [Fact]
+        public void Functions_SqlFunctions_NotExist()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+            using var subquery = dummyConnection.GetSelectEntitiesQueryBase<Dict>();
+            subquery.AddToResultset(nameof(Dict.ID));
+            subquery.Where.Property(nameof(Dict.Name)).Eq().Reference(query.GetReference(typeof(Dict), nameof(Dict.Name)));
+
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Dict, bool>(d => SqlFunction.NotExists(subquery));
+            r.Expression.ToString().Should().MatchPattern(query, " NOT EXISTS (SELECT @a.id FROM Dict AS @a WHERE @a.name = @2.name)");
+
+            r = ec.Visit<Dict, bool>(d => SqlFunction.NotExists(subquery.SelectBuilder));
+            r.Expression.ToString().Should().MatchPattern(query, " NOT EXISTS (SELECT @a.id FROM Dict AS @a WHERE @a.name = @2.name)");
+        }
+
+        [Fact]
+        public void Functions_String()
+        {
+
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+
+            var ec = new ExpressionCompiler(query);
+
+            var r = ec.Visit<Entity, string>(e => e.StringValue.Trim());
+            r.Expression.ToString().Should().MatchPattern(query, "TRIM(@1.stringvalue)");
+
+            r = ec.Visit<Entity, string>(e => e.StringValue.TrimStart());
+            r.Expression.ToString().Should().MatchPattern(query, "LTRIM(@1.stringvalue)");
+
+            r = ec.Visit<Entity, string>(e => e.StringValue.TrimEnd());
+            r.Expression.ToString().Should().MatchPattern(query, "RTRIM(@1.stringvalue)");
+
+            r = ec.Visit<Entity, string>(e => e.StringValue.ToUpper());
+            r.Expression.ToString().Should().MatchPattern(query, "UPPER(@1.stringvalue)");
+
+            r = ec.Visit<Entity, string>(e => e.StringValue.ToLower());
+            r.Expression.ToString().Should().MatchPattern(query, "LOWER(@1.stringvalue)");
+
+            r = ec.Visit<Entity, bool>(e => e.StringValue.StartsWith("abc"));
+            r.Expression.ToString().Should().MatchPattern(query, "@1.stringvalue LIKE @p || '%'");
+            r.Params[0].Value.Should().Be("abc");
+        }
+
+        [Fact]
+        public void Field_SecondOccurrenceOfEntity_2()
         {
             using var dummyConnection = new DummySqlConnection();
             using var query = dummyConnection.GetSelectEntitiesQueryBase<Dict>();
@@ -235,6 +590,36 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             var r = ec.Visit<Entity[], int>(e => e[1].IntValue);
 
             r.Expression.ToString().Should().Be(query.GetReference(typeof(Entity), 1, nameof(Entity.IntValue)).Alias);
+        }
+
+        [Fact]
+        public void Field_PrimaryKey()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQueryBase<Dict>();
+            query.AddEntity<Entity>();
+            query.AddEntity<Entity>();
+
+            var ec = new ExpressionCompiler(query);
+            var r = ec.Visit<Entity, Entity>(e => e);
+
+            r.Expression.ToString().Should().MatchPattern(query, "@2.id");
+        }
+
+        [Fact]
+        public void Field_ByReference()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQueryBase<Dict>();
+            query.AddEntity<Entity>();
+            query.AddEntity<Entity>();
+
+            var reference = query.GetReference(typeof(Entity), 1, nameof(Entity.RealValue));
+
+            var ec = new ExpressionCompiler(query);
+            var r = ec.Visit<Entity, bool>(e => SqlFunction.Value<double>(reference) > 5);
+
+            r.Expression.ToString().Should().MatchPattern(query, "(@3.realvalue>@p)");
         }
 
         [Fact]

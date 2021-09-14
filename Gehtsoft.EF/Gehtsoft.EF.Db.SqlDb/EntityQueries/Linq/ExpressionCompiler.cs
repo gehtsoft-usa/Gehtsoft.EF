@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -18,24 +19,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             internal Delegate CompiledExpression { get; set; }
         }
 
-        internal class ForcedTypeInfo
-        {
-            internal Type EntityType { get; set; }
-            internal QueryBuilderEntity QueryBuilderEntity { get; set; }
-        }
-
-        /*
-        private List<ForcedTypeInfo> mForcedTypes = null;
-
-        internal void AddForcedType(QueryBuilderEntity entity)
-        {
-            if (mForcedTypes == null)
-                mForcedTypes = new List<ForcedTypeInfo>();
-
-            mForcedTypes.Add(new ForcedTypeInfo() { EntityType = entity.EntityType, QueryBuilderEntity = entity });
-        }
-        */
-
         internal class Result
         {
             public StringBuilder Expression { get; } = new StringBuilder();
@@ -52,7 +35,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             {
                 IsParameterExpression = true;
                 Expression.Append(specifics.ParameterInQueryPrefix).Append(name);
-                Params.Add(new ExpressionParameter() { Name = $"{specifics.ParameterPrefix}{name}", Value = value });
+                Params.Add(new ExpressionParameter() { Name = specifics.ParameterPrefix + name, Value = value });
             }
 
             public void Add(Result otherResult)
@@ -75,15 +58,19 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             mSpecifics = mQuery.Query.Connection.GetLanguageSpecifics();
         }
 
+        [ExcludeFromCodeCoverage]
         public void ThrowExpressionType(Type type, string parameterName) => throw new ArgumentException($"Unsupported LINQ expression class {type.Name}", parameterName);
 
+        [ExcludeFromCodeCoverage]
         public void ThrowExpressionOperation(ExpressionType type, string parameterName) => throw new ArgumentException($"Unsupported LINQ expression type {type}", parameterName);
 
         public void ThrowUnknowPropertyOfType(Type type, string property, string parameterName) => throw new ArgumentException($"Unknown property {property} of {type.Name}", parameterName);
 
 #pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one 
+        [ExcludeFromCodeCoverage]
         public void ThrowQueryArgument() => throw new ArgumentException("The operation requires a sub query as an argument", "subquery");
 
+        [ExcludeFromCodeCoverage]
         public void ThrowReferenceArgument() => throw new ArgumentException("The operation requires a reference as an argument", "reference");
 #pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one 
 
@@ -272,7 +259,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 case ExpressionType.Equal:
                     if ((node.Right is ConstantExpression expression1) && expression1.Value == null)
                     {
-                        op = " IS NULL ";
+                        op = " IS NULL";
                         suppressRight = true;
                     }
                     else
@@ -285,7 +272,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 case ExpressionType.NotEqual:
                     if ((node.Right is ConstantExpression expression2) && expression2.Value == null)
                     {
-                        op = " IS NOT NULL ";
+                        op = " IS NOT NULL";
                         suppressRight = true;
                     }
                     else
@@ -338,6 +325,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 else if (node.Expression.NodeType == ExpressionType.MemberAccess)
                 {
                     EntityQueryWithWhereBuilder.EntityQueryItem rleft = IsQueryPath((MemberExpression)node.Expression);
+                    if (node.Member.Name == "Value" &&
+                        (node.Expression.Type.IsGenericType && node.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>)) &&
+                        node.Expression.NodeType == ExpressionType.MemberAccess)
+                        return rleft;
                     if (rleft == null)
                         return null;
                     EntityQueryWithWhereBuilder.EntityQueryItem res = mQuery.GetItem($"{rleft.Path}.{node.Member.Name}");
@@ -441,7 +432,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     {
                         object value = Expression.Lambda(argumentResults[0].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
-                        query.SelectEntityBuilder.PrepareQuery();
+                        query.PrepareQuery();
                         res.Expression.Append('(').Append(query.SelectEntityBuilder.Query).Append(')');
                         res.Params.Add(new ExpressionParameter() { Value = query });
                         return res;
@@ -464,7 +455,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     {
                         object value = Expression.Lambda(argumentResults[1].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
-                        query.SelectEntityBuilder.PrepareQuery();
+                        query.PrepareQuery();
                         res
                             .Expression
                             .Append(' ')
@@ -507,7 +498,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     {
                         object value = Expression.Lambda(argumentResults[1].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
-                        query.SelectEntityBuilder.PrepareQuery();
+                        query.PrepareQuery();
                         res
                             .Expression
                             .Append(' ')
@@ -550,7 +541,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     {
                         object value = Expression.Lambda(argumentResults[0].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
-                        query.SelectEntityBuilder.PrepareQuery();
+                        query.PrepareQuery();
                         res
                             .Expression
                             .Append(" EXISTS (")
@@ -589,7 +580,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     {
                         object value = Expression.Lambda(argumentResults[0].Params[0].Value as Expression).Compile().DynamicInvoke();
                         SelectEntitiesQueryBase query = value as SelectEntitiesQueryBase;
-                        query.SelectEntityBuilder.PrepareQuery();
+                        query.PrepareQuery();
                         res
                             .Expression
                             .Append(" NOT EXISTS (")
@@ -763,6 +754,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             else if (callNode.Method.DeclaringType == typeof(string) && callNode.Method.Name == nameof(string.TrimEnd))
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.TrimRight, stringResults));
+            }
+            else if ((callNode.Method.DeclaringType == typeof(int) ||
+                      callNode.Method.DeclaringType == typeof(object) ||
+                      callNode.Method.DeclaringType == typeof(short) ||
+                      callNode.Method.DeclaringType == typeof(double) ||
+                      callNode.Method.DeclaringType == typeof(decimal) ||
+                      callNode.Method.DeclaringType == typeof(bool) ||
+                      callNode.Method.DeclaringType == typeof(DateTime)) &&
+                      callNode.Method.Name == nameof(int.ToString) && (callNode.Arguments?.Count ?? 0) == 0)
+            {
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.ToString, stringResults));
             }
             else
                 throw new ArgumentException($"Function {callNode.Method.DeclaringType.Name}.{callNode.Method.Name} is not supported", nameof(callNode));

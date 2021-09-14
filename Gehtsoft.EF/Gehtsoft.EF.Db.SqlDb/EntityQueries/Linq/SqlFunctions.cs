@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,6 +16,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
     /// and the arguments can be calculated locally, it will be calculated locally. But if `SqlFunction.Upper()` is used
     /// the function will always be executed on the server side.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public static class SqlFunction
     {
         public static string ToString(object value) => value?.ToString() ?? "null";

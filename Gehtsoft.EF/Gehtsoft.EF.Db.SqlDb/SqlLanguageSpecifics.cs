@@ -542,19 +542,19 @@ namespace Gehtsoft.EF.Db.SqlDb
                     return $"{args[0]} LIKE {args[1]}";
 
                 case SqlFunctionId.ToString:
-                    return args[0];
+                    return $"TOSTRING({args[0]})";
 
                 case SqlFunctionId.ToInteger:
-                    return args[0];
+                    return $"TOINT({args[0]})";
 
                 case SqlFunctionId.ToDouble:
-                    return args[0];
+                    return $"TOREAL({args[0]})";
 
                 case SqlFunctionId.ToDate:
-                    return args[0];
+                    return $"TODATE({args[0]})";
 
                 case SqlFunctionId.ToTimestamp:
-                    return args[0];
+                    return $"TODATETIME({args[0]})";
 
                 case SqlFunctionId.Abs:
                     return $"ABS({args[0]})";
