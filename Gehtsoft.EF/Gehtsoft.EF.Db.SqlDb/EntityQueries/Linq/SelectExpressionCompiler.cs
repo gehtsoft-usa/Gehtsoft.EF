@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
         private List<Expression> mWhere;
         public bool HasWhere => mWhere?.Count > 0;
-        public IEnumerable<Expression> Where => mWhere;
+        public IList<Expression> Where => mWhere ?? (mWhere = new List<Expression>());
 
         private List<Expression> mOrderBy;
 
@@ -43,7 +43,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
         public void Compile(Expression expression)
         {
-            if (expression.NodeType == ExpressionType.Constant && expression.Type.IsConstructedGenericType)
+            if ((expression.NodeType == ExpressionType.Constant || expression.NodeType == ExpressionType.Parameter) &&
+                 expression.Type.IsConstructedGenericType)
             {
                 Type candidate = EntityType = expression.Type.GenericTypeArguments[0];
                 Type iface = typeof(QueryableEntity<>).MakeGenericType(candidate);
@@ -151,6 +152,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 else if (callExpression.Method.Name == "Count")
                 {
                     Select = Expression.Lambda(Expression.Call(typeof(SqlFunction).GetMethod("Count")));
+                    if (callExpression.Arguments.Count > 1)
+                    {
+                        if (mWhere == null)
+                            mWhere = new List<Expression>();
+                        mWhere.Add(callExpression.Arguments[1]);
+                    }
                     Compile(callExpression.Arguments[0]);
                 }
                 else if (callExpression.Method.Name == "Max" || callExpression.Method.Name == "Min" || callExpression.Method.Name == "Average" || callExpression.Method.Name == "Sum")

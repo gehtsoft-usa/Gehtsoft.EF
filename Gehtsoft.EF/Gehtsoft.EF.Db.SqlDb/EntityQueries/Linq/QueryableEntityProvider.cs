@@ -139,6 +139,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             }
         }
 
+        internal CompiledQuery CompileToQuery<T>(SqlDbConnection connection, Expression<Action<QueryableEntity<T>>> query)
+            => CompileToQuery(connection, query.Body);
+
         internal CompiledQuery CompileToQuery(SqlDbConnection connection, Expression expression)
         {
             SelectExpressionCompiler compiler = new SelectExpressionCompiler();
@@ -162,12 +165,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 query.EntityQuery = null;
                 query.EntityType = compiler.EntityType;
                 query.ReturnType = compiler.Select.ReturnType;
-            }
-
-            if (compiler.HasWhere)
-            {
-                foreach (Expression subExpression in compiler.Where)
-                    query.Query.Where.Add(LogOp.And, subExpression);
             }
 
             if (compiler.HasOrderBy)
@@ -263,6 +260,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                                 else if (callExpression.Method.Name == "Count")
                                 {
                                     method = typeof(SqlFunction).GetTypeInfo().GetMethod(nameof(SqlFunction.Count));
+                                    if (callExpression.Arguments.Count > 1)
+                                    {
+                                        var l = callExpression.Arguments[1] as LambdaExpression;
+                                        if (l != null)
+                                            compiler.Where.Add(l.Body);
+                                    }
                                     argument = null;
                                 }
                                 else if (callExpression.Method.Name == "Average")
@@ -298,6 +301,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     query.ReadRow = ReadOneValue;
                 }
             }
+
+            if (compiler.HasWhere)
+            {
+                foreach (Expression subExpression in compiler.Where)
+                    query.Query.Where.Add(LogOp.And, subExpression);
+            }
+
             return query;
         }
 

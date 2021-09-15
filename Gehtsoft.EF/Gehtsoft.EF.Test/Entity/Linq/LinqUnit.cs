@@ -1,108 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DnsClient;
 using FluentAssertions;
-using FluentAssertions.Execution;
-using FluentAssertions.Primitives;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Test.Entity.Tools;
 using Gehtsoft.EF.Test.Utils;
 using Gehtsoft.EF.Test.Utils.DummyDb;
 using Xunit;
 
 namespace Gehtsoft.EF.Test.Entity.Linq
 {
-    public static class StringAssertionsExtension
-    {
-        public static AndConstraint<StringAssertions> MatchPattern(this StringAssertions s, string pattern, string because = null, params object[] args)
-            => MatchPattern(s, null, pattern, because, args);
-
-        public static AndConstraint<StringAssertions> MatchPattern(this StringAssertions s, SelectEntitiesQueryBase query, string pattern, string because = null, params object[] args)
-        {
-            var re = new Regex(ProcessRegex(pattern, query));
-            Execute.Assertion
-                .BecauseOf(because, args)
-                .Given(() => s.Subject)
-                .ForCondition(m => re.IsMatch(m))
-                .FailWith("Expected string {0} match pattern {1} but it does not", s.Subject, pattern);
-            return new AndConstraint<StringAssertions>(s);
-        }
-
-        private static string ProcessRegex(string pattern, SelectEntitiesQueryBase query)
-        {
-            StringBuilder r = new StringBuilder();
-            r.Append('^');
-            for (int i = 0; i < pattern.Length; i++)
-            {
-                var c = pattern[i];
-                switch (c)
-                {
-                    case '@':
-                        i++;
-                        c = pattern[i];
-                        switch (c)
-                        {
-                            case '@':
-                                r.Append('@');
-                                break;
-                            case 'a':
-                                r.Append(@"entity(\d+)");
-                                break;
-                            case 'p':
-                                r.Append(@"@leq(\d+)");
-                                break;
-                            case '1':
-                            case '2':
-                            case '3':
-                            case '4':
-                            case '5':
-                            case '6':
-                            case '7':
-                            case '8':
-                            case '9':
-                                if (query == null)
-                                    throw new ArgumentException("Specify query in order to use references to the alias (e.g. @1)", nameof(pattern));
-                                r.Append(query.SelectBuilder.Entities[c - '1'].Alias);
-                                break;
-                            default:
-                                r.Append(c);
-                                break;
-                        }
-                        break;
-                    case ' ':
-                        r.Append(@"\s*");
-                        break;
-                    case '˽':
-                        r.Append(@"\s+");
-                        break;
-                    case '.':
-                    case '(':
-                    case ')':
-                    case '>':
-                    case '<':
-                    case '/':
-                    case '\\':
-                    case '+':
-                    case '*':
-                    case '^':
-                    case '$':
-                        r.Append('\\').Append(c);
-                        break;
-                    default:
-                        r.Append(c);
-                        break;
-                }
-            }
-            r.Append('$');
-            return r.ToString();
-        }
-    }
-
     public class LinqUnit
     {
         [Entity(Scope = "linq1")]
@@ -244,7 +155,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
         {
             using var dummyConnection = new DummySqlConnection();
             using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
-            
+
             var ec = new ExpressionCompiler(query);
             var r = ec.Visit<Entity, string>(e => e.StringValue + e.Reference.Name);
 
@@ -526,7 +437,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
 
             var ec = new ExpressionCompiler(query);
 
-            var r = ec.Visit<Dict, bool>(d => SqlFunction.Value<int>(subquery)>5);
+            var r = ec.Visit<Dict, bool>(d => SqlFunction.Value<int>(subquery) > 5);
             r.Expression.ToString().Should().MatchPattern(query, "((SELECT @a.id FROM Dict AS @a WHERE @a.name = @2.name) > @p)");
         }
 
