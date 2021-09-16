@@ -317,6 +317,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         [InlineData(SqlFunctionId.Hour, "HOUR")]
         [InlineData(SqlFunctionId.Minute, "MINUTE")]
         [InlineData(SqlFunctionId.Second, "SECOND")]
+        [InlineData(SqlFunctionId.Length, "LENGTH")]
         [InlineData(SqlFunctionId.Max, "MAX")]
         [InlineData(SqlFunctionId.Min, "MIN")]
         [InlineData(SqlFunctionId.Avg, "AVG")]
@@ -389,26 +390,27 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         }
 
         [Theory]
-        [InlineData(SqlFunctionId.Abs, "ABS")]
-        [InlineData(SqlFunctionId.Upper, "UPPER")]
-        [InlineData(SqlFunctionId.Lower, "LOWER")]
-        [InlineData(SqlFunctionId.Trim, "TRIM")]
-        [InlineData(SqlFunctionId.Round, "ROUND", 0)]
-        [InlineData(SqlFunctionId.Left, "LEFT", 5)]
-        [InlineData(SqlFunctionId.Year, "YEAR")]
-        [InlineData(SqlFunctionId.Month, "MONTH")]
-        [InlineData(SqlFunctionId.Day, "DAY")]
-        [InlineData(SqlFunctionId.Hour, "HOUR")]
-        [InlineData(SqlFunctionId.Minute, "MINUTE")]
-        [InlineData(SqlFunctionId.Second, "SECOND")]
-        [InlineData(SqlFunctionId.Max, "MAX")]
-        [InlineData(SqlFunctionId.Min, "MIN")]
-        [InlineData(SqlFunctionId.Avg, "AVG")]
-        public void WrapViaExension(SqlFunctionId function, string expectedFunction, object additionalArg = null)
+        [InlineData(nameof(SingleConditionBuilderExtension.Abs), "ABS")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Upper), "UPPER")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Lower), "LOWER")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Trim), "TRIM")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Round), "ROUND", 0)]
+        [InlineData(nameof(SingleConditionBuilderExtension.Left), "LEFT", 5)]
+        [InlineData(nameof(SingleConditionBuilderExtension.Year), "YEAR")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Month), "MONTH")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Day), "DAY")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Hour), "HOUR")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Minute), "MINUTE")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Second), "SECOND")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Length), "LENGTH")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Max), "MAX")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Min), "MIN")]
+        [InlineData(nameof(SingleConditionBuilderExtension.Avg), "AVG")]
+        public void WrapViaExension(string function, string expectedFunction, object additionalArg = null)
         {
             var builder = new ConditionBuilder(mProvider);
 
-            var m = typeof(SingleConditionBuilderExtension).GetMethod(function.ToString());
+            var m = typeof(SingleConditionBuilderExtension).GetMethod(function);
             m.Should().NotBeNull()
                 .And.Subject.GetParameters()
                     .Should().HaveCount(additionalArg == null ? 1 : 2)

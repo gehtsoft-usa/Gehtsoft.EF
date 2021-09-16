@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using DnsClient;
 using FluentAssertions;
+using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Northwind;
 using Gehtsoft.EF.Test.Entity.Tools;
+using Gehtsoft.EF.Test.Northwind;
 using Gehtsoft.EF.Test.Utils;
 using Gehtsoft.EF.Test.Utils.DummyDb;
 using Xunit;
@@ -159,7 +163,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             var ec = new ExpressionCompiler(query);
             var r = ec.Visit<Entity, string>(e => e.StringValue + e.Reference.Name);
 
-            r.Expression.ToString().Should().MatchPattern(query, "@1.stringvalue || @1.name");
+            r.Expression.ToString().Should().MatchPattern(query, "@1.stringvalue || @2.name");
         }
 
         [Fact]
@@ -318,6 +322,12 @@ namespace Gehtsoft.EF.Test.Entity.Linq
 
             r = ec.Visit<Entity, string>(e => SqlFunction.Lower(e.StringValue));
             r.Expression.ToString().Should().MatchPattern(query, "LOWER(@1.stringvalue)");
+
+            r = ec.Visit<Entity, int>(e => SqlFunction.Length(e.StringValue));
+            r.Expression.ToString().Should().MatchPattern(query, "LENGTH(@1.stringvalue)");
+
+            r = ec.Visit<Entity, int>(e => e.StringValue.Length);
+            r.Expression.ToString().Should().MatchPattern(query, "LENGTH(@1.stringvalue)");
 
             r = ec.Visit<Entity, string>(e => SqlFunction.Lower("abc"));
             r.Expression.ToString().Should().MatchPattern(query, "LOWER(@p)");
@@ -615,6 +625,40 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             r.Expression.ToString().Should().MatchPattern(result);
         }
 
+        [Fact]
+        public void BinaryOperator_AddString()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQueryBase<Entity>();
+
+            var ec = new ExpressionCompiler(query);
+            var r = ec.Visit<Entity, string>(e => e.StringValue + e.ID.ToString());
+
+            r.Expression.ToString().Should().MatchPattern("@a.stringvalue || TOSTRING(@a.id)");
+        }
+
+        [Theory]
+        [InlineData(nameof(DateTime.Year), nameof(Entity.DateTimeValue), typeof(DateTime), "YEAR(@a.datetimevalue)")]
+        [InlineData(nameof(DateTime.Month), nameof(Entity.DateTimeValue), typeof(DateTime), "MONTH(@a.datetimevalue)")]
+        [InlineData(nameof(DateTime.Day), nameof(Entity.DateTimeValue), typeof(DateTime), "DAY(@a.datetimevalue)")]
+        [InlineData(nameof(DateTime.Hour), nameof(Entity.DateTimeValue), typeof(DateTime), "HOUR(@a.datetimevalue)")]
+        [InlineData(nameof(DateTime.Minute), nameof(Entity.DateTimeValue), typeof(DateTime), "MINUTE(@a.datetimevalue)")]
+        [InlineData(nameof(DateTime.Second), nameof(Entity.DateTimeValue), typeof(DateTime), "SECOND(@a.datetimevalue)")]
+        public void Property(string property, string field, Type propertyType, string result)
+        {
+            var parameter = Expression.Parameter(typeof(Entity));
+
+            var ex = Expression.PropertyOrField(Expression.PropertyOrField(parameter, field), property);
+
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQueryBase<Entity>();
+
+            var ec = new ExpressionCompiler(query);
+            var r = ec.Visit(ex);
+
+            r.Expression.ToString().Should().MatchPattern(result);
+        }
+
         [Theory]
         [InlineData(nameof(Expression.Negate), nameof(Entity.IntValue), "(-(@a.intvalue))")]
         [InlineData(nameof(Expression.UnaryPlus), nameof(Entity.IntValue), "(+(@a.intvalue))")]
@@ -635,6 +679,200 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             var r = ec.Visit(ex);
 
             r.Expression.ToString().Should().MatchPattern(result);
+        }
+    }
+
+    public class LinqOnDB_CUD : IClassFixture<LinqOnDB_CUD.Fixture>
+    {
+        private const string mFlags = "";
+        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
+
+        [Entity(Scope = "linq4", Table = "LinqDict")]
+        public class Dict
+        {
+            [AutoId]
+            public int ID { get; set; }
+
+            [EntityProperty]
+            public string Name { get; set; }
+        }
+
+        public class Fixture : ConnectionFixtureBase
+        {
+            protected override void ConfigureConnection(SqlDbConnection connection)
+            {
+                Drop(connection);
+                Create(connection);
+            }
+
+            private static void Drop(SqlDbConnection connection)
+            {               
+                using (var query = connection.GetDropEntityQuery<Dict>())
+                    query.Execute();
+            }
+
+            private static void Create(SqlDbConnection connection)
+            {
+                using (var query = connection.GetCreateEntityQuery<Dict>())
+                    query.Execute();
+            }
+        }
+
+        private readonly Fixture mFixture;
+
+        public LinqOnDB_CUD(Fixture fixture)
+        {
+            mFixture = fixture;
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void CreateEntity_Insert(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var dict = connection.GetCollectionOf<Dict>();
+
+            var d = new Dict() { Name = "d1" };
+            dict.Insert(d);
+
+            using var atEnd = new DelayedAction(() =>
+            {
+                using (var query = connection.GetDeleteEntityQuery<Dict>())
+                    query.Execute(d);
+            });
+
+            d.ID.Should().BeGreaterThan(0);
+            dict.Where(o => o.ID == d.ID).Count().Should().Be(1);
+            var d1 = dict.Where(o => o.ID == d.ID).First();
+            d1.Should().NotBeNull();
+            d1.ID.Should().Be(d.ID);
+            d1.Name.Should().Be(d.Name);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void CreateEntity_Save(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var dict = connection.GetCollectionOf<Dict>();
+
+            var d = new Dict() { Name = "d1" };
+            dict.Insert(d);
+            var id = d.ID;
+            d.Name = "d2";
+            dict.Update(d);
+            d.ID.Should().Be(id);
+
+            using var atEnd = new DelayedAction(() =>
+            {
+                using (var query = connection.GetDeleteEntityQuery<Dict>())
+                    query.Execute(d);
+            });
+
+            var d1 = dict.Where(o => o.ID == d.ID).First();
+            d1.Should().NotBeNull();
+            d1.ID.Should().Be(d.ID);
+            d1.Name.Should().Be(d.Name);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void CreateEntity_Delete(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var dict = connection.GetCollectionOf<Dict>();
+
+            var d = new Dict() { Name = "d1" };
+            dict.Insert(d);
+
+            using var atEnd = new DelayedAction(() =>
+            {
+                using (var query = connection.GetDeleteEntityQuery<Dict>())
+                    query.Execute(d);
+            });
+
+            dict.Where(o => o.ID == d.ID).Count().Should().Be(1);
+            dict.Delete(d);
+            dict.Where(o => o.ID == d.ID).Count().Should().Be(0);
+            dict.Where(o => o.ID == d.ID).FirstOrDefault().Should().BeNull();
+        }
+    }
+
+    [Collection(nameof(NorthwindFixture))]
+    public class LinqOnDB_Select
+    {
+        private const string mFlags = "";
+        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
+
+        private readonly NorthwindFixture mFixture;
+
+        public LinqOnDB_Select(NorthwindFixture fixture)
+        {
+            mFixture = fixture;
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Count_All(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var products = connection.GetCollectionOf<Product>();
+
+            products.Count().Should().Be(mFixture.Snapshot.Products.Count);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Count_Where(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var products = connection.GetCollectionOf<Product>();
+
+            products.Count(p => p.QuantityPerUnit.Length > 10)
+                .Should().Be(mFixture.Snapshot.Products.Count(p => p.QuantityPerUnit.Length > 10));
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Max_All(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var orders = connection.GetCollectionOf<OrderDetail>();
+
+            orders.Select(o => SqlFunction.Max(o.Quantity)).First()
+                .Should().Be(mFixture.Snapshot.OrderDetails.Select(o => o.Quantity).Max());
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Avg_All(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var orders = connection.GetCollectionOf<OrderDetail>();
+
+            orders.Select(o => SqlFunction.Avg(o.Quantity)).First()
+                .Should().BeApproximately(mFixture.Snapshot.OrderDetails.Select(o => o.Quantity).Average(), 1e-5);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Min_InGroup(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var orders = connection.GetCollectionOf<OrderDetail>();
+
+            var totals =
+                orders.GroupBy(o => o.Order.OrderID).Select(g => new { Id = g.Key, Quantity = g.Min(v => v.Quantity) }).ToList();
+
+            totals.Count.Should().Be(mFixture.Snapshot.Orders.Count);
+
+            foreach (var total in totals)
+            {
+                int id = (int)total.Id;
+                var q = (double)total.Quantity;
+
+                q.Should().Be(mFixture.Snapshot.OrderDetails.Where(o => o.Order.OrderID == id).Min(o => o.Quantity));
+            }
         }
     }
 }

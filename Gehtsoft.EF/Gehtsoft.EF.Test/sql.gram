@@ -104,7 +104,7 @@ grammar SqlTest
         CAST_FUNC_NAME -> 'TOSTRING'^ | 'TOINT'^ | 'TODOUBLE'^ | 'TODATE'^ | 'TOTIMESTAMP'^;
         CAST_FUNC_CALL -> CAST_FUNC_NAME  '('! CALL_ARGS ')'!;
 
-        STR_FUNC_NAME -> 'TRIM'^ | 'LTRIM'^ | 'RTRIM'^ | 'UPPER'^ | 'LOWER'^;
+        STR_FUNC_NAME -> 'TRIM'^ | 'LTRIM'^ | 'RTRIM'^ | 'UPPER'^ | 'LOWER'^ | 'LENGTH'^;
         STR_FUNC_CALL -> STR_FUNC_NAME  '('! CONCAT_EXPR ')'!;
 
         BOOL_STR_FUNC_NAME -> 'CONTAINS'^ | 'ENDSWITH'^ | 'STARTSWITH'^ ;

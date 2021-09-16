@@ -97,6 +97,8 @@ namespace Gehtsoft.EF.Test.Entity.Tools
                     case '+':
                     case '*':
                     case '^':
+                    case '|':
+                    case '&':
                     case '$':
                         r.Append('\\').Append(c);
                         break;

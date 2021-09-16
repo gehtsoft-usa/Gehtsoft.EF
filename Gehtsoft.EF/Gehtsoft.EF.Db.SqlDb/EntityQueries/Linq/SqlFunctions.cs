@@ -74,6 +74,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
         public static string Left(string value, int count) => value.Substring(0, count);
 
+        public static int Length(string value) => value.Length;
+
         public static string TrimLeft(string value) => value.TrimStart();
 
         public static string TrimRight(string value) => value.TrimEnd();

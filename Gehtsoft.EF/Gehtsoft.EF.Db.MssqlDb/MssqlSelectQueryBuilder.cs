@@ -49,6 +49,9 @@ namespace Gehtsoft.EF.Db.MssqlDb
         {
             StringBuilder query;
 
+            if ((Limit > 0 || Skip > 0) && (mOrderBy == null || mOrderBy.Count == 0))
+                AddOrderBy(Entities[0].Table.PrimaryKey);
+
             if (With != null)
             {
                 query = new StringBuilder();

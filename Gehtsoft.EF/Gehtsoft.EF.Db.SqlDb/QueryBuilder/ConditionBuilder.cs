@@ -488,6 +488,13 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public static SingleConditionBuilder Second(this SingleConditionBuilder builder) => builder.Wrap(SqlFunctionId.Second);
 
         /// <summary>
+        /// Wraps argument into Length function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleConditionBuilder Length(this SingleConditionBuilder builder) => builder.Wrap(SqlFunctionId.Length);
+
+        /// <summary>
         /// Wraps argument into Round function
         /// </summary>
         /// <param name="builder"></param>

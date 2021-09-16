@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,6 +43,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             {
                 Params.AddRange(otherResult.Params);
                 Expression.Append(otherResult.Expression);
+                IsParameterExpression = false;
+            }
+
+            public void AddWithoutExpression(Result otherResult)
+            {
+                Params.AddRange(otherResult.Params);
                 IsParameterExpression = false;
             }
         }
@@ -107,17 +114,77 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             }
             else if (node is MemberExpression memberExpression)
             {
-                EntityQueryWithWhereBuilder.EntityQueryItem queryPath = IsQueryPath(memberExpression);
                 Result res = new Result();
-                if (queryPath != null)
+                if (memberExpression.Expression.Type == typeof(DateTime))
                 {
-                    ConditionEntityQueryBase.InQueryName n = mQuery.GetReference(queryPath);
-                    res.Expression.Append(n.Alias);
-                    return res;
+                    if (memberExpression.Member.Name == nameof(DateTime.Year))
+                    {
+                        var e = Visit(memberExpression.Expression);
+                        res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Year, new string[] { e.Expression.ToString() }));
+                        res.AddWithoutExpression(e);
+                        return res;
+                    }
+                    if (memberExpression.Member.Name == nameof(DateTime.Month))
+                    {
+                        var e = Visit(memberExpression.Expression);
+                        res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Month, new string[] { e.Expression.ToString() }));
+                        res.AddWithoutExpression(e);
+                        return res;
+                    }
+                    if (memberExpression.Member.Name == nameof(DateTime.Day))
+                    {
+                        var e = Visit(memberExpression.Expression);
+                        res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Day, new string[] { e.Expression.ToString() }));
+                        res.AddWithoutExpression(e);
+                        return res;
+                    }
+                    if (memberExpression.Member.Name == nameof(DateTime.Hour))
+                    {
+                        var e = Visit(memberExpression.Expression);
+                        res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Hour, new string[] { e.Expression.ToString() }));
+                        res.AddWithoutExpression(e);
+                        return res;
+                    }
+                    if (memberExpression.Member.Name == nameof(DateTime.Minute))
+                    {
+                        var e = Visit(memberExpression.Expression);
+                        res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Minute, new string[] { e.Expression.ToString() }));
+                        res.AddWithoutExpression(e);
+                        return res;
+                    }
+                    if (memberExpression.Member.Name == nameof(DateTime.Second))
+                    {
+                        var e = Visit(memberExpression.Expression);
+                        res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Second, new string[] { e.Expression.ToString() }));
+                        res.AddWithoutExpression(e);
+                        return res;
+                    }
+                    throw new ArgumentException($"The property {memberExpression.Member.Name} of DateTime type is not supported", nameof(node));
+                }
+                else if (memberExpression.Expression.Type == typeof(string))
+                {
+                    if (memberExpression.Member.Name == nameof(string.Length))
+                    {
+                        var e = Visit(memberExpression.Expression);
+                        res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Length, new string[] { e.Expression.ToString() }));
+                        res.AddWithoutExpression(e);
+                        return res;
+                    }
+                    throw new ArgumentException($"The property {memberExpression.Member.Name} of string type is not supported", nameof(node));
                 }
                 else
                 {
-                    return new Result(mSpecifics, "leq" + NextLeqParam, node);
+                    EntityQueryWithWhereBuilder.EntityQueryItem queryPath = IsQueryPath(memberExpression);
+                    if (queryPath != null)
+                    {
+                        ConditionEntityQueryBase.InQueryName n = mQuery.GetReference(queryPath);
+                        res.Expression.Append(n.Alias);
+                        return res;
+                    }
+                    else
+                    {
+                        return new Result(mSpecifics, "leq" + NextLeqParam, node);
+                    }
                 }
             }
             else if (node is BinaryExpression binaryExpression)
@@ -215,6 +282,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         private Result ProcessBinary(BinaryExpression node, Result left, Result right)
         {
             Result result = new Result();
+
+            if (node.NodeType == ExpressionType.Add &&
+                node.Left.Type == typeof(string) &&
+                node.Right.Type == typeof(string))
+            {
+                result.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Concat, new string[] { left.Expression.ToString(), right.Expression.ToString() }));
+                result.AddWithoutExpression(left);
+                result.AddWithoutExpression(right);
+                return result;
+            }
+            
             result.Expression.Append("(");
             result.HasAggregates = left.HasAggregates || right.HasAggregates;
             result.Add(left);
@@ -721,6 +799,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Second))
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Second, stringResults));
+            }
+            else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Length))
+            {
+                res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Length, stringResults));
             }
             else if (callNode.Method.DeclaringType == typeof(Math) && callNode.Method.Name == nameof(Math.Abs))
             {

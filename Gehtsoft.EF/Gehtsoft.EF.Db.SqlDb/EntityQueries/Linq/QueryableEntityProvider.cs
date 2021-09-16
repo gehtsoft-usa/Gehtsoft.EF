@@ -59,7 +59,26 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         [DocgenIgnore]
         public TResult Execute<TResult>(Expression expression)
         {
-            object r = Execute(expression, typeof(TResult).Name == "IEnumerable`1");
+            bool isEnumerable = false;
+            Type tr = typeof(TResult);
+            if (tr.IsGenericType && tr.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                isEnumerable = true;
+            }
+            else
+            {
+                foreach (var iface in tr.GetInterfaces())
+                {
+                    if (iface.IsGenericType && iface.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    {
+                        isEnumerable = true;
+                        break;
+                    }
+                }
+            }
+
+            object r = Execute(expression, isEnumerable);
+
             if (r != null && typeof(TResult).IsValueType)
             {
                 if (r.GetType() != typeof(TResult))
@@ -118,7 +137,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             internal SelectEntitiesQueryBase Query { get; set; }
             internal SelectEntitiesQuery EntityQuery { get; set; }
             internal Type EntityType { get; set; }
-            internal Type ReturnType { get; set; }
+            internal Type ReturnType { get; set; }   
+
             internal Func<SelectEntitiesQueryBase, Type, object> ReadRow;
 
             public void Dispose()
@@ -271,22 +291,18 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                                 else if (callExpression.Method.Name == "Average")
                                 {
                                     method = typeof(SqlFunction).GetTypeInfo().GetMethod(nameof(SqlFunction.Avg));
-                                    method = method.MakeGenericMethod(newExpression.Arguments[i].Type);
+                                    method = method.MakeGenericMethod(callExpression.Arguments[1].Type.GetGenericArguments()[1]);
                                     argument = ExtractBody(callExpression.Arguments[1]);
                                 }
 
-                                if (method == null)
-                                    throw new ArgumentException($"Unknown aggregate function {callExpression.Method.Name}", nameof(expression));
-
-                                MethodCallExpression newCallExpression = argument == null ? Expression.Call(method) : Expression.Call(method, argument);
-                                LambdaExpression lambaExpression = Expression.Lambda((Expression)newCallExpression, Expression.Parameter(compiler.EntityType), Expression.Parameter(newExpression.Arguments[i].Type));
-                                query.Query.AddToResultset(lambaExpression.Body, newExpression.Members[i].Name);
-                                continue;
-                            }
-                            else
-                            {
-                                throw new ArgumentException($"Unsupported type {(callExpression.Arguments.Count > 0 ? callExpression.Arguments[0] : null)} in call", nameof(expression));
-                            }
+                                if (method != null)
+                                {
+                                    MethodCallExpression newCallExpression = argument == null ? Expression.Call(method) : Expression.Call(method, argument);
+                                    LambdaExpression lambaExpression = Expression.Lambda((Expression)newCallExpression, Expression.Parameter(compiler.EntityType), Expression.Parameter(newExpression.Arguments[i].Type));
+                                    query.Query.AddToResultset(lambaExpression.Body, newExpression.Members[i].Name);
+                                    continue;
+                                }
+                            }                           
                         }
 
                         query.Query.AddToResultset(newExpression.Arguments[i], newExpression.Members[i].Name);
@@ -350,7 +366,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 {
                     if (compiledQuery.EntityQuery != null)
                     {
-                        return compiledQuery.EntityQuery.GetAllAsEnumerable(compiledQuery.EntityType);
+                        if (isEnumerable)
+                            return compiledQuery.EntityQuery.GetAllAsEnumerable(compiledQuery.EntityType);
+                        else
+                            return compiledQuery.EntityQuery.ReadOne();
                     }
                     else
                     {
@@ -359,7 +378,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         if (!isEnumerable)
                         {
                             if (compiledQuery.Query.ReadNext())
-                                return compiledQuery.Query.GetValue(0, expression.Type);
+                                return compiledQuery.ReadRow(compiledQuery.Query, compiledQuery.ReturnType);
                             else
                                 return null;
                         }

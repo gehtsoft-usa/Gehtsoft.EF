@@ -994,6 +994,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public static SingleEntityQueryConditionBuilder Left(this SingleEntityQueryConditionBuilder builder, int characters) => builder.Wrap(SqlFunctionId.Left, characters.ToString());
 
         /// <summary>
+        /// Wraps argument into Length function
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static SingleEntityQueryConditionBuilder Length(this SingleEntityQueryConditionBuilder builder) => builder.Wrap(SqlFunctionId.Length);
+
+        /// <summary>
         /// Adds another single condition and connects it to other conditions using logical and.
         /// </summary>
         /// <param name="builder"></param>

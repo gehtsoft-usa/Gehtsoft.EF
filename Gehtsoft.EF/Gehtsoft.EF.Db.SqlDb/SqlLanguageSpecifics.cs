@@ -598,6 +598,9 @@ namespace Gehtsoft.EF.Db.SqlDb
                 case SqlFunctionId.Lower:
                     return $"LOWER({args[0]})";
 
+                case SqlFunctionId.Length:
+                    return $"LENGTH({args[0]})";
+
                 case SqlFunctionId.Left:
                     return $"LEFT({args[0]}, {args[1]})";
 
@@ -841,5 +844,6 @@ namespace Gehtsoft.EF.Db.SqlDb
         Second,
         Round,
         Left,
+        Length,
     }
 }

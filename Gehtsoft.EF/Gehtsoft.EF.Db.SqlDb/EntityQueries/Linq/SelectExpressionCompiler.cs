@@ -27,6 +27,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         public int? Skip { get; private set; }
 
         public int? Take { get; private set; }
+        public bool First { get; private set; }
+        public bool FirstOrDefault { get; private set; }
 
         private List<Tuple<string, Expression>> mGroupByKey;
         private Type mGroupByKeyType;
@@ -188,6 +190,16 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 {
                     Expression valueExpression = callExpression.Arguments[1];
                     Take = (int)(Expression.Lambda(valueExpression).Compile().DynamicInvoke());
+                    Compile(callExpression.Arguments[0]);
+                }
+                else if (callExpression.Method.Name == "First")
+                {
+                    First = true;
+                    Compile(callExpression.Arguments[0]);
+                }
+                else if (callExpression.Method.Name == "FirstOrDefault")
+                {
+                    FirstOrDefault = true;
                     Compile(callExpression.Arguments[0]);
                 }
                 else

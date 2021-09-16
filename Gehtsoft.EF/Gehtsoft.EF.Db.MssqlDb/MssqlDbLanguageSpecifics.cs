@@ -142,6 +142,8 @@ namespace Gehtsoft.EF.Db.MssqlDb
                     return $"DATEPART(MINUTE, {args[0]})";
                 case SqlFunctionId.Second:
                     return $"DATEPART(SECOND, {args[0]})";
+                case SqlFunctionId.Length:
+                    return $"LEN({args[0]})";
                 case SqlFunctionId.Concat:
                     {
                         StringBuilder builder = new StringBuilder("CONCAT(");

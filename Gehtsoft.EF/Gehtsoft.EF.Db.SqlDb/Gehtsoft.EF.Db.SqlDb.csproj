@@ -84,6 +84,7 @@
     <Compile Include="EntityQueries\IEntitySerializationCallback.cs" />
     <Compile Include="EntityQueries\EntityQuery\SelectEntitiesTreeQuery.cs" />
     <Compile Include="EntityQueries\EntityQuery\InsertEntityQuery.cs" />
+    <Compile Include="EntityQueries\Linq\EntityQueryLinqConnectionExtension.cs" />
     <Compile Include="EntityQueries\Linq\EntityQueryLinqExtension.cs" />
     <Compile Include="EntityQueries\Linq\ExpressionCompiler.cs" />
     <Compile Include="EntityQueries\Linq\QueryableEntity.cs" />

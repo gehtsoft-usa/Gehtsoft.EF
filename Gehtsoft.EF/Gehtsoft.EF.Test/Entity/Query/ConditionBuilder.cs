@@ -943,6 +943,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
         [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Abs), "ABS")]
         [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Round), "ROUND", 1)]
         [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Left), "LEFT", 1)]
+        [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Length), "LENGTH")]
         [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.Trim), "TRIM")]
         [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.ToLower), "LOWER")]
         [InlineData(nameof(SingleEntityQueryConditionBuilderExtension.ToUpper), "UPPER")]

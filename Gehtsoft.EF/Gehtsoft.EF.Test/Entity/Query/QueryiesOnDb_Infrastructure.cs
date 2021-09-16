@@ -568,6 +568,46 @@ namespace Gehtsoft.EF.Test.Entity.Query
         }
 
         [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Functions_Length(string connectionName)
+        {
+            using var finalizer = SetupFunctionTest(connectionName, out var connection);
+
+            var e = new TestFunctionEntity()
+            {
+                StringValue = "abcdef",
+                StringValue1 = "def"
+            };
+
+            using (var query = connection.GetInsertEntityQuery<TestFunctionEntity>())
+                query.Execute(e);
+
+            using (var query = connection.GetGenericSelectEntityQuery<TestFunctionEntity>())
+            {
+                query.Where.Property(nameof(TestFunctionEntity.ID)).Eq(1);
+                query.AddExpressionToResultset(
+                    connection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.Length,
+                        new[]
+                        {
+                            query.GetReference(nameof(TestFunctionEntity.StringValue)).Alias,
+                        }),
+                    DbType.Int32, "r");
+                query.AddExpressionToResultset(
+                    connection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.Length,
+                        new[]
+                        {
+                            query.GetReference(nameof(TestFunctionEntity.StringValue1)).Alias,
+                        }),
+                    DbType.Int32, "r");
+
+                query.Execute();
+                query.ReadNext();
+                query.GetValue<int>(0).Should().Be(6);
+                query.GetValue<int>(1).Should().Be(3);
+            }
+        }
+
+        [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public void SqliteDate_StoreDateMode(bool mode)
