@@ -63,7 +63,10 @@ namespace Gehtsoft.EF.MongoDb
 
         private void UpdateId(object entity)
         {
-            if (Description.PrimaryKey != null && Description.PrimaryKey.IsAutoId && Description.PrimaryKey.PropertyElementType == typeof(ObjectId) && Description.PrimaryKey.PropertyAccessor.GetValue(entity) == null)
+            if (Description.PrimaryKey != null &&
+                Description.PrimaryKey.IsAutoId &&
+                Description.PrimaryKey.PropertyElementType == typeof(ObjectId) &&
+                (Description.PrimaryKey.PropertyAccessor.GetValue(entity) == null || ((ObjectId)Description.PrimaryKey.PropertyAccessor.GetValue(entity)) == ObjectId.Empty))
                 Description.PrimaryKey.PropertyAccessor.SetValue(entity, ObjectId.GenerateNewId());
         }
     }

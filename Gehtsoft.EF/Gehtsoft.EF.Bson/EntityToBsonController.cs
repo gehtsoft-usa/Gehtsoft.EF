@@ -5,14 +5,30 @@ using System.Text;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using MongoDB.Bson;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Bson
 {
+    /// <summary>
+    /// The extension to convert the entities to BSON and back
+    /// </summary>
     public static class EntityToBsonController
     {
+        /// <summary>
+        /// The flag forcing to interpret unspecified time zone as a local timezone.
+        /// </summary>
         public static bool UnspecifiedTypeIsLocalByDefault { get; set; } = true;
+
+        /// <summary>
+        /// The flag indicating whether DateTime must be returned in local time zone.
+        /// </summary>
         public static bool ReturnDateTimeAsLocalByDefault { get; set; } = true;
 
+        /// <summary>
+        /// The extension method that converts an entity into a BSON.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         public static BsonDocument ConvertToBson(this object entity)
         {
             BsonEntityDescription description = AllEntities.Inst.FindType(entity.GetType());
@@ -21,17 +37,18 @@ namespace Gehtsoft.EF.Bson
             foreach (BsonEntityField field in description.Fields)
             {
                 object value = field.PropertyAccessor.GetValue(entity);
-                if (value == null && field.IsAutoId && field.PropertyElementType == typeof(ObjectId))
-                {
-                    value = ObjectId.GenerateNewId();
-                    field.PropertyAccessor.SetValue(entity, value);
-                }
                 document.Set(field.FieldName, SerializeValue(value, field));
             }
 
             return document;
         }
 
+        /// <summary>
+        /// The extension method that converts a BSON document to an entity.
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static object ToEntity(this BsonDocument document, Type type)
         {
             BsonEntityDescription description = AllEntities.Inst.FindType(type);
@@ -70,6 +87,7 @@ namespace Gehtsoft.EF.Bson
             return value;
         }
 
+        [DocgenIgnore]
         public static object DeserializeValue(BsonValue value, BsonEntityField fieldInfo)
         {
             if (value == null || value.IsBsonNull)
@@ -135,6 +153,7 @@ namespace Gehtsoft.EF.Bson
             throw new BsonException(BsonExceptionCode.TypeIsNotSupported);
         }
 
+        [DocgenIgnore]
         public static BsonValue SerializeValue(object value, BsonEntityField fieldInfo)
         {
             if (value == null)
@@ -203,11 +222,29 @@ namespace Gehtsoft.EF.Bson
             }
         }
 
+        /// <summary>
+        /// The extension method that converts a BSON document to an entity (generic version).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="document"></param>
+        /// <returns></returns>
         public static T ToEntity<T>(this BsonDocument document) where T : class => EntityToBsonController.ToEntity(document, typeof(T)) as T;
 
         public static EntityCollection<T> ToEntities<T>(this IEnumerable<BsonDocument> documents) where T : class
+            => ToEntities<EntityCollection<T>, T>(documents);
+
+        /// <summary>
+        /// The extension method that converts the enumeration of the BSON documents into a collection of entities
+        /// </summary>
+        /// <typeparam name="TC"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="documents"></param>
+        /// <returns></returns>
+        public static TC ToEntities<TC, T>(this IEnumerable<BsonDocument> documents)
+            where TC : ICollection<T>, new()
+            where T : class
         {
-            EntityCollection<T> collection = new EntityCollection<T>();
+            TC collection = new TC();
             foreach (BsonDocument document in documents)
                 collection.Add(document.ToEntity<T>());
             return collection;

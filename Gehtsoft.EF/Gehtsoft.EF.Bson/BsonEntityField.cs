@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+using Gehtsoft.EF.Utils;
 using MongoDB.Bson;
 
 namespace Gehtsoft.EF.Bson
 {
+    [DocgenIgnore]
+    [ExcludeFromCodeCoverage]
     public class BsonEntityField
     {
         public string PropertyName { get; internal set; }

@@ -190,9 +190,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                     return double.TryParse(s, out double dv) ? dv : 0;
                 return 0;
             });
-
         }
-
         protected override SqlDbQuery ConstructQuery()
         {
             return new SqliteDbQuery(this, mSqlConnection.CreateCommand(), gSpecifics);

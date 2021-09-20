@@ -292,7 +292,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 result.AddWithoutExpression(right);
                 return result;
             }
-            
+
             result.Expression.Append("(");
             result.HasAggregates = left.HasAggregates || right.HasAggregates;
             result.Add(left);

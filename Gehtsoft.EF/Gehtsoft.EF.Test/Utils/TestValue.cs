@@ -4,17 +4,22 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 
 namespace Gehtsoft.EF.Test.Utils
 {
-    public class TestValue
+    public static class TestValue
     {
         public static object Translate(Type valueType, object value)
         {
             valueType = Nullable.GetUnderlyingType(valueType) ?? valueType;
 
             if (value == null)
+            {
+                if (valueType == typeof(BsonNull))
+                    return BsonNull.Value;
                 return value;
+            }
             if (value.GetType() == valueType)
                 return value;
 
@@ -22,15 +27,26 @@ namespace Gehtsoft.EF.Test.Utils
             {
                 if (value is string s)
                 {
-                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d1))
-                        return d1;
+                    DateTimeStyles styles = DateTimeStyles.None;
+                    if (s.EndsWith("Z"))
+                    {
+                        styles |= DateTimeStyles.AssumeUniversal;
+                        s = s.Substring(0, s.Length - 1);
+                    }
+                    else if (s.EndsWith("L"))
+                    {
+                        styles |= DateTimeStyles.AssumeLocal;
+                        s = s.Substring(0, s.Length - 1);
+                    }
 
-                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out d1))
+                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, styles, out var d1) ||
+                        DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, styles, out d1) ||
+                        DateTime.TryParseExact(s, "yyyy-MM-dd", CultureInfo.InvariantCulture, styles, out d1))
+                    {
+                        if (((styles & DateTimeStyles.AssumeUniversal) == DateTimeStyles.AssumeUniversal) && d1.Kind == DateTimeKind.Local)
+                            d1 = d1.ToUniversalTime();
                         return d1;
-
-                    if (DateTime.TryParseExact(s, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out d1))
-                        return d1;
-
+                    }
                     throw new ArgumentException($"Value {s} has unexpected data format. Try use yyyy-MM-dd format", nameof(value));
                 }
                 else if (value is int i)
@@ -73,6 +89,14 @@ namespace Gehtsoft.EF.Test.Utils
                 if (Guid.TryParse(sc, out var g))
                     return g;
                 throw new ArgumentException($"Value {sc} has unexpected guid format. ", nameof(value));
+            }
+            else if (valueType == typeof(ObjectId) && value is string se)
+            {
+                return new ObjectId(se);
+            }
+            else if (valueType == typeof(BsonBinaryData) && value is string sd)
+            {
+                return new BsonBinaryData(Convert.FromHexString(sd));
             }
 
             return Convert.ChangeType(value, valueType);

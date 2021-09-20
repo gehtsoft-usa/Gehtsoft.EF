@@ -162,23 +162,38 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     }
                     Compile(callExpression.Arguments[0]);
                 }
-                else if (callExpression.Method.Name == "Max" || callExpression.Method.Name == "Min" || callExpression.Method.Name == "Average" || callExpression.Method.Name == "Sum")
+                else if (callExpression.Method.Name == "Max" ||
+                    callExpression.Method.Name == "Min" ||
+                    callExpression.Method.Name == "Average" ||
+                    callExpression.Method.Name == "Avg" ||
+                    callExpression.Method.Name == "Sum")
                 {
                     string name = callExpression.Method.Name;
                     if (name == "Average")
                         name = "Avg";
+
                     MethodInfo methodInfo = typeof(SqlFunction).GetMethod(name);
                     if (methodInfo.IsGenericMethodDefinition)
                         methodInfo = methodInfo.MakeGenericMethod(callExpression.Method.ReturnType);
-                    Expression argument = callExpression.Arguments[1];
-                    if (argument.NodeType == ExpressionType.Quote)
-                        argument = (argument as UnaryExpression).Operand;
-                    if (argument.NodeType != ExpressionType.Lambda)
-                        throw new ArgumentException("Only lambda is supported as argument for max function", nameof(expression));
-                    LambdaExpression lambdaArgument = argument as LambdaExpression;
+                    if (callExpression.Arguments.Count == 2)
+                    {
+                        Expression argument = callExpression.Arguments[1];
+                        if (argument.NodeType == ExpressionType.Quote)
+                            argument = (argument as UnaryExpression).Operand;
+                        if (argument.NodeType != ExpressionType.Lambda)
+                            throw new ArgumentException("Only lambda is supported as argument for max function", nameof(expression));
+                        LambdaExpression lambdaArgument = argument as LambdaExpression;
 
-                    Select = Expression.Lambda(Expression.Call(methodInfo, lambdaArgument.Body));
-                    Compile(callExpression.Arguments[0]);
+                        Select = Expression.Lambda(Expression.Call(methodInfo, lambdaArgument.Body));
+                        Compile(callExpression.Arguments[0]);
+                    }
+                    else
+                    {
+                        Compile(callExpression.Arguments[0]);
+                        if (Select.Body.NodeType == ExpressionType.New)
+                            throw new InvalidOperationException("Only one field select can be aggregated using parameterless aggregation function");
+                        Select = Expression.Lambda(Expression.Call(methodInfo, Select.Body));
+                    }
                 }
                 else if (callExpression.Method.Name == "Skip")
                 {
@@ -194,11 +209,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 }
                 else if (callExpression.Method.Name == "First")
                 {
+                    Take = 1;
                     First = true;
                     Compile(callExpression.Arguments[0]);
-                }
+                }                
                 else if (callExpression.Method.Name == "FirstOrDefault")
                 {
+                    Take = 1;
                     FirstOrDefault = true;
                     Compile(callExpression.Arguments[0]);
                 }

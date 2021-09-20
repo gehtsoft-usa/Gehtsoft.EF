@@ -456,6 +456,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
 
         [DocgenIgnore]
+        public int ResultsetSize => mSelectBuilder.ResultsetSize;
+
+        [DocgenIgnore]
         public SelectQueryBuilderResultsetItem ResultColumn(int index) => mSelectBuilder.ResultColumn(index);
 
         /// <summary>

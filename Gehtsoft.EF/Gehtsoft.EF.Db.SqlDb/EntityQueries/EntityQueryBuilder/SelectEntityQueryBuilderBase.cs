@@ -288,6 +288,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             mSelectQueryBuilder.AddGroupByExpr(expression);
         }
 
+        protected internal int ResultsetSize => mSelectQueryBuilder.Resultset.Count;
+
         protected internal SelectQueryBuilderResultsetItem ResultColumn(int index) => mSelectQueryBuilder.ResultColumn(index);
 
         public QueryBuilderEntity FindType(Type type, int occurrence = 0)

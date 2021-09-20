@@ -44,6 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Bson\Gehtsoft.EF.Bson.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.MssqlDb\Gehtsoft.EF.Db.MssqlDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.MysqlDb\Gehtsoft.EF.Db.MysqlDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.OracleDb\Gehtsoft.EF.Db.OracleDb.csproj" />

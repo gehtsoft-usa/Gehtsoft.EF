@@ -47,6 +47,7 @@
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.FTS/bin/Debug/netstandard2.0/Gehtsoft.EF.FTS.dll" />
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb.Sql/bin/Debug/netstandard2.0/Gehtsoft.EF.Db.SqlDb.Sql.dll" />
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb.OData/bin/Debug/netstandard2.0/Gehtsoft.EF.Db.SqlDb.OData.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Bson/bin/Debug/netstandard2.0/Gehtsoft.EF.Bson.dll" />
  </ItemGroup>
 
  <Target Name="Scan">

@@ -344,8 +344,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         private static object CreateType(SelectEntitiesQueryBase query, Type type)
         {
             int cc = query.FieldCount;
+            if (query.ResultsetSize < cc)
+                cc = query.ResultsetSize;
             object[] args = new object[cc];
-            for (int i = 0; i < query.FieldCount; i++)
+            for (int i = 0; i < cc; i++)
             {
                 SelectQueryBuilderResultsetItem column = query.ResultColumn(i);
                 PropertyInfo propertyInfo = type.GetProperty(column.Alias);

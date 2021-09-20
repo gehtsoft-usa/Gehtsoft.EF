@@ -50,7 +50,21 @@ namespace Gehtsoft.EF.Db.MssqlDb
             StringBuilder query;
 
             if ((Limit > 0 || Skip > 0) && (mOrderBy == null || mOrderBy.Count == 0))
-                AddOrderBy(Entities[0].Table.PrimaryKey);
+            {
+                bool allAggregate = true;
+                for (int i = 0; i < mResultset.Count && allAggregate; i++)
+                    allAggregate &= mResultset[i].IsAggregate;
+
+                if (allAggregate)
+                    Limit = Skip = 0;
+                else
+                {
+                    if (mGroupBy != null && mGroupBy.Count > 0)
+                        AddOrderByExpr(mGroupBy[0].Expression);
+                    else
+                        AddOrderBy(Entities[0].Table.PrimaryKey);
+                }
+            }
 
             if (With != null)
             {

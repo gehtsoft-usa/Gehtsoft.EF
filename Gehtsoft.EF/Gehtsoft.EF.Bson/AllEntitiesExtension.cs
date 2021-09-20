@@ -4,10 +4,12 @@ using System.Reflection;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Utils;
 using MongoDB.Bson;
 
 namespace Gehtsoft.EF.Bson
 {
+    [DocgenIgnore]
     public static class AllEntitiesExtension
     {
         public static BsonEntityDescription FindType(this AllEntities entities, Type type)
@@ -66,7 +68,7 @@ namespace Gehtsoft.EF.Bson
 
                 elementType = Nullable.GetUnderlyingType(elementType) ?? elementType;
 
-                if ((elementType == typeof(object) && field.IsAutoId) || elementType == typeof(ObjectId))
+                if ((elementType == typeof(object) && field.IsAutoId) || (elementType == typeof(ObjectId) && field.IsAutoId))
                 {
                     elementType = typeof(ObjectId);
                     bsonElementType = BsonType.ObjectId;

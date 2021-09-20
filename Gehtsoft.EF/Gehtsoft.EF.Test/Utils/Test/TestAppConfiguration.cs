@@ -25,17 +25,17 @@ namespace Gehtsoft.EF.TestInfrastructure.Test.Utils
         [Fact]
         public void ReadValue()
         {
-            string json = "{ \"sql-connections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" } } }";
+            const string json = "{ \"sqlConnections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" } } }";
             AppConfiguration1 config = new AppConfiguration1(json);
 
-            config.Get<bool>("sql-connections:connection1:enabled").Should().BeTrue();
-            config.Get("sql-connections:connection1:driver").Should().Be("driver1");
+            config.Get<bool>("sqlConnections:connection1:enabled").Should().BeTrue();
+            config.Get("sqlConnections:connection1:driver").Should().Be("driver1");
         }
 
         [Fact]
         public void ReadSqlConfig()
         {
-            string json = "{ \"sql-connections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" } } }";
+            const string json = "{ \"sqlConnections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" } } }";
             AppConfiguration1 config = new AppConfiguration1(json);
             var info = config.GetSqlConnection("connection1");
             info.Should().NotBeNull();
@@ -45,9 +45,21 @@ namespace Gehtsoft.EF.TestInfrastructure.Test.Utils
         }
 
         [Fact]
+        public void ReadMongoConfig()
+        {
+            const string json = "{ \"nosqlConnections\" : { \"mongo1\" : { \"driver\" : \"mongo\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" } } }";
+            AppConfiguration1 config = new AppConfiguration1(json);
+            var info = config.GetMongoConnection();
+            info.Should().NotBeNull();
+            info.Driver.Should().Be("mongo");
+            info.ConnectionString.Should().Be("connection-string");
+            info.Enabled.Should().BeTrue();
+        }
+
+        [Fact]
         public void ReadSqlConnections()
         {
-            string json = "{ \"sql-connections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" }, \"connection2\" : { \"driver\" : \"driver2\", \"connectionString\" : \"connection-string2\", \"enabled\" : \"false\" } } }";
+            const string json = "{ \"sqlConnections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" }, \"connection2\" : { \"driver\" : \"driver2\", \"connectionString\" : \"connection-string2\", \"enabled\" : \"false\" } } }";
             AppConfiguration1 config = new AppConfiguration1(json);
             var infos = config.GetSqlConnections().ToArray();
 
@@ -59,7 +71,7 @@ namespace Gehtsoft.EF.TestInfrastructure.Test.Utils
         [Fact]
         public void TestConnectionSource()
         {
-            string json = "{ \"sql-connections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" }, \"connection2\" : { \"driver\" : \"driver2\", \"connectionString\" : \"connection-string2\", \"enabled\" : \"true\" } } }";
+            const string json = "{ \"sqlConnections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" }, \"connection2\" : { \"driver\" : \"driver2\", \"connectionString\" : \"connection-string2\", \"enabled\" : \"true\" } } }";
             var config = new AppConfiguration1(json);
             var infos = SqlConnectionSources.Connections(config).ToArray();
 
@@ -71,7 +83,7 @@ namespace Gehtsoft.EF.TestInfrastructure.Test.Utils
         [Fact]
         public void TestConnectionSource_Exlcude_ByName()
         {
-            string json = "{ \"sql-connections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" }, \"connection2\" : { \"driver\" : \"driver2\", \"connectionString\" : \"connection-string2\", \"enabled\" : \"true\" } } }";
+            const string json = "{ \"sqlConnections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" }, \"connection2\" : { \"driver\" : \"driver2\", \"connectionString\" : \"connection-string2\", \"enabled\" : \"true\" } } }";
             var config = new AppConfiguration1(json);
             var infos = SqlConnectionSources.Connections(config, "-connection1").ToArray();
 
@@ -82,7 +94,7 @@ namespace Gehtsoft.EF.TestInfrastructure.Test.Utils
         [Fact]
         public void TestConnectionSource_Exlcude_ByDriver()
         {
-            string json = "{ \"sql-connections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" }, \"connection2\" : { \"driver\" : \"driver2\", \"connectionString\" : \"connection-string2\", \"enabled\" : \"false\" } } }";
+            const string json = "{ \"sqlConnections\" : { \"connection1\" : { \"driver\" : \"driver1\", \"connectionString\" : \"connection-string\", \"enabled\" : \"true\" }, \"connection2\" : { \"driver\" : \"driver2\", \"connectionString\" : \"connection-string2\", \"enabled\" : \"false\" } } }";
             var config = new AppConfiguration1(json);
             var infos = SqlConnectionSources.Connections(config, "-driver2").ToArray();
 

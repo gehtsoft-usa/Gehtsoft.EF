@@ -12,7 +12,7 @@
   //pgsql:   "server=?????;database=?????;user id=?????;password=?????;"
   //mysql:   "Server=?????;Database=?????;Uid=?????@localhost;Pwd=?????;Allow User Variables=True;"
   //sqlite:  "Data Source=test.db;", "Data Source=:memory:;"
-  "sql-connections": {
+  "sqlConnections": {
     "sqlite-file": {
       "driver": "sqlite",
       "enabled": "true",
@@ -24,7 +24,7 @@
       "connectionString": "Data Source=:memory:;"
     }
   },
-  "mongoConnections": {
+  "nosqlConnections": {
     //"mongo": {
     //  "driver": "mongo",
     //  "enabled": "true",

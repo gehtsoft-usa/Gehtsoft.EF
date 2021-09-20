@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Bson
 {
+    [DocgenIgnore]
+    [ExcludeFromCodeCoverage]
     public class BsonEntityDescription
     {
         public Type EntityType { get; internal set; }

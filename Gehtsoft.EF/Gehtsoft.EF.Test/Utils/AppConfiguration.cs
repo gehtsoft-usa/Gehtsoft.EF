@@ -37,20 +37,27 @@ namespace Gehtsoft.EF.Test.Utils
             public string ConnectionString { get; set; }
         }
 
-        public const string SQLCONNECTIONS = "sql-connections";
+        public const string SQLCONNECTIONS = "sqlConnections";
+        public const string NOSQLCONNECTIONS = "nosqlConnections";
 
-        public IEnumerable<ConnectionInfo> GetSqlConnections()
+        private IEnumerable<ConnectionInfo> GetConnections(string sectionName)
         {
-            var section = Config.GetSection(SQLCONNECTIONS);
+            var section = Config.GetSection(sectionName);
             foreach (var child in section.GetChildren())
             {
-                var info = GetConnection(SQLCONNECTIONS, child.Key);
+                var info = GetConnection(sectionName, child.Key);
                 if (info != null)
                     yield return info;
             }
         }
 
+        public IEnumerable<ConnectionInfo> GetSqlConnections() => GetConnections(SQLCONNECTIONS);
+
+        public IEnumerable<ConnectionInfo> GetNoSqlConnections() => GetConnections(NOSQLCONNECTIONS);
         public ConnectionInfo GetSqlConnection(string connectionName) => GetConnection(SQLCONNECTIONS, connectionName);
+        public ConnectionInfo GetNoSqlConnection(string connectionName) => GetConnection(NOSQLCONNECTIONS, connectionName);
+
+        public ConnectionInfo GetMongoConnection() => GetNoSqlConnections().FirstOrDefault(c => c.Driver == "mongo");
 
         public ConnectionInfo GetConnection(string type, string connectionName)
         {
