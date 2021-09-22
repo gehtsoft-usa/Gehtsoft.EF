@@ -27,7 +27,7 @@ namespace Gehtsoft.EF.Test.Northwind
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(SqlConnectionSources.SqlConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
         [TestOrder(1)]
         public void TablesCreated(string driver)
         {
@@ -81,7 +81,7 @@ namespace Gehtsoft.EF.Test.Northwind
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(SqlConnectionSources.SqlConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
         [TestOrder(2)]
         public void AllDataCreated(string driver)
         {
@@ -113,7 +113,7 @@ namespace Gehtsoft.EF.Test.Northwind
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(SqlConnectionSources.SqlConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
         [TestOrder(10)]
         public void InsertAndDeleteOrder(string driver)
         {
@@ -176,7 +176,7 @@ namespace Gehtsoft.EF.Test.Northwind
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(SqlConnectionSources.SqlConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
         [TestOrder(20)]
         public void Select1(string driver)
         {

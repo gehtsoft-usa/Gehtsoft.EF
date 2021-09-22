@@ -20,7 +20,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
     public class QueryiesOnDb_UpdateAndBasicSelect : IClassFixture<QueryiesOnDb_UpdateAndBasicSelect.Fixture>
     {
         private const string mFlags = "";
-        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
+        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.SqlConnectionNames(flags, mFlags);
 
         private readonly Fixture mFixture;
 
@@ -152,7 +152,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             Clear<Dict2>(connection);
         }
 
-        public class Fixture : ConnectionFixtureBase
+        public class Fixture : SqlConnectionFixtureBase
         {
             public bool DeleteOnDispose { get; } = false;
 

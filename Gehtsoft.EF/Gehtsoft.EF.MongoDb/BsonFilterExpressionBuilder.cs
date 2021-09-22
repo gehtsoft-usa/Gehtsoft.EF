@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Gehtsoft.EF.Bson;
 using Gehtsoft.EF.Entities;
@@ -8,7 +9,7 @@ using MongoDB.Driver;
 
 namespace Gehtsoft.EF.MongoDb
 {
-    public class BsonFilterExpressionBuilder
+    internal class BsonFilterExpressionBuilder
     {
         internal abstract class Element
         {
@@ -47,6 +48,7 @@ namespace Gehtsoft.EF.MongoDb
                 return Op;
             }
 
+            [ExcludeFromCodeCoverage]
             public override string ToString()
             {
                 BsonElement el = Op.GetElement(0);
@@ -83,6 +85,7 @@ namespace Gehtsoft.EF.MongoDb
                 }
             }
 
+            [ExcludeFromCodeCoverage]
             public override string ToString()
             {
                 StringBuilder builder = new StringBuilder();
@@ -147,11 +150,6 @@ namespace Gehtsoft.EF.MongoDb
             Add(ToMongoLogOp(logop), new Group());
         }
 
-        public void BeginGroup()
-        {
-            Add(null, new Group());
-        }
-
         public void EndGroup()
         {
             if (!mElementStack.Peek().IsGroup || mElementStack.Peek().AsGroup.Elements.Count == 0)
@@ -169,6 +167,7 @@ namespace Gehtsoft.EF.MongoDb
             return mElementStack.Peek().ToBsonDocument();
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString()
         {
             if (mElementStack.Count != 1)
@@ -226,7 +225,6 @@ namespace Gehtsoft.EF.MongoDb
                                     pattern.Append(".");
                                 else if (c == '[')
                                 {
-                                    pattern.Append(c);
                                     for (; i < svalue.Length; i++)
                                     {
                                         c = svalue[i];
@@ -270,16 +268,12 @@ namespace Gehtsoft.EF.MongoDb
 
         private static BsonDocument OpToBson(string path, CmpOp op, object value) => new BsonDocument(path, ToMongoCmpOp(op, value));
 
-        public void Add(string path, CmpOp cmpOp, object value)
-        {
-            BsonDocument op = OpToBson(path, cmpOp, value);
-            Add(null, op);
-        }
+        public void Add(string path, CmpOp cmpOp, object value) => Add(null, path, cmpOp, value);
 
-        public void Add(LogOp logOp, string path, CmpOp cmpOp, object value)
+        public void Add(LogOp? logOp, string path, CmpOp cmpOp, object value)
         {
             BsonDocument op = OpToBson(path, cmpOp, value);
-            Add(ToMongoLogOp(logOp), op);
+            Add(logOp == null ? null : ToMongoLogOp(logOp.Value), op);
         }
     }
 }

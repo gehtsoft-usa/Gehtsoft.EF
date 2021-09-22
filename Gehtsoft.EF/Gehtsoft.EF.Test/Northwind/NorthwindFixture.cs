@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.Northwind
 {
-    public sealed class NorthwindFixture : ConnectionFixtureBase
+    public sealed class NorthwindFixture : SqlConnectionFixtureBase
     {
         public Snapshot Snapshot { get; } = new Snapshot();
 

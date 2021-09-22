@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Test.SqlDb
     public class DropCreateTest : IClassFixture<DropCreateTest.Fixture>
     {
         #region fixture
-        public class Fixture : ConnectionFixtureBase
+        public class Fixture : SqlConnectionFixtureBase
         {
             public static bool DropAtEnd { get; set; } = false;
 
@@ -195,7 +195,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         private readonly Fixture mFixture;
 
-        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.ConnectionNames(flags);
+        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.SqlConnectionNames(flags);
 
         public DropCreateTest(Fixture fixture)
         {

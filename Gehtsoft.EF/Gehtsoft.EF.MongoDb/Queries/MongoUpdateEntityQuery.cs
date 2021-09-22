@@ -20,21 +20,14 @@ namespace Gehtsoft.EF.MongoDb
 
         public bool InsertIfNotExists { get; set; } = false;
 
-        public override Task ExecuteAsync()
+        public override Task ExecuteAsync(CancellationToken? token = null)
         {
             throw new InvalidOperationException();
         }
 
-        public override Task ExecuteAsync(CancellationToken token)
-        {
-            throw new InvalidOperationException();
-        }
+        public override Task ExecuteAsync(object entity, CancellationToken? token = null) => ExecuteAsyncCore(entity, token ?? CancellationToken.None);
 
-        public override Task ExecuteAsync(object entity) => ExecuteAsyncCore(entity, null);
-
-        public override Task ExecuteAsync(object entity, CancellationToken token) => ExecuteAsyncCore(entity, token);
-
-        private async Task ExecuteAsyncCore(object entity, CancellationToken? token)
+        private async Task ExecuteAsyncCore(object entity, CancellationToken token)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -53,20 +46,10 @@ namespace Gehtsoft.EF.MongoDb
                     filter = FilterBuilder.ToBsonDocument();
                 }
 
-                if (token == null)
-                {
-                    if (InsertIfNotExists)
-                        await Collection.ReplaceOneAsync(filter, entity.ConvertToBson(), new ReplaceOptions { IsUpsert = true });
-                    else
-                        await Collection.ReplaceOneAsync(filter, entity.ConvertToBson());
-                }
+                if (InsertIfNotExists)
+                    await Collection.ReplaceOneAsync(filter, entity.ConvertToBson(), new ReplaceOptions { IsUpsert = true }, token);
                 else
-                {
-                    if (InsertIfNotExists)
-                        await Collection.ReplaceOneAsync(filter, entity.ConvertToBson(), new ReplaceOptions { IsUpsert = true }, token.Value);
-                    else
-                        await Collection.ReplaceOneAsync(filter, entity.ConvertToBson(), new ReplaceOptions { IsUpsert = false }, token.Value);
-                }
+                    await Collection.ReplaceOneAsync(filter, entity.ConvertToBson(), new ReplaceOptions { IsUpsert = false }, token);
             }
             else if (entity.GetType() == typeof(IEnumerable))
             {

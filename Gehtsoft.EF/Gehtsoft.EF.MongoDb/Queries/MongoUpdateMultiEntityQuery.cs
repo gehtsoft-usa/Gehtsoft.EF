@@ -30,26 +30,16 @@ namespace Gehtsoft.EF.MongoDb
                 mUpdateDocument.AddToSet(path, value);
         }
 
-        public override async Task ExecuteAsync()
+        public override async Task ExecuteAsync(CancellationToken? token = null)
         {
+            UpdateOptions options = null;
             if (InsertIfNotExists)
-                await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument, new UpdateOptions { IsUpsert = true });
-            else
-                await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument);
-        }
-        public override async Task ExecuteAsync(CancellationToken token)
-        {
-            if (InsertIfNotExists)
-                await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument, new UpdateOptions { IsUpsert = true }, token);
-            else
-                await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument, null, token);
+                options = new UpdateOptions { IsUpsert = true };
+
+            await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument, options, token ?? CancellationToken.None);
         }
 
-        public override Task ExecuteAsync(object entity)
-        {
-            throw new InvalidOperationException();
-        }
-        public override Task ExecuteAsync(object entity, CancellationToken token)
+        public override Task ExecuteAsync(object entity, CancellationToken? token = null)
         {
             throw new InvalidOperationException();
         }

@@ -14,7 +14,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
     public class LinqOnDB_Select
     {
         private const string mFlags = "";
-        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
+        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.SqlConnectionNames(flags, mFlags);
 
         private readonly NorthwindFixture mFixture;
 

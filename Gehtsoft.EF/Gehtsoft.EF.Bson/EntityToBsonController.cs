@@ -31,7 +31,7 @@ namespace Gehtsoft.EF.Bson
         /// <returns></returns>
         public static BsonDocument ConvertToBson(this object entity)
         {
-            BsonEntityDescription description = AllEntities.Inst.FindType(entity.GetType());
+            BsonEntityDescription description = AllEntities.Inst.FindBsonEntity(entity.GetType());
             BsonDocument document = new BsonDocument();
 
             foreach (BsonEntityField field in description.Fields)
@@ -51,7 +51,7 @@ namespace Gehtsoft.EF.Bson
         /// <returns></returns>
         public static object ToEntity(this BsonDocument document, Type type)
         {
-            BsonEntityDescription description = AllEntities.Inst.FindType(type);
+            BsonEntityDescription description = AllEntities.Inst.FindBsonEntity(type);
             object value = Activator.CreateInstance(type);
             foreach (BsonEntityField field in description.Fields)
             {
@@ -62,7 +62,7 @@ namespace Gehtsoft.EF.Bson
                     {
                         if (field.IsReference && field.PropertyAccessor.PropertyType != propValue.GetType())
                         {
-                            BsonEntityDescription refEntity = AllEntities.Inst.FindType(field.PropertyElementType);
+                            BsonEntityDescription refEntity = AllEntities.Inst.FindBsonEntity(field.PropertyElementType);
                             if (refEntity == null)
                                 throw new BsonException(BsonExceptionCode.TypeIsNotEntity);
                             BsonEntityField pk = refEntity.PrimaryKey;
@@ -206,7 +206,7 @@ namespace Gehtsoft.EF.Bson
             }
             else
             {
-                BsonEntityDescription refDescription = AllEntities.Inst.FindType(fieldInfo.PropertyElementType);
+                BsonEntityDescription refDescription = AllEntities.Inst.FindBsonEntity(fieldInfo.PropertyElementType);
                 if (fieldInfo.IsReference)
                 {
                     BsonEntityField pk = refDescription.PrimaryKey;

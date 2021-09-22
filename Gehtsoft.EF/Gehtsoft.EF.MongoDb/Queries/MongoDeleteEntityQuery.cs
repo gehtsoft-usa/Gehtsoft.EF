@@ -17,20 +17,14 @@ namespace Gehtsoft.EF.MongoDb
         {
         }
 
-        public override Task ExecuteAsync()
+        public override Task ExecuteAsync(CancellationToken? token = null)
         {
             throw new InvalidOperationException();
         }
 
-        public override Task ExecuteAsync(CancellationToken token)
-        {
-            throw new InvalidOperationException();
-        }
+        public override Task ExecuteAsync(object entity, CancellationToken? token = null) => ExecuteAsyncCore(entity, token ?? CancellationToken.None);
 
-        public override Task ExecuteAsync(object entity) => ExecuteAsyncCore(entity, null);
-        public override Task ExecuteAsync(object entity, CancellationToken token) => ExecuteAsyncCore(entity, token);
-
-        private async Task ExecuteAsyncCore(object entity, CancellationToken? token)
+        private async Task ExecuteAsyncCore(object entity, CancellationToken token)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -39,10 +33,7 @@ namespace Gehtsoft.EF.MongoDb
             {
                 BsonFilterExpressionBuilder filter = new BsonFilterExpressionBuilder();
                 filter.Add(Description.PrimaryKey.Column, CmpOp.Eq, Description.PrimaryKey.PropertyAccessor.GetValue(entity));
-                if (token == null)
-                    await Collection.DeleteOneAsync(filter.ToBsonDocument());
-                else
-                    await Collection.DeleteOneAsync(filter.ToBsonDocument(), token.Value);
+                 await Collection.DeleteOneAsync(filter.ToBsonDocument(), token);
             }
             else if (entity.GetType() == typeof(IEnumerable))
             {
@@ -55,10 +46,7 @@ namespace Gehtsoft.EF.MongoDb
                 }
                 BsonFilterExpressionBuilder filter = new BsonFilterExpressionBuilder();
                 filter.Add(Description.PrimaryKey.Column, CmpOp.In, ids);
-                if (token == null)
-                    await Collection.DeleteManyAsync(filter.ToBsonDocument());
-                else
-                    await Collection.DeleteManyAsync(filter.ToBsonDocument(), token.Value);
+                await Collection.DeleteManyAsync(filter.ToBsonDocument(), token);
             }
             else
                 throw new EfMongoDbException(EfMongoDbExceptionCode.NotAnEntity);

@@ -18,7 +18,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
     public class QueryiesOnDb_GenericAccessor : IClassFixture<QueryiesOnDb_GenericAccessor.Fixture>
     {
         private const string mFlags = "+sqlite";
-        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
+        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.SqlConnectionNames(flags, mFlags);
 
         [Entity(Scope = "genericaccessor", Table = "ge_dict")]
         public class Dict
@@ -136,7 +136,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             public int Value { get; set; }
         }
 
-        public class Fixture : ConnectionFixtureBase
+        public class Fixture : SqlConnectionFixtureBase
         {
             public bool DeleteOnDispose { get; } = true;
 

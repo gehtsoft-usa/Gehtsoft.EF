@@ -53,7 +53,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         #endregion
 
         #region fixture
-        public class Fixture : ConnectionFixtureBase
+        public class Fixture : SqlConnectionFixtureBase
         {
             public Fixture()
             {
@@ -88,7 +88,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         private readonly Fixture mFixture;
 
-        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.ConnectionNames(flags);
+        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.SqlConnectionNames(flags);
 
         public SchemaTest(Fixture fixture)
         {

@@ -28,7 +28,7 @@ namespace Gehtsoft.EF.Test.SqlDb
             public string Name { get; set; }
         }
 
-        public class Fixture : ConnectionFixtureBase
+        public class Fixture : SqlConnectionFixtureBase
         {
             public Fixture() : base()
             {
@@ -40,7 +40,7 @@ namespace Gehtsoft.EF.Test.SqlDb
                 connection.FtsCreateTables();
 
                 var td = AllEntities.Get<Entity>().TableDescriptor;
-                
+
                 using (var query = connection.GetQuery(connection.GetDropTableBuilder(td)))
                     query.ExecuteNoData();
 
@@ -49,7 +49,7 @@ namespace Gehtsoft.EF.Test.SqlDb
             }
         }
 
-        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.ConnectionNames(flags);
+        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.SqlConnectionNames(flags);
 
         public FtsTest(Fixture fixture)
         {
@@ -388,7 +388,7 @@ namespace Gehtsoft.EF.Test.SqlDb
             var connection = mFixture.GetInstance(connectionName);
 
             Entity e1, e2;
-           
+
             using (var query = connection.GetInsertEntityQuery<Entity>())
             {
                 e1 = new Entity() { Name = "entity1" };

@@ -13,7 +13,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
     public class LinqOnDB_CUD : IClassFixture<LinqOnDB_CUD.Fixture>
     {
         private const string mFlags = "";
-        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
+        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.SqlConnectionNames(flags, mFlags);
 
         [Entity(Scope = "linq4", Table = "LinqDict")]
         public class Dict
@@ -25,7 +25,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             public string Name { get; set; }
         }
 
-        public class Fixture : ConnectionFixtureBase
+        public class Fixture : SqlConnectionFixtureBase
         {
             protected override void ConfigureConnection(SqlDbConnection connection)
             {
@@ -34,7 +34,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             }
 
             private static void Drop(SqlDbConnection connection)
-            {               
+            {
                 using (var query = connection.GetDropEntityQuery<Dict>())
                     query.Execute();
             }

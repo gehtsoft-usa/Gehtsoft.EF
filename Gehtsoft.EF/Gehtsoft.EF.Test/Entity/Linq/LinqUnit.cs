@@ -193,7 +193,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
 
             var ec = new ExpressionCompiler(query);
 
-            var r = ec.Visit<Entity, bool>(e => e.NullableIntValue != null && e.NullableIntValue.Value > 5);
+            var r = ec.Visit<Entity, bool>(e => e.NullableIntValue != null && e.NullableIntValue > 5);
             r.Expression.ToString().Should().MatchPattern(query, "((@1.nullableintvalue˽IS˽NOT˽NULL) AND (@1.nullableintvalue > @p))");
         }
 
@@ -262,7 +262,6 @@ namespace Gehtsoft.EF.Test.Entity.Linq
         [Fact]
         public void Functions_Numeric()
         {
-
             using var dummyConnection = new DummySqlConnection();
             using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
 
@@ -382,7 +381,6 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             subquery.AddToResultset(nameof(Dict.ID));
             subquery.Where.Property(nameof(Dict.Name)).Eq().Reference(query.GetReference(typeof(Dict), nameof(Dict.Name)));
 
-
             var ec = new ExpressionCompiler(query);
 
             var r = ec.Visit<Dict, bool>(d => SqlFunction.In(d, subquery));
@@ -400,7 +398,6 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             using var subquery = dummyConnection.GetSelectEntitiesQueryBase<Dict>();
             subquery.AddToResultset(nameof(Dict.ID));
             subquery.Where.Property(nameof(Dict.Name)).Eq().Reference(query.GetReference(typeof(Dict), nameof(Dict.Name)));
-
 
             var ec = new ExpressionCompiler(query);
 
@@ -420,7 +417,6 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             subquery.AddToResultset(nameof(Dict.ID));
             subquery.Where.Property(nameof(Dict.Name)).Eq().Reference(query.GetReference(typeof(Dict), nameof(Dict.Name)));
 
-
             var ec = new ExpressionCompiler(query);
 
             var r = ec.Visit<Dict, bool>(d => SqlFunction.Exists(subquery));
@@ -439,7 +435,6 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             subquery.AddToResultset(nameof(Dict.ID));
             subquery.Where.Property(nameof(Dict.Name)).Eq().Reference(query.GetReference(typeof(Dict), nameof(Dict.Name)));
 
-
             var ec = new ExpressionCompiler(query);
 
             var r = ec.Visit<Dict, bool>(d => SqlFunction.Value<int>(subquery) > 5);
@@ -455,7 +450,6 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             subquery.AddToResultset(nameof(Dict.ID));
             subquery.Where.Property(nameof(Dict.Name)).Eq().Reference(query.GetReference(typeof(Dict), nameof(Dict.Name)));
 
-
             var ec = new ExpressionCompiler(query);
 
             var r = ec.Visit<Dict, bool>(d => SqlFunction.NotExists(subquery));
@@ -468,7 +462,6 @@ namespace Gehtsoft.EF.Test.Entity.Linq
         [Fact]
         public void Functions_String()
         {
-
             using var dummyConnection = new DummySqlConnection();
             using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
 

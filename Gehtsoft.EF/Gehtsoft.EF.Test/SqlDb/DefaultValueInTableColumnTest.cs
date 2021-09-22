@@ -11,7 +11,7 @@ namespace Gehtsoft.EF.Test.SqlDb
     public class DefaultValueInTableColumnTest : IClassFixture<DefaultValueInTableColumnTest.Fixture>
     {
         #region fixture
-        public class Fixture : ConnectionFixtureBase
+        public class Fixture : SqlConnectionFixtureBase
         {
             public static bool DropAtEnd { get; set; } = false;
 
@@ -118,7 +118,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
+        [MemberData(nameof(SqlConnectionSources.SqlConnectionNames), "", MemberType = typeof(SqlConnectionSources))]
         public void DoTest(string connectionName)
         {
             var connection = mFixture.GetInstance(connectionName);

@@ -11,10 +11,21 @@ namespace Gehtsoft.EF.Test.Utils
 {
     internal static class SqlConnectionSources
     {
-        public static IEnumerable<AppConfiguration.ConnectionInfo> Connections(string exclude = null)
-                => Connections(AppConfiguration.Instance, exclude);
+        public static IEnumerable<AppConfiguration.ConnectionInfo> SqlConnections(string filter = null)
+                => SqlConnections(AppConfiguration.Instance, filter);
 
-        public static IEnumerable<AppConfiguration.ConnectionInfo> Connections(AppConfiguration config, string exclude = null)
+        public static IEnumerable<AppConfiguration.ConnectionInfo> SqlConnections(AppConfiguration config, string filter = null)
+            => Connections(config, filter, "global-filter:sql-drivers", () => config.GetSqlConnections());
+
+        public static IEnumerable<AppConfiguration.ConnectionInfo> MongoConnections()
+                => MongoConnections(AppConfiguration.Instance);
+
+        public static IEnumerable<AppConfiguration.ConnectionInfo> MongoConnections(AppConfiguration config)
+            => Connections(config, "+mongo", "global-filter:non-existent", () => config.GetNoSqlConnections());
+
+        private static IEnumerable<AppConfiguration.ConnectionInfo> Connections(AppConfiguration config,
+            string exclude,
+            string globalConfigName, Func<IEnumerable<AppConfiguration.ConnectionInfo>> connectionsGet)
         {
             HashSet<string> _exclude = new HashSet<string>();
             HashSet<string> _includeOnly = new HashSet<string>();
@@ -41,13 +52,13 @@ namespace Gehtsoft.EF.Test.Utils
 
             if (!string.IsNullOrEmpty(exclude))
                 processFilter(exclude);
-          
 
-            var globalFilter = config.Get("global-filter:sql-drivers", "all");
+
+            var globalFilter = config.Get(globalConfigName, "all");
             if (globalFilter != "all" && !string.IsNullOrEmpty(globalFilter))
                 processFilter(globalFilter);
 
-            foreach (var connection in config.GetSqlConnections())
+            foreach (var connection in connectionsGet())
             {
                 if (_exclude.Contains(connection.Name) || _exclude.Contains(connection.Driver) || (!connection.Enabled && !_includeOnly.Contains(connection.Name)))
                     continue;
@@ -66,7 +77,7 @@ namespace Gehtsoft.EF.Test.Utils
         /// <param name="flags">Comma-separated list of the connection or driver names with `+` prefix to include only and `-` prefix to exclude</param>
         /// <param name="flags1">more flags</param>
         /// <returns></returns>
-        public static IEnumerable<object[]> ConnectionNames(string flags, params string[] flags1)
+        public static IEnumerable<object[]> SqlConnectionNames(string flags, params string[] flags1)
         {
             StringBuilder t = new StringBuilder();
             if (!string.IsNullOrEmpty(flags))
@@ -82,7 +93,7 @@ namespace Gehtsoft.EF.Test.Utils
                 }
             }
 
-            return ConnectionNames(t.ToString());
+            return SqlConnectionNames(t.ToString());
         }
 
         /// <summary>
@@ -90,25 +101,48 @@ namespace Gehtsoft.EF.Test.Utils
         /// </summary>
         /// <param name="flags">Comma-separated list of the connection or driver names with `+` prefix to include only and `-` prefix to exclude</param>
         /// <returns></returns>
-        public static IEnumerable<object[]> ConnectionNames(string flags = null)
-            => Connections(flags).Select(c => new object[] { c.Name });
+        public static IEnumerable<object[]> SqlConnectionNames(string flags = null)
+            => SqlConnections(flags).Select(c => new object[] { c.Name });
+
+        /// <summary>
+        /// Gets list of the connections from the config
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<object[]> MongoConnectionNames()
+            => MongoConnections().Select(c => new object[] { c.Name });
 
         /// <summary>
         /// Gets list of the connections from the config
         /// </summary>
         /// <param name="flags">Comma-separated list of the connection or driver names with `+` prefix to include only and `-` prefix to exclude</param>
         /// <returns></returns>
-        public static IEnumerable<object[]> ConnectionNamesWithArgs(string flags, Type argsSourceType, string argsName)
-        {
-            var m = argsSourceType.GetMethod(argsName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-            if (m == null)
-                throw new ArgumentException($"Type {argsSourceType.Name} doesn't have method {argsName}");
-            if (!m.IsStatic || m.GetParameters()?.Length != 1 || m.GetParameters()[0].ParameterType != typeof(string) || m.ReturnType != typeof(IEnumerable<object[]>))
-                throw new ArgumentException($"Method {argsSourceType.Name}.{argsName} is not a static method than take a string (connection name) that returns IEnumerable<object[]>");
+        public static IEnumerable<object[]> SqlConnectionNamesWithArgs(string flags, Type argsSourceType, string argsSourceName)
+            => ConnectionNamesWithArgs(() => SqlConnections(flags), argsSourceType, argsSourceName);
 
-            foreach (var connection in Connections(flags))
+        /// <summary>
+        /// Gets list of the connections from the config
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<object[]> MongoConnectionNamesWithArgs(Type argsSourceType, string argsSourceName)
+            => ConnectionNamesWithArgs(() => MongoConnections(), argsSourceType, argsSourceName);
+
+
+        private static IEnumerable<object[]> ConnectionNamesWithArgs(Func<IEnumerable<AppConfiguration.ConnectionInfo>> connections, Type argsSourceType, string argsSourceName)
+        {
+            var m = argsSourceType.GetMethod(argsSourceName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            if (m == null)
+                throw new ArgumentException($"Type {argsSourceType.Name} doesn't have method {argsSourceName}");
+            if (!m.IsStatic || m.GetParameters()?.Length != 1 || m.GetParameters()[0].ParameterType != typeof(string) || m.ReturnType != typeof(IEnumerable<object[]>))
+                throw new ArgumentException($"Method {argsSourceType.Name}.{argsSourceName} is not a static method than take a string (connection name) that returns IEnumerable<object[]>");
+            return ConnectionNamesWithArgsIterator(connections, (s) => m.Invoke(null, new string[] { s }) as IEnumerable<object[]>);
+
+        }
+
+        private static IEnumerable<object[]> ConnectionNamesWithArgsIterator(Func<IEnumerable<AppConfiguration.ConnectionInfo>> getConnections, Func<string, IEnumerable<object[]>> getParameterSets)
+        {
+            foreach (var connection in getConnections())
             {
-                var parameterSets = m.Invoke(null, new string[] { connection.Driver }) as IEnumerable<object[]>;
+                var parameterSets = getParameterSets(connection.Driver);
 
                 foreach (var args in parameterSets)
                 {

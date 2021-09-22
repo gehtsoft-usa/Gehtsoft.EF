@@ -12,7 +12,7 @@ namespace Gehtsoft.EF.Bson
     [DocgenIgnore]
     public static class AllEntitiesExtension
     {
-        public static BsonEntityDescription FindType(this AllEntities entities, Type type)
+        public static BsonEntityDescription FindBsonEntity(this AllEntities entities, Type type)
         {
             EntityDescriptor descriptor = entities[type];
             BsonEntityDescription description = descriptor.GetTag<BsonEntityDescription>();
@@ -111,7 +111,7 @@ namespace Gehtsoft.EF.Bson
                     {
                         bsonElementType = BsonType.Document;
                         field.IsReference = columnInfo.ForeignKey;
-                        field.ReferencedEntity = AllEntities.Inst.FindType(elementType);
+                        field.ReferencedEntity = AllEntities.Inst.FindBsonEntity(elementType);
                     }
                 }
 

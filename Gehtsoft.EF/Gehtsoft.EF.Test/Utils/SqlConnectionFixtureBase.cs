@@ -8,17 +8,17 @@ using Gehtsoft.EF.Db.SqlDb;
 
 namespace Gehtsoft.EF.Test.Utils
 {
-    public class ConnectionFixtureBase : IDisposable
+    public class SqlConnectionFixtureBase : IDisposable
     {
         private readonly Dictionary<string, SqlDbConnection> mConnection = new Dictionary<string, SqlDbConnection>();
 
         public bool Started(string connectionName) => mConnection.ContainsKey(connectionName);
 
-        public ConnectionFixtureBase()
+        public SqlConnectionFixtureBase()
         {
         }
 
-        ~ConnectionFixtureBase()
+        ~SqlConnectionFixtureBase()
         {
             Dispose(false);
         }
@@ -38,7 +38,7 @@ namespace Gehtsoft.EF.Test.Utils
             }
         }
 
-        public SqlDbConnection GetInstance(string connection) => GetInstance(connection, AppConfiguration.Instance.Get("connections:" + connection));
+        public SqlDbConnection GetInstance(string connection) => GetInstance(connection, AppConfiguration.Instance.Get("sqlConnections:" + connection));
 
         public SqlDbConnection GetInstance(string connectionName, string connectionString)
         {

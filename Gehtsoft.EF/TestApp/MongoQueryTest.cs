@@ -23,11 +23,11 @@ namespace TestApp
             Assert.Throws<EfMongoDbException>(() => builder.ToBsonDocument(), "e2");
 
             builder.Reset();
-            builder.BeginGroup();
+            builder.BeginGroup(LogOp.And);
             Assert.Throws<EfMongoDbException>(() => builder.ToBsonDocument(), "e4");
 
             builder.Reset();
-            builder.BeginGroup();
+            builder.BeginGroup(LogOp.And);
             Assert.Throws<EfMongoDbException>(() => builder.EndGroup(), "e5");
 
             builder.Reset();

@@ -16,20 +16,14 @@ namespace Gehtsoft.EF.MongoDb
         {
         }
 
-        public override Task ExecuteAsync()
-        {
-            throw new InvalidOperationException();
-        }
-        public override Task ExecuteAsync(CancellationToken token)
+        public override Task ExecuteAsync(CancellationToken? token = null)
         {
             throw new InvalidOperationException();
         }
 
-        public override Task ExecuteAsync(object entity) => ExecuteAsyncCore(entity, null);
+        public override Task ExecuteAsync(object entity, CancellationToken? token = null) => ExecuteAsyncCore(entity, token ?? CancellationToken.None);
 
-        public override Task ExecuteAsync(object entity, CancellationToken token) => ExecuteAsyncCore(entity, token);
-
-        private async Task ExecuteAsyncCore(object entity, CancellationToken? token)
+        private async Task ExecuteAsyncCore(object entity, CancellationToken token)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -37,25 +31,19 @@ namespace Gehtsoft.EF.MongoDb
             if (entity.GetType() == Type)
             {
                 UpdateId(entity);
-                if (token == null)
-                    await Collection.InsertOneAsync(entity.ConvertToBson());
-                else
-                    await Collection.InsertOneAsync(entity.ConvertToBson(), null, token.Value);
+                await Collection.InsertOneAsync(entity.ConvertToBson(), null, token);
             }
-            else if (entity.GetType() == typeof(IEnumerable))
+            else if (entity is IEnumerable enumerable)
             {
                 List<BsonDocument> docs = new List<BsonDocument>();
-                foreach (object entity1 in (IEnumerable)entity)
+                foreach (object entity1 in enumerable)
                 {
                     if (entity1 == null || entity1.GetType() != Type)
                         throw new EfMongoDbException(EfMongoDbExceptionCode.NotAnEntity);
                     UpdateId(entity1);
-                    docs.Add(entity.ConvertToBson());
+                    docs.Add(entity1.ConvertToBson());
                 }
-                if (token == null)
-                    await Collection.InsertManyAsync(docs);
-                else
-                    await Collection.InsertManyAsync(docs, null, token.Value);
+                await Collection.InsertManyAsync(docs, null, token);
             }
             else
                 throw new EfMongoDbException(EfMongoDbExceptionCode.NotAnEntity);

@@ -19,7 +19,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
     public class QueryiesOnDb_Infrastructure : IClassFixture<QueryiesOnDb_Infrastructure.Fixture>
     {
         private const string mFlags = "";
-        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
+        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.SqlConnectionNames(flags, mFlags);
 
         private readonly Fixture mFixture;
 
@@ -28,7 +28,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             mFixture = fixture;
         }
 
-        public class Fixture : ConnectionFixtureBase
+        public class Fixture : SqlConnectionFixtureBase
         {
         }
 
@@ -128,7 +128,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
         }
 
         [Theory]
-        [MemberData(nameof(SqlConnectionSources.ConnectionNamesWithArgs),
+        [MemberData(nameof(SqlConnectionSources.SqlConnectionNamesWithArgs),
             "", typeof(QueryiesOnDb_Infrastructure), nameof(TestDataTypeArgs),
             MemberType = typeof(SqlConnectionSources))]
         public void TestDataType(string connectionName, DbType dbType, int size, int precision, bool nullable, Type dataType, object value)

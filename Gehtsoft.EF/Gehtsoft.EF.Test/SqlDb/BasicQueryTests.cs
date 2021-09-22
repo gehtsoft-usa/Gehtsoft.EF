@@ -69,7 +69,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         #endregion
 
         #region fixture
-        public class Fixture : ConnectionFixtureBase
+        public class Fixture : SqlConnectionFixtureBase
         {
             private readonly Dictionary<string, List<DictRecord>> mDictContent = new Dictionary<string, List<DictRecord>>();
             private readonly Dictionary<string, List<TableRecord>> mTableContent = new Dictionary<string, List<TableRecord>>();
@@ -312,7 +312,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         }
         #endregion
 
-        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.ConnectionNames(flags);
+        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.SqlConnectionNames(flags);
 
         private readonly Fixture mFixture;
 

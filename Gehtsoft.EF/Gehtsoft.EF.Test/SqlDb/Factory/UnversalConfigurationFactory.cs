@@ -41,7 +41,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Factory
 
         public static IEnumerable<object[]> Connections(string exclude)
         {
-            return SqlConnectionSources.Connections(exclude).Select(info =>
+            return SqlConnectionSources.SqlConnections(exclude).Select(info =>
                 new object[]
                 {
                     info.Name,

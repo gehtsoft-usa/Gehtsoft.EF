@@ -18,7 +18,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
     public class QueryiesOnDb_Create : IClassFixture<QueryiesOnDb_Create.Fixture>
     {
         private const string mFlags = "";
-        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
+        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.SqlConnectionNames(flags, mFlags);
 
         [Entity(Scope = "createntity0", Table = "ce_table0", Metadata = typeof(Entity0Metadata))]
         public class Entity0
@@ -174,7 +174,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             public string Name { get; set; }
         }
 
-        public class Fixture : ConnectionFixtureBase
+        public class Fixture : SqlConnectionFixtureBase
         {
             public bool DeleteOnDispose { get; } = false;
 

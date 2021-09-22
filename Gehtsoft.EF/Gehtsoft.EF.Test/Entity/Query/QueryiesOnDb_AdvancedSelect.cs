@@ -19,7 +19,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
     public class QueryiesOnDb_AdvancedSelect : IClassFixture<NorthwindFixture>
     {
         private const string mFlags = "";
-        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.ConnectionNames(flags, mFlags);
+        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.SqlConnectionNames(flags, mFlags);
 
         public NorthwindFixture mFixture;
 

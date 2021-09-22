@@ -18,43 +18,25 @@ namespace Gehtsoft.EF.MongoDb
         {
         }
 
-        public override Task ExecuteAsync() => ExecuteAsyncCore(null);
-        public override Task ExecuteAsync(CancellationToken token) => ExecuteAsyncCore(token);
+        public override Task ExecuteAsync(CancellationToken? token = null) => ExecuteAsyncCore(token ?? CancellationToken.None);
 
-        private async Task ExecuteAsyncCore(CancellationToken? token)
+        private async Task ExecuteAsyncCore(CancellationToken token)
         {
             if (!(await Connection.Database.ListCollectionNamesAsync(new ListCollectionNamesOptions { Filter = new BsonDocument() { new BsonElement("name", new BsonString(CollectionName)) } })).Any())
             {
-                if (token == null)
-                    await Connection.Database.CreateCollectionAsync(CollectionName);
-                else
-                    await Connection.Database.CreateCollectionAsync(CollectionName, null, token.Value);
+                await Connection.Database.CreateCollectionAsync(CollectionName, null, token);
 
                 foreach (BsonEntityField field in Description.Fields)
                     if (field.IsSorted)
-                    {
-                        if (token == null)
-                            await Collection.Indexes.CreateOneAsync(new CreateIndexModel<BsonDocument>(new BsonDocument(field.Column, 1)));
-                        else
-                            await Collection.Indexes.CreateOneAsync(new CreateIndexModel<BsonDocument>(new BsonDocument(field.Column, 1)), null, token.Value);
-                    }
+                        await Collection.Indexes.CreateOneAsync(new CreateIndexModel<BsonDocument>(new BsonDocument(field.Column, 1)), null, token);
 
                 IEnumerable<MongoIndexAttribute> indexes = Type.GetTypeInfo().GetCustomAttributes<MongoIndexAttribute>();
                 foreach (var attribute in indexes)
-                {
-                    if (token == null)
-                        await Collection.Indexes.CreateOneAsync(new CreateIndexModel<BsonDocument>(new BsonDocument(TranslatePath(attribute.Key), 1)));
-                    else
-                        await Collection.Indexes.CreateOneAsync(new CreateIndexModel<BsonDocument>(new BsonDocument(TranslatePath(attribute.Key), 1)), null, token.Value);
-                }
+                    await Collection.Indexes.CreateOneAsync(new CreateIndexModel<BsonDocument>(new BsonDocument(TranslatePath(attribute.Key), 1)), null, token);
             }
         }
 
-        public override Task ExecuteAsync(object entity)
-        {
-            throw new InvalidOperationException();
-        }
-        public override Task ExecuteAsync(object entity, CancellationToken token)
+        public override Task ExecuteAsync(object entity, CancellationToken? token = null)
         {
             throw new InvalidOperationException();
         }

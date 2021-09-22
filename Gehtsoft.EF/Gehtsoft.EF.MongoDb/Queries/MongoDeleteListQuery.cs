@@ -15,22 +15,13 @@ namespace Gehtsoft.EF.MongoDb
         {
         }
 
-        public override async Task ExecuteAsync()
+        public override async Task ExecuteAsync(CancellationToken? token = null)
         {
             if (CollectionExists)
-                await Connection.Database.DropCollectionAsync(CollectionName);
-        }
-        public override async Task ExecuteAsync(CancellationToken token)
-        {
-            if (CollectionExists)
-                await Connection.Database.DropCollectionAsync(CollectionName, token);
+                await Connection.Database.DropCollectionAsync(CollectionName, token ?? CancellationToken.None);
         }
 
-        public override Task ExecuteAsync(object entity)
-        {
-            throw new InvalidOperationException();
-        }
-        public override Task ExecuteAsync(object entity, CancellationToken token)
+        public override Task ExecuteAsync(object entity, CancellationToken? token = null)
         {
             throw new InvalidOperationException();
         }

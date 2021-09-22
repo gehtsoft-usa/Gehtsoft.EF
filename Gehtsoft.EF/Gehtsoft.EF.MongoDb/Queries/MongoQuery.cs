@@ -12,9 +12,10 @@ using MongoDB.Driver;
 
 namespace Gehtsoft.EF.MongoDb
 {
-    public abstract class MongoQuery : IDisposable
+    public abstract class MongoQuery : IDisposable, IMongoPathResolver
     {
         protected Type Type { get; }
+
         protected BsonEntityDescription Description { get; }
 
         protected string CollectionName => Description.Table ?? Description.EntityType.Name;
@@ -22,6 +23,8 @@ namespace Gehtsoft.EF.MongoDb
         private IMongoCollection<BsonDocument> mCollection = null;
 
         public IMongoCollection<BsonDocument> Collection => mCollection ?? (mCollection = Connection.Database.GetCollection<BsonDocument>(CollectionName));
+
+        private readonly PathTranslator mPathTranslator;
 
         protected bool CollectionExists
         {
@@ -34,13 +37,15 @@ namespace Gehtsoft.EF.MongoDb
         }
 
         public MongoConnection Connection { get; }
+
         public Type EntityType => Type;
 
         protected MongoQuery(MongoConnection connection, Type entityType)
         {
             Connection = connection;
             Type = entityType;
-            Description = AllEntities.Inst.FindType(entityType);
+            Description = AllEntities.Inst.FindBsonEntity(entityType);
+            mPathTranslator = new PathTranslator(entityType, Description);
         }
 
         ~MongoQuery()
@@ -59,112 +64,16 @@ namespace Gehtsoft.EF.MongoDb
             // nothing to dispose in MongoDB
         }
 
-        public abstract Task ExecuteAsync();
+        public abstract Task ExecuteAsync(CancellationToken? token = null);
 
-        public abstract Task ExecuteAsync(CancellationToken token);
+        public abstract Task ExecuteAsync(object entity, CancellationToken? token = null);
 
-        public abstract Task ExecuteAsync(object entity);
+        public void Execute() => ExecuteAsync().Wait();
 
-        public abstract Task ExecuteAsync(object entity, CancellationToken token);
+        public void Execute(object entity) => ExecuteAsync(entity).Wait();
 
-        public void Execute()
-        {
-            var t = ExecuteAsync();
-            t.Wait();
-        }
+        string IMongoPathResolver.TranslatePath(string path) => mPathTranslator.TranslatePath(path);
 
-        public void Execute(object entity)
-        {
-            var t = ExecuteAsync(entity);
-            t.Wait();
-        }
-
-        private static readonly Dictionary<Type, Dictionary<string, string>> gPathCache = new Dictionary<Type, Dictionary<string, string>>();
-
-        private class CurrentElementOfPath
-        {
-            internal bool IsArray { get; set; }
-            internal Type ValueType { get; set; }
-            internal BsonEntityDescription Entity { get; set; }
-        }
-
-        internal string TranslatePath(string path)
-        {
-            if (!gPathCache.TryGetValue(Type, out Dictionary<string, string> cache))
-            {
-                cache = new Dictionary<string, string>();
-                gPathCache[Type] = cache;
-            }
-
-            if (cache.TryGetValue(path, out string translatedPath))
-                return translatedPath;
-
-            string[] elements = path.Split('.');
-
-            CurrentElementOfPath currInfo = new CurrentElementOfPath()
-            {
-                IsArray = false,
-                ValueType = Type,
-                Entity = Description,
-            };
-
-            StringBuilder builder = new StringBuilder();
-
-            foreach (string element in elements)
-            {
-                if (builder.Length > 0)
-                    builder.Append('.');
-
-                bool isInteger = element.Length > 0;
-
-                foreach (char c in element)
-                {
-                    if (!char.IsDigit(c))
-                    {
-                        isInteger = false;
-                        break;
-                    }
-                }
-
-                if (isInteger)
-                {
-                    if (!currInfo.IsArray)
-                        throw new EfMongoDbException(EfMongoDbExceptionCode.PropertyNotFound);
-                    builder.Append(element);
-                    currInfo = new CurrentElementOfPath()
-                    {
-                        IsArray = false,
-                        Entity = currInfo.Entity,
-                        ValueType = currInfo.ValueType,
-                    };
-                    continue;
-                }
-
-                if (currInfo.Entity == null)
-                    throw new EfMongoDbException(EfMongoDbExceptionCode.PropertyNotFound);
-
-                if (!currInfo.Entity.FieldsIndex.TryGetValue(element, out BsonEntityField field))
-                    throw new EfMongoDbException(EfMongoDbExceptionCode.PropertyNotFound);
-
-                builder.Append(field.FieldName ?? field.PropertyAccessor.Name);
-
-                currInfo = new CurrentElementOfPath()
-                {
-                    IsArray = field.IsArray,
-                    ValueType = field.PropertyElementType,
-                    Entity = field.ReferencedEntity,
-                };
-            }
-
-            translatedPath = builder.ToString();
-            cache[path] = translatedPath;
-            return translatedPath;
-        }
-    }
-
-    public static class MongoQueryExtension
-    {
-        public static void Execute<T>(this MongoQuery query, T entity) => query.Execute(entity);
-        public static void Execute<T>(this MongoQuery query, IEnumerable<T> entities) => query.Execute(entities);
+        private protected string TranslatePath(string path) => mPathTranslator.TranslatePath(path);
     }
 }

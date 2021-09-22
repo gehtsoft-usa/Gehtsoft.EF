@@ -61,7 +61,7 @@ namespace Gehtsoft.EF.Test.Entity.Tools
                                 r.Append(".+");
                                 break;
                             case '?':
-                                r.Append(".");
+                                r.Append('.');
                                 break;
                             case '1':
                             case '2':

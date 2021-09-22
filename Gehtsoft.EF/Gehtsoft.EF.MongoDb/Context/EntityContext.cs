@@ -19,53 +19,53 @@ namespace Gehtsoft.EF.MongoDb
             return new ContextTransaction();
         }
 
-        public IEntityQuery DropEntity(Type type)
+        IEntityQuery IEntityContext.DropEntity(Type type)
         {
             return new ContextQuery(this.GetDeleteListQuery(type));
         }
 
-        public IEntityQuery CreateEntity(Type type)
+        IEntityQuery IEntityContext.CreateEntity(Type type)
         {
             return new ContextQuery(this.GetCreateListQuery(type));
         }
 
-        public IModifyEntityQuery InsertEntity(Type type, bool createKey)
+        IModifyEntityQuery IEntityContext.InsertEntity(Type type, bool createKey)
         {
             return new ContextModifyQuery(this.GetInsertEntityQuery(type));
         }
 
-        public IModifyEntityQuery UpdateEntity(Type type)
+        IModifyEntityQuery IEntityContext.UpdateEntity(Type type)
         {
             return new ContextModifyQuery(this.GetUpdateEntityQuery(type));
         }
 
-        public IModifyEntityQuery DeleteEntity(Type type)
+        IModifyEntityQuery IEntityContext.DeleteEntity(Type type)
         {
             return new ContextModifyQuery(this.GetDeleteEntityQuery(type));
         }
 
-        public IContextQueryWithCondition DeleteMultiple(Type type)
+        IContextQueryWithCondition IEntityContext.DeleteMultiple(Type type)
         {
             return new ContextQueryWithCondition(this.GetDeleteMultiEntityQuery(type));
         }
 
-        public IContextSelect Select(Type type)
+        IContextSelect IEntityContext.Select(Type type)
         {
             return new ContextSelect(this.GetSelectQuery(type), type);
         }
 
-        public IContextCount Count(Type type)
+        IContextCount IEntityContext.Count(Type type)
         {
             return new ContextCount(this.GetCountQuery(type));
         }
 
-        class ExistingTable : IEntityTable
+        private class ExistingTable : IEntityTable
         {
             public string Name { get; set; }
             public Type EntityType { get; set; }
         }
 
-        public IEntityTable[] ExistingTables()
+        IEntityTable[] IEntityContext.ExistingTables()
         {
             var tables = GetSchema();
             var r = new ExistingTable[tables.Length];
