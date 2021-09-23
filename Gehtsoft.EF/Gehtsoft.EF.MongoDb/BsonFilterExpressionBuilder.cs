@@ -34,8 +34,10 @@ namespace Gehtsoft.EF.MongoDb
 
             public BsonDocument Op { get; }
 
+            [ExcludeFromCodeCoverage]
             public override SingleOp AsOp => this;
 
+            [ExcludeFromCodeCoverage]
             public override Group AsGroup => null;
 
             public SingleOp(BsonDocument op)
@@ -66,6 +68,7 @@ namespace Gehtsoft.EF.MongoDb
 
             public override bool IsEmpty => Elements.Count == 0;
 
+            [ExcludeFromCodeCoverage]
             public override SingleOp AsOp => null;
 
             public override Group AsGroup => this;
@@ -180,6 +183,8 @@ namespace Gehtsoft.EF.MongoDb
             mElementStack.Push(new Group() { LogOp = null });
         }
 
+        [ExcludeFromCodeCoverage]
+        [Obsolete("This legacy method should not be used")]
         public void Reset()
         {
             mElementStack = new Stack<Element>();

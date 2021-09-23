@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -14,8 +15,6 @@ namespace Gehtsoft.EF.MongoDb
     {
         private UpdateDefinition<BsonDocument> mUpdateDocument = null;
 
-        public bool InsertIfNotExists { get; set; } = false;
-
         internal MongoUpdateMultiEntityQuery(MongoConnection connection, Type entityType) : base(connection, entityType)
         {
         }
@@ -27,18 +26,16 @@ namespace Gehtsoft.EF.MongoDb
             if (mUpdateDocument == null)
                 mUpdateDocument = Builders<BsonDocument>.Update.Set(path, bvalue);
             else
-                mUpdateDocument.AddToSet(path, value);
+                throw new InvalidOperationException("Only one change allowed at a time");
         }
 
         public override async Task ExecuteAsync(CancellationToken? token = null)
         {
             UpdateOptions options = null;
-            if (InsertIfNotExists)
-                options = new UpdateOptions { IsUpsert = true };
-
             await Collection.UpdateManyAsync(FilterBuilder.ToBsonDocument(), mUpdateDocument, options, token ?? CancellationToken.None);
         }
 
+        [ExcludeFromCodeCoverage]
         public override Task ExecuteAsync(object entity, CancellationToken? token = null)
         {
             throw new InvalidOperationException();

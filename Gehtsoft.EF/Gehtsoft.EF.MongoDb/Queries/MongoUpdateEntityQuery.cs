@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -20,6 +21,7 @@ namespace Gehtsoft.EF.MongoDb
 
         public bool InsertIfNotExists { get; set; } = false;
 
+        [ExcludeFromCodeCoverage]
         public override Task ExecuteAsync(CancellationToken? token = null)
         {
             throw new InvalidOperationException();
@@ -34,6 +36,7 @@ namespace Gehtsoft.EF.MongoDb
 
             if (entity.GetType() == Type)
             {
+                entity.UpdateId(Description);
                 FilterDefinition<BsonDocument> filter;
                 if (FilterBuilder.IsEmpty)
                 {
@@ -45,15 +48,14 @@ namespace Gehtsoft.EF.MongoDb
                 {
                     filter = FilterBuilder.ToBsonDocument();
                 }
-
                 if (InsertIfNotExists)
                     await Collection.ReplaceOneAsync(filter, entity.ConvertToBson(), new ReplaceOptions { IsUpsert = true }, token);
                 else
                     await Collection.ReplaceOneAsync(filter, entity.ConvertToBson(), new ReplaceOptions { IsUpsert = false }, token);
             }
-            else if (entity.GetType() == typeof(IEnumerable))
+            else if (entity is IEnumerable enumerable)
             {
-                foreach (object entity1 in (IEnumerable)entity)
+                foreach (object entity1 in enumerable)
                 {
                     if (entity1 == null || entity1.GetType() != Type)
                         throw new EfMongoDbException(EfMongoDbExceptionCode.NotAnEntity);

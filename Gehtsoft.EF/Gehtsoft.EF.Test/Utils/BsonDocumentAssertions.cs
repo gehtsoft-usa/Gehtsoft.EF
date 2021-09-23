@@ -62,16 +62,12 @@ namespace Gehtsoft.EF.Test.Utils
                 .ForCondition(s =>
                 {
                     var subject = s[name].ValueOf();
-
-                    bool eq;
                     if (subject == null && value == null)
-                        eq = true;
+                        return true;
                     else if (subject == null || value == null)
-                        eq = false;
+                        return false;
                     else
-                        eq = subject.Equals(value);
-
-                    return eq;
+                        return subject.Equals(value);
                 })
                 .FailWith("Expected {context:bson} contains the property {0} that has value {1} but the action value is {2}", name, value, Subject[name]);
 

@@ -18,42 +18,6 @@ namespace Gehtsoft.EF.Test.SqlDb
     public class SqlDbConnectionTest
     {
         [Fact]
-        public void Tag_NoTag_NoDefault()
-        {
-            using var connection = new DummySqlConnection();
-            connection.GetTag("mykey").Should().BeNull();
-        }
-
-        [Fact]
-        public void Tag_NoTag_Default()
-        {
-            using var connection = new DummySqlConnection();
-            connection.GetTag("mykey", "default").Should().Be("default");
-        }
-
-        [Fact]
-        public void Tag_SetTag_Default()
-        {
-            using var connection = new DummySqlConnection();
-            connection.SetTag("tag1", "value1");
-            connection.SetTag(2, "value2");
-
-            connection.GetTag<string>("tag1").Should().Be("value1");
-            connection.GetTag<string>(2).Should().Be("value2");
-        }
-
-        [Fact]
-        public void Tag_DeleteTag()
-        {
-            using var connection = new DummySqlConnection();
-            connection.SetTag("tag1", "value1");
-            connection.GetTag<string>("tag1").Should().Be("value1");
-            connection.SetTag("tag1", null);
-            connection.GetTag<string>("tag1").Should().Be(null);
-            connection.GetTag<int>("tag1").Should().Be(0);
-        }
-
-        [Fact]
         public void LockTest()
         {
             bool locked = false;
@@ -148,7 +112,6 @@ namespace Gehtsoft.EF.Test.SqlDb
             specifics.Should().NotBeNull();
 
             specifics.FormatValue(value).Should().Be(formattedValue);
-                
         }
     }
 }

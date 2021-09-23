@@ -6,6 +6,7 @@ using Gehtsoft.EF.Entities;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Threading;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Gehtsoft.EF.MongoDb
 {
@@ -110,6 +111,7 @@ namespace Gehtsoft.EF.MongoDb
             }
         }
 
+        [ExcludeFromCodeCoverage]
         public override Task ExecuteAsync(object entity, CancellationToken? token = null)
         {
             throw new InvalidOperationException();

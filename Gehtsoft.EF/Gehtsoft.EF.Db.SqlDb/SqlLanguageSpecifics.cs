@@ -480,35 +480,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <param name="type"></param>
         /// <returns></returns>
         public virtual object TranslateValue(object value, Type type)
-        {
-            if (value == null)
-            {
-                bool isValueType = type.IsValueType;
-                if (isValueType)
-                    return Activator.CreateInstance(type);
-                else
-                    return null;
-            }
-            else
-            {
-                type = Nullable.GetUnderlyingType(type) ?? type;
-                bool isEnum = type.IsEnum;
-                if (isEnum)
-                {
-                    if (!(value is int))
-                        value = Convert.ChangeType(value, typeof(int));
-                    value = Enum.ToObject(type, value);
-                }
-                else
-                {
-                    if (value.GetType() != type)
-                    {
-                        value = Convert.ChangeType(value, type);
-                    }
-                }
-                return value;
-            }
-        }
+            => TypeConverter.Convert(value, type, CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Gets SQL function in SQL code.

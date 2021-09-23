@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Gehtsoft.EF.Utils;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -55,6 +57,9 @@ namespace Gehtsoft.EF.MongoDb
         public MongoSelectQuery GetSelectQuery(Type t, bool expandReference = false) => new MongoSelectQuery(this, t, expandReference);
 
         public MongoCountQuery GetCountQuery(Type t) => new MongoCountQuery(this, t);
+
+        private TagCollection mTags = null;
+        public TagCollection Tags => mTags ?? (mTags = new TagCollection());
     }
 
     public static class MongoConnectionFactory

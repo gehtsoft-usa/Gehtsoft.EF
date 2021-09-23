@@ -2,6 +2,7 @@
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -21,6 +22,7 @@ namespace Gehtsoft.EF.MongoDb
                 await Connection.Database.DropCollectionAsync(CollectionName, token ?? CancellationToken.None);
         }
 
+        [ExcludeFromCodeCoverage]
         public override Task ExecuteAsync(object entity, CancellationToken? token = null)
         {
             throw new InvalidOperationException();

@@ -241,7 +241,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
         {
             if (value is bool b)
                 return FormatValue(b ? 1 : 0);
-            if (value is DateTime dt)
+            if (value is DateTime)
             {
                 ToDbValue(ref value, typeof(DateTime), out DbType _);
                 return FormatValue(value);

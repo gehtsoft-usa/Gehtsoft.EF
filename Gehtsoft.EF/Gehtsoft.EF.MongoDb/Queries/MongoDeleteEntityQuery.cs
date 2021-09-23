@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,6 +18,7 @@ namespace Gehtsoft.EF.MongoDb
         {
         }
 
+        [ExcludeFromCodeCoverage]
         public override Task ExecuteAsync(CancellationToken? token = null)
         {
             throw new InvalidOperationException();
@@ -35,14 +37,14 @@ namespace Gehtsoft.EF.MongoDb
                 filter.Add(Description.PrimaryKey.Column, CmpOp.Eq, Description.PrimaryKey.PropertyAccessor.GetValue(entity));
                  await Collection.DeleteOneAsync(filter.ToBsonDocument(), token);
             }
-            else if (entity.GetType() == typeof(IEnumerable))
+            else if (entity is IEnumerable enumerable)
             {
                 List<BsonValue> ids = new List<BsonValue>();
-                foreach (object entity1 in (IEnumerable)entity)
+                foreach (object entity1 in enumerable)
                 {
                     if (entity1 == null || entity1.GetType() != Type)
                         throw new EfMongoDbException(EfMongoDbExceptionCode.NotAnEntity);
-                    ids.Add(EntityToBsonController.SerializeValue(Description.PrimaryKey.PropertyAccessor.GetValue(entity), Description.PrimaryKey));
+                    ids.Add(EntityToBsonController.SerializeValue(Description.PrimaryKey.PropertyAccessor.GetValue(entity1), Description.PrimaryKey));
                 }
                 BsonFilterExpressionBuilder filter = new BsonFilterExpressionBuilder();
                 filter.Add(Description.PrimaryKey.Column, CmpOp.In, ids);

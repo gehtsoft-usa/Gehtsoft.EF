@@ -626,13 +626,13 @@ namespace Gehtsoft.EF.Test.Entity.Linq
         }
 
         [Theory]
-        [InlineData(nameof(DateTime.Year), nameof(Entity.DateTimeValue), typeof(DateTime), "YEAR(@a.datetimevalue)")]
-        [InlineData(nameof(DateTime.Month), nameof(Entity.DateTimeValue), typeof(DateTime), "MONTH(@a.datetimevalue)")]
-        [InlineData(nameof(DateTime.Day), nameof(Entity.DateTimeValue), typeof(DateTime), "DAY(@a.datetimevalue)")]
-        [InlineData(nameof(DateTime.Hour), nameof(Entity.DateTimeValue), typeof(DateTime), "HOUR(@a.datetimevalue)")]
-        [InlineData(nameof(DateTime.Minute), nameof(Entity.DateTimeValue), typeof(DateTime), "MINUTE(@a.datetimevalue)")]
-        [InlineData(nameof(DateTime.Second), nameof(Entity.DateTimeValue), typeof(DateTime), "SECOND(@a.datetimevalue)")]
-        public void Property(string property, string field, Type propertyType, string result)
+        [InlineData(nameof(DateTime.Year), nameof(Entity.DateTimeValue), "YEAR(@a.datetimevalue)")]
+        [InlineData(nameof(DateTime.Month), nameof(Entity.DateTimeValue), "MONTH(@a.datetimevalue)")]
+        [InlineData(nameof(DateTime.Day), nameof(Entity.DateTimeValue), "DAY(@a.datetimevalue)")]
+        [InlineData(nameof(DateTime.Hour), nameof(Entity.DateTimeValue), "HOUR(@a.datetimevalue)")]
+        [InlineData(nameof(DateTime.Minute), nameof(Entity.DateTimeValue), "MINUTE(@a.datetimevalue)")]
+        [InlineData(nameof(DateTime.Second), nameof(Entity.DateTimeValue), "SECOND(@a.datetimevalue)")]
+        public void Property(string property, string field, string result)
         {
             var parameter = Expression.Parameter(typeof(Entity));
 

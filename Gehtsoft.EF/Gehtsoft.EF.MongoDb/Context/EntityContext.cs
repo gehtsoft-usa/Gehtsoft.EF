@@ -75,7 +75,7 @@ namespace Gehtsoft.EF.MongoDb
                 r[i] = new ExistingTable()
                 {
                     Name = tables[i],
-                    EntityType = entities.FirstOrDefault(e => e.TableDescriptor.Name == tables[i])?.EntityType
+                    EntityType = Array.Find(entities, e => e.TableDescriptor.Name == tables[i])?.EntityType
                 };
             }
 

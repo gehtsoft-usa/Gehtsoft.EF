@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Bson;
 using System.Threading;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Gehtsoft.EF.MongoDb
 {
@@ -16,6 +17,7 @@ namespace Gehtsoft.EF.MongoDb
         {
         }
 
+        [ExcludeFromCodeCoverage]
         public override Task ExecuteAsync(CancellationToken? token = null)
         {
             throw new InvalidOperationException();
@@ -30,7 +32,7 @@ namespace Gehtsoft.EF.MongoDb
 
             if (entity.GetType() == Type)
             {
-                UpdateId(entity);
+                entity.UpdateId(Description);
                 await Collection.InsertOneAsync(entity.ConvertToBson(), null, token);
             }
             else if (entity is IEnumerable enumerable)
@@ -40,22 +42,13 @@ namespace Gehtsoft.EF.MongoDb
                 {
                     if (entity1 == null || entity1.GetType() != Type)
                         throw new EfMongoDbException(EfMongoDbExceptionCode.NotAnEntity);
-                    UpdateId(entity1);
+                    entity1.UpdateId(Description);
                     docs.Add(entity1.ConvertToBson());
                 }
                 await Collection.InsertManyAsync(docs, null, token);
             }
             else
                 throw new EfMongoDbException(EfMongoDbExceptionCode.NotAnEntity);
-        }
-
-        private void UpdateId(object entity)
-        {
-            if (Description.PrimaryKey != null &&
-                Description.PrimaryKey.IsAutoId &&
-                Description.PrimaryKey.PropertyElementType == typeof(ObjectId) &&
-                (Description.PrimaryKey.PropertyAccessor.GetValue(entity) == null || ((ObjectId)Description.PrimaryKey.PropertyAccessor.GetValue(entity)) == ObjectId.Empty))
-                Description.PrimaryKey.PropertyAccessor.SetValue(entity, ObjectId.GenerateNewId());
         }
     }
 }

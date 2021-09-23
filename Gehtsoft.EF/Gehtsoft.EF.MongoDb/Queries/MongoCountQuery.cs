@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Gehtsoft.EF.MongoDb
 {
@@ -27,6 +28,7 @@ namespace Gehtsoft.EF.MongoDb
             mRowCount = await Collection.CountDocumentsAsync(FilterBuilder.ToBsonDocument(), null, token ?? CancellationToken.None);
         }
 
+        [ExcludeFromCodeCoverage]
         public override Task ExecuteAsync(object entity, CancellationToken? token = null)
         {
             throw new InvalidOperationException();

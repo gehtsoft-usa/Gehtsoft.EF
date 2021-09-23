@@ -6,6 +6,9 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using MongoDB.Bson;
 using Gehtsoft.EF.Utils;
+using System.Collections;
+using System.Linq;
+using System.ComponentModel;
 
 namespace Gehtsoft.EF.Bson
 {
@@ -180,7 +183,7 @@ namespace Gehtsoft.EF.Bson
                 else if (dt.Kind == DateTimeKind.Local)
                     return new BsonDateTime(dt.ToUniversalTime());
 
-                return new BsonDateTime(new DateTime(((DateTime)value).Ticks, DateTimeKind.Utc));
+                return new BsonDateTime(new DateTime(dt.Ticks, DateTimeKind.Utc));
             }
             else if (value is bool b)
                 return new BsonBoolean(b);
@@ -192,6 +195,8 @@ namespace Gehtsoft.EF.Bson
                 return new BsonInt32((int?)Convert.ChangeType(value, typeof(int)) ?? 0);
             else if (value is ObjectId oid)
                 return new BsonObjectId(oid);
+            else if (value is BsonObjectId oid1)
+                return oid1;
             else if (value is Guid g)
             {
                 return new BsonString(g.ToString());
@@ -204,21 +209,34 @@ namespace Gehtsoft.EF.Bson
                     rarray.Add(SerializeValue(sarray.GetValue(i), fieldInfo));
                 return rarray;
             }
+            else if (value is IEnumerable enumerable)
+            {
+                List<object> slist = new List<object>();
+                foreach (var obj in enumerable)
+                    slist.Add(obj);
+                BsonArray rarray = new BsonArray();
+                for (int i = 0; i < slist.Count; i++)
+                    rarray.Add(SerializeValue(slist[i], fieldInfo));
+                return rarray;
+            }
             else
             {
-                BsonEntityDescription refDescription = AllEntities.Inst.FindBsonEntity(fieldInfo.PropertyElementType);
-                if (fieldInfo.IsReference)
+                if (fieldInfo != null)
                 {
-                    BsonEntityField pk = refDescription.PrimaryKey;
-                    if (pk == null)
-                        throw new BsonException(BsonExceptionCode.NoPk);
-                    object pkvalue = pk.PropertyAccessor.GetValue(value);
-                    return SerializeValue(pkvalue, pk);
+                    BsonEntityDescription refDescription = AllEntities.Inst.FindBsonEntity(fieldInfo.PropertyElementType);
+                    if (fieldInfo.IsReference)
+                    {
+                        BsonEntityField pk = refDescription.PrimaryKey;
+                        if (pk == null)
+                            throw new BsonException(BsonExceptionCode.NoPk);
+                        object pkvalue = pk.PropertyAccessor.GetValue(value);
+                        return SerializeValue(pkvalue, pk);
+                    }
                 }
-                else
-                {
+                var isEntity = AllEntities.Get(value.GetType(), false) != null;
+                if (isEntity)
                     return ConvertToBson(value);
-                }
+                throw new ArgumentException($"The type {value.GetType()} is neither an entity nor any of supported simple types");
             }
         }
 

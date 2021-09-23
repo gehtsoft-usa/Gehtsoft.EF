@@ -14,6 +14,9 @@ namespace Gehtsoft.EF.Test.Utils
         {
             valueType = Nullable.GetUnderlyingType(valueType) ?? valueType;
 
+            if (valueType == typeof(object))
+                return value;
+
             if (value == null)
             {
                 if (valueType == typeof(BsonNull))

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +13,7 @@ using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Entities.Context;
+using Gehtsoft.EF.Utils;
 using Gehtsoft.Tools.TypeUtils;
 
 namespace Gehtsoft.EF.Db.SqlDb
@@ -369,7 +372,8 @@ namespace Gehtsoft.EF.Db.SqlDb
             return new DropIndexBuilder(GetLanguageSpecifics(), descriptor.Name, name);
         }
 
-        private Dictionary<object, object> mTags = null;
+        private TagCollection mTags = null;
+        public TagCollection Tags => mTags ?? (mTags = new TagCollection());
 
         /// <summary>
         /// Gets a tag to the connection.
@@ -377,15 +381,11 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// A tag is any user-defined value. You can use tags to keep connection-related data.
         /// </summary>
         /// <param name="key"></param>
+        /// <param name="expectedType"></param>
         /// <returns></returns>
-        public object GetTag(object key)
-        {
-            if (mTags == null)
-                return null;
-            if (!mTags.TryGetValue(key, out object value))
-                return null;
-            return value;
-        }
+        [DocgenIgnore]
+        [Obsolete("Use Tags property instead")]
+        public object GetTag(object key) => mTags.GetTag(key, typeof(object));
 
         /// <summary>
         /// Gets a tag to the connection (generic method).
@@ -396,31 +396,18 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <param name="key"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public T GetTag<T>(object key, T defaultValue = default)
-        {
-            if (mTags == null)
-                return defaultValue;
-            if (!mTags.TryGetValue(key, out object value))
-                return defaultValue;
-            if (value is T t)
-                return t;
-            return defaultValue;
-        }
+        [DocgenIgnore]
+        [Obsolete("Use Tags property instead")]
+        public T GetTag<T>(object key, T defaultValue = default) => mTags.GetTag<T>(key, defaultValue);
 
         /// <summary>
         /// Sets a tag to the connection.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        public void SetTag(object key, object value)
-        {
-            if (mTags == null)
-                mTags = new Dictionary<object, object>();
-            if (value == null)
-                mTags.Remove(key);
-            else
-                mTags.Add(key, value);
-        }
+        [DocgenIgnore]
+        [Obsolete("Use Tags property instead")]
+        public void SetTag(object key, object value) => mTags.SetTag(key, value);
 
         internal class ExistingTable : IEntityTable
         {

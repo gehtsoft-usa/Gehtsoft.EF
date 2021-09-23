@@ -7,6 +7,8 @@ using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.MongoDb;
 using NUnit.Framework;
 
+#pragma warning disable CS0618 // Type or member is obsolete
+
 namespace TestApp
 {
     [TestFixture]
