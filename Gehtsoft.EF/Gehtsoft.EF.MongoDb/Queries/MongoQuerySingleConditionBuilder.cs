@@ -8,6 +8,18 @@ using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.MongoDb
 {
+    /// <summary>
+    /// The builder for a single condition.
+    /// 
+    /// Use <see cref="MongoQueryCondition"/> to get an instance of this object.
+    /// 
+    /// Use <see cref="MongoQuerySingleConditionBuilderExtension"/> to create a simpler and easier to read definitions.
+    ///
+    /// Note that condition is highly limited comparing to SQL databases:
+    /// * The first argument is always a property.
+    /// * The second argument is always a value.
+    /// * No functions could be applied on the property.
+    /// </summary>
     public class MongoQuerySingleConditionBuilder
     {
         private readonly BsonFilterExpressionBuilder mFilterBuilder;
@@ -26,6 +38,11 @@ namespace Gehtsoft.EF.MongoDb
             mLogOp = logOp;
         }
 
+        /// <summary>
+        /// Sets the comparison operation.
+        /// </summary>
+        /// <param name="op"></param>
+        /// <returns></returns>
         public MongoQuerySingleConditionBuilder Is(CmpOp op)
         {
             if (mPath == null)
@@ -36,6 +53,11 @@ namespace Gehtsoft.EF.MongoDb
             return this;
         }
 
+        /// <summary>
+        /// Sets the property name.
+        /// </summary>
+        /// <param name="path">See [link=mongopath]Paths[/link] article for details</param>
+        /// <returns></returns>
         public MongoQuerySingleConditionBuilder Property(string path)
         {
             if (!string.IsNullOrEmpty(mPath) || mOp != null)
@@ -44,6 +66,16 @@ namespace Gehtsoft.EF.MongoDb
             return this;
         }
 
+        /// <summary>
+        /// Sets the value to compare with.
+        ///
+        /// Note: Do not specify a value for `IsNull` and `NotNull` operations.
+        ///
+        /// Note: For `Like` operation the mask may be either a traditional SQL-style mask with `%` and `_` patterns or
+        /// a regular expression, enclosed into `/` (slash) character. E.g. `"a%"` and `"/a.*/"` has the same meaning.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public MongoQuerySingleConditionBuilder Value(object value)
         {
             if (mPath == null || mOp == null)

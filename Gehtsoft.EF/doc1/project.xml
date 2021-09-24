@@ -6,8 +6,7 @@
 
  <dg:source>
   <dg:file name="src/index.ds" encoding="windows-1252" />
-  <dg:file name="src/tutorialsdb.ds" encoding="windows-1252" />
-  <dg:file name="src/tutorialsen.ds" encoding="windows-1252" />
+  <dg:folder name="src/ns" encoding="utf-8" />
   <dg:folder name="src/raw" encoding="utf-8" />
  </dg:source>
 

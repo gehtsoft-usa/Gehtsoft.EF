@@ -10,7 +10,7 @@
 
     1) Simplified and cross-platform basic ADO.NET query.
 
-    2) Cross-DB server query constructors for `CREATE TABLE`, `DROP TABLE`, 
+    2) Cross-DB server query constructors for `CREATE TABLE`, `DROP TABLE`,
     `CREATE VIEW`, `DROP VIEW`, `CREATE INDEX`, `DROP INDEX`, `INSERT`, `UPDATE`,
     `DELETE` and `SELECT` queries.
 
@@ -77,23 +77,33 @@
 @end
 
 @group
-    @key=tutorialsdb
-    @brief=This section explains how to create a connection and use it with plain SQL
-    @title=Database Connectivity
-    @ingroup=tutorials
+    @key=entities
+    @title=Support of entity definition.
+    @brief=
+    @ingroup=main
     @transform=yes
     @sortgroups=no
     @sortarticles=no
-
 @end
-
 
 @group
-    @key=tutorialsen
-    @brief=This section explains how to the framework to manage the persistent storage of the entities.
-    @title=Entity Operations
-    @ingroup=tutorials
+    @key=sql
+    @title=Support of SQL databases.
+    @brief=
+    @ingroup=main
     @transform=yes
     @sortgroups=no
     @sortarticles=no
 @end
+
+@group
+    @key=mongo
+    @title=Support of Mongo databases.
+    @brief=
+    @ingroup=main
+    @transform=yes
+    @sortgroups=no
+    @sortarticles=no
+@end
+
+

@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Gehtsoft.EF.MongoDb
 {
+    /// <summary>
+    /// The exception code for mongo exceptions.
+    /// </summary>
     public enum EfMongoDbExceptionCode
     {
         LogOpNotSupported,
@@ -17,10 +21,20 @@ namespace Gehtsoft.EF.MongoDb
         TypeDoesNotMatchQuery,
     }
 
+    /// <summary>
+    /// The exception related to Mongo.
+    /// </summary>
+    [ExcludeFromCodeCoverage]
     public class EfMongoDbException : Exception
     {
+        /// <summary>
+        /// The code of the exception
+        /// </summary>
         public EfMongoDbExceptionCode Code { get; }
 
+        /// <summary>
+        /// The message.
+        /// </summary>
         public override string Message
         {
             get

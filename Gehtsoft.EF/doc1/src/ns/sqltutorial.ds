@@ -1,0 +1,22 @@
+@group
+    @key=tutorialsdb
+    @brief=This section explains how to create a connection and use it with plain SQL
+    @title=Database Connectivity
+    @ingroup=tutorials
+    @transform=yes
+    @sortgroups=no
+    @sortarticles=no
+
+@end
+
+
+@group
+    @key=tutorialsen
+    @brief=This section explains how to the framework to manage the persistent storage of the entities.
+    @title=Entity Operations
+    @ingroup=tutorials
+    @transform=yes
+    @sortgroups=no
+    @sortarticles=no
+@end
+

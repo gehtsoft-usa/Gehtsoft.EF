@@ -324,32 +324,28 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             mQuery = null;
         }
 
-        private Dictionary<Type, object> mTags;
+        private TagCollection mTags;
+
+        public TagCollection Tags => mTags ?? (mTags = new TagCollection());
 
         /// <summary>
         /// Gets a tag (user-defined data) associated with the query.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T GetTag<T>()
-        {
-            if (mTags == null)
-                return default;
-            if (!mTags.TryGetValue(typeof(T), out object value))
-                return default;
-            return (T)value;
-        }
+        [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
+        [Obsolete("Use Tags property")]
+        public T GetTag<T>() => Tags.GetTag<T>(typeof(T));
 
         /// <summary>
         /// Sets a tag (user-defined data) to the query.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value"></param>
-        public void SetTag<T>(T value)
-        {
-            if (mTags == null)
-                mTags = new Dictionary<Type, object>();
-            mTags[typeof(T)] = value;
-        }
+        [DocgenIgnore]
+        [ExcludeFromCodeCoverage]
+        [Obsolete("Use Tags property")]
+        public void SetTag<T>(T value) => Tags.SetTag(typeof(T), value);
     }
 }

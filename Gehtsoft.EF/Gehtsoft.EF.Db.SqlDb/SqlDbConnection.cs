@@ -381,7 +381,6 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// A tag is any user-defined value. You can use tags to keep connection-related data.
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="expectedType"></param>
         /// <returns></returns>
         [DocgenIgnore]
         [Obsolete("Use Tags property instead")]

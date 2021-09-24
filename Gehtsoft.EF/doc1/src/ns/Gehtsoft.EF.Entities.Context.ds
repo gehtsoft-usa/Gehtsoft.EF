@@ -1,0 +1,8 @@
+
+
+@group
+    @title=Namespace Gehtsoft.EF.Entities.Context
+    @key=Gehtsoft.EF.Entities.Context
+    @ingroup=entities
+    @brief=
+@end

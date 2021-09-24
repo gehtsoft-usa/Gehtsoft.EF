@@ -4,7 +4,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DocgenVersion>0.1.24</DocgenVersion>
+    <DocgenVersion>0.1.25</DocgenVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -48,6 +48,7 @@
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb.Sql/bin/Debug/netstandard2.0/Gehtsoft.EF.Db.SqlDb.Sql.dll" />
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb.OData/bin/Debug/netstandard2.0/Gehtsoft.EF.Db.SqlDb.OData.dll" />
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Bson/bin/Debug/netstandard2.0/Gehtsoft.EF.Bson.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.MongoDB/bin/Debug/netstandard2.0/Gehtsoft.EF.MongoDB.dll" />
  </ItemGroup>
 
  <Target Name="Scan">

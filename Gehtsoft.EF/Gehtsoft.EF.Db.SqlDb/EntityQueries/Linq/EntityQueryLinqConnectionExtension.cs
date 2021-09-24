@@ -15,18 +15,18 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         /// <returns></returns>
         public static QueryableEntity<T> GetCollectionOf<T>(this SqlDbConnection connection)
         {
-            var r = connection.GetTag<QueryableEntity<T>>(typeof(QueryableEntity<T>));
+            var r = connection.Tags.GetTag<QueryableEntity<T>>(typeof(QueryableEntity<T>));
             if (r == null)
             {
-                var p = connection.GetTag<QueryableEntityProvider>(typeof(QueryableEntityProvider));
+                var p = connection.Tags.GetTag<QueryableEntityProvider>(typeof(QueryableEntityProvider));
                 if (p == null)
                 {
                     p = new QueryableEntityProvider(new ExistingConnectionFactory(connection));
-                    connection.SetTag(typeof(QueryableEntityProvider), p);
+                    connection.Tags.SetTag(typeof(QueryableEntityProvider), p);
                 }
 
                 r = new QueryableEntity<T>(p);
-                connection.SetTag(typeof(QueryableEntity<T>), r);
+                connection.Tags.SetTag(typeof(QueryableEntity<T>), r);
             }
             return r;
         }

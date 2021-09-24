@@ -286,7 +286,7 @@
     subclasses of [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery]EntityQuery[/clink] classes. An entity query is
     a disposable object and must be disposed after use and before the connection to which the query belongs is disposed.
 
-    An entity queries can be executed using method [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.Execute.0]Execute[/clink].
+    An entity queries can be executed using method [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.Execute.4MF]Execute[/clink].
 
     Depending on the query it may have a parameter if the query operates on a single instance of the entity (e.g. insert, update or delete).
 @end
@@ -360,7 +360,7 @@
         @list-item
             Use automatic update procedure,
             provided by [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink]
-            class (see [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateTables.0]Update()[/clink] method).
+            class (see [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateTables.Z93]Update()[/clink] method).
         @end
     @end
 
@@ -548,7 +548,7 @@
     Select queries (and, by the way, multiple entity modification and deletion queries) can be applied
     to the filtered rows only.
 
-    To do it [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.Where.0]Where[/clink]
+    To do it [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.Where.ty7]Where[/clink]
     property is used.
 
     There are a lot of options how the resultset can be filtered. Let's discuss major options of filtering.
@@ -719,7 +719,7 @@
 
     Sometimes subquery needs to be referenced to the parent query. Like in example below where we need to find all dictionary entries
     that do not have any entities related to them. The cross references may be established using the result returned by
-    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.GetReference.0]GetReference()[/clink] method.
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.GetReference]GetReference()[/clink] method.
 
     @example
         @title=Example
@@ -809,7 +809,7 @@
 
     [b]Ordering Resultset[/b]
 
-    To order the resultset use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddOrderBy.0]AddOrderBy()[/clink]
+    To order the resultset use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddOrderBy]AddOrderBy()[/clink]
     method of the query. The data can be ordered by any column of any entity involved into the query.
 
     @example
@@ -832,8 +832,8 @@
     [b]Limiting Rows[/b]
 
     To limit the number of rows received or to skip rows from the beginning of the query use
-    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Limit.0]Limit[/clink]
-    and [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Skip.0]Skip[/clink] properties
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Limit.yWG]Limit[/clink]
+    and [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Skip.c83]Skip[/clink] properties
     of the query. The example below reads 20 entities starting at 100th entity.
 
     @example
@@ -948,7 +948,7 @@
 
     The generic entity query does not have any resultset defined when the object is created.
 
-    Use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.2]AddToResultset()[/clink] method to specify which columns
+    Use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset]AddToResultset()[/clink] method to specify which columns
     needs to be returned.
 
     @example
@@ -991,7 +991,7 @@
 
     There are two way to read the result of generic entity query.
 
-    First option is to read the resultset row-by-row and access each individual column using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.GetValue.0]GetValue()[/clink]
+    First option is to read the resultset row-by-row and access each individual column using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.GetValue]GetValue()[/clink]
     method.
 
     @example
@@ -1064,7 +1064,7 @@
        !}
     @end
 
-    When the data needs to be aggregated by some value, use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddGroupBy.0]AddGroupBy[/clink]
+    When the data needs to be aggregated by some value, use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddGroupBy]AddGroupBy[/clink]
     method. Some database requires all columns from the resultset that aren't aggregate function to be included into
     group by clause. The framework automatically does this if at least one non-aggregated column exists in the resultset.
 
@@ -1096,7 +1096,7 @@
 
     Generic select by default has only one entity table involved, which was set when the query is created.
 
-    You can add more entities using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddEntity.0]AddEntity[/clink] method.
+    You can add more entities using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddEntity]AddEntity[/clink] method.
 
     The framework automatically recognizes the type of join (inner, left or right) using primary and foreign key information in the entities.
 
@@ -1363,7 +1363,7 @@
             Find the entity descriptor using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities]AllEntities[/clink] class.
         @end
         @list-item
-            Get the table descriptor using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor.TableDescriptor.0]TableDescriptor[/clink] property
+            Get the table descriptor using [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor.TableDescriptor.I5A]TableDescriptor[/clink] property
             of the entity descriptor.
         @end
     @end
@@ -1463,7 +1463,7 @@
     @list
         @list-item
         [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor]EntityGenericAccessor[/clink] and
-        [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates_T_TKey]GenericEntityAccessorWithAggregates[/clink]
+        [clink=Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates]GenericEntityAccessorWithAggregates[/clink]
         classes that provides basic CRUD operations for entities.
         @end
         @list-item

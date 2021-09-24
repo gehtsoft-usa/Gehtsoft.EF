@@ -553,11 +553,11 @@ namespace Gehtsoft.EF.Test.Mongo
 
                 var list1 = new List<EntityA>();
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 50; i++)
                 {
                     list1.Add(new EntityA()
                     {
-                        AA = $"value {i}",
+                        AA = $"value {i / 10}",
                         AB = i
                     });
                 }
@@ -577,6 +577,19 @@ namespace Gehtsoft.EF.Test.Mongo
                         {
                             AA = $"value {i * 10}",
                             AB = i * 10,
+                        },
+                        BD = new EntityA[]
+                        {
+                            new EntityA()
+                            {
+                                AA = $"value {i * 20}",
+                                AB = i * 10 + 1,
+                            },
+                                new EntityA()
+                            {
+                                AA = $"value {i * 30}",
+                                AB = i * 10 + 2,
+                            },
                         }
                     });
                 }
@@ -595,7 +608,7 @@ namespace Gehtsoft.EF.Test.Mongo
             var connection = PrepareSelectData(connectionName);
 
             using (var query = connection.GetCountQuery<EntityA>())
-                query.RowCount.Should().Be(10);
+                query.RowCount.Should().Be(50);
 
             using (var query = connection.GetCountQuery<EntityB>())
                 query.RowCount.Should().Be(20);
@@ -612,6 +625,297 @@ namespace Gehtsoft.EF.Test.Mongo
             {
                 var all = query.ReadAll<EntityB>();
                 all.Should().HaveCount(20);
+            }
+        }
+
+        [TestOrder(32)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_OrderBy(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            using (var query = connection.GetSelectQuery<EntityA>())
+            {
+                query.AddOrderBy(nameof(EntityA.AB));
+                var all = query.ReadAll<EntityA>();
+                all.Should().BeInAscendingOrder(a => a.AB);
+            }
+        }
+
+        [TestOrder(33)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_OrderBy1(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            using (var query = connection.GetSelectQuery<EntityA>())
+            {
+                query.AddOrderBy(nameof(EntityA.AA));
+                query.AddOrderBy(nameof(EntityA.AB), SortDir.Desc);
+                var all = query.ReadAll<EntityA>();
+                for (int i = 1; i < all.Count; i++)
+                {
+                    var rc = all[i].AA.CompareTo(all[i - 1].AA);
+                    rc.Should().BeGreaterOrEqualTo(0, "AA must be in ascending order");
+                    if (rc == 0)
+                        all[i].AB.Should().BeLessThan(all[i - 1].AB, "AB must be in descending order");
+                }
+            }
+        }
+
+        [TestOrder(33)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_OrderBy2(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            using (var query = connection.GetSelectQuery<EntityA>())
+            {
+                query.AddOrderBy(nameof(EntityA.AA), SortDir.Desc);
+                query.AddOrderBy(nameof(EntityA.AB));
+                var all = query.ReadAll<EntityA>();
+                for (int i = 1; i < all.Count; i++)
+                {
+                    var rc = all[i].AA.CompareTo(all[i - 1].AA);
+                    rc.Should().BeLessOrEqualTo(0, "AA must be in descending order");
+                    if (rc == 0)
+                        all[i].AB.Should().BeGreaterThan(all[i - 1].AB, "AB must be in ascending order");
+                }
+            }
+        }
+
+        [TestOrder(34)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_TakeSkip(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            EntityCollection<EntityA> all;
+            using (var query = connection.GetSelectQuery<EntityA>())
+            {
+                query.AddOrderBy(nameof(EntityA.AB));
+                all = query.ReadAll<EntityA>();
+            }
+
+            using (var query = connection.GetSelectQuery<EntityA>())
+            { 
+                query.Skip = 2;
+                query.Limit = 3;
+                var part = query.ReadAll<EntityA>();
+                part.Should().HaveCount(3);
+                part[0].Id.Should().Be(all[2].Id);
+                part[1].Id.Should().Be(all[3].Id);
+                part[2].Id.Should().Be(all[4].Id);
+            }
+        }
+
+        [TestOrder(35)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_ReadResultset(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            EntityCollection<EntityA> all;
+            using (var query = connection.GetSelectQuery<EntityA>())
+            {
+                query.AddOrderBy(nameof(EntityA.AB));
+                all = query.ReadAll<EntityA>();
+            }
+
+            using (var query = connection.GetSelectQuery<EntityA>())
+            {
+                query.Execute();
+
+                int cc = 0;
+                var alreadyHandled = new HashSet<ObjectId>();
+
+                while (query.ReadNext())
+                {
+                    query.FieldCount.Should().Be(3);
+                    query.FieldName(0).Should().Be("_id");
+                    query.FieldName(1).Should().Be("aa");
+                    query.FieldName(2).Should().Be("ab");
+
+                    cc++;
+                    query.IsNull(0).Should().BeFalse();
+
+                    var id = query.GetValue<ObjectId>(0);
+
+                    alreadyHandled.Contains(id).Should().BeFalse();
+                    alreadyHandled.Add(id);
+
+                    var aa = query.GetValue<string>(1);
+                    var ab = query.GetValue<int>(2);
+
+                    var e = all.FirstOrDefault(e => e.Id == id);
+                    e.Should().NotBeNull();
+                    aa.Should().Be(e.AA);
+                    ab.Should().Be(e.AB);
+
+                    query.IsNull("_id").Should().BeFalse();
+                    query.GetValue<ObjectId>("_id").Should().Be(e.Id);
+                    query.GetValue<string>("aa").Should().Be(e.AA);
+                    query.GetValue<int>("ab").Should().Be(e.AB);
+                }
+
+                cc.Should().Be(all.Count);
+            }
+        }
+
+        [TestOrder(35)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_Manually(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            EntityCollection<EntityA> all;
+            using (var query = connection.GetSelectQuery<EntityA>())
+            {
+                query.AddOrderBy(nameof(EntityA.AB));
+                all = query.ReadAll<EntityA>();
+            }
+
+            using (var query = connection.GetSelectQuery<EntityA>())
+            {
+                query.Execute();
+
+                int cc = 0;
+                var alreadyHandled = new HashSet<ObjectId>();
+
+                ((Action)(() => query.GetEntity<EntityA>())).Should().Throw<EfMongoDbException>();
+
+                while (true)
+                {
+                    var e = query.ReadOne<EntityA>();
+                    if (e == null)
+                        break;
+
+                    ((Action)(() => query.GetEntity<EntityB>())).Should().Throw<EfMongoDbException>();
+
+                    cc++;
+                    query.IsNull(0).Should().BeFalse();
+
+                    alreadyHandled.Contains(e.Id).Should().BeFalse();
+                    alreadyHandled.Add(e.Id);
+
+                    var e1 = all.FirstOrDefault(x => x.Id == e.Id);
+                    e.Should().NotBeNull();
+                    e.AA.Should().Be(e.AA);
+                    e.AB.Should().Be(e.AB);
+                }
+                cc.Should().Be(all.Count);
+            }
+        }
+
+        [TestOrder(37)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_ExcludeFromRS(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            using (var query = connection.GetSelectQuery<EntityB>())
+            {
+                query.ExcludeFromResultset(nameof(EntityB.BB));
+                query.ExcludeFromResultset(nameof(EntityB.BD));
+                var all = query.ReadAll<EntityB>();
+                all.Should()
+                    .HaveCount(20)
+                    .And.HaveAllElementsMatching(e => e.BB == null)
+                    .And.HaveAllElementsMatching(e => e.BD == null);
+            }
+        }
+
+        [TestOrder(38)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_Where_Simple(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            using (var query = connection.GetSelectQuery<EntityB>())
+            {
+                query.Where.Property(nameof(EntityB.BA)).Like("/.+2.*/");
+                var all = query.ReadAll<EntityB>();
+                all.Should()
+                    .NotBeEmpty()
+                    .And.HaveAllElementsMatching(e => e.BA.Contains("2"));
+            }
+        }
+
+        [TestOrder(38)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_Where_SimpleOfProperty(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            using (var query = connection.GetSelectQuery<EntityB>())
+            {
+                query.Where.Property("BC.AA").Like("%2%");
+                var all = query.ReadAll<EntityB>();
+                all.Should()
+                    .NotBeEmpty()
+                    .And.HaveAllElementsMatching(e => e.BC.AA.Contains("2"));
+            }
+        }
+
+        [TestOrder(38)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_Where_LogOp_Connected(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            using (var query = connection.GetSelectQuery<EntityB>())
+            {
+                query.Where.Or().Property(nameof(EntityB.BA)).Like("/.+2.*/");
+                query.Where.Or().Property(nameof(EntityB.BA)).Like("/.+3.*/");
+                var all = query.ReadAll<EntityB>();
+                all.Should()
+                    .NotBeEmpty()
+                    .And.HaveAllElementsMatching(e => e.BA.Contains("2") || e.BA.Contains("3"));
+            }
+        }
+
+        [TestOrder(38)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_Where_Where_One_Array_Item(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            using (var query = connection.GetSelectQuery<EntityB>())
+            {
+                query.Where.Property("BD.1.AB").Eq(22);
+                var all = query.ReadAll<EntityB>();
+                all.Should()
+                    .HaveCount(1)
+                    .And.HaveElementMatchingAt(0, e => e.BD[1].AB == 22);
+            }
+        }
+
+        [TestOrder(38)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public void Select_Where_Where_Any_Array_Item(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            using (var query = connection.GetSelectQuery<EntityB>())
+            {
+                query.Where.Property("BD.AB").Ge(20);
+                query.Where.Property("BD.AB").Ls(50);
+                var all = query.ReadAll<EntityB>();
+                all.Should()
+                    .HaveCount(3)
+                    .And.HaveAllElementsMatching(e => e.BD[0].AB >= 20 && e.BD[1].AB < 50);
             }
         }
 

@@ -8,21 +8,31 @@ using System.Threading.Tasks;
 using Gehtsoft.EF.Bson;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.MongoDb
 {
+    /// <summary>
+    /// The query to insert an entity or an enumerable collection of entities into a list.
+    ///
+    /// Use <see cref="MongoConnection.GetInsertEntityQuery{T}"/> to get the query object.
+    ///
+    /// Use <see cref="MongoQuery.Execute(object)"/> or <see cref="MongoQuery.ExecuteAsync(object, CancellationToken?)"/> to execute this query.
+    /// </summary>
     public class MongoInsertEntityQuery : MongoQuery
     {
         internal MongoInsertEntityQuery(MongoConnection connection, Type entityType) : base(connection, entityType)
         {
         }
 
+        [DocgenIgnore]
         [ExcludeFromCodeCoverage]
         public override Task ExecuteAsync(CancellationToken? token = null)
         {
             throw new InvalidOperationException();
         }
 
+        [DocgenIgnore]
         public override Task ExecuteAsync(object entity, CancellationToken? token = null) => ExecuteAsyncCore(entity, token ?? CancellationToken.None);
 
         private async Task ExecuteAsyncCore(object entity, CancellationToken token)

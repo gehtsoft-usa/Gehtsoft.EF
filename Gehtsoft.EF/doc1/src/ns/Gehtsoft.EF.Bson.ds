@@ -1,0 +1,8 @@
+
+
+@group
+    @title=Namespace Gehtsoft.EF.Bson
+    @key=Gehtsoft.EF.Bson
+    @ingroup=mongo
+    @brief=
+@end

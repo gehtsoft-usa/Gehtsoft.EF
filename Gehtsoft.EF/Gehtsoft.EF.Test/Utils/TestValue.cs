@@ -101,6 +101,10 @@ namespace Gehtsoft.EF.Test.Utils
             {
                 return new BsonBinaryData(Convert.FromHexString(sd));
             }
+            else if (valueType == typeof(Decimal128))
+            {
+                return new Decimal128((decimal)Translate(typeof(decimal), value));
+            }
 
             return Convert.ChangeType(value, valueType);
         }

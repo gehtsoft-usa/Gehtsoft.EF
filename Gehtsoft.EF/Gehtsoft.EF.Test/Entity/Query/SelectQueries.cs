@@ -1042,9 +1042,9 @@ namespace Gehtsoft.EF.Test.Entity.Query
             using var connection = new DummySqlConnection();
             using var query = connection.GetSelectEntitiesQuery<Entity1>(new[] { new SelectEntityQueryFilter() { EntityType = typeof(Entity1), Property = nameof(Entity1.D2) } });
 
-            query.GetTag<string>().Should().BeNull();
-            query.SetTag<string>("abc");
-            query.GetTag<string>().Should().Be("abc");
+            query.Tags.GetTag(typeof(string)).Should().BeNull();
+            query.Tags.SetTag(typeof(string), "abc");
+            query.Tags.GetTag(typeof(string)).Should().Be("abc");
         }
 
         [Fact]

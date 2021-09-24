@@ -1,0 +1,8 @@
+
+
+@group
+    @title=Namespace Gehtsoft.EF.MongoDb
+    @key=Gehtsoft.EF.MongoDb
+    @ingroup=mongo
+    @brief=
+@end

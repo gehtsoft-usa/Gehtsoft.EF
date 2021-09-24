@@ -2,18 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gehtsoft.EF.Bson;
+using Gehtsoft.EF.Utils;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using System.Reflection;
 
 namespace Gehtsoft.EF.MongoDb
 {
+    /// <summary>
+    /// The base class for select queries.
+    ///
+    /// This class is an abstract class. Use <see cref="MongoSelectQuery"/> instead. This class is introduced
+    /// to support joined projections in future releases of the framework.
+    /// </summary>
     public abstract class MongoSelectQueryBase : MongoQueryWithCondition
     {
         private List<BsonDocument> mResultSet = null;
         private BsonDocument mCurrentRow = null;
         protected int mCurrentRowIdx;
 
+        [DocgenIgnore]
         public List<BsonDocument> ResultSet
         {
             get => mResultSet;
@@ -29,6 +36,12 @@ namespace Gehtsoft.EF.MongoDb
         {
         }
 
+        /// <summary>
+        /// Reads the next row of the cursor.
+        ///
+        /// The method returns `true` if a row is succesfully read and `false` if the end of the cursor is reached.
+        /// </summary>
+        /// <returns></returns>
         public bool ReadNext()
         {
             if (mResultSet == null || mCurrentRowIdx >= mResultSet.Count - 1)
@@ -38,6 +51,13 @@ namespace Gehtsoft.EF.MongoDb
             return true;
         }
 
+        /// <summary>
+        /// Reads the next row as a entity of the specified type.
+        ///
+        /// The method returns `null` if the end of the cursor is reached.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T ReadOne<T>() where T : class
         {
             if (!ReadNext())
@@ -46,6 +66,11 @@ namespace Gehtsoft.EF.MongoDb
             return GetEntity<T>();
         }
 
+        /// <summary>
+        /// Gets the current row as an entity of the specified type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public object GetEntity(Type type)
         {
             if (mCurrentRow == null)
@@ -55,98 +80,27 @@ namespace Gehtsoft.EF.MongoDb
             return mCurrentRow.ToEntity(Type);
         }
 
+        /// <summary>
+        /// Gets the current row as an entity of the specified type (generic version).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T GetEntity<T>() where T : class => GetEntity(typeof(T)) as T;
 
+        /// <summary>
+        /// Gets the current row as BSON document.
+        /// </summary>
+        /// <returns></returns>
         public BsonDocument GetDocument() => mCurrentRow;
 
-        protected object ConvertValue(BsonValue value, Type type)
-        {
-            if (value == null || value.IsBsonNull)
-            {
-                if (type.IsValueType)
-                    return Activator.CreateInstance(type);
-                else
-                    return null;
-            }
+        protected object ConvertValue(BsonValue value, Type type) => value.ConvertTo(type);
 
-            if (type == typeof(object))
-                return BsonTypeMapper.MapToDotNetValue(value);
-            if (type == typeof(string))
-                return value.IsBsonNull ? (string)null : value.AsString;
-            if (type == typeof(int))
-                return value.AsInt32;
-            if (type == typeof(int?))
-                return value.IsBsonNull ? null : (int?)ConvertValue(value, typeof(int));
-            if (type == typeof(long))
-                return value.AsInt64;
-            if (type == typeof(long?))
-                return value.IsBsonNull ? null : (long?)ConvertValue(value, typeof(long));
-            if (type == typeof(double))
-                return value.AsDouble;
-            if (type == typeof(double?))
-                return value.IsBsonNull ? null : (double?)ConvertValue(value, typeof(double));
-            if (type == typeof(DateTime))
-            {
-                if (EntityToBsonController.ReturnDateTimeAsLocalByDefault)
-                    return value.AsBsonDateTime.ToUniversalTime().ToLocalTime();
-                else
-                    value.AsBsonDateTime.ToUniversalTime();
-            }
-
-            if (type == typeof(DateTime?))
-                return value.IsBsonNull ? null : (DateTime?)ConvertValue(value, typeof(DateTime));
-            if (type == typeof(bool))
-                return new DateTime(value.AsBsonDateTime.ToUniversalTime().Ticks, DateTimeKind.Unspecified);
-            if (type == typeof(bool?))
-                return value.IsBsonNull ? null : (bool?)ConvertValue(value, typeof(bool));
-            if (type == typeof(decimal))
-                return value.AsDecimal;
-            if (type == typeof(decimal?))
-                return value.IsBsonNull ? null : (decimal?)ConvertValue(value, typeof(decimal));
-            if (type == typeof(byte[]))
-                return value.IsBsonNull ? (byte[])null : value.AsBsonBinaryData.Bytes;
-            if (type == typeof(ObjectId))
-                return value.AsObjectId;
-            if (type == typeof(ObjectId?))
-                return value.IsBsonNull ? null : (ObjectId?)ConvertValue(value, typeof(ObjectId));
-            if (type == typeof(Guid))
-            {
-                string s = value.AsString;
-                if (s == null)
-                    return Guid.Empty;
-                if (!Guid.TryParse(s, out Guid g))
-                    return Guid.Empty;
-                return g;
-            }
-            if (type == typeof(Guid?))
-                return value.IsBsonNull ? null : (Guid?)ConvertValue(value, typeof(Guid));
-
-            if (type.GetTypeInfo().IsArray && value.IsBsonArray)
-            {
-                if (value.IsBsonNull)
-                    return null;
-
-                Type elementType = type.GetTypeInfo().GetElementType();
-                BsonArray arrSrc = value.AsBsonArray;
-                int length = arrSrc.Count;
-                object arrRes = Activator.CreateInstance(type, new object[] { length });
-                Array arrDst = (Array)arrRes;
-                for (int i = 0; i < length; i++)
-                    arrDst.SetValue(ConvertValue(arrSrc[i], elementType), i);
-                return arrRes;
-            }
-
-            if (value.IsBsonDocument)
-            {
-                if (type == typeof(BsonDocument))
-                    return value.AsBsonDocument;
-
-                return value.AsBsonDocument.ToEntity(type);
-            }
-
-            throw new Gehtsoft.EF.Bson.BsonException(BsonExceptionCode.TypeIsNotSupported);
-        }
-
+        /// <summary>
+        /// Gets a property of the current row by its index.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public object GetValue(int column, Type type)
         {
             if (mCurrentRow == null)
@@ -154,18 +108,40 @@ namespace Gehtsoft.EF.MongoDb
             return ConvertValue(mCurrentRow[column], type);
         }
 
+        /// <summary>
+        /// Gets a property of the current row by the property name.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public object GetValue(string column, Type type)
         {
             if (mCurrentRow == null)
                 throw new EfMongoDbException(EfMongoDbExceptionCode.NoRow);
-
             return ConvertValue(mCurrentRow.GetValue(column, BsonNull.Value), type);
         }
 
+        /// <summary>
+        /// Gets a property of the current row by its index (generic version).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public T GetValue<T>(int column) => (T)GetValue(column, typeof(T));
 
+        /// <summary>
+        /// Gets a property of the current row by the property name (generic version).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="field"></param>
+        /// <returns></returns>
         public T GetValue<T>(string field) => (T)GetValue(field, typeof(T));
 
+        /// <summary>
+        /// Checks the property for be a null value by its index.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public bool IsNull(int column)
         {
             if (mCurrentRow == null)
@@ -173,6 +149,11 @@ namespace Gehtsoft.EF.MongoDb
             return mCurrentRow[column].IsBsonNull;
         }
 
+        /// <summary>
+        /// Checks the property for be a null value by the property name.
+        /// </summary>
+        /// <param name="field"></param>
+        /// <returns></returns>
         public bool IsNull(string field)
         {
             if (mCurrentRow == null)
@@ -180,8 +161,20 @@ namespace Gehtsoft.EF.MongoDb
             return mCurrentRow.GetValue(field, BsonNull.Value).IsBsonNull;
         }
 
+        /// <summary>
+        /// Returns the number of properties in the current row.
+        ///
+        /// Note: Unlike SQL databases you must read the row to check the number of columns/properties in a row.
+        /// </summary>
         public int FieldCount => mCurrentRow?.Values.Count<BsonValue>() ?? 0;
 
+        /// <summary>
+        /// Returns the name of the property by its index.
+        ///
+        /// Note: Unlike SQL databases you must read the row to check the names of columns/properties in a row.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public string FieldName(int column) => mCurrentRow.GetElement(column).Name;
     }
 }

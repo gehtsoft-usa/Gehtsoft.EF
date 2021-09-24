@@ -1,0 +1,22 @@
+@article
+    @key=mongopath
+    @title=Paths
+    @brief=
+    @ingroup=mongo
+
+    In Mongo DB many lists contains a complex tree of objects. The way to refer an element 
+    of this tree is called "Path".
+
+    The path consists of elements separater by a dot character (`.`).
+
+    Each element could be:
+    * A name of the property
+    * An integer zero-based index of an array element
+
+    E.g. path "`P1.P2.PA.5.CC`" means:
+    the property `CC` of sixth element of the array stored in the property `PA` of an object stored
+    in the property `P2` of the object stored in the property `P1` of the entity. 
+
+    In case the path is used in the condition and condition needs to be applied to 
+    any element of the array, just skip index in the path.
+@end

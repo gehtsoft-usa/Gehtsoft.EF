@@ -163,7 +163,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     /// The interface is used when a column from a main query needs to be used
     /// in a subquery condition.
     ///
-    /// Use [clink=QueryWithWhereBuilder.GetReference]GetReference[/clink] to get a reference
+    /// Use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder.GetReference]GetReference[/clink] to get a reference
     /// to a field.
     /// </summary>
     public interface IInQueryFieldReference

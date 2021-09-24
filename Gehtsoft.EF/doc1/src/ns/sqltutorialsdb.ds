@@ -277,7 +277,7 @@
     [b][c]UPDATE[/c][/b]
 
     The [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder]UpdateQueryBuilder[/clink] create the SQL engine specific query to update rows in the table.
-    In this example we look at the simplest version that just updates one row by its identifier. Use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.UpdateById.0]UpdateById[/clink]
+    In this example we look at the simplest version that just updates one row by its identifier. Use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.UpdateById.hqC]UpdateById[/clink]
     method to create such query. Use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.AddUpdateColumn.xv3]AddUpdateColumn[/clink]
     to add one column to update. Use [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.AddUpdateAllColumns.wlF]AddUpdateAllColumns[/clink]
     to add all columns except primary key to update. Both methods create parameter(s) with the same name as the column name to be updated.
@@ -508,7 +508,8 @@
         ```
     @end
 
-    Sometime subqueries require references to the parent queries. In this case [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.GetReference]GetReference()[/clink]
+    Sometime subqueries require references to the parent queries. 
+    In this case [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder.GetReference]GetReference()[/clink]
     method may be used to get a reference for further usage in
     [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.Where.ty7]Where[/clink] property.
 

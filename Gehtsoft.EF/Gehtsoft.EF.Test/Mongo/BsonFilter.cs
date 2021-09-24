@@ -53,7 +53,7 @@ namespace Gehtsoft.EF.Test.Mongo
         [InlineData(CmpOp.Ge, "$gte", 5, 5)]
         [InlineData(CmpOp.Gt, "$gt", 5, 5)]
         [InlineData(CmpOp.Like, "$regex", "a%.[a-e]b", "a.*.[a-e]b")]
-        [InlineData(CmpOp.Like, "$regex", "/a%.+b/", "/a%.+b/")]
+        [InlineData(CmpOp.Like, "$regex", "/a%.+b/", "a%.+b")]
         public void BitwiseOp_Is(CmpOp op, string expectedOp, object arg, object expectedArg)
         {
             var resolver = new Mock<IMongoPathResolver>();

@@ -49,7 +49,7 @@ namespace Gehtsoft.EF.Entities
         /// the naming policy associated with the scope or
         /// default naming policy will be used.
         ///
-        /// The default naming policy is defined via [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities.NamingPolicy]AllEntities.NamingPolicy[/clink].
+        /// The default naming policy is defined via [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities.NamingPolicy.R38]AllEntities.NamingPolicy[/clink].
         /// </summary>
         public EntityNamingPolicy NamingPolicy { get; set; } = EntityNamingPolicy.Default;
 

@@ -8,19 +8,31 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Bson;
+using Gehtsoft.EF.Utils;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Gehtsoft.EF.MongoDb
 {
+    /// <summary>
+    /// The query to create a list of entities.
+    ///
+    /// A list of queries is the object with the similar role as a table in SQL databases.
+    ///
+    /// Use <see cref="MongoConnection.GetCreateListQuery{T}"/> to get the query object.
+    ///
+    /// Use <see cref="MongoQuery.Execute()"/> or <see cref="MongoQuery.ExecuteAsync(CancellationToken?)"/> methods to execute this query.
+    /// </summary>
     public class MongoCreateListQuery : MongoQuery
     {
         internal MongoCreateListQuery(MongoConnection connection, Type entityType) : base(connection, entityType)
         {
         }
 
+        [DocgenIgnore]
         public override Task ExecuteAsync(CancellationToken? token = null) => ExecuteAsyncCore(token ?? CancellationToken.None);
 
+        [DocgenIgnore]
         private async Task ExecuteAsyncCore(CancellationToken token)
         {
             if (!(await Connection.Database.ListCollectionNamesAsync(new ListCollectionNamesOptions { Filter = new BsonDocument() { new BsonElement("name", new BsonString(CollectionName)) } })).Any())
@@ -37,6 +49,7 @@ namespace Gehtsoft.EF.MongoDb
             }
         }
 
+        [DocgenIgnore]
         [ExcludeFromCodeCoverage]
         public override Task ExecuteAsync(object entity, CancellationToken? token = null)
         {

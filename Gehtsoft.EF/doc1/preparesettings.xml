@@ -3,6 +3,7 @@
   <assembly name="Gehtsoft.EF.Entities" xmldoc="../../../bin/doc.xml" />
   <assembly name="Gehtsoft.EF.Db.SqlDb" xmldoc="../../../bin/doc.xml" />
   <assembly name="Gehtsoft.EF.Bson" xmldoc="../../../bin/doc.xml" />
+  <assembly name="Gehtsoft.EF.MongoDb" xmldoc="../../../bin/doc.xml" />
 
   <include type="public" />
   <include signature="M:Gehtsoft.EF.Db.SqlDb.EntityQueries.DynamicEntity.InitializeProperties" />
@@ -33,4 +34,6 @@
   <strip-namespace name="Gehtsoft.EF.Db.SqlDb.Metadata" />
   <strip-namespace name="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch" />
   <strip-namespace name="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity" />
+  <strip-namespace name="Gehtsoft.EF.Bson" />
+  <strip-namespace name="Gehtsoft.EF.MongoDB" />
 </settings >

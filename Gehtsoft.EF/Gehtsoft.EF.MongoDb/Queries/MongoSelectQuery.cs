@@ -7,9 +7,19 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.MongoDb
 {
+    /// <summary>
+    /// The query to select entities from the list.
+    ///
+    /// Use <see cref="MongoQueryWithCondition.Where"/> to define the condition.
+    ///
+    /// Use <see cref="MongoConnection.GetSelectQuery{T}(bool)"/> to get the query object.
+    ///
+    /// Use <see cref="MongoQuery.Execute()"/> or <see cref="MongoQuery.ExecuteAsync(CancellationToken?)"/> methods to execute this query.
+    /// </summary>
     public class MongoSelectQuery : MongoSelectQueryBase
     {
         private readonly bool mExpandExternal = false;
@@ -20,11 +30,21 @@ namespace Gehtsoft.EF.MongoDb
             mExpandExternal = expandExternalReferences;
         }
 
+        /// <summary>
+        /// The number of entities to skip.
+        /// </summary>
         public int Skip { get; set; }
+
+        /// <summary>
+        /// The maximum number of entities to return.
+        ///
+        /// If the property has `0` value, all matching entities will be returned.
+        /// </summary>
         public int Limit { get; set; }
 
         private SortDefinition<BsonDocument> mSort = null;
 
+        [DocgenIgnore]
         public void AddToResultset(string path)
         {
             if (mResultSet == null)
@@ -32,6 +52,12 @@ namespace Gehtsoft.EF.MongoDb
             mResultSet.Add(new Tuple<string, bool>(TranslatePath(path), true));
         }
 
+        /// <summary>
+        /// Excludes a property for the resultset.
+        ///
+        /// The corresponding property of the entity will have `null` or `default` value.
+        /// </summary>
+        /// <param name="path">See [link=mongopath]Paths[/link] article for details</param>
         public void ExcludeFromResultset(string path)
         {
             if (mResultSet == null)
@@ -39,6 +65,11 @@ namespace Gehtsoft.EF.MongoDb
             mResultSet.Add(new Tuple<string, bool>(TranslatePath(path), false));
         }
 
+        /// <summary>
+        /// Adds a sort order to the query.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="direction"></param>
         public void AddOrderBy(string property, SortDir direction = SortDir.Asc)
         {
             FieldDefinition<BsonDocument> field = TranslatePath(property);
@@ -111,14 +142,26 @@ namespace Gehtsoft.EF.MongoDb
             }
         }
 
+        [DocgenIgnore]
         [ExcludeFromCodeCoverage]
         public override Task ExecuteAsync(object entity, CancellationToken? token = null)
         {
             throw new InvalidOperationException();
         }
 
+        /// <summary>
+        /// Reads all entities into an entity collection.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public EntityCollection<T> ReadAll<T>() where T : class => ReadAll<EntityCollection<T>, T>();
 
+        /// <summary>
+        /// Reads all entities into a collection of the specified type.
+        /// </summary>
+        /// <typeparam name="TC"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public TC ReadAll<TC, T>() where TC : EntityCollection<T>, new() where T : class
         {
             if (ResultSet == null)
@@ -130,6 +173,7 @@ namespace Gehtsoft.EF.MongoDb
             return coll;
         }
 
+        [DocgenIgnore]
         public override Task ExecuteAsync(CancellationToken? token = null) => ExecuteAsyncCore(token ?? CancellationToken.None);
     }
 }

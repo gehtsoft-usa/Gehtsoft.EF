@@ -243,6 +243,8 @@ namespace Gehtsoft.EF.MongoDb
                             }
                             svalue = pattern.ToString();
                         }
+                        else
+                            svalue = svalue.Substring(1, svalue.Length - 2);
                         return new BsonDocument("$regex", EntityToBsonController.SerializeValue(svalue, null));
                     }
                 case CmpOp.IsNull:

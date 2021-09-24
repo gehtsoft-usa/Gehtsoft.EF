@@ -1,0 +1,8 @@
+
+
+@group
+    @title=Namespace Gehtsoft.EF.Db.SqlDb.Metadata
+    @key=Gehtsoft.EF.Db.SqlDb.Metadata
+    @ingroup=sql
+    @brief=
+@end
