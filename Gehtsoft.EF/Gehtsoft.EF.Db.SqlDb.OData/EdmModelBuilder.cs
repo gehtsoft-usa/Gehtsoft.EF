@@ -23,6 +23,8 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
         public IEdmModel Model { get; private set; }
 
+        public string Namespace { get; private set; }
+
         public Type EntityTypeByName(string odataEntityName) => mTypeNameToEntity[odataEntityName].Item1;
         public int EntityPagingLimitByName(string odataEntityName) => mTypeNameToEntity[odataEntityName].Item2;
         public void SetEntityPagingLimitByName(string odataEntityName, int pagingLimit) => mTypeNameToEntity[odataEntityName] = new Tuple<Type, int>(EntityTypeByName(odataEntityName), pagingLimit);
@@ -33,6 +35,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
         public void Build(EntityFinder.EntityTypeInfo[] entities, string ns = "NS")
         {
+            Namespace = ns;
             var model = new EdmModel();
             EdmEntityContainer container = new EdmEntityContainer(ns, "EntityContainer");
             model.AddElement(container);

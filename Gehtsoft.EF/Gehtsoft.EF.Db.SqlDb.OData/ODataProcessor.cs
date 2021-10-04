@@ -12,10 +12,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace Gehtsoft.EF.Db.SqlDb.OData
@@ -72,18 +74,16 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 bool inlinecount = false;
                 bool candelete = false;
                 string queryStr = Uri.UnescapeDataString(uri.OriginalString);
+                if (queryStr.Contains("/$metadata#"))
+                    return SelectMetadata(queryStr);
+
                 string[] queryParts = queryStr.Split(new char[] { '&', '?' });
                 if (queryParts.Length > 1)
                 {
                     for (int i = 1; i < queryParts.Length; i++)
                     {
                         string queryParameter = queryParts[i];
-                        if (queryParameter.Equals("$inlinecount=allpages"))
-                        {
-                            inlinecount = true;
-                            continue;
-                        }
-                        if (queryParameter.Equals("$count=true"))
+                        if (queryParameter.Equals("$inlinecount=allpages") || queryParameter.Equals("$count=true"))
                         {
                             inlinecount = true;
                             continue;
@@ -390,6 +390,111 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 if (mConnectionFactory.NeedDispose)
                     connection.Dispose();
             }
+        }
+
+        private void SelectMetadata_Properties(DocumentBuilder document, string typeName, string entityName, IEdmEntityType type, string now)
+        {
+            document.AtomElement("a", "feed", typeName + ".#Properties", now, "Properties");
+            foreach (var property in type.Properties())
+            {
+                document.AtomElement("a", "entry", typeName + "." + property.Name, now, entityName + "." + property.Name);
+                document.AppendElement("category", "a")
+                    .AppendAttribute("term", "System.Data.Services.Providers.ResourceProperty")
+                    .AppendAttribute("scheme", "http://schemas.microsoft.com/ado/2007/08/dataservices/scheme")
+                    .Done();
+
+                document.AppendElement("content", "a")
+                    .AppendAttribute("type", "application/xml");
+                document.AppendElement("properties", "m");
+
+                document.AppendElement("FullName", "d")
+                    .AppendText($"{mModelBuilder.Namespace}.{entityName}.{property.Name}")
+                    .Done();
+
+                document.AppendElement("Name", "d")
+                    .AppendText(property.Name)
+                    .Done();
+
+                document.AppendElement("IsKey", "d")
+                    .AppendAttribute("type", "m", "Edm.Boolean")
+                    .AppendText(property.IsKey() ? "True" : "False")
+                    .Done();
+
+                document.AppendElement("IsPrimitive", "d")
+                    .AppendAttribute("type", "m", "Edm.Boolean")
+                    .AppendText(property.Type.IsPrimitive() ? "True" : "False")
+                    .Done();
+
+                document.AppendElement("IsComplexType", "d")
+                    .AppendAttribute("type", "m", "Edm.Boolean")
+                    .AppendText(property.Type.IsComplex() ? "True" : "False")
+                    .Done();
+
+                document.AppendElement("IsReference", "d")
+                    .AppendAttribute("type", "m", "Edm.Boolean")
+                    .AppendText(property.Type.IsEntityReference() ? "True" : "False")
+                    .Done();
+
+                document.AppendElement("IsSetReference", "d")
+                    .AppendAttribute("type", "m", "Edm.Boolean")
+                    .AppendText(property.Type.IsCollection() ? "True" : "False")
+                    .Done();
+
+                document.AppendElement("ResourceTypeName", "d")
+                    .AppendText(property.Type.FullName())
+                    .Done();
+
+                document.Done() //m:properties
+                    .Done()     //content
+                    .Done();    //property/entry
+            }
+            document.Done();    //feed
+        }
+
+        private object SelectMetadata(string queryStr)
+        {
+            var index = queryStr.IndexOf("/$metadata#");
+            var entityName = queryStr.Substring(index + 11);
+
+            bool properties = false;
+            if (entityName.EndsWith("/Properties"))
+            {
+                entityName = entityName.Substring(0, entityName.Length - 11);
+                properties = true;
+            }
+
+
+            var typeName = $"{mModelBuilder.Namespace}.{entityName}_Type";
+            var type = Model.FindType(typeName) as IEdmEntityType;
+            if (type == null)
+                throw new ArgumentException($"Requested type {entityName} aka {typeName} is not found", nameof(queryStr));
+
+            var document = new DocumentBuilder();
+            document.AddNamespace("a", "http://www.w3.org/2005/Atom");
+            document.AddNamespace("d", "http://schemas.microsoft.com/ado/2007/08/dataservices");
+            document.AddNamespace("m", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata");
+
+            var now = DateTime.UtcNow.ToString("yyyy-mm-ddTHH:mm:ssZ");
+
+            if (properties)
+                SelectMetadata_Properties(document, typeName, entityName, type, now);
+            else
+            {
+                document
+                    .AtomElement("a", "entry", typeName, now, entityName)
+                        .AppendElement("link", "a")
+                            .AppendAttribute("rel", $"http://schemas.microsoft.com/ado/2007/08/dataservices/related/Properties")
+                            .AppendAttribute("type", "application/atom+xml;type=feed")
+                            .AppendAttribute("title", "Properties")
+                            .AppendAttribute("href", $"/$metadata#{entityName}/Properties")
+                            .AppendElement("inline", "m");
+
+                SelectMetadata_Properties(document, typeName, entityName, type, now);
+
+                document.Done();    //inline
+                document.Done();    //link
+            }
+            return document.Document;
         }
 
         private void BindParams(SqlDbQuery query, ODataToQuery oDataToQuery)

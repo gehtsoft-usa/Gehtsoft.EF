@@ -55,7 +55,7 @@ namespace Gehtsoft.EF.Test.Mongo
             expectedValue = TestValue.Translate(requestType, expectedValue);
 
             BsonValue value;
-            
+
             if (sourceValue == null && bsonType == typeof(BsonNull))
                 value = BsonNull.Value;
             else
@@ -125,7 +125,6 @@ namespace Gehtsoft.EF.Test.Mongo
         public void Date()
         {
             DateTime dt = new DateTime(2010, 11, 22, 13, 55, 17, 305, DateTimeKind.Local).ToLocalTime();
-            
             BsonValue v = new BsonDateTime(dt.ToUniversalTime());
 
             v.ConvertTo(typeof(object))

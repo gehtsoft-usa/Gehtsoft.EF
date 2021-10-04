@@ -586,9 +586,9 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
                             entityDescriptors.Add(newPrefix, localEntityDescriptor);
                             if (navigationSelectItem.SelectAndExpand.AllSelected)
-                            {
                                 builder.AddToResultset(localEntityDescriptor.TableDescriptor, newPrefix);
-                            }
+                            if (navigationSelectItem.FilterOption != null)
+                                ProcessFilter(builder, localEntityDescriptor, navigationSelectItem.FilterOption);
                             ProcessSelectAndExpand(builder, localEntityDescriptor, navigationSelectItem.SelectAndExpand, newPrefix);
                         }
                         else if (navigationPropertySegment.EdmType is EdmCollectionType collection)
@@ -609,13 +609,9 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                                 }
 
                                 if (navigationSelectItem.FilterOption != null)
-                                {
                                     ProcessFilter(builder, localEntityDescriptor, navigationSelectItem.FilterOption);
-                                }
                                 if (navigationSelectItem.OrderByOption != null)
-                                {
                                     ProcessOrderBy(builder, localEntityDescriptor, navigationSelectItem.OrderByOption);
-                                }
                                 ProcessSelectAndExpand(builder, localEntityDescriptor, navigationSelectItem.SelectAndExpand, newPrefix);
                             }
                         }
@@ -721,13 +717,9 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 }
 
                 if (ResultMode == ResultType.Plain) return value;
-                try
-                {
+
+                if (!placeTo.ContainsKey(name))
                     placeTo.Add(name, value);
-                }
-                catch
-                {
-                }
             }
             return result;
         }

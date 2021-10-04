@@ -2,6 +2,7 @@
 using Gehtsoft.EF.Entities.Context;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,7 @@ namespace Gehtsoft.EF.MongoDb.Context
             Query = query;
         }
 
+        [ExcludeFromCodeCoverage]
         ~ContextQuery()
         {
             Dispose(false);
@@ -30,6 +32,7 @@ namespace Gehtsoft.EF.MongoDb.Context
             GC.SuppressFinalize(this);
         }
 
+        [ExcludeFromCodeCoverage]
         protected virtual void Dispose(bool disposing)
         {
             Query?.Dispose();

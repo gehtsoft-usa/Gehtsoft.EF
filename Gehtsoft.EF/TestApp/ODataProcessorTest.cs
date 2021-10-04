@@ -41,7 +41,7 @@ namespace TestApp
             builder.Build(entities, "entities");
             mModelBuilder = builder;
 
-            mPocessor = new ODataProcessor(ConnectionFactory, builder, "https://services.odata.org/V3/OData/OData.svc");
+            mPocessor = new ODataProcessor(ConnectionFactory, builder, "");
             using (SqlDbConnection connection = ConnectionFactory.GetConnection())
             {
                 TestEntity1.TestEntities(connection);

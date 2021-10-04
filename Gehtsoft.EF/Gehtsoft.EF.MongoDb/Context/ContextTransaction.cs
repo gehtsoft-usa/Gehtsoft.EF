@@ -2,12 +2,14 @@
 using Gehtsoft.EF.Entities.Context;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.MongoDb.Context
 {
+    [ExcludeFromCodeCoverage]
     internal sealed class ContextTransaction : IEntityContextTransaction
     {
         public ContextTransaction()

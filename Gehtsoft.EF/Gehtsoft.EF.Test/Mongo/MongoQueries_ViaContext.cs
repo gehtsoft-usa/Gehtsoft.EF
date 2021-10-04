@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
-using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Entities.Context;
@@ -15,9 +15,9 @@ using Xunit;
 namespace Gehtsoft.EF.Test.Mongo
 {
     [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
-    public class MongoQueries : IClassFixture<MongoQueries.Fixture>
+    public class MongoQueries_ViaContext : IClassFixture<MongoQueries_ViaContext.Fixture>
     {
-        [Entity(Scope = "MongoQueries", NamingPolicy = EntityNamingPolicy.LowerCase, Table = "queriestest1")]
+        [Entity(Scope = "MongoQueries", NamingPolicy = EntityNamingPolicy.LowerCase, Table = "queriestest4")]
         public class EntityA
         {
             [AutoId]
@@ -30,11 +30,11 @@ namespace Gehtsoft.EF.Test.Mongo
             public int AB { get; set; }
         }
 
-        [MongoIndex(nameof(EntityB.BC)+ "." + nameof(EntityA.AA))]
+        [MongoIndex(nameof(EntityB.BC) + "." + nameof(EntityA.AA))]
         [MongoIndex(nameof(EntityB.BC) + "." + nameof(EntityA.AB))]
         [MongoIndex(nameof(EntityB.BD) + "." + nameof(EntityA.AA))]
         [MongoIndex(nameof(EntityB.BD) + "." + nameof(EntityA.AB))]
-        [Entity(Scope = "MongoQueries", NamingPolicy = EntityNamingPolicy.LowerCase, Table = "queriestest2")]
+        [Entity(Scope = "MongoQueries", NamingPolicy = EntityNamingPolicy.LowerCase, Table = "queriestest5")]
         public class EntityB
         {
             [AutoId]
@@ -55,6 +55,10 @@ namespace Gehtsoft.EF.Test.Mongo
 
         public class Fixture : MongoConnectionFixtureBase
         {
+            new public IEntityContext GetInstance(string connection) => GetInstance(connection, AppConfiguration.Instance.Get("nosqlConnections:" + connection));
+
+            new public IEntityContext GetInstance(string connectionName, string connectionString) => base.GetInstance(connectionName, connectionString);
+
             private static void Drop(MongoConnection connection)
             {
                 using (var query = connection.GetDeleteListQuery<EntityA>())
@@ -72,7 +76,7 @@ namespace Gehtsoft.EF.Test.Mongo
 
         private readonly Fixture mFixture;
 
-        public MongoQueries(Fixture fixture)
+        public MongoQueries_ViaContext(Fixture fixture)
         {
             mFixture = fixture;
         }
@@ -86,25 +90,25 @@ namespace Gehtsoft.EF.Test.Mongo
         {
             var connection = mFixture.GetInstance(connectionName);
 
-            var schema = connection.GetSchema();
+            var schema = connection.ExistingTables();
             schema.Should()
-                .NotContain("queriestest1")
-                .And.NotContain("queriestest2");
+                .NotContain(e => e.Name == "queriestest4")
+                .And.NotContain(e => e.Name == "queriestest5");
 
-            using (var query = connection.GetCreateListQuery<EntityA>())
+            using (var query = connection.CreateEntity<EntityA>())
                 query.Execute();
-            using (var query = connection.GetCreateListQuery<EntityB>())
+            using (var query = connection.CreateEntity<EntityB>())
                 query.Execute();
 
-            schema = connection.GetSchema();
+            schema = connection.ExistingTables();
             schema.Should()
-                .Contain("queriestest1")
-                .And.Contain("queriestest2");
+                .Contain(e => e.Name == "queriestest4")
+                .And.Contain(e => e.Name == "queriestest5");
         }
 
-        private static List<EntityA> CreateStageToUpdate(MongoConnection connection)
+        private static List<EntityA> CreateStageToUpdate(IEntityContext connection)
         {
-            using (var query = connection.GetDeleteMultiEntityQuery<EntityA>())
+            using (var query = connection.DeleteMultiple<EntityA>())
                 query.Execute();
 
             List<EntityA> list = new List<EntityA>();
@@ -118,7 +122,7 @@ namespace Gehtsoft.EF.Test.Mongo
                 });
             }
 
-            using (var query = connection.GetInsertEntityQuery<EntityA>())
+            using (var query = connection.InsertEntity<EntityA>())
                 query.Execute(list);
 
             return list;
@@ -134,7 +138,7 @@ namespace Gehtsoft.EF.Test.Mongo
 
             var connection = mFixture.GetInstance(connectionName);
 
-            using (var query = connection.GetDeleteMultiEntityQuery<EntityA>())
+            using (var query = connection.DeleteMultiple<EntityA>())
                 query.Execute();
 
             var a = new EntityA()
@@ -143,15 +147,52 @@ namespace Gehtsoft.EF.Test.Mongo
                 AB = 123
             };
 
-            using (var query = connection.GetInsertEntityQuery<EntityA>())
+            using (var query = connection.InsertEntity<EntityA>())
                 query.Execute(a);
 
             a.Id.Should().NotBe(ObjectId.Empty);
 
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
                 query.Where.Property(nameof(EntityA.Id)).Eq(a.Id);
+                query.Execute();
                 var all = query.ReadAll<EntityA>();
+                all.Should().HaveCount(1);
+                all[0].Id.Should().Be(a.Id);
+                all[0].AA.Should().Be("aavalue");
+                all[0].AB.Should().Be(123);
+            }
+        }
+
+        [TestOrder(10)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public async Task InsertOneAsync(string connectionName)
+        {
+            if (!mFixture.Started(connectionName))
+                Create(connectionName);
+
+            var connection = mFixture.GetInstance(connectionName);
+
+            using (var query = connection.DeleteMultiple<EntityA>())
+                await query.ExecuteAsync();
+
+            var a = new EntityA()
+            {
+                AA = "aavalue",
+                AB = 123
+            };
+
+            using (var query = connection.InsertEntity<EntityA>())
+                await query.ExecuteAsync(a);
+
+            a.Id.Should().NotBe(ObjectId.Empty);
+
+            using (var query = connection.Select<EntityA>())
+            {
+                query.Where.Property(nameof(EntityA.Id)).Eq(a.Id);
+                await query.ExecuteAsync();
+                var all = await query.ReadAllAsync<EntityA>();
                 all.Should().HaveCount(1);
                 all[0].Id.Should().Be(a.Id);
                 all[0].AA.Should().Be("aavalue");
@@ -174,9 +215,10 @@ namespace Gehtsoft.EF.Test.Mongo
             list.Should()
                 .HaveAllElementsMatching(e => e.Id != ObjectId.Empty);
 
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
-                query.AddOrderBy(nameof(EntityA.AB));
+                query.Order.Add(nameof(EntityA.AB));
+                query.Execute();
                 var all = query.ReadAll<EntityA>();
                 all.Should().HaveCount(10);
                 all.Should().BeInAscendingOrder(a => a.AB);
@@ -206,11 +248,12 @@ namespace Gehtsoft.EF.Test.Mongo
             list[0].AA = "newaa";
             list[0].AB = 100;
 
-            using (var query = connection.GetUpdateEntityQuery<EntityA>())
+            using (var query = connection.UpdateEntity<EntityA>())
                 query.Execute(list[0]);
 
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
+                query.Execute();
                 var all = query.ReadAll<EntityA>();
                 all.Should().HaveCount(10);
                 for (int i = 0; i < all.Count; i++)
@@ -241,11 +284,12 @@ namespace Gehtsoft.EF.Test.Mongo
             list[1].AA = "newaa 1";
             list[1].AB = 101;
 
-            using (var query = connection.GetUpdateEntityQuery<EntityA>())
+            using (var query = connection.UpdateEntity<EntityA>())
                 query.Execute(new[] { list[0], list[1] });
 
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
+                query.Execute();
                 var all = query.ReadAll<EntityA>();
                 all.Should().HaveCount(10);
                 for (int i = 0; i < all.Count; i++)
@@ -255,121 +299,6 @@ namespace Gehtsoft.EF.Test.Mongo
                     e.AA.Should().Be(all[i].AA);
                     e.AB.Should().Be(all[i].AB);
                 }
-            }
-        }
-
-        [TestOrder(14)]
-        [Theory]
-        [MemberData(nameof(ConnectionNames))]
-        public void UpdateMany_ByCondition(string connectionName)
-        {
-            if (!mFixture.Started(connectionName))
-                Create(connectionName);
-
-            var connection = mFixture.GetInstance(connectionName);
-
-            CreateStageToUpdate(connection);
-
-            using (var query = connection.GetUpdateMultiEntityQuery<EntityA>())
-            {
-                query.Where.Property(nameof(EntityA.AB)).In(1, 3, 5, 7, 9, 11);
-                query.Set(nameof(EntityA.AA), "odd");
-                query.Execute();
-            }
-
-            using (var query = connection.GetUpdateMultiEntityQuery<EntityA>())
-            {
-                query.Where.Property(nameof(EntityA.AB)).In(0, 2, 4, 6, 8, 10);
-                query.Set(nameof(EntityA.AA), "even");
-                query.Execute();
-            }
-
-            using (var query = connection.GetSelectQuery<EntityA>())
-            {
-                var all = query.ReadAll<EntityA>();
-                all.Should().HaveCount(10);
-                for (int i = 0; i < all.Count; i++)
-                {
-                    if (all[i].AB % 2 == 0)
-                        all[i].AA.Should().Be("even");
-                    else
-                        all[i].AA.Should().Be("odd");
-                }
-            }
-        }
-
-        [TestOrder(15)]
-        [Theory]
-        [MemberData(nameof(ConnectionNames))]
-        public void UpdateComplexPath(string connectionName)
-        {
-            if (!mFixture.Started(connectionName))
-                Create(connectionName);
-
-            var connection = mFixture.GetInstance(connectionName);
-
-            using (var query = connection.GetDeleteMultiEntityQuery<EntityB>())
-                query.Execute();
-
-            var b = new EntityB()
-            {
-                BA = "nameb",
-                BB = new string[] { "v1", "v2", "v3" },
-                BC = new EntityA
-                {
-                    AA = "namea1",
-                    AB = 123
-                },
-                BD = new EntityA[]
-                {
-                    new EntityA
-                    {
-                        AA = "namea2",
-                        AB = 456
-                    }
-                }
-            };
-
-            using (var query = connection.GetInsertEntityQuery<EntityB>())
-                query.Execute(b);
-
-            using (var query = connection.GetUpdateMultiEntityQuery<EntityB>())
-            {
-                query.Where.Property(nameof(EntityB.Id)).Eq(b.Id);
-                query.Set("BB.1", "new_v2");
-                query.Execute();
-            }
-
-            using (var query = connection.GetUpdateMultiEntityQuery<EntityB>())
-            {
-                query.Where.Property(nameof(EntityB.Id)).Eq(b.Id);
-                query.Set("BC.AB", 789);
-                ((Action)(() => query.Set("BC.AA", "123"))).Should().Throw<InvalidOperationException>();
-                query.Execute();
-            }
-
-            using (var query = connection.GetUpdateMultiEntityQuery<EntityB>())
-            {
-                query.Where.Property(nameof(EntityB.Id)).Eq(b.Id);
-                query.Set("BD.0.AA", "newnamea2");
-                query.Execute();
-            }
-
-            using (var query = connection.GetSelectQuery<EntityB>())
-            {
-                query.Where.Property(nameof(EntityB.Id)).Eq(b.Id);
-                var all = query.ReadAll<EntityB>();
-                all.Should().HaveCount(1);
-                var b1 = all[0];
-
-                b1.BA.Should().Be("nameb");
-                b1.BB[0].Should().Be("v1");
-                b1.BB[1].Should().Be("new_v2");
-                b1.BB[2].Should().Be("v3");
-                b1.BC.AA.Should().Be("namea1");
-                b1.BC.AB.Should().Be(789);
-                b1.BD[0].AA.Should().Be("newnamea2");
-                b1.BD[0].AB.Should().Be(456);
             }
         }
 
@@ -385,11 +314,12 @@ namespace Gehtsoft.EF.Test.Mongo
 
             var list = CreateStageToUpdate(connection);
 
-            using (var query = connection.GetDeleteEntityQuery<EntityA>())
+            using (var query = connection.DeleteEntity<EntityA>())
                 query.Execute(list[0]);
 
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
+                query.Execute();
                 var all = query.ReadAll<EntityA>();
                 all.Should().HaveCount(9);
 
@@ -409,11 +339,12 @@ namespace Gehtsoft.EF.Test.Mongo
 
             var list = CreateStageToUpdate(connection);
 
-            using (var query = connection.GetDeleteEntityQuery<EntityA>())
+            using (var query = connection.DeleteEntity<EntityA>())
                 query.Execute(new[] { list[0], list[1] });
 
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
+                query.Execute();
                 var all = query.ReadAll<EntityA>();
 
                 all.Should().HaveCount(8);
@@ -436,115 +367,26 @@ namespace Gehtsoft.EF.Test.Mongo
 
             CreateStageToUpdate(connection);
 
-            using (var query = connection.GetDeleteMultiEntityQuery<EntityA>())
+            using (var query = connection.DeleteMultiple<EntityA>())
             {
                 query.Where.Property(nameof(EntityA.AB)).Ge(5);
                 query.Execute();
             }
 
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
+                query.Execute();
                 var all = query.ReadAll<EntityA>();
                 all.Count.Should().BeLessThan(10);
                 all.Should().HaveNoElementMatching(e => e.AB >= 5);
             }
         }
 
-        [TestOrder(18)]
-        [Theory]
-        [MemberData(nameof(ConnectionNames))]
-        public void UpdateMany_IgnoreNonExisting(string connectionName)
+        private IEntityContext PrepareSelectData(string connectionName)
         {
             if (!mFixture.Started(connectionName))
                 Create(connectionName);
-
-            var connection = mFixture.GetInstance(connectionName);
-
-            using (var query = connection.GetDeleteMultiEntityQuery<EntityA>())
-                query.Execute();
-
-            var list = CreateStageToUpdate(connection);
-
-            list[0].AA = "newaa";
-            list[0].AB = 100;
-
-            list.Add(new EntityA()
-            {
-                AA = "newaa 1",
-                AB = 101,
-            });
-
-            using (var query = connection.GetUpdateEntityQuery<EntityA>())
-            {
-                query.InsertIfNotExists = false;
-                query.Execute(new[] { list[0], list[^1] });
-            }
-
-            using (var query = connection.GetSelectQuery<EntityA>())
-            {
-                var all = query.ReadAll<EntityA>();
-                all.Should().HaveCount(10);
-                for (int i = 0; i < all.Count; i++)
-                {
-                    var e = list.Find(x => x.Id == all[i].Id);
-                    e.Should().NotBeNull();
-                    e.AA.Should().Be(all[i].AA);
-                    e.AB.Should().Be(all[i].AB);
-                }
-                all.Should().HaveNoElementMatching(x => x.AA == "newaa 1");
-            }
-        }
-
-        [TestOrder(19)]
-        [Theory]
-        [MemberData(nameof(ConnectionNames))]
-        public void UpdateMany_InsertNonExisting(string connectionName)
-        {
-            if (!mFixture.Started(connectionName))
-                Create(connectionName);
-
-            var connection = mFixture.GetInstance(connectionName);
-
-            using (var query = connection.GetDeleteMultiEntityQuery<EntityA>())
-                query.Execute();
-
-            var list = CreateStageToUpdate(connection);
-
-            list[0].AA = "newaa";
-            list[0].AB = 100;
-
-            list.Add(new EntityA()
-            {
-                AA = "newaa 1",
-                AB = 101,
-            });
-
-            using (var query = connection.GetUpdateEntityQuery<EntityA>())
-            {
-                query.InsertIfNotExists = true;
-                query.Execute(new[] { list[0], list[^1] });
-            }
-
-            using (var query = connection.GetSelectQuery<EntityA>())
-            {
-                var all = query.ReadAll<EntityA>();
-                all.Should().HaveCount(11);
-                for (int i = 0; i < all.Count; i++)
-                {
-                    var e = list.Find(x => x.Id == all[i].Id);
-                    e.Should().NotBeNull();
-                    e.AA.Should().Be(all[i].AA);
-                    e.AB.Should().Be(all[i].AB);
-                }
-                all.Should().HaveElementMatching(x => x.AA == "newaa 1");
-            }
-        }
-
-        private MongoConnection PrepareSelectData(string connectionName)
-        {
-            if (!mFixture.Started(connectionName))
-                Create(connectionName);
-            var connection = mFixture.GetInstance(connectionName);
+            var connection = mFixture.GetInstance(connectionName) as MongoConnection;
             if (!connection.Tags.GetTag<bool>("testSetCreated"))
             {
                 using (var query = connection.GetDeleteMultiEntityQuery<EntityA>())
@@ -608,11 +450,25 @@ namespace Gehtsoft.EF.Test.Mongo
         {
             var connection = PrepareSelectData(connectionName);
 
-            using (var query = connection.GetCountQuery<EntityA>())
-                query.RowCount.Should().Be(50);
+            using (var query = connection.Count<EntityA>())
+                query.GetCount().Should().Be(50);
 
-            using (var query = connection.GetCountQuery<EntityB>())
-                query.RowCount.Should().Be(20);
+            using (var query = connection.Count<EntityB>())
+                query.GetCount().Should().Be(20);
+        }
+
+        [TestOrder(30)]
+        [Theory]
+        [MemberData(nameof(ConnectionNames))]
+        public async Task Select_CountAsync(string connectionName)
+        {
+            var connection = PrepareSelectData(connectionName);
+
+            using (var query = connection.Count<EntityA>())
+                (await query.GetCountAsync()).Should().Be(50);
+
+            using (var query = connection.Count<EntityB>())
+                (await query.GetCountAsync()).Should().Be(20);
         }
 
         [TestOrder(31)]
@@ -622,8 +478,9 @@ namespace Gehtsoft.EF.Test.Mongo
         {
             var connection = PrepareSelectData(connectionName);
 
-            using (var query = connection.GetSelectQuery<EntityB>())
+            using (var query = connection.Select<EntityB>())
             {
+                query.Execute();
                 var all = query.ReadAll<EntityB>();
                 all.Should().HaveCount(20);
             }
@@ -636,9 +493,10 @@ namespace Gehtsoft.EF.Test.Mongo
         {
             var connection = PrepareSelectData(connectionName);
 
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
-                query.AddOrderBy(nameof(EntityA.AB));
+                query.Order.Add(nameof(EntityA.AB));
+                query.Execute();
                 var all = query.ReadAll<EntityA>();
                 all.Should().BeInAscendingOrder(a => a.AB);
             }
@@ -651,10 +509,11 @@ namespace Gehtsoft.EF.Test.Mongo
         {
             var connection = PrepareSelectData(connectionName);
 
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
-                query.AddOrderBy(nameof(EntityA.AA));
-                query.AddOrderBy(nameof(EntityA.AB), SortDir.Desc);
+                query.Order.Add(nameof(EntityA.AA));
+                query.Order.Add(nameof(EntityA.AB), SortDir.Desc);
+                query.Execute();
                 var all = query.ReadAll<EntityA>();
                 for (int i = 1; i < all.Count; i++)
                 {
@@ -673,10 +532,11 @@ namespace Gehtsoft.EF.Test.Mongo
         {
             var connection = PrepareSelectData(connectionName);
 
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
-                query.AddOrderBy(nameof(EntityA.AA), SortDir.Desc);
-                query.AddOrderBy(nameof(EntityA.AB));
+                query.Order.Add(nameof(EntityA.AA), SortDir.Desc);
+                query.Order.Add(nameof(EntityA.AB));
+                query.Execute();
                 var all = query.ReadAll<EntityA>();
                 for (int i = 1; i < all.Count; i++)
                 {
@@ -696,140 +556,23 @@ namespace Gehtsoft.EF.Test.Mongo
             var connection = PrepareSelectData(connectionName);
 
             EntityCollection<EntityA> all;
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
-                query.AddOrderBy(nameof(EntityA.AB));
+                query.Order.Add(nameof(EntityA.AB));
+                query.Execute();
                 all = query.ReadAll<EntityA>();
             }
 
-            using (var query = connection.GetSelectQuery<EntityA>())
+            using (var query = connection.Select<EntityA>())
             {
                 query.Skip = 2;
-                query.Limit = 3;
+                query.Take = 3;
+                query.Execute();
                 var part = query.ReadAll<EntityA>();
                 part.Should().HaveCount(3);
                 part[0].Id.Should().Be(all[2].Id);
                 part[1].Id.Should().Be(all[3].Id);
                 part[2].Id.Should().Be(all[4].Id);
-            }
-        }
-
-        [TestOrder(35)]
-        [Theory]
-        [MemberData(nameof(ConnectionNames))]
-        public void Select_ReadResultset(string connectionName)
-        {
-            var connection = PrepareSelectData(connectionName);
-
-            EntityCollection<EntityA> all;
-            using (var query = connection.GetSelectQuery<EntityA>())
-            {
-                query.AddOrderBy(nameof(EntityA.AB));
-                all = query.ReadAll<EntityA>();
-            }
-
-            using (var query = connection.GetSelectQuery<EntityA>())
-            {
-                query.Execute();
-
-                int cc = 0;
-                var alreadyHandled = new HashSet<ObjectId>();
-
-                while (query.ReadNext())
-                {
-                    query.FieldCount.Should().Be(3);
-                    query.FieldName(0).Should().Be("_id");
-                    query.FieldName(1).Should().Be("aa");
-                    query.FieldName(2).Should().Be("ab");
-
-                    cc++;
-                    query.IsNull(0).Should().BeFalse();
-
-                    var id = query.GetValue<ObjectId>(0);
-
-                    alreadyHandled.Contains(id).Should().BeFalse();
-                    alreadyHandled.Add(id);
-
-                    var aa = query.GetValue<string>(1);
-                    var ab = query.GetValue<int>(2);
-
-                    var e = all.FirstOrDefault(e => e.Id == id);
-                    e.Should().NotBeNull();
-                    aa.Should().Be(e.AA);
-                    ab.Should().Be(e.AB);
-
-                    query.IsNull("_id").Should().BeFalse();
-                    query.GetValue<ObjectId>("_id").Should().Be(e.Id);
-                    query.GetValue<string>("aa").Should().Be(e.AA);
-                    query.GetValue<int>("ab").Should().Be(e.AB);
-                }
-
-                cc.Should().Be(all.Count);
-            }
-        }
-
-        [TestOrder(35)]
-        [Theory]
-        [MemberData(nameof(ConnectionNames))]
-        public void Select_Manually(string connectionName)
-        {
-            var connection = PrepareSelectData(connectionName);
-
-            EntityCollection<EntityA> all;
-            using (var query = connection.GetSelectQuery<EntityA>())
-            {
-                query.AddOrderBy(nameof(EntityA.AB));
-                all = query.ReadAll<EntityA>();
-            }
-
-            using (var query = connection.GetSelectQuery<EntityA>())
-            {
-                query.Execute();
-
-                int cc = 0;
-                var alreadyHandled = new HashSet<ObjectId>();
-
-                ((Action)(() => query.GetEntity<EntityA>())).Should().Throw<EfMongoDbException>();
-
-                while (true)
-                {
-                    var e = query.ReadOne<EntityA>();
-                    if (e == null)
-                        break;
-
-                    ((Action)(() => query.GetEntity<EntityB>())).Should().Throw<EfMongoDbException>();
-
-                    cc++;
-                    query.IsNull(0).Should().BeFalse();
-
-                    alreadyHandled.Contains(e.Id).Should().BeFalse();
-                    alreadyHandled.Add(e.Id);
-
-                    var e1 = all.FirstOrDefault(x => x.Id == e.Id);
-                    e1.Should().NotBeNull();
-                    e1.AA.Should().Be(e.AA);
-                    e1.AB.Should().Be(e.AB);
-                }
-                cc.Should().Be(all.Count);
-            }
-        }
-
-        [TestOrder(37)]
-        [Theory]
-        [MemberData(nameof(ConnectionNames))]
-        public void Select_ExcludeFromRS(string connectionName)
-        {
-            var connection = PrepareSelectData(connectionName);
-
-            using (var query = connection.GetSelectQuery<EntityB>())
-            {
-                query.ExcludeFromResultset(nameof(EntityB.BB));
-                query.ExcludeFromResultset(nameof(EntityB.BD));
-                var all = query.ReadAll<EntityB>();
-                all.Should()
-                    .HaveCount(20)
-                    .And.HaveAllElementsMatching(e => e.BB == null)
-                    .And.HaveAllElementsMatching(e => e.BD == null);
             }
         }
 
@@ -840,9 +583,10 @@ namespace Gehtsoft.EF.Test.Mongo
         {
             var connection = PrepareSelectData(connectionName);
 
-            using (var query = connection.GetSelectQuery<EntityB>())
+            using (var query = connection.Select<EntityB>())
             {
                 query.Where.Property(nameof(EntityB.BA)).Like("/.+2.*/");
+                query.Execute();
                 var all = query.ReadAll<EntityB>();
                 all.Should()
                     .NotBeEmpty()
@@ -857,9 +601,10 @@ namespace Gehtsoft.EF.Test.Mongo
         {
             var connection = PrepareSelectData(connectionName);
 
-            using (var query = connection.GetSelectQuery<EntityB>())
+            using (var query = connection.Select<EntityB>())
             {
                 query.Where.Property("BC.AA").Like("%2%");
+                query.Execute();
                 var all = query.ReadAll<EntityB>();
                 all.Should()
                     .NotBeEmpty()
@@ -874,10 +619,11 @@ namespace Gehtsoft.EF.Test.Mongo
         {
             var connection = PrepareSelectData(connectionName);
 
-            using (var query = connection.GetSelectQuery<EntityB>())
+            using (var query = connection.Select<EntityB>())
             {
                 query.Where.Or().Property(nameof(EntityB.BA)).Like("/.+2.*/");
                 query.Where.Or().Property(nameof(EntityB.BA)).Like("/.+3.*/");
+                query.Execute();
                 var all = query.ReadAll<EntityB>();
                 all.Should()
                     .NotBeEmpty()
@@ -892,9 +638,10 @@ namespace Gehtsoft.EF.Test.Mongo
         {
             var connection = PrepareSelectData(connectionName);
 
-            using (var query = connection.GetSelectQuery<EntityB>())
+            using (var query = connection.Select<EntityB>())
             {
                 query.Where.Property("BD.1.AB").Eq(22);
+                query.Execute();
                 var all = query.ReadAll<EntityB>();
                 all.Should()
                     .HaveCount(1)
@@ -909,10 +656,11 @@ namespace Gehtsoft.EF.Test.Mongo
         {
             var connection = PrepareSelectData(connectionName);
 
-            using (var query = connection.GetSelectQuery<EntityB>())
+            using (var query = connection.Select<EntityB>())
             {
                 query.Where.Property("BD.AB").Ge(20);
                 query.Where.Property("BD.AB").Ls(50);
+                query.Execute();
                 var all = query.ReadAll<EntityB>();
                 all.Should()
                     .HaveCount(3)
@@ -930,21 +678,21 @@ namespace Gehtsoft.EF.Test.Mongo
 
             var connection = mFixture.GetInstance(connectionName);
 
-            var schema = connection.GetSchema();
+            var schema = connection.ExistingTables();
 
             schema.Should()
-                .Contain("queriestest1")
-                .And.Contain("queriestest2");
+                .Contain(e => e.Name == "queriestest4")
+                .And.Contain(e => e.Name == "queriestest5");
 
-            using (var query = connection.GetDeleteListQuery<EntityA>())
+            using (var query = connection.DropEntity<EntityA>())
                 query.Execute();
-            using (var query = connection.GetDeleteListQuery<EntityB>())
+            using (var query = connection.DropEntity<EntityB>())
                 query.Execute();
 
-            schema = connection.GetSchema();
+            schema = connection.ExistingTables();
             schema.Should()
-                .NotContain("queriestest1")
-                .And.NotContain("queriestest2");
+                .NotContain(e => e.Name == "queriestest4")
+                .And.NotContain(e => e.Name == "queriestest5");
         }
     }
 }

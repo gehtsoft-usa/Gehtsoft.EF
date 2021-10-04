@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="DocumentBuilder.cs" />
     <Compile Include="EdmModelBuilder.cs" />
     <Compile Include="EfODataException.cs" />
     <Compile Include="Extensions.cs" />

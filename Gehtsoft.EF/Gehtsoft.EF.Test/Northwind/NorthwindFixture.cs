@@ -46,7 +46,7 @@ namespace Gehtsoft.EF.Test.Northwind
         {
         }
 
-        protected override void ConfigureConnection(SqlDbConnection connection)
+        public void CreateSnapshot(SqlDbConnection connection)
         {
             Snapshot.Create(connection, 100);
             if (connection.ConnectionType == UniversalSqlDbFactory.ORACLE &&
@@ -60,6 +60,11 @@ namespace Gehtsoft.EF.Test.Northwind
                 oracleConnection.UpdateSequence(typeof(Shipper));
                 oracleConnection.UpdateSequence(typeof(Supplier));
             }
+        }
+
+        protected override void ConfigureConnection(SqlDbConnection connection)
+        {
+            CreateSnapshot(connection);
             base.ConfigureConnection(connection);
         }
     }
