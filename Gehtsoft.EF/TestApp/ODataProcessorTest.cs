@@ -329,7 +329,7 @@ namespace TestApp
                     ((IEnumerable<JToken>)next).Should().NotBeNull();
                     string nextStr = next.Value.ToString();
 
-                    Uri testUri = new Uri(nextStr);
+                    Uri testUri = new Uri(nextStr, UriKind.Relative);
                     testUri.Should().NotBeNull();
                 }
             }

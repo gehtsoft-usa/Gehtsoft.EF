@@ -516,7 +516,6 @@ namespace Gehtsoft.EF.Test.Entity.Query
             query.Where.Property(path).Eq().Parameter("p1");
             query.PrepareQuery();
             var select = query.Builder.Query.ParseSql().SelectStatement();
-
             select.Should().HaveWhereClause();
 
             var where = select.SelectWhere().ClauseCondition();

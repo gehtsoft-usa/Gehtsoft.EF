@@ -7,9 +7,14 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.OData;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Northwind;
+using Gehtsoft.EF.Test.Entity.Utils;
+using Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder;
+using Gehtsoft.EF.Test.SqlParser;
 using Gehtsoft.EF.Test.Utils;
+using Gehtsoft.EF.Test.Utils.DummyDb;
 using Microsoft.OData.Edm;
 using Microsoft.OData.UriParser;
 using Xunit;
@@ -304,6 +309,67 @@ namespace Gehtsoft.EF.Test.Entity.OData
                 .BeOfType<ExpandedNavigationSelectItem>()
                 .And.Subject.As<ExpandedNavigationSelectItem>()
                     .NavigationSource.Name.Should().Be("Category");
+        }
+
+        [Theory]
+        [InlineData("eq", "EQ_OP")]
+        [InlineData("ne", "NEQ_OP")]
+        [InlineData("gt", "GT_OP")]
+        [InlineData("lt", "LS_OP")]
+        [InlineData("ge", "GE_OP")]
+        [InlineData("le", "LE_OP")]
+        public void Query_Filter_CmpOp(string odataOp, string sqlOp)
+        {
+            var odataUriParser = new ODataUriParser(mFixture.Builder.Model, new Uri($"/Product?$filter=ProductID {odataOp} 1", UriKind.Relative));
+            using var connection = new DummySqlConnection();
+
+            var odataQuery = new ODataToQuery(mFixture.Builder, odataUriParser.ParseUri(), connection);
+            var builder = odataQuery.BuildQuery();
+            builder.PrepareQuery();
+            var alias = (builder as QueryWithWhereBuilder).Entities[0].Alias;
+
+            var select = builder.Query.ParseSql().SelectStatement();
+            select.Should().HaveWhereClause();
+
+            var condition = select.SelectWhere().ClauseCondition();
+
+            condition.Should().BeBinaryOp(sqlOp);
+            condition.ExprOpArg(0)
+                .Should().BeFieldExpression(alias, "productID");
+
+            condition.ExprOpArg(1)
+                .Should().BeParamExpression();
+
+            odataQuery.BindParams
+                .Should()
+                .HaveElementMatching(condition.ExprOpArg(1).ExprParamName(), v => v is int i && i == 1);
+        }
+
+        [Theory]
+        [InlineData("and", "AND_OP")]
+        [InlineData("or", "OR_OP")]
+        public void Query_Filter_LogOp(string odataOp, string sqlOp)
+        {
+            var odataUriParser = new ODataUriParser(mFixture.Builder.Model, new Uri($"/Product?$filter=ProductID gt 1 {odataOp} ProductID lt 5", UriKind.Relative));
+            using var connection = new DummySqlConnection();
+
+            var odataQuery = new ODataToQuery(mFixture.Builder, odataUriParser.ParseUri(), connection);
+            var builder = odataQuery.BuildQuery();
+            builder.PrepareQuery();
+            var alias = (builder as QueryWithWhereBuilder).Entities[0].Alias;
+
+            var select = builder.Query.ParseSql().SelectStatement();
+            select.Should().HaveWhereClause();
+
+            var condition = select.SelectWhere().ClauseCondition();
+
+            condition.Should().BeBinaryOp(sqlOp);
+
+            condition.ExprOpArg(0)
+                .Should().BeBinaryOp("GT_OP");
+
+            condition.ExprOpArg(1)
+                .Should().BeBinaryOp("LS_OP");
         }
     }
 }

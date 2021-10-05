@@ -9,12 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Attributes.cs" />
     <Compile Include="DocumentBuilder.cs" />
     <Compile Include="EdmModelBuilder.cs" />
     <Compile Include="EfODataException.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ODataProcessor.cs" />
     <Compile Include="ODataToQuery.cs" />
+    <Compile Include="XmlSerializableDictionary.cs" />
   </ItemGroup>
 
   <ItemGroup>

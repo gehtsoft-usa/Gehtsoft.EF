@@ -514,7 +514,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             }
             else if (node is ConstantNode constant)
             {
-                string paramName = $"$param${BindParams.Count}";
+                string paramName = $"const_param_{BindParams.Count}";
                 BindParams.Add(paramName, constant.Value);
                 return where.ParameterName(paramName);
             }

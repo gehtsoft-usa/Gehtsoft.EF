@@ -6,6 +6,7 @@ using System.Xml;
 using System.Xml.Linq;
 using FluentAssertions;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.OData;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Northwind;
@@ -13,6 +14,8 @@ using Gehtsoft.EF.Test.Entity.Utils;
 using Gehtsoft.EF.Test.Northwind;
 using Gehtsoft.EF.Test.Utils;
 using Xunit;
+
+#pragma warning disable RCS1049 // Simplify boolean comparison.
 
 namespace Gehtsoft.EF.Test.Entity.OData
 {
@@ -123,7 +126,7 @@ namespace Gehtsoft.EF.Test.Entity.OData
         }
 
         [Fact]
-        public void SelectOne_ByID_Expand()
+        public void SelectOne_ByID_Expand_Dictionary()
         {
             var product = mFixture.Snapshot.Products[0];
             object result = mFixture.Processor.SelectData(new Uri($"/Product({product.ProductID})?$expand=Category,Supplier", UriKind.Relative));
@@ -166,7 +169,7 @@ namespace Gehtsoft.EF.Test.Entity.OData
         }
 
         [Fact]
-        public void SelectOne_ByID_Expand_DefineResultset()
+        public void SelectOne_ByID_Expand_Dictionary_DefineResultset()
         {
             var product = mFixture.Snapshot.Products[0];
             object result = mFixture.Processor.SelectData(new Uri($"/Product({product.ProductID})?$expand=Category,Supplier($select=SupplierID,CompanyName,ContactName,Phone)&$select=ProductID,ProductName", UriKind.Relative));
@@ -249,7 +252,7 @@ namespace Gehtsoft.EF.Test.Entity.OData
         }
 
         [Fact]
-        public void SelectAll_Expand()
+        public void SelectAll_Expand_Dictionary()
         {
             object result = mFixture.Processor.SelectData(new Uri("/Product?$expand=Category,Supplier", UriKind.Relative));
             result.Should().BeAssignableTo<IDictionary<string, object>>();
@@ -311,7 +314,157 @@ namespace Gehtsoft.EF.Test.Entity.OData
         }
 
         [Fact]
-        public void SelectAll_Expand_DefineResultset()
+        public void SelectAll_One_To_Many_1()
+        {
+            var category = mFixture.Snapshot.Categories[0];
+            var products = mFixture.Snapshot.Products.Where(p => p.Category.CategoryID == category.CategoryID).ToArray();
+
+            products.Should().NotBeEmpty();
+
+            object result = mFixture.Processor.SelectData(new Uri($"/Category({category.CategoryID})/Product?$expand=Category", UriKind.Relative));
+            result.Should().BeAssignableTo<IDictionary<string, object>>();
+
+            result.As<IDictionary<string, object>>().Should()
+                .HaveElementMatching("value", v => v is IReadOnlyCollection<object>);
+
+            var collection = result.As<IDictionary<string, object>>()["value"]
+                .As<IReadOnlyCollection<object>>();
+
+            collection.Should().HaveCount(products.Length);
+            var pid = new HashSet<int>();
+
+            foreach (IDictionary<string, object> element in collection)
+            {
+                Product product = null;
+                element.Should()
+                    .HaveElementMatching("ProductID", v =>
+                    {
+                        if (pid.Contains((int)v))
+                            return false;
+                        pid.Add((int)v);
+                        product = products.FirstOrDefault(p => p.ProductID == (int)v);
+                        return product != null;
+                    });
+
+                element.Should()
+                    .HaveElement("ProductName", product.ProductName)
+                    .And.HaveElement("ReorderLevel", product.ReorderLevel)
+                    .And.HaveElement("Discontinued", product.Discontinued)
+                    .And.HaveElement("UnitPrice", product.UnitPrice)
+                    .And.HaveElement("UnitsInStock", product.UnitsInStock)
+                    .And.HaveElement("UnitsOnOrder", product.UnitsOnOrder)
+                    .And.HaveElement("QuantityPerUnit", product.QuantityPerUnit);
+
+                var cat = element.As<IDictionary<string, object>>()["Category"].As<IDictionary<string, object>>();
+
+                cat.Should()
+                    .HaveElement("CategoryID", category.CategoryID)
+                    .And.HaveElement("CategoryName", category.CategoryName);
+            }
+            pid.Should().HaveCount(products.Length);
+        }
+
+        [Fact]
+        public void SelectAll_One_To_Many_2()
+        {
+            var category = mFixture.Snapshot.Categories[0];
+            var products = mFixture.Snapshot.Products.Where(p => p.Category.CategoryID == category.CategoryID).ToArray();
+
+            products.Should().NotBeEmpty();
+
+            object result = mFixture.Processor.SelectData(new Uri($"/Category({category.CategoryID})?$expand=Product", UriKind.Relative));
+            result.Should().BeAssignableTo<IDictionary<string, object>>();
+
+            result.As<IDictionary<string, object>>().Should()
+                .HaveElementMatching("Product", v => v is IReadOnlyCollection<object>);
+
+            var collection = result.As<IDictionary<string, object>>()["Product"]
+                .As<IReadOnlyCollection<object>>();
+
+            collection.Should().HaveCount(products.Length);
+            var pid = new HashSet<int>();
+
+            foreach (IDictionary<string, object> element in collection)
+            {
+                Product product = null;
+                element.Should()
+                    .HaveElementMatching("ProductID", v =>
+                    {
+                        if (pid.Contains((int)v))
+                            return false;
+                        pid.Add((int)v);
+                        product = products.FirstOrDefault(p => p.ProductID == (int)v);
+                        return product != null;
+                    });
+
+                element.Should()
+                    .HaveElement("ProductName", product.ProductName)
+                    .And.HaveElement("ReorderLevel", product.ReorderLevel)
+                    .And.HaveElement("Discontinued", product.Discontinued)
+                    .And.HaveElement("UnitPrice", product.UnitPrice)
+                    .And.HaveElement("UnitsInStock", product.UnitsInStock)
+                    .And.HaveElement("UnitsOnOrder", product.UnitsOnOrder)
+                    .And.HaveElement("QuantityPerUnit", product.QuantityPerUnit);
+            }
+            pid.Should().HaveCount(products.Length);
+        }
+
+        [Fact]
+        public void SelectAll_One_To_Many_3()
+        {
+            var category = mFixture.Snapshot.Categories[0];
+            var products = mFixture.Snapshot.Products.Where(p => p.Category.CategoryID == category.CategoryID).ToArray();
+
+            products.Should().NotBeEmpty();
+
+            object result = mFixture.Processor.SelectData(new Uri($"/Category?$filter=CategoryID eq {category.CategoryID}&$expand=Product", UriKind.Relative));
+            result.Should().BeAssignableTo<IDictionary<string, object>>();
+
+            result.As<IDictionary<string, object>>().Should()
+                .HaveElementMatching("value", v => v is IReadOnlyCollection<object>);
+
+            var collection = result.As<IDictionary<string, object>>()["value"].As<IReadOnlyCollection<object>>();
+            collection.Should().HaveCount(1);
+
+            var category1 = collection.First().As<IDictionary<string, object>>();
+
+            category1.Should()
+                .HaveElementMatching("CategoryID", v => v is int i && i == category.CategoryID)
+                .And.HaveElementMatching("Product", v => v is IReadOnlyCollection<object>);
+
+            collection = category1.As<IDictionary<string, object>>()["Product"]
+                .As<IReadOnlyCollection<object>>();
+
+            collection.Should().HaveCount(products.Length);
+            var pid = new HashSet<int>();
+
+            foreach (IDictionary<string, object> element in collection)
+            {
+                Product product = null;
+                element.Should()
+                    .HaveElementMatching("ProductID", v =>
+                    {
+                        if (pid.Contains((int)v))
+                            return false;
+                        pid.Add((int)v);
+                        product = products.FirstOrDefault(p => p.ProductID == (int)v);
+                        return product != null;
+                    });
+
+                element.Should()
+                    .HaveElement("ProductName", product.ProductName)
+                    .And.HaveElement("ReorderLevel", product.ReorderLevel)
+                    .And.HaveElement("Discontinued", product.Discontinued)
+                    .And.HaveElement("UnitPrice", product.UnitPrice)
+                    .And.HaveElement("UnitsInStock", product.UnitsInStock)
+                    .And.HaveElement("UnitsOnOrder", product.UnitsOnOrder)
+                    .And.HaveElement("QuantityPerUnit", product.QuantityPerUnit);
+            }
+            pid.Should().HaveCount(products.Length);
+        }
+
+        [Fact]
+        public void SelectAll_Expand_Dictionary_DefineResultset()
         {
             object result = mFixture.Processor.SelectData(new Uri("/Product?$expand=Category,Supplier($select=SupplierID,CompanyName,ContactName,Phone)&$select=ProductID,ProductName", UriKind.Relative));
             result.Should().BeAssignableTo<IDictionary<string, object>>();
@@ -485,7 +638,7 @@ namespace Gehtsoft.EF.Test.Entity.OData
                     .Which.Should()
                     .HaveAttribute("term", "System.Data.Services.Providers.ResourceProperty")
                     .And.HaveAttribute("scheme", "http://schemas.microsoft.com/ado/2007/08/dataservices/scheme");
-                
+
             entry.Should().HaveElement("a:content")
                 .Which.Should()
                     .HaveAttribute("type", "application/xml")
@@ -566,6 +719,90 @@ namespace Gehtsoft.EF.Test.Entity.OData
             Select_Metadata_Entity_ValidateProperty(feed, "Category", "Product", false, "northwind.Category_Type");
             Select_Metadata_Entity_ValidateProperty(feed, "Supplier", "Product", false, "northwind.Supplier_Type");
             Select_Metadata_Entity_ValidateProperty(feed, "OrderDetail", "Product", false, "Collection(northwind.OrderDetail_Type)");
+        }
+
+        [Fact]
+        public void SelectOne_CanDelete_No()
+        {
+            var category = mFixture.Snapshot.Categories[0];
+            object result = mFixture.Processor.SelectData(new Uri($"/Category({category.CategoryID})?$candelete=true", UriKind.Relative));
+
+            result.As<IDictionary<string, object>>().Should()
+                            .HaveElementMatching("_candelete_", v => v is bool b && b == false);
+        }
+
+        [Fact]
+        public void SelectOne_CanDelete_Yes()
+        {
+
+            var category = new Category()
+            {
+                CategoryName = "New Category",
+                Description = ""
+            };
+            using (var query = mFixture.Connection.GetInsertEntityQuery<Category>())
+                query.Execute(category);
+
+            using var post = new DelayedAction(() =>
+            {
+                using (var query = mFixture.Connection.GetDeleteEntityQuery<Category>())
+                    query.Execute(category);
+            });
+
+            object result = mFixture.Processor.SelectData(new Uri($"/Category({category.CategoryID})?$candelete=true", UriKind.Relative));
+
+            result.As<IDictionary<string, object>>().Should()
+                            .HaveElementMatching("_candelete_", v => v is bool b && b == true);
+        }
+
+        [Fact]
+        public void SelectAll_CanDelete()
+        {
+
+            var category = new Category()
+            {
+                CategoryName = "New Category",
+                Description = ""
+            };
+            using (var query = mFixture.Connection.GetInsertEntityQuery<Category>())
+                query.Execute(category);
+
+            using var post = new DelayedAction(() =>
+            {
+                using (var query = mFixture.Connection.GetDeleteEntityQuery<Category>())
+                    query.Execute(category);
+            });
+
+            object result = mFixture.Processor.SelectData(new Uri($"/Category?$candelete=true", UriKind.Relative));
+
+
+            result.Should().BeAssignableTo<IDictionary<string, object>>();
+            result.As<IDictionary<string, object>>().Should()
+                .HaveElementMatching("value", v => v is IReadOnlyCollection<object>);
+
+            var collection = result.As<IDictionary<string, object>>()["value"]
+                .As<IReadOnlyCollection<object>>();
+
+            foreach (IDictionary<string, object> element in collection)
+            {
+                element.Should()
+                    .HaveElementMatching("CategoryID", _ => true);
+
+                var id = (int)element["CategoryID"];
+                var canDelete = id == category.CategoryID;
+
+                element.Should()
+                    .HaveElementMatching("_candelete_", v => v is bool b && b == canDelete);
+            }
+        }
+
+        [Fact]
+        public void SelectAll_Error()
+        {
+            object result = mFixture.Processor.SelectData(new Uri($"/Cutegory", UriKind.Relative));
+            result.Should().BeAssignableTo<IDictionary<string, object>>();
+            result.As<IDictionary<string, object>>().Should()
+                .HaveElementMatching("odata.error", v => v is IDictionary<string, object>);
         }
     }
 }
