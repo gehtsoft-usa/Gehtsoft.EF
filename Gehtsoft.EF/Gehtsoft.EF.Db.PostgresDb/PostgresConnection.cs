@@ -14,6 +14,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
         protected NpgsqlConnection mSqlConnection;
         protected NpgsqlTransaction mCurrentTransaction;
 
+
         public override string ConnectionType => "npgsql";
 
         public PostgresDbConnection(NpgsqlConnection connection) : base(connection)
@@ -200,8 +201,19 @@ namespace Gehtsoft.EF.Db.PostgresDb
 
     public static class PostgresDbConnectionFactory
     {
+        public static bool LegacyTimestampBehavior { get; set; } = true;
+        private static bool mLegacyTimestampBehaviorSet = false;
+
+        private static void UpdateLegacyTimestampBehavior()
+        {
+            if (!mLegacyTimestampBehaviorSet && LegacyTimestampBehavior)
+                AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        }
+
         public static SqlDbConnection Create(string connectionString)
         {
+            UpdateLegacyTimestampBehavior();
+
             NpgsqlConnection connection = new NpgsqlConnection
             {
                 ConnectionString = connectionString
@@ -212,6 +224,8 @@ namespace Gehtsoft.EF.Db.PostgresDb
 
         public static async Task<SqlDbConnection> CreateAsync(string connectionString, CancellationToken? token)
         {
+            UpdateLegacyTimestampBehavior();
+
             NpgsqlConnection connection = new NpgsqlConnection
             {
                 ConnectionString = connectionString

@@ -528,18 +528,19 @@ namespace Gehtsoft.EF.Test.Entity.OData
         [Fact]
         public void SelectAll_Take_Skip()
         {
-            var expected = mFixture.Snapshot.Products.OrderBy(p => p.ProductID).Skip(5).Take(10);
+            var expected = mFixture.Snapshot.Products.OrderBy(p => p.ProductID).Skip(7).Take(12);
 
-            object result = mFixture.Processor.SelectData(new Uri("/Product?$top=10&$skip=5&$orderby=ProductID", UriKind.Relative));
+            object result = mFixture.Processor.SelectData(new Uri("/Product?$top=12&$skip=7&$orderby=ProductID", UriKind.Relative));
 
             result.Should().BeAssignableTo<IDictionary<string, object>>();
             result.As<IDictionary<string, object>>().Should()
-                .HaveElementMatching("value", v => v is IReadOnlyCollection<object>);
+                .HaveElementMatching("value", v => v is IReadOnlyCollection<object>)
+                .And.HaveElementMatching("odata.nextLink", v => v is string s && s == "/Product?$orderby=ProductID&$top=12&$skip=19");
 
             var collection = result.As<IDictionary<string, object>>()["value"]
                 .As<IReadOnlyCollection<object>>();
 
-            collection.Should().HaveCount(10);
+            collection.Should().HaveCount(12);
             collection.Select(p => p.As<IDictionary<string, object>>()["ProductID"]).Should().BeInAscendingOrder();
 
             foreach (IDictionary<string, object> element in collection)
@@ -601,7 +602,7 @@ namespace Gehtsoft.EF.Test.Entity.OData
             result.Should().BeAssignableTo<IDictionary<string, object>>();
             result.As<IDictionary<string, object>>().Should()
                 .HaveElementMatching("value", v => v is IReadOnlyCollection<object>)
-                .And.HaveElementMatching("odata.nextLink", v => v is string s && s == "/Product?$orderby=ProductID&$skip=5");
+                .And.HaveElementMatching("odata.nextLink", v => v is string s && s == "/Product?$orderby=ProductID&$top=5&$skip=5");
 
             var coll = result.As<IDictionary<string, object>>()["value"].As<IReadOnlyCollection<object>>();
             var nextLink = result.As<IDictionary<string, object>>()["odata.nextLink"].As<string>();
@@ -612,7 +613,46 @@ namespace Gehtsoft.EF.Test.Entity.OData
             result.Should().BeAssignableTo<IDictionary<string, object>>();
             result.As<IDictionary<string, object>>().Should()
                 .HaveElementMatching("value", v => v is IReadOnlyCollection<object>)
-                .And.HaveElementMatching("odata.nextLink", v => v is string s && s == "/Product?$orderby=ProductID&$skip=10");
+                .And.HaveElementMatching("odata.nextLink", v => v is string s && s == "/Product?$orderby=ProductID&$top=5&$skip=10");
+        }
+
+        [Fact]
+        public void SelectAll_SkipToken_Ignored()
+        {
+            object result = mFixture.Processor.SelectData(new Uri("/Product", UriKind.Relative));
+
+            result.Should().BeAssignableTo<IDictionary<string, object>>();
+            result.As<IDictionary<string, object>>().Should()
+                .HaveElementMatching("value", v => v is IReadOnlyCollection<object>)
+                .And.HaveNoElement("odata.nextLink");
+
+            var coll = result.As<IDictionary<string, object>>()["value"].As<IReadOnlyCollection<object>>();
+            coll.Should().HaveCount(mFixture.Snapshot.Products.Count);
+        }
+
+        [Fact]
+        public void SelectAll_SkipToken_NoTokenSpecified()
+        {
+            mFixture.Builder.SetEntityPagingLimitByName("Product_Type", 5);
+            using var onend = new DelayedAction(() => mFixture.Builder.SetEntityPagingLimitByName("Product_Type", 0));
+
+            object result = mFixture.Processor.SelectData(new Uri("/Product", UriKind.Relative));
+
+            result.Should().BeAssignableTo<IDictionary<string, object>>();
+            result.As<IDictionary<string, object>>().Should()
+                .HaveElementMatching("value", v => v is IReadOnlyCollection<object>)
+                .And.HaveElementMatching("odata.nextLink", v => v is string s && s == "/Product?$top=5&$skip=5");
+
+            var coll = result.As<IDictionary<string, object>>()["value"].As<IReadOnlyCollection<object>>();
+            var nextLink = result.As<IDictionary<string, object>>()["odata.nextLink"].As<string>();
+            coll.Should().HaveCount(5);
+
+            result = mFixture.Processor.SelectData(new Uri(nextLink, UriKind.Relative));
+
+            result.Should().BeAssignableTo<IDictionary<string, object>>();
+            result.As<IDictionary<string, object>>().Should()
+                .HaveElementMatching("value", v => v is IReadOnlyCollection<object>)
+                .And.HaveElementMatching("odata.nextLink", v => v is string s && s == "/Product?$top=5&$skip=10");
         }
 
         [Fact]

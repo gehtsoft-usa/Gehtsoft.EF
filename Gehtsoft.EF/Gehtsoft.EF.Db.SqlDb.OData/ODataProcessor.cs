@@ -43,15 +43,6 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
         public string ODataMetadataName { get; set; } = "odata.metadata";
 
-        public ODataProcessor(ISqlDbConnectionFactory connectionFactory, EntityFinder.EntityTypeInfo[] entities, string nsname = "NS", string root = "")
-        {
-            mConnectionFactory = connectionFactory;
-            mModelBuilder = new EdmModelBuilder();
-            mModelBuilder.Build(entities, nsname);
-            Root = root;
-            while (Root.Length > 0 && Root.EndsWith("/")) Root = Root.Substring(0, Root.Length - 1);
-        }
-
         public ODataProcessor(ISqlDbConnectionFactory connectionFactory, EdmModelBuilder edmModelBuilder, string root = "")
         {
             mConnectionFactory = connectionFactory;
@@ -120,35 +111,34 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 ODataUriParser parser = new ODataUriParser(Model, uri);
                 ODataUri uriParser = parser.ParseUri();
                 ODataToQuery oDataToQuery = new ODataToQuery(mModelBuilder, uriParser, connection);
-                AQueryBuilder queryBuilder = oDataToQuery.BuildQuery();
+                
+                var queryBuilder = oDataToQuery.BuildQuery();
+
+                int pagingLimit = mModelBuilder.EntityPagingLimitByName(oDataToQuery.MainEntityDescriptor.EntityType.Name + "_Type");
+                bool hasPagingLimit = pagingLimit > 0;
+                bool queryHasSkip = oDataToQuery.Skip != null;
+                bool queryHasTop = oDataToQuery.Top != null;
+                bool forcedSkip = queryHasTop || queryHasSkip;
+
+                if (queryHasSkip)
+                    queryBuilder.Skip = oDataToQuery.Skip.Value;
+                if (queryHasTop)
+                    queryBuilder.Limit = oDataToQuery.Top.Value;
+                else if (hasPagingLimit)
+                    queryBuilder.Limit = pagingLimit;
+
                 using (SqlDbQuery query = connection.GetQuery(queryBuilder))
                 {
                     if (inlinecount && oDataToQuery.ResultMode != ODataToQuery.ResultType.Array)
-                    {
                         throw new EfODataException(EfODataExceptionCode.QueryOptionsFault);
-                    }
-
-                    int pagingLimit = mModelBuilder.EntityPagingLimitByName(oDataToQuery.MainEntityDescriptor.EntityType.Name + "_Type");
 
                     BindParams(query, oDataToQuery);
 
-                    string primaryKeyName = null;
-                    if (oDataToQuery.OneToMany || pagingLimit > 0 || candelete)
-                    {
-                        foreach (var property in oDataToQuery.MainEntityDescriptor.TableDescriptor)
-                        {
-                            if (property.PrimaryKey)
-                            {
-                                primaryKeyName = property.ID;
-                                break;
-                            }
-                        }
-                    }
+                    string primaryKeyName = oDataToQuery.MainEntityDescriptor.TableDescriptor.PrimaryKey?.ID;
                     Type primaryKeyType = null;
+
                     if (primaryKeyName != null)
-                    {
                         primaryKeyType = mModelBuilder.TypeByName(oDataToQuery.MainEntityDescriptor.EntityType, primaryKeyName);
-                    }
 
                     if (asyncCall)
                         await query.ExecuteReaderAsync(token);
@@ -156,28 +146,8 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         query.ExecuteReader();
 
                     List<object> result = new List<object>();
-                    int dal = oDataToQuery.Skip ?? 0;
-                    string skiptoken = null;
-
                     while (asyncCall ? await query.ReadNextAsync(token) : query.ReadNext())
                     {
-                        if (pagingLimit > 0 && oDataToQuery.ResultMode == ODataToQuery.ResultType.Array && !oDataToQuery.OneToMany)
-                        {
-                            if (result.Count >= pagingLimit)
-                            {
-                                if (primaryKeyName != null)
-                                {
-                                    object orgValue = (result[result.Count - 1] as Dictionary<string, object>)[primaryKeyName];
-                                    object value = query.LanguageSpecifics.TranslateValue(orgValue, primaryKeyType);
-                                    if (value is int || value is long || value is double)
-                                        skiptoken = value.ToString();
-                                    else
-                                        skiptoken = $"'{value}'";
-                                }
-                                break;
-                            }
-                        }
-
                         object o = oDataToQuery.Bind(query);
                         if (oDataToQuery.OneToMany && o is XmlSerializableDictionary dict)
                         {
@@ -239,7 +209,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         string queryParameter = queryParts[i];
                         if (queryParameter.StartsWith("$select="))
                         {
-                            metadata = $"{metadata}{queryParameter}";
+                            metadata += queryParameter;
                             break;
                         }
                     }
@@ -247,13 +217,9 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     if (oDataToQuery.ResultMode != ODataToQuery.ResultType.Array)
                     {
                         if (result.Count == 0)
-                        {
                             throw new EfODataException(EfODataExceptionCode.ResourceNotFound, segment);
-                        }
                         if (oDataToQuery.ResultMode == ODataToQuery.ResultType.Plain)
-                        {
                             return result[0];
-                        }
                         XmlSerializableDictionary res = result[0] as XmlSerializableDictionary;
                         res.Add(ODataMetadataName, metadata);
                         return res;
@@ -262,6 +228,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     long totalCount = -1;
                     int limit = ((SelectQueryBuilder)queryBuilder).Limit;
                     int skip = ((SelectQueryBuilder)queryBuilder).Skip;
+
                     if (inlinecount)
                     {
                         if (oDataToQuery.OneToMany)
@@ -296,75 +263,45 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         }
                     }
 
-                    if (oDataToQuery.OneToMany)
-                    {
-                        int quanto = oDataToQuery.Top ?? int.MaxValue;
-                        if (quanto > result.Count - dal)
-                        {
-                            quanto = result.Count - dal;
-                        }
-                        if (pagingLimit > 0 && quanto >= pagingLimit)
-                        {
-                            quanto = pagingLimit;
-                            if (primaryKeyName != null)
-                            {
-                                object orgValue = (result[dal + quanto - 1] as Dictionary<string, object>)[primaryKeyName];
-                                object value = query.LanguageSpecifics.TranslateValue(orgValue, primaryKeyType);
-                                if (value is int || value is long || value is double)
-                                    skiptoken = value.ToString();
-                                else
-                                    skiptoken = $"'{value}'";
-                            }
-                        }
-                        result = result.GetRange(dal, quanto);
-                    }
                     XmlSerializableDictionary resDict = new XmlSerializableDictionary();
 
                     if (totalCount > -1)
                     {
                         resDict.Add(ODataCountName, totalCount);
                     }
+
                     resDict.Add("value", result);
-                    if (skiptoken != null)
+                    if (metadata != null)
+                        resDict.Add(ODataMetadataName, metadata);
+
+                    if ((queryHasTop || hasPagingLimit) && !oDataToQuery.HasSkipToken)
                     {
                         StringBuilder nextUrl = new StringBuilder(Root + Encode(queryParts[0]));
-                        bool wasTop = false;
-                        int paramCounts = 0;
+                        int paramCount = 0;
                         for (int i = 1; i < queryParts.Length; i++)
                         {
                             string queryParameter = queryParts[i];
-                            if (queryParameter.StartsWith("$skip"))
+                            if (queryParameter.StartsWith("$skip") || queryParameter.StartsWith("$top"))
                                 continue;
 
-                            if (queryParameter.StartsWith("$top="))
-                                wasTop = true;
-                            else
-                            {
-                                nextUrl.Append(paramCounts == 0 ? "?" : "&");
-                                nextUrl.Append(Encode(queryParameter));
-                                paramCounts++;
-                            }
+                            nextUrl.Append(paramCount == 0 ? '?' : '&');
+                            nextUrl.Append(Encode(queryParameter));
+                            paramCount++;
                         }
-                        if (wasTop)
+
+                        var skipCount = (oDataToQuery.Skip ?? 0) + (oDataToQuery.Top ?? pagingLimit);
+                        if (totalCount == -1 || skipCount < totalCount)
                         {
-                            if (limit > pagingLimit)
-                            {
-                                nextUrl.Append(paramCounts == 0 ? "?" : "&");
-                                nextUrl.Append("$top=").Append(limit - pagingLimit);
-                            }
+                            nextUrl.Append(paramCount == 0 ? '?' : '&');
+                            nextUrl.Append("$top=").Append(oDataToQuery.Top ?? pagingLimit);
+                            nextUrl.Append('&');
+                            nextUrl.Append("$skip=").Append(skipCount);
+                            resDict.Add("odata.nextLink", nextUrl.ToString());
                         }
-                        nextUrl.Append(paramCounts == 0 ? "?" : "&");
-                        if (uriParser.OrderBy == null)
-                            nextUrl.Append("$skiptoken=").Append(skiptoken);
-                        else
-                            nextUrl.Append("$skip=").Append(skip + pagingLimit);
-
-                        resDict.Add("odata.nextLink", nextUrl.ToString());
                     }
-
-                    resDict.Add(ODataMetadataName, metadata);
                     return resDict;
                 }
+                
             }
             catch (Exception ex)
             {

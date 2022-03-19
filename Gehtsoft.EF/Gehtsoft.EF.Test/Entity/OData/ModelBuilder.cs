@@ -371,6 +371,201 @@ namespace Gehtsoft.EF.Test.Entity.OData
             condition.ExprOpArg(1)
                 .Should().BeBinaryOp("LS_OP");
         }
+
+        [Fact]
+        public void Query_Filter_Not()
+        {
+            var odataUriParser = new ODataUriParser(mFixture.Builder.Model, new Uri($"/Product?$filter=not(ProductID gt 1)", UriKind.Relative));
+            using var connection = new DummySqlConnection();
+
+            var odataQuery = new ODataToQuery(mFixture.Builder, odataUriParser.ParseUri(), connection);
+            var builder = odataQuery.BuildQuery();
+            builder.PrepareQuery();
+            var alias = (builder as QueryWithWhereBuilder).Entities[0].Alias;
+
+            var select = builder.Query.ParseSql().SelectStatement();
+            select.Should().HaveWhereClause();
+
+            var condition = select.SelectWhere().ClauseCondition();
+
+            condition.Should().BeUnaryOp("NOT_OP");
+
+            var condition1 = condition.ExprOpArg(0);
+
+            condition1.Should().BeBinaryOp("GT_OP");
+            condition1.ExprOpArg(0).Should()
+                .BeFieldExpression(alias, "productID");
+            condition1.ExprOpArg(1).Should()
+                .BeParamExpression();
+        }
+
+        [Theory]
+        [InlineData("startswith", "a%")]
+        [InlineData("endswith", "%a")]
+        [InlineData("contains", "%a%")]
+        public void Query_Filter_Like_ConstantParameter(string function, string expectedMask)
+        {
+            var odataUriParser = new ODataUriParser(mFixture.Builder.Model, new Uri($"/Product?$filter={function}(ProductName, 'a')", UriKind.Relative));
+            using var connection = new DummySqlConnection();
+
+            var odataQuery = new ODataToQuery(mFixture.Builder, odataUriParser.ParseUri(), connection);
+            var builder = odataQuery.BuildQuery();
+            builder.PrepareQuery();
+            var alias = (builder as QueryWithWhereBuilder).Entities[0].Alias;
+
+            var select = builder.Query.ParseSql().SelectStatement();
+            select.Should().HaveWhereClause();
+
+            var condition = select.SelectWhere().ClauseCondition();
+
+            condition.Should().BeBinaryOp("LIKE_OP");
+            condition.ExprOpArg(0)
+                .Should().BeFieldExpression(alias, "productName");
+
+            condition.ExprOpArg(1)
+                .Should().BeParamExpression();
+
+            odataQuery.BindParams
+                .Should()
+                .HaveElementMatching(condition.ExprOpArg(1).ExprParamName(), v => v is string s && s == expectedMask);
+        }
+
+        [Theory]
+        [InlineData("startswith", 1)]
+        [InlineData("endswith", 2)]
+        [InlineData("contains", 3)]
+        public void Query_Filter_Like_FieldParameter(string function, int expectedSecondArg)
+        {
+            var odataUriParser = new ODataUriParser(mFixture.Builder.Model, new Uri($"/Product?$filter={function}(QuantityPerUnit, ProductName)", UriKind.Relative));
+            using var connection = new DummySqlConnection();
+            var odataQuery = new ODataToQuery(mFixture.Builder, odataUriParser.ParseUri(), connection);
+            var builder = odataQuery.BuildQuery();
+            builder.PrepareQuery();
+            var alias = (builder as QueryWithWhereBuilder).Entities[0].Alias;
+
+            var select = builder.Query.ParseSql().SelectStatement();
+            select.Should().HaveWhereClause();
+
+            var condition = select.SelectWhere().ClauseCondition();
+
+            condition.Should().BeBinaryOp("LIKE_OP");
+            condition.ExprOpArg(0)
+                .Should().BeFieldExpression(alias, "quantityPerUnit");
+
+            condition.ExprOpArg(1)
+                .Should().BeBinaryOp("CONCAT_OP");
+
+            switch (expectedSecondArg)
+            {
+                case 1:
+                    condition.ExprOpArg(1)
+                        .ExprOpArg(0)
+                        .Should().BeFieldExpression(alias, "productName");
+
+                    condition.ExprOpArg(1)
+                        .ExprOpArg(1)
+                        .Should().BeConstant("%");
+                    break;
+                case 2:
+                    condition.ExprOpArg(1)
+                        .ExprOpArg(0)
+                        .Should().BeConstant("%");
+
+                    condition.ExprOpArg(1)
+                        .ExprOpArg(1)
+                        .Should().BeFieldExpression(alias, "productName");
+                    break;
+                case 3:
+                    condition.ExprOpArg(1)
+                        .ExprOpArg(0)
+                        .Should().BeBinaryOp("CONCAT_OP");
+
+                    condition.ExprOpArg(1)
+                        .ExprOpArg(0)
+                        .ExprOpArg(0)
+                        .Should().BeConstant("%");
+
+                    condition.ExprOpArg(1)
+                        .ExprOpArg(0)
+                        .ExprOpArg(1)
+                        .Should().BeFieldExpression(alias, "productName");
+
+                    condition.ExprOpArg(1)
+                        .ExprOpArg(1)
+                        .Should().BeConstant("%");
+                    break;
+            }
+        }
+
+        [Theory]
+        [InlineData("trim", "TRIM", "ShipName", "shipName", "'a'")]
+        [InlineData("toupper", "UPPER", "ShipName", "shipName", "'a'")]
+        [InlineData("tolower", "LOWER", "ShipName", "shipName", "'a'")]
+        [InlineData("hour", "HOUR", "OrderDate", "orderDate", "1")]
+        [InlineData("minute", "MINUTE", "OrderDate", "orderDate", "1")]
+        [InlineData("second", "SECOND", "OrderDate", "orderDate", "1")]
+        [InlineData("year", "YEAR", "OrderDate", "orderDate", "1")]
+        [InlineData("month", "MONTH", "OrderDate", "orderDate", "1")]
+        [InlineData("day", "DAY", "OrderDate", "orderDate", "1")]
+        [InlineData("round", "ROUND", "Freight", "freight", "1")]
+        public void Query_Filter_SingleArgumentFunction(string function, string sqlFunction, string property, string field, string arg)
+        {
+            var odataUriParser = new ODataUriParser(mFixture.Builder.Model, new Uri($"/Order?$filter={function}({property}) eq {arg}", UriKind.Relative));
+            using var connection = new DummySqlConnection();
+
+            var odataQuery = new ODataToQuery(mFixture.Builder, odataUriParser.ParseUri(), connection);
+            var builder = odataQuery.BuildQuery();
+            builder.PrepareQuery();
+            var alias = (builder as QueryWithWhereBuilder).Entities[0].Alias;
+
+            var select = builder.Query.ParseSql().SelectStatement();
+            select.Should().HaveWhereClause();
+
+            var condition = select.SelectWhere().ClauseCondition().ExprOpArg(0);
+
+            condition.Should()
+                .BeCallExpression(sqlFunction);
+
+            condition.ExprFnCallArg(0)
+                .Should().BeFieldExpression(alias, field);
+        }
+
+        [Theory]
+        [InlineData("add", "ADD_OP")]
+        [InlineData("sub", "SUB_OP")]
+        [InlineData("mul", "MUL_OP")]
+        [InlineData("div", "DIV_OP")]
+        public void Query_Filter_MathOp(string odataOp, string sqlOp)
+        {
+            var odataUriParser = new ODataUriParser(mFixture.Builder.Model, new Uri($"/Product?$filter=ProductID {odataOp} 1 gt 5", UriKind.Relative));
+            using var connection = new DummySqlConnection();
+
+            var odataQuery = new ODataToQuery(mFixture.Builder, odataUriParser.ParseUri(), connection);
+            var builder = odataQuery.BuildQuery();
+            builder.PrepareQuery();
+            var alias = (builder as QueryWithWhereBuilder).Entities[0].Alias;
+
+            var select = builder.Query.ParseSql().SelectStatement();
+            select.Should().HaveWhereClause();
+
+            var condition = select.SelectWhere().ClauseCondition();
+
+            condition.Should().BeBinaryOp("GT_OP");
+
+            var leftSide = condition.ExprOpArg(0);
+
+            leftSide.Should().BeBinaryOp(sqlOp);
+
+            leftSide.ExprOpArg(0)
+                .Should().BeFieldExpression(alias, "productID");
+
+            leftSide.ExprOpArg(1)
+                .Should().BeParamExpression();
+
+            odataQuery.BindParams
+                .Should()
+                .HaveElementMatching(leftSide.ExprOpArg(1).ExprParamName(), v => v is int i && i == 1);
+        }
     }
 }
 

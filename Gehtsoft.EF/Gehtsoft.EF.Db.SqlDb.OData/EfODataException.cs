@@ -12,7 +12,8 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
         UnknownOperator,
         BadPath,
         QueryOptionsFault,
-        SkiptokenWitoutPagingLimit,
+        SkiptokenWithoutPagingLimit,
+        SkiptokenWithoutId,
         UnknownEdmType,
         UnknownOrderByExpression,
         UnknownSingleValueNode,
@@ -62,8 +63,11 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     case EfODataExceptionCode.QueryOptionsFault:
                         return "Query options $orderby, $inlinecount, $skip and $top cannot be applied to the requested resource";
 
-                    case EfODataExceptionCode.SkiptokenWitoutPagingLimit:
+                    case EfODataExceptionCode.SkiptokenWithoutPagingLimit:
                         return "A skip token can only be provided in a query request against an entity set when the entity set has a paging limit set";
+
+                    case EfODataExceptionCode.SkiptokenWithoutId:
+                        return "A skip token with the value only is used for the entity which is not a PK";
 
                     default:
                         return $"Unknown exception {code}";

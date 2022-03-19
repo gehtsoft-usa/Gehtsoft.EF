@@ -44,6 +44,10 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
         internal int? Skip { get; private set; } = null;
         internal int? Top { get; private set; } = null;
+        internal bool HasSkipToken { get; private set; } = false;
+
+        internal void ForceTop(int top) => Top = top;
+
         internal Dictionary<string, object> BindParams = new Dictionary<string, object>();
 
         public ODataToQuery(EdmModelBuilder modelBuilder, ODataUri uriParser, SqlDbConnection connection)
@@ -53,7 +57,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             mConnection = connection;
         }
 
-        public AQueryBuilder BuildQuery(bool withoutSorting = false)
+        public SelectQueryBuilder BuildQuery(bool withoutSorting = false)
         {
             SelectQueryBuilder builder = null;
             SelectQueryBuilder mainBuilder = null;
@@ -202,35 +206,75 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 else
                     mainBuilder.Skip = (int)mUri.Skip.Value;
             }
-            if (mUri.Top.HasValue || mUri.Skip.HasValue)
+
+            if (mUri.Top.HasValue)
+                Top = (int)mUri.Top.Value;
+            if (mUri.Skip.HasValue)
+                Skip = (int)mUri.Skip.Value;
+
+            if (!string.IsNullOrEmpty(mUri.SkipToken))
             {
+                HasSkipToken = true;
                 if (this.ResultMode != ResultType.Array)
-                {
                     throw new EfODataException(EfODataExceptionCode.QueryOptionsFault);
-                }
-                int value = mUri.Top.HasValue ? (int)mUri.Top.Value : Int32.MaxValue;
-                if (OneToMany)
-                    this.Top = value;
-                else
-                    mainBuilder.Limit = value;
-            }
-            if (mUri.SkipToken != null)
-            {
-                if (this.ResultMode != ResultType.Array)
-                {
-                    throw new EfODataException(EfODataExceptionCode.QueryOptionsFault);
-                }
+                
                 int pagingLimit = mModelBuilder.EntityPagingLimitByName(MainEntityDescriptor.EntityType.Name + "_Type");
+                
                 if (pagingLimit <= 0)
+                    throw new EfODataException(EfODataExceptionCode.SkiptokenWithoutPagingLimit);
+
+                var token = mUri.SkipToken;
+                string[] parts = token.Split(',');
+                for (int p = 0; p < parts.Length; p++)
                 {
-                    throw new EfODataException(EfODataExceptionCode.SkiptokenWitoutPagingLimit);
+                    var part = parts[p];
+                    bool last = (p == parts.Length - 1);
+
+                    int ix = part.IndexOf(":");
+                    if (ix > 0 && ix != part.Length - 1)
+                    {
+                        //it is property : value
+                        var id = part.Substring(0, ix);
+                        var value = part.Substring(ix + 1);
+                        var field = MainEntityDescriptor.TableDescriptor[id];
+
+                        builder.Where.And().Property(field).Is(last ? CmpOp.Gt : CmpOp.Ge).Parameter(ParseToken(value, field.PropertyAccessor.PropertyType));
+                    }
+                    else
+                    {
+                        //it is value
+                        var pk = MainEntityDescriptor.TableDescriptor.PrimaryKey;
+                        if (pk == null)
+                            throw new EfODataException(EfODataExceptionCode.SkiptokenWithoutId);
+                        builder.Where.And().Property(pk).Is(CmpOp.Gt).Parameter(ParseToken(token, pk.PropertyAccessor.PropertyType));
+                    }
                 }
-                string pKey = builder.Where.PropertyName(null, MainEntityDescriptor.TableDescriptor.PrimaryKey);
-                string expression = builder.Where.InfoProvider.Specifics.GetOp(CmpOp.Gt, pKey, mUri.SkipToken);
-                builder.Where.Add(LogOp.And, expression);
             }
 #pragma warning restore S2259 // Null pointers should not be dereferenced 
             return mainBuilder;
+        }
+
+        private string ParseToken(string token, Type type)
+        {
+            string paramName = $"const_param_{BindParams.Count}";
+
+            if (type == typeof(string))
+                BindParams.Add(paramName, token);
+            else if (type == typeof(int))
+                BindParams.Add(paramName, int.Parse(token));
+            else if (type == typeof(double))
+                BindParams.Add(paramName, double.Parse(token));
+            else if (type == typeof(uint))
+                BindParams.Add(paramName, uint.Parse(token));
+            else if (type == typeof(long))
+                BindParams.Add(paramName, long.Parse(token));
+            else if (type == typeof(ulong))
+                BindParams.Add(paramName, ulong.Parse(token));
+            else if (type == typeof(Guid))
+                BindParams.Add(paramName, Guid.Parse(token));
+            else
+                throw new ArgumentException("The type is not supported", nameof(type));
+            return paramName;
         }
 
         private void ProcessOrderBy(QueryBuilder.SelectQueryBuilder builder, EntityDescriptor entityDescriptor, OrderByClause clause)
@@ -321,11 +365,10 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             builder.Where.Add(LogOp.And, expression);
         }
 
-        private SqlFunctionId? GetFunctionId(string name)
+        private SqlFunctionId GetFunctionId(string name)
         {
             switch (name)
             {
-                case "matchesPattern":
                 case "contains":
                 case "endswith":
                 case "startswith":
@@ -336,59 +379,98 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     return SqlFunctionId.Lower;
                 case "trim":
                     return SqlFunctionId.Trim;
-                case "trimleft":
-                    return SqlFunctionId.TrimLeft;
                 case "concat":
                     return SqlFunctionId.Concat;
+                case "year":
+                    return SqlFunctionId.Year;
+                case "month":
+                    return SqlFunctionId.Month;
+                case "day":
+                    return SqlFunctionId.Day;
+                case "hour":
+                    return SqlFunctionId.Hour;
+                case "minute":
+                    return SqlFunctionId.Minute;
+                case "second":
+                    return SqlFunctionId.Second;
+                case "round":
+                    return SqlFunctionId.Round;
             }
+            throw new ArgumentException($"Unsupported function {name}. Try matchesPattern, contains, endswith, startswith, toupper, tolower, trim, trimleft, concat", nameof(name));
+        }
 
-            return null;
+        private string ProcessLikeParam(string param, string prefix, string suffix)
+        {
+            var qprefix = mConnection.GetLanguageSpecifics().ParameterInQueryPrefix;
+            string key;
+            if (qprefix.Length > 0)
+                key = param.Substring(qprefix.Length);
+            else
+                key = param;
+            if (BindParams.ContainsKey(key))
+            {
+                var v = BindParams[key];
+                string s = (string)v;
+                if (!string.IsNullOrEmpty(prefix))
+                    s = prefix + s;
+                if (!string.IsNullOrEmpty(suffix))
+                    s = s + suffix;
+                BindParams[key] = s;
+                return param;
+            }
+            else
+            {
+                List<string> args = new List<string>();
+                if (!string.IsNullOrEmpty(prefix))
+                    args.Add("'" + prefix + "'");
+                args.Add(param);
+                if (!string.IsNullOrEmpty(suffix))
+                    args.Add("'" + suffix + "'");
+                return mConnection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.Concat, args.ToArray());
+            }
         }
 
         private string BuildFunctionCall(SingleValueFunctionCallNode func, ConditionBuilder where, EntityDescriptor entityDescriptor)
         {
             string retval = null;
-            SqlFunctionId? funcId = GetFunctionId(func.Name);
-            if (funcId.HasValue)
+            SqlFunctionId funcId = GetFunctionId(func.Name);
+            List<string> pars = new List<string>();
+            foreach (QueryNode node in func.Parameters)
             {
-                List<string> pars = new List<string>();
-                foreach (QueryNode node in func.Parameters)
+                if (node is ConstantNode constant)
                 {
+                    string paramName = $"const_param_{BindParams.Count}";
+                    object v = constant.Value;
+                    BindParams.Add(paramName, v);
+                    pars.Add(where.ParameterName(paramName));
+                }
+                else
                     pars.Add(GetStrExpression(node, where, entityDescriptor));
-                }
-                if (func.Name == "contains")
-                {
-                    string newParam = mConnection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.Concat,
-                        new string[] { "'%'",
-                        mConnection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.Concat,
-                        new string[] { pars[pars.Count - 1], "'%'" })
-                        });
-
-                    if (!newParam.Contains("(")) newParam = $"({newParam})";
-
-                    pars[pars.Count - 1] = newParam;
-                }
-                else if (func.Name == "endswith")
-                {
-                    string newParam = mConnection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.Concat,
-                        new string[] { "'%'", pars[pars.Count - 1] });
-
-                    if (!newParam.Contains("(")) newParam = $"({newParam})";
-
-                    pars[pars.Count - 1] = newParam;
-                }
-                else if (func.Name == "startswith")
-                {
-                    string newParam = mConnection.GetLanguageSpecifics().GetSqlFunction(SqlFunctionId.Concat,
-                        new string[] { pars[pars.Count - 1], "'%'" });
-
-                    if (!newParam.Contains("(")) newParam = $"({newParam})";
-
-                    pars[pars.Count - 1] = newParam;
-                }
-
-                retval = $"({mConnection.GetLanguageSpecifics().GetSqlFunction(funcId.Value, pars.ToArray())})";
             }
+
+            switch (funcId)
+            {
+                case SqlFunctionId.Like:
+                    if (pars.Count != 2)
+                        throw new ArgumentException($"Function {func.Name} should have two parameters");
+                    //adjust value
+                    if (func.Name == "contains")
+                        pars[1] = ProcessLikeParam(pars[1], "%", "%");
+                    else if (func.Name == "startswith")
+                        pars[1] = ProcessLikeParam(pars[1], "", "%");
+                    else if (func.Name == "endswith")
+                        pars[1] = ProcessLikeParam(pars[1], "%", "");
+                    break;
+                case SqlFunctionId.Trim:
+                case SqlFunctionId.TrimLeft:
+                case SqlFunctionId.Upper:
+                case SqlFunctionId.Lower:
+                    if (pars.Count != 1)
+                        throw new ArgumentException($"Function {func.Name} should have one parameter");
+                    break;
+            }
+
+            retval = $"({mConnection.GetLanguageSpecifics().GetSqlFunction(funcId, pars.ToArray())})";
 
             return retval;
         }

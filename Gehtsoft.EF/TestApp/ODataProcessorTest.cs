@@ -181,11 +181,6 @@ namespace TestApp
 
             count = (long)result;
 
-            result = mPocessor.SelectData(new Uri("/Good?$filter=trimleft(concat(' ', Name)) eq Name", UriKind.Relative));
-            array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
-            array.Should().NotBeNull();
-            ((long)array.Count()).Should().Be(count);
-
             result = mPocessor.SelectData(new Uri("/Good?$filter=startswith(tolower(Name), 'br')", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
             array.Should().NotBeNull();
@@ -264,11 +259,13 @@ namespace TestApp
             {
                 array.Count().Should().BeGreaterThan(0);
             }
+            
             while (nextLink != null)
             {
                 result = mPocessor.SelectData(new Uri(mPocessor.GetRelativeUrl(nextLink), UriKind.Relative));
                 array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
                 nextLink = null;
+                
                 if ((result as Dictionary<string, object>).ContainsKey("odata.nextLink"))
                 {
                     if (salePagingLimit > 0)
