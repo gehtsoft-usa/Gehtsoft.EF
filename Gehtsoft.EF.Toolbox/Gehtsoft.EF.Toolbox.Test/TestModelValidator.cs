@@ -27,6 +27,51 @@ namespace Gehtsoft.EF.Toolbox.Test
             public override DateTime? MaxDate => new DateTime(2999, 12, 31);
             public override DateTime? MinTimestamp => new DateTime(1970, 1, 1);
             public override DateTime? MaxTimestamp => new DateTime(2030, 12, 31);
+
+            public override string TypeName(DbType type, int size, int precision, bool autoincrement)
+            {
+                switch (type)
+                {
+                    case DbType.Int32:
+                        return "INTEGER";
+                    case DbType.Int64:
+                        return "NUMERIC(19, 0)";
+                    case DbType.Double:
+                    case DbType.Decimal:
+                        return $"NUMERIC({size}, {precision})";
+                    case DbType.Boolean:
+                        return "VARCHAR(1)";
+                    case DbType.String:
+                        return $"VARCHAR({size})";
+                    case DbType.Binary:
+                        if (size > 0)
+                            return $"BLOB({size})";
+                        else
+                            return "BLOB";
+                    case DbType.Date:
+                        return "DATE";
+                    case DbType.DateTime:
+                        return "TIMESTAMP";
+                    case DbType.Guid:
+                        return "VARCHAR(40)";
+                    default:
+                        throw new ArgumentException($"Type {type} is not supported in SQL92", nameof(type));
+                }
+            }
+
+            public override bool TypeToDb(Type type, out DbType dbtype)
+            {
+                type = Nullable.GetUnderlyingType(type) ?? type;
+
+                if (type == typeof(bool) || type == typeof(Guid))
+                {
+                    dbtype = DbType.String;
+                    return true;
+                }
+
+                return base.TypeToDb(type, out dbtype);
+            }
+
         }
 
         [Entity(Table = "dictionary")]

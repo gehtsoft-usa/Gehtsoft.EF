@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.7.1" />
-    <PackageReference Include="Gehtsoft.EF.Entities" Version="1.7.1" />
+    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.7.2" />
+    <PackageReference Include="Gehtsoft.EF.Entities" Version="1.7.2" />
   </ItemGroup>
 
 </Project>

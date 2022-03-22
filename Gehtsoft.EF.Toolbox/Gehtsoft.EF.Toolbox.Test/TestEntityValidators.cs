@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.IO;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
@@ -11,10 +12,31 @@ using NUnit.Framework;
 
 namespace Gehtsoft.EF.Toolbox.Test
 {
+    public static class SqliteInitializerNet4
+    {
+        private static bool gInitialized = false;
+
+        public static void Initialize()
+        {
+            if (!gInitialized)
+            {
+#if NET4
+                string basePath = new FileInfo(Path.GetFullPath(typeof(SqliteInitializerNet4).Assembly.Location)).DirectoryName;
+                Assert.IsTrue(Environment.OSVersion.Platform == PlatformID.Win32NT, "Must be run on windows only");
+                string path = Path.Combine(basePath, "runtimes", Environment.Is64BitProcess ? "win-x64" : "win-x86", "native", "e_sqlite3.dll");
+                Assert.IsTrue(File.Exists(path), "Runtime should exist");
+                File.Copy(path, Path.Combine(basePath, "e_sqlite3.dll"), true);
+#endif
+
+                gInitialized = true;
+            }
+        }
+    }
+
     [TestFixture()]
     public class TestEntityValidators
     {
-        public enum ValidatorTestEnum
+        public enum ValidatorTestValues
         {
             EnumValue1,
             EnumValue2,
@@ -56,7 +78,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             public int IntValue { get; set; }
 
             [EntityProperty(DbType = DbType.Int32, Nullable = true)]
-            public ValidatorTestEnum? EnumValue { get; set; }
+            public ValidatorTestValues? EnumValue { get; set; }
 
             [EntityProperty(ForeignKey = true, Nullable = true)]
             public ValidatorTestEntityDict Reference { get; set; }
@@ -68,11 +90,58 @@ namespace Gehtsoft.EF.Toolbox.Test
             public override DateTime? MaxDate => new DateTime(2167, 1, 1);
             public override DateTime? MinTimestamp => new DateTime(1970, 1, 1);
             public override DateTime? MaxTimestamp => new DateTime(2038, 1, 1);
+
+            public override string TypeName(DbType type, int size, int precision, bool autoincrement)
+            {
+                switch (type)
+                {
+                    case DbType.Int32:
+                        return "INTEGER";
+                    case DbType.Int64:
+                        return "NUMERIC(19, 0)";
+                    case DbType.Double:
+                    case DbType.Decimal:
+                        return $"NUMERIC({size}, {precision})";
+                    case DbType.Boolean:
+                        return "VARCHAR(1)";
+                    case DbType.String:
+                        return $"VARCHAR({size})";
+                    case DbType.Binary:
+                        if (size > 0)
+                            return $"BLOB({size})";
+                        else
+                            return "BLOB";
+                    case DbType.Date:
+                        return "DATE";
+                    case DbType.DateTime:
+                        return "TIMESTAMP";
+                    case DbType.Guid:
+                        return "VARCHAR(40)";
+                    default:
+                        throw new ArgumentException($"Type {type} is not supported in SQL92", nameof(type));
+                }
+            }
+
+            public override bool TypeToDb(Type type, out DbType dbtype)
+            {
+                type = Nullable.GetUnderlyingType(type) ?? type;
+
+                if (type == typeof(bool) || type == typeof(Guid))
+                {
+                    dbtype = DbType.String;
+                    return true;
+                }
+
+                return base.TypeToDb(type, out dbtype);
+            }
+
+
         }
 
         [OneTimeSetUp]
         public void Setup()
         {
+            SqliteInitializerNet4.Initialize();
             Assert.IsNotNull(AllEntities.Inst[typeof(ValidatorTestEntityDict), false]);
             Assert.IsNotNull(AllEntities.Inst[typeof(ValidatorTestEntity), false]);
         }
@@ -94,7 +163,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             entity.TsValue = DateTime.Now;
             entity.DoubleValue = 123.45;
             entity.DecimalValue = 123.45m;
-            entity.EnumValue = ValidatorTestEnum.EnumValue1;
+            entity.EnumValue = ValidatorTestValues.EnumValue1;
             entity.IntValue = 0;
             entity.Reference = null;
 
@@ -161,11 +230,11 @@ namespace Gehtsoft.EF.Toolbox.Test
             Assert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.DecimalValue), (int)EfValidationErrorCode.NumberIsOutOfRange));
             entity.DecimalValue = 0;
 
-            entity.EnumValue = ValidatorTestEnum.EnumValue1;
+            entity.EnumValue = ValidatorTestValues.EnumValue1;
             result = entityValidator.Validate(entity);
             Assert.IsTrue(result.IsValid);
 
-            entity.EnumValue = (ValidatorTestEnum)123;
+            entity.EnumValue = (ValidatorTestValues)123;
             result = entityValidator.Validate(entity);
             Assert.IsFalse(result.IsValid);
             Assert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.EnumValue), (int)EfValidationErrorCode.EnumerationValueIsInvalid));
@@ -228,7 +297,7 @@ namespace Gehtsoft.EF.Toolbox.Test
                     TsValue = DateTime.Now,
                     DoubleValue = 123.45,
                     DecimalValue = 123.45m,
-                    EnumValue = ValidatorTestEnum.EnumValue1,
+                    EnumValue = ValidatorTestValues.EnumValue1,
                     IntValue = 0,
                     Reference = null
                 };
