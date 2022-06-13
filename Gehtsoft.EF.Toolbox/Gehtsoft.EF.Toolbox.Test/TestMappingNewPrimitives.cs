@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Mapper;
-using Gehtsoft.Tools.TypeUtils;
+using Gehtsoft.Tools2.Extensions;
 using NUnit.Framework;
 
 namespace Gehtsoft.EF.Toolbox.Test
@@ -296,12 +296,12 @@ namespace Gehtsoft.EF.Toolbox.Test
             Assert.AreEqual(25, entity.Number);
             Assert.AreEqual(5, entity.SquareRoot);
 
-            map.Find(d => d.SquareRoot).ForEach(r => r.Ignore());
+            map.Find(d => d.SquareRoot).ForAll(r => r.Ignore());
             entity = map.Do(model1);
             Assert.AreEqual(25, entity.Number);
             Assert.AreEqual(null, entity.SquareRoot);
 
-            map.Find(d => d.SquareRoot).ForEach(r => r.WhenDestination(d => d.HasSquareRoot != null));
+            map.Find(d => d.SquareRoot).ForAll(r => r.WhenDestination(d => d.HasSquareRoot != null));
             entity = map.Do(model1);
             Assert.AreEqual(25, entity.Number);
             Assert.AreEqual(null, entity.SquareRoot);

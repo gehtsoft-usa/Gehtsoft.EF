@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Gehtsoft.Tools.TypeUtils;
 
 namespace Gehtsoft.EF.Mapper
 {
@@ -176,6 +175,10 @@ namespace Gehtsoft.EF.Mapper
 
     public static class EnumerableOfPropertyMappingExtension
     {
-        public static void Ignore<TSource, TDestination>(this IEnumerable<PropertyMapping<TSource, TDestination>> mappings) => mappings.ForEach(mapping => mapping.Ignore());
+        public static void Ignore<TSource, TDestination>(this IEnumerable<PropertyMapping<TSource, TDestination>> mappings)
+        { 
+            foreach (var mapping in mappings)
+                mapping.Ignore();
+        }
     }
 }

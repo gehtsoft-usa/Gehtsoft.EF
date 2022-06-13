@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using Gehtsoft.Tools.TypeUtils;
+using Gehtsoft.Tools2.Extensions;
 
 namespace Gehtsoft.EF.Mapper
 {
@@ -19,7 +19,6 @@ namespace Gehtsoft.EF.Mapper
     public static class ValueMapper
     {
         private static readonly Type enumerableType = typeof(IEnumerable);
-        private static readonly Type collectionType = typeof(ICollection);
         private static readonly Type listType = typeof(IList);
 
         public static object MapValue(object sourceValue, Type destinationType, MapFlag flags = MapFlag.None, object destinationValue = null)
@@ -47,10 +46,10 @@ namespace Gehtsoft.EF.Mapper
                 sourceValue = sv.Trim();
 
             if ((sourceValue is DateTime time) && ((flags & MapFlag.TrimToDate) == MapFlag.TrimToDate))
-                sourceValue = DateUtils.TruncateTime(time);
+                sourceValue = time.TruncateTime();
 
             if ((sourceValue is DateTime time1) && ((flags & MapFlag.TrimToSeconds) == MapFlag.TrimToSeconds))
-                sourceValue = DateUtils.TruncateToSeconds(time1);
+                sourceValue = time1.TruncateToSeconds();
 
             if (sourceType == destinationType)
             {

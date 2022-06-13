@@ -5,10 +5,10 @@
     <Version>$(VersionMajor)</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.10" />
+    <Folder Include="Gehtsoft.Mapper %28netstandard2.0%29\PropertyMapping\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Gehtsoft.Mapper %28netstandard2.0%29\PropertyMapping\" />
+    <PackageReference Include="Gehtsoft.Tools2" Version="0.0.2" />
   </ItemGroup>
 </Project>
 

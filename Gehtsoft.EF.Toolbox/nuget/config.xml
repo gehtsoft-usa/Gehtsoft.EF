@@ -2,6 +2,7 @@
 <nuget xmlns="http://www.gehtsoft.com/build/nuget">
  <!-- versions. the FIRST version is the current -->
  <versions>
+  <version id="1.4.6">- Update dependencies</version>
   <version id="1.4.5">- Update dependencies</version>
   <version id="1.4.4">- Update dependencies</version>
   <version id="1.4.3">- Update dependencies</version>

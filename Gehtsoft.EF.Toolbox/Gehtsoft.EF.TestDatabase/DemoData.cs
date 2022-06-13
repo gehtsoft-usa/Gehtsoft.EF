@@ -6,8 +6,8 @@ using System.Text;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
-using Gehtsoft.Tools.Crypto;
-using Gehtsoft.Tools.TypeUtils;
+using Gehtsoft.Tools2.Algorithm;
+using Gehtsoft.Tools2.Extensions;
 
 //disable static public field and static initialization warnings
 #pragma warning disable S1104, S2386, S3963

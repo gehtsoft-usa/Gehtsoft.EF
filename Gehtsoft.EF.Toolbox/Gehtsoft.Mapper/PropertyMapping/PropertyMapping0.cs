@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Gehtsoft.Tools.TypeUtils;
 
 namespace Gehtsoft.EF.Mapper
 {
