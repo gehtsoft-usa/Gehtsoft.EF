@@ -12,7 +12,7 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Utils;
-using Gehtsoft.Tools.TypeUtils;
+using Gehtsoft.Tools2.Extensions;
 
 namespace Gehtsoft.EF.FTS
 {
@@ -169,7 +169,7 @@ namespace Gehtsoft.EF.FTS
 
         private static async ValueTask FtsSetObjectTextCore(this SqlDbConnection connection, bool sync, string type, string objectID, string sorter, string text, CancellationToken? token)
         {
-            string[] words = StringUtils.ParseToWords(text, false);
+            string[] words = StringExtensions.ParseToWords(text, false);
             FtsObjectEntity objectEntity;
             FtsWordEntity wordEntity;
 
@@ -425,7 +425,7 @@ namespace Gehtsoft.EF.FTS
                     builder.QueryBuilder.AddToResultset(AggFn.Count);
                     break;
             }
-            FtsAddWhereToQuery(connection, builder, StringUtils.ParseToWords(text.ToUpper(), useMask), allWords, types);
+            FtsAddWhereToQuery(connection, builder, StringExtensions.ParseToWords(text.ToUpper(), useMask), allWords, types);
             return builder;
         }
 

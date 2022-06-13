@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Collections;
 using FluentAssertions.Execution;
-using Gehtsoft.Tools.TypeUtils;
+using Gehtsoft.Tools2.Extensions;
 
 namespace Gehtsoft.EF.Test.Entity.Utils
 {
@@ -75,7 +75,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
                 .ForCondition(e =>
                 {
                     bool f1 = false, f2 = false;
-                    e.ForEach(t =>
+                    e.ForAll(t =>
                     {
                         if (ReferenceEquals(t, one) || t.Equals(one))
                             f1 = true;
@@ -100,7 +100,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
                 .ForCondition(e =>
                 {
                     bool f1 = false, f2 = false;
-                    e.ForEach(t =>
+                    e.ForAll(t =>
                     {
                         if (_one(t))
                             f1 = true;

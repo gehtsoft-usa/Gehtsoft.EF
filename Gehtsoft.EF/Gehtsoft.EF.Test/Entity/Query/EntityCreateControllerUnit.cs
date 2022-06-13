@@ -12,7 +12,6 @@ using Gehtsoft.EF.Test.Utils.DummyDb;
 using Moq;
 using Xunit;
 
-#pragma warning disable RCS1049 // Simplify boolean comparison.
 #pragma warning disable S1125 // Boolean literals should not be redundant
 #pragma warning disable S1172 // Unused method parameters should be removed
 
@@ -112,12 +111,12 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
 
-            var es = EntityFinder.FindEntities(assemblies, "creator_order_1", false);
+            EntityFinder.EntityTypeInfo[] es = EntityFinder.FindEntities(assemblies, "creator_order_1", false);
 
-            var e1 = es.Find(e => e.EntityType == typeof(TestOrder_Entity));
-            var d1 = es.Find(e => e.EntityType == typeof(TestOrder_Dict1));
-            var d2 = es.Find(e => e.EntityType == typeof(TestOrder_Dict2));
-            var v1 = es.Find(e => e.EntityType == typeof(TestOrder_View));
+            var e1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Entity));
+            var d1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict1));
+            var d2 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict2));
+            var v1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_View));
 
             action.Setup(x => x.FindEntities(
                 It.Is<IEnumerable<Assembly>>(e => e == assemblies),
@@ -176,11 +175,11 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             var es = EntityFinder.FindEntities(assemblies, "creator_order_1", true);
 
-            var e1 = es.Find(e => e.EntityType == typeof(TestOrder_Entity));
-            var d1 = es.Find(e => e.EntityType == typeof(TestOrder_Dict1));
-            var d2 = es.Find(e => e.EntityType == typeof(TestOrder_Dict2));
-            var d3 = es.Find(e => e.EntityType == typeof(TestOrder_Dict3));
-            var v1 = es.Find(e => e.EntityType == typeof(TestOrder_View));
+            var e1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Entity));
+            var d1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict1));
+            var d2 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict2));
+            var d3 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict3));
+            var v1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_View));
 
             action.Setup(x => x.FindEntities(
                 It.Is<IEnumerable<Assembly>>(e => e == assemblies),
@@ -252,12 +251,12 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             var es = EntityFinder.FindEntities(assemblies, "creator_order_1", true);
 
-            var e1 = es.Find(e => e.EntityType == typeof(TestOrder_Entity));
-            var d1 = es.Find(e => e.EntityType == typeof(TestOrder_Dict1));
-            var d2 = es.Find(e => e.EntityType == typeof(TestOrder_Dict2));
-            var d3 = es.Find(e => e.EntityType == typeof(TestOrder_Dict3));
-            var d4 = es.Find(e => e.EntityType == typeof(TestOrder_Dict4));
-            var v1 = es.Find(e => e.EntityType == typeof(TestOrder_View));
+            var e1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Entity));
+            var d1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict1));
+            var d2 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict2));
+            var d3 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict3));
+            var d4 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict4));
+            var v1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_View));
 
             connection.SetSchema(Array.Empty<TableDescriptor>());
 
@@ -318,12 +317,12 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             var es = EntityFinder.FindEntities(assemblies, "creator_order_1", true);
 
-            var e1 = es.Find(e => e.EntityType == typeof(TestOrder_Entity));
-            var d1 = es.Find(e => e.EntityType == typeof(TestOrder_Dict1));
-            var d2 = es.Find(e => e.EntityType == typeof(TestOrder_Dict2));
-            var d3 = es.Find(e => e.EntityType == typeof(TestOrder_Dict3));
-            var d4 = es.Find(e => e.EntityType == typeof(TestOrder_Dict4));
-            var v1 = es.Find(e => e.EntityType == typeof(TestOrder_View));
+            var e1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Entity));
+            var d1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict1));
+            var d2 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict2));
+            var d3 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict3));
+            var d4 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict4));
+            var v1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_View));
 
             var td1 = new TableDescriptor()
             {
@@ -394,12 +393,12 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             var es = EntityFinder.FindEntities(assemblies, "creator_order_1", true);
 
-            var e1 = es.Find(e => e.EntityType == typeof(TestOrder_Entity));
-            var d1 = es.Find(e => e.EntityType == typeof(TestOrder_Dict1));
-            var d2 = es.Find(e => e.EntityType == typeof(TestOrder_Dict2));
-            var d3 = es.Find(e => e.EntityType == typeof(TestOrder_Dict3));
-            var d4 = es.Find(e => e.EntityType == typeof(TestOrder_Dict4));
-            var v1 = es.Find(e => e.EntityType == typeof(TestOrder_View));
+            var e1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Entity));
+            var d1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict1));
+            var d2 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict2));
+            var d3 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict3));
+            var d4 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict4));
+            var v1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_View));
 
             var td1 = new TableDescriptor()
             {
@@ -505,12 +504,12 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             var es = EntityFinder.FindEntities(assemblies, "creator_order_1", true);
 
-            var e1 = es.Find(e => e.EntityType == typeof(TestOrder_Entity));
-            var d1 = es.Find(e => e.EntityType == typeof(TestOrder_Dict1));
-            var d2 = es.Find(e => e.EntityType == typeof(TestOrder_Dict2));
-            var d3 = es.Find(e => e.EntityType == typeof(TestOrder_Dict3));
-            var d4 = es.Find(e => e.EntityType == typeof(TestOrder_Dict4));
-            var v1 = es.Find(e => e.EntityType == typeof(TestOrder_View));
+            var e1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Entity));
+            var d1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict1));
+            var d2 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict2));
+            var d3 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict3));
+            var d4 = Array.Find(es, e => e.EntityType == typeof(TestOrder_Dict4));
+            var v1 = Array.Find(es, e => e.EntityType == typeof(TestOrder_View));
 
             var td1 = new TableDescriptor()
             {

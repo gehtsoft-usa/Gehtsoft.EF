@@ -14,7 +14,7 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Entities.Context;
 using Gehtsoft.EF.Utils;
-using Gehtsoft.Tools.TypeUtils;
+using Gehtsoft.Tools2.Structure;
 
 namespace Gehtsoft.EF.Db.SqlDb
 {

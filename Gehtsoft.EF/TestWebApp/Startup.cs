@@ -40,8 +40,7 @@ namespace TestWebApp
             services.AddSingleton<EdmModelBuilder, EdmModelBuilder>();
 
             services.AddMvc()
-                .AddMvcOptions(options => options.EnableEndpointRouting = false)
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                .AddMvcOptions(options => options.EnableEndpointRouting = false);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -2,6 +2,7 @@
 <nuget xmlns="http://www.gehtsoft.com/build/nuget">
  <!-- versions. the FIRST version is the current -->
  <versions>
+  <version id="1.8.1">- Move toward net 6.0, update dependencies</version>
   <version id="1.7.2">- Update dependencies.</version>
   <version id="1.7.1">- Introduce DB patches. Add date as string mode for SQLite.</version>
   <version id="1.6.4">- Fix right-side expression funtion wrap.</version>

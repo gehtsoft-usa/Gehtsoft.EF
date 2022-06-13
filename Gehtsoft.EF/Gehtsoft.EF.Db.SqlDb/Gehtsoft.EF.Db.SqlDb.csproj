@@ -12,6 +12,8 @@
 
 
   <ItemGroup>
+    <PackageReference Include="Gehtsoft.Tools2" Version="0.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     <PackageReference Include="System.Data.Common">
       <Version>4.3.0</Version>
     </PackageReference>
@@ -142,7 +144,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.Tools.TypeUtils" Version="1.1.10" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
 
