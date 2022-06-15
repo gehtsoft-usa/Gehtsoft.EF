@@ -156,6 +156,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         [ExcludeFromCodeCoverage]
         public int ExecuteNoData()
         {
+            PrepareQuery();
             RowsAffected = mQuery.ExecuteNoData();
             return RowsAffected;
         }
@@ -166,6 +167,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         [ExcludeFromCodeCoverage]
         public void ExecuteReader()
         {
+            PrepareQuery();
             mQuery.ExecuteReader();
         }
 
@@ -176,6 +178,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         [ExcludeFromCodeCoverage]
         public Task<int> ExecuteNoDataAsync(CancellationToken? token = null)
         {
+            PrepareQuery();
             return mQuery.ExecuteNoDataAsync(token);
         }
 
@@ -187,6 +190,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         [ExcludeFromCodeCoverage]
         public Task ExecuteReaderAsync(CancellationToken? token = null)
         {
+            PrepareQuery();
             return mQuery.ExecuteReaderAsync(token);
         }
 
