@@ -21,6 +21,7 @@
   <dg:define name="web-content-file-name-backward-compatibility" value="yes" />
   <dg:define name="write-hhp" value="no" />
   <dg:define name="create-group-for-members-with-same-name" value="yes" />
+  <dg:define name="add-signature-to-brief" value="no" />
  </dg:output>
 
  <dg:output template="%docgen%/template/xmldoc/main.xsl" file="Gehtsoft.EF.Entities.xml" encoding="utf-8">
