@@ -8,7 +8,7 @@
     <Folder Include="Gehtsoft.Mapper %28netstandard2.0%29\PropertyMapping\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.Tools2" Version="0.0.2" />
+    <PackageReference Include="Gehtsoft.Tools2" Version="0.0.3" />
   </ItemGroup>
 </Project>
 
