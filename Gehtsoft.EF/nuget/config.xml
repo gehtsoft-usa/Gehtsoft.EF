@@ -2,6 +2,7 @@
 <nuget xmlns="http://www.gehtsoft.com/build/nuget">
  <!-- versions. the FIRST version is the current -->
  <versions>
+  <version id="1.8.4">- Move toward net 7.0, Update dependencies.</version>
   <version id="1.8.3">- Update dependencies.</version>
   <version id="1.8.2">- Fix legacy entity query methods ExecuteReader and ExecuteNoData</version>
   <version id="1.8.1">- Move toward net 6.0, update dependencies</version>
