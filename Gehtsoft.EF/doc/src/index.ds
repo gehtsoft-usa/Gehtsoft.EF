@@ -35,7 +35,13 @@
             The framework is 100% pure code-first framework and does NOT require any kind of dependency between the project and the certain
             database instance. This helps to run the project in distributed environment and even let different developers use different
             database (not instances, but literally database engines, e.g. Postgres and SQLite) while working on the same project. This also lets
-            use SQLite for running unittests instead of mocking DAO behavior that saves time to develop unittests and improves the coverage.
+            use SQLite for running unittests instead of mocking DAO behavior that saves time to develop unit tests and improves the coverage.
+        @end
+
+        @list-item
+            The framework is 100% database-agnostic and domain-driven-design focused. Create as many context as you need, mix and match them.
+            Use the database driver that matches you needs the best - from in-memory SQLite for automated tests to Oracle for production.
+            And let the framework to take care of all the nuances.
         @end
 
         @list-item
@@ -52,6 +58,12 @@
 
         @list-item
             It allows to use plain and raw SQL. Moreover, it allows to use SQL constructors which creates database-specific SQL SELECTs on the fly.
+        @end
+
+        @list-item
+            Last but not not least - it is open source. Understand how it works, make it better, make it custom!
+
+            Clone and fork EF report at [eurl=https://github.com/gehtsoft-usa/gehtsoft.ef]Gehtsoft Entity Framework[/eurl]
         @end
     @end
 

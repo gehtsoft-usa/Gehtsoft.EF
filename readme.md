@@ -1,0 +1,32 @@
+# Why?
+
+Why anyone would bother having yet another Entity Framework when there are one in .NET?
+
+Well...
+
+In short... if you ever tried to:
+  * Create DB-agnostic application in Microsoft EF Core...
+  * Implement domain-driven design with multiple isolated contexts but pointed to the same database instance
+  * And then make the DB update process also DB agnostic
+  * And had to spend hours optimizing LINQ created by yet another guy who doesn't understand what is behind LINQ in RDMBS...
+  * Yet again update your code because Microsoft decided to drop half of functionality and rename another half in the
+    new version.
+
+Then you may got the idea why... We switched to our own solution back in 2015 and never ever looked back because:
+
+* The framework is 100% pure code-first framework and does NOT require any kind of dependency between the project and the certain database instance. This helps to run the project in distributed environment and even let different developers use different database (not instances, but literally database engines, e.g. Postgres and SQLite) while working on the same project. This also lets use SQLite for running unittests instead of mocking DAO behavior that saves time to develop unit tests and improves the coverage.
+
+* The framework is 100% database-agnostic and domain-driven-design focused. Create as many context as you need, mix and match them. Use the database driver that matches you needs the best - from in-memory SQLite for automated tests to Oracle for production. And let the framework to take care of all the nuances.
+
+* While framework supports LINQ, it is heavily oriented to be used without LINQ. The reason is that LINQ is not 100% compatible with SQL select query structure and therefore the LINQ queries compiled into SQL SELECT queries are far from optimal. Gehtsoft.EF framework generates selects which are almost as good as written manually. Unfortunately, due to reason above, LINQ-produced queries are as bad as for any other LINQ-based framework.
+
+* It is lighter and do not consists of needless dependencies. Actually, for the most queries it is as fast as it would be running these queries directly to the database without EF at all.
+
+* It allows to use plain and raw SQL. Moreover, it allows to use SQL constructors which creates database-specific SQL SELECTs on the fly.
+
+* Last but not not least - it is open source. Understand how it works, make it better, make it custom!
+
+Please feel
+ * Read the documentation: https://docs.gehtsoftusa.com/Gehtsoft.EF/ef/
+ * Use it!
+ * Ask a question in discussion
