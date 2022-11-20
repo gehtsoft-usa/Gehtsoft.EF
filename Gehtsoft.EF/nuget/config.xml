@@ -38,69 +38,57 @@
  </versions>
  <properties>
   <owner>Gehtsoft</owner>
-  <projectUrl>http://docs.gehtsoftusa.com/Gehtsoft.EF/ef/web-content#index.html</projectUrl>
-  <license type="file">license.txt</license>
-  <copyright>Gehtsoft USA LLC 2016-2021</copyright>
+  <projectUrl>https://github.com/gehtsoft-usa/Gehtsoft.EF</projectUrl>
+  <license type="expression">Apache-2.0</license>
+  <copyright>Gehtsoft USA LLC 2016-2022</copyright>
  </properties>
  <projects>
    <project id="Gehtsoft.EF.Utils">
-    <description>Entity framework Utilities</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: Utilities</description>
    </project>
    <project id="Gehtsoft.EF.Entities">
-    <description>Entity framework</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: Entity Definition and Management Tools</description>
     <additional-file file="../doc/Gehtsoft.EF.Entities.xml" target="*"></additional-file>
+    <additional-file file="../../readme.md" target="/"/>
    </project>
    <project id="Gehtsoft.EF.Db.SqlDb">
-    <description>Common SQL-based implementation of entity framework.</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: Core Implementation for SQL databases.</description>
     <additional-file file="../doc/Gehtsoft.EF.Db.SqlDb.xml" target="*"></additional-file>
+    <additional-file file="../../readme.md" target="/"/>
    </project>
    <project id="Gehtsoft.EF.Db.SqlDb.Sql">
-    <description>Implementation of SQL 92 queries to be executed via SqlDb package.</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: Platform-agnostic SQL 92 parser and executor to operated entities using SQL queries.</description>
    </project>
    <project id="Gehtsoft.EF.Db.SqlDb.OData">
-    <description>OData supoirt for GS.EF entity framework.</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: Utilities: OData support.</description>
    </project>
    <project id="Gehtsoft.EF.Db.MssqlDb">
-    <description>Microsoft SQL Server implementation of entity framework</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: Microsoft SQL 2005+ Driver</description>
    </project>
    <project id="Gehtsoft.EF.Db.MysqlDb">
-    <description>MySQL implementation of entity framework</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: MySQL/MariaDB Driver</description>
    </project>
    <project id="Gehtsoft.EF.Db.OracleDb">
-    <description>Oracle 11+ implementation of entity framework</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: Oracle 11+ Driver</description>
    </project>
    <project id="Gehtsoft.EF.Db.PostgresDb">
-    <description>Postgres implementation of entity framework</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: Postgres Driver</description>
    </project>
    <project id="Gehtsoft.EF.Db.SqliteDb">
-    <description>SQLite implementation of entity framework</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: SQLite Driver</description>
    </project>
    <project id="Gehtsoft.EF.FTS">
-    <description>Platfrom-indepdendent Full Text Search package</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: DB-Agnostic Full Text Search</description>
     <additional-file file="../doc/Gehtsoft.EF.FTS.xml" target="*"></additional-file>
    </project>
    <project id="Gehtsoft.EF.Bson" >
-    <description>Entity framework BSON serializer</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: Entity framework BSON serializer</description>
    </project>
    <project id="Gehtsoft.EF.MongoDb">
-    <description>Entity framework MongoDB driver</description>
-    <additional-file file="../../license.txt" target="" />
+    <description>Gehtsoft Entity Framework: MongoDB-based implementation</description>
    </project>
    <project id="Gehtsoft.EF.Northwind">
-    <description>Entity framework MongoDB driver</description>
-    <additional-file file="../Gehtsoft.EF.Northwind/license.txt" target="" />
+    <description>Gehtsoft Entity Framework: Northwind sample database</description>
    </project>
  </projects>
 </nuget>
