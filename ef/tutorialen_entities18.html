@@ -1,0 +1,91 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Using plain SQL on entities.</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Using plain SQL on entities.</h1><p><b>SQL Queries on Entities</b></p>
+<p>In some cases the job to be performed is more complex that supported by the current implementation of the
+entity framework. In this case you can fallback to plain SQL (or to use an SQL builder).</p>
+<p>To get the SQL table related to the entity:</p><ul class="main">
+  <li><p>Find the entity descriptor using <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities.html"><code>AllEntities</code></a> class.</p></li>
+  <li><p>Get the table descriptor using <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityDescriptor.TableDescriptor.I5A.html"><code>TableDescriptor</code></a> property
+of the entity descriptor.</p></li>
+</ul><div id="open56" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close56'); hidediv('open56');" onclick="javascript: showdiv('close56'); hidediv('open56');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close56" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open56'); hidediv('close56');" onclick="javascript: showdiv('open56'); hidediv('close56');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example56"><code class="cs">[Entity(Table = &quot;subentity_table&quot;)]
+public class Subentity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true, Nullable = true)]
+    public Entity Entity { get; set; }
+ 
+}
+ 
+[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty]
+    public int Statistics { get; set; }
+}
+ 
+ 
+//.................
+//update statistics in all entities where statistics is zero
+//using subquery to calculate number of subentities for each entity updated
+TableDescriptor entityTable = AllEntities.Inst[typeof(Entity)].TableDescriptor;
+TableDescriptor subentityTable = AllEntities.Inst[typeof(Subentity)].TableDescriptor;
+ 
+UpdateQueryBuilder updateBuilder = new UpdateQueryBuilder(connection.GetLanguageSpecifics(), entityTable);
+ 
+SelectQueryBuilder selectQueryBuilder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), subentityTable);
+selectQueryBuilder.AddToResultset(AggFn.Count);
+selectQueryBuilder.Where.Property(subentityTable[nameof(Subentity.Entity)]).Is(CmpOp.Eq).Raw(updateBuilder.GetAlias(entityTable[nameof(Entity.ID)]));
+ 
+updateBuilder.AddUpdateColumnSubquery(entityTable[nameof(Entity.Statistics)], selectQueryBuilder);
+updateBuilder.Where.Property(entityTable[nameof(Entity.Statistics)]).Is(CmpOp.Eq).Parameter(&quot;param1&quot;);
+ 
+using (SqlDbQuery query = connection.GetQuery(updateBuilder))
+{
+    query.BindParam(&quot;param1&quot;, 0);
+    query.ExecuteNoData();
+}</code></pre>
+</div><p>Note: You can always check what is the plain SQL select query by checking <code class="ctag">SelectBuilder.SelectQueryBuilder.Query</code> at your query
+AFTER your entity query is executed.</p>
+<p><b>SQL Queries on the result of an entity query</b></p>
+<p>You can always apply a plain SQL select query on the results of entity select query. To add the entity select query result as a table to
+<a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.html"><code>SelectQueryBuilder</code></a>, use
+<code class="ctag">SelectBuilder.SelectQueryBuilder.QueryTableDescriptor</code> property of your query. (NOTE: You do not NEED to execute your query, it will be executed
+as a subquery of the plain SQL select query that you will construct).</p><div id="open57" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close57'); hidediv('open57');" onclick="javascript: showdiv('close57'); hidediv('open57');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close57" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open57'); hidediv('close57');" onclick="javascript: showdiv('open57'); hidediv('close57');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example57"><code class="cs"> //MyEntity (*) --- (1) MyDictionary
+ //Let's count average count of entities per dictionary record
+using (SelectEntitiesQueryBase subquery = connection.GetGenericSelectEntityQuery&lt;MyEntity&gt;())
+{
+    subquery.AddEntity&lt;MyDictionary&gt;();
+    subquery.AddToResultset(typeof(MyDictionary), nameof(MyDictionary.ID), &quot;dictid&quot;);
+    subquery.AddToResultset(typeof(MyDictionary), nameof(MyDictionary.Name), &quot;dictname&quot;);
+    subquery.AddToResultset(AggFn.Count, null, &quot;count&quot;);
+    subquery.AddGroupBy(typeof(MyDictionary), nameof(MyDictionary.ID));
+ 
+    SelectQueryBuilder builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), subquery.SelectBuilder.SelectQueryBuilder.QueryTableDescriptor);
+    builder.AddToResultset(AggFn.Avg, subquery.SelectBuilder.SelectQueryBuilder.QueryTableDescriptor[&quot;count&quot;]);
+    using (SqlDbQuery query = connection.GetQuery(builder))
+    {
+            query.ExecuteReader();
+            query.ReadNext();
+            return query.GetValue&lt;int&gt;(0);
+    }
+}</code></pre>
+</div><p>
+  <center><a href="tutorialsen.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

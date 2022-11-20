@@ -1,0 +1,17 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Paths</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Paths</h1><p>In Mongo DB many lists contains a complex tree of objects. The way to refer an element
+of this tree is called &quot;Path&quot;.</p>
+<p>The path consists of elements separater by a dot character (<code class="ctag">.</code>).</p>
+<p>Each element could be:</p><ul class="main">
+  <li><p>A name of the property</p></li>
+  <li><p>An integer zero-based index of an array element</p></li>
+</ul><p>E.g. path &quot;<code class="ctag">P1.P2.PA.5.CC</code>&quot; means:
+the property <code class="ctag">CC</code> of sixth element of the array stored in the property <code class="ctag">PA</code> of an object stored
+in the property <code class="ctag">P2</code> of the object stored in the property <code class="ctag">P1</code> of the entity.</p>
+<p>In case the path is used in the condition and condition needs to be applied to
+any element of the array, just skip index in the path.</p><p>
+  <center><a href="mongo.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

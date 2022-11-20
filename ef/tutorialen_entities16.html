@@ -1,0 +1,132 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>LINQ Methods of Queries</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>LINQ Methods of Queries</h1><p>The LINQ extension class <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqExtension.html"><code>EntityQueryLinqExtension</code></a>
+extends entity queries with ability to use LINQ expressions instead of types and names in resultset, filter and grouping specifications.</p>
+<p>In most cases using of the LINQ expressions does not affect generated SQL quality and performance, however the expression compilation itself is
+slower than basic methods. The effect is not significant and can be ignored in applications that are not time or resource critical.</p>
+<p>Sometimes the filters also may look simpler when specified via LINQ expression.</p>
+<p>Let's look how we can alternatively specify the filtering condition (the entities will be the same for all examples in this article).</p>
+<p>Let say we need to select entities that have value between 15 and 30 or that are lined to dictionary record with the name dict5.</p>
+<p>First query in the example uses conventional approach to define the filter and the second query uses a LINQ expression for the same purpose.</p><div id="open52" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close52'); hidediv('open52');" onclick="javascript: showdiv('close52'); hidediv('open52');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close52" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open52'); hidediv('close52');" onclick="javascript: showdiv('open52'); hidediv('close52');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example52"><code class="cs">[Entity(Table = &quot;dictionary&quot;)]
+public class Dictionary
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(Size = 64, Sorted = true)]
+    public string Name { get; set; }
+}
+ 
+[Entity(Table = &quot;entity&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true)]
+    public Dictionary Reference { get; set; }
+ 
+    [EntityProperty(Sorted = true)]
+    public int Value { get; set; }
+ 
+    [EntityProperty(Size = 64, Sorted = true)]
+    public string Name { get; set; }
+}
+ 
+....
+//Conventional query
+using (var query = connection.GetSelectEntitiesCountQuery&lt;Entity&gt;())
+{
+ 
+    query.Where.PropertyOf&lt;Dictionary&gt;(nameof(Dictionary.Name)).Is(CmpOp.Eq).Value(&quot;dict5&quot;);
+    using (var b = query.Where.AddGroup(LogOp.Or))
+    {
+        query.Where.Property(nameof(Entity.Value)).Is(CmpOp.Gt).Value(15);
+        query.Where.Property(nameof(Entity.Value)).Is(CmpOp.Ls).Value(30);
+    }
+    int rc = query.RowCount;
+}
+ 
+ 
+//Equivalent LINQ based query
+using (var query = connection.GetSelectEntitiesCountQuery&lt;Entity&gt;())
+{
+    query.Where.And().Expression&lt;Entity, Dictionary&gt;((entity, dictionary) =&gt; (entity.Value &gt; 15 &amp; entity.Value &lt; 30) || dictionary.Name == &quot;dict5&quot;);
+    int rc = query.RowCount;
+}</code></pre>
+</div><p>LINQ expressions offers a few options which are not available for regular queries, such as:</p><ul class="main">
+  <li><p>It is possible to set custom join expression in <code class="ctag">AddEntity</code> method.</p></li>
+  <li><p>It is possible to add an expression into resultset.</p></li>
+</ul><div id="open53" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close53'); hidediv('open53');" onclick="javascript: showdiv('close53'); hidediv('open53');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close53" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open53'); hidediv('close53');" onclick="javascript: showdiv('open53'); hidediv('close53');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example53"><code class="cs">double coefficient = 11.2;
+ 
+using (var query = connection.GetGenericSelectEntityQuery&lt;Entity&gt;())
+{
+    query.AddEntity(typeof(Dictionary));
+    query.AddToResultset&lt;Entity, int&gt;(e =&gt; e.ID, &quot;id&quot;);
+    query.AddToResultset&lt;Entity, string&gt;(e =&gt; e.Name, &quot;ent_id&quot;);
+    query.AddToResultset&lt;Dictionary, string&gt;(d =&gt; d.Name, &quot;dict_name&quot;);
+    query.AddToResultset&lt;Entity, Dictionary, string&gt;((e, d) =&gt; SqlFunction.Upper(SqlFunction.Concat(e.Name, &quot;-&quot;, d.Name)), &quot;name&quot;);
+    query.AddToResultset&lt;Entity, double&gt;(e =&gt; e.Value * coefficient, &quot;value&quot;);
+ 
+    dynamic rs = query.ReadAllDynamic();
+}</code></pre>
+</div><p>Pay attention that where function is used, a function from class <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction.html"><code>SqlFunction</code></a> may
+only be used. The same class is also used to specify aggregate functions,
+when the operator does not exist in the C# language (e.g. like, in, exists) or when reference to
+the value in parent query needs to be used.</p><div id="open54" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close54'); hidediv('open54');" onclick="javascript: showdiv('close54'); hidediv('open54');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close54" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open54'); hidediv('close54');" onclick="javascript: showdiv('open54'); hidediv('close54');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example54"><code class="cs">//select entities that have value above the average value of all entities
+//associated with the same dictionary record
+using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+    using (var subquery = connection.GetGenericSelectEntityQuery&lt;Entity&gt;())
+    {
+        subquery.AddToResultset&lt;Entity, double&gt;(entity =&gt; SqlFunction.Avg(entity.Value));
+        subquery.Where.Expression&lt;Entity&gt;(entity =&gt; SqlFunction.Value&lt;int&gt;(subquery.GetReference(nameof(Entity.Reference))) == SqlFunction.Value&lt;int&gt;(query.GetReference(nameof(Entity.Reference))));
+        query.Where.Expression&lt;Entity&gt;(entity =&gt; entity.Value &gt;= SqlFunction.Value&lt;double&gt;(subquery) &amp; SqlFunction.Like(entity.Reference.Name, &quot;%0%&quot;));
+    }
+ 
+    query.Execute();
+    var rs = query.ReadAll&lt;Entity&gt;();
+}</code></pre>
+</div><p>You can also have limited access to the entity using LINQ queries to a IQueriable collection of an entity.
+Use <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider.html"><code>QueryableEntityProvider</code></a> to get such collection.</p>
+<p>Only the following methods are supported: from, group, order and select.</p>
+<p>Below there are few examples of LINQ queries. Again it is positively advised against using true LINQ queries, especially in connection with
+the grouping operation because of poor performance of compiled SQL queries.</p><div id="open55" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close55'); hidediv('open55');" onclick="javascript: showdiv('close55'); hidediv('open55');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close55" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open55'); hidediv('close55');" onclick="javascript: showdiv('open55'); hidediv('close55');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example55"><code class="cs">QueryableEntityProvider provider = new QueryableEntityProvider(new QueryableEntityProviderConnection(connection));
+ 
+var query = from e in provider.Entities&lt;Entity&gt;()
+    where e.Value &gt; 10
+    select e;
+ 
+Entity[] rs = query.ToArray();
+ 
+var query1 = from e in provider.Entities&lt;Entity&gt;()
+    group e by e.Reference.ID
+    into g
+    select new {DictRec = g.Key, MaxValue = g.Max(v =&gt; v.Value)};
+ 
+var rs1 = query1.ToArray();</code></pre>
+</div><p>
+  <center><a href="tutorialsen.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

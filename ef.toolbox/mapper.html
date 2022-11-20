@@ -1,0 +1,129 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Mapping Toolkit</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Mapping Toolkit</h1><p>The library is designed to map between two different classes or (and this is the primary case of usage) between an EF entity and
+a model class.</p>
+<p>The benefit of this package over generic mappers such as AutoMapper is that it, in theory, does not require
+any additional coding for EF entities, except placing
+attributes as it uses the entity metadata to build the proper mapping logic.</p>
+<p>If you need to map EF entities use <code class="ctag">Gehtsoft.EF.Mapper</code> package. Otherwise use <code class="ctag">Gehtsoft.Mapper</code> package so
+no needless EF dependencies are loaded. However all classes both both packages are located in
+<code class="ctag">Gehtsoft.EF.Mapper</code> namespace.</p>
+<p>There are three options on how to make map</p><ul class="main">
+  <li><p>To define map between an EF entity and a model,
+add <a href="Gehtsoft.EF.Mapper.MapEntityAttribute.html"><code>MapEntityAttribute</code></a> and
+add <a href="Gehtsoft.EF.Mapper.MapPropertyAttribute.html"><code>MapPropertyAttribute</code></a> for each property of the model to be mapped.</p></li>
+  <li><p>To define map between an arbitrary class and a model,
+add <a href="Gehtsoft.EF.Mapper.MapClassAttribute.html"><code>MapClassAttribute</code></a> and
+add <a href="Gehtsoft.EF.Mapper.MapPropertyAttribute.html"><code>MapPropertyAttribute</code></a> for each property of the model to be mapped.</p></li>
+  <li><p>To define a custom map, create a map using <a href="Gehtsoft.EF.Mapper.MapFactory.CreateMap.0.html"><code>MapFactory.CreateMap()</code></a>
+and the define the map behavior via <a href="Gehtsoft.EF.Mapper.Map_TSource_TDestination.html"><code>Map&lt;TS, TD&gt;</code></a> class.</p></li>
+</ul><p>The major benefits of this package over generic mappers such as AutoMapper is that it, in most cases, does not require
+any additional coding except placing attributes as it uses the entity metadata to build the proper mapping logic.</p>
+<p>It also use very useful in connection with model validator package because the model validator uses mapping data
+to provide automatic entity-related validation.</p><div id="open1" style="display:none">
+  <p>Example: A simple map example&nbsp;<a href="javascript: showdiv('close1'); hidediv('open1');" onclick="javascript: showdiv('close1'); hidediv('open1');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close1" style="display:inline">
+  <p>Example: A simple map example&nbsp;<a href="javascript: showdiv('open1'); hidediv('close1');" onclick="javascript: showdiv('open1'); hidediv('close1');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example1"><code class="csharp">[Entity]
+public class Entity2
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true)]
+    public Entity1 Entity1 { get; set; }
+ 
+    [EntityProperty]
+    public string StringValue1 { get; set; }
+ 
+    [EntityProperty]
+    public string StringValue2 { get; set; }
+ 
+    [EntityProperty]
+    public int IntegerValue { get; set; }
+ 
+    [EntityProperty(DbType = DbType.Int32, Nullable = true)]
+    public EntityEnum? EnumValue { get; set; }
+}
+ 
+ 
+[MapEntity(EntityType = typeof(Entity2))]
+public class Entity2Model
+{
+    [MapProperty]
+    public int? ID { get; set; }
+ 
+    [MapProperty(Name = nameof(Entity2.Entity1))]
+    public int? Reference { get; set; }
+ 
+    [MapProperty(MapFlags = MapFlag.TrimStrings)]
+    public string StringValue1 { get; set; }
+ 
+    [MapProperty]
+    public string StringValue2 { get; set; }
+ 
+    [MapProperty]
+    public decimal IntegerValue { get; set; }
+ 
+    [MapProperty]
+    public int? EnumValue { get; set; }
+}
+....
+ 
+var model = MapFactory.Map&lt;Entity2, Entity2Model&gt;(entity);</code></pre>
+</div><div id="open2" style="display:none">
+  <p>Example: Creating a custom map&nbsp;<a href="javascript: showdiv('close2'); hidediv('open2');" onclick="javascript: showdiv('close2'); hidediv('open2');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close2" style="display:inline">
+  <p>Example: Creating a custom map&nbsp;<a href="javascript: showdiv('open2'); hidediv('close2');" onclick="javascript: showdiv('open2'); hidediv('close2');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example2"><code class="csharp">public class Class1
+{
+    public int ID { get; set; }
+ 
+    public string StringValue1 { get; set; }
+ 
+    public int IntegerValue { get; set; }
+ 
+}
+ 
+ 
+public class Class2
+{
+    public int? ID { get; set; }
+ 
+    public string StringValue1 { get; set; }
+ 
+    public decimal IntegerValue { get; set; }
+ 
+}
+....
+//DO IT ONCE!!!
+Map&lt;Class1, Class2&gt; map1 = MapFactory.CreateMap&lt;Class1, Class2&gt;();
+map1.For(d =&gt; d.ID).From(s =&gt; s.ID);
+map1.For(d =&gt; d.Title).From(s =&gt; s.Name).WithFlags(MapFlag.TrimStrings);
+map1.For(d =&gt; d.DoubleValue).From(s =&gt; s.IntegerValue);
+ 
+Map&lt;Class2, Class1&gt; map2 = MapFactory.CreateMap&lt;Class2, Class1&gt;();
+map2.For(d =&gt; d.ID).From(s =&gt; s.ID);
+map2.For(d =&gt; d.Name).From(s =&gt; s.Title);
+map2.For(d =&gt; d.IntegerValue).From(s =&gt; s.DoubleValue).When(s =&gt; s.DoubleValue &gt;= Int32.MinValue &amp; s.DoubleValue &lt;= Int32.MaxValue);
+map2.BeforeMapping((s, d) =&gt; d.IntegerValue = 0);
+....
+Class1 class1 = MapFactory.Map&lt;Class2, Class1&gt;(class2);
+Class2[] classes2 = MapFactory.Map&lt;List&lt;Class1&gt;, Class2[]&gt;(listOfClasses);</code></pre>
+</div><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Groups</b></td>
+  </tr><tr>
+  <td colspan="2" class="tmain">
+    <p><a href="Gehtsoft.EF.Mapper.html">Namespace Gehtsoft.EF.Mapper</a></p>
+    <p></p>
+  </td>
+</tr></table>
+<p>
+  <center><a href="index.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

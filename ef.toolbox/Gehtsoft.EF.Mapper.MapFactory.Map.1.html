@@ -1,0 +1,56 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>MapFactory.Map</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1><code>static public method <b>MapFactory.Map</b></code></h1><h2>Brief</h2>
+<p>Maps one value to another.</p>
+<table class="tmain" width="100%">
+  <tr>
+    <td class="thdr"><b>Declaration</b></td>
+  </tr>
+  <tr>
+    <td class="tmain"><table class="decl">
+  <tr>
+    <td colspan="2">C#</td>
+  </tr>
+  <tr>
+    <td width="1%" nowrap valign="top"><code>TTo&nbsp;</code></td>
+    <td width="99%" valign="top"><code><b>Map&lt;TFrom,TTo&gt;</b> (TFrom source) </code></td>
+  </tr>
+</table></td>
+  </tr>
+  <tr>
+    <td class="tmain"><table class="decl">
+  <tr>
+    <td colspan="2">C#</td>
+  </tr>
+  <tr>
+    <td width="1%" nowrap valign="top"><code>void&nbsp;</code></td>
+    <td width="99%" valign="top"><code><b>Map&lt;TFrom,TTo&gt;</b> (TFrom source, TTo destination) </code></td>
+  </tr>
+</table></td>
+  </tr>
+</table><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Parameters</b></td>
+  </tr>
+  <tr>
+    <td class="tmain_nw" width="31%"><code>source</code></td>
+    <td class="tmain" width="69%"></td>
+  </tr>
+  <tr>
+    <td class="tmain_nw" width="31%"><code>destination</code></td>
+    <td class="tmain" width="69%"></td>
+  </tr>
+</table><h2>Details</h2><p>Note that you can use this method for the types that have map defined, as well as for value types and
+for arrays, collections and lists.</p>
+<p>For value types and string the method returns the value itself.</p>
+<p>For the arrays and object the method returns the object itself unless the map is defined or can be automatically created (e.g.
+entity to model and class to model maps).</p>
+<p>See <a href="Gehtsoft.EF.Mapper.MapFactory.CreateMap.0.html"><code>MapFactory.CreateMap()</code></a> for more details about the map creation.</p>
+<p>If you need to perform special mapping, when null values of the source are ignored, use <a href="Gehtsoft.EF.Mapper.MapFactory.GetMap.0.html"><code>GetMap()</code></a>
+method to find the map you need and the use <a href="Gehtsoft.EF.Mapper.Map_TSource_TDestination.Do.1.html"><code>Do()</code></a> method of the map.</p><p>Declared in <a href="Gehtsoft.EF.Mapper.MapFactory.html">MapFactory</a></p>
+<p>
+  <center><a href="Gehtsoft.EF.Mapper.MapFactory.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList1('Gehtsoft.EF.Mapper.MapFactory');</script></body></html>

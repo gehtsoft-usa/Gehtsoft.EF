@@ -1,0 +1,423 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>SqlDbQuery</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1><code>class <b>SqlDbQuery</b></code></h1>
+<p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Parents</b></td>
+  </tr>
+  <tr>
+    <td class="tmain" width="30" style="border-right: none;"></td>
+    <td class="tmain" style="border-left: none;">
+      <p><code>object</code></p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain" width="30" style="border-right: none;"></td>
+    <td class="tmain" style="border-left: none;">
+      <p><code><a href="Gehtsoft.EF.Db.SqlDb.IDbQuery.html">IDbQuery</a></code></p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain" width="30" style="border-right: none;"></td>
+    <td class="tmain" style="border-left: none;">
+      <p><code>IDisposable</code></p>
+    </td>
+  </tr>
+</table>
+<h2>Brief</h2>
+<p>The database query.</p>
+<h2>Details</h2><p>Use
+<a href="Gehtsoft.EF.Db.SqlDb.SqlDbConnection.html"><code>SqlDbConnection</code></a>             to create a query.</p>
+<p>Do not forget to dispose the query after use. Some DBs requires the previous
+query to be disposed before the next query is executed.</p><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Public Properties</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.CanRead.NMA.html">CanRead</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Returns the flag indicating whether the query can read a row.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.Command.1NG.html">Command</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Returns underlying ADO.NET command object.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.CommandText.eKB.html">CommandText</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>The text of the command.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.CommandTextBuilder.DhE.html">CommandTextBuilder</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Returns the command text builder.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.Connection.4LF.html">Connection</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Returns the connection object associated with the query.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.FieldCount.5I9.html">FieldCount</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Returns the number of columns in the resultset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.IsInsert.4n8.html">IsInsert</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Returns the flag indicating whether the command is insert.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.LanguageSpecifics.kMC.html">LanguageSpecifics</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Returns the DB-specific rules.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ParametersCount.Y51.html">ParametersCount</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Returns the number of the parameters.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ReadBlobAsStream.QYF.html">ReadBlobAsStream</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Sets or gets the flag indicating whether BLOB fields must be read as stream.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.Reader.lrA.html">Reader</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Returns underlying ADO.NET reader.</p>
+    </td>
+  </tr>
+</table><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Public Methods</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindNull.5v7.html">BindNull</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Binds null value of the specified type.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindOutput.e53.html">BindOutput</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Binds the output parameter of the specified DB type.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindOutputParam.BxA.html">BindOutputParam</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Binds the output parameter of the specified DB type.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindOutputParam.Qa.html">BindOutputParam</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Binds the output parameter of the specified run-time type.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindOutputParam.nb1.html">BindOutputParam</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Binds the output parameter of the specified run-time type (generic version).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindParam.w68.html">BindParam</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Binds the input parameter of the type specified with the value specified.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindParam.Ae2.html">BindParam</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Binds the input parameter of the type specified with the value specified (generic version).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindParam.4Y3.html">BindParam</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Binds the input parameter of the specified DB type and with the value specified.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindParam.D4A.html">BindParam</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Binds the output parameter of the specified direction and type.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.Cancel.7j5.html">Cancel</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Cancels the query.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.Dispose.UjE.html">Dispose</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Dispose</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ExecuteNoData.AiD.html">ExecuteNoData</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Executes the query that reads no data.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ExecuteNoDataAsync.9HC.html">ExecuteNoDataAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Executes the query that reads no data asynchronously.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ExecuteReader.5HC.html">ExecuteReader</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Executes the query that reads a resultset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ExecuteReaderAsync.adG.html">ExecuteReaderAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Executes the query that reads a resultset asynchronously.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.Field.QM8.html">Field</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Returns the column information by its index.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.Field.xY2.html">Field</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Returns the column information by its name.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.FindField.PsA.html">FindField</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Finds column index by its name.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetParamValue.zU2.html">GetParamValue</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets the parameter value.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetParamValue.JRG.html">GetParamValue</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets the parameter value of the type desired.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetParamValue.XK2.html">GetParamValue</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets the parameter value of the type desired (generic version).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetStream.UdA.html">GetStream</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets the value stream by the column index.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetStream.7D9.html">GetStream</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets the value stream by the column name.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.M7.html">GetValue</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets the value by the column index as it is returned by the database.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.Om8.html">GetValue</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Get the value by the column index and try to convert it to the desired type.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.3g4.html">GetValue</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Get the value by the column index and try to convert it to the desired type (generic version).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.H4A.html">GetValue</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets the value by the column name as it is returned by the database.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.fR7.html">GetValue</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Get the value by the column index and try to convert it to the desired type.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.wRB.html">GetValue</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Get the value by the column index and try to convert it to the desired type (generic version).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.HasParam.xJ3.html">HasParam</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Checks whether the parameter with the name specified exist.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.IsNull.F6.html">IsNull</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Checks whether the column has null value by the column index.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.IsNull.hv1.html">IsNull</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Checks whether the column has null value by the column name.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.NextReaderResult.Dq7.html">NextReaderResult</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets the next resultset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.NextReaderResultAsync.4p5.html">NextReaderResultAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets the next resultset asynchronously.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ReadNext.tUA.html">ReadNext</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Reads the next row of the resultset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ReadNextAsync.Yb1.html">ReadNextAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Reads the next row of the resultset asynchronously.</p>
+    </td>
+  </tr>
+</table><p>
+  <center><a href="Gehtsoft.EF.Db.SqlDb.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

@@ -1,0 +1,90 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>ConditionBuilder</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1><code>class <b>ConditionBuilder</b></code></h1>
+<p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Parents</b></td>
+  </tr>
+  <tr>
+    <td class="tmain" width="30" style="border-right: none;"></td>
+    <td class="tmain" style="border-left: none;">
+      <p><code>object</code></p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain" width="30" style="border-right: none;"></td>
+    <td class="tmain" style="border-left: none;">
+      <p><code>IOpBracketAcceptor</code></p>
+    </td>
+  </tr>
+</table>
+<h2>Brief</h2>
+<p>The build of the condition.</p>
+<h2>Details</h2><p>The most convenient way to use the condition builder is to
+add
+<a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.SingleConditionBuilder.html"><code>SingleConditionBuilder</code></a>             for each individual
+condition using <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Add.IcA.html"><code>ConditionBuilder.Add</code></a>             or
+<a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.AddGroup.qJ3.html"><code>ConditionBuilder.AddGroup</code></a>             methods.</p>
+<p>The rest of methods are designed for EF infrastructure or may be
+used to construct complex queries that aren't supported by EF.</p>
+<p>Use also <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilderExtension.html"><code>ConditionBuilderExtension</code></a>             to easier and more readable
+definition of the conditions.</p>
+<p>The condition builder is used to build <code class="ctag">where</code>, <code class="ctag">on</code> and <code class="ctag">having</code> clauses of SQL queries.</p><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Public Methods</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Add.bdC.html">Add</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds raw SQL expression and connects it to previous condition with the specified logical operator.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Add.cvC.html">Add</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds an expression defined by two raw SQL argument and comparison operation connects it to previous condition with the specified logical operator.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Add.gv3.html">Add</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds an expression defined by two raw SQL argument and comparison operation connects it to previous condition with the logical and operator.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Add.IcA.html">Add</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds a single condition and connects it using the specified logical operator.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.Add.QCB.html">Add</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds a group of conditions enclosed into brackets and connects it with the previous expression using the specified logical operator.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.AddGroup.qJ3.html">AddGroup</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds a group of conditions enclosed into brackets and connects it with the previous expression using the specified logical operator.</p>
+    </td>
+  </tr>
+</table><p>
+  <center><a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

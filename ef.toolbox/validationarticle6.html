@@ -1,0 +1,61 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Entity validation</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Entity validation</h1><p>When an <a href="http://asp.gehtsoftusa.com/doc/ef/" target="_blank">EF</a> entity needs to be validated, the developer can use
+<a href="Gehtsoft.EF.Validator.EfEntityValidator_T.html"><code>EfEntityValidator</code></a> class.</p>
+<p>There are three possible mode how the validator can work:</p><ul class="main">
+  <li><p>If there are no SQL language specifics and SQL connection factory is set, the validator will check only:</p><ul class="main">
+  <li><p>Whether non-nullable properties aren't null.</p></li>
+  <li><p>Whether numeric properties aren't out of range of the associated database type.</p></li>
+  <li><p>Whether string properties aren't longer than the associated database property.</p></li>
+  <li><p>Whether the enumerations assigned to the property has correct value.</p></li>
+  <li><p>Any attribute-based validation additionally set to the entity.</p></li>
+</ul></li>
+  <li><p>If there are SQL language specifics set, the validator will additionally check whether data and timestamp properties are within the
+date range supported by the currently used database.</p></li>
+  <li><p>If there are SQL connection factory set, the validator will additionally check whether:</p><ul class="main">
+  <li><p>The unique properties are unique.</p></li>
+  <li><p>The referenced foreign key values exists.</p></li>
+</ul></li>
+</ul><p>Note that the default validation rules do not define any messages, only error codes!</p>
+<p>The developer can extend the validation deriving his/her validator class from <a href="Gehtsoft.EF.Validator.EfEntityValidator_T.html"><code>EfEntityValidator</code></a>
+and adding rules in the constructor in the same way as for a regular rule-based validator.</p><div id="open8" style="display:inline">
+  <p>Example: Entity validation&nbsp;<a href="javascript: showdiv('close8'); hidediv('open8');" onclick="javascript: showdiv('close8'); hidediv('open8');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close8" style="display:none">
+  <p>Example: Entity validation&nbsp;<a href="javascript: showdiv('open8'); hidediv('close8');" onclick="javascript: showdiv('open8'); hidediv('close8');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example8"><code>[Entity(Table = &quot;dict&quot;)]
+public class MyDict
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(Size = 256, Unique = true)]
+    public string StringValue { get; set; }
+}
+ 
+private SqlDbConnectionFactory mFactory;
+private string mConnectionString;
+ 
+public void MyMethod(MyDict entity)
+{
+    using (SqlDbConnection connection = mFactory.Invoke(mConnectionString))
+    {
+        EfEntityValidator&lt;MyDict&gt; validator = new EfEntityValidator&lt;MyDict&gt;(connection.GetLanguageSpecifics(), new ValidatorSingletonConnectionFactory(connection));
+ 
+        ValidationResult result = validator.Validate(entity);
+        if (!result.IsValid)
+        {
+            if (result.Failures.Contains(nameof(MyDict.StringValue), (int) EfValidationErrorCode.ValueIsNotUnique))
+                throw new ArgumentException(&quot;The dictionary value is not unique&quot;);
+            throw new ArgumentException(&quot;Other dictionary error&quot;);
+        }
+ 
+        using (ModifyEntityQuery query = connection.GetInsertEntityQuery&lt;MyDict&gt;())
+            query.Execute(entity);
+    }
+}</code></pre>
+</div><p>
+  <center><a href="validation.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

@@ -1,0 +1,42 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Creating DB connection</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Creating DB connection</h1><p>The framework uses <a href="Gehtsoft.EF.Db.SqlDb.SqlDbConnection.html"><code>SqlDbConnection</code></a> class to perform all connection-related
+operations.</p>
+<p>To get an instance of the connection, the developer must use one of the database factory classes which are named as
+<code class="ctag"><i>DbName</i>DbConnectionFactory</code> (e.g) <code class="ctag"><i>Mssql</i>ConnectionFactory</code> and always has a method named <code class="ctag">Create</code> which
+always has a following prototype:</p>
+<p><code class="ctag">SqlDbConnection <b>Create</b>(string connectionString)</code></p>
+<p>or for asynchronous version</p>
+<p><code class="ctag">Task&lt;SqlDbConnection&gt; <b>CreateAsync</b>(string connectionString, CancellationToken?)</code></p>
+<p>The delegate definitions are <a href="Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactory.html"><code>SqlDbConnectionFactory</code></a>
+and <a href="Gehtsoft.EF.Db.SqlDb.SqlDbConnectionFactoryAsync.html"><code>SqlDbConnectionFactoryAsync</code></a></p>
+<p>Use this method in order to get an instance of the connection.</p>
+<p>Dispose the connection object when it is not in use.</p>
+<p>You can also use <a href="Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory.html"><code>UniversalSqlDbFactory</code></a>
+to create a connection by the driver name.</p>
+<p><b>DB-specific Implementations</b></p>
+<p>Wherever the application needs to know any platform specific,
+an instance of <a href="Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.html"><code>SqlDbLanguageSpecifics</code></a> may be obtained from
+the connection object via <a href="Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetLanguageSpecifics.3e5.html"><code>GetLanguageSpecifics()</code></a>
+method.</p>
+<p><b>Pooling</b></p>
+<p>The framework is build over ADO.NET technology so it has a connection pooling embed. All connections that shares the same connection
+string aren't actually closed at disposition, but are returned back to the connection pool for further reuse.</p>
+<p>So, it is recommended to limit lifetime of the connection object to quite a short period of time, e.g. one request handling, and dispose it as soon
+as it reasonably possible.</p>
+<p>There is only once case when the behavior isn't clear and well-defined, it is in-memory SQLite database. In this case is it recommended to
+keep one instance of the connection during the whole lifecycle of the application.</p>
+<p><b>Example</b></p><div id="open1" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close1'); hidediv('open1');" onclick="javascript: showdiv('close1'); hidediv('open1');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close1" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open1'); hidediv('close1');" onclick="javascript: showdiv('open1'); hidediv('close1');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example1"><code class="csharp">    using (SqlDbConnection connection = SqliteDbConnectionFactory.Create(&quot;Data File=c:/data/my.db&quot;))
+    {
+        ...
+    }</code></pre>
+</div><p>
+  <center><a href="tutorialsdb.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

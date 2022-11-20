@@ -1,0 +1,77 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Message resolving</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Message resolving</h1><p>The message resolving is it the tool that let the developer to</p><ul class="main">
+  <li><p>use various localization libraries or resource files to store the message.</p></li>
+  <li><p>use the generic message code and put property name into the message on the fly.</p></li>
+</ul><p>When no message resolving is configured, the messages passed to the rules and/or attributes are used &quot;as is&quot;.</p>
+<p>The developer can provide his/her own implementation of the <a href="Gehtsoft.Validator.IValidationMessageResolver.html"><code>IValidationMessageResolver</code></a>
+interface and so construct the messages on the fly.</p>
+<p>The custom must be set for every type separately using <a href="Gehtsoft.Validator.ValidationMessageResolverFactory.html"><code>ValidationMessageResolverFactory</code></a> class.</p>
+<p>Every time when the message is added to validator, the resolver is called. The resolver gets:</p><ul class="main">
+  <li><p>The entity type.</p></li>
+  <li><p>The <a href="Gehtsoft.Validator.ValidationTarget.html">validation target</a> to get the entity type, C# name, type and any custom attributes of the target (in
+case the target is a class or</p></li>
+  <li><p>The original message.</p></li>
+</ul><p>The example below resolves the message via a localization interface and puts a name of the target if it is defined via special attribute.</p><div id="open7" style="display:none">
+  <p>Example: Entity-wide validation&nbsp;<a href="javascript: showdiv('close7'); hidediv('open7');" onclick="javascript: showdiv('close7'); hidediv('open7');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close7" style="display:inline">
+  <p>Example: Entity-wide validation&nbsp;<a href="javascript: showdiv('open7'); hidediv('close7');" onclick="javascript: showdiv('open7'); hidediv('close7');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example7"><code>public class TargetNameAttribute : Attribute
+{
+    public string DisplayName { get; set; }
+ 
+}
+ 
+public interface ILocalizationSource
+{
+    string Exists(string id);
+    string GetString(string id);
+}
+ 
+// Message resolver implementation,
+// so the localization resource ids can be used in place of the
+// message in the validation classes and attributes.
+public class ValidationMessageResolver : IValidationMessageResolver
+{
+    private ILocalizationSource mLocalizationSource;
+ 
+    public string Resolve(Type entity, ValidationTarget target, int code, string message)
+    {
+        string localizedMessage;
+ 
+        //resolve the message via localization
+        //or use raw message if it is not defined in the localization
+        if (mLocalizationSource.Exists(message))
+            localizedMessage = mLocalizationSource.GetString(message);
+        else
+            localizedMessage = message;
+ 
+        //if the message requires the name
+        //resolve it...
+        if (message.Contains(&quot;{name}&quot;))
+        {
+            //using the attribute (if defined)
+            //or a C# target name
+            string localizedName;
+            if (target.GetCustomAttribute&lt;TargetNameAttribute&gt;() != null)
+                localizedName = target.GetCustomAttribute&lt;TargetNameAttribute&gt;().DisplayName;
+            else
+                localizedName = target.TargetName;
+ 
+            //try to resolve name via localization
+            if (mLocalizationSource.Exists(localizedName))
+                localizedName = mLocalizationSource.GetString(localizedName);
+ 
+            //and compose the name into the message
+            localizedMessage = localizedMessage.Replace(&quot;{name}&quot;, localizedName);
+        }
+ 
+        return localizedMessage;
+    }
+}</code></pre>
+</div><p>
+  <center><a href="validation.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

@@ -1,0 +1,77 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>GenericEntityAccessorFilter</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1><code>class <b>GenericEntityAccessorFilter</b></code></h1>
+<p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Parents</b></td>
+  </tr>
+  <tr>
+    <td class="tmain" width="30" style="border-right: none;"></td>
+    <td class="tmain" style="border-left: none;">
+      <p><code>object</code></p>
+    </td>
+  </tr>
+</table>
+<h2>Brief</h2>
+<p>Generic filter class for the generic accessor.</p>
+<h2>Details</h2><p>The whole idea of generic filter is that the developer just derives type-specific filter class from this one
+and just defines a set of properties making them up using FilterProperty attribute.</p>
+<p>All filters are joined by AND</p>
+<p>1) The filter properties types must be equal to entity property types in their nullable version, i.e. if the field is
+int, the filter type shall be int?. the null value will mean that filter is not used.</p>
+<p>2) Should IsNull comparison be made, the filter property should be bool?. Null means that filter is inactive, true means IsNull and false means IsNotNull.</p><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Public Methods</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.BindToQuery.Mr3.html">BindToQuery</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Binds the filter to a query.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.Reset.Dh.html">Reset</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Resets all filter conditions.</p>
+    </td>
+  </tr>
+</table><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Protected Methods</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.AddFilterField.LG5.html">AddFilterField</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Add a field description for automatic binding</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.BindToQueryImpl.i07.html">BindToQueryImpl</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Override to provide custom binding to the values</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorFilter.InitializeFilterData.PJD.html">InitializeFilterData</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Override to provide custom metadata for filter fields for automatic binding</p>
+    </td>
+  </tr>
+</table><p>
+  <center><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

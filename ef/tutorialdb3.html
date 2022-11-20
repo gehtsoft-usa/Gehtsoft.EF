@@ -1,0 +1,40 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Transactions</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Transactions</h1><p>To execute a few queries within a transaction using <a href="Gehtsoft.EF.Db.SqlDb.SqlDbConnection.BeginTransaction.html"><code>BeginTransaction()</code></a>
+of the connection.</p>
+<p>When the transaction is finished, complete it using <a href="Gehtsoft.EF.Db.SqlDb.SqlDbTransaction.Commit.BU8.html"><code>Commit()</code></a> method.</p>
+<p>If the transaction is finished not successfully, roll back it using <a href="Gehtsoft.EF.Db.SqlDb.SqlDbTransaction.Rollback.8s6.html"><code>Rollback()</code></a> method.</p><div id="open3" style="display:none">
+  <p>Example: Transactions&nbsp;<a href="javascript: showdiv('close3'); hidediv('open3');" onclick="javascript: showdiv('close3'); hidediv('open3');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close3" style="display:inline">
+  <p>Example: Transactions&nbsp;<a href="javascript: showdiv('open3'); hidediv('close3');" onclick="javascript: showdiv('open3'); hidediv('close3');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example3"><code class="cs">using (SqlDbTransaction transaction = connection.BeginTransaction())
+{
+    try
+    {
+        using (SqlDbQuery query = connection.GetQuery(&quot;insert into table (id, name) values (@id, @name)&quot;))
+        {
+            for (int i = 0; i &lt; 10; i++)
+            {
+                query.BindParam&lt;int&gt;(&quot;id&quot;, i + 1);
+                query.BindParam&lt;string&gt;(&quot;name&quot;, $&quot;name {i + 1}&quot;);
+                query.ExecuteNoData();
+            }
+        }
+        
+        transaction.Commit();
+    }
+    catch (Exception )
+    {
+        transaction.Rollback();
+        throw;
+    }
+}</code></pre>
+</div><p>To check whether the database supports the transactions or whether it supports nested transactions use the method.
+<a href="Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.html"><code>SqlDbLanguageSpecifics</code></a>.<a href="Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.SupportsTransactions.hbA.html"><code>SupportsTransactions</code></a>.</p>
+<p>Please note that in case the database does not support nested transactions but it supports save points, the nested transaction will
+be simulated via save points.</p><p>
+  <center><a href="tutorialsdb.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

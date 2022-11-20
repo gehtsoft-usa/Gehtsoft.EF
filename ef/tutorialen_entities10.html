@@ -1,0 +1,221 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Limit Which Columns are Selected (the generic query method) and Aggregating Queries.</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Limit Which Columns are Selected (the generic query method) and Aggregating Queries.</h1><p>In case query need to produce custom resultset and custom entity query, a generic entity select query needs to be used. The generic entity select
+class is <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.html"><code>SelectEntitiesQueryBase</code></a></p>
+<p><b>Defining Resultset</b></p>
+<p>The generic entity query does not have any resultset defined when the object is created.</p>
+<p>Use <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.html"><code>AddToResultset()</code></a> method to specify which columns
+needs to be returned.</p><div id="open45" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close45'); hidediv('open45');" onclick="javascript: showdiv('close45'); hidediv('open45');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close45" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open45'); hidediv('close45');" onclick="javascript: showdiv('open45'); hidediv('close45');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example45"><code class="cs">[Entity(Table = &quot;dictionary_table&quot;)]
+public class Dictionary
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(Size = 64, Sorted = true)]
+    public string Name { get; set; }
+ 
+}
+ 
+[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true)]
+    public Dictionary Reference { get; set; }
+ 
+    [EntityProperty(Nullable = true)]
+    public int? Statistics { get; set; }
+}
+....
+using (var query = connection.GetGenericSelectEntityQuery&lt;Entity&gt;())
+{
+    query.AddToResultset(nameof(Entity.ID));
+    query.AddToResultset(nameof(Entity.Statistics));
+    ....
+}</code></pre>
+</div><p><b>Reading Resultset</b></p>
+<p>There are two way to read the result of generic entity query.</p>
+<p>First option is to read the resultset row-by-row and access each individual column using <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQuery.GetValue.html"><code>GetValue()</code></a>
+method.</p><div id="open46" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close46'); hidediv('open46');" onclick="javascript: showdiv('close46'); hidediv('open46');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close46" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open46'); hidediv('close46');" onclick="javascript: showdiv('open46'); hidediv('close46');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example46"><code class="cs">....
+using (var query = connection.GetGenericSelectEntityQuery&lt;Entity&gt;())
+{
+    query.AddToResultset(nameof(Entity.ID));
+    query.AddToResultset(nameof(Entity.Statistics));
+    while (query.ReadNext())
+    {
+        int id = query.GetValue&lt;int&gt;(0);
+        int stasitics = query.GetValue&lt;int&gt;(1);
+    }
+ 
+}</code></pre>
+</div><p>The second option is to use dynamic objects. In this case it would be reasonable to explicitly
+define the names of the columns as they will be used as property names of the dynamic object.</p><div id="open47" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close47'); hidediv('open47');" onclick="javascript: showdiv('close47'); hidediv('open47');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close47" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open47'); hidediv('close47');" onclick="javascript: showdiv('open47'); hidediv('close47');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example47"><code class="cs">....
+using (var query = connection.GetGenericSelectEntityQuery&lt;Entity&gt;())
+{
+    query.AddToResultset(nameof(Entity.ID), &quot;id&quot;);
+    query.AddToResultset(nameof(Entity.Statistics), &quot;stat&quot;);
+ 
+    var rs = query.ReadAllDynamic();
+    foreach (var row in rs)
+    {
+        int id = row.id;
+        int stat = row.stat;
+    }
+}</code></pre>
+</div><p><b>Aggregating the Data</b></p>
+<p>The data in the generic query may be aggregated. Use <a href="Gehtsoft.EF.Entities.AggFn.html"><code>AggFn</code></a> function id while adding the data
+to the resultset.</p><div id="open48" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close48'); hidediv('open48');" onclick="javascript: showdiv('close48'); hidediv('open48');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close48" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open48'); hidediv('close48');" onclick="javascript: showdiv('open48'); hidediv('close48');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example48"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true)]
+    public Dictionary Reference { get; set; }
+ 
+    [EntityProperty(Nullable = true)]
+    public int? Statistics { get; set; }
+}
+....................
+using (var query = connection.GetGenericSelectEntityQuery&lt;Entity&gt;())
+{
+     query.AddToResultset(AggFn.Max, nameof(Entity.Statistics), &quot;max&quot;);
+     var rs = query.ReadOneDynamic()?.max;
+}</code></pre>
+</div><p>When the data needs to be aggregated by some value, use <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddGroupBy.html"><code>AddGroupBy</code></a>
+method. Some database requires all columns from the resultset that aren't aggregate function to be included into
+group by clause. The framework automatically does this if at least one non-aggregated column exists in the resultset.</p><div id="open49" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close49'); hidediv('open49');" onclick="javascript: showdiv('close49'); hidediv('open49');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close49" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open49'); hidediv('close49');" onclick="javascript: showdiv('open49'); hidediv('close49');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example49"><code class="cs">[Entity(Table = &quot;subentity_table&quot;)]
+public class Subentity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true, Nullable = true)]
+    public Entity Entity { get; set; }
+ 
+}
+....
+using (var query = connection.GetGenericSelectEntityQuery&lt;Subentity&gt;())
+{
+    query.AddToResultset(nameof(Subentity.Entity), &quot;entity_id&quot;);
+    query.AddToResultset(AggFn.Count, null, &quot;count&quot;);
+    query.AddGroupBy(nameof(Subentity.Entity));
+    var rs = query.ReadAllDynamic();
+}</code></pre>
+</div><p><b>Joins</b></p>
+<p>Generic select by default has only one entity table involved, which was set when the query is created.</p>
+<p>You can add more entities using <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddEntity.html"><code>AddEntity</code></a> method.</p>
+<p>The framework automatically recognizes the type of join (inner, left or right) using primary and foreign key information in the entities.</p><div id="open50" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close50'); hidediv('open50');" onclick="javascript: showdiv('close50'); hidediv('open50');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close50" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open50'); hidediv('close50');" onclick="javascript: showdiv('open50'); hidediv('close50');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example50"><code class="cs">[Entity(Table = &quot;dictionary_table&quot;)]
+public class Dictionary
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(Size = 64, Sorted = true)]
+    public string Name { get; set; }
+ 
+}
+ 
+[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true)]
+    public Dictionary Reference { get; set; }
+ 
+    [EntityProperty(Nullable = true)]
+    public int? Statistics { get; set; }
+}
+ 
+...
+using (var query = connection.GetGenericSelectEntityQuery&lt;Entity&gt;())
+{
+    query.AddEntity(typeof(Dictionary));
+    query.AddToResultset(nameof(Entity.ID));
+    query.AddToResultset(typeof(Dictionary), nameof(Dictionary.Name));
+    var rs = query.ReadAllDynamic();
+}</code></pre>
+</div><p>In rare cases, especially when one entity is referenced in the other more than once, it requires to explicitly specify which column
+is used to join and which occurrence of the type in the query needs to be used in result set and/or the filter.</p><div id="open51" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close51'); hidediv('open51');" onclick="javascript: showdiv('close51'); hidediv('open51');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close51" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open51'); hidediv('close51');" onclick="javascript: showdiv('open51'); hidediv('close51');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example51"><code class="cs">[Entity(Table = &quot;dictionary_table&quot;)]
+public class Dictionary
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(Size = 64, Sorted = true)]
+    public string Name { get; set; }
+ 
+}
+ 
+[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true)]
+    public Dictionary Reference { get; set; }
+ 
+    [EntityProperty(ForeignKey = true)]
+    public Dictionary SecondReference { get; set; }
+ 
+    [EntityProperty(Nullable = true)]
+    public int? Statistics { get; set; }
+}
+ 
+...
+using (var query = connection.GetGenericSelectEntityQuery&lt;Entity&gt;())
+{
+    query.AddEntity(typeof(Dictionary), nameof(Entity.Reference), false);
+    query.AddEntity(typeof(Dictionary), nameof(Entity.SecondReference), true);
+
+    query.AddToResultset(nameof(Entity.ID));
+    query.AddToResultset(typeof(Dictionary), nameof(Dictionary.Name), &quot;firstname&quot;);
+    query.AddToResultset(typeof(Dictionary), 1, nameof(Dictionary.Name), &quot;secondname&quot;);
+
+    var rs = query.ReadAllDynamic();
+}</code></pre>
+</div><p>
+  <center><a href="tutorialsen.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

@@ -1,0 +1,39 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Primary Keys</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Primary Keys</h1><p>The entity framework does not support complex primary keys. Only one property can be a primary key of the entity.</p>
+<p>To mark the property as a primary key use <code class="ctag">PrimaryKey</code> property of the attribute. The property of any type except properties
+mapped to BLOB and CLOB columns can be declared as primary key.</p>
+<p>When a property is declared as a primary key, it will be used for:</p><ul class="main">
+  <li><p>Updating the entity in the database</p></li>
+  <li><p>Loading a single instance of the entity from the database</p></li>
+  <li><p>Establishing relationship with other entities</p></li>
+</ul><p>For integer artificial primary keys the <code class="ctag">Autoincrement</code> property can be used to create an sequence that starts from 1 and increases
+by one every time when a new entity is saved to the database. This operation is atomic at the database level and uniqueness of the values
+of guaranteed.</p><div id="open23" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close23'); hidediv('open23');" onclick="javascript: showdiv('close23'); hidediv('open23');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close23" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open23'); hidediv('close23');" onclick="javascript: showdiv('open23'); hidediv('close23');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example23"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(PrimaryKey = true, Autoincrement = true)]
+    public int PK { get; set; }
+}</code></pre>
+</div><p>A shortcut for and integer primary key with autoincrement is <code class="ctag">AutoId</code></p><div id="open24" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close24'); hidediv('open24');" onclick="javascript: showdiv('close24'); hidediv('open24');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close24" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open24'); hidediv('close24');" onclick="javascript: showdiv('open24'); hidediv('close24');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example24"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int PK { get; set; }
+}</code></pre>
+</div><p>Please note that autoincrement sequences ALWAYS start from 1 for each entity individually, so you can use <code class="ctag">PK == 0</code> condition
+to check whether you are dealing with a new entity.</p><p>
+  <center><a href="tutorialsen.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

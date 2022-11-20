@@ -1,0 +1,42 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>SelectQueryBuilder.AddTable</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1><code>public method <b>SelectQueryBuilder.AddTable</b></code></h1><h2>Brief</h2>
+<p>Adds a new table to the query.</p>
+<table class="tmain" width="100%">
+  <tr>
+    <td class="thdr"><b>Declaration</b></td>
+  </tr>
+  <tr>
+    <td class="tmain"><table class="decl">
+  <tr>
+    <td colspan="2">C#</td>
+  </tr>
+  <tr>
+    <td width="1%" nowrap valign="top"><code><a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity.html">QueryBuilderEntity</a>&nbsp;</code></td>
+    <td width="99%" valign="top"><code><b>AddTable</b> (<a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.html">TableDescriptor</a> table, bool autoConnect = True) </code></td>
+  </tr>
+</table></td>
+  </tr>
+</table><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Parameters</b></td>
+  </tr>
+  <tr>
+    <td class="tmain_nw" width="31%"><code>table</code></td>
+    <td class="tmain" width="69%"><p>The table descriptor</p></td>
+  </tr>
+  <tr>
+    <td class="tmain_nw" width="31%"><code>autoConnect</code></td>
+    <td class="tmain" width="69%"><p>The flag indicating whether the table needs to be auto-connected to the existing tables</p></td>
+  </tr>
+</table><h2>Details</h2><p>If auto-connection flag is set to <code class="ctag">true</code> the table builder will try to connect the entity
+to the first entity which is related to this entity by having a foreign key to this entity
+or by being reference via foreign key from this entity.</p>
+<p>If the automatic connection does not product the desired result, please use disable auto-connection</p>
+<p><a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryBuilderEntity.On.p81.html"><code>QueryBuilderEntity.On</code></a>             property of the returned object to configure the join condition.</p><p>Declared in <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.html">SelectQueryBuilder</a></p>
+<p>
+  <center><a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList1('Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder');</script></body></html>

@@ -1,0 +1,17 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Introduction into validation</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Introduction into validation</h1><p>The validation is applying the set of rules to an object.</p>
+<p>Each rule validates one value, which can be the object itself, a property of the object, an element of a collection which is
+a property of the object or, even, an arbitrary expression. The value to be validated is called a validation rule target.</p>
+<p>Each rule validates the value against one boolean condition which takes the target as input and returns simply <code class="ctag">true</code> (this value is valid)
+or <code class="ctag">false</code> (this value is invalid). Such condition is called a predicate.</p>
+<p>In case the rule is failed, it returns an validation failure which consists of</p><ul class="main">
+  <li><p>The name of the target failed (e.g. the name of the property, or the name of the collection property and the index of the element).</p></li>
+  <li><p>The validation failure code which is defined in the rule.</p></li>
+  <li><p>The validation failure message which is defined in the rule.</p></li>
+</ul><p>While one rule applies only one predicate at only one target, each validator can validate multiple targets for one validated object and
+can apply multiple rules for each validation target. So, each validation result can consists of multiple validation failures.</p><p>
+  <center><a href="validation.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

@@ -1,0 +1,276 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Filtering and Ordering Query Results</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Filtering and Ordering Query Results</h1><p>Select queries (and, by the way, multiple entity modification and deletion queries) can be applied
+to the filtered rows only.</p>
+<p>To do it <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.Where.ty7.html"><code>Where</code></a>
+property is used.</p>
+<p>There are a lot of options how the resultset can be filtered. Let's discuss major options of filtering.</p>
+<p><b>Adding Simple Compare Conditions</b></p>
+<p>The easiest way to filter is to simply compare a column value with a constant value.</p>
+<p>The column is simply referenced by the property name. C# <code class="ctag">nameof</code> operation is very useful to specify the property names, so, the chance
+of mistype is reduced and no complex and boring replace operation would be needed if ever the property is renamed.</p>
+<p>You can compare to all kind of equality comparison: is equal, is not equal, is greater, is greater or equal, is less, is less or equal.</p><div id="open34" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close34'); hidediv('open34');" onclick="javascript: showdiv('close34'); hidediv('open34');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close34" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open34'); hidediv('close34');" onclick="javascript: showdiv('open34'); hidediv('close34');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example34"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty]
+    public bool UpdateStatistics { get; set; }
+ 
+    [EntityProperty(Nullable = true)]
+    public int? Statistics { get; set; }
+}
+..................
+using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+    //select only rows where statistics is equal to zero
+    query.Where.Property(nameof(Entity.Statistics)).Is(CmpOp.Eq).Value(0);
+    //or select rows where statistics is between 20 and 100
+    query.Where.Property(nameof(Entity.Statistics)).Is(CmpOp.Ge).Value(20);
+    query.Where.And().Property(nameof(Entity.Statistics)).Is(CmpOp.Le).Value(100);
+ 
+}</code></pre>
+</div><p><b>Is Null/Is Not Null Conditions</b></p>
+<p>Is null/is not null conditions are even simpler as they do not require parameters:</p><div id="open35" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close35'); hidediv('open35');" onclick="javascript: showdiv('close35'); hidediv('open35');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close35" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open35'); hidediv('close35');" onclick="javascript: showdiv('open35'); hidediv('close35');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example35"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty]
+    public bool UpdateStatistics { get; set; }
+ 
+    [EntityProperty(Nullable = true)]
+    public int? Statistics { get; set; }
+}
+..................
+using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+    //select only rows where statistics is not set
+    query.Where.Property(nameof(Entity.Statistics)).Is(CmpOp.IsNull);
+ 
+}</code></pre>
+</div><p><b>Add Conditions for Referenced Entities</b></p>
+<p>The default entity query loads not only the main entity, but all referenced entities as well. These entities can also be used
+in the filter. All we need is to add the type of the entity referenced.</p>
+<p>Let say we need to select entities that have referenced to dictionary entries that starts from the letter A.</p><div id="open36" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close36'); hidediv('open36');" onclick="javascript: showdiv('close36'); hidediv('open36');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close36" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open36'); hidediv('close36');" onclick="javascript: showdiv('open36'); hidediv('close36');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example36"><code class="cs">[Entity(Table = &quot;dictionary_table&quot;)]
+public class Dictionary
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(Size = 64, Sorted = true)]
+    public string Name { get; set; }
+ 
+}
+ 
+ 
+[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true)]
+    public Dictionary Reference { get; set; }
+}
+ 
+....
+ 
+using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+    query.Where.PropertyOf&lt;Dictionary&gt;(nameof(Dictionary.Name)).Is(CmpOp.Like).Value(&quot;A%&quot;);
+    var collection = query.ReadAll&lt;Entity&gt;();
+}</code></pre>
+</div><p><b>Subquery Conditions (IN)</b></p>
+<p>Another query can be used as a part of the query reference. Here we are using the information that will be provided in further articles (on how
+to customize the resultset of an entity query), however, the examples below are quite simple and pretty much self-explaining.</p>
+<p>Let say we need to select entities that have referenced to dictionary entries that starts from the letter A.</p>
+<p>In this particular case this is just another (and less effective!) solution of the problem demonstrated in the previous example, however,
+this method can be used for custom queries which do not have references resolved or to
+more complex dictionary filtering, e.g. to select all dictionaries that have at least 10 entities referenced to them.</p><div id="open37" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close37'); hidediv('open37');" onclick="javascript: showdiv('close37'); hidediv('open37');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close37" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open37'); hidediv('close37');" onclick="javascript: showdiv('open37'); hidediv('close37');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example37"><code class="cs">[Entity(Table = &quot;dictionary_table&quot;)]
+public class Dictionary
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(Size = 64, Sorted = true)]
+    public string Name { get; set; }
+ 
+}
+ 
+ 
+[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true)]
+    public Dictionary Reference { get; set; }
+}
+ 
+....
+ 
+using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+    using (var subquery = connection.GetGenericSelectEntityQuery&lt;Dictionary&gt;())
+    {
+        subquery.AddToResultset(nameof(Dictionary.ID));
+        subquery.Where.Property(nameof(Dictionary.Name)).Is(CmpOp.Like).Value(&quot;A%&quot;);
+ 
+        query.Where.Property(nameof(Entity.Reference)).Is(CmpOp.In).Query(subquery);
+    }
+ 
+    var collection = query.ReadAll&lt;Entity&gt;();
+}</code></pre>
+</div><p><b>Subquery Conditions With Cross-Reference</b></p>
+<p>Sometimes subquery needs to be referenced to the parent query. Like in example below where we need to find all dictionary entries
+that do not have any entities related to them. The cross references may be established using the result returned by
+<a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.GetReference.html"><code>GetReference()</code></a> method.</p><div id="open38" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close38'); hidediv('open38');" onclick="javascript: showdiv('close38'); hidediv('open38');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close38" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open38'); hidediv('close38');" onclick="javascript: showdiv('open38'); hidediv('close38');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example38"><code class="cs">[Entity(Table = &quot;dictionary_table&quot;)]
+public class Dictionary
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(Size = 64, Sorted = true)]
+    public string Name { get; set; }
+ 
+}
+ 
+ 
+[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true)]
+    public Dictionary Reference { get; set; }
+}
+ 
+....
+using (var query = connection.GetSelectEntitiesQuery&lt;Dictionary&gt;())
+{
+    using (var subquery = connection.GetGenericSelectEntityQuery&lt;Entity&gt;())
+    {
+        subquery.Where.Property(nameof(Entity.Reference)).Is(CmpOp.Eq).Reference(query.GetReference(nameof(Dictionary.ID)));
+        query.Where.Add().Is(CmpOp.NotExists).Query(subquery);
+    }
+ 
+    var unusedDictionaryEntries = query.ReadAll&lt;Dictionary&gt;();
+}</code></pre>
+</div><p><b>Put Conditions into Bracket and Joining With OR</b></p>
+<p>Sometimes conditions needs to be joined by OR instead of AND (i.e. ANY of the conditions is true rather than ALL of the conditions are true)</p>
+<p>Example below selects all rows where statistics is not set or is less than 100.</p><div id="open39" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close39'); hidediv('open39');" onclick="javascript: showdiv('close39'); hidediv('open39');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close39" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open39'); hidediv('close39');" onclick="javascript: showdiv('open39'); hidediv('close39');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example39"><code class="cs">using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+    using (var bracket = query.Where.AddGroup())
+    {
+        query.Where.Or().Property(nameof(Entity.Statistics)).Is(CmpOp.IsNull);
+        query.Where.Or().Property(nameof(Entity.Statistics)).Is(CmpOp.Le).Value(100);
+    }
+ 
+}</code></pre>
+</div><p>Sometimes, OR and AND conditions needs to be mixed. You must be aware that AND is always used first, before OR. In such cases the developer
+may want to enclose a set of conditions into a group in sake of predictable behavior and better readability of the query. The brackets needs to
+be used in this case. The principles of usage are example the same as using the brackets in the plain SQL or any other programming language.</p>
+<p>The example below is equal to raw SQL <code class="ctag">updateStatistics AND (statistics is NULL OR (statistics &gt;= 20 AND statistics &lt;= 180)</code></p><div id="open40" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close40'); hidediv('open40');" onclick="javascript: showdiv('close40'); hidediv('open40');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close40" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open40'); hidediv('close40');" onclick="javascript: showdiv('open40'); hidediv('close40');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example40"><code class="cs">using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+ 
+    query.Where.Property(nameof(Entity.UpdateStatistics)).Is(CmpOp.Eq).Value(true);
+    using (var bracket = query.Where.AddGroup(LogOp.And))
+    {
+        query.Where.Or().Property(nameof(Entity.Statistics)).Is(CmpOp.IsNull);
+        using (var bracket1 = query.Where.AddGroup(LogOp.Or))
+        {
+            query.Where.Property(nameof(Entity.Statistics)).Is(CmpOp.Ge).Value(20);
+            query.Where.And().Property(nameof(Entity.Statistics)).Is(CmpOp.Le).Value(180);
+        }
+    }
+}</code></pre>
+</div><p><b>Ordering Resultset</b></p>
+<p>To order the resultset use <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddOrderBy.html"><code>AddOrderBy()</code></a>
+method of the query. The data can be ordered by any column of any entity involved into the query.</p><div id="open41" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close41'); hidediv('open41');" onclick="javascript: showdiv('close41'); hidediv('open41');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close41" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open41'); hidediv('close41');" onclick="javascript: showdiv('open41'); hidediv('close41');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example41"><code class="cs">using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+    //order by the name of the referenced dictionary entry
+    query.AddOrderBy(typeof(Dictionary), nameof(Dictionary.Name));
+    //and then by statistics in reverse order
+    query.AddOrderBy(nameof(Entity.Statistics), SortDir.Desc);
+    query.Limit = 20;
+    query.Skip = 100;
+    ...
+}</code></pre>
+</div><p><b>Limiting Rows</b></p>
+<p>To limit the number of rows received or to skip rows from the beginning of the query use
+<a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Limit.yWG.html"><code>Limit</code></a>
+and <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Skip.c83.html"><code>Skip</code></a> properties
+of the query. The example below reads 20 entities starting at 100th entity.</p><div id="open42" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close42'); hidediv('open42');" onclick="javascript: showdiv('close42'); hidediv('open42');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close42" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open42'); hidediv('close42');" onclick="javascript: showdiv('open42'); hidediv('close42');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example42"><code class="cs">using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+    query.AddOrderBy(typeof(Dictionary), nameof(Dictionary.Name));
+    query.Limit = 20;
+    query.Skip = 100;
+    ...
+}</code></pre>
+</div><div id="open43" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close43'); hidediv('open43');" onclick="javascript: showdiv('close43'); hidediv('open43');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close43" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open43'); hidediv('close43');" onclick="javascript: showdiv('open43'); hidediv('close43');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example43"><code class="cs">using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+    query.AddOrderBy(typeof(Dictionary), nameof(Dictionary.Name));
+    query.Limit = 20;
+    query.Skip = 100;
+    ...
+}</code></pre>
+</div><p>Please be aware that some of database requires the resultset to be ordered to use limit and skip features.</p><p>
+  <center><a href="tutorialsen.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

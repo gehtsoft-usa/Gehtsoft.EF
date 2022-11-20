@@ -1,0 +1,111 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>GenericEntityAccessorWithAggregates&amp;lt;T, TKey&amp;gt;</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1><code>class <b>GenericEntityAccessorWithAggregates&lt;T, TKey&gt;</b></code></h1>
+<p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Parents</b></td>
+  </tr>
+  <tr>
+    <td class="tmain" width="30" style="border-right: none;"></td>
+    <td class="tmain" style="border-left: none;">
+      <p><code><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor.html">Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessor&lt;Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.T,Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.TKey&gt;</a></code></p>
+    </td>
+  </tr>
+</table>
+<h2>Brief</h2>
+<p>The CRUD accessor for an entity with aggregated.</p><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Parameters</b></td>
+  </tr>
+  <tr>
+    <td class="tmain_nw" width="31%"><code>T</code></td>
+    <td class="tmain" width="69%"></td>
+  </tr>
+  <tr>
+    <td class="tmain_nw" width="31%"><code>TKey</code></td>
+    <td class="tmain" width="69%"></td>
+  </tr>
+</table><h2>Details</h2><p>Aggregate is an entity related to the main entity with one to many. An example of
+aggregates would be order details for an order.</p>
+<p>The accessor modifies some operations, e.g. when an aggregating entity is deleted,
+all aggregates are deleted automatically.</p><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Public Constructors</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates..ctor.bM6.html">GenericEntityAccessorWithAggregates</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Constructor for one aggregated type.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates..ctor.HP4.html">GenericEntityAccessorWithAggregates</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Constructor for multiple aggregated types.</p>
+    </td>
+  </tr>
+</table><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Public Methods</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates.GetAggregates.zD.html">GetAggregates</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets aggregates of the aggregating entity specified.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates.GetAggregatesAsync.QvC.html">GetAggregatesAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets aggregates of the aggregating entity specified (async version).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates.GetAggregatesCount.3p7.html">GetAggregatesCount</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets count of the aggregates.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates.GetAggregatesCountAsync.stC.html">GetAggregatesCountAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets count of the aggregates (async version).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates.SaveAggregates.qyC.html">SaveAggregates</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Saves the collection of aggregates</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.GenericEntityAccessorWithAggregates.SaveAggregatesAsync.dP7.html">SaveAggregatesAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Saves the collection of aggregates (async version).</p>
+    </td>
+  </tr>
+</table><p>
+  <center><a href="Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

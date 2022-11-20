@@ -1,0 +1,101 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Creating and Dropping Tables</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Creating and Dropping Tables</h1><p><b>Dropping and Creating an Individual Table</b></p>
+<p>There are entity queries to drop and to create entity tables. See example below for both available ways to create an entity query:</p><div id="open26" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close26'); hidediv('open26');" onclick="javascript: showdiv('close26'); hidediv('open26');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close26" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open26'); hidediv('close26');" onclick="javascript: showdiv('open26'); hidediv('close26');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example26"><code class="cs">//Drop query: Option 1
+using (var query = connection.GetDropEntityQuery&lt;Entity&gt;())
+    query.Execute();
+//Drop query: Option 2
+using (var query = connection.GetDropEntityQuery(typeof(Entity)))
+    query.Execute();
+//Create query: Option 1
+using (var query = connection.GetCreateEntityQuery&lt;Entity&gt;())
+    query.Execute();
+//Create query: Option 2
+using (var query = connection.GetCreateEntityQuery(typeof(Entity)))
+    query.Execute();</code></pre>
+</div><p>Please note that the order, in which tables are dropped or created, matters. In case, say, you have an entity B that refers via
+a foreign key to an entity B, you have to drop B entity first and you have to create an entity A first.</p>
+<p><b>Using Entity Creation Controller</b></p>
+<p>To simplify tables management, there are the class <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.html"><code>CreateEntityController</code></a>
+provided. The class loads all entities (or all entities filtered by a <i>scope</i> specified) from the assembly and then orders them
+according relationships between assemblies. Then you can drop all entities or create all entities using just one call.</p>
+<p>Of course, in case when you want to recreate all the entity tables, always drop entities first.</p>
+<p>Please note that if you want your view automatically created and dropped, don't forget to
+provide metadata type in the <a href="Gehtsoft.EF.Entities.EntityAttribute.html"><code>EntityAttribute</code></a>
+that implements <a href="Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata.html"><code>IViewCreationMetadata</code></a>
+interface.</p><div id="open27" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close27'); hidediv('open27');" onclick="javascript: showdiv('close27'); hidediv('open27');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close27" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open27'); hidediv('close27');" onclick="javascript: showdiv('open27'); hidediv('close27');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example27"><code class="cs">CreateEntityController controller = new CreateEntityController(typeof(Entity).Assembly);
+controller.DropTables(connection);
+controller.CreateTables(connection);</code></pre>
+</div><p><b>Updating Entities</b></p>
+<p>Often, during the application lifecycle, the database structure are changes to reflect new requirements and functionality. Not always
+full recreation of the database is the right answer, sometime updates are the option.</p>
+<p>There are two typical ways on how the application can handle this situation:</p><ul class="main">
+  <li><p>Provide the update script that prepares the database for running a new version.</p></li>
+  <li><p>Use automatic update procedure,
+provided by <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.html"><code>CreateEntityController</code></a>
+class (see <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateTables.Z93.html"><code>Update()</code></a> method).</p></li>
+</ul><p>To update the database in the second way:</p><ul class="main">
+  <li><p>Create new entities and add new properties to the entities as usual.</p></li>
+  <li><p>Mark entities that won't be used anymore with <a href="Gehtsoft.EF.Entities.ObsoleteEntityAttribute.html"><code>ObsoleteEntity</code></a> attribute.</p></li>
+  <li><p>Mark entity properties that won't be used anymore with <a href="Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute.html"><code>ObsoleteEntityProperty</code></a> attribute.</p></li>
+  <li><p>If additional actions is required when entity is changed (created, dropped) or property is changed (created, dropped) use
+the appropriate attribute that calls a static method that takes just one parameter - a connection. On drop actions are performed before
+the operation and on create are performed after.
+The attributes are:</p><ul class="main">
+  <li><p><code class="ctag">OnEntityCreate</code></p></li>
+  <li><p><code class="ctag">OnEntityDrop</code></p></li>
+  <li><p><code class="ctag">OnEntityPropertyCreate</code></p></li>
+  <li><p><code class="ctag">OnEntityPropertyDrop</code></p></li>
+</ul></li>
+  <li><p>Be aware of automatic updates limitations. The automatic update cannot:</p><ul class="main">
+  <li><p>Change type, name or attributes of an existing property.</p></li>
+  <li><p>Add or remove primary key of an existing entity.</p></li>
+  <li><p>Create a new non-nullable property. All newly introduced properties must be nullable.</p></li>
+</ul></li>
+</ul><div id="open28" style="display:none">
+  <p>Example: Using update attributes&nbsp;<a href="javascript: showdiv('close28'); hidediv('open28');" onclick="javascript: showdiv('close28'); hidediv('open28');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close28" style="display:inline">
+  <p>Example: Using update attributes&nbsp;<a href="javascript: showdiv('open28'); hidediv('close28');" onclick="javascript: showdiv('open28'); hidediv('close28');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example28"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+<b>[OnEntityCreate(typeof(MyClass), nameof(MyClass.OnEntityCreate))]</b>
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true, Nullable = true)]
+    public Dictionary Dictionary { get; set; }
+ 
+    [EntityProperty(Size = 64, Nullable = true)]
+    <b>[OnEntityPropertyCreate(typeof(MyClass), nameof(MyClass.OnEntityPropertyCreate))]</b>
+    public string MyNewProperty { get; set; }
+}
+ 
+public class MyClass
+{
+    <b>public static void OnEntityCreate(SqlDbConnection connection)</b>
+    {
+ 
+    }
+ 
+    <b>public static void OnEntityPropertyCreate(SqlDbConnection connection)</b>
+    {
+ 
+    }
+ </code></pre>
+</div><p>
+  <center><a href="tutorialsen.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

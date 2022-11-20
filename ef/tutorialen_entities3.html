@@ -1,0 +1,42 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Foreign Keys</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Foreign Keys</h1><p><b>Refer to Other Table</b></p>
+<p>To create a reference to other entity:</p><ul class="main">
+  <li><p>Create a property that has the type of the other entity.</p></li>
+  <li><p>Mark it with <code class="ctag">EntityProperty</code> attribute with <code class="ctag">ForeignKey</code> property set to <code class="ctag">true</code>.</p></li>
+</ul><p>In the case, the column with the type of the primary key of the other entity will be added to this table and the foreign key constraint
+will be created.</p>
+<p>When <code class="ctag">0..*</code> relationship needs to be established, use <code class="ctag">Nullable</code> property of the attribute.</p><div id="open25" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close25'); hidediv('open25');" onclick="javascript: showdiv('close25'); hidediv('open25');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close25" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open25'); hidediv('close25');" onclick="javascript: showdiv('open25'); hidediv('close25');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example25"><code class="cs">[Entity(Table = &quot;dictionary_table&quot;)]
+public class Dictionary
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+}
+ 
+ 
+[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true, Nullable = true)]
+    public Dictionary Dictionary { get; set; }
+}</code></pre>
+</div><p><b>Self-References Table</b></p>
+<p>You can make self-reference to the entity in order to create a tree table.</p>
+<p>Please note that:</p><ul class="main">
+  <li><p>The list reference must ALWAYS be nullable.</p></li>
+  <li><p>MySQL does NOT support tree queries, so using tree tables will exclude MySQL and MariaDb from the
+list of the DB that can be used in the application.</p></li>
+</ul><p>
+  <center><a href="tutorialsen.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

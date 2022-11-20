@@ -1,0 +1,41 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Table Descriptors and Query Builder for CREATE TABLE</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Table Descriptors and Query Builder for CREATE TABLE</h1><p>To make the application independent from the specifics of a particular SQL engine, the library offers the feature called &quot;query builders&quot;.
+The query builder is a class that relies on table metadata and creates a RAW SQL that reflects specific of certain SQL engine.
+To start using this feature the developer must create metadata for all the tables used in the application. The metadata must
+be described via <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor.html"><code>TableDescriptor</code></a> class.</p><div id="open4" style="display:none">
+  <p>Example: Table Descriptor (these tables will be used in all examples in this section&nbsp;<a href="javascript: showdiv('close4'); hidediv('open4');" onclick="javascript: showdiv('close4'); hidediv('open4');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close4" style="display:inline">
+  <p>Example: Table Descriptor (these tables will be used in all examples in this section&nbsp;<a href="javascript: showdiv('open4'); hidediv('close4');" onclick="javascript: showdiv('open4'); hidediv('close4');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example4"><code class="cs">TableDescriptor.ColumnInfo[] my_dictionary_columns = new TableDescriptor.ColumnInfo[]
+{
+    new TableDescriptor.ColumnInfo() {Name = &quot;id&quot;, DbType = DbType.Int32, PrimaryKey = true, Autoincrement = true, Nullable = false},
+    new TableDescriptor.ColumnInfo() {Name = &quot;name&quot;, DbType = DbType.String, Size = 32, Nullable = false, Unique = true},
+};
+        
+TableDescriptor my_dictionary = new TableDescriptor(&quot;my_dictionary_name&quot;, my_dictionary_columns);
+        
+TableDescriptor.ColumnInfo[] my_table_columns = new TableDescriptor.ColumnInfo[]
+{
+    new TableDescriptor.ColumnInfo() { Name = &quot;id&quot;, DbType = DbType.Int32, PrimaryKey = true, Autoincrement = true, Nullable = false},
+    new TableDescriptor.ColumnInfo() { Name = &quot;reference&quot;, DbType = DbType.Int32, ForeignTable = my_dictionary, Nullable = false},
+    new TableDescriptor.ColumnInfo() { Name = &quot;name&quot;, DbType = DbType.String, Size = 32, Nullable = false},
+    new TableDescriptor.ColumnInfo() { Name = &quot;volume&quot;, DbType = DbType.Double, Size = 8, Precision = 2, Nullable = true, Sorted = true},
+};
+        
+TableDescriptor my_table = new TableDescriptor(&quot;my_table_name&quot;, my_table_columns);</code></pre>
+</div><p>Now you can create the table at any database using <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateTableBuilder.html"><code>CreateTableBuilder</code></a> class.
+This class will create a raw SQL that reflects all specifics related to implementation of <code class="ctag">CREATE TABLE</code> command and supported types/features
+of the SQL engine to which the application is connected.</p><div id="open5" style="display:none">
+  <p>Example: Creating the table using the table descriptor&nbsp;<a href="javascript: showdiv('close5'); hidediv('open5');" onclick="javascript: showdiv('close5'); hidediv('open5');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close5" style="display:inline">
+  <p>Example: Creating the table using the table descriptor&nbsp;<a href="javascript: showdiv('open5'); hidediv('close5');" onclick="javascript: showdiv('open5'); hidediv('close5');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example5"><code class="cs">using (SqlDbQuery query = connection.GetQuery(connection.GetCreateTableBuilder(my_table)))
+    query.ExecuteNoData();</code></pre>
+</div><p>
+  <center><a href="tutorialsdb.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

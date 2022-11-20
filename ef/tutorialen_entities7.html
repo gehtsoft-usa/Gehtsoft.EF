@@ -1,0 +1,39 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Selecting Entities Count and Selecting All Entities</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Selecting Entities Count and Selecting All Entities</h1><p><b>Get Entities Count</b></p>
+<p>To get number of entities use entity count query:</p><div id="open31" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close31'); hidediv('open31');" onclick="javascript: showdiv('close31'); hidediv('open31');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close31" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open31'); hidediv('close31');" onclick="javascript: showdiv('open31'); hidediv('close31');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example31"><code class="cs">using (var query = connection.GetSelectEntitiesCountQuery&lt;Entity&gt;())
+    countOf = query.RowCount;</code></pre>
+</div><p><b>Read All Entities</b></p>
+<p>To read all entities (with looking up for the whole tree of foreign keys references):</p><div id="open32" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close32'); hidediv('open32');" onclick="javascript: showdiv('close32'); hidediv('open32');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close32" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open32'); hidediv('close32');" onclick="javascript: showdiv('open32'); hidediv('close32');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example32"><code class="cs">using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+   EntityCollection&lt;Entity&gt; all = query.ReadAll&lt;Entity&gt;();
+   ...
+}</code></pre>
+</div><p>If you don't want to read all entities at once but want to handle them one-by-one:</p><div id="open33" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close33'); hidediv('open33');" onclick="javascript: showdiv('close33'); hidediv('open33');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close33" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open33'); hidediv('close33');" onclick="javascript: showdiv('open33'); hidediv('close33');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example33"><code class="cs">using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;())
+{
+   Entity entity;
+   while ((entity = query.ReadOne&lt;Entity&gt;()) != null)
+   {
+       ......
+   }
+}</code></pre>
+</div><p>
+  <center><a href="tutorialsen.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

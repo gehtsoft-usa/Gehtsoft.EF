@@ -1,0 +1,83 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Namespace Gehtsoft.Validator.JSConvertor</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Namespace Gehtsoft.Validator.JSConvertor</h1>
+<h2>Brief</h2>
+<p>Conversion of the validator to JavaScript</p>
+<h2>Details</h2><p>The namespace provides basic tools to create JavaScript validator on the base of C# validator.</p>
+<p>The functionality can be used, for example, to provide client-side validation on the WEB site.</p>
+<p>Please note that in order to be able to use this feature you must:</p>
+<p>1) Add Gehtsoft.ExpressionToJs package to your project</p>
+<p>2) Add the scripts returned by <a href="Gehtsoft.ExpressionToJs.ExpressionToJsStubAccessor.GetJsIncludesAsString.0.html"><code>ExpressionToJsStubAccessor.GetJsIncludesAsString()</code></a> method into
+the scripts on the page where validation is supposed to be used.</p>
+<p>No all predicates may be correctly ported. Only following predicates are successfully compiled to the JavaScript:</p><ul class="main">
+  <li><p>Null</p></li>
+  <li><p>NotNull</p></li>
+  <li><p>NotNullOrEmpty</p></li>
+  <li><p>ShorterThan and all predicates based on ShorterThan (e.g. MustHaveValidDbSize for strings)</p></li>
+  <li><p>Between and all predicates based on Between (e.g. MustBeInDbValueRange)</p></li>
+  <li><p>Match and all predicates based on Match (e.g. Email)</p></li>
+  <li><p>The LINQ predicates that uses only:</p><ul class="main">
+  <li><p>Access to the entity or a value</p></li>
+  <li><p>+, -, *, /, % math operators</p></li>
+  <li><p>==, !=, &gt;, &lt;, &gt;=, &lt;= comparison operators</p></li>
+  <li><p>&amp;, ||, ! boolean operators</p></li>
+  <li><p>The following <code class="ctag">string</code> methods and properties: <code class="ctag">Length</code>, <code class="ctag">Upper</code>, <code class="ctag">Lower</code>, <code class="ctag">Trim</code>, <code class="ctag">StartsWith</code>, <code class="ctag">IndexOf</code>, <code class="ctag">Substring</code>, <code class="ctag">IsNotNullOrEmpty</code>, <code class="ctag">IsNotNullOrWhitespace</code></p></li>
+  <li><p>The <code class="ctag">IsMatch</code> method of <code class="ctag">RegExp</code></p></li>
+  <li><p>The properties and methods of <code class="ctag">Math</code> class.</p></li>
+  <li><p><code class="ctag">Year</code>, <code class="ctag">Month</code>, <code class="ctag">Day</code>, <code class="ctag">DayOfWeek</code>, <code class="ctag">Hour</code>, <code class="ctag">Minute</code> and <code class="ctag">Second</code> properties and <code class="ctag">AddDays</code>, <code class="ctag">AddHours</code>, <code class="ctag">AddMinutes</code>, <code class="ctag">AddSeconds</code> method of <code class="ctag">DateTime</code></p></li>
+  <li><p><code class="ctag">TotalMilliseconds</code>, <code class="ctag">TotalSeconds</code>, <code class="ctag">TotalMinutes</code>, <code class="ctag">TotalHours</code> and <code class="ctag">TotalDays</code> properties of TimeSpan</p></li>
+  <li><p>+ and - operator between <code class="ctag">DateTime</code> and <code class="ctag">TimeSpan</code>.</p></li>
+  <li><p>- operator between two <code class="ctag">DateTime</code></p></li>
+  <li><p>Functions in <a href="Gehtsoft.ExpressionToJs.Functions.html"><code>Gehtsoft.ExpressionToJs.Functions</code></a> class</p></li>
+  <li><p><code class="ctag">HasValue</code> and <code class="ctag">Value</code> properties of <code class="ctag">Nullable</code></p></li>
+  <li><p><code class="ctag">IsUpper</code>, <code class="ctag">IsLower</code>, <code class="ctag">IsDigit</code>, <code class="ctag">IsLetter</code>, <code class="ctag">IsLetterOrDigit</code>, <code class="ctag">IsPunctuation</code> and <code class="ctag">IsWhitespace</code> methods of <code class="ctag">Char</code>.</p></li>
+  <li><p><code class="ctag">Any</code>, <code class="ctag">All</code>, <code class="ctag">Empty</code>, <code class="ctag">Count</code>, <code class="ctag">First</code> and <code class="ctag">Last</code> with lambda predicate for lists, arrays and strings.</p></li>
+</ul></li>
+</ul><p>In other words, function, enum value validity, uniqueness check, existence check as well as any expression predicate which is not
+supported by the compiler won't be compiled into JavaScript code.</p>
+<p>Please note that expression predicate compilation will case the exception in case of anything what is not supported is found,
+unless the whole rule is marked as a server-only rule.</p>
+<p>You can also provide your own implementation of the expression compiler derived from the standard one in order to support more
+features for expression predicates.</p><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Groups</b></td>
+  </tr><tr>
+  <td colspan="2" class="tmain">
+    <p><a href="Gehtsoft.ExpressionToJs.html">Namespace Gehtsoft.ExpressionToJs</a></p>
+    <p></p>
+  </td>
+</tr></table><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Classes</b></td>
+  </tr>
+  <tr>
+    <td class="tmain_nw" width="31%">
+      <p><a href="Gehtsoft.Validator.JSConvertor.ConvertToJsExtension.html">ConvertToJsExtension</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>The extension of the validator for JS conversion.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain_nw" width="31%">
+      <p><a href="Gehtsoft.Validator.JSConvertor.JsValidatorRule.html">JsValidatorRule</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>JavaScript Validator Rule</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain_nw" width="31%">
+      <p><a href="Gehtsoft.Validator.JSConvertor.ValidationExpressionCompiler.html">ValidationExpressionCompiler</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>The base validation compiler.</p>
+    </td>
+  </tr>
+</table><p>
+  <center><a href="Gehtsoft.Validator.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

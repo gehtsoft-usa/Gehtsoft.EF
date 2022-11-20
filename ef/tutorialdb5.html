@@ -1,0 +1,61 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Data Modification Query Builders</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Data Modification Query Builders</h1><p><b><code class="ctag">INSERT</code></b></p>
+<p>The <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.InsertQueryBuilder.html"><code>InsertQueryBuilder</code></a> creates the SQL engine specific
+query for the INSERT and defines all parameters. The parameters has example the same name as the columns to be inserted.
+Please note that the query builder takes care about proper using of suffixes for the parameters (e.g. <code class="ctag">@</code> for MSSQL or <code class="ctag">:</code> for Oracle)
+so wherever you are working with the SQL builder you can simply use the parameter name without any prefixes.
+It also handles autoincrement columns and defines output parameter that accepts auto-assigned value.</p><div id="open6" style="display:none">
+  <p>Example: Inserting a row&nbsp;<a href="javascript: showdiv('close6'); hidediv('open6');" onclick="javascript: showdiv('close6'); hidediv('open6');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close6" style="display:inline">
+  <p>Example: Inserting a row&nbsp;<a href="javascript: showdiv('open6'); hidediv('close6');" onclick="javascript: showdiv('open6'); hidediv('close6');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example6"><code class="cs">using (SqlDbQuery query = connection.GetQuery(connection.GetInsertQueryBuilder(my_table)))
+{
+    query.BindParam(&quot;name&quot;, &quot;name1&quot;);
+    query.BindParam(&quot;volume&quot;, 112.5);
+    query.ExecuteNoData();
+    int newid = query.GetParamValue&lt;int&gt;(&quot;id&quot;);
+}</code></pre>
+</div><p><b><code class="ctag">DELETE</code></b></p>
+<p>The <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.DeleteQueryBuilder.html"><code>DeleteQueryBuilder</code></a> creates the SQL engine specific query to delete
+rows from the table. In this example we look at the simplest version that just deletes one row by its identifier.
+Use <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.DeleteQueryBuilder.DeleteById.H26.html"><code>DeleteById()</code></a> method to create such query.
+The parameter with the same name as a primary key column will be created.</p><div id="open7" style="display:none">
+  <p>Example: Deleting a row&nbsp;<a href="javascript: showdiv('close7'); hidediv('open7');" onclick="javascript: showdiv('close7'); hidediv('open7');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close7" style="display:inline">
+  <p>Example: Deleting a row&nbsp;<a href="javascript: showdiv('open7'); hidediv('close7');" onclick="javascript: showdiv('open7'); hidediv('close7');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example7"><code class="cs">DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
+deleteBuilder.DeleteById();
+using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
+{
+    query.BindParam(&quot;id&quot;, 1);
+    query.ExecuteNoData();
+       
+}</code></pre>
+</div><p><b><code class="ctag">UPDATE</code></b></p>
+<p>The <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.html"><code>UpdateQueryBuilder</code></a> create the SQL engine specific query to update rows in the table.
+In this example we look at the simplest version that just updates one row by its identifier. Use <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.UpdateById.hqC.html"><code>UpdateById</code></a>
+method to create such query. Use <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.AddUpdateColumn.xv3.html"><code>AddUpdateColumn</code></a>
+to add one column to update. Use <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.UpdateQueryBuilder.AddUpdateAllColumns.wlF.html"><code>AddUpdateAllColumns</code></a>
+to add all columns except primary key to update. Both methods create parameter(s) with the same name as the column name to be updated.</p><div id="open8" style="display:none">
+  <p>Example: Updating a row&nbsp;<a href="javascript: showdiv('close8'); hidediv('open8');" onclick="javascript: showdiv('close8'); hidediv('open8');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close8" style="display:inline">
+  <p>Example: Updating a row&nbsp;<a href="javascript: showdiv('open8'); hidediv('close8');" onclick="javascript: showdiv('open8'); hidediv('close8');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example8"><code class="cs">UpdateQueryBuilder updateBuilder = connection.GetUpdateQueryBuilder(my_table);
+updateBuilder.UpdateById();
+updateBuilder.AddUpdateColumn(my_table[&quot;name&quot;]);
+using (SqlDbQuery query = connection.GetQuery(updateBuilder))
+{
+    query.BindParam(&quot;id&quot;, 1);
+    query.BindParam(&quot;name&quot;, &quot;new name for row 1&quot;);
+    query.ExecuteNoData();
+       
+}</code></pre>
+</div><p>
+  <center><a href="tutorialsdb.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

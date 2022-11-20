@@ -1,0 +1,107 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Declaring Entities</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Declaring Entities</h1><p><b>What is Entity?</b></p>
+<p>In the entity framework an entity is supposed to be ... an entity, in other words a special kind of a class which
+keeps only data and does not have any methods.</p>
+<p><b>How to Define Entity?</b></p>
+<p>The entity which is good for an entity framework must:</p><ul class="main">
+  <li><p>be declared as a public class</p></li>
+  <li><p>have parameterless constructor</p></li>
+  <li><p>have entity data declared as public properties with get and set accessors defined.</p></li>
+</ul><p>The entity is attributed using <a href="Gehtsoft.EF.Entities.EntityAttribute.html"><code>EntityAttribute</code></a>. The attribute sets the table name.</p><div id="open16" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close16'); hidediv('open16');" onclick="javascript: showdiv('close16'); hidediv('open16');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close16" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open16'); hidediv('close16');" onclick="javascript: showdiv('open16'); hidediv('close16');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example16"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+}</code></pre>
+</div><p><b>How to Define Property?</b></p>
+<p>The properties are attributed using <a href="Gehtsoft.EF.Entities.EntityPropertyAttribute.html"><code>EntityPropertyAttribute</code></a>.
+In the simplest case nothing additional needs to be set.</p><div id="open17" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close17'); hidediv('open17');" onclick="javascript: showdiv('close17'); hidediv('open17');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close17" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open17'); hidediv('close17');" onclick="javascript: showdiv('open17'); hidediv('close17');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example17"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty()]
+    public int IntegerProperty { get; set; }
+}</code></pre>
+</div><p>In this case the property name, type and parameters are all taken from the property definition.</p>
+<p><b>When To Configure Property Size?</b></p>
+<p>For some types the property size cannot be get from the property definition (e.g. for strings) or may be not effective
+if it is taken from the property definition (e.g. numbers).</p>
+<p>In this case <code class="ctag">Size</code> and <code class="ctag">Precision</code> (for numbers) attribute properties can be utilized.</p><div id="open18" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close18'); hidediv('open18');" onclick="javascript: showdiv('close18'); hidediv('open18');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close18" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open18'); hidediv('close18');" onclick="javascript: showdiv('open18'); hidediv('close18');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example18"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(Size = 64)]
+    public string StringProperty { get; set; }
+ 
+    //8-digit number, 2 digits after decimal point
+    [EntityProperty(Size = 8, Precision = 2)]
+    public string NumericProperty { get; set; }
+}</code></pre>
+</div><p><b>When To Set Property Type?</b></p>
+<p>For some types the appropriate database type cannot be get from the property definition. For example, C# for not have special types for
+date and timestamps, but the most of database do.</p>
+<p>In this case the DB type needs to be specified.</p><div id="open19" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close19'); hidediv('open19');" onclick="javascript: showdiv('close19'); hidediv('open19');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close19" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open19'); hidediv('close19');" onclick="javascript: showdiv('open19'); hidediv('close19');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example19"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+       [EntityProperty(DbType=DbType.Date)]
+       public DateTime DateProperty { get; set; }
+}</code></pre>
+</div><p><b>How to Make a Property Nullable?</b></p>
+<p>To make a property nullable, set <code class="ctag">Nullable</code> property of the attribute to <code class="ctag">true</code>. Also, if the property type is a
+value type, change the property type to nullable.</p><div id="open20" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close20'); hidediv('open20');" onclick="javascript: showdiv('close20'); hidediv('open20');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close20" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open20'); hidediv('close20');" onclick="javascript: showdiv('open20'); hidediv('close20');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example20"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+       [EntityProperty(DbType=DbType.Date, Nullable=true)]
+       public DateTime? DateProperty { get; set; }
+}</code></pre>
+</div><p><b>How to Add an Index to the Property?</b></p>
+<p>To add an index to the property use <code class="ctag">Sorted</code> property of the attribute.</p><div id="open21" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close21'); hidediv('open21');" onclick="javascript: showdiv('close21'); hidediv('open21');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close21" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open21'); hidediv('close21');" onclick="javascript: showdiv('open21'); hidediv('close21');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example21"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+       [EntityProperty(DbType=DbType.Date, Sorted=true)]
+       public DateTime? DateProperty { get; set; }
+}</code></pre>
+</div><p><b>How to Customize Database Field Name?</b></p>
+<p>If you want to customize the database field name use <code class="ctag">Field</code> property of the attribute.</p><div id="open22" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close22'); hidediv('open22');" onclick="javascript: showdiv('close22'); hidediv('open22');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close22" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open22'); hidediv('close22');" onclick="javascript: showdiv('open22'); hidediv('close22');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example22"><code class="cs">[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+       [EntityProperty(Field=&quot;action_date&quot;, DbType=DbType.Date, Sorted=true)]
+       public DateTime? DateProperty { get; set; }
+}</code></pre>
+</div><p>
+  <center><a href="tutorialsen.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

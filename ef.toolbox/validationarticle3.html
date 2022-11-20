@@ -1,0 +1,97 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Rule-base validation</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Rule-base validation</h1><p><b>Basic Features</b></p>
+<p>The same validator as in <a href="validationarticle2.html">the previous article</a> may be created using rules instead
+of the attributes.</p>
+<p>To do that the developer needs to define his/her own validation class using <a href="Gehtsoft.Validator.AbstractValidator_T.html"><code>AbstractValidator</code></a>
+as a base class and then define the rule set in the constructor.</p>
+<p>The example below provides exactly the same results as the example in the previous article.</p><div id="open4" style="display:none">
+  <p>Example: Rule-base validation&nbsp;<a href="javascript: showdiv('close4'); hidediv('open4');" onclick="javascript: showdiv('close4'); hidediv('open4');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close4" style="display:inline">
+  <p>Example: Rule-base validation&nbsp;<a href="javascript: showdiv('open4'); hidediv('close4');" onclick="javascript: showdiv('open4'); hidediv('close4');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example4"><code class="csharp">   public class TestEntity4
+   {
+       public string StringValue { get; set; }
+ 
+       public string[] StringArray { get; set; }
+ 
+       public int IntegerValue { get; set; }
+   }
+ 
+   public class TestEntity4Validator : AbstractValidator&lt;TestEntity4&gt;
+   {
+       public TestEntity4Validator()
+       {
+           RuleFor(e =&gt; e.StringValue).NotNull().WithMessage(&quot;String Value must be not a null, empty or whitespace value&quot;);
+           RuleFor(e =&gt; e.StringValue).ShorterThan(10).WithMessage(&quot;String Value is too long&quot;);
+           RuleFor(e =&gt; e.StringArray).NotNull().WithMessage(&quot;The String Array must not be a null value&quot;);
+           RuleFor(e =&gt; e.StringArray).ShorterThan(10).WithMessage(&quot;The String Array must be shorter than 5 elements&quot;);
+           RuleForAll(e =&gt; e.StringArray).DoesMatch(&quot;^a.+&quot;).WithMessage(&quot;An element of String Array must start with 'a'&quot;);
+           RuleFor(e =&gt; e.IntegerValue).Between(10, 20).WithMessage(&quot;The value must be in range of 10 to 20&quot;);
+ 
+       }
+ 
+   }</code></pre>
+</div><p>However, the rule-based validation is not just another way to do the same job. The rule-based validation provides more flexibility and
+features for the validation definitions.</p>
+<p><b>Conditional Validation</b></p>
+<p>In some cases the rule must be validated only when some condition is met. Say, in our example the integer value is nullable and we want to
+validate it only in case it is not null.</p><div id="open5" style="display:none">
+  <p>Example: Conditional validation&nbsp;<a href="javascript: showdiv('close5'); hidediv('open5');" onclick="javascript: showdiv('close5'); hidediv('open5');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close5" style="display:inline">
+  <p>Example: Conditional validation&nbsp;<a href="javascript: showdiv('open5'); hidediv('close5');" onclick="javascript: showdiv('open5'); hidediv('close5');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example5"><code class="csharp">   public class TestEntity4
+   {
+       ................
+       public int? IntegerValue { get; set; }
+   }
+ 
+   public class TestEntity4Validator : AbstractValidator&lt;TestEntity4&gt;
+   {
+       public TestEntity4Validator()
+       {
+           ................
+           RuleFor(e =&gt; e.IntegerValue).Between(10, 20).WithMessage(&quot;The value must be in range of 10 to 20&quot;).WhenValue(v =&gt; v != null);
+ 
+       }
+ 
+   }</code></pre>
+</div><p><b>Entity-wide Validation</b></p>
+<p>In some cases a complex target is required. Let say our entity has two properties the sum of which must not exceed some limit. Pay attention to
+another way of conditional validation demonstrated (using unless condition instead of when).</p><div id="open6" style="display:none">
+  <p>Example: Entity-wide validation&nbsp;<a href="javascript: showdiv('close6'); hidediv('open6');" onclick="javascript: showdiv('close6'); hidediv('open6');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close6" style="display:inline">
+  <p>Example: Entity-wide validation&nbsp;<a href="javascript: showdiv('open6'); hidediv('close6');" onclick="javascript: showdiv('open6'); hidediv('close6');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example6"><code>   public class TestEntity4
+   {
+       ................
+       public int Value1 { get; set; }
+       public int Value2 { get; set; }
+       public bool IgnoreTotalLimit { get; set; }
+ 
+   }
+ 
+   public class TestEntity4Validator : AbstractValidator&lt;TestEntity4&gt;
+   {
+       public TestEntity4Validator()
+       {
+           ................
+           RuleForEntity(&quot;Total&quot;).Must(e =&gt; e.Value1 + e.Value2 &lt; 5)
+                                 .WithMessage(&quot;The total of value 1 and value 2 must be less than 5&quot;)
+                                 .UnlessEntity(e =&gt; e.IgnoreTotalLimit);
+       }
+ 
+   }</code></pre>
+</div><p><b>Cascade validation</b></p>
+<p>When the validated target is an object of a class which has its own validator, it is possible to validate the value(s)
+using that validator. Simply use <a href="Gehtsoft.Validator.GenericValidationRuleBuilder_TE_TV.ValidateUsing.1.html"><code>ValidateUsing()</code></a>
+predicate in the rule definition.</p>
+<p>In case the other validator is defined via attributes, you still can use it, just specify <code class="ctag">AbstractValidator&lt;<i>EntityType</i>&gt;</code>,
+it will behave exactly the same way as <code class="ctag">BaseValidator(typeof(<i>EntityType</i>))</code>.</p><p>
+  <center><a href="validation.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

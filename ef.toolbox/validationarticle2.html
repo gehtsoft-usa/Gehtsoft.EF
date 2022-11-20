@@ -1,0 +1,49 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Attribute-based validation</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Attribute-based validation</h1><p>The easiest way to start validating objects of some class is to apply validation attributes to its properties.</p>
+<p>The validation properties are:
+<a href="Gehtsoft.Validator.MustBeNotNullAttribute.html"><code>MustBeNotNullAttribute</code></a>,
+<a href="Gehtsoft.Validator.MustBeNotEmptyAttribute.html"><code>MustBeNotEmptyAttribute</code></a>,
+<a href="Gehtsoft.Validator.MustBeNotNullOrWhitespaceAttribute.html"><code>MustBeNotNullOrWhitespaceAttribute</code></a>,
+<a href="Gehtsoft.Validator.MustBeInRangeAttribute.html"><code>MustBeInRangeAttribute</code></a>,
+<a href="Gehtsoft.Validator.MustBeShorterThanAttribute.html"><code>MustBeShorterThanAttribute</code></a>, and
+<a href="Gehtsoft.Validator.MustMatchAttribute.html"><code>MustMatchAttribute</code></a>.</p>
+<p>You can apply multiple attributes to one property.</p>
+<p>Each attribute specifies:</p><ul class="main">
+  <li><p>Validation parameters (when they are required, e.g. a regular expression for matching attribute).</p></li>
+  <li><p>The flag indicating whether the attribute applies to a property itself or to an element of a property (for arrays and collections).</p></li>
+  <li><p>The failure message.</p></li>
+  <li><p>The failure code.</p></li>
+</ul><div id="open3" style="display:none">
+  <p>Example: Attribute-base validation&nbsp;<a href="javascript: showdiv('close3'); hidediv('open3');" onclick="javascript: showdiv('close3'); hidediv('open3');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close3" style="display:inline">
+  <p>Example: Attribute-base validation&nbsp;<a href="javascript: showdiv('open3'); hidediv('close3');" onclick="javascript: showdiv('open3'); hidediv('close3');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example3"><code class="csharp">public class TestEntity4
+{
+    [MustBeNotNullOrWhitespace(WithMessage = &quot;String Value must be not a null, empty or whitespace value&quot;)]
+    [MustBeShorterThan(10, WithMessage = &quot;String Value is too long&quot;)]
+    public string StringValue { get; set; }
+ 
+    [MustBeNotNull(WithMessage = &quot;The String Array must not be a null value&quot;)]
+    [MustBeShorterThan(5, WithMessage = &quot;The String Array must be shorter than 5 elements&quot;)]
+    [MustMatch(&quot;^a.+&quot;, ForElement = true, WithMessage = &quot;An element of String Array must start with 'a'&quot;)]
+    public string[] StringArray { get; set; }
+ 
+    [MustBeInRange(Mininum = 10, Maximum = 20, WithMessage = &quot;The value must be in range of 10 to 20&quot;)]
+    public int IntegerValue { get; set; }
+}
+ 
+    .................
+ 
+    TestEntity4 entity;
+ 
+    .................
+    ValidationResult result = new BaseValidator(typeof(TestEntity4)).Validate(entity);
+    if (!result.IsValid)
+    .................</code></pre>
+</div><p>
+  <center><a href="validation.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

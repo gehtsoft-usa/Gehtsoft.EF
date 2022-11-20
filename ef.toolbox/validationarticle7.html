@@ -1,0 +1,164 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Mapper model validation</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Mapper model validation</h1><p>There are three options on how a model associated with a EF entity via map can be validated:</p><ul class="main">
+  <li><p>Using automatic rule creation.</p></li>
+  <li><p>Using attributes.</p></li>
+  <li><p>By explicit rule definition.</p></li>
+</ul><div id="open9" style="display:none">
+  <p>Entity and Model used in examples below&nbsp;<a href="javascript: showdiv('close9'); hidediv('open9');" onclick="javascript: showdiv('close9'); hidediv('open9');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close9" style="display:inline">
+  <p>Entity and Model used in examples below&nbsp;<a href="javascript: showdiv('open9'); hidediv('close9');" onclick="javascript: showdiv('open9'); hidediv('close9');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example9"><code>[Entity(Table = &quot;dictionary&quot;)]
+public class Dictionary
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(Unique = true, Size = 64, Sorted = true, Nullable = false)]
+    public string Name { get; set; }
+ 
+    [EntityProperty(ForeignKey = true, Nullable = true)]
+    public Dictionary Parent { get; set; }
+ 
+    public Dictionary()
+    {
+ 
+    }
+ 
+    public Dictionary(int id)
+    {
+        ID = id;
+    }
+}
+ 
+[MapEntity(EntityType = typeof(Dictionary))]
+public class DictionaryModel
+{
+    [MapProperty]
+    public int? ID { get; set; }
+ 
+    [MapProperty]
+    public string Name { get; set; }
+ 
+    [MapProperty(MapType = MapType.PrimaryKey)]
+    public int? Parent { get; set; }
+}</code></pre>
+</div><p><b>Automatic rule creation</b></p>
+<p>To create rules automatically using the map associated with the model type use
+<a href="Gehtsoft.EF.Mapper.Validator.EfModelValidator_T.ValidateModel.0.html"><code>ValidateModel()</code></a>
+method.</p><div id="open10" style="display:none">
+  <p>A simple automatic model validator&nbsp;<a href="javascript: showdiv('close10'); hidediv('open10');" onclick="javascript: showdiv('close10'); hidediv('open10');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close10" style="display:inline">
+  <p>A simple automatic model validator&nbsp;<a href="javascript: showdiv('open10'); hidediv('close10');" onclick="javascript: showdiv('open10'); hidediv('close10');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example10"><code>public class DictionaryModelValidator : EfModelValidator&lt;DictionaryModel&gt;
+{
+    public DictionaryModelValidator(SqlDbLanguageSpecifics specifics, IValidatorConnectionFactory connection) : base(specifics, connection)
+    {
+        ValidateModel();
+    }
+}</code></pre>
+</div><p>The rules created by the example above won't have any messages set. Only the property name and the code will be reported.</p>
+<p>If you want validator to have messages implement a <a href="Gehtsoft.EF.Validator.IEfValidatorMessageProvider.html"><code>IEfValidatorMessageProvider</code></a> and
+pass an instance of an object implementing this interface to <code class="ctag">ValidateModel()</code> method.</p><div id="open11" style="display:none">
+  <p>An validator with message provider&nbsp;<a href="javascript: showdiv('close11'); hidediv('open11');" onclick="javascript: showdiv('close11'); hidediv('open11');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close11" style="display:inline">
+  <p>An validator with message provider&nbsp;<a href="javascript: showdiv('open11'); hidediv('close11');" onclick="javascript: showdiv('open11'); hidediv('close11');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example11"><code>public class MessageProvider : IEfValidatorMessageProvider
+{
+    public string GetMessage(EntityDescriptor entityDescriptor, TableDescriptor.ColumnInfo column, int validationErrorCode)
+    {
+        if (column.PrimaryKey &amp; validationErrorCode == (int) EfValidationErrorCode.NullValue)
+            return &quot;Internal error: Object identity isn't set&quot;;
+        switch (validationErrorCode)
+        {
+            case (int)EfValidationErrorCode.NullValue:
+                return &quot;The value is required&quot;;
+            case (int)EfValidationErrorCode.StringIsTooLong:
+                return &quot;The value is too long to be stored in DB&quot;;
+            case (int)EfValidationErrorCode.DateIsOutRange:
+                return &quot;The date is out of the allowed range&quot;;
+            case (int)EfValidationErrorCode.NumberIsOutOfRange:
+                return &quot;The number is out of the allowed range&quot;;
+            case (int)EfValidationErrorCode.ValueIsNotUnique:
+                return &quot;The value already exists&quot;;
+            case (int)EfValidationErrorCode.ReferenceDoesNotExists:
+                return $&quot;{ObjectName(entityDescriptor)} referenced does not exists in database&quot;;
+        }
+        return null;
+    }
+ 
+    private string ObjectName(EntityDescriptor entityDescriptor)
+    {
+        if (entityDescriptor.EntityType == typeof(Dictionary))
+            return &quot;The parent&quot;;
+ 
+        return &quot;The object&quot;;
+    }
+}
+ 
+public class DictionaryModelValidator : EfModelValidator&lt;DictionaryModel&gt;
+{
+    public DictionaryModelValidator(SqlDbLanguageSpecifics specifics, IValidatorConnectionFactory connection) : base(specifics, connection)
+    {
+        ValidateModel(new MessageProvider());
+    }
+}</code></pre>
+</div><p><b>Using attributes</b></p>
+<p>You can also put attributes to the model properties in order to define model validation. This method allows you
+to set messages as well as to provide more detailed validation. Pay attention that the example below uses non-empty instead of
+non-null valdation.</p><div id="open12" style="display:none">
+  <p>An attribute-based validator&nbsp;<a href="javascript: showdiv('close12'); hidediv('open12');" onclick="javascript: showdiv('close12'); hidediv('open12');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close12" style="display:inline">
+  <p>An attribute-based validator&nbsp;<a href="javascript: showdiv('open12'); hidediv('close12');" onclick="javascript: showdiv('open12'); hidediv('close12');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example12"><code>[MapEntity(EntityType = typeof(Dictionary))]
+public class DictionaryModel
+{
+    [MustBeNotNull(WithMessage = &quot;Internal error: Object identity isn't set&quot;)]
+    [MapProperty]
+    public int? ID { get; set; }
+ 
+    [MustBeNotEmpty(WithMessage = &quot;The name must be set&quot;)]
+    [MustBeUnique(WithMessage = &quot;The name must unique&quot;)]
+    [MustBeShorterThan(WithMessage = &quot;The name is too long&quot;)]
+    [MapProperty]
+    public string Name { get; set; }
+ 
+    [MustExist(WithMessage = &quot;The parent dictionary item does not exist in the dictionary&quot;)]
+    [MapProperty(MapType = MapType.PrimaryKey)]
+    public int? Parent { get; set; }
+}
+ 
+ 
+public class DictionaryModelValidator : EfModelValidator&lt;DictionaryModel&gt;
+{
+    public DictionaryModelValidator(SqlDbLanguageSpecifics specifics, IValidatorConnectionFactory connection) : base(specifics, connection)
+    {
+    }
+}</code></pre>
+</div><p><b>Using Rules</b></p>
+<p>To get even more flexibility, use rule-based validation using <a href="Gehtsoft.EF.Mapper.Validator.RuleBuilderExtension.html"><code>RuleBuilderExtension</code></a>
+methods.</p><div id="open13" style="display:none">
+  <p>A rule-based validator&nbsp;<a href="javascript: showdiv('close13'); hidediv('open13');" onclick="javascript: showdiv('close13'); hidediv('open13');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close13" style="display:inline">
+  <p>A rule-based validator&nbsp;<a href="javascript: showdiv('open13'); hidediv('close13');" onclick="javascript: showdiv('open13'); hidediv('close13');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example13"><code>public class DictionaryModelValidator : EfModelValidator&lt;DictionaryModel&gt;
+{
+    public DictionaryModelValidator(SqlDbLanguageSpecifics specifics, IValidatorConnectionFactory connection) : base(specifics, connection)
+    {
+        RuleFor(m =&gt; m.ID).NotNull().WithMessage(&quot;Internal error: Object identity isn't set&quot;);
+        RuleFor(m =&gt; m.Name).NotNullOrEmpty().WithMessage(&quot;The name must be set&quot;);
+        RuleFor(m =&gt; m.Name).MustHaveValidDbSize().WithMessage(&quot;The name is too long to be stored in the DB&quot;);
+        RuleFor(m =&gt; m.Name).MustBeUnqiue().WithMessage(&quot;The name must be unique&quot;).WhenNotNull();
+        RuleFor(m =&gt; m.Parent).MustExists().WithMessage(&quot;The parent dictionary item does not exist in the dictionary&quot;).WhenNotNull();
+    }
+}</code></pre>
+</div><p>
+  <center><a href="validation.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

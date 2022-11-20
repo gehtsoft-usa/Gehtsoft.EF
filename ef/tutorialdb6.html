@@ -1,0 +1,52 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Adding Where Clause</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Adding Where Clause</h1><p><b>Add a simple filter</b></p>
+<p>To add a simple filtering to the query use <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder.Where.4CB.html"><code>QueryWithWhereBuilder.Where</code></a>
+property. To add the filter you need to specify:</p><ul class="main">
+  <li><p>A logical operation to join the filter to the previous filters (<a href="Gehtsoft.EF.Entities.LogOp.html"><code>LogOp</code></a>: AND(default) or OR).</p></li>
+  <li><p>The column to be filtered</p></li>
+  <li><p>The comparison operation <a href="Gehtsoft.EF.Entities.CmpOp.html"><code>CmpOp</code></a> (e.g. equal, not equal, less, like and so on).</p></li>
+  <li><p>The name of the parameter, the reference to another column in query or a subquery to compare the column with.</p></li>
+</ul><div id="open9" style="display:none">
+  <p>Example: Deleting all rows that matches one or another condition&nbsp;<a href="javascript: showdiv('close9'); hidediv('open9');" onclick="javascript: showdiv('close9'); hidediv('open9');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close9" style="display:inline">
+  <p>Example: Deleting all rows that matches one or another condition&nbsp;<a href="javascript: showdiv('open9'); hidediv('close9');" onclick="javascript: showdiv('open9'); hidediv('close9');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example9"><code class="cs">//Build the query similar to &quot;DELETE FROM my_table WHERE name like @mask OR volume &lt; @maxvolume&quot;
+DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
+deleteBuilder.Where.Or().Property(my_table[&quot;name&quot;]).Is(CmpOp.Like).Parameter(&quot;mask&quot;);
+deleteBuilder.Where.Or().Property(my_table[&quot;volume&quot;]).Is(CmpOp.Ls).Parameter(&quot;maxvolume&quot;);
+using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
+{
+    query.BindParam(&quot;mask&quot;, &quot;unused%&quot;);
+    query.BindParam(&quot;maxvolume&quot;, 10);
+    query.ExecuteNoData();
+}</code></pre>
+</div><p><b>Add a group of filters</b></p>
+<p>Sometime, for better readability or to define strict precedence of the logical operations, a group is used. A group is logically
+equal to brackets in SQL query expressions. Use <a href="Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder.AddGroup.qJ3.html"><code>AddGroup()</code></a> to start a group of filters.
+Dispose the object returned by this method to end the group.</p><div id="open10" style="display:none">
+  <p>Example: Deleting all rows that matches one or another condition&nbsp;<a href="javascript: showdiv('close10'); hidediv('open10');" onclick="javascript: showdiv('close10'); hidediv('open10');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close10" style="display:inline">
+  <p>Example: Deleting all rows that matches one or another condition&nbsp;<a href="javascript: showdiv('open10'); hidediv('close10');" onclick="javascript: showdiv('open10'); hidediv('close10');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example10"><code class="cs">//Build the query similar to &quot;DELETE FROM my_table WHERE name like @mask AND (volume &lt; @maxvolume OR volume IS NULL)&quot;
+DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
+deleteBuilder.Where.Property(my_table[&quot;name&quot;]).Is(CmpOp.Like).Parameter(&quot;mask&quot;);
+using (var g = deleteBuilder.Where.AddGroup())
+{
+    deleteBuilder.Where.Or().Property(my_table[&quot;volume&quot;]).Is(CmpOp.Le).Parameter(&quot;maxvolume&quot;);
+    deleteBuilder.Where.Or().Property(my_table[&quot;volume&quot;]).Is(CmpOp.IsNull);
+}
+        
+using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
+{
+    query.BindParam(&quot;mask&quot;, &quot;unused%&quot;);
+    query.BindParam(&quot;maxvolume&quot;, 10);
+    query.ExecuteNoData();
+}</code></pre>
+</div><p>
+  <center><a href="tutorialsdb.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

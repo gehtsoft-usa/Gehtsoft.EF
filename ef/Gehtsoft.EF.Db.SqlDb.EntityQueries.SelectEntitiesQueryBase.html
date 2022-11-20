@@ -1,0 +1,285 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>SelectEntitiesQueryBase</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1><code>class <b>SelectEntitiesQueryBase</b></code></h1>
+<p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Parents</b></td>
+  </tr>
+  <tr>
+    <td class="tmain" width="30" style="border-right: none;"></td>
+    <td class="tmain" style="border-left: none;">
+      <p><code><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.ConditionEntityQueryBase.html">ConditionEntityQueryBase</a></code></p>
+    </td>
+  </tr>
+</table>
+<h2>Brief</h2>
+<p>The base query to all entity select operation.</p>
+<h2>Details</h2><p>Use
+<a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetSelectEntitiesQueryBase.dv4.html"><code>EntityConnectionExtension.GetSelectEntitiesQueryBase</code></a>             to get an instance of this object.</p>
+<p>You can use this query type directly to fine tune the resulset or
+use <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesCountQuery.html"><code>SelectEntitiesCountQuery</code></a>             or
+<a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery.html"><code>SelectEntitiesQuery</code></a>            .</p>
+<p>The object instance must be disposed after use. Some databases requires the query to be disposed before the next query may be executed.</p><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Public Properties</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Distinct.oz1.html">Distinct</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets or sets flag to select only distinct rows.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Having.xc5.html">Having</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>The having condition builder.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Limit.yWG.html">Limit</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets or sets how much entities must be read.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.SelectBuilder.oD5.html">SelectBuilder</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets associated select builder.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.Skip.c83.html">Skip</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Gets or sets how much entities should be skipped from the beginning</p>
+    </td>
+  </tr>
+</table><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Public Methods</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddEntity.7g8.html">AddEntity</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the entity to the query and auto-connect it to the rest of entities.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddEntity.ol7.html">AddEntity</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the entity to the query and auto-connect it to the rest of entities. (generic version).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddEntity.6L.html">AddEntity</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the entity to the query without automatic connection.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddEntity.akB.html">AddEntity</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds entity to the query and set a connection using a one operator comparison.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddEntity.BN4.html">AddEntity</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds entity to the query and set a connection using a one operator comparison (when entity is used more than once in the query).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddGroupBy.2X3.html">AddGroupBy</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the property to the group by.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddGroupBy.TnC.html">AddGroupBy</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the property of the first occurrence of the specified type to the group by.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddGroupBy.Tk7.html">AddGroupBy</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the property of the specified occurrence of the specified type to the group by.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddOrderBy.dME.html">AddOrderBy</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the property to the order by.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddOrderBy.Dq6.html">AddOrderBy</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the property of the first occurrence of the specified type to the order by.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddOrderBy.L31.html">AddOrderBy</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the property of the specified occurrence of the specified type to the order by.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.Dv8.html">AddToResultset</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Add all columns of the type specified into the resultset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.Lu9.html">AddToResultset</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Add all columns of the type specified into the resultset (generic version).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.sx7.html">AddToResultset</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the property to the resulset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.eHF.html">AddToResultset</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the property of the first occurrence of the specified type to the resulset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.486.html">AddToResultset</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the property of the specified occurrence of the specified type to the resulset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.nf1.html">AddToResultset</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds a property aggregated with the specified function to the resulset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.3lA.html">AddToResultset</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the property of the first occurrence of the specified type aggregated by the specified function to the resulset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.RZF.html">AddToResultset</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds the property of the specified occurrence of the specified type aggregated by the specified function to the resulset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddToResultset.3JD.html">AddToResultset</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Adds a query result to the resulset.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddWholeTree.0iF.html">AddWholeTree</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Add the whole tree of entities for the current main entity of the query.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.FindType.KX5.html">FindType</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Find the query builder table associated with the specified occurrence of the specified entity type</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.ReadAllDynamic.6b6.html">ReadAllDynamic</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Read all entities as a dynamic objects.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.ReadAllDynamicAsync.de.html">ReadAllDynamicAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Read all entities as a dynamic objects asynchronously.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.ReadOneDynamic.oNC.html">ReadOneDynamic</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Read one entity to a dynamic object.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.ReadOneDynamicAsync.PWD.html">ReadOneDynamicAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Read one entity to a dynamic object asynchronously.</p>
+    </td>
+  </tr>
+</table><p>
+  <center><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

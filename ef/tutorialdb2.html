@@ -1,0 +1,43 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Executing a raw query</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Executing a raw query</h1><p>The simplest way to work with the library is to use plain SQL queries.</p>
+<p>To execute a query:</p><ul class="main">
+  <li><p>Get an instance of a query using <a href="Gehtsoft.EF.Db.SqlDb.SqlDbConnection.GetQuery.html"><code>GetQuery()</code></a> method.</p></li>
+  <li><p>Bind parameters (if any) using <a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindNull.5v7.html"><code>BindNull()</code></a> and
+<a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.BindParam.html"><code>BindParam()</code></a> methods.</p></li>
+  <li><p>Execute query using either <a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ExecuteNoData.AiD.html"><code>ExecuteNoData()</code></a> (for queries that
+do not produce resultset, e.g. <code class="ctag">UPDATE</code>) or
+<a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ExecuteReader.5HC.html"><code>ExecuteReader()</code></a> for <code class="ctag">SELECT</code> queries.</p></li>
+  <li><p>For the queries that has resultset, go trough the resultset using
+<a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.ReadNext.tUA.html"><code>ReadNext()</code></a> method and read
+values using <a href="Gehtsoft.EF.Db.SqlDb.SqlDbQuery.GetValue.html"><code>GetValue()</code></a> method).</p></li>
+</ul><p>In this mode the library provides almost no service over the regular ADO.NET library.</p><div id="open2" style="display:none">
+  <p>Example: Simple Queries&nbsp;<a href="javascript: showdiv('close2'); hidediv('open2');" onclick="javascript: showdiv('close2'); hidediv('open2');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close2" style="display:inline">
+  <p>Example: Simple Queries&nbsp;<a href="javascript: showdiv('open2'); hidediv('close2');" onclick="javascript: showdiv('open2'); hidediv('close2');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example2"><code class="cs">using (SqlDbQuery query = connection.GetQuery(&quot;insert into table (id, name) values (@id, @name)&quot;))
+{
+    for (int i = 0; i &lt; 10; i++)
+    {
+        query.BindParam&lt;int&gt;(&quot;id&quot;, i + 1);
+        query.BindParam&lt;string&gt;(&quot;name&quot;, $&quot;name {i + 1}&quot;);
+        query.ExecuteNoData();
+    }
+}
+       
+using (SqlDbQuery query = connection.GetQuery(&quot;select * from table where name like @mask&quot;))
+{
+    query.BindParam&lt;string&gt;(&quot;mask&quot;, &quot;n%&quot;);
+    query.ExecuteReader();
+    while(query.ReadNext())
+    {
+        int id = query.GetValue&lt;int&gt;(0);
+        string name = query.GetValue&lt;string&gt;(&quot;name&quot;);
+    }
+}</code></pre>
+</div><p>
+  <center><a href="tutorialsdb.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

@@ -1,0 +1,62 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Index</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Index</h1>
+<h2>Brief</h2>
+<p>Gehtsoft Entity Framework Library</p>
+<h2>Details</h2><p>The Gehtsoft Entity Framework Library provides the following features:</p>
+<p>1) Simplified and cross-platform basic ADO.NET query.</p>
+<p>2) Cross-DB server query constructors for <code class="ctag">CREATE TABLE</code>, <code class="ctag">DROP TABLE</code>,
+<code class="ctag">CREATE VIEW</code>, <code class="ctag">DROP VIEW</code>, <code class="ctag">CREATE INDEX</code>, <code class="ctag">DROP INDEX</code>, <code class="ctag">INSERT</code>, <code class="ctag">UPDATE</code>,
+<code class="ctag">DELETE</code> and <code class="ctag">SELECT</code> queries.</p>
+<p>3) Entity-level CRUD operations.</p>
+<p>The following Databases are supported:</p>
+<p>1) Microsoft SQL Server 2002+</p>
+<p>2) Oracle 11+</p>
+<p>3) MySQL 5.5+</p>
+<p>4) Postgres 8+</p>
+<p>5) SQLite 3+</p>
+<p>Why Gehtsoft.EF may be better than the standard EF framework for some projects?</p>
+<p>There are a few reasons when Gehtsoft.EF framework would be more effective:</p><ul class="main">
+  <li><p>The framework is 100% pure code-first framework and does NOT require any kind of dependency between the project and the certain
+database instance. This helps to run the project in distributed environment and even let different developers use different
+database (not instances, but literally database engines, e.g. Postgres and SQLite) while working on the same project. This also lets
+use SQLite for running unittests instead of mocking DAO behavior that saves time to develop unit tests and improves the coverage.</p></li>
+  <li><p>The framework is 100% database-agnostic and domain-driven-design focused. Create as many context as you need, mix and match them.
+Use the database driver that matches you needs the best - from in-memory SQLite for automated tests to Oracle for production.
+And let the framework to take care of all the nuances.</p></li>
+  <li><p>While framework supports LINQ, it is heavily oriented to be used without LINQ. The reason is that LINQ is not 100% compatible with
+SQL select query structure and therefore the LINQ queries compiled into SQL SELECT queries are far from optimal. Gehtsoft.EF framework
+generates selects which are almost as good as written manually. Unfortunately, due to reason above, LINQ-produced queries are as bad as
+for any other LINQ-based framework.</p></li>
+  <li><p>It is lighter and do not consists of needless dependencies. Actually, for the most queries it is as fast as it would be running these queries
+directly to the database without EF at all.</p></li>
+  <li><p>It allows to use plain and raw SQL. Moreover, it allows to use SQL constructors which creates database-specific SQL SELECTs on the fly.</p></li>
+  <li><p>Last but not not least - it is open source. Understand how it works, make it better, make it custom!</p>
+<p>Clone and fork EF report at <a href="https://github.com/gehtsoft-usa/gehtsoft.ef" target="_blank">Gehtsoft Entity Framework</a></p></li>
+</ul><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Groups</b></td>
+  </tr><tr>
+  <td colspan="2" class="tmain">
+    <p><a href="tutorials.html">Tutorials</a></p>
+    <p></p>
+  </td>
+</tr><tr>
+  <td colspan="2" class="tmain">
+    <p><a href="entities.html">Support of entity definition.</a></p>
+    <p></p>
+  </td>
+</tr><tr>
+  <td colspan="2" class="tmain">
+    <p><a href="sql.html">Support of SQL databases.</a></p>
+    <p></p>
+  </td>
+</tr><tr>
+  <td colspan="2" class="tmain">
+    <p><a href="mongo.html">Support of Mongo databases.</a></p>
+    <p></p>
+  </td>
+</tr></table><script language="javascript" type="text/javascript">syncList();</script></body></html>

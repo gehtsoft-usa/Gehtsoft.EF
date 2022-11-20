@@ -1,0 +1,60 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>Limit Which Columns are Selected (the filter method).</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1>Limit Which Columns are Selected (the filter method).</h1><p>Sometimes, especially when the entity consists of large data such as clob or blob, it is reasonable to skip loading of
+this data when large amount of entities is received.</p>
+<p>It is possible to do not load some columns while the entity is still loaded with all references resolved and is bound to
+the entity object using column filters.</p>
+<p>The column filter is passed to the method of obtaining of the select query. The column filter simply lists the entity type and the
+column name to be skipped.</p>
+<p>Skipped nullable properties will be filled with null values. Skipped non-nullable properties will be filled with default values of
+the property type.</p>
+<p>In the example below, the entity property &quot;Statistics&quot; and the referenced property aren't loaded, however can be referenced in
+query filter.</p>
+<p>The reference field may also be filtered, however this will affect only loading the data. The referenced entity will be included into the query
+and so it may be used in filters and order specification.</p><div id="open44" style="display:none">
+  <p>Example&nbsp;<a href="javascript: showdiv('close44'); hidediv('open44');" onclick="javascript: showdiv('close44'); hidediv('open44');" class="action">Show<span class="side-icon dripicons-chevron-right"></span></a></p>
+</div>
+<div id="close44" style="display:inline">
+  <p>Example&nbsp;<a href="javascript: showdiv('open44'); hidediv('close44');" onclick="javascript: showdiv('open44'); hidediv('close44');" class="action">Hide<span class="side-icon dripicons-chevron-down"></span></a></p>
+  <pre class="example" id="example44"><code class="cs">[Entity(Table = &quot;dictionary_table&quot;)]
+public class Dictionary
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(Size = 64, Sorted = true)]
+    public string Name { get; set; }
+ 
+}
+ 
+[Entity(Table = &quot;entity_table&quot;)]
+public class Entity
+{
+    [EntityProperty(AutoId = true)]
+    public int ID { get; set; }
+ 
+    [EntityProperty(ForeignKey = true)]
+    public Dictionary Reference { get; set; }
+ 
+    [EntityProperty(Nullable = true)]
+    public int? Statistics { get; set; }
+}
+ 
+...
+ 
+SelectEntityQueryFilter[] filter = new SelectEntityQueryFilter[]
+{
+    new SelectEntityQueryFilter() {Property = nameof(Entity.Statistics)},
+    new SelectEntityQueryFilter() {EntityType = typeof(Dictionary), Property = nameof(Dictionary.Name)},
+};
+ 
+using (var query = connection.GetSelectEntitiesQuery&lt;Entity&gt;(filter))
+{
+    query.Where.PropertyOf&lt;Dictionary&gt;(nameof(Dictionary.Name)).Is(CmpOp.Like).Value(&quot;A%&quot;);
+    var all = query.ReadAll&lt;Entity&gt;();
+}</code></pre>
+</div><p>
+  <center><a href="tutorialsen.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>

@@ -1,0 +1,125 @@
+﻿<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><title>CreateEntityController</title><link rel="stylesheet" href="highlighter/default.css">
+<link rel="stylesheet" href="res/styles.css">
+<link rel="stylesheet" href="res/dripicons.css"></head><body><script type="text/javascript" src="highlighter/highlight.pack.js"></script><script type="text/javascript" src="highlighter/highlight.cshtml.js"></script><script type="text/javascript" src="settings.js"></script><script type="text/javascript" src="res/page-scripts.js"></script><script type="text/javascript">
+    loadStarted();
+</script><h1><code>class <b>CreateEntityController</b></code></h1>
+<p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Parents</b></td>
+  </tr>
+  <tr>
+    <td class="tmain" width="30" style="border-right: none;"></td>
+    <td class="tmain" style="border-left: none;">
+      <p><code>object</code></p>
+    </td>
+  </tr>
+</table>
+<h2>Brief</h2>
+<p>The controller to create, drop or update entities automatically.</p>
+<h2>Details</h2><p>The method recognizes and handles the following cases:</p><ul class="main">
+  <li><p>Create table for the entity if the table does not exist.</p></li>
+  <li><p>Drop table for the entity if the table is attributed using
+<a href="Gehtsoft.EF.Entities.ObsoleteEntityAttribute.html"><code>ObsoleteEntityAttribute</code></a></p></li>
+  <li><p>Add column for the entity if the column does not exist.</p></li>
+  <li><p>Drops column if the column attributed using <a href="Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute.html"><code>ObsoleteEntityPropertyAttribute</code></a></p></li>
+</ul><p>If you need to enrich the operation with the custom logic, you can use action (see <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityActionDelegate.html"><code>EntityActionDelegate</code></a>            )
+or events <a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.OnAction.B4.html"><code>CreateEntityController.OnAction</code></a>            .</p>
+<p>Note: Some connections do not support dropping of the columns. Check <a href="Gehtsoft.EF.Db.SqlDb.SqlDbLanguageSpecifics.DropColumnSupported.vb5.html"><code>SqlDbLanguageSpecifics.DropColumnSupported</code></a>             flag to verify the connection.
+If connection does not support columns dropping, the columns will remain in the table.</p>
+<p>Note: The controller does not recognize the situations when:</p><ul class="main">
+  <li><p>The type, name or other parameters of the column has changed.</p></li>
+  <li><p>The property deleted from the entity.</p></li>
+  <li><p>A new index is added via <a href="Gehtsoft.EF.Db.SqlDb.Metadata.ICompositeIndexMetadata.html"><code>ICompositeIndexMetadata</code></a></p></li>
+  <li><p>View changed.</p></li>
+</ul><p>In case the change is too complex to be handled automatically,
+use the patches (see             .</p><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Public Constructors</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController..ctor.YY1.html">CreateEntityController</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Constructor to search entities in one assembly.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController..ctor.872.html">CreateEntityController</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Constructor to search entities in multiple assemblies.</p>
+    </td>
+  </tr>
+</table><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Public Methods</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.CreateTables.Tp5.html">CreateTables</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Creates tables.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.CreateTablesAsync.Tj1.html">CreateTablesAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Creates tables (async version).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.DropTables.dKG.html">DropTables</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Drop tables.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.DropTablesAsync.ujE.html">DropTablesAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Drop tables (async version).</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateTables.Z93.html">UpdateTables</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Update tables.</p>
+    </td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateTablesAsync.3ED.html">UpdateTablesAsync</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>Update tables (asynchronous version).</p>
+    </td>
+  </tr>
+</table><p></p>
+<table class="tmain" width="100%">
+  <tr>
+    <td colspan="2" class="thdr"><b>Events</b></td>
+  </tr>
+  <tr>
+    <td class="tmain">
+      <p><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.OnAction.B4.html">OnAction</a></p>
+    </td>
+    <td class="tmain" width="69%">
+      <p>The event raised when action is performed.</p>
+    </td>
+  </tr>
+</table><p>
+  <center><a href="Gehtsoft.EF.Db.SqlDb.EntityQueries.html">back</a></center>
+</p><script language="javascript" type="text/javascript">syncList();</script></body></html>
