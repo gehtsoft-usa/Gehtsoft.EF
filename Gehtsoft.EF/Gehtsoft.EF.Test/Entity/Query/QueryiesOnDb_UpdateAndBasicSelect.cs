@@ -996,6 +996,22 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 }
             }
         }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void GetModifyQuery(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            using var delayed = new DelayedAction(() => ClearAll(connection));
+            
+            var ent = new Dict1() { ID = 0 };
+            using var query1 = connection.GetModifyEntityQueryFor<Dict1>(ent);
+            query1.Should().BeOfType<InsertEntityQuery>();
+
+            ent = new Dict1() { ID = 1 };
+            using var query2 = connection.GetModifyEntityQueryFor<Dict1>(ent);
+            query2.Should().BeOfType<UpdateEntityQuery>();
+        }
     }
 }
 

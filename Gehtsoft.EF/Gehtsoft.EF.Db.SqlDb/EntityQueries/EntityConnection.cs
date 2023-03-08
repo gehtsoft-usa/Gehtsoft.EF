@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -240,6 +241,50 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
             return new UpdateEntityQuery(connection.GetQuery(), connection.GetUpdateEntityQueryBuilder(type));
         }
+
+        /// <summary>
+        /// Gets modify (insert or update) entity query for an entity with auto-increment primary key.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="type"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public static ModifyEntityQuery GetModifyEntityQuery(this SqlDbConnection connection, Type type, object entity)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            if (entity.GetType() != type)
+                throw new ArgumentException($"Entity is not of the type {type.Name}", nameof(entity));
+
+            var ent = AllEntities.Get(type);
+            if (ent == null)
+                throw new ArgumentException($"Type {type.Name} is not an entity", nameof(type));
+            
+            var pk = AllEntities.Get(type).PrimaryKey;
+            if (pk == null)
+                throw new ArgumentException($"Type {type.Name} doesn't have a primary key", nameof(type));
+            if (pk.DbType != DbType.Int32 || pk.PropertyAccessor.PropertyType != typeof(int) || !pk.Autoincrement)
+                throw new ArgumentException($"Type {type.Name} primary key isn't an auto-increment integer", nameof(type));
+            
+            var pkv = (int)pk.PropertyAccessor.GetValue(entity);
+            if (pkv == 0)
+                return connection.GetInsertEntityQuery(type);
+            else
+                return connection.GetUpdateEntityQuery(type);
+        }
+
+        /// <summary>
+        /// Gets modify (insert or update) entity query for an entity with auto-increment primary key.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="T"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public static ModifyEntityQuery GetModifyEntityQueryFor<T>(this SqlDbConnection connection, T entity)
+            => GetModifyEntityQuery(connection, typeof(T), entity);
 
         /// <summary>
         /// Returns the query that deletes one entity by id.

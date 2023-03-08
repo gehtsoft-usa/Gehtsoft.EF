@@ -63,6 +63,19 @@ namespace Gehtsoft.EF.Test.Entity.Query
             [ForeignKey(Field = "d1", Nullable = true)]
             public Dict1 D1 { get; set; }
         }
+
+        [Entity(Scope = "select_queries", Table = "table2")]
+        public class Entity3
+        {
+            [AutoId]
+            public int Id { get; set; }
+
+            [ForeignKey(Field = "d1", Nullable = false)]
+            public Dict2 D1 { get; set; }
+
+            [ForeignKey(Field = "d2", Nullable = true)]
+            public Dict2 D2 { get; set; }
+        }
         #endregion
 
         [Fact]
@@ -1249,6 +1262,36 @@ namespace Gehtsoft.EF.Test.Entity.Query
             query.IsNull(query.ResultColumn(2).Alias).Should().BeTrue();
 
             query.ReadNext().Should().BeFalse();
+        }
+
+        [Fact]
+        public void Join_Auto_FK_Nullable_Then_NotNullable()
+        {
+            using var connection = new DummySqlConnection();
+            using var query = connection.GetSelectEntitiesQuery<Entity3>();
+            query.PrepareQuery();
+            var select = query.Builder.Query.ParseSql().SelectStatement();
+            select.AllTables().Should().HaveCount(5);
+            
+            select.Table(1)
+                .Should()
+                    .HaveTableName("dict2")
+                    .And.BeJoin("JOIN_TYPE_INNER");
+
+            select.Table(2)
+                .Should()
+                    .HaveTableName("dict1")
+                    .And.BeJoin("JOIN_TYPE_INNER");
+
+            select.Table(3)
+                .Should()
+                    .HaveTableName("dict2")
+                    .And.BeJoin("JOIN_TYPE_LEFT");
+
+            select.Table(4)
+                .Should()
+                    .HaveTableName("dict1")
+                    .And.BeJoin("JOIN_TYPE_LEFT");
         }
     }
 }

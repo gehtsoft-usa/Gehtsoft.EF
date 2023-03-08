@@ -23,7 +23,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         internal void AddEntitiesTree()
         {
-            AddSubEntities(mSelectQueryBuilder.Entities[0], mEntityDescriptor.EntityType, true, true, "");
+            AddSubEntities(mSelectQueryBuilder.Entities[0], mEntityDescriptor.EntityType, true, true, false, "");
         }
 
         private int CountTypes(TableDescriptor table)
@@ -35,7 +35,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return rc;
         }
 
-        private void AddSubEntities(QueryBuilderEntity entity, Type entityType, bool expandAll, bool addSelfRefences, string basePath)
+        private void AddSubEntities(QueryBuilderEntity entity, Type entityType, bool expandAll, bool addSelfRefences, bool isOpenJoin, string basePath)
         {
             foreach (TableDescriptor.ColumnInfo column in entity.Table)
             {
@@ -47,7 +47,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     bool selfReference = (column.PropertyAccessor.PropertyType == entityType);
                     if (!selfReference || (selfReference && addSelfRefences))
                     {
-                        QueryBuilderEntity newEntity = mSelectQueryBuilder.AddTable(column.ForeignTable, column.ForeignTable.PrimaryKey, column.Nullable ? TableJoinType.Left : TableJoinType.Inner, entity, column);
+                        QueryBuilderEntity newEntity = mSelectQueryBuilder.AddTable(column.ForeignTable, column.ForeignTable.PrimaryKey, (isOpenJoin || column.Nullable) ? TableJoinType.Left : TableJoinType.Inner, entity, column);
                         newEntity.EntityType = entity.EntityType;
                         string bp = basePath + column.ID + ".";
                         AddEntityItems(AllEntities.Inst[column.PropertyAccessor.PropertyType], newEntity, bp, CountTypes(newEntity.Table) - 1);
@@ -60,7 +60,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                             proceed = addSelfRefences;
 
                         if (proceed)
-                            AddSubEntities(newEntity, column.PropertyAccessor.PropertyType, expandAll, !selfReference, bp);
+                            AddSubEntities(newEntity, column.PropertyAccessor.PropertyType, expandAll, !selfReference, isOpenJoin || column.Nullable, bp);
                     }
                 }
             }
