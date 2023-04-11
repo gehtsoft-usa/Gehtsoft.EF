@@ -69,7 +69,7 @@ namespace Gehtsoft.EF.Db.SqlDb
     /// <summary>
     /// The default implementation of the data truncation controller.
     /// </summary>
-    public class DefaultUpdateQueryTruncationController
+    public class DefaultUpdateQueryTruncationController : IUpdateQueryTruncationController
     {
         /// <summary>
         /// The flag indicating whether the controller should truncate strings.

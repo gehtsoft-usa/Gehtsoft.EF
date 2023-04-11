@@ -2,6 +2,7 @@
 <nuget xmlns="http://www.gehtsoft.com/build/nuget">
  <!-- versions. the FIRST version is the current -->
  <versions>
+  <version id="1.8.7">- Update dependencies..</version>
   <version id="1.8.6">- Update dependencies..</version>
   <version id="1.8.5">- Fix entity query when optional dependent entity has non-optional dependent entity.</version>
   <version id="1.8.4">- Move toward net 7.0, Update dependencies.</version>
