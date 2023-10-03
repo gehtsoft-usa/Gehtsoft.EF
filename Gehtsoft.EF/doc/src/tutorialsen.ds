@@ -46,12 +46,12 @@
         @title=Example
         @show=yes
         @highlight=cs
-       ![Entity(Table = "entity_table")]
-       !public class Entity
-       !{
-       !    [EntityProperty()]
-       !    public int IntegerProperty { get; set; }
-       !}
+        [Entity(Table = "entity_table")]
+        public class Entity
+        {
+            [EntityProperty()]
+            public int IntegerProperty { get; set; }
+        }
     @end
 
     In this case the property name, type and parameters are all taken from the property definition.
@@ -67,16 +67,16 @@
         @title=Example
         @show=yes
         @highlight=cs
-       ![Entity(Table = "entity_table")]
-       !public class Entity
-       !{
-       !    [EntityProperty(Size = 64)]
-       !    public string StringProperty { get; set; }
-       !
-       !    //8-digit number, 2 digits after decimal point
-       !    [EntityProperty(Size = 8, Precision = 2)]
-       !    public string NumericProperty { get; set; }
-       !}
+        [Entity(Table = "entity_table")]
+        public class Entity
+        {
+            [EntityProperty(Size = 64)]
+            public string StringProperty { get; set; }
+
+            //8-digit number, 2 digits after decimal point
+            [EntityProperty(Size = 8, Precision = 2)]
+            public string NumericProperty { get; set; }
+        }
     @end
 
     [b]When To Set Property Type?[/b]
@@ -1372,48 +1372,48 @@
         @title=Example
         @show=yes
         @highlight=cs
-       ![Entity(Table = "subentity_table")]
-       !public class Subentity
-       !{
-       !    [EntityProperty(AutoId = true)]
-       !    public int ID { get; set; }
-       !
-       !    [EntityProperty(ForeignKey = true, Nullable = true)]
-       !    public Entity Entity { get; set; }
-       !
-       !}
-       !
-       ![Entity(Table = "entity_table")]
-       !public class Entity
-       !{
-       !    [EntityProperty(AutoId = true)]
-       !    public int ID { get; set; }
-       !
-       !    [EntityProperty]
-       !    public int Statistics { get; set; }
-       !}
-       !
-       !
-       !//.................
-       !//update statistics in all entities where statistics is zero
-       !//using subquery to calculate number of subentities for each entity updated
-       !TableDescriptor entityTable = AllEntities.Inst[typeof(Entity)].TableDescriptor;
-       !TableDescriptor subentityTable = AllEntities.Inst[typeof(Subentity)].TableDescriptor;
-       !
-       !UpdateQueryBuilder updateBuilder = new UpdateQueryBuilder(connection.GetLanguageSpecifics(), entityTable);
-       !
-       !SelectQueryBuilder selectQueryBuilder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), subentityTable);
-       !selectQueryBuilder.AddToResultset(AggFn.Count);
-       !selectQueryBuilder.Where.Property(subentityTable[nameof(Subentity.Entity)]).Is(CmpOp.Eq).Raw(updateBuilder.GetAlias(entityTable[nameof(Entity.ID)]));
-       !
-       !updateBuilder.AddUpdateColumnSubquery(entityTable[nameof(Entity.Statistics)], selectQueryBuilder);
-       !updateBuilder.Where.Property(entityTable[nameof(Entity.Statistics)]).Is(CmpOp.Eq).Parameter("param1");
-       !
-       !using (SqlDbQuery query = connection.GetQuery(updateBuilder))
-       !{
-       !    query.BindParam("param1", 0);
-       !    query.ExecuteNoData();
-       !}
+        [Entity(Table = "subentity_table")]
+        public class Subentity
+        {
+            [EntityProperty(AutoId = true)]
+            public int ID { get; set; }
+
+            [EntityProperty(ForeignKey = true, Nullable = true)]
+            public Entity Entity { get; set; }
+
+        }
+
+        [Entity(Table = "entity_table")]
+        public class Entity
+        {
+            [EntityProperty(AutoId = true)]
+            public int ID { get; set; }
+
+            [EntityProperty]
+            public int Statistics { get; set; }
+        }
+
+
+        //.................
+        //update statistics in all entities where statistics is zero
+        //using subquery to calculate number of subentities for each entity updated
+        TableDescriptor entityTable = AllEntities.Inst[typeof(Entity)].TableDescriptor;
+        TableDescriptor subentityTable = AllEntities.Inst[typeof(Subentity)].TableDescriptor;
+
+        UpdateQueryBuilder updateBuilder = new UpdateQueryBuilder(connection.GetLanguageSpecifics(), entityTable);
+
+        SelectQueryBuilder selectQueryBuilder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), subentityTable);
+        selectQueryBuilder.AddToResultset(AggFn.Count);
+        selectQueryBuilder.Where.Property(subentityTable[nameof(Subentity.Entity)]).Is(CmpOp.Eq).Raw(updateBuilder.GetAlias(entityTable[nameof(Entity.ID)]));
+
+        updateBuilder.AddUpdateColumnSubquery(entityTable[nameof(Entity.Statistics)], selectQueryBuilder);
+        updateBuilder.Where.Property(entityTable[nameof(Entity.Statistics)]).Is(CmpOp.Eq).Parameter("param1");
+
+        using (SqlDbQuery query = connection.GetQuery(updateBuilder))
+        {
+            query.BindParam("param1", 0);
+            query.ExecuteNoData();
+        }
     @end
 
     Note: You can always check what is the plain SQL select query by checking [c]SelectBuilder.SelectQueryBuilder.Query[/c] at your query
@@ -1430,25 +1430,25 @@
         @title=Example
         @show=yes
         @highlight=cs
-       ! //MyEntity (*) --- (1) MyDictionary
-       ! //Let's count average count of entities per dictionary record
-       !using (SelectEntitiesQueryBase subquery = connection.GetGenericSelectEntityQuery<MyEntity>())
-       !{
-       !    subquery.AddEntity<MyDictionary>();
-       !    subquery.AddToResultset(typeof(MyDictionary), nameof(MyDictionary.ID), "dictid");
-       !    subquery.AddToResultset(typeof(MyDictionary), nameof(MyDictionary.Name), "dictname");
-       !    subquery.AddToResultset(AggFn.Count, null, "count");
-       !    subquery.AddGroupBy(typeof(MyDictionary), nameof(MyDictionary.ID));
-       !
-       !    SelectQueryBuilder builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), subquery.SelectBuilder.SelectQueryBuilder.QueryTableDescriptor);
-       !    builder.AddToResultset(AggFn.Avg, subquery.SelectBuilder.SelectQueryBuilder.QueryTableDescriptor["count"]);
-       !    using (SqlDbQuery query = connection.GetQuery(builder))
-       !    {
-       !            query.ExecuteReader();
-       !            query.ReadNext();
-       !            return query.GetValue<int>(0);
-       !    }
-       !}
+        //MyEntity (*) --- (1) MyDictionary
+        //Let's count average count of entities per dictionary record
+        using (SelectEntitiesQueryBase subquery = connection.GetGenericSelectEntityQuery<MyEntity>())
+        {
+            subquery.AddEntity<MyDictionary>();
+            subquery.AddToResultset(typeof(MyDictionary), nameof(MyDictionary.ID), "dictid");
+            subquery.AddToResultset(typeof(MyDictionary), nameof(MyDictionary.Name), "dictname");
+            subquery.AddToResultset(AggFn.Count, null, "count");
+            subquery.AddGroupBy(typeof(MyDictionary), nameof(MyDictionary.ID));
+
+            SelectQueryBuilder builder = new SelectQueryBuilder(connection.GetLanguageSpecifics(), subquery.SelectBuilder.SelectQueryBuilder.QueryTableDescriptor);
+            builder.AddToResultset(AggFn.Avg, subquery.SelectBuilder.SelectQueryBuilder.QueryTableDescriptor["count"]);
+            using (SqlDbQuery query = connection.GetQuery(builder))
+            {
+                    query.ExecuteReader();
+                    query.ReadNext();
+                    return query.GetValue<int>(0);
+            }
+        }
     @end
 @end
 

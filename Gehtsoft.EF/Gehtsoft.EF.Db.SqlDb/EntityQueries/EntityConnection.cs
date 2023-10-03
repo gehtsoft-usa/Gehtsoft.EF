@@ -280,7 +280,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// Gets modify (insert or update) entity query for an entity with auto-increment primary key.
         /// </summary>
         /// <param name="connection"></param>
-        /// <param name="T"></param>
         /// <param name="entity"></param>
         /// <returns></returns>
         public static ModifyEntityQuery GetModifyEntityQueryFor<T>(this SqlDbConnection connection, T entity)

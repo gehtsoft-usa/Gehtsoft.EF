@@ -90,10 +90,10 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Theory]
         [MemberData(nameof(ConnectionNames), "")]
         [TestOrder(2)]
-        public void GetAllWords(string connectionName)
+        public async Task GetAllWords(string connectionName)
         {
             if (!mFixture.Started(connectionName))
-                AddWords(connectionName).Wait();
+                await AddWords(connectionName);
 
             var connection = mFixture.GetInstance(connectionName);
 

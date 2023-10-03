@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net.Sockets;
+using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -17,62 +20,78 @@ namespace Gehtsoft.EF.Test.SqlDb
 {
     public class SqlDbConnectionTest
     {
-        [Fact]
-        public void LockTest()
+        class LockTestParams
         {
-            bool locked = false;
-            using var connection = new DummySqlConnection();
-            int waslocked = 0;
-            int locks = 0;
+            public bool locked;
+            public int waslocked;
+            public int locks;
+            public SqlDbConnection connection;
+        }
 
-            Action syncAction = () =>
+        private static void SyncAction(LockTestParams parameters)
+        {
+            var stopWatch = Stopwatch.StartNew();
+
+            while (stopWatch.ElapsedMilliseconds < 3000)
             {
-                DateTime startTime = DateTime.Now;
-
-                while (DateTime.Now - startTime < TimeSpan.FromSeconds(3))
+                using (var locking = parameters.connection.Lock())
                 {
-                    using (var locking = connection.Lock())
-                    {
-                        if (locked)
-                            waslocked++;
-                        locks++;
-                        locked = true;
-                        Thread.Sleep(1);
-                        locked = false;
-                    }
+                    if (parameters.locked)
+                        Interlocked.Increment(ref parameters.waslocked);
+                    Interlocked.Increment(ref parameters.locks);
+                    parameters.locked = true;
+                    Thread.Sleep(1);
+                    parameters.locked = false;
                 }
+            }
+        }
+
+        private static Task AsyncSyncAction(LockTestParams parameters)
+            => Task.Run(() => SyncAction(parameters));
+
+        private static async Task AsyncAction(LockTestParams parameters)
+        {
+            var stopWatch = Stopwatch.StartNew();
+
+            while (stopWatch.ElapsedMilliseconds < 3000)
+            {
+                using (var locking = await parameters.connection.LockAsync())
+                {
+                    if (parameters.locked)
+                        Interlocked.Increment(ref parameters.waslocked);
+                    Interlocked.Increment(ref parameters.locks);
+                    parameters.locked = true;
+                    Thread.Sleep(1);
+                    parameters.locked = false;
+                }
+            }
+        }
+
+
+        [Fact]
+        public async Task LockTest()
+        {
+            var parameters = new LockTestParams()
+            {
+                locked = false,
+                waslocked = 0,
+                locks = 0,
+                connection = new DummySqlConnection()
             };
 
-            Action asyncAction = () =>
-            {
-                DateTime startTime = DateTime.Now;
-
-                while (DateTime.Now - startTime < TimeSpan.FromSeconds(3))
-                {
-                    using (var locking = connection.LockAsync().ConfigureAwait(false).GetAwaiter().GetResult())
-                    {
-                        if (locked)
-                            waslocked++;
-                        locks++;
-                        locked = true;
-                        Thread.Sleep(1);
-                        locked = false;
-                    }
-                }
-            };
 
             var tasks = new List<Task>();
 
             for (int i = 0; i < 10; i++)
-                tasks.Add(Task.Run(syncAction));
+                tasks.Add(AsyncSyncAction(parameters));
 
             for (int i = 0; i < 10; i++)
-                tasks.Add(Task.Run(asyncAction));
+                tasks.Add(AsyncAction(parameters));
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
 
-            locks.Should().BeGreaterThan(20);
-            waslocked.Should().Be(0);
+            parameters.locks.Should().BeGreaterThan(20);
+            parameters.waslocked.Should().Be(0);
         }
 
         [Theory]

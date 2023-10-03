@@ -40,10 +40,10 @@
         @title=Creating the connection
         @show=yes
         @highlight=cs
-        !using (SqlDbConnection connection = SqliteDbConnectionFactory.Create("Data File=c:/data/my.db"))
-        !{
-        !    ...
-        !}
+        using (SqlDbConnection connection = SqliteDbConnectionFactory.Create("Data File=c:/data/my.db"))
+        {
+            ...
+        }
     @end
 @end
 
@@ -87,26 +87,26 @@
         @title=Example: Simple Queries
         @show=yes
         @highlight=cs
-       !using (SqlDbQuery query = connection.GetQuery("insert into table (id, name) values (@id, @name)"))
-       !{
-       !    for (int i = 0; i < 10; i++)
-       !    {
-       !        query.BindParam<int>("id", i + 1);
-       !        query.BindParam<string>("name", $"name {i + 1}");
-       !        query.ExecuteNoData();
-       !    }
-       !}
-       !
-       !using (SqlDbQuery query = connection.GetQuery("select * from table where name like @mask"))
-       !{
-       !    query.BindParam<string>("mask", "n%");
-       !    query.ExecuteReader();
-       !    while(query.ReadNext())
-       !    {
-       !        int id = query.GetValue<int>(0);
-       !        string name = query.GetValue<string>("name");
-       !    }
-       !}
+        using (SqlDbQuery query = connection.GetQuery("insert into table (id, name) values (@id, @name)"))
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                query.BindParam<int>("id", i + 1);
+                query.BindParam<string>("name", $"name {i + 1}");
+                query.ExecuteNoData();
+            }
+        }
+
+        using (SqlDbQuery query = connection.GetQuery("select * from table where name like @mask"))
+        {
+            query.BindParam<string>("mask", "n%");
+            query.ExecuteReader();
+            while(query.ReadNext())
+            {
+                int id = query.GetValue<int>(0);
+                string name = query.GetValue<string>("name");
+            }
+        }
     @end
 @end
 
@@ -127,28 +127,28 @@
         @title=Example: Transactions
         @show=yes
         @highlight=cs
-       !using (SqlDbTransaction transaction = connection.BeginTransaction())
-       !{
-       !    try
-       !    {
-       !        using (SqlDbQuery query = connection.GetQuery("insert into table (id, name) values (@id, @name)"))
-       !        {
-       !            for (int i = 0; i < 10; i++)
-       !            {
-       !                query.BindParam<int>("id", i + 1);
-       !                query.BindParam<string>("name", $"name {i + 1}");
-       !                query.ExecuteNoData();
-       !            }
-       !        }
-       !
-       !        transaction.Commit();
-       !    }
-       !    catch (Exception )
-       !    {
-       !        transaction.Rollback();
-       !        throw;
-       !    }
-       !}
+        using (SqlDbTransaction transaction = connection.BeginTransaction())
+        {
+            try
+            {
+                using (SqlDbQuery query = connection.GetQuery("insert into table (id, name) values (@id, @name)"))
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        query.BindParam<int>("id", i + 1);
+                        query.BindParam<string>("name", $"name {i + 1}");
+                        query.ExecuteNoData();
+                    }
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception )
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
     @end
 
     To check whether the database supports the transactions or whether it supports nested transactions use the method.
@@ -174,23 +174,23 @@
         @title=Example: Table Descriptor (these tables will be used in all examples in this section
         @show=yes
         @highlight=cs
-        !TableDescriptor.ColumnInfo[] my_dictionary_columns = new TableDescriptor.ColumnInfo[]
-        !{
-        !    new TableDescriptor.ColumnInfo() {Name = "id", DbType = DbType.Int32, PrimaryKey = true, Autoincrement = true, Nullable = false},
-        !    new TableDescriptor.ColumnInfo() {Name = "name", DbType = DbType.String, Size = 32, Nullable = false, Unique = true},
-        !};
-        !
-        !TableDescriptor my_dictionary = new TableDescriptor("my_dictionary_name", my_dictionary_columns);
-        !
-        !TableDescriptor.ColumnInfo[] my_table_columns = new TableDescriptor.ColumnInfo[]
-        !{
-        !    new TableDescriptor.ColumnInfo() { Name = "id", DbType = DbType.Int32, PrimaryKey = true, Autoincrement = true, Nullable = false},
-        !    new TableDescriptor.ColumnInfo() { Name = "reference", DbType = DbType.Int32, ForeignTable = my_dictionary, Nullable = false},
-        !    new TableDescriptor.ColumnInfo() { Name = "name", DbType = DbType.String, Size = 32, Nullable = false},
-        !    new TableDescriptor.ColumnInfo() { Name = "volume", DbType = DbType.Double, Size = 8, Precision = 2, Nullable = true, Sorted = true},
-        !};
-        !
-        !TableDescriptor my_table = new TableDescriptor("my_table_name", my_table_columns);
+        TableDescriptor.ColumnInfo[] my_dictionary_columns = new TableDescriptor.ColumnInfo[]
+        {
+            new TableDescriptor.ColumnInfo() {Name = "id", DbType = DbType.Int32, PrimaryKey = true, Autoincrement = true, Nullable = false},
+            new TableDescriptor.ColumnInfo() {Name = "name", DbType = DbType.String, Size = 32, Nullable = false, Unique = true},
+        };
+
+        TableDescriptor my_dictionary = new TableDescriptor("my_dictionary_name", my_dictionary_columns);
+
+        TableDescriptor.ColumnInfo[] my_table_columns = new TableDescriptor.ColumnInfo[]
+        {
+            new TableDescriptor.ColumnInfo() { Name = "id", DbType = DbType.Int32, PrimaryKey = true, Autoincrement = true, Nullable = false},
+            new TableDescriptor.ColumnInfo() { Name = "reference", DbType = DbType.Int32, ForeignTable = my_dictionary, Nullable = false},
+            new TableDescriptor.ColumnInfo() { Name = "name", DbType = DbType.String, Size = 32, Nullable = false},
+            new TableDescriptor.ColumnInfo() { Name = "volume", DbType = DbType.Double, Size = 8, Precision = 2, Nullable = true, Sorted = true},
+        };
+
+        TableDescriptor my_table = new TableDescriptor("my_table_name", my_table_columns);
     @end
 
     Now you can create the table at any database using [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.CreateTableBuilder]CreateTableBuilder[/clink] class.
@@ -202,8 +202,8 @@
         @title=Example: Creating the table using the table descriptor
         @show=yes
         @highlight=cs
-        !using (SqlDbQuery query = connection.GetQuery(connection.GetCreateTableBuilder(my_table)))
-        !    query.ExecuteNoData();
+        using (SqlDbQuery query = connection.GetQuery(connection.GetCreateTableBuilder(my_table)))
+            query.ExecuteNoData();
     @end
 @end
 
@@ -225,13 +225,13 @@
         @title=Example: Inserting a row
         @show=yes
         @highlight=cs
-       !using (SqlDbQuery query = connection.GetQuery(connection.GetInsertQueryBuilder(my_table)))
-       !{
-       !    query.BindParam("name", "name1");
-       !    query.BindParam("volume", 112.5);
-       !    query.ExecuteNoData();
-       !    int newid = query.GetParamValue<int>("id");
-       !}
+        using (SqlDbQuery query = connection.GetQuery(connection.GetInsertQueryBuilder(my_table)))
+        {
+            query.BindParam("name", "name1");
+            query.BindParam("volume", 112.5);
+            query.ExecuteNoData();
+            int newid = query.GetParamValue<int>("id");
+        }
     @end
 
     [b][c]DELETE[/c][/b]
@@ -245,14 +245,13 @@
         @title=Example: Deleting a row
         @show=yes
         @highlight=cs
-       !DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
-       !deleteBuilder.DeleteById();
-       !using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
-       !{
-       !    query.BindParam("id", 1);
-       !    query.ExecuteNoData();
-       !
-       !}
+        DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
+        deleteBuilder.DeleteById();
+        using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
+        {
+            query.BindParam("id", 1);
+            query.ExecuteNoData();
+        }
     @end
 
     [b][c]UPDATE[/c][/b]
@@ -267,16 +266,16 @@
         @title=Example: Updating a row
         @show=yes
         @highlight=cs
-       !UpdateQueryBuilder updateBuilder = connection.GetUpdateQueryBuilder(my_table);
-       !updateBuilder.UpdateById();
-       !updateBuilder.AddUpdateColumn(my_table["name"]);
-       !using (SqlDbQuery query = connection.GetQuery(updateBuilder))
-       !{
-       !    query.BindParam("id", 1);
-       !    query.BindParam("name", "new name for row 1");
-       !    query.ExecuteNoData();
-       !
-       !}
+        UpdateQueryBuilder updateBuilder = connection.GetUpdateQueryBuilder(my_table);
+        updateBuilder.UpdateById();
+        updateBuilder.AddUpdateColumn(my_table["name"]);
+        using (SqlDbQuery query = connection.GetQuery(updateBuilder))
+        {
+            query.BindParam("id", 1);
+            query.BindParam("name", "new name for row 1");
+            query.ExecuteNoData();
+
+        }
     @end
 @end
 
@@ -310,16 +309,16 @@
         @title=Example: Deleting all rows that matches one or another condition
         @show=yes
         @highlight=cs
-        !//Build the query similar to "DELETE FROM my_table WHERE name like @mask OR volume < @maxvolume"
-        !DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
-        !deleteBuilder.Where.Or().Property(my_table["name"]).Is(CmpOp.Like).Parameter("mask");
-        !deleteBuilder.Where.Or().Property(my_table["volume"]).Is(CmpOp.Ls).Parameter("maxvolume");
-        !using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
-        !{
-        !    query.BindParam("mask", "unused%");
-        !    query.BindParam("maxvolume", 10);
-        !    query.ExecuteNoData();
-        !}
+        //Build the query similar to "DELETE FROM my_table WHERE name like @mask OR volume < @maxvolume"
+        DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
+        deleteBuilder.Where.Or().Property(my_table["name"]).Is(CmpOp.Like).Parameter("mask");
+        deleteBuilder.Where.Or().Property(my_table["volume"]).Is(CmpOp.Ls).Parameter("maxvolume");
+        using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
+        {
+            query.BindParam("mask", "unused%");
+            query.BindParam("maxvolume", 10);
+            query.ExecuteNoData();
+        }
     @end
 
     [b]Add a group of filters[/b]
@@ -332,21 +331,21 @@
         @title=Example: Deleting all rows that matches one or another condition
         @show=yes
         @highlight=cs
-       !//Build the query similar to "DELETE FROM my_table WHERE name like @mask AND (volume < @maxvolume OR volume IS NULL)"
-       !DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
-       !deleteBuilder.Where.Property(my_table["name"]).Is(CmpOp.Like).Parameter("mask");
-       !using (var g = deleteBuilder.Where.AddGroup())
-       !{
-       !    deleteBuilder.Where.Or().Property(my_table["volume"]).Is(CmpOp.Le).Parameter("maxvolume");
-       !    deleteBuilder.Where.Or().Property(my_table["volume"]).Is(CmpOp.IsNull);
-       !}
-       !
-       !using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
-       !{
-       !    query.BindParam("mask", "unused%");
-       !    query.BindParam("maxvolume", 10);
-       !    query.ExecuteNoData();
-       !}
+        //Build the query similar to "DELETE FROM my_table WHERE name like @mask AND (volume < @maxvolume OR volume IS NULL)"
+        DeleteQueryBuilder deleteBuilder = connection.GetDeleteQueryBuilder(my_table);
+        deleteBuilder.Where.Property(my_table["name"]).Is(CmpOp.Like).Parameter("mask");
+        using (var g = deleteBuilder.Where.AddGroup())
+        {
+            deleteBuilder.Where.Or().Property(my_table["volume"]).Is(CmpOp.Le).Parameter("maxvolume");
+            deleteBuilder.Where.Or().Property(my_table["volume"]).Is(CmpOp.IsNull);
+        }
+
+        using (SqlDbQuery query = connection.GetQuery(deleteBuilder))
+        {
+            query.BindParam("mask", "unused%");
+            query.BindParam("maxvolume", 10);
+            query.ExecuteNoData();
+        }
     @end
 @end
 
@@ -366,21 +365,21 @@
         @title=Example: Simple Select
         @show=yes
         @highlight=cs
-    !SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
-    !builder.AddToResultset(my_table["id"]);
-    !builder.AddToResultset(my_table["name"]);
-    !builder.AddToResultset(my_table["volume"]);
-    !builder.Where.Property(my_table["volume"]).Is(CmpOp.Ge).Parameter("volume");
-    !builder.AddOrderBy(my_table["name"]);
-    !using (SqlDbQuery query = connection.GetQuery(builder))
-    !{
-    !    query.BindParam("volume", 10);
-    !    query.ExecuteReader();
-    !    while (query.ReadNext())
-    !    {
-    !        ...
-    !    }
-    !}
+        SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
+        builder.AddToResultset(my_table["id"]);
+        builder.AddToResultset(my_table["name"]);
+        builder.AddToResultset(my_table["volume"]);
+        builder.Where.Property(my_table["volume"]).Is(CmpOp.Ge).Parameter("volume");
+        builder.AddOrderBy(my_table["name"]);
+        using (SqlDbQuery query = connection.GetQuery(builder))
+        {
+            query.BindParam("volume", 10);
+            query.ExecuteReader();
+            while (query.ReadNext())
+            {
+                ...
+            }
+        }
     @end
 
     [b]Joining tables[/b]
@@ -395,25 +394,25 @@
         @title=Example: Simple Select
         @show=yes
         @highlight=cs
-    !SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
-    !builder.AddToResultset(my_table["id"]);
-    !builder.AddToResultset(my_table["name"]);
-    !builder.AddToResultset(my_table["volume"]);
-    !builder.Where.Property(my_table["volume"].Is(CmpOp.Ge).Parameter("volume");
-    !builder.AddOrderBy(my_table["name"]);
-    !
-    !builder.AddTable(my_dictionary, true);
-    !builder.AddToResultset(my_dictionary["name"], "reference_name");
-    !
-    !using (SqlDbQuery query = connection.GetQuery(builder))
-    !{
-    !    query.BindParam("volume", 10);
-    !    query.ExecuteReader();
-    !    while (query.ReadNext())
-    !    {
-    !        ...
-    !    }
-    !}
+        SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
+        builder.AddToResultset(my_table["id"]);
+        builder.AddToResultset(my_table["name"]);
+        builder.AddToResultset(my_table["volume"]);
+        builder.Where.Property(my_table["volume"].Is(CmpOp.Ge).Parameter("volume");
+        builder.AddOrderBy(my_table["name"]);
+
+        builder.AddTable(my_dictionary, true);
+        builder.AddToResultset(my_dictionary["name"], "reference_name");
+
+        using (SqlDbQuery query = connection.GetQuery(builder))
+        {
+            query.BindParam("volume", 10);
+            query.ExecuteReader();
+            while (query.ReadNext())
+            {
+                ...
+            }
+        }
     @end
 
     [b]More Examples[/b]
@@ -424,49 +423,49 @@
         @title=Example: Using Aggregate Functions
         @show=yes
         @highlight=cs
-    !SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_dictionary);
-    !
-    !builder.AddTable(my_table, true);
-    !
-    !builder.AddToResultset(my_dictionary["name"]);
-    !builder.AddToResultset(AggFn.Max, my_table["volume"]);
-    !
-    !builder.AddOrderBy(my_dictionary["name"]);
-    !builder.AddGroupBy(my_dictionary["name"]);
-    !
-    !using (SqlDbQuery query = connection.GetQuery(builder))
-    !{
-    !    query.ExecuteReader();
-    !    while (query.ReadNext())
-    !    {
-    !        ...
-    !    }
-    !}
+        SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_dictionary);
+
+        builder.AddTable(my_table, true);
+
+        builder.AddToResultset(my_dictionary["name"]);
+        builder.AddToResultset(AggFn.Max, my_table["volume"]);
+
+        builder.AddOrderBy(my_dictionary["name"]);
+        builder.AddGroupBy(my_dictionary["name"]);
+
+        using (SqlDbQuery query = connection.GetQuery(builder))
+        {
+            query.ExecuteReader();
+            while (query.ReadNext())
+            {
+                ...
+            }
+        }
     @end
 
     @example
         @title=Example: Using Simple Subqueries
         @show=yes
         @highlight=cs
-    !//builder query SELECT id, name FROM my_table WHERE reference IN (SELECT id FROM my_dictionary WHERE name like @name_mask)"
-    !SelectQueryBuilder builder1 = connection.GetSelectQueryBuilder(my_dictionary);
-    !builder1.AddToResultset(my_dictionary["id"]);
-    !builder1.Where.And().Property(my_dictionary["name"]).Is(CmpOp.Like).Parameter("name_mask");
-    !
-    !SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
-    !builder.AddToResultset(my_table["id"]);
-    !builder.AddToResultset(my_table["name"]);
-    !builder.Where.And().Property(my_table["reference"]).Is(CmpOp.In).Query(builder1);
-    !
-    !using (SqlDbQuery query = connection.GetQuery(builder))
-    !{
-    !    query.BindParam("name_mask", "a%");
-    !    query.ExecuteReader();
-    !    while (query.ReadNext())
-    !    {
-    !        ...
-    !    }
-    !}
+        //builder query SELECT id, name FROM my_table WHERE reference IN (SELECT id FROM my_dictionary WHERE name like @name_mask)"
+        SelectQueryBuilder builder1 = connection.GetSelectQueryBuilder(my_dictionary);
+        builder1.AddToResultset(my_dictionary["id"]);
+        builder1.Where.And().Property(my_dictionary["name"]).Is(CmpOp.Like).Parameter("name_mask");
+
+        SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
+        builder.AddToResultset(my_table["id"]);
+        builder.AddToResultset(my_table["name"]);
+        builder.Where.And().Property(my_table["reference"]).Is(CmpOp.In).Query(builder1);
+
+        using (SqlDbQuery query = connection.GetQuery(builder))
+        {
+            query.BindParam("name_mask", "a%");
+            query.ExecuteReader();
+            while (query.ReadNext())
+            {
+                ...
+            }
+        }
     @end
 
     Sometime subqueries require references to the parent queries. In this case [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.QueryWithWhereBuilder.GetAlias.0]GetAlias()[/clink]
@@ -477,25 +476,25 @@
         @title=Example: Using Subqueries with References Between Queries
         @show=yes
         @highlight=cs
-    !//builder query SELECT a.id, a.name FROM a.my_table WHERE a.volume > (SELECT AVG(b.volume) FROM my_table b WHERE b.reference = a.reference)"
-    !SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
-    !builder.AddToResultset(my_table["id"]);
-    !builder.AddToResultset(my_table["name"]);
-    !
-    !SelectQueryBuilder builder1 = connection.GetSelectQueryBuilder(my_table);
-    !builder1.AddToResultset(AggFn.Avg, my_table["volume"]);
-    !builder1.Where.And().Property(my_table["reference"]).Is(CmpOp.Eq).Raw(builder.GetAlias(my_table["reference"]));
-    !
-    !builder.Where.Property(my_table["volume"]).Is(CmpOp.Gt).Query(builder1);
-    !
-    !using (SqlDbQuery query = connection.GetQuery(builder))
-    !{
-    !    query.ExecuteReader();
-    !    while (query.ReadNext())
-    !    {
-    !        ...
-    !    }
-    !}
+        //builder query SELECT a.id, a.name FROM a.my_table WHERE a.volume > (SELECT AVG(b.volume) FROM my_table b WHERE b.reference = a.reference)"
+        SelectQueryBuilder builder = connection.GetSelectQueryBuilder(my_table);
+        builder.AddToResultset(my_table["id"]);
+        builder.AddToResultset(my_table["name"]);
+
+        SelectQueryBuilder builder1 = connection.GetSelectQueryBuilder(my_table);
+        builder1.AddToResultset(AggFn.Avg, my_table["volume"]);
+        builder1.Where.And().Property(my_table["reference"]).Is(CmpOp.Eq).Raw(builder.GetAlias(my_table["reference"]));
+
+        builder.Where.Property(my_table["volume"]).Is(CmpOp.Gt).Query(builder1);
+
+        using (SqlDbQuery query = connection.GetQuery(builder))
+        {
+            query.ExecuteReader();
+            while (query.ReadNext())
+            {
+                ...
+            }
+        }
     @end
 @end
 

@@ -104,6 +104,34 @@
     @transform=yes
     @sortgroups=no
     @sortarticles=no
+
+    This section of the documentation describes how to use the framework
+    with databases directly using SQL queries.
+
+    ```diagram
+
+    classDiagram
+         class SqlDbConnection { }
+         <<abstract>> SqlDbConnection
+
+         class SqlDbQuery
+         class SqlDbTransaction
+
+         SqlDbConnection ..> SqlDbQuery : creates
+         SqlDbConnection ..> SqlDbTransaction : creates
+
+         class Attribute
+         class EntityAttribute
+         class EntityPropertyAttribute
+
+         EntityAttribute --|> Attribute
+         EntityPropertyAttribute --|> Attribute
+
+         EntityAttribute ..> MyClass : defines metadata
+         EntityPropertyAttribute ..> MyClass : defines metadata
+         class MyClass
+
+    ```
 @end
 
 @group
