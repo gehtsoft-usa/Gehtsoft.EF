@@ -21,6 +21,7 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using static TestApp.TestEntity1;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace TestApp
 {
@@ -162,7 +163,7 @@ namespace TestApp
                     Dictionary<string, object> sale = saleObject as Dictionary<string, object>;
                     DateTime? saleDate = (DateTime)sale["SalesDate"];
                     saleDate.Should().NotBeNull();
-                    DateTime.Compare(saleDate.Value, new DateTime(2010, 1, 31)).Should().BeGreaterThan(0);
+                    DateTime.Compare(saleDate.Value, new DateTime(2010, 1, 31, 0, 0, 0, DateTimeKind.Unspecified)).Should().BeGreaterThan(0);
                 }
             }
 
@@ -178,8 +179,6 @@ namespace TestApp
             result = mPocessor.SelectData(new Uri("/Good/$count", UriKind.Relative));
             result.Should().NotBeNull();
             result.Should().BeOfType(typeof(Int64));
-
-            count = (long)result;
 
             result = mPocessor.SelectData(new Uri("/Good?$filter=startswith(tolower(Name), 'br')", UriKind.Relative));
             array = (result as Dictionary<string, object>)["value"] as IEnumerable<object>;
@@ -294,7 +293,7 @@ namespace TestApp
             int.TryParse(str, out int _).Should().BeTrue();
 
             str = mPocessor.GetFormattedData(new Uri("/Sale(1)/SalesDate", UriKind.Relative));
-            DateTime.TryParse(str, out DateTime _).Should().BeTrue();
+            DateTime.TryParse(str, CultureInfo.InvariantCulture, out DateTime _).Should().BeTrue();
 
             str = mPocessor.GetFormattedData(new Uri("/Sale?$select=ID,SalesDate&$expand=Good($select=Name)", UriKind.Relative));
             using (StringReader reader = new StringReader(str))
@@ -320,7 +319,7 @@ namespace TestApp
                     string dateStr = value[0]["SalesDate"].Value<string>();
                     dateStr.Should().NotBeNull();
 
-                    (DateTime.TryParse(dateStr, out DateTime dt)).Should().BeTrue();
+                    (DateTime.TryParse(dateStr, CultureInfo.InvariantCulture, out DateTime dt)).Should().BeTrue();
 
                     JValue next = (JValue)obj["odata.nextLink"];
                     ((IEnumerable<JToken>)next).Should().NotBeNull();
@@ -372,7 +371,7 @@ namespace TestApp
                 dateAttr.Should().NotBeNull();
                 string dateStr = dateAttr.Value;
                 dateStr.Should().NotBeNull();
-                DateTime.TryParse(dateStr, out DateTime _).Should().BeTrue();
+                DateTime.TryParse(dateStr, CultureInfo.InvariantCulture, out DateTime _).Should().BeTrue();
 
                 XmlNode saleTotal = node.SelectSingleNode("item[@key='Total']");
                 saleTotal.Should().NotBeNull();

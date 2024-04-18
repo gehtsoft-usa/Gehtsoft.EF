@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Utils;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -57,24 +58,24 @@ namespace TestApp
         public void TestPropertyReader()
         {
             TestClass v = new TestClass("a1", "a2", "a3", "a4", "a5", "a6");
-            Assert.IsNull(EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyR"));
-            Assert.AreEqual("a6", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
-            Assert.AreEqual("a5", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
-            Assert.AreEqual("a4", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyV"));
-            Assert.AreEqual("a3", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyV"));
-            Assert.AreEqual("a2", EntityPathAccessor.ReadData(v, "PropertyR.PropertyV"));
-            Assert.AreEqual("a1", EntityPathAccessor.ReadData(v, "PropertyV"));
+            ClassicAssert.IsNull(EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyR"));
+            ClassicAssert.AreEqual("a6", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
+            ClassicAssert.AreEqual("a5", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
+            ClassicAssert.AreEqual("a4", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyV"));
+            ClassicAssert.AreEqual("a3", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyV"));
+            ClassicAssert.AreEqual("a2", EntityPathAccessor.ReadData(v, "PropertyR.PropertyV"));
+            ClassicAssert.AreEqual("a1", EntityPathAccessor.ReadData(v, "PropertyV"));
 
             //make sure that caching works
-            Assert.AreEqual("a6", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
-            Assert.AreEqual("a5", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
+            ClassicAssert.AreEqual("a6", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
+            ClassicAssert.AreEqual("a5", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyV"));
 
-            Assert.AreEqual("r1a6", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyR1.PropertyX"));
-            Assert.AreEqual("r1a5", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR1.PropertyX"));
-            Assert.AreEqual("r1a4", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR1.PropertyX"));
-            Assert.AreEqual("r1a3", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR1.PropertyX"));
-            Assert.AreEqual("r1a2", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR1.PropertyX"));
-            Assert.AreEqual("r1a1", EntityPathAccessor.ReadData(v, "PropertyR1.PropertyX"));
+            ClassicAssert.AreEqual("r1a6", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR.PropertyR1.PropertyX"));
+            ClassicAssert.AreEqual("r1a5", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR.PropertyR1.PropertyX"));
+            ClassicAssert.AreEqual("r1a4", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR.PropertyR1.PropertyX"));
+            ClassicAssert.AreEqual("r1a3", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR.PropertyR1.PropertyX"));
+            ClassicAssert.AreEqual("r1a2", EntityPathAccessor.ReadData(v, "PropertyR.PropertyR1.PropertyX"));
+            ClassicAssert.AreEqual("r1a1", EntityPathAccessor.ReadData(v, "PropertyR1.PropertyX"));
         }
 
         [Entity]
@@ -97,13 +98,13 @@ namespace TestApp
             Entity1 e1 = new Entity1() { PK = 2 };
             Entity2 e2 = new Entity2() { PK = 5 };
 
-            Assert.IsFalse(this.IsEfEntity());
-            Assert.IsTrue(e1.IsEfEntity());
-            Assert.IsTrue(e2.IsEfEntity());
+            ClassicAssert.IsFalse(this.IsEfEntity());
+            ClassicAssert.IsTrue(e1.IsEfEntity());
+            ClassicAssert.IsTrue(e2.IsEfEntity());
 
-            Assert.AreEqual(2, e1.GetEfEntityId<int>());
-            Assert.AreEqual(5, e2.GetEfEntityId<int>());
-            Assert.AreEqual("5", e2.GetEfEntityId<string>());
+            ClassicAssert.AreEqual(2, e1.GetEfEntityId<int>());
+            ClassicAssert.AreEqual(5, e2.GetEfEntityId<int>());
+            ClassicAssert.AreEqual("5", e2.GetEfEntityId<string>());
         }
     }
 }

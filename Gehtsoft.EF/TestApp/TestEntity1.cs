@@ -5,7 +5,6 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
-using FluentAssertions;
 using Gehtsoft.EF.Db.OracleDb;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor;
@@ -20,6 +19,8 @@ using Microsoft.Win32;
 using MySqlConnector.Logging;
 using NUnit.Framework;
 using NUnit.Framework.Internal.Commands;
+using NUnit.Framework.Legacy;
+using FluentAssertions;
 
 namespace TestApp
 {
@@ -402,10 +403,10 @@ namespace TestApp
             {
                 query.Execute();
                 TestDefaults t = query.ReadOne<TestDefaults>();
-                Assert.AreEqual("1234", t.DVal);
-                Assert.AreEqual("default", t.StringVal);
-                Assert.AreEqual(true, t.BoolVal);
-                Assert.AreEqual(123, t.IntVal);
+                ClassicAssert.AreEqual("1234", t.DVal);
+                ClassicAssert.AreEqual("default", t.StringVal);
+                ClassicAssert.AreEqual(true, t.BoolVal);
+                ClassicAssert.AreEqual(123, t.IntVal);
             }
 
             #endregion test defaults
@@ -445,10 +446,10 @@ namespace TestApp
                 callbacks1 = query.ReadAll<SerializationCallback>();
             }
 
-            Assert.AreEqual(serializationCallbacks.Length, callbacks1.Count);
+            ClassicAssert.AreEqual(serializationCallbacks.Length, callbacks1.Count);
             for (int i = 0; i < serializationCallbacks.Length; i++)
             {
-                Assert.AreEqual(serializationCallbacks[i].StringValue, callbacks1[i].StringValue);
+                ClassicAssert.AreEqual(serializationCallbacks[i].StringValue, callbacks1[i].StringValue);
             }
 
             #endregion test callback
@@ -456,19 +457,19 @@ namespace TestApp
             #region create tables and data and read using regular queries
 
             TableDescriptor td = AllEntities.Inst[typeof(Employee)].TableDescriptor;
-            Assert.IsNotNull(td["ID"]);
-            Assert.AreEqual(DbType.Int32, td["ID"].DbType);
-            Assert.AreEqual("id", td["ID"].Name);
-            Assert.IsTrue(td["ID"].PrimaryKey);
-            Assert.IsTrue(td["ID"].Autoincrement);
-            Assert.IsFalse(td["ID"].Nullable);
+            ClassicAssert.IsNotNull(td["ID"]);
+            ClassicAssert.AreEqual(DbType.Int32, td["ID"].DbType);
+            ClassicAssert.AreEqual("id", td["ID"].Name);
+            ClassicAssert.IsTrue(td["ID"].PrimaryKey);
+            ClassicAssert.IsTrue(td["ID"].Autoincrement);
+            ClassicAssert.IsFalse(td["ID"].Nullable);
 
-            Assert.IsNotNull(td["LastCheck"]);
-            Assert.AreEqual(DbType.DateTime, td["LastCheck"].DbType);
-            Assert.AreEqual("lastcheck", td["LastCheck"].Name);
-            Assert.IsFalse(td["LastCheck"].PrimaryKey);
-            Assert.IsFalse(td["LastCheck"].Autoincrement);
-            Assert.IsTrue(td["LastCheck"].Nullable);
+            ClassicAssert.IsNotNull(td["LastCheck"]);
+            ClassicAssert.AreEqual(DbType.DateTime, td["LastCheck"].DbType);
+            ClassicAssert.AreEqual("lastcheck", td["LastCheck"].Name);
+            ClassicAssert.IsFalse(td["LastCheck"].PrimaryKey);
+            ClassicAssert.IsFalse(td["LastCheck"].Autoincrement);
+            ClassicAssert.IsTrue(td["LastCheck"].Nullable);
 
             Employee boss = new Employee("Boss") { EmpoyeeType1 = EmpoyeeType.Manager };
             Employee mgr1 = new Employee("Manager1", boss);
@@ -482,7 +483,7 @@ namespace TestApp
             using (ModifyEntityQuery query = connection.GetInsertEntityQuery(typeof(Employee)))
             {
                 query.Execute(boss);
-                Assert.IsTrue(boss.ID > 0);
+                ClassicAssert.IsTrue(boss.ID > 0);
                 query.Execute(mgr1);
                 query.Execute(mgr2);
                 query.Execute(sm1);
@@ -492,8 +493,8 @@ namespace TestApp
                 query.Execute(sm5);
             }
 
-            Assert.IsFalse(connection.CanDelete<Employee>(mgr2));
-            Assert.IsTrue(connection.CanDelete<Employee>(sm5));
+            ClassicAssert.IsFalse(connection.CanDelete<Employee>(mgr2));
+            ClassicAssert.IsTrue(connection.CanDelete<Employee>(sm5));
 
             Employee[] sms = new Employee[] { sm1, sm2, sm3, sm4 };
 
@@ -501,7 +502,7 @@ namespace TestApp
             {
                 sm2.Name = "Salesman2";
                 sm2.Manager = mgr1;
-                sm2.LastCheck = new DateTime(2015, 1, 2);
+                sm2.LastCheck = new DateTime(2015, 1, 2, 0, 0, 0, DateTimeKind.Unspecified);
                 query.Execute(sm2);
             }
 
@@ -512,7 +513,7 @@ namespace TestApp
 
             using (SelectEntitiesCountQuery query = connection.GetSelectEntitiesCountQuery(typeof(Employee)))
             {
-                Assert.AreEqual(7, query.RowCount);
+                ClassicAssert.AreEqual(7, query.RowCount);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery(typeof(Employee)))
@@ -520,22 +521,22 @@ namespace TestApp
                 query.AddOrderBy(nameof(Employee.ID));
                 query.Execute();
                 EntityCollection<Employee> coll = query.ReadAll<EntityCollection<Employee>, Employee>();
-                Assert.AreEqual(7, coll.Count);
+                ClassicAssert.AreEqual(7, coll.Count);
 
-                Assert.AreEqual(boss.Name, coll[0].Name);
-                Assert.AreEqual(EmpoyeeType.Manager, coll[0].EmpoyeeType1);
-                Assert.IsNull(coll[0].LastCheck);
+                ClassicAssert.AreEqual(boss.Name, coll[0].Name);
+                ClassicAssert.AreEqual(EmpoyeeType.Manager, coll[0].EmpoyeeType1);
+                ClassicAssert.IsNull(coll[0].LastCheck);
 
-                Assert.IsNull(coll[0].Manager);
-                Assert.AreEqual(mgr1.Name, coll[1].Name);
-                Assert.IsNotNull(coll[1].Manager);
+                ClassicAssert.IsNull(coll[0].Manager);
+                ClassicAssert.AreEqual(mgr1.Name, coll[1].Name);
+                ClassicAssert.IsNotNull(coll[1].Manager);
 
-                Assert.AreEqual(boss.ID, coll[1].Manager.ID);
-                Assert.AreEqual(EmpoyeeType.Salesman, coll[1].EmpoyeeType1);
+                ClassicAssert.AreEqual(boss.ID, coll[1].Manager.ID);
+                ClassicAssert.AreEqual(EmpoyeeType.Salesman, coll[1].EmpoyeeType1);
 
-                Assert.AreEqual("Salesman2", coll[4].Name);
-                Assert.IsNotNull(coll[4].LastCheck);
-                Assert.AreEqual(new DateTime(2015, 1, 2), coll[4].LastCheck);
+                ClassicAssert.AreEqual("Salesman2", coll[4].Name);
+                ClassicAssert.IsNotNull(coll[4].LastCheck);
+                ClassicAssert.AreEqual(new DateTime(2015, 1, 2, 0, 0, 0, DateTimeKind.Unspecified), coll[4].LastCheck);
             }
 
             EntityCollection<Employee> allEmployees;
@@ -549,8 +550,8 @@ namespace TestApp
             {
                 query.Where.Property(nameof(Employee.Name)).ToUpper().Eq().Value("SALESMAN1");
                 var rs = query.ReadAll<Employee>();
-                Assert.AreEqual(1, rs.Count);
-                Assert.AreEqual(allEmployees[3].ID, rs[0].ID);
+                ClassicAssert.AreEqual(1, rs.Count);
+                ClassicAssert.AreEqual(allEmployees[3].ID, rs[0].ID);
             }
 
             if (testHierarchical)
@@ -567,16 +568,16 @@ namespace TestApp
                     }
 
                     EntityCollection<Employee> emps = query.ReadAll<Employee>();
-                    Assert.AreEqual(allEmployees.Count, emps.Count);
+                    ClassicAssert.AreEqual(allEmployees.Count, emps.Count);
                     foreach (Employee e1 in emps)
                     {
                         int idx = allEmployees.Find(e1);
-                        Assert.AreNotEqual(-1, idx);
+                        ClassicAssert.AreNotEqual(-1, idx);
                         allEmployees[idx].Found = true;
                     }
                 }
 
-                Assert.IsTrue(allEmployees.All(e => e.Found));
+                ClassicAssert.IsTrue(allEmployees.All(e => e.Found));
 
                 allEmployees.ForEach(e => e.Found = false);
 
@@ -591,16 +592,16 @@ namespace TestApp
                     }
 
                     EntityCollection<Employee> emps = query.ReadAll<Employee>();
-                    Assert.AreEqual(allEmployees.Count(e => e.Manager?.ID == mgr1.ID || e.ID == mgr1.ID), emps.Count);
+                    ClassicAssert.AreEqual(allEmployees.Count(e => e.Manager?.ID == mgr1.ID || e.ID == mgr1.ID), emps.Count);
                     foreach (Employee e1 in emps)
                     {
                         int idx = allEmployees.Find(e1);
-                        Assert.AreNotEqual(-1, idx);
+                        ClassicAssert.AreNotEqual(-1, idx);
                         allEmployees[idx].Found = true;
                     }
                 }
 
-                Assert.IsTrue(allEmployees.Where(e => e.Manager?.ID == mgr1.ID || e.ID == mgr1.ID).All(e => e.Found));
+                ClassicAssert.IsTrue(allEmployees.Where(e => e.Manager?.ID == mgr1.ID || e.ID == mgr1.ID).All(e => e.Found));
             }
 
             Category cat1 = new Category(100, "Food");
@@ -609,7 +610,7 @@ namespace TestApp
             using (ModifyEntityQuery query = connection.GetInsertEntityQuery(typeof(Category)))
             {
                 query.Execute(cat1);
-                Assert.AreEqual(100, cat1.ID);
+                ClassicAssert.AreEqual(100, cat1.ID);
                 query.Execute(cat2);
             }
 
@@ -639,7 +640,7 @@ namespace TestApp
 
             using (SelectEntitiesCountQuery query = connection.GetSelectEntitiesCountQuery(typeof(Good)))
             {
-                Assert.AreEqual(5, query.RowCount);
+                ClassicAssert.AreEqual(5, query.RowCount);
             }
 
             if (connection.GetLanguageSpecifics().CaseSensitiveStringComparison)
@@ -665,7 +666,7 @@ namespace TestApp
                 query.AddToResultset(AggFn.Count, null);
                 query.Execute();
                 query.ReadNext();
-                Assert.AreEqual(5, query.GetValue<int>(0));
+                ClassicAssert.AreEqual(5, query.GetValue<int>(0));
             }
 
             using (var query = connection.GetGenericSelectEntityQuery(typeof(Good)))
@@ -673,13 +674,13 @@ namespace TestApp
                 query.AddToResultset(AggFn.Count, nameof(Good.Category));
                 query.Execute();
                 query.ReadNext();
-                Assert.AreEqual(2, query.GetValue<int>(0));
+                ClassicAssert.AreEqual(2, query.GetValue<int>(0));
             }
 
             List<Sale> sales = new List<Sale>();
             Random r = new Random((int)(DateTime.Now.Ticks & 0x7fffffff));
 
-            DateTime dt = new DateTime(2010, 1, 1);
+            DateTime dt = new DateTime(2010, 1, 1, 0, 0, 0, DateTimeKind.Unspecified);
 
             using (SqlDbTransaction transaction = connection.BeginTransaction())
             {
@@ -710,9 +711,9 @@ namespace TestApp
                 }
                 transaction.Commit();
             }
-            Assert.AreNotEqual(good1.Category.Count, 0);
-            Assert.IsFalse(connection.CanDelete<Good>(good1));
-            Assert.IsFalse(connection.CanDelete<Employee>(sm4));
+            ClassicAssert.AreNotEqual(good1.Category.Count, 0);
+            ClassicAssert.IsFalse(connection.CanDelete<Good>(good1));
+            ClassicAssert.IsFalse(connection.CanDelete<Employee>(sm4));
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery(typeof(Category)))
             {
@@ -733,11 +734,11 @@ namespace TestApp
                         }
                     );
 
-                Assert.AreEqual(2, coll.Count);
+                ClassicAssert.AreEqual(2, coll.Count);
                 foreach (Category cat in coll)
                 {
-                    Assert.AreEqual(cat.Count, cat.Count1);
-                    Assert.AreEqual(cat.Total, cat.Total1);
+                    ClassicAssert.AreEqual(cat.Count, cat.Count1);
+                    ClassicAssert.AreEqual(cat.Total, cat.Total1);
                 }
             }
 
@@ -747,33 +748,33 @@ namespace TestApp
                 query.Skip = 10;
                 query.Limit = 15;
                 EntityCollection<Sale> coll = query.ReadAll<EntityCollection<Sale>, Sale>();
-                Assert.AreEqual(15, coll.Count);
-                Assert.AreEqual(sales[10].ID, coll[0].ID);
+                ClassicAssert.AreEqual(15, coll.Count);
+                ClassicAssert.AreEqual(sales[10].ID, coll[0].ID);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery(typeof(Sale)))
             {
                 query.Where.Property($"{nameof(Sale.Good)}.{nameof(Good.ID)}").Eq(good2);
                 EntityCollection<Sale> coll = query.ReadAll<EntityCollection<Sale>, Sale>();
-                Assert.AreNotEqual(0, coll.Count);
+                ClassicAssert.AreNotEqual(0, coll.Count);
                 foreach (Sale sale in coll)
-                    Assert.AreEqual(good2.ID, sale.Good.ID);
+                    ClassicAssert.AreEqual(good2.ID, sale.Good.ID);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery(typeof(Sale)))
             {
                 string param = query.Where.Property($"{nameof(Sale.Good)}.{nameof(Good.ID)}").Neq(good2.ID).ParameterName;
                 EntityCollection<Sale> coll = query.ReadAll<EntityCollection<Sale>, Sale>();
-                Assert.AreNotEqual(0, coll.Count);
+                ClassicAssert.AreNotEqual(0, coll.Count);
                 foreach (Sale sale in coll)
-                    Assert.AreNotEqual(good2.ID, sale.Good.ID);
+                    ClassicAssert.AreNotEqual(good2.ID, sale.Good.ID);
 
                 query.BindParam(param, good3);
                 query.Execute();
                 coll = query.ReadAll<EntityCollection<Sale>, Sale>();
-                Assert.AreNotEqual(0, coll.Count);
+                ClassicAssert.AreNotEqual(0, coll.Count);
                 foreach (Sale sale in coll)
-                    Assert.AreNotEqual(good3.ID, sale.Good.ID);
+                    ClassicAssert.AreNotEqual(good3.ID, sale.Good.ID);
             }
 
             SumOfSalesCollection ss = new SumOfSalesCollection();
@@ -794,15 +795,15 @@ namespace TestApp
                 while (query.ReadNext())
                 {
                     SumOfSales s = ss[query.GetValue<int>("id")];
-                    Assert.IsFalse(s.Checked);
-                    Assert.AreEqual(s.Total, query.GetValue<double>("sale"));
+                    ClassicAssert.IsFalse(s.Checked);
+                    ClassicAssert.AreEqual(s.Total, query.GetValue<double>("sale"));
                     s.Checked = true;
                 }
             }
 
             foreach (SumOfSales s in ss)
             {
-                Assert.IsTrue(s.Checked);
+                ClassicAssert.IsTrue(s.Checked);
                 s.Checked = false;
             }
 
@@ -819,14 +820,14 @@ namespace TestApp
                 foreach (var one in all)
                 {
                     SumOfSales s = ss[(int)one.Id];
-                    Assert.AreEqual(s.ID, one.Id);
-                    Assert.AreEqual(s.Total, one.Sale);
+                    ClassicAssert.AreEqual(s.ID, one.Id);
+                    ClassicAssert.AreEqual(s.Total, one.Sale);
                     s.Checked = true;
                 }
             }
 
             foreach (SumOfSales s in ss)
-                Assert.IsTrue(s.Checked);
+                ClassicAssert.IsTrue(s.Checked);
 
             TestLinqAccessor(connection);
             TestLinqQueryable(connection);
@@ -839,12 +840,12 @@ namespace TestApp
                 query.AddGroupBy(nameof(Sale.ID));
                 query.Execute();
                 ICollection<dynamic> all = query.ReadAllDynamic();
-                Assert.AreEqual(5, all.Count);
+                ClassicAssert.AreEqual(5, all.Count);
                 foreach (var one in all)
                 {
                     SumOfSales s = ss[one.ID];
-                    Assert.IsNotNull(s);
-                    Assert.AreEqual(s.Total, one.Total);
+                    ClassicAssert.IsNotNull(s);
+                    ClassicAssert.AreEqual(s.Total, one.Total);
                 }
             }
 
@@ -861,11 +862,11 @@ namespace TestApp
                 EntityCollection<Sale> coll = query.ReadAll<EntityCollection<Sale>, Sale>();
                 foreach (Sale sale in coll)
                 {
-                    Assert.AreNotEqual(new DateTime(), sale.SalesDate);
-                    Assert.IsNull(sale.SalesPerson);
-                    Assert.AreEqual(0, sale.Total);
-                    Assert.IsNotNull(sale.Good);
-                    Assert.IsNull(sale.Good.Category);
+                    ClassicAssert.AreNotEqual(new DateTime(0, DateTimeKind.Unspecified), sale.SalesDate);
+                    ClassicAssert.IsNull(sale.SalesPerson);
+                    ClassicAssert.AreEqual(0, sale.Total);
+                    ClassicAssert.IsNotNull(sale.Good);
+                    ClassicAssert.IsNull(sale.Good.Category);
                 }
             }
 
@@ -875,9 +876,9 @@ namespace TestApp
                 query.Where.PropertyOf<Good>(nameof(Good.ID)).In().Values(goodids);
                 query.Execute();
                 EntityCollection<Sale> coll = query.ReadAll<EntityCollection<Sale>, Sale>();
-                Assert.IsTrue(coll.Count > 0);
+                ClassicAssert.IsTrue(coll.Count > 0);
                 foreach (Sale sale in coll)
-                    Assert.IsTrue(sale.Good.ID == good1.ID || sale.Good.ID == good3.ID);
+                    ClassicAssert.IsTrue(sale.Good.ID == good1.ID || sale.Good.ID == good3.ID);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Good>())
@@ -913,15 +914,15 @@ namespace TestApp
                     if (row.Id == emptyGood.ID)
                     {
                         emptyGoodFound = true;
-                        Assert.AreEqual(0, row.Total);
+                        ClassicAssert.AreEqual(0, row.Total);
                     }
                     else
                     {
                         SumOfSales one = ss[row.Id];
-                        Assert.AreEqual(one.Total, row.Total);
+                        ClassicAssert.AreEqual(one.Total, row.Total);
                     }
                 }
-                Assert.IsTrue(emptyGoodFound);
+                ClassicAssert.IsTrue(emptyGoodFound);
             }
 
             using (SelectEntitiesQueryBase query = connection.GetGenericSelectEntityQuery<Good>())
@@ -933,17 +934,17 @@ namespace TestApp
                 query.Having.PropertyOf<Sale>(nameof(Sale.Total)).Sum().IsNull();
                 query.Execute();
                 var result = query.ReadAllDynamic();
-                Assert.AreEqual(1, result.Count);
+                ClassicAssert.AreEqual(1, result.Count);
                 bool emptyGoodFound = false;
                 foreach (var row in result)
                 {
                     if (row.Id == emptyGood.ID)
                     {
                         emptyGoodFound = true;
-                        Assert.AreEqual(0, row.Total);
+                        ClassicAssert.AreEqual(0, row.Total);
                     }
                 }
-                Assert.IsTrue(emptyGoodFound);
+                ClassicAssert.IsTrue(emptyGoodFound);
             }
 
             using (var query = connection.GetDeleteEntityQuery<Good>())
@@ -958,16 +959,16 @@ namespace TestApp
                     averageSale = query.GetValue<double>(0);
             }
 
-            Assert.IsTrue(averageSale > 0);
+            ClassicAssert.IsTrue(averageSale > 0);
 
             using (var query = connection.GetSelectEntitiesQuery<Sale>())
             {
                 query.Where.Property(nameof(Sale.Total)).Ge(averageSale);
                 var result = query.ReadAll<Sale>();
-                Assert.IsNotNull(result);
-                Assert.AreNotEqual(0, result.Count);
+                ClassicAssert.IsNotNull(result);
+                ClassicAssert.AreNotEqual(0, result.Count);
                 foreach (var sale in result)
-                    Assert.IsTrue(sale.Total >= averageSale);
+                    ClassicAssert.IsTrue(sale.Total >= averageSale);
             }
 
             using (var query = connection.GetSelectEntitiesQuery<Sale>())
@@ -978,10 +979,10 @@ namespace TestApp
                     query.Where.Property(nameof(Sale.Total)).Ge().Query(subquery);
                 }
                 var result = query.ReadAll<Sale>();
-                Assert.IsNotNull(result);
-                Assert.AreNotEqual(0, result.Count);
+                ClassicAssert.IsNotNull(result);
+                ClassicAssert.AreNotEqual(0, result.Count);
                 foreach (var sale in result)
-                    Assert.IsTrue(sale.Total >= averageSale);
+                    ClassicAssert.IsTrue(sale.Total >= averageSale);
             }
 
             using (var query = connection.GetGenericSelectEntityQuery<Sale>())
@@ -991,10 +992,10 @@ namespace TestApp
                 query.AddGroupBy(nameof(Sale.Good));
                 query.Having.Property(nameof(Sale.Total)).Avg().Ge().Value(averageSale);
                 var result = query.ReadAllDynamic();
-                Assert.IsNotNull(result);
-                Assert.AreNotEqual(0, result.Count);
+                ClassicAssert.IsNotNull(result);
+                ClassicAssert.AreNotEqual(0, result.Count);
                 foreach (var g in result)
-                    Assert.IsTrue(g.Avg >= averageSale);
+                    ClassicAssert.IsTrue(g.Avg >= averageSale);
             }
 
             using (var query = connection.GetGenericSelectEntityQuery<Sale>())
@@ -1009,10 +1010,10 @@ namespace TestApp
                 }
 
                 var result = query.ReadAllDynamic();
-                Assert.IsNotNull(result);
-                Assert.AreNotEqual(0, result.Count);
+                ClassicAssert.IsNotNull(result);
+                ClassicAssert.AreNotEqual(0, result.Count);
                 foreach (var g in result)
-                    Assert.IsTrue(g.Avg >= averageSale);
+                    ClassicAssert.IsTrue(g.Avg >= averageSale);
             }
 
             #endregion create tables and data and read using regular queries
@@ -1026,8 +1027,8 @@ namespace TestApp
                 catGoods = query.ReadAll<Good>();
             }
 
-            Assert.AreNotEqual(0, catGoods.Count);
-            Assert.IsTrue(catGoods.Count > 2);
+            ClassicAssert.AreNotEqual(0, catGoods.Count);
+            ClassicAssert.IsTrue(catGoods.Count > 2);
 
             using (SelectEntitiesQueryBase query = connection.GetGenericSelectEntityQuery<Category>())
             {
@@ -1050,12 +1051,12 @@ namespace TestApp
                 query.AddOrderBy(typeof(Good), 1, nameof(Good.Name), SortDir.Asc);
                 query.Execute();
                 IList<dynamic> res = query.ReadAllDynamic();
-                Assert.AreEqual(1, res.Count);
+                ClassicAssert.AreEqual(1, res.Count);
                 dynamic r0 = res[0];
-                Assert.AreEqual(cat2.ID, r0.ID);
-                Assert.AreEqual(cat2.Name, r0.Name);
-                Assert.AreEqual(catGoods[0].Name, r0.Good1);
-                Assert.AreEqual(catGoods[1].Name, r0.Good2);
+                ClassicAssert.AreEqual(cat2.ID, r0.ID);
+                ClassicAssert.AreEqual(cat2.Name, r0.Name);
+                ClassicAssert.AreEqual(catGoods[0].Name, r0.Good1);
+                ClassicAssert.AreEqual(catGoods[1].Name, r0.Good2);
             }
 
             #endregion test dynamic query building
@@ -1065,42 +1066,42 @@ namespace TestApp
             GenericEntityAccessor<Good, int> goodEntityAccessor = new GenericEntityAccessor<Good, int>(connection);
             GoodFilter goodFilter = new GoodFilter();
 
-            Assert.AreEqual(5, goodEntityAccessor.Count(null));
+            ClassicAssert.AreEqual(5, goodEntityAccessor.Count(null));
             goodFilter.Reset();
             goodFilter.NameIs = "Bread";
-            Assert.AreEqual(1, goodEntityAccessor.Count(goodFilter));
+            ClassicAssert.AreEqual(1, goodEntityAccessor.Count(goodFilter));
 
             goodFilter.Reset();
             goodFilter.NameStartsWith = "B%";
-            Assert.AreEqual(1, goodEntityAccessor.Count(goodFilter));
+            ClassicAssert.AreEqual(1, goodEntityAccessor.Count(goodFilter));
 
             goodFilter.Reset();
             goodFilter.Category = cat2;
-            Assert.AreEqual(3, goodEntityAccessor.Count(goodFilter));
+            ClassicAssert.AreEqual(3, goodEntityAccessor.Count(goodFilter));
 
             TestGoodAccessorRead(goodEntityAccessor, null);
             TestGoodAccessorRead(goodEntityAccessor, goodFilter);
 
             Good newGood = new Good() { Category = cat1, Name = "newgood" };
             goodEntityAccessor.Save(newGood);
-            Assert.AreEqual(6, goodEntityAccessor.Count(null));
-            Assert.IsTrue(newGood.ID >= 1);
+            ClassicAssert.AreEqual(6, goodEntityAccessor.Count(null));
+            ClassicAssert.IsTrue(newGood.ID >= 1);
             Good good = goodEntityAccessor.Get(newGood.ID);
-            Assert.IsNotNull(good);
-            Assert.AreEqual(newGood.Name, good.Name);
-            Assert.AreEqual(newGood.Category.ID, good.Category.ID);
+            ClassicAssert.IsNotNull(good);
+            ClassicAssert.AreEqual(newGood.Name, good.Name);
+            ClassicAssert.AreEqual(newGood.Category.ID, good.Category.ID);
             newGood.Name = "newgoodnewname";
             goodEntityAccessor.Save(newGood);
-            Assert.AreEqual(6, goodEntityAccessor.Count(null));
-            Assert.AreEqual(newGood.ID, good.ID);
-            Assert.AreNotEqual(newGood.Name, good.Name);
+            ClassicAssert.AreEqual(6, goodEntityAccessor.Count(null));
+            ClassicAssert.AreEqual(newGood.ID, good.ID);
+            ClassicAssert.AreNotEqual(newGood.Name, good.Name);
             good = goodEntityAccessor.Get(newGood.ID);
-            Assert.AreEqual(newGood.Name, good.Name);
-            Assert.AreEqual("newgoodnewname", good.Name);
-            Assert.AreEqual(newGood.Category.ID, good.Category.ID);
+            ClassicAssert.AreEqual(newGood.Name, good.Name);
+            ClassicAssert.AreEqual("newgoodnewname", good.Name);
+            ClassicAssert.AreEqual(newGood.Category.ID, good.Category.ID);
             goodEntityAccessor.Delete(good);
-            Assert.AreEqual(5, goodEntityAccessor.Count(null));
-            Assert.IsNull(goodEntityAccessor.Get(newGood.ID));
+            ClassicAssert.AreEqual(5, goodEntityAccessor.Count(null));
+            ClassicAssert.IsNull(goodEntityAccessor.Get(newGood.ID));
 
             SalesFilter salesFilter = new SalesFilter();
             GenericEntityAccessor<Sale, int> saleAccessor = new GenericEntityAccessor<Sale, int>(connection);
@@ -1110,7 +1111,7 @@ namespace TestApp
             int totalSalesCount, referencedSalesCount, notReferencedSalesCount;
 
             totalSalesCount = saleAccessor.Count(null);
-            Assert.AreEqual(totalSalesCount, saleAccessor.Count(salesFilter));
+            ClassicAssert.AreEqual(totalSalesCount, saleAccessor.Count(salesFilter));
 
             salesFilter.HasReferencePerson = true;
             referencedSalesCount = saleAccessor.Count(salesFilter);
@@ -1118,25 +1119,25 @@ namespace TestApp
             salesFilter.HasReferencePerson = false;
             notReferencedSalesCount = saleAccessor.Count(salesFilter);
 
-            Assert.AreNotEqual(0, referencedSalesCount);
-            Assert.AreNotEqual(0, notReferencedSalesCount);
-            Assert.AreEqual(totalSalesCount, notReferencedSalesCount + referencedSalesCount);
-            Assert.IsTrue(totalSalesCount > 20);
+            ClassicAssert.AreNotEqual(0, referencedSalesCount);
+            ClassicAssert.AreNotEqual(0, notReferencedSalesCount);
+            ClassicAssert.AreEqual(totalSalesCount, notReferencedSalesCount + referencedSalesCount);
+            ClassicAssert.IsTrue(totalSalesCount > 20);
 
             saleCollection1 = saleAccessor.Read<EntityCollection<Sale>>(null, saleOrder, null, null);
             saleCollection2 = saleAccessor.Read<EntityCollection<Sale>>(null, saleOrder, 1, 10);
-            Assert.AreEqual(10, saleCollection2.Count);
-            Assert.AreEqual(saleCollection1[1].ID, saleCollection2[0].ID);
+            ClassicAssert.AreEqual(10, saleCollection2.Count);
+            ClassicAssert.AreEqual(saleCollection1[1].ID, saleCollection2[0].ID);
 
             salesFilter.Reset();
             salesFilter.GoodName = good1.Name;
 
             saleCollection1 = saleAccessor.Read<EntityCollection<Sale>>(salesFilter, saleOrder, null, null);
-            Assert.AreNotEqual(0, saleCollection1);
+            ClassicAssert.AreNotEqual(0, saleCollection1);
             Sale prevSale = null;
             foreach (Sale sale in saleCollection1)
             {
-                Assert.AreEqual(salesFilter.GoodName, sale.Good.Name);
+                ClassicAssert.AreEqual(salesFilter.GoodName, sale.Good.Name);
                 if (prevSale != null)
                 {
                     int r1 = string.Compare(prevSale.SalesPerson.Name, sale.SalesPerson.Name);
@@ -1144,21 +1145,21 @@ namespace TestApp
                     {
                         if (prevSale.SalesDate == sale.SalesDate)
                         {
-                            Assert.IsTrue(prevSale.ID < sale.ID);
+                            ClassicAssert.IsTrue(prevSale.ID < sale.ID);
                         }
                         else if (prevSale.SalesDate < sale.SalesDate)
                         {
-                            Assert.Fail();
+                            ClassicAssert.Fail();
                         }
                     }
                     else if (r1 > 0)
                     {
-                        Assert.Fail();
+                        ClassicAssert.Fail();
                     }
                 }
                 prevSale = sale;
             }
-            Assert.NotNull(prevSale);
+            ClassicAssert.NotNull(prevSale);
 
             prevSale = null;
             int cc = 0;
@@ -1167,9 +1168,9 @@ namespace TestApp
                 prevSale = saleAccessor.NextEntity(prevSale, saleOrder, salesFilter);
                 if (prevSale == null)
                     break;
-                Assert.AreEqual(saleCollection1[cc++].ID, prevSale.ID);
+                ClassicAssert.AreEqual(saleCollection1[cc++].ID, prevSale.ID);
             }
-            Assert.AreEqual(cc, saleCollection1.Count);
+            ClassicAssert.AreEqual(cc, saleCollection1.Count);
 
             prevSale = null;
             cc = saleCollection1.Count;
@@ -1178,9 +1179,9 @@ namespace TestApp
                 prevSale = saleAccessor.NextEntity(prevSale, saleOrder, salesFilter, true);
                 if (prevSale == null)
                     break;
-                Assert.AreEqual(saleCollection1[--cc].ID, prevSale.ID);
+                ClassicAssert.AreEqual(saleCollection1[--cc].ID, prevSale.ID);
             }
-            Assert.AreEqual(0, cc);
+            ClassicAssert.AreEqual(0, cc);
 
             Category cat3 = new Category() { ID = 500, Name = "newcat" };
             using (ModifyEntityQuery query = connection.GetInsertEntityQuery<Category>())
@@ -1191,18 +1192,18 @@ namespace TestApp
             goodFilter.Category = cat2;
 
             cc = goodEntityAccessor.Count(goodFilter);
-            Assert.AreEqual(cc, goodEntityAccessor.UpdateMultiple(goodFilter, goodUpdate));
+            ClassicAssert.AreEqual(cc, goodEntityAccessor.UpdateMultiple(goodFilter, goodUpdate));
 
             EntityCollection<Good> goodCollection = goodEntityAccessor.Read<EntityCollection<Good>>(null, null, null, null);
             int cc1 = 0;
             foreach (Good g in goodCollection)
             {
-                Assert.AreNotEqual(g.Category.ID, cat2.ID);
+                ClassicAssert.AreNotEqual(g.Category.ID, cat2.ID);
                 if (g.Category.ID == cat3.ID)
                     cc1++;
             }
 
-            Assert.AreEqual(cc1, cc);
+            ClassicAssert.AreEqual(cc1, cc);
 
             #endregion Test generic entity reader
 
@@ -1213,11 +1214,11 @@ namespace TestApp
             {
                 Employee emp = new Employee() { ID = 0, Name = "dummy1" };
                 query.Execute(emp);
-                Assert.AreNotEqual(0, emp.ID);
+                ClassicAssert.AreNotEqual(0, emp.ID);
 
                 emp = new Employee() { ID = 10000, Name = "dummy2" };
                 query.Execute(emp);
-                Assert.AreNotEqual(10000, emp.ID);
+                ClassicAssert.AreNotEqual(10000, emp.ID);
                 lastID = emp.ID;
             }
 
@@ -1225,15 +1226,15 @@ namespace TestApp
             {
                 Employee emp = new Employee() { ID = 0, Name = "dummy3" };
                 query.Execute(emp);
-                Assert.AreEqual(0, emp.ID);
+                ClassicAssert.AreEqual(0, emp.ID);
 
                 emp = new Employee() { ID = 10000, Name = "dummy4" };
                 query.Execute(emp);
-                Assert.AreEqual(10000, emp.ID);
+                ClassicAssert.AreEqual(10000, emp.ID);
 
                 emp = new Employee() { ID = lastID + (connection.ConnectionType == "mysql" ? 2 : 1), Name = "dummy5" };
                 query.Execute(emp);
-                Assert.AreEqual(lastID + (connection.ConnectionType == "mysql" ? 2 : 1), emp.ID);
+                ClassicAssert.AreEqual(lastID + (connection.ConnectionType == "mysql" ? 2 : 1), emp.ID);
             }
 
             if (connection.ConnectionType == "oracle")
@@ -1243,19 +1244,19 @@ namespace TestApp
             {
                 Employee emp = new Employee() { ID = 0, Name = "dummy6" };
                 query.Execute(emp);
-                Assert.AreNotEqual(0, emp.ID);
+                ClassicAssert.AreNotEqual(0, emp.ID);
             }
 
             using (SelectEntitiesCountQuery query = connection.GetSelectEntitiesCountQuery<Employee>())
             {
                 query.Where.Expression<Employee>(o => SqlFunction.Like(o.Name, "dummy%"));
-                Assert.AreEqual(6, query.RowCount);
+                ClassicAssert.AreEqual(6, query.RowCount);
             }
 
             using (SelectEntitiesCountQuery query = connection.GetSelectEntitiesCountQuery<Employee>())
             {
                 query.Where.Expression<Employee>(o => SqlFunction.Like(SqlFunction.Upper(o.Name), SqlFunction.Upper("dummy%")));
-                Assert.AreEqual(6, query.RowCount);
+                ClassicAssert.AreEqual(6, query.RowCount);
             }
 
             #endregion Test autoincrement flags for insert
@@ -1294,17 +1295,17 @@ namespace TestApp
         private static void TestGoodAccessorRead(GenericEntityAccessor<Good, int> goodEntityAccessor, GoodFilter filter)
         {
             EntityCollection<Good> rs = goodEntityAccessor.Read<EntityCollection<Good>>(filter, goodOrder, null, null);
-            Assert.IsNotNull(rs);
-            Assert.AreNotEqual(0, rs.Count);
+            ClassicAssert.IsNotNull(rs);
+            ClassicAssert.AreNotEqual(0, rs.Count);
             for (int i = 1; i < rs.Count; i++)
-                Assert.IsTrue(string.Compare(rs[i - 1].Name, rs[i].Name) < 0);
+                ClassicAssert.IsTrue(string.Compare(rs[i - 1].Name, rs[i].Name) < 0);
             int cc = rs.Count;
 
             rs = goodEntityAccessor.Read<EntityCollection<Good>>(filter, goodOrderRev, null, null);
-            Assert.IsNotNull(rs);
-            Assert.AreEqual(cc, rs.Count);
+            ClassicAssert.IsNotNull(rs);
+            ClassicAssert.AreEqual(cc, rs.Count);
             for (int i = 1; i < rs.Count; i++)
-                Assert.IsTrue(string.Compare(rs[i - 1].Name, rs[i].Name) > 0);
+                ClassicAssert.IsTrue(string.Compare(rs[i - 1].Name, rs[i].Name) > 0);
 
             rs = goodEntityAccessor.Read<EntityCollection<Good>>(filter, goodOrder, null, null);
             Good current = null;
@@ -1316,11 +1317,11 @@ namespace TestApp
                 current = goodEntityAccessor.NextEntity(current, goodOrder, filter, false);
                 if (current == null)
                 {
-                    Assert.AreEqual(0, nextID);
+                    ClassicAssert.AreEqual(0, nextID);
                     break;
                 }
-                Assert.AreEqual(nextID, current.ID);
-                Assert.AreEqual(rs[cc++].ID, current.ID);
+                ClassicAssert.AreEqual(nextID, current.ID);
+                ClassicAssert.AreEqual(rs[cc++].ID, current.ID);
             }
             current = null;
             cc = rs.Count;
@@ -1329,7 +1330,7 @@ namespace TestApp
                 current = goodEntityAccessor.NextEntity(current, goodOrder, filter, true);
                 if (current == null)
                     break;
-                Assert.AreEqual(rs[--cc].ID, current.ID);
+                ClassicAssert.AreEqual(rs[--cc].ID, current.ID);
             }
         }
 
@@ -1350,7 +1351,7 @@ namespace TestApp
             {
                 if (prevSale != null)
                 {
-                    Assert.IsTrue(sale.SalesDate > prevSale.SalesDate || (sale.SalesDate == prevSale.SalesDate && string.Compare(sale.Good.Name, prevSale.Good.Name) > 0));
+                    ClassicAssert.IsTrue(sale.SalesDate > prevSale.SalesDate || (sale.SalesDate == prevSale.SalesDate && string.Compare(sale.Good.Name, prevSale.Good.Name) > 0));
                 }
 
                 prevSale = sale;
@@ -1367,7 +1368,7 @@ namespace TestApp
                 dynamic res = query.ReadAllDynamic();
                 foreach (var r in res)
                 {
-                    Assert.AreEqual(sales.Where(sale => sale.SalesDate == r.saledate).Sum(sale => sale.Total), r.total, 0.000001);
+                    ClassicAssert.AreEqual(sales.Where(sale => sale.SalesDate == r.saledate).Sum(sale => sale.Total), r.total, 0.000001);
                 }
             }
 
@@ -1382,7 +1383,7 @@ namespace TestApp
 
                 dynamic r = query.ReadOneDynamic();
 
-                Assert.AreEqual(sales.Count, (double)r.count);
+                ClassicAssert.AreEqual(sales.Count, (double)r.count);
                 double min, max, sum, avg, fn;
                 min = sales.Min(o => o.Total);
                 max = sales.Max(o => o.Total);
@@ -1420,7 +1421,7 @@ namespace TestApp
                 dynamic res = query.ReadAllDynamic();
                 foreach (var sale in res)
                 {
-                    Assert.IsTrue(sale.Total > v && sale.Good.Category.ID == 100);
+                    ClassicAssert.IsTrue(sale.Total > v && sale.Good.Category.ID == 100);
                 }
             }
 
@@ -1440,10 +1441,10 @@ namespace TestApp
                     foreach (var sale in res)
                     {
                         atLeastOne = true;
-                        Assert.AreEqual(100, sale.Good.Category.ID);
+                        ClassicAssert.AreEqual(100, sale.Good.Category.ID);
                     }
 
-                    Assert.IsTrue(atLeastOne);
+                    ClassicAssert.IsTrue(atLeastOne);
                 }
             }
 
@@ -1463,10 +1464,10 @@ namespace TestApp
                     foreach (var sale in res)
                     {
                         atLeastOne = true;
-                        Assert.AreNotEqual(100, sale.Good.Category.ID);
+                        ClassicAssert.AreNotEqual(100, sale.Good.Category.ID);
                     }
 
-                    Assert.IsTrue(atLeastOne);
+                    ClassicAssert.IsTrue(atLeastOne);
                 }
             }
 
@@ -1482,7 +1483,7 @@ namespace TestApp
                     query.Execute();
                     dynamic res = query.ReadAllDynamic();
                     var atLeastOne = (res as IEnumerable)?.GetEnumerator().MoveNext();
-                    Assert.IsTrue(atLeastOne);
+                    ClassicAssert.IsTrue(atLeastOne);
                 }
             }
 
@@ -1499,7 +1500,7 @@ namespace TestApp
                     query.Execute();
                     dynamic res = query.ReadAllDynamic();
                     var atLeastOne = (res as IEnumerable)?.GetEnumerator().MoveNext();
-                    Assert.IsFalse(atLeastOne);
+                    ClassicAssert.IsFalse(atLeastOne);
                 }
             }
 
@@ -1507,18 +1508,18 @@ namespace TestApp
             {
                 query.Where.Expression<Employee>(emp => emp.EmpoyeeType1 == EmpoyeeType.Salesman);
                 EntityCollection<Employee> res = query.ReadAll<Employee>();
-                Assert.AreNotEqual(res.Count, 0);
+                ClassicAssert.AreNotEqual(res.Count, 0);
                 foreach (Employee employee in res)
-                    Assert.AreEqual(EmpoyeeType.Salesman, employee.EmpoyeeType1);
+                    ClassicAssert.AreEqual(EmpoyeeType.Salesman, employee.EmpoyeeType1);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Employee>())
             {
                 query.Where.Property(nameof(Employee.EmpoyeeType1)).Neq(EmpoyeeType.Salesman);
                 EntityCollection<Employee> res = query.ReadAll<Employee>();
-                Assert.AreNotEqual(res.Count, 0);
+                ClassicAssert.AreNotEqual(res.Count, 0);
                 foreach (Employee employee in res)
-                    Assert.AreNotEqual(EmpoyeeType.Salesman, employee.EmpoyeeType1);
+                    ClassicAssert.AreNotEqual(EmpoyeeType.Salesman, employee.EmpoyeeType1);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Sale>())
@@ -1526,7 +1527,7 @@ namespace TestApp
                 query.Where.Expression<Sale>(sale => sale.ReferencePerson == null);
                 EntityCollection<Sale> res = query.ReadAll<Sale>();
                 foreach (Sale sale in res)
-                    Assert.IsNull(sale.ReferencePerson);
+                    ClassicAssert.IsNull(sale.ReferencePerson);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Sale>())
@@ -1534,7 +1535,7 @@ namespace TestApp
                 query.Where.Expression<Sale>(sale => sale.ReferencePerson != null);
                 EntityCollection<Sale> res = query.ReadAll<Sale>();
                 foreach (Sale sale in res)
-                    Assert.IsNotNull(sale.ReferencePerson);
+                    ClassicAssert.IsNotNull(sale.ReferencePerson);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Sale>())
@@ -1542,7 +1543,7 @@ namespace TestApp
                 query.Where.Expression<Sale>(sale => sale.ID == 50);
                 EntityCollection<Sale> res = query.ReadAll<Sale>();
                 foreach (Sale sale in res)
-                    Assert.AreEqual(50, sale.ID);
+                    ClassicAssert.AreEqual(50, sale.ID);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Sale>())
@@ -1550,7 +1551,7 @@ namespace TestApp
                 query.Where.Expression<Sale>(sale => sale.ID != 50);
                 EntityCollection<Sale> res = query.ReadAll<Sale>();
                 foreach (Sale sale in res)
-                    Assert.AreNotEqual(50, sale.ID);
+                    ClassicAssert.AreNotEqual(50, sale.ID);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Sale>())
@@ -1558,7 +1559,7 @@ namespace TestApp
                 query.Where.Expression<Sale>(sale => sale.ID > 50);
                 EntityCollection<Sale> res = query.ReadAll<Sale>();
                 foreach (Sale sale in res)
-                    Assert.IsTrue(sale.ID > 50);
+                    ClassicAssert.IsTrue(sale.ID > 50);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Sale>())
@@ -1566,7 +1567,7 @@ namespace TestApp
                 query.Where.Expression<Sale>(sale => sale.ID >= 50);
                 EntityCollection<Sale> res = query.ReadAll<Sale>();
                 foreach (Sale sale in res)
-                    Assert.IsTrue(sale.ID >= 50);
+                    ClassicAssert.IsTrue(sale.ID >= 50);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Sale>())
@@ -1574,7 +1575,7 @@ namespace TestApp
                 query.Where.Expression<Sale>(sale => sale.ID < 50);
                 EntityCollection<Sale> res = query.ReadAll<Sale>();
                 foreach (Sale sale in res)
-                    Assert.IsTrue(sale.ID < 50);
+                    ClassicAssert.IsTrue(sale.ID < 50);
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<Sale>())
@@ -1582,7 +1583,7 @@ namespace TestApp
                 query.Where.Expression<Sale>(sale => sale.ID <= 50);
                 EntityCollection<Sale> res = query.ReadAll<Sale>();
                 foreach (Sale sale in res)
-                    Assert.IsTrue(sale.ID <= 50);
+                    ClassicAssert.IsTrue(sale.ID <= 50);
             }
 
             using (SelectEntitiesQueryBase query = connection.GetGenericSelectEntityQuery<Category>())
@@ -1596,7 +1597,7 @@ namespace TestApp
                 query.AddOrderBy<Category>(cat => cat.Name);
                 dynamic res = query.ReadAllDynamic();
                 foreach (var r in res)
-                    Assert.AreEqual(sales.Where(sale => sale.Good.Category.ID == r.Id).Sum(sale => sale.Total), r.SalesTotal, 0.00000001);
+                    ClassicAssert.AreEqual(sales.Where(sale => sale.Good.Category.ID == r.Id).Sum(sale => sale.Total), r.SalesTotal, 0.00000001);
             }
 
             Category cat2;
@@ -1614,8 +1615,8 @@ namespace TestApp
                 catGoods = query.ReadAll<Good>();
             }
 
-            Assert.AreNotEqual(0, catGoods.Count);
-            Assert.IsTrue(catGoods.Count > 2);
+            ClassicAssert.AreNotEqual(0, catGoods.Count);
+            ClassicAssert.IsTrue(catGoods.Count > 2);
 
             using (SelectEntitiesQueryBase query = connection.GetGenericSelectEntityQuery<Category>())
             {
@@ -1636,12 +1637,12 @@ namespace TestApp
 
                 query.Execute();
                 IList<dynamic> res = query.ReadAllDynamic();
-                Assert.AreEqual(1, res.Count);
+                ClassicAssert.AreEqual(1, res.Count);
                 dynamic r0 = res[0];
-                Assert.AreEqual(cat2.ID, r0.ID);
-                Assert.AreEqual(cat2.Name, r0.Name);
-                Assert.AreEqual(catGoods[0].Name, r0.Good1);
-                Assert.AreEqual(catGoods[1].Name, r0.Good2);
+                ClassicAssert.AreEqual(cat2.ID, r0.ID);
+                ClassicAssert.AreEqual(cat2.Name, r0.Name);
+                ClassicAssert.AreEqual(catGoods[0].Name, r0.Good1);
+                ClassicAssert.AreEqual(catGoods[1].Name, r0.Good2);
             }
 
             using (SelectEntitiesQueryBase query = connection.GetGenericSelectEntityQuery<Category>())
@@ -1660,12 +1661,12 @@ namespace TestApp
 
                 query.Execute();
                 IList<dynamic> res = query.ReadAllDynamic();
-                Assert.AreEqual(1, res.Count);
+                ClassicAssert.AreEqual(1, res.Count);
                 dynamic r0 = res[0];
-                Assert.AreEqual(cat2.ID, r0.ID);
-                Assert.AreEqual(cat2.Name, r0.Name);
-                Assert.AreEqual(catGoods[0].Name, r0.Good1);
-                Assert.AreEqual(catGoods[1].Name, r0.Good2);
+                ClassicAssert.AreEqual(cat2.ID, r0.ID);
+                ClassicAssert.AreEqual(cat2.Name, r0.Name);
+                ClassicAssert.AreEqual(catGoods[0].Name, r0.Good1);
+                ClassicAssert.AreEqual(catGoods[1].Name, r0.Good2);
             }
         }
 
@@ -1682,7 +1683,7 @@ namespace TestApp
             foreach (Sale sale in allSales)
             {
                 if (prevSale != null)
-                    Assert.IsTrue(sale.SalesDate >= prevSale.SalesDate);
+                    ClassicAssert.IsTrue(sale.SalesDate >= prevSale.SalesDate);
                 prevSale = sale;
             }
 
@@ -1692,7 +1693,7 @@ namespace TestApp
             {
                 if (prevSale != null)
                 {
-                    Assert.IsTrue(string.Compare(sale.Good.Name, prevSale.Good.Name) > 0 ||
+                    ClassicAssert.IsTrue(string.Compare(sale.Good.Name, prevSale.Good.Name) > 0 ||
                         (string.Compare(sale.Good.Name, prevSale.Good.Name) == 0 &&
                          sale.SalesDate > prevSale.SalesDate));
                 }
@@ -1701,45 +1702,45 @@ namespace TestApp
             }
 
             tempSales = sales.OrderBy(sale => new { sale.Good.Name, sale.SalesDate }).Take(5).Skip(10).ToArray();
-            Assert.AreEqual(5, tempSales.Length);
+            ClassicAssert.AreEqual(5, tempSales.Length);
             for (int i = 0; i < tempSales.Length; i++)
-                Assert.AreEqual(allSales[i + 10].ID, tempSales[i].ID);
+                ClassicAssert.AreEqual(allSales[i + 10].ID, tempSales[i].ID);
 
             ids = sales.OrderBy(sale => new { sale.Good.Name, sale.SalesDate }).Select(sale => sale.ID).ToArray();
             dates = sales.OrderBy(sale => new { sale.Good.Name, sale.SalesDate }).Select(sale => sale.SalesDate).ToArray();
 
             for (int i = 0; i < allSales.Length; i++)
             {
-                Assert.AreEqual(allSales[i].ID, ids[i]);
-                Assert.AreEqual(allSales[i].SalesDate, dates[i]);
+                ClassicAssert.AreEqual(allSales[i].ID, ids[i]);
+                ClassicAssert.AreEqual(allSales[i].SalesDate, dates[i]);
             }
 
             foreach (var v in sales.GroupBy(sale => sale.Good.ID).Select(r => new { Good = r.Key, Total = r.Sum(o => o.Total), Avg = r.Average(o => o.Total), LastTransaction = r.Max(o => o.SalesDate) }))
             {
-                Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Sum(o => o.Total), v.Total, 1e-5);
-                Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Average(o => o.Total), v.Avg, 1e-5);
-                Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Max(o => o.SalesDate), v.LastTransaction);
+                ClassicAssert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Sum(o => o.Total), v.Total, 1e-5);
+                ClassicAssert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Average(o => o.Total), v.Avg, 1e-5);
+                ClassicAssert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Max(o => o.SalesDate), v.LastTransaction);
             }
 
             foreach (var v in sales.GroupBy(sale => new { Good = sale.Good.ID, Person = sale.SalesPerson.ID }).Select(r => new { r.Key.Good, r.Key.Person, CountOf = r.Count(), FirstTransaction = r.Min(o => o.SalesDate) }))
             {
 #pragma warning disable S2971 // "IEnumerable" LINQs should be simplified
 #pragma warning disable RCS1077 // Optimize LINQ method call.
-                Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good && o.SalesPerson.ID == v.Person).Count(), v.CountOf);
+                ClassicAssert.AreEqual(allSales.Where(o => o.Good.ID == v.Good && o.SalesPerson.ID == v.Person).Count(), v.CountOf);
 #pragma warning restore RCS1077 // Optimize LINQ method call.
 #pragma warning restore S2971 // "IEnumerable" LINQs should be simplified
-                Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good && o.SalesPerson.ID == v.Person).Min(o => o.SalesDate), v.FirstTransaction);
+                ClassicAssert.AreEqual(allSales.Where(o => o.Good.ID == v.Good && o.SalesPerson.ID == v.Person).Min(o => o.SalesDate), v.FirstTransaction);
             }
 
             foreach (var v in sales.Where(sale => Math.Abs(sale.Total) > 60))
             {
-                Assert.IsTrue(v.Total > 60);
+                ClassicAssert.IsTrue(v.Total > 60);
             }
 
-            foreach (var v in sales.Where(sale => sale.Good.Name.StartsWith("T") && sale.Total > 60).Select(r => new { Id = r.Good.ID, r.Good.Name, r.Total }))
+            foreach (var v in sales.Where(sale => sale.Good.Name.StartsWith('T') && sale.Total > 60).Select(r => new { Id = r.Good.ID, r.Good.Name, r.Total }))
             {
-                Assert.IsTrue(v.Total > 60);
-                Assert.IsTrue(v.Name.StartsWith("T"));
+                ClassicAssert.IsTrue(v.Total > 60);
+                ClassicAssert.IsTrue(v.Name.StartsWith('T'));
             }
         }
 
@@ -1752,7 +1753,7 @@ namespace TestApp
             foreach (Sale sale in allSales)
             {
                 if (prevSale != null)
-                    Assert.IsTrue(sale.SalesDate >= prevSale.SalesDate);
+                    ClassicAssert.IsTrue(sale.SalesDate >= prevSale.SalesDate);
                 prevSale = sale;
             }
 
@@ -1762,7 +1763,7 @@ namespace TestApp
             {
                 if (prevSale != null)
                 {
-                    Assert.IsTrue(string.Compare(sale.Good.Name, prevSale.Good.Name) > 0 ||
+                    ClassicAssert.IsTrue(string.Compare(sale.Good.Name, prevSale.Good.Name) > 0 ||
                         (string.Compare(sale.Good.Name, prevSale.Good.Name) == 0 &&
                          sale.SalesDate > prevSale.SalesDate));
                 }
@@ -1773,14 +1774,14 @@ namespace TestApp
             var query = from s in sales group s by s.Good.ID into g select new { Good = g.Key, Count = g.Count(), Total = g.Sum(o => o.Total), Avg = g.Average(o => o.Total), LastTransaction = g.Max(o => o.SalesDate) };
             foreach (var v in query)
             {
-                Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Sum(o => o.Total), v.Total, 1e-5);
+                ClassicAssert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Sum(o => o.Total), v.Total, 1e-5);
 #pragma warning disable S2971 // "IEnumerable" LINQs should be simplified
 #pragma warning disable RCS1077 // Optimize LINQ method call.
-                Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Count(), v.Count, 1e-5);
+                ClassicAssert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Count(), v.Count, 1e-5);
 #pragma warning restore RCS1077 // Optimize LINQ method call.
 #pragma warning restore S2971 // "IEnumerable" LINQs should be simplified
-                Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Average(o => o.Total), v.Avg, 1e-5);
-                Assert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Max(o => o.SalesDate), v.LastTransaction);
+                ClassicAssert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Average(o => o.Total), v.Avg, 1e-5);
+                ClassicAssert.AreEqual(allSales.Where(o => o.Good.ID == v.Good).Max(o => o.SalesDate), v.LastTransaction);
             }
         }
 
@@ -1819,11 +1820,11 @@ namespace TestApp
                 records[i].Name = $"dictrecord{i}";
                 using (ModifyEntityQuery query = connection.GetInsertEntityQuery<DynamicDictionary>())
                     query.Execute(records[i]);
-                Assert.IsTrue(records[i].ID > 0);
+                ClassicAssert.IsTrue(records[i].ID > 0);
             }
 
             using (SelectEntitiesCountQuery query = connection.GetSelectEntitiesCountQuery<DynamicDictionary>())
-                Assert.AreEqual(10, query.RowCount);
+                ClassicAssert.AreEqual(10, query.RowCount);
 
             dynamic r5 = null;
 
@@ -1831,40 +1832,40 @@ namespace TestApp
             {
                 query.AddOrderBy("Name");
                 ICollection<dynamic> res = query.ReadAllDynamic();
-                Assert.AreEqual(10, res.Count);
+                ClassicAssert.AreEqual(10, res.Count);
                 string lastName = null;
                 foreach (dynamic r in res)
                 {
-                    Assert.IsTrue(r.ID > 0);
+                    ClassicAssert.IsTrue(r.ID > 0);
                     if (r.ID == 5)
                     {
                         r5 = r;
                     }
                     if (lastName != null)
-                        Assert.IsTrue(string.CompareOrdinal(lastName, r.Name) <= 0);
+                        ClassicAssert.IsTrue(string.CompareOrdinal(lastName, r.Name) <= 0);
                     lastName = r.Name;
                 }
             }
 
-            Assert.IsNotNull(r5);
+            ClassicAssert.IsNotNull(r5);
             using (ModifyEntityQuery query = connection.GetDeleteEntityQuery<DynamicDictionary>())
                 query.Execute(r5);
 
             using (SelectEntitiesCountQuery query = connection.GetSelectEntitiesCountQuery<DynamicDictionary>())
-                Assert.AreEqual(9, query.RowCount);
+                ClassicAssert.AreEqual(9, query.RowCount);
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<DynamicDictionary>())
             {
                 query.Where.Property("ID").Eq((int)r5.ID);
                 query.Execute();
-                Assert.IsNull(query.ReadOneDynamic());
+                ClassicAssert.IsNull(query.ReadOneDynamic());
             }
 
             using (SelectEntitiesQuery query = connection.GetSelectEntitiesQuery<DynamicDictionary>())
             {
                 query.Where.Property("ID").Eq().Value((int)(r5.ID + 1));
                 query.Execute();
-                Assert.IsNotNull(query.ReadOneDynamic());
+                ClassicAssert.IsNotNull(query.ReadOneDynamic());
             }
 
             #region test dynamic query building
@@ -1873,7 +1874,7 @@ namespace TestApp
             {
                 query.Where.Property("ID").Eq().Value((int)(r5.ID + 1));
                 query.Execute();
-                Assert.IsNotNull(query.ReadOneDynamic());
+                ClassicAssert.IsNotNull(query.ReadOneDynamic());
             }
 
             #endregion test dynamic query building

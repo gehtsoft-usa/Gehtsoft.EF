@@ -1,0 +1,13 @@
+curl -L -o Gehtsoft.EF.Entities.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.Entities/1.3.1
+curl -L -o Gehtsoft.EF.Utils.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.Utils/1.3.1
+curl -L -o Gehtsoft.EF.Db.SqlDb.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.Db.SqlDb/1.3.1
+curl -L -o Gehtsoft.EF.Db.SqlDb.OData.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.Db.SqlDb.OData/1.3.1
+curl -L -o Gehtsoft.EF.Db.SqlDb.Sql.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.Db.SqlDb.Sql/1.3.1
+curl -L -o Gehtsoft.EF.FTS.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.FTS/1.3.1
+curl -L -o Gehtsoft.EF.Db.MssqlDb.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.Db.MssqlDb/1.3.1
+curl -L -o Gehtsoft.EF.Db.MysqlDb.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.Db.MysqlDb/1.3.1
+curl -L -o Gehtsoft.EF.Db.OracleDb.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.Db.OracleDb/1.3.1
+curl -L -o Gehtsoft.EF.Db.PostgresDb.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.Db.PostgresDb/1.3.1
+curl -L -o Gehtsoft.EF.Db.SqliteDb.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.Db.SqliteDb/1.3.1
+curl -L -o Gehtsoft.EF.Bson.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.Bson/1.3.1
+curl -L -o Gehtsoft.EF.MongoDb.1.3.1.nupkg https://www.myget.org/F/gehtsoft-public/api/v2/package/Gehtsoft.EF.MongoDb/1.3.1

@@ -13,6 +13,7 @@ using Gehtsoft.EF.Utils;
 using Gehtsoft.Tools.TypeUtils;
 using NUnit.Framework;
 using System.Threading.Tasks;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -23,25 +24,25 @@ namespace TestApp
         public void TestWordParser()
         {
             string[] words = StringUtils.ParseToWords("");
-            Assert.AreEqual(0, words.Length);
+            ClassicAssert.AreEqual(0, words.Length);
             words = StringUtils.ParseToWords("", true);
-            Assert.AreEqual(0, words.Length);
+            ClassicAssert.AreEqual(0, words.Length);
             words = StringUtils.ParseToWords("- Hello, said человек в соломенной шляпе. I didn't wanted to say 'Good buy', I wanted to say ’I’m very busy’", false);
-            Assert.AreEqual(20, words.Length);
-            Assert.Contains("Hello", words);
-            Assert.Contains("шляпе", words);
-            Assert.Contains("didn't", words);
-            Assert.Contains("I’m", words);
-            Assert.Contains("busy", words);
+            ClassicAssert.AreEqual(20, words.Length);
+            ClassicAssert.Contains("Hello", words);
+            ClassicAssert.Contains("шляпе", words);
+            ClassicAssert.Contains("didn't", words);
+            ClassicAssert.Contains("I’m", words);
+            ClassicAssert.Contains("busy", words);
 
             words = StringUtils.ParseToWords("- Hello, said человек в соломен% шляпе. I didn't wanted to say 'Good buy', I wanted to say ’I’m very busy’", true);
-            Assert.AreEqual(20, words.Length);
-            Assert.Contains("Hello", words);
-            Assert.Contains("соломен%", words);
-            Assert.Contains("шляпе", words);
-            Assert.Contains("didn't", words);
-            Assert.Contains("I’m", words);
-            Assert.Contains("busy", words);
+            ClassicAssert.AreEqual(20, words.Length);
+            ClassicAssert.Contains("Hello", words);
+            ClassicAssert.Contains("соломен%", words);
+            ClassicAssert.Contains("шляпе", words);
+            ClassicAssert.Contains("didn't", words);
+            ClassicAssert.Contains("I’m", words);
+            ClassicAssert.Contains("busy", words);
         }
 
         private static bool Contains(string type, string id, IEntityAccessor<FtsObjectEntity> coll)
@@ -76,10 +77,10 @@ namespace TestApp
         [Test]
         public void TestLevenstein()
         {
-            Assert.AreEqual(0, "dow".DistanceTo("dow"));
-            Assert.AreEqual(1, "dow".DistanceTo("doe"));
-            Assert.AreEqual(2, "dow".DistanceTo("deo"));
-            Assert.AreEqual(8, "catalupe".DistanceTo("oregon"));
+            ClassicAssert.AreEqual(0, "dow".DistanceTo("dow"));
+            ClassicAssert.AreEqual(1, "dow".DistanceTo("doe"));
+            ClassicAssert.AreEqual(2, "dow".DistanceTo("deo"));
+            ClassicAssert.AreEqual(8, "catalupe".DistanceTo("oregon"));
         }
 
         [Explicit]
@@ -112,7 +113,7 @@ namespace TestApp
                 }
             }
             sw.Stop();
-            Assert.AreNotEqual(0, distance);
+            ClassicAssert.AreNotEqual(0, distance);
 
             Console.WriteLine($"Test size {nsamples} samples, {nwords} words");
             Console.WriteLine($"Total test {sw.ElapsedMilliseconds} ms");
@@ -141,9 +142,9 @@ namespace TestApp
         public static void DoTestFts(SqlDbConnection connection)
         {
             connection.FtsDropTables();
-            Assert.IsFalse(connection.DoesFtsTableExist());
+            ClassicAssert.IsFalse(connection.DoesFtsTableExist());
             connection.FtsCreateTables();
-            Assert.IsTrue(connection.DoesFtsTableExist());
+            ClassicAssert.IsTrue(connection.DoesFtsTableExist());
 
             connection.FtsSetObjectText("type1", "object1", "moody moon loves foxy fox knox");
             connection.FtsSetObjectText("type1", "object2", "why foxes don't like carrots and likes pepper?");
@@ -155,94 +156,94 @@ namespace TestApp
             FtsWordEntityCollection words;
 
             coll = connection.FtsGetObjects("knox", false);
-            Assert.AreEqual(1, coll.Count);
+            ClassicAssert.AreEqual(1, coll.Count);
 
             coll = connection.FtsGetObjects("equinox", true);
-            Assert.AreEqual(0, coll.Count);
+            ClassicAssert.AreEqual(0, coll.Count);
 
             connection.FtsSetObjectText("type1", "object1", "why moody moon loves foxy fox and don't like dogs?");
 
             coll = connection.FtsGetObjects("knox", false);
-            Assert.AreEqual(0, coll.Count);
+            ClassicAssert.AreEqual(0, coll.Count);
 
             words = connection.FtsGetWords("knox", 0, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(1, words.Count);
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(1, words.Count);
 
             connection.FtsCleanupWords();
             words = connection.FtsGetWords("knox", 0, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(0, words.Count);
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(0, words.Count);
 
             coll = connection.FtsGetObjects("перец пряники", false);
-            Assert.AreEqual(2, coll.Count);
-            Assert.IsTrue(Contains("type2", "object1", coll));
-            Assert.IsTrue(Contains("type2", "object2", coll));
+            ClassicAssert.AreEqual(2, coll.Count);
+            ClassicAssert.IsTrue(Contains("type2", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object2", coll));
 
-            Assert.AreEqual(2, connection.FtsCountObjects("перец пряники", false));
+            ClassicAssert.AreEqual(2, connection.FtsCountObjects("перец пряники", false));
 
             coll = connection.FtsGetObjects("петя", false, null, 10, 0);
-            Assert.AreEqual(1, coll.Count);
+            ClassicAssert.AreEqual(1, coll.Count);
 
             coll = connection.FtsGetObjects("петя", false, new string[] { "type2", "type1" }, 10, 0);
-            Assert.AreEqual(1, coll.Count);
+            ClassicAssert.AreEqual(1, coll.Count);
 
             coll = connection.FtsGetObjects("перец пряники", true);
-            Assert.AreEqual(1, coll.Count);
-            Assert.IsTrue(Contains("type2", "object1", coll));
+            ClassicAssert.AreEqual(1, coll.Count);
+            ClassicAssert.IsTrue(Contains("type2", "object1", coll));
 
             coll = connection.FtsGetObjects("п% х%", true);
-            Assert.AreEqual(1, coll.Count);
-            Assert.IsTrue(Contains("type2", "object2", coll));
+            ClassicAssert.AreEqual(1, coll.Count);
+            ClassicAssert.IsTrue(Contains("type2", "object2", coll));
 
             coll = connection.FtsGetObjects("п% d%", true);
-            Assert.AreEqual(0, coll.Count);
+            ClassicAssert.AreEqual(0, coll.Count);
 
             coll = connection.FtsGetObjects("п% d%", false);
-            Assert.AreEqual(4, coll.Count);
-            Assert.IsTrue(Contains("type1", "object1", coll));
-            Assert.IsTrue(Contains("type1", "object2", coll));
-            Assert.IsTrue(Contains("type2", "object1", coll));
-            Assert.IsTrue(Contains("type2", "object2", coll));
+            ClassicAssert.AreEqual(4, coll.Count);
+            ClassicAssert.IsTrue(Contains("type1", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type1", "object2", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object2", coll));
 
             coll = connection.FtsGetObjects("п% d%", false, new string[] { "type1", "type2" });
-            Assert.AreEqual(4, coll.Count);
-            Assert.IsTrue(Contains("type1", "object1", coll));
-            Assert.IsTrue(Contains("type1", "object2", coll));
-            Assert.IsTrue(Contains("type2", "object1", coll));
-            Assert.IsTrue(Contains("type2", "object2", coll));
+            ClassicAssert.AreEqual(4, coll.Count);
+            ClassicAssert.IsTrue(Contains("type1", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type1", "object2", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object2", coll));
 
             coll = connection.FtsGetObjects("п% d%", false, new string[] { "type2" });
-            Assert.AreEqual(2, coll.Count);
-            Assert.IsTrue(Contains("type2", "object1", coll));
-            Assert.IsTrue(Contains("type2", "object2", coll));
+            ClassicAssert.AreEqual(2, coll.Count);
+            ClassicAssert.IsTrue(Contains("type2", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object2", coll));
 
             connection.FtsDeleteObject("type1", "object1");
 
             coll = connection.FtsGetObjects("п% d%", false);
-            Assert.IsFalse(Contains("type1", "object1", coll));
+            ClassicAssert.IsFalse(Contains("type1", "object1", coll));
 
             words = connection.FtsGetWords("f%", 0, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(3, words.Count);
-            Assert.IsTrue(Contains("fox", words));
-            Assert.IsTrue(Contains("foxy", words));
-            Assert.IsTrue(Contains("foxes", words));
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(3, words.Count);
+            ClassicAssert.IsTrue(Contains("fox", words));
+            ClassicAssert.IsTrue(Contains("foxy", words));
+            ClassicAssert.IsTrue(Contains("foxes", words));
 
             words = connection.FtsGetWords("f%", 1, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(1, words.Count);
-            Assert.IsTrue(Contains("fox", words));
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(1, words.Count);
+            ClassicAssert.IsTrue(Contains("fox", words));
 
             words = connection.FtsGetWords("moody", 0, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(1, words.Count);
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(1, words.Count);
 
             connection.FtsCleanupWords();
 
             words = connection.FtsGetWords("moody", 0, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(0, words.Count);
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(0, words.Count);
 
             using (var query = connection.GetDropEntityQuery<FtsEntity>())
                 query.Execute();
@@ -281,9 +282,9 @@ namespace TestApp
                 query.AddOrderBy(nameof(FtsEntity.ID));
                 EntityCollection<FtsEntity> rc = query.ReadAll<FtsEntity>();
 
-                Assert.AreEqual(2, rc.Count);
-                Assert.AreEqual(1, rc[0].ID);
-                Assert.AreEqual(5, rc[1].ID);
+                ClassicAssert.AreEqual(2, rc.Count);
+                ClassicAssert.AreEqual(1, rc[0].ID);
+                ClassicAssert.AreEqual(5, rc[1].ID);
             }
 
             using (var query = connection.GetSelectEntitiesQuery<FtsEntity>())
@@ -292,8 +293,8 @@ namespace TestApp
                 query.AddOrderBy(nameof(FtsEntity.ID));
                 EntityCollection<FtsEntity> rc = query.ReadAll<FtsEntity>();
 
-                Assert.AreEqual(1, rc.Count);
-                Assert.AreEqual(5, rc[0].ID);
+                ClassicAssert.AreEqual(1, rc.Count);
+                ClassicAssert.AreEqual(5, rc[0].ID);
             }
 
             using (var query = connection.GetSelectEntitiesQuery<FtsEntity>())
@@ -302,7 +303,7 @@ namespace TestApp
                 query.AddOrderBy(nameof(FtsEntity.ID));
                 EntityCollection<FtsEntity> rc = query.ReadAll<FtsEntity>();
 
-                Assert.AreEqual(5, rc.Count);
+                ClassicAssert.AreEqual(5, rc.Count);
             }
 
             using (var query = connection.GetSelectEntitiesQuery<FtsEntity>())
@@ -311,18 +312,18 @@ namespace TestApp
                 query.AddOrderBy(nameof(FtsEntity.ID));
                 EntityCollection<FtsEntity> rc = query.ReadAll<FtsEntity>();
 
-                Assert.AreEqual(3, rc.Count);
+                ClassicAssert.AreEqual(3, rc.Count);
                 foreach (var v in rc)
-                    Assert.IsFalse(v.Text.Contains("text"));
+                    ClassicAssert.IsFalse(v.Text.Contains("text"));
             }
         }
 
         public static async Task DoTestFtsAsync(SqlDbConnection connection)
         {
             await connection.FtsDropTablesAsync();
-            Assert.IsFalse(await connection.DoesFtsTableExistAsync());
+            ClassicAssert.IsFalse(await connection.DoesFtsTableExistAsync());
             await connection.FtsCreateTablesAsync();
-            Assert.IsTrue(await connection.DoesFtsTableExistAsync());
+            ClassicAssert.IsTrue(await connection.DoesFtsTableExistAsync());
 
             await connection.FtsSetObjectTextAsync("type1", "object1", "moody moon loves foxy fox knox");
             await connection.FtsSetObjectTextAsync("type1", "object2", "why foxes don't like carrots and likes pepper?");
@@ -334,94 +335,94 @@ namespace TestApp
             FtsWordEntityCollection words;
 
             coll = await connection.FtsGetObjectsAsync("knox", false);
-            Assert.AreEqual(1, coll.Count);
+            ClassicAssert.AreEqual(1, coll.Count);
 
             coll = await connection.FtsGetObjectsAsync("equinox", true);
-            Assert.AreEqual(0, coll.Count);
+            ClassicAssert.AreEqual(0, coll.Count);
 
             await connection.FtsSetObjectTextAsync("type1", "object1", "why moody moon loves foxy fox and don't like dogs?");
 
             coll = await connection.FtsGetObjectsAsync("knox", false);
-            Assert.AreEqual(0, coll.Count);
+            ClassicAssert.AreEqual(0, coll.Count);
 
             words = await connection.FtsGetWordsAsync("knox", 0, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(1, words.Count);
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(1, words.Count);
 
             await connection.FtsCleanupWordsAsync();
             words = await connection.FtsGetWordsAsync("knox", 0, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(0, words.Count);
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(0, words.Count);
 
             coll = await connection.FtsGetObjectsAsync("перец пряники", false);
-            Assert.AreEqual(2, coll.Count);
-            Assert.IsTrue(Contains("type2", "object1", coll));
-            Assert.IsTrue(Contains("type2", "object2", coll));
+            ClassicAssert.AreEqual(2, coll.Count);
+            ClassicAssert.IsTrue(Contains("type2", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object2", coll));
 
-            Assert.AreEqual(2, await connection.FtsCountObjectsAsync("перец пряники", false));
+            ClassicAssert.AreEqual(2, await connection.FtsCountObjectsAsync("перец пряники", false));
 
             coll = await connection.FtsGetObjectsAsync("петя", false, null, 10, 0);
-            Assert.AreEqual(1, coll.Count);
+            ClassicAssert.AreEqual(1, coll.Count);
 
             coll = await connection.FtsGetObjectsAsync("петя", false, new string[] { "type2", "type1" }, 10, 0);
-            Assert.AreEqual(1, coll.Count);
+            ClassicAssert.AreEqual(1, coll.Count);
 
             coll = await connection.FtsGetObjectsAsync("перец пряники", true);
-            Assert.AreEqual(1, coll.Count);
-            Assert.IsTrue(Contains("type2", "object1", coll));
+            ClassicAssert.AreEqual(1, coll.Count);
+            ClassicAssert.IsTrue(Contains("type2", "object1", coll));
 
             coll = await connection.FtsGetObjectsAsync("п% х%", true);
-            Assert.AreEqual(1, coll.Count);
-            Assert.IsTrue(Contains("type2", "object2", coll));
+            ClassicAssert.AreEqual(1, coll.Count);
+            ClassicAssert.IsTrue(Contains("type2", "object2", coll));
 
             coll = await connection.FtsGetObjectsAsync("п% d%", true);
-            Assert.AreEqual(0, coll.Count);
+            ClassicAssert.AreEqual(0, coll.Count);
 
             coll = connection.FtsGetObjects("п% d%", false);
-            Assert.AreEqual(4, coll.Count);
-            Assert.IsTrue(Contains("type1", "object1", coll));
-            Assert.IsTrue(Contains("type1", "object2", coll));
-            Assert.IsTrue(Contains("type2", "object1", coll));
-            Assert.IsTrue(Contains("type2", "object2", coll));
+            ClassicAssert.AreEqual(4, coll.Count);
+            ClassicAssert.IsTrue(Contains("type1", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type1", "object2", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object2", coll));
 
             coll = await connection.FtsGetObjectsAsync("п% d%", false, new string[] { "type1", "type2" });
-            Assert.AreEqual(4, coll.Count);
-            Assert.IsTrue(Contains("type1", "object1", coll));
-            Assert.IsTrue(Contains("type1", "object2", coll));
-            Assert.IsTrue(Contains("type2", "object1", coll));
-            Assert.IsTrue(Contains("type2", "object2", coll));
+            ClassicAssert.AreEqual(4, coll.Count);
+            ClassicAssert.IsTrue(Contains("type1", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type1", "object2", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object2", coll));
 
             coll = await connection.FtsGetObjectsAsync("п% d%", false, new string[] { "type2" });
-            Assert.AreEqual(2, coll.Count);
-            Assert.IsTrue(Contains("type2", "object1", coll));
-            Assert.IsTrue(Contains("type2", "object2", coll));
+            ClassicAssert.AreEqual(2, coll.Count);
+            ClassicAssert.IsTrue(Contains("type2", "object1", coll));
+            ClassicAssert.IsTrue(Contains("type2", "object2", coll));
 
             await connection.FtsDeleteObjectAsync("type1", "object1");
 
             coll = await connection.FtsGetObjectsAsync("п% d%", false);
-            Assert.IsFalse(Contains("type1", "object1", coll));
+            ClassicAssert.IsFalse(Contains("type1", "object1", coll));
 
             words = await connection.FtsGetWordsAsync("f%", 0, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(3, words.Count);
-            Assert.IsTrue(Contains("fox", words));
-            Assert.IsTrue(Contains("foxy", words));
-            Assert.IsTrue(Contains("foxes", words));
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(3, words.Count);
+            ClassicAssert.IsTrue(Contains("fox", words));
+            ClassicAssert.IsTrue(Contains("foxy", words));
+            ClassicAssert.IsTrue(Contains("foxes", words));
 
             words = await connection.FtsGetWordsAsync("f%", 1, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(1, words.Count);
-            Assert.IsTrue(Contains("fox", words));
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(1, words.Count);
+            ClassicAssert.IsTrue(Contains("fox", words));
 
             words = await connection.FtsGetWordsAsync("moody", 0, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(1, words.Count);
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(1, words.Count);
 
             await connection.FtsCleanupWordsAsync();
 
             words = await connection.FtsGetWordsAsync("moody", 0, 0);
-            Assert.IsNotNull(words);
-            Assert.AreEqual(0, words.Count);
+            ClassicAssert.IsNotNull(words);
+            ClassicAssert.AreEqual(0, words.Count);
 
             using (var query = connection.GetDropEntityQuery<FtsEntity>())
                 await query.ExecuteAsync();
@@ -461,9 +462,9 @@ namespace TestApp
                 query.AddOrderBy(nameof(FtsEntity.ID));
                 EntityCollection<FtsEntity> rc = await query.ReadAllAsync<FtsEntity>();
 
-                Assert.AreEqual(2, rc.Count);
-                Assert.AreEqual(1, rc[0].ID);
-                Assert.AreEqual(5, rc[1].ID);
+                ClassicAssert.AreEqual(2, rc.Count);
+                ClassicAssert.AreEqual(1, rc[0].ID);
+                ClassicAssert.AreEqual(5, rc[1].ID);
             }
 
             using (var query = connection.GetSelectEntitiesQuery<FtsEntity>())
@@ -472,8 +473,8 @@ namespace TestApp
                 query.AddOrderBy(nameof(FtsEntity.ID));
                 EntityCollection<FtsEntity> rc = await query.ReadAllAsync<FtsEntity>();
 
-                Assert.AreEqual(1, rc.Count);
-                Assert.AreEqual(5, rc[0].ID);
+                ClassicAssert.AreEqual(1, rc.Count);
+                ClassicAssert.AreEqual(5, rc[0].ID);
             }
 
             using (var query = connection.GetSelectEntitiesQuery<FtsEntity>())
@@ -482,7 +483,7 @@ namespace TestApp
                 query.AddOrderBy(nameof(FtsEntity.ID));
                 EntityCollection<FtsEntity> rc = await query.ReadAllAsync<FtsEntity>();
 
-                Assert.AreEqual(5, rc.Count);
+                ClassicAssert.AreEqual(5, rc.Count);
             }
 
             using (var query = connection.GetSelectEntitiesQuery<FtsEntity>())
@@ -491,9 +492,9 @@ namespace TestApp
                 query.AddOrderBy(nameof(FtsEntity.ID));
                 EntityCollection<FtsEntity> rc = await query.ReadAllAsync<FtsEntity>();
 
-                Assert.AreEqual(3, rc.Count);
+                ClassicAssert.AreEqual(3, rc.Count);
                 foreach (var v in rc)
-                    Assert.IsFalse(v.Text.Contains("text"));
+                    ClassicAssert.IsFalse(v.Text.Contains("text"));
             }
         }
     }

@@ -13,6 +13,7 @@ using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.FTS;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -133,12 +134,12 @@ namespace TestApp
                 }
 
                 TableDescriptor[] schema = connection.Schema();
-                Assert.IsTrue(schema.Contains(table2.Name, "id"), "id");
-                Assert.AreEqual(!dropSupported, schema.Contains(table2.Name, "code"), "code");
-                Assert.AreEqual(!dropSupported, schema.Contains(table2.Name, "ref"), "ref");
-                Assert.IsTrue(schema.Contains(table2.Name, "name"), "name");
-                Assert.IsTrue(schema.Contains(table2.Name, "name1"), "name1");
-                Assert.IsTrue(schema.Contains(table2.Name, "ref1"), "ref1");
+                ClassicAssert.IsTrue(schema.Contains(table2.Name, "id"), "id");
+                ClassicAssert.AreEqual(!dropSupported, schema.Contains(table2.Name, "code"), "code");
+                ClassicAssert.AreEqual(!dropSupported, schema.Contains(table2.Name, "ref"), "ref");
+                ClassicAssert.IsTrue(schema.Contains(table2.Name, "name"), "name");
+                ClassicAssert.IsTrue(schema.Contains(table2.Name, "name1"), "name1");
+                ClassicAssert.IsTrue(schema.Contains(table2.Name, "ref1"), "ref1");
             }
         }
 
@@ -294,17 +295,17 @@ namespace TestApp
             controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update, modes);
 
             TableDescriptor[] schema = connection.Schema();
-            Assert.IsFalse(schema.Contains("entity0"), "entity0");
-            Assert.IsTrue(schema.Contains("entity1"), "entity1");
-            Assert.AreEqual(connection.GetLanguageSpecifics().DropColumnSupported, !schema.Contains("entity1", "code"), "code");
-            Assert.IsTrue(schema.Contains("entity1", "name"), "name");
-            Assert.IsFalse(schema.Contains("entity2", "e1"), "e1");
-            Assert.IsTrue(schema.Contains("entity2", "e3"), "e3");
-            Assert.IsTrue(schema.ContainsView("view1"), "view");
-            Assert.IsTrue(f1, "f1");
-            Assert.IsTrue(f2, "f2");
-            Assert.IsTrue(f3, "f3");
-            Assert.AreEqual(connection.GetLanguageSpecifics().DropColumnSupported, f4, "f4");
+            ClassicAssert.IsFalse(schema.Contains("entity0"), "entity0");
+            ClassicAssert.IsTrue(schema.Contains("entity1"), "entity1");
+            ClassicAssert.AreEqual(connection.GetLanguageSpecifics().DropColumnSupported, !schema.Contains("entity1", "code"), "code");
+            ClassicAssert.IsTrue(schema.Contains("entity1", "name"), "name");
+            ClassicAssert.IsFalse(schema.Contains("entity2", "e1"), "e1");
+            ClassicAssert.IsTrue(schema.Contains("entity2", "e3"), "e3");
+            ClassicAssert.IsTrue(schema.ContainsView("view1"), "view");
+            ClassicAssert.IsTrue(f1, "f1");
+            ClassicAssert.IsTrue(f2, "f2");
+            ClassicAssert.IsTrue(f3, "f3");
+            ClassicAssert.AreEqual(connection.GetLanguageSpecifics().DropColumnSupported, f4, "f4");
         }
     }
 }

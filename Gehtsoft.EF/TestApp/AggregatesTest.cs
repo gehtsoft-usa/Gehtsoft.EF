@@ -9,6 +9,7 @@ using Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -151,8 +152,8 @@ namespace TestApp
             };
 
             aggregatingAccessor.Save(agg);
-            Assert.AreEqual(contained1.Length, aggregatingAccessor.SaveAggregates<AggregatedEntity1>(agg, new AggregatedEntity1[] { }, contained1, CompareContent<AggregatedEntity1>, CompareID<AggregatedEntity1>, IsDefined<AggregatedEntity1>, IsNew<AggregatedEntity1>));
-            Assert.AreEqual(contained2.Length, aggregatingAccessor.SaveAggregates<AggregatedEntity2>(agg, new AggregatedEntity2[] { }, contained2, CompareContent<AggregatedEntity2>, CompareID<AggregatedEntity2>, IsDefined<AggregatedEntity2>, IsNew<AggregatedEntity2>));
+            ClassicAssert.AreEqual(contained1.Length, aggregatingAccessor.SaveAggregates<AggregatedEntity1>(agg, new AggregatedEntity1[] { }, contained1, CompareContent<AggregatedEntity1>, CompareID<AggregatedEntity1>, IsDefined<AggregatedEntity1>, IsNew<AggregatedEntity1>));
+            ClassicAssert.AreEqual(contained2.Length, aggregatingAccessor.SaveAggregates<AggregatedEntity2>(agg, new AggregatedEntity2[] { }, contained2, CompareContent<AggregatedEntity2>, CompareID<AggregatedEntity2>, IsDefined<AggregatedEntity2>, IsNew<AggregatedEntity2>));
 
             return agg.ID;
         }
@@ -171,14 +172,14 @@ namespace TestApp
             int agg1 = CreateAgg(aggregatingAccessor, 1);
             int agg4 = CreateAgg(aggregatingAccessor, 4);
 
-            Assert.AreEqual(2, aggregatingAccessor.Count(null));
-            Assert.AreEqual(5, aggregatingAccessor.GetAggregatesCount<AggregatedEntity1>(new AggregatingEntity() { ID = agg1 }, null));
-            Assert.AreEqual(3, aggregatingAccessor.GetAggregatesCount<AggregatedEntity2>(new AggregatingEntity() { ID = agg1 }, null));
+            ClassicAssert.AreEqual(2, aggregatingAccessor.Count(null));
+            ClassicAssert.AreEqual(5, aggregatingAccessor.GetAggregatesCount<AggregatedEntity1>(new AggregatingEntity() { ID = agg1 }, null));
+            ClassicAssert.AreEqual(3, aggregatingAccessor.GetAggregatesCount<AggregatedEntity2>(new AggregatingEntity() { ID = agg1 }, null));
 
             AggregatedEntity1[] orgData, newData, checkData;
 
             orgData = aggregatingAccessor.GetAggregates<EntityCollection<AggregatedEntity1>, AggregatedEntity1>(new AggregatingEntity() { ID = agg4 }, null, null, null, null).ToArray();
-            Assert.IsTrue(orgData != null && orgData.Length > 4);
+            ClassicAssert.IsTrue(orgData != null && orgData.Length > 4);
             newData = orgData.CloneArray();
 
             int removed = newData[1].ID;
@@ -189,43 +190,43 @@ namespace TestApp
             newData[3].ID = 0;
             newData[3].Name = "replacedname";
 
-            Assert.AreEqual(4, aggregatingAccessor.SaveAggregates<AggregatedEntity1>(new AggregatingEntity() { ID = agg4 }, orgData, newData, CompareContent<AggregatedEntity1>, CompareID<AggregatedEntity1>, IsDefined<AggregatedEntity1>, IsNew<AggregatedEntity1>));
+            ClassicAssert.AreEqual(4, aggregatingAccessor.SaveAggregates<AggregatedEntity1>(new AggregatingEntity() { ID = agg4 }, orgData, newData, CompareContent<AggregatedEntity1>, CompareID<AggregatedEntity1>, IsDefined<AggregatedEntity1>, IsNew<AggregatedEntity1>));
             checkData = aggregatingAccessor.GetAggregates<EntityCollection<AggregatedEntity1>, AggregatedEntity1>(new AggregatingEntity() { ID = agg4 }, null, null, null, null).ToArray();
-            Assert.AreEqual(orgData.Length - 1, checkData.Length);
+            ClassicAssert.AreEqual(orgData.Length - 1, checkData.Length);
             for (int i = 0; i < orgData.Length; i++)
             {
                 if (orgData[i].ID == removed)
-                    Assert.IsNull(aggregatedAccessor1.Get(orgData[i].ID));
+                    ClassicAssert.IsNull(aggregatedAccessor1.Get(orgData[i].ID));
                 else if (orgData[i].ID == updated)
-                    Assert.IsTrue(CompareContent<AggregatedEntity1>(newData[i], aggregatedAccessor1.Get(orgData[i].ID)));
+                    ClassicAssert.IsTrue(CompareContent<AggregatedEntity1>(newData[i], aggregatedAccessor1.Get(orgData[i].ID)));
                 else if (orgData[i].ID == replaced)
                 {
-                    Assert.IsNull(aggregatedAccessor1.Get(orgData[i].ID));
-                    Assert.IsTrue(CompareContent<AggregatedEntity1>(newData[i], aggregatedAccessor1.Get(newData[i].ID)));
+                    ClassicAssert.IsNull(aggregatedAccessor1.Get(orgData[i].ID));
+                    ClassicAssert.IsTrue(CompareContent<AggregatedEntity1>(newData[i], aggregatedAccessor1.Get(newData[i].ID)));
                 }
                 else
-                    Assert.IsTrue(CompareContent<AggregatedEntity1>(orgData[i], aggregatedAccessor1.Get(orgData[i].ID)));
+                    ClassicAssert.IsTrue(CompareContent<AggregatedEntity1>(orgData[i], aggregatedAccessor1.Get(orgData[i].ID)));
             }
 
             int cc1 = aggregatedAccessor1.Count(null);
             int cc2 = aggregatedAccessor1.Count(new AggregatedEntity1Filter() { Container = new AggregatingEntity() { ID = agg4 } });
 
-            Assert.IsTrue(aggregatingAccessor.CanDelete(new AggregatingEntity() { ID = agg4 }));
-            Assert.IsFalse(aggregatingAccessorBase.CanDelete(new AggregatingEntity() { ID = agg4 }));
+            ClassicAssert.IsTrue(aggregatingAccessor.CanDelete(new AggregatingEntity() { ID = agg4 }));
+            ClassicAssert.IsFalse(aggregatingAccessorBase.CanDelete(new AggregatingEntity() { ID = agg4 }));
             aggregatingAccessor.Delete(new AggregatingEntity() { ID = agg4 });
-            Assert.AreEqual(cc1 - cc2, aggregatedAccessor1.Count(null));
-            Assert.AreEqual(0, aggregatedAccessor1.Count(new AggregatedEntity1Filter() { Container = new AggregatingEntity() { ID = agg4 } }));
+            ClassicAssert.AreEqual(cc1 - cc2, aggregatedAccessor1.Count(null));
+            ClassicAssert.AreEqual(0, aggregatedAccessor1.Count(new AggregatedEntity1Filter() { Container = new AggregatingEntity() { ID = agg4 } }));
 
             cc1 = aggregatedAccessor1.Count(new AggregatedEntity1Filter() { Container = new AggregatingEntity() { ID = agg1 } });
             aggregatingAccessor.DeleteMultiple(new AggregatingEntityFilter() { NotName = "agg1" });
-            Assert.AreEqual(cc1, aggregatedAccessor1.Count(null));
-            Assert.AreEqual(1, aggregatingAccessor.Count(null));
+            ClassicAssert.AreEqual(cc1, aggregatedAccessor1.Count(null));
+            ClassicAssert.AreEqual(1, aggregatingAccessor.Count(null));
 
             ReferringEntity re = new ReferringEntity() { Name = "123", Referred = new AggregatingEntity() { ID = agg1 } };
             referringAccessor.Save(re);
-            Assert.IsFalse(aggregatingAccessor.CanDelete(new AggregatingEntity() { ID = agg1 }));
+            ClassicAssert.IsFalse(aggregatingAccessor.CanDelete(new AggregatingEntity() { ID = agg1 }));
             referringAccessor.Delete(re);
-            Assert.IsTrue(aggregatingAccessor.CanDelete(new AggregatingEntity() { ID = agg1 }));
+            ClassicAssert.IsTrue(aggregatingAccessor.CanDelete(new AggregatingEntity() { ID = agg1 }));
 
             controller.DropTables(connection);
         }

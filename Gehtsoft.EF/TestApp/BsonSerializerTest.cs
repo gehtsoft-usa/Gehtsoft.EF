@@ -5,6 +5,7 @@ using Gehtsoft.EF.Bson;
 using Gehtsoft.EF.Entities;
 using MongoDB.Bson;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -165,7 +166,7 @@ namespace TestApp
         {
             byte[] binary = new byte[] { 1, 2, 7, 9 };
             DateTime dt = DateTime.Now;
-            dt = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
+            dt = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, DateTimeKind.Unspecified);
 
             EntityTestAll test1 = new EntityTestAll
             {
@@ -186,19 +187,19 @@ namespace TestApp
             BsonDocument doc = test1.ConvertToBson();
             test2 = doc.ToEntity(typeof(EntityTestAll)) as EntityTestAll;
 
-            Assert.AreEqual(test1.StringValue, test2.StringValue);
-            Assert.AreEqual(test1.BoolValue, test2.BoolValue);
-            Assert.AreEqual(test1.IntValue, test2.IntValue);
-            Assert.AreEqual(test1.LongValue, test2.LongValue);
-            Assert.AreEqual(test1.DoubleValue, test2.DoubleValue);
-            Assert.AreEqual(test1.DecimalValue, test2.DecimalValue);
-            Assert.AreEqual(test1.GuidValue, test2.GuidValue);
-            Assert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
-            Assert.AreEqual(test1.BinaryValue, test2.BinaryValue);
-            Assert.AreEqual(test1.DictValue?.ID, test2.DictValue?.ID);
-            Assert.AreEqual(test1.DictValue?.Name, test2.DictValue?.Name);
-            Assert.AreEqual(test1.DictValueRef?.ID, test2.DictValueRef?.ID);
-            Assert.AreEqual(null, test2.DictValueRef?.Name);
+            ClassicAssert.AreEqual(test1.StringValue, test2.StringValue);
+            ClassicAssert.AreEqual(test1.BoolValue, test2.BoolValue);
+            ClassicAssert.AreEqual(test1.IntValue, test2.IntValue);
+            ClassicAssert.AreEqual(test1.LongValue, test2.LongValue);
+            ClassicAssert.AreEqual(test1.DoubleValue, test2.DoubleValue);
+            ClassicAssert.AreEqual(test1.DecimalValue, test2.DecimalValue);
+            ClassicAssert.AreEqual(test1.GuidValue, test2.GuidValue);
+            ClassicAssert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
+            ClassicAssert.AreEqual(test1.BinaryValue, test2.BinaryValue);
+            ClassicAssert.AreEqual(test1.DictValue?.ID, test2.DictValue?.ID);
+            ClassicAssert.AreEqual(test1.DictValue?.Name, test2.DictValue?.Name);
+            ClassicAssert.AreEqual(test1.DictValueRef?.ID, test2.DictValueRef?.ID);
+            ClassicAssert.AreEqual(null, test2.DictValueRef?.Name);
 
             test1.StringValue = null;
             test1.BinaryValue = null;
@@ -210,19 +211,19 @@ namespace TestApp
 
             doc = test1.ConvertToBson();
             test2 = doc.ToEntity(typeof(EntityTestAll)) as EntityTestAll;
-            Assert.IsNull(test2.StringValue);
-            Assert.IsNull(test2.BinaryValue);
-            Assert.IsNull(test2.DictValue);
-            Assert.IsNull(test2.DictValueRef);
-            Assert.IsFalse(test2.BoolValue);
-            Assert.AreEqual(TestEnum.Value5, test2.EnumValue);
+            ClassicAssert.IsNull(test2.StringValue);
+            ClassicAssert.IsNull(test2.BinaryValue);
+            ClassicAssert.IsNull(test2.DictValue);
+            ClassicAssert.IsNull(test2.DictValueRef);
+            ClassicAssert.IsFalse(test2.BoolValue);
+            ClassicAssert.AreEqual(TestEnum.Value5, test2.EnumValue);
         }
 
         [Test]
         public void TestBsonNullable()
         {
             DateTime dt = DateTime.Now;
-            dt = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
+            dt = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, DateTimeKind.Unspecified);
 
             EntityTestAllNullable test1 = new EntityTestAllNullable
             {
@@ -239,13 +240,13 @@ namespace TestApp
             BsonDocument doc = test1.ConvertToBson();
             test2 = doc.ToEntity(typeof(EntityTestAllNullable)) as EntityTestAllNullable;
 
-            Assert.AreEqual(test1.BoolValue, test2.BoolValue);
-            Assert.AreEqual(test1.IntValue, test2.IntValue);
-            Assert.AreEqual(test1.LongValue, test2.LongValue);
-            Assert.AreEqual(test1.DoubleValue, test2.DoubleValue);
-            Assert.AreEqual(test1.DecimalValue, test2.DecimalValue);
-            Assert.AreEqual(test1.GuidValue, test2.GuidValue);
-            Assert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
+            ClassicAssert.AreEqual(test1.BoolValue, test2.BoolValue);
+            ClassicAssert.AreEqual(test1.IntValue, test2.IntValue);
+            ClassicAssert.AreEqual(test1.LongValue, test2.LongValue);
+            ClassicAssert.AreEqual(test1.DoubleValue, test2.DoubleValue);
+            ClassicAssert.AreEqual(test1.DecimalValue, test2.DecimalValue);
+            ClassicAssert.AreEqual(test1.GuidValue, test2.GuidValue);
+            ClassicAssert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
 
             test1.BoolValue = null;
             test1.IntValue = null;
@@ -260,20 +261,20 @@ namespace TestApp
             doc = test1.ConvertToBson();
             test2 = doc.ToEntity(typeof(EntityTestAllNullable)) as EntityTestAllNullable;
 
-            Assert.AreEqual(test1.BoolValue, test2.BoolValue);
-            Assert.AreEqual(test1.IntValue, test2.IntValue);
-            Assert.AreEqual(test1.LongValue, test2.LongValue);
-            Assert.AreEqual(test1.DoubleValue, test2.DoubleValue);
-            Assert.AreEqual(test1.DecimalValue, test2.DecimalValue);
-            Assert.AreEqual(test1.GuidValue, test2.GuidValue);
-            Assert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
+            ClassicAssert.AreEqual(test1.BoolValue, test2.BoolValue);
+            ClassicAssert.AreEqual(test1.IntValue, test2.IntValue);
+            ClassicAssert.AreEqual(test1.LongValue, test2.LongValue);
+            ClassicAssert.AreEqual(test1.DoubleValue, test2.DoubleValue);
+            ClassicAssert.AreEqual(test1.DecimalValue, test2.DecimalValue);
+            ClassicAssert.AreEqual(test1.GuidValue, test2.GuidValue);
+            ClassicAssert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
         }
 
         [Test]
         public void TestBsonArray()
         {
             DateTime dt = DateTime.Now;
-            dt = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
+            dt = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, DateTimeKind.Unspecified);
 
             EntityTestAllArr test1 = new EntityTestAllArr(), test2;
             BsonDocument doc;
@@ -292,16 +293,16 @@ namespace TestApp
             doc = test1.ConvertToBson();
             test2 = doc.ToEntity(typeof(EntityTestAllArr)) as EntityTestAllArr;
 
-            Assert.AreEqual(test1.StringValue, test2.StringValue);
-            Assert.AreEqual(test1.BoolValue, test2.BoolValue);
-            Assert.AreEqual(test1.IntValue, test2.IntValue);
-            Assert.AreEqual(test1.LongValue, test2.LongValue);
-            Assert.AreEqual(test1.DoubleValue, test2.DoubleValue);
-            Assert.AreEqual(test1.DecimalValue, test2.DecimalValue);
-            Assert.AreEqual(test1.GuidValue, test2.GuidValue);
-            Assert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
-            Assert.AreEqual(test1.EnumValue, test2.EnumValue);
-            Assert.AreEqual(test1.DictValue, test2.DictValue);
+            ClassicAssert.AreEqual(test1.StringValue, test2.StringValue);
+            ClassicAssert.AreEqual(test1.BoolValue, test2.BoolValue);
+            ClassicAssert.AreEqual(test1.IntValue, test2.IntValue);
+            ClassicAssert.AreEqual(test1.LongValue, test2.LongValue);
+            ClassicAssert.AreEqual(test1.DoubleValue, test2.DoubleValue);
+            ClassicAssert.AreEqual(test1.DecimalValue, test2.DecimalValue);
+            ClassicAssert.AreEqual(test1.GuidValue, test2.GuidValue);
+            ClassicAssert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
+            ClassicAssert.AreEqual(test1.EnumValue, test2.EnumValue);
+            ClassicAssert.AreEqual(test1.DictValue, test2.DictValue);
 
             test1.StringValue = new string[] { };
             test1.BoolValue = new bool[] { };
@@ -317,16 +318,16 @@ namespace TestApp
             doc = test1.ConvertToBson();
             test2 = doc.ToEntity(typeof(EntityTestAllArr)) as EntityTestAllArr;
 
-            Assert.AreEqual(test1.StringValue, test2.StringValue);
-            Assert.AreEqual(test1.BoolValue, test2.BoolValue);
-            Assert.AreEqual(test1.IntValue, test2.IntValue);
-            Assert.AreEqual(test1.LongValue, test2.LongValue);
-            Assert.AreEqual(test1.DoubleValue, test2.DoubleValue);
-            Assert.AreEqual(test1.DecimalValue, test2.DecimalValue);
-            Assert.AreEqual(test1.GuidValue, test2.GuidValue);
-            Assert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
-            Assert.AreEqual(test1.EnumValue, test2.EnumValue);
-            Assert.AreEqual(test1.DictValue, test2.DictValue);
+            ClassicAssert.AreEqual(test1.StringValue, test2.StringValue);
+            ClassicAssert.AreEqual(test1.BoolValue, test2.BoolValue);
+            ClassicAssert.AreEqual(test1.IntValue, test2.IntValue);
+            ClassicAssert.AreEqual(test1.LongValue, test2.LongValue);
+            ClassicAssert.AreEqual(test1.DoubleValue, test2.DoubleValue);
+            ClassicAssert.AreEqual(test1.DecimalValue, test2.DecimalValue);
+            ClassicAssert.AreEqual(test1.GuidValue, test2.GuidValue);
+            ClassicAssert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
+            ClassicAssert.AreEqual(test1.EnumValue, test2.EnumValue);
+            ClassicAssert.AreEqual(test1.DictValue, test2.DictValue);
 
             test1.StringValue = new string[] { "aaa", null, "bbbb" };
             test1.BoolValue = new bool[] { true, false, true };
@@ -342,16 +343,16 @@ namespace TestApp
             doc = test1.ConvertToBson();
             test2 = doc.ToEntity(typeof(EntityTestAllArr)) as EntityTestAllArr;
 
-            Assert.AreEqual(test1.StringValue, test2.StringValue);
-            Assert.AreEqual(test1.BoolValue, test2.BoolValue);
-            Assert.AreEqual(test1.IntValue, test2.IntValue);
-            Assert.AreEqual(test1.LongValue, test2.LongValue);
-            Assert.AreEqual(test1.DoubleValue, test2.DoubleValue);
-            Assert.AreEqual(test1.DecimalValue, test2.DecimalValue);
-            Assert.AreEqual(test1.GuidValue, test2.GuidValue);
-            Assert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
-            Assert.AreEqual(test1.EnumValue, test2.EnumValue);
-            Assert.AreEqual(test1.DictValue, test2.DictValue);
+            ClassicAssert.AreEqual(test1.StringValue, test2.StringValue);
+            ClassicAssert.AreEqual(test1.BoolValue, test2.BoolValue);
+            ClassicAssert.AreEqual(test1.IntValue, test2.IntValue);
+            ClassicAssert.AreEqual(test1.LongValue, test2.LongValue);
+            ClassicAssert.AreEqual(test1.DoubleValue, test2.DoubleValue);
+            ClassicAssert.AreEqual(test1.DecimalValue, test2.DecimalValue);
+            ClassicAssert.AreEqual(test1.GuidValue, test2.GuidValue);
+            ClassicAssert.AreEqual(test1.DateTimeValue, test2.DateTimeValue);
+            ClassicAssert.AreEqual(test1.EnumValue, test2.EnumValue);
+            ClassicAssert.AreEqual(test1.DictValue, test2.DictValue);
         }
     }
 }

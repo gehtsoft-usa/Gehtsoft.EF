@@ -36,7 +36,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             Type elementType = GetElementType(expression.Type);
             try
             {
-                return (IQueryable)Activator.CreateInstance(typeof(QueryableEntity<>).MakeGenericType(elementType), new object[] { this, expression });
+                return (IQueryable)Activator.CreateInstance(typeof(QueryableEntity<>).MakeGenericType(elementType), this, expression);
             }
             catch (System.Reflection.TargetInvocationException tie)
             {

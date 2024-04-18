@@ -6,6 +6,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -96,7 +97,7 @@ namespace TestApp
                         t.Add(new TestTable() { ID = query.GetValue<int>("id"), Name = query.GetValue<string>("name") });
                     }
                 }
-                Assert.AreNotEqual(0, t.Count);
+                ClassicAssert.AreNotEqual(0, t.Count);
             }
             sw.Stop();
             Console.WriteLine($"Fill collection 10 times using SQL {sw.ElapsedMilliseconds} ms");
@@ -112,8 +113,8 @@ namespace TestApp
                     query.Where.Property(nameof(TestTable.ID)).Is(CmpOp.Le).Value(1000);
                     t = query.ReadAll<EntityCollection<TestTable>, TestTable>();
                 }
-                Assert.IsNotNull(t);
-                Assert.AreNotEqual(0, t.Count);
+                ClassicAssert.IsNotNull(t);
+                ClassicAssert.AreNotEqual(0, t.Count);
             }
             sw.Stop();
             Console.WriteLine($"Fill collection 10 times using QRE {sw.ElapsedMilliseconds} ms");

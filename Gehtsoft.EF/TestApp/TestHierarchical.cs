@@ -2,6 +2,7 @@
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -101,47 +102,47 @@ namespace TestApp
                     switch (query.GetValue<int>("id"))
                     {
                         case 1:
-                            Assert.AreEqual(1, query.GetValue<int>("level"));
-                            Assert.IsTrue(query.IsNull("parent"));
+                            ClassicAssert.AreEqual(1, query.GetValue<int>("level"));
+                            ClassicAssert.IsTrue(query.IsNull("parent"));
                             break;
                         case 2:
-                            Assert.AreEqual(2, query.GetValue<int>("level"));
-                            Assert.AreEqual(1, query.GetValue<int>("parent"));
+                            ClassicAssert.AreEqual(2, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(1, query.GetValue<int>("parent"));
                             break;
                         case 3:
-                            Assert.AreEqual(2, query.GetValue<int>("level"));
-                            Assert.AreEqual(1, query.GetValue<int>("parent"));
+                            ClassicAssert.AreEqual(2, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(1, query.GetValue<int>("parent"));
                             break;
                         case 4:
-                            Assert.AreEqual(3, query.GetValue<int>("level"));
-                            Assert.AreEqual(2, query.GetValue<int>("parent"));
+                            ClassicAssert.AreEqual(3, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(2, query.GetValue<int>("parent"));
                             break;
                         case 5:
-                            Assert.AreEqual(3, query.GetValue<int>("level"));
-                            Assert.AreEqual(2, query.GetValue<int>("parent"));
+                            ClassicAssert.AreEqual(3, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(2, query.GetValue<int>("parent"));
                             break;
                         case 6:
-                            Assert.AreEqual(3, query.GetValue<int>("level"));
-                            Assert.AreEqual(3, query.GetValue<int>("parent"));
+                            ClassicAssert.AreEqual(3, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(3, query.GetValue<int>("parent"));
                             break;
                         case 7:
-                            Assert.AreEqual(3, query.GetValue<int>("level"));
-                            Assert.AreEqual(3, query.GetValue<int>("parent"));
+                            ClassicAssert.AreEqual(3, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(3, query.GetValue<int>("parent"));
                             break;
                         case 8:
-                            Assert.AreEqual(4, query.GetValue<int>("level"));
-                            Assert.AreEqual(6, query.GetValue<int>("parent"));
+                            ClassicAssert.AreEqual(4, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(6, query.GetValue<int>("parent"));
                             break;
                         case 9:
-                            Assert.AreEqual(2, query.GetValue<int>("level"));
-                            Assert.AreEqual(1, query.GetValue<int>("parent"));
+                            ClassicAssert.AreEqual(2, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(1, query.GetValue<int>("parent"));
                             break;
                         default:
-                            Assert.Fail("Unknown ID");
+                            ClassicAssert.Fail("Unknown ID");
                             break;
                     }
                 }
-                Assert.AreEqual(9, rc);
+                ClassicAssert.AreEqual(9, rc);
             }
 
             hbuilder = connection.GetHierarchicalSelectQueryBuilder(gHierarchicalTable, gHierarchicalTable["parent"], "root");
@@ -156,23 +157,23 @@ namespace TestApp
                     switch (query.GetValue<int>("id"))
                     {
                         case 3:
-                            Assert.AreEqual(1, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(1, query.GetValue<int>("level"));
                             break;
                         case 6:
-                            Assert.AreEqual(2, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(2, query.GetValue<int>("level"));
                             break;
                         case 7:
-                            Assert.AreEqual(2, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(2, query.GetValue<int>("level"));
                             break;
                         case 8:
-                            Assert.AreEqual(3, query.GetValue<int>("level"));
+                            ClassicAssert.AreEqual(3, query.GetValue<int>("level"));
                             break;
                         default:
-                            Assert.Fail("Unknown ID");
+                            ClassicAssert.Fail("Unknown ID");
                             break;
                     }
                 }
-                Assert.AreEqual(4, rc);
+                ClassicAssert.AreEqual(4, rc);
             }
             hbuilder = connection.GetHierarchicalSelectQueryBuilder(gHierarchicalTable, gHierarchicalTable["parent"], "root");
             hbuilder.IdOnlyMode = true;
@@ -180,7 +181,7 @@ namespace TestApp
             {
                 query.BindParam("root", 3);
                 query.ExecuteReader();
-                Assert.AreEqual(1, query.FieldCount);
+                ClassicAssert.AreEqual(1, query.FieldCount);
                 int rc = 0;
                 while (query.ReadNext())
                 {
@@ -196,11 +197,11 @@ namespace TestApp
                         case 8:
                             break;
                         default:
-                            Assert.Fail("Unknown ID");
+                            ClassicAssert.Fail("Unknown ID");
                             break;
                     }
                 }
-                Assert.AreEqual(4, rc);
+                ClassicAssert.AreEqual(4, rc);
             }
         }
     }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Gehtsoft.EF.Entities;
 using NUnit.Framework;
 using FluentAssertions;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -117,7 +118,7 @@ namespace TestApp
             public DateTime Start
             {
                 get { return mStart; }
-                set { mStart = new DateTime(value.Year, value.Month, value.Day); }
+                set { mStart = new DateTime(value.Year, value.Month, value.Day, 0, 0, 0, DateTimeKind.Unspecified); }
             }
 
             private DateTime mEnd;
@@ -126,7 +127,7 @@ namespace TestApp
             public DateTime End
             {
                 get { return mEnd; }
-                set { mEnd = new DateTime(value.Year, value.Month, value.Day); }
+                set { mEnd = new DateTime(value.Year, value.Month, value.Day, 0, 0, 0, DateTimeKind.Unspecified); }
             }
 
             public HarvestPeriod()
@@ -594,7 +595,7 @@ namespace TestApp
                 set
                 {
                     if (value.Hour != 0 || value.Minute != 0 || value.Second != 0 || value.Millisecond != 0)
-                        mShiftDate = new DateTime(value.Year, value.Month, value.Day);
+                        mShiftDate = new DateTime(value.Year, value.Month, value.Day, 0, 0, 0, DateTimeKind.Unspecified);
                     else
                         mShiftDate = value;
                 }
@@ -1817,7 +1818,7 @@ namespace TestApp
                 set
                 {
                     if (value.Hour != 0 || value.Minute != 0 || value.Second != 0 || value.Millisecond != 0)
-                        mDate = new DateTime(value.Year, value.Month, value.Day);
+                        mDate = new DateTime(value.Year, value.Month, value.Day, 0, 0, 0, DateTimeKind.Unspecified);
                     else
                         mDate = value;
                 }
@@ -2043,12 +2044,12 @@ namespace TestApp
                             if (types[j].EntityType == toSearch)
                                 pos = j;
                         }
-                        Assert.AreNotEqual(-1, pos);
-                        Assert.IsTrue(pos < i);
+                        ClassicAssert.AreNotEqual(-1, pos);
+                        ClassicAssert.IsTrue(pos < i);
                     }
                 }
             }
-            Assert.AreNotEqual(0, sc);
+            ClassicAssert.AreNotEqual(0, sc);
         }
     }
 }

@@ -7,6 +7,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using NUnit.Framework;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -100,9 +101,9 @@ namespace TestApp
 
             TableDescriptor[] schema = connection.Schema();
 
-            Assert.NotNull(schema);
-            Assert.IsFalse(schema.Contains("createdroptest"));
-            Assert.IsFalse(schema.Contains("createdroptest1"));
+            ClassicAssert.NotNull(schema);
+            ClassicAssert.IsFalse(schema.Contains("createdroptest"));
+            ClassicAssert.IsFalse(schema.Contains("createdroptest1"));
 
             using (query = connection.GetQuery(cbuilder))
                 query.ExecuteNoData();
@@ -115,18 +116,18 @@ namespace TestApp
 
             schema = connection.Schema();
 
-            Assert.NotNull(schema);
-            Assert.IsTrue(schema.Contains("createdroptest"));
-            Assert.IsTrue(schema.Contains("createdroptest", "vint_pk"));
-            Assert.IsTrue(schema.Contains("createdroptest", "vblob"));
-            Assert.IsTrue(schema.Contains("createdroptest", "vbool"));
-            Assert.IsTrue(schema.Contains("createdroptest1"));
-            Assert.IsTrue(schema.Contains("createdroptest1", "vint_pk"));
-            Assert.IsFalse(schema.Contains("createdroptest2"));
+            ClassicAssert.NotNull(schema);
+            ClassicAssert.IsTrue(schema.Contains("createdroptest"));
+            ClassicAssert.IsTrue(schema.Contains("createdroptest", "vint_pk"));
+            ClassicAssert.IsTrue(schema.Contains("createdroptest", "vblob"));
+            ClassicAssert.IsTrue(schema.Contains("createdroptest", "vbool"));
+            ClassicAssert.IsTrue(schema.Contains("createdroptest1"));
+            ClassicAssert.IsTrue(schema.Contains("createdroptest1", "vint_pk"));
+            ClassicAssert.IsFalse(schema.Contains("createdroptest2"));
 
             DateTime dt1 = DateTime.Now;
-            dt1 = new DateTime(dt1.Year, dt1.Month, dt1.Day, dt1.Hour, dt1.Minute, dt1.Second);
-            DateTime dt2 = new DateTime(2006, 12, 8);
+            dt1 = new DateTime(dt1.Year, dt1.Month, dt1.Day, dt1.Hour, dt1.Minute, dt1.Second, DateTimeKind.Unspecified);
+            DateTime dt2 = new DateTime(2006, 12, 8, 0, 0, 0, DateTimeKind.Unspecified);
 
             UpdateQueryToTypeBinder ubinder = new UpdateQueryToTypeBinder(typeof(TestEntity));
             ubinder.AutoBind(gCreateDropTable);
@@ -155,7 +156,7 @@ namespace TestApp
                     id = query.GetParamValue<int>("vint_pk");
                 }
 
-                Assert.AreEqual(1, id);
+                ClassicAssert.AreEqual(1, id);
 
                 TestEntity e1 = new TestEntity()
                 {
@@ -170,7 +171,7 @@ namespace TestApp
 
                 ubinder.BindAndExecute(query, e1);
 
-                Assert.AreEqual(2, e1.vint_pk);
+                ClassicAssert.AreEqual(2, e1.vint_pk);
 
                 e1 = new TestEntity()
                 {
@@ -185,7 +186,7 @@ namespace TestApp
 
                 ubinder.BindAndExecute(query, e1);
 
-                Assert.AreEqual(3, e1.vint_pk);
+                ClassicAssert.AreEqual(3, e1.vint_pk);
             }
 
             SelectQueryBuilder sbuilder = connection.GetSelectQueryBuilder(gCreateDropTable);
@@ -197,53 +198,53 @@ namespace TestApp
             using (query = connection.GetQuery(sbuilder))
             {
                 query.ExecuteReader();
-                Assert.IsTrue(query.ReadNext());
+                ClassicAssert.IsTrue(query.ReadNext());
                 e = binder.Read<TestEntity>(query);
 
-                Assert.AreEqual(1, e.vint_pk);
-                Assert.AreEqual("string1", e.vstring);
-                Assert.IsNull(e.vclob);
-                Assert.IsNull(e.vblob);
-                Assert.AreEqual(456, e.vint);
-                Assert.AreEqual(123.45, e.vreal);
-                Assert.AreEqual(true, e.vbool);
-                Assert.AreEqual(dt1, e.vdate);
+                ClassicAssert.AreEqual(1, e.vint_pk);
+                ClassicAssert.AreEqual("string1", e.vstring);
+                ClassicAssert.IsNull(e.vclob);
+                ClassicAssert.IsNull(e.vblob);
+                ClassicAssert.AreEqual(456, e.vint);
+                ClassicAssert.AreEqual(123.45, e.vreal);
+                ClassicAssert.AreEqual(true, e.vbool);
+                ClassicAssert.AreEqual(dt1, e.vdate);
 
-                Assert.IsTrue(query.ReadNext());
-                Assert.AreEqual(2, query.GetValue<int>("vint_pk"));
-                Assert.AreEqual("string2", query.GetValue<string>("vstring"));
-                Assert.AreEqual(gClob, query.GetValue<string>("vclob"));
-                Assert.AreEqual(gBlob, query.GetValue<byte[]>("vblob"));
-                Assert.AreEqual(123, query.GetValue<int>("vint"));
-                Assert.AreEqual(789.12, query.GetValue<double>("vreal"));
-                Assert.AreEqual(false, query.GetValue<bool>("vbool"));
-                Assert.AreEqual(dt2, query.GetValue<DateTime>("vdate"));
+                ClassicAssert.IsTrue(query.ReadNext());
+                ClassicAssert.AreEqual(2, query.GetValue<int>("vint_pk"));
+                ClassicAssert.AreEqual("string2", query.GetValue<string>("vstring"));
+                ClassicAssert.AreEqual(gClob, query.GetValue<string>("vclob"));
+                ClassicAssert.AreEqual(gBlob, query.GetValue<byte[]>("vblob"));
+                ClassicAssert.AreEqual(123, query.GetValue<int>("vint"));
+                ClassicAssert.AreEqual(789.12, query.GetValue<double>("vreal"));
+                ClassicAssert.AreEqual(false, query.GetValue<bool>("vbool"));
+                ClassicAssert.AreEqual(dt2, query.GetValue<DateTime>("vdate"));
 
-                Assert.AreEqual(123, query.GetValue<int?>("vint"));
-                Assert.AreEqual(789.12, query.GetValue<double?>("vreal"));
-                Assert.AreEqual(false, query.GetValue<bool?>("vbool"));
-                Assert.AreEqual(dt2, query.GetValue<DateTime?>("vdate"));
+                ClassicAssert.AreEqual(123, query.GetValue<int?>("vint"));
+                ClassicAssert.AreEqual(789.12, query.GetValue<double?>("vreal"));
+                ClassicAssert.AreEqual(false, query.GetValue<bool?>("vbool"));
+                ClassicAssert.AreEqual(dt2, query.GetValue<DateTime?>("vdate"));
 
-                Assert.IsTrue(query.ReadNext());
-                Assert.IsTrue(query.IsNull("vstring"));
-                Assert.IsTrue(query.IsNull("vclob"));
-                Assert.IsTrue(query.IsNull("vblob"));
-                Assert.IsTrue(query.IsNull("vint"));
-                Assert.IsTrue(query.IsNull("vreal"));
-                Assert.IsTrue(query.IsNull("vbool"));
-                Assert.IsTrue(query.IsNull("vdate"));
+                ClassicAssert.IsTrue(query.ReadNext());
+                ClassicAssert.IsTrue(query.IsNull("vstring"));
+                ClassicAssert.IsTrue(query.IsNull("vclob"));
+                ClassicAssert.IsTrue(query.IsNull("vblob"));
+                ClassicAssert.IsTrue(query.IsNull("vint"));
+                ClassicAssert.IsTrue(query.IsNull("vreal"));
+                ClassicAssert.IsTrue(query.IsNull("vbool"));
+                ClassicAssert.IsTrue(query.IsNull("vdate"));
 
-                Assert.AreEqual(null, query.GetValue<string>("vstring"));
-                Assert.AreEqual(null, query.GetValue<string>("vclob"));
-                Assert.AreEqual(null, query.GetValue<byte[]>("vblob"));
-                Assert.AreEqual(null, query.GetValue<int?>("vint"));
-                Assert.AreEqual(null, query.GetValue<double?>("vreal"));
-                Assert.AreEqual(null, query.GetValue<bool?>("vbool"));
-                Assert.AreEqual(null, query.GetValue<DateTime?>("vdate"));
-                Assert.AreEqual(0, query.GetValue<int>("vint"));
-                Assert.AreEqual(0, query.GetValue<double>("vreal"));
-                Assert.AreEqual(false, query.GetValue<bool>("vbool"));
-                Assert.AreEqual(new DateTime(0), query.GetValue<DateTime>("vdate"));
+                ClassicAssert.AreEqual(null, query.GetValue<string>("vstring"));
+                ClassicAssert.AreEqual(null, query.GetValue<string>("vclob"));
+                ClassicAssert.AreEqual(null, query.GetValue<byte[]>("vblob"));
+                ClassicAssert.AreEqual(null, query.GetValue<int?>("vint"));
+                ClassicAssert.AreEqual(null, query.GetValue<double?>("vreal"));
+                ClassicAssert.AreEqual(null, query.GetValue<bool?>("vbool"));
+                ClassicAssert.AreEqual(null, query.GetValue<DateTime?>("vdate"));
+                ClassicAssert.AreEqual(0, query.GetValue<int>("vint"));
+                ClassicAssert.AreEqual(0, query.GetValue<double>("vreal"));
+                ClassicAssert.AreEqual(false, query.GetValue<bool>("vbool"));
+                ClassicAssert.AreEqual(new DateTime(0, DateTimeKind.Unspecified), query.GetValue<DateTime>("vdate"));
             }
 
             SelectQueryBuilder insert1Select = connection.GetSelectQueryBuilder(gCreateDropTable);
@@ -298,10 +299,10 @@ namespace TestApp
             {
                 query.CommandText = "select vblob from createdroptest where vint_pk = 2";
                 query.ExecuteReader();
-                Assert.IsTrue(query.ReadNext());
+                ClassicAssert.IsTrue(query.ReadNext());
                 var arr = query.GetValue<byte[]>(0);
-                Assert.AreEqual(arr.Length, gBlob.Length);
-                Assert.AreEqual(arr, gBlob);
+                ClassicAssert.AreEqual(arr.Length, gBlob.Length);
+                ClassicAssert.AreEqual(arr, gBlob);
             }
 
             using (query = connection.GetQuery())
@@ -309,7 +310,7 @@ namespace TestApp
                 query.CommandText = "select vblob from createdroptest where vint_pk = 2";
                 query.ReadBlobAsStream = true;
                 query.ExecuteReader();
-                Assert.IsTrue(query.ReadNext());
+                ClassicAssert.IsTrue(query.ReadNext());
                 using (Stream s = query.GetStream(0))
                 {
                     using (MemoryStream copy = new MemoryStream())
@@ -318,8 +319,8 @@ namespace TestApp
                         copy.Flush();
 
                         var arr = copy.ToArray();
-                        Assert.AreEqual(arr.Length, gBlob.Length);
-                        Assert.AreEqual(arr, gBlob);
+                        ClassicAssert.AreEqual(arr.Length, gBlob.Length);
+                        ClassicAssert.AreEqual(arr, gBlob);
                     }
                 }
             }
@@ -339,15 +340,15 @@ namespace TestApp
             {
                 query.CommandText = "select * from createdroptest order by vint_pk";
                 query.ExecuteReader();
-                Assert.IsTrue(query.ReadNext());
-                Assert.AreEqual(1, query.GetValue<int>("vint_pk"));
-                Assert.AreEqual("newstring1", query.GetValue<string>("vstring"));
-                Assert.IsNull(query.GetValue<string>("vclob"));
-                Assert.IsNull(query.GetValue<byte[]>("vblob"));
-                Assert.AreEqual(123.45, query.GetValue<double>("vreal"));
-                Assert.AreEqual(true, query.GetValue<bool>("vbool"));
-                Assert.AreEqual(dt1, query.GetValue<DateTime>("vdate"));
-                Assert.IsFalse(query.ReadNext());
+                ClassicAssert.IsTrue(query.ReadNext());
+                ClassicAssert.AreEqual(1, query.GetValue<int>("vint_pk"));
+                ClassicAssert.AreEqual("newstring1", query.GetValue<string>("vstring"));
+                ClassicAssert.IsNull(query.GetValue<string>("vclob"));
+                ClassicAssert.IsNull(query.GetValue<byte[]>("vblob"));
+                ClassicAssert.AreEqual(123.45, query.GetValue<double>("vreal"));
+                ClassicAssert.AreEqual(true, query.GetValue<bool>("vbool"));
+                ClassicAssert.AreEqual(dt1, query.GetValue<DateTime>("vdate"));
+                ClassicAssert.IsFalse(query.ReadNext());
             }
 
             var viewSelectBuilder = connection.GetSelectQueryBuilder(gCreateDropTable);

@@ -467,6 +467,11 @@ namespace Gehtsoft.EF.Db.SqlDb
             {
                 dbtype = DbType.String;
             }
+            else if (type == typeof(char))
+            {
+                dbtype = DbType.String;
+                value = new string((char)value, 1);
+            }
             else
             {
                 throw new EfSqlException(EfExceptionCode.TypeIsUnsupported, type.FullName);

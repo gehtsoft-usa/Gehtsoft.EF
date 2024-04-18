@@ -10,6 +10,7 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -77,7 +78,7 @@ namespace TestApp
         [TestCase("mixedCase", EntityNamingPolicy.UpperCaseWithUnderscopes, "MIXED_CASE")]
         [TestCase("a", EntityNamingPolicy.UpperCaseWithUnderscopes, "A")]
 
-        public void TestNameConvertor(string originalName, EntityNamingPolicy? policy, string expectedResult) => Assert.AreEqual(expectedResult, EntityNameConvertor.ConvertName(originalName, policy));
+        public void TestNameConvertor(string originalName, EntityNamingPolicy? policy, string expectedResult) => ClassicAssert.AreEqual(expectedResult, EntityNameConvertor.ConvertName(originalName, policy));
 
         [TestCase("a", EntityNamingPolicy.AsIs, "a")]
         [TestCase("a", EntityNamingPolicy.UpperCase, "A")]
@@ -87,7 +88,7 @@ namespace TestApp
         [TestCase("crack", EntityNamingPolicy.UpperCase, "CRACKS")]
         [TestCase("igloo", EntityNamingPolicy.LowerCaseWithUnderscores, "igloos")]
         [TestCase("RottenPotato", EntityNamingPolicy.LowerCaseWithUnderscores, "rotten_potatoes")]
-        public void TestTableNameConvertor(string originalName, EntityNamingPolicy? policy, string expectedResult) => Assert.AreEqual(expectedResult, EntityNameConvertor.ConvertTableName(originalName, policy));
+        public void TestTableNameConvertor(string originalName, EntityNamingPolicy? policy, string expectedResult) => ClassicAssert.AreEqual(expectedResult, EntityNameConvertor.ConvertTableName(originalName, policy));
 
         [Entity(Scope = "naming", NamingPolicy = EntityNamingPolicy.BackwardCompatibility)]
         public class TestEntity2
@@ -119,42 +120,42 @@ namespace TestApp
         [Test]
         public void TestEntityNaming()
         {
-            Assert.AreEqual(EntityNamingPolicy.BackwardCompatibility, AllEntities.Inst.NamingPolicy.Default);
-            Assert.AreEqual(EntityNamingPolicy.BackwardCompatibility, AllEntities.Inst.NamingPolicy["naming"]);
+            ClassicAssert.AreEqual(EntityNamingPolicy.BackwardCompatibility, AllEntities.Inst.NamingPolicy.Default);
+            ClassicAssert.AreEqual(EntityNamingPolicy.BackwardCompatibility, AllEntities.Inst.NamingPolicy["naming"]);
             EntityDescriptor descriptor1 = AllEntities.Inst[typeof(TestEntity1)];
             EntityDescriptor descriptor2 = AllEntities.Inst[typeof(TestEntity2)];
 
-            Assert.AreEqual("TestEntity1", descriptor1.TableDescriptor.Name);
-            Assert.AreEqual("identifier", descriptor1.TableDescriptor[0].Name);
-            Assert.AreEqual("testfield", descriptor1.TableDescriptor[1].Name);
-            Assert.AreEqual("reference", descriptor1.TableDescriptor[2].Name);
+            ClassicAssert.AreEqual("TestEntity1", descriptor1.TableDescriptor.Name);
+            ClassicAssert.AreEqual("identifier", descriptor1.TableDescriptor[0].Name);
+            ClassicAssert.AreEqual("testfield", descriptor1.TableDescriptor[1].Name);
+            ClassicAssert.AreEqual("reference", descriptor1.TableDescriptor[2].Name);
 
-            Assert.AreEqual("TestEntity2", descriptor2.TableDescriptor.Name);
-            Assert.AreEqual("identifier", descriptor2.TableDescriptor[0].Name);
+            ClassicAssert.AreEqual("TestEntity2", descriptor2.TableDescriptor.Name);
+            ClassicAssert.AreEqual("identifier", descriptor2.TableDescriptor[0].Name);
 
             AllEntities.Inst.ForgetScope("naming");
             AllEntities.Inst.NamingPolicy["naming"] = EntityNamingPolicy.AsIs;
             descriptor1 = AllEntities.Inst[typeof(TestEntity1)];
             descriptor2 = AllEntities.Inst[typeof(TestEntity2)];
-            Assert.AreEqual("TestEntity1", descriptor1.TableDescriptor.Name);
-            Assert.AreEqual("Id", descriptor1.TableDescriptor[0].Name);
-            Assert.AreEqual("TestField", descriptor1.TableDescriptor[1].Name);
-            Assert.AreEqual("TestEntity2Ref", descriptor1.TableDescriptor[2].Name);
-            Assert.AreEqual("TestEntity2", descriptor2.TableDescriptor.Name);
-            Assert.AreEqual("identifier", descriptor2.TableDescriptor[0].Name);
+            ClassicAssert.AreEqual("TestEntity1", descriptor1.TableDescriptor.Name);
+            ClassicAssert.AreEqual("Id", descriptor1.TableDescriptor[0].Name);
+            ClassicAssert.AreEqual("TestField", descriptor1.TableDescriptor[1].Name);
+            ClassicAssert.AreEqual("TestEntity2Ref", descriptor1.TableDescriptor[2].Name);
+            ClassicAssert.AreEqual("TestEntity2", descriptor2.TableDescriptor.Name);
+            ClassicAssert.AreEqual("identifier", descriptor2.TableDescriptor[0].Name);
 
             AllEntities.Inst.ForgetScope("naming");
             AllEntities.Inst.NamingPolicy["naming"] = EntityNamingPolicy.LowerCaseWithUnderscores;
             descriptor1 = AllEntities.Inst[typeof(TestEntity1)];
             descriptor2 = AllEntities.Inst[typeof(TestEntity2)];
             var descriptor3 = AllEntities.Inst[typeof(TestEntity3)];
-            Assert.AreEqual("test_entity1s", descriptor1.TableDescriptor.Name);
-            Assert.AreEqual("specialTestName", descriptor3.TableDescriptor.Name);
-            Assert.AreEqual("id", descriptor1.TableDescriptor[0].Name);
-            Assert.AreEqual("test_field", descriptor1.TableDescriptor[1].Name);
-            Assert.AreEqual("test_entity2_ref", descriptor1.TableDescriptor[2].Name);
-            Assert.AreEqual("TestEntity2", descriptor2.TableDescriptor.Name);
-            Assert.AreEqual("identifier", descriptor2.TableDescriptor[0].Name);
+            ClassicAssert.AreEqual("test_entity1s", descriptor1.TableDescriptor.Name);
+            ClassicAssert.AreEqual("specialTestName", descriptor3.TableDescriptor.Name);
+            ClassicAssert.AreEqual("id", descriptor1.TableDescriptor[0].Name);
+            ClassicAssert.AreEqual("test_field", descriptor1.TableDescriptor[1].Name);
+            ClassicAssert.AreEqual("test_entity2_ref", descriptor1.TableDescriptor[2].Name);
+            ClassicAssert.AreEqual("TestEntity2", descriptor2.TableDescriptor.Name);
+            ClassicAssert.AreEqual("identifier", descriptor2.TableDescriptor[0].Name);
         }
 
         [Entity(Scope = "naming2")]
@@ -191,9 +192,9 @@ namespace TestApp
                 controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
                 TableDescriptor[] s = connection.Schema();
 
-                Assert.IsTrue(s.Any(d => d.Name == "test_objects"));
-                Assert.IsTrue(s.Any(d => d.Name == "test_entities"));
-                Assert.IsTrue(s.Any(d => d.Name == "men"));
+                ClassicAssert.IsTrue(Array.Exists(s, d => d.Name == "test_objects"));
+                ClassicAssert.IsTrue(Array.Exists(s, d => d.Name == "test_entities"));
+                ClassicAssert.IsTrue(Array.Exists(s, d => d.Name == "men"));
 
                 controller = new CreateEntityController(typeof(TestObject), "naming2");
                 controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);

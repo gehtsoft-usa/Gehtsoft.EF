@@ -11,6 +11,7 @@ using Gehtsoft.EF.Utils;
 using Gehtsoft.Tools.TypeUtils;
 using MongoDB.Bson;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -94,12 +95,12 @@ namespace TestApp
                 foreach (EntityFinder.EntityTypeInfo info in infos.Reverse())
                     connection.GetDeleteListQuery(info.EntityType).Execute();
 
-                Assert.AreEqual(0, connection.GetSchema().Count(s => s == "datatest1"));
+                ClassicAssert.AreEqual(0, connection.GetSchema().Count(s => s == "datatest1"));
 
                 foreach (EntityFinder.EntityTypeInfo info in infos)
                     connection.GetCreateListQuery(info.EntityType).Execute();
 
-                Assert.AreEqual(1, connection.GetSchema().Count(s => s == "datatest1"));
+                ClassicAssert.AreEqual(1, connection.GetSchema().Count(s => s == "datatest1"));
 
                 DataTestEntity e1, e2, e3;
 
@@ -144,32 +145,32 @@ namespace TestApp
                     query.AddOrderBy(nameof(DataTestEntity.IntVal), SortDir.Asc);
                     query.Execute();
 
-                    Assert.IsTrue(query.ReadNext());
-                    Assert.AreEqual(1, query.GetValue<int>(2));
-                    Assert.IsFalse(query.IsNull(1));
-                    Assert.IsFalse(query.IsNull("stringval"));
-                    Assert.AreEqual("s1", query.GetValue<string>(1));
-                    Assert.AreEqual(e1.DateVal, query.GetValue<DateTime>("dateval"));
+                    ClassicAssert.IsTrue(query.ReadNext());
+                    ClassicAssert.AreEqual(1, query.GetValue<int>(2));
+                    ClassicAssert.IsFalse(query.IsNull(1));
+                    ClassicAssert.IsFalse(query.IsNull("stringval"));
+                    ClassicAssert.AreEqual("s1", query.GetValue<string>(1));
+                    ClassicAssert.AreEqual(e1.DateVal, query.GetValue<DateTime>("dateval"));
 
                     Guid?[] arr = query.GetValue<Guid?[]>("guidvalarr");
-                    Assert.IsNotNull(arr);
-                    Assert.AreEqual(e1.GuidValArr.Length, arr.Length);
-                    Assert.AreEqual(e1.GuidValArr[0], arr[0]);
-                    Assert.IsNull(e1.GuidValArr[1]);
-                    Assert.AreEqual(e1.GuidValArr[2], arr[2]);
+                    ClassicAssert.IsNotNull(arr);
+                    ClassicAssert.AreEqual(e1.GuidValArr.Length, arr.Length);
+                    ClassicAssert.AreEqual(e1.GuidValArr[0], arr[0]);
+                    ClassicAssert.IsNull(e1.GuidValArr[1]);
+                    ClassicAssert.AreEqual(e1.GuidValArr[2], arr[2]);
 
-                    Assert.IsTrue(query.ReadNext());
-                    Assert.AreEqual(2, query.GetValue<int>("intval"));
-                    Assert.IsTrue(query.IsNull(1));
-                    Assert.AreEqual(null, query.GetValue<string>(1));
-                    Assert.AreEqual(null, query.GetValue<object>(1));
-                    Assert.IsTrue(query.IsNull("GuidValArr"));
-                    Assert.AreEqual(e2.DateVal, query.GetValue<DateTime?>("dateval"));
+                    ClassicAssert.IsTrue(query.ReadNext());
+                    ClassicAssert.AreEqual(2, query.GetValue<int>("intval"));
+                    ClassicAssert.IsTrue(query.IsNull(1));
+                    ClassicAssert.AreEqual(null, query.GetValue<string>(1));
+                    ClassicAssert.AreEqual(null, query.GetValue<object>(1));
+                    ClassicAssert.IsTrue(query.IsNull("GuidValArr"));
+                    ClassicAssert.AreEqual(e2.DateVal, query.GetValue<DateTime?>("dateval"));
 
-                    Assert.IsTrue(query.ReadNext());
-                    Assert.AreEqual(3, query.GetValue<int>(2));
-                    Assert.AreEqual(e3.DateVal, query.GetValue<DateTime?>("dateval"));
-                    Assert.IsFalse(query.ReadNext());
+                    ClassicAssert.IsTrue(query.ReadNext());
+                    ClassicAssert.AreEqual(3, query.GetValue<int>(2));
+                    ClassicAssert.AreEqual(e3.DateVal, query.GetValue<DateTime?>("dateval"));
+                    ClassicAssert.IsFalse(query.ReadNext());
                 }
 
                 using (MongoSelectQuery query = connection.GetSelectQuery<DataTestEntity>())
@@ -180,27 +181,27 @@ namespace TestApp
                     query.AddOrderBy(nameof(DataTestEntity.IntVal), SortDir.Asc);
                     query.Execute();
                     query.ReadNext();
-                    Assert.AreEqual(2, query.FieldCount);
-                    Assert.AreEqual("intval", query.FieldName(1));
-                    Assert.AreEqual("stringval", query.FieldName(0));
+                    ClassicAssert.AreEqual(2, query.FieldCount);
+                    ClassicAssert.AreEqual("intval", query.FieldName(1));
+                    ClassicAssert.AreEqual("stringval", query.FieldName(0));
                 }
 
                 using (MongoCountQuery query = connection.GetCountQuery<DataTestEntity>())
-                    Assert.AreEqual(3, query.RowCount);
+                    ClassicAssert.AreEqual(3, query.RowCount);
 
                 using (MongoCountQuery query = connection.GetCountQuery<DataTestEntity>())
-                    Assert.AreEqual(3, query.RowCount);
+                    ClassicAssert.AreEqual(3, query.RowCount);
 
                 using (MongoCountQuery query = connection.GetCountQuery<DataTestEntity>())
                 {
                     query.Where.Property(nameof(DataTestEntity.IntVal)).Eq(2);
-                    Assert.AreEqual(1, query.RowCount);
+                    ClassicAssert.AreEqual(1, query.RowCount);
                 }
 
                 using (MongoCountQuery query = connection.GetCountQuery<DataTestEntity>())
                 {
                     query.Where.Property(nameof(DataTestEntity.IntVal)).Eq(200);
-                    Assert.AreEqual(0, query.RowCount);
+                    ClassicAssert.AreEqual(0, query.RowCount);
                 }
             }
         }
@@ -228,10 +229,10 @@ namespace TestApp
                 using (var query = connection.GetInsertEntityQuery<Category>())
                 {
                     query.Execute(catFood);
-                    Assert.IsNotNull(catFood.ID);
+                    ClassicAssert.IsNotNull(catFood.ID);
                     query.Execute(catDress);
-                    Assert.IsNotNull(catDress.ID);
-                    Assert.AreNotEqual((ObjectId)catFood.ID, (ObjectId)catDress.ID);
+                    ClassicAssert.IsNotNull(catDress.ID);
+                    ClassicAssert.AreNotEqual((ObjectId)catFood.ID, (ObjectId)catDress.ID);
                 }
 
                 //create goods
@@ -257,13 +258,13 @@ namespace TestApp
                     query.Where.Property($"{nameof(Good.Category)}.{nameof(Category.ID)}").Eq(catDress.ID);
                     EntityCollection<Good> coll = query.ReadAll<EntityCollection<Good>, Good>();
 
-                    Assert.AreEqual(goods.Length - 5, coll.Count);
+                    ClassicAssert.AreEqual(goods.Length - 5, coll.Count);
                     bool[] found = new bool[goods.Length];
                     //make sure that found right
                     foreach (Good good in coll)
                     {
-                        Assert.IsNotNull(good.Category);
-                        Assert.AreEqual((ObjectId)catDress.ID, (ObjectId)good.Category.ID);
+                        ClassicAssert.IsNotNull(good.Category);
+                        ClassicAssert.AreEqual((ObjectId)catDress.ID, (ObjectId)good.Category.ID);
                         for (int i = 0; i < goods.Length; i++)
                         {
                             if ((ObjectId)goods[i].ID == (ObjectId)good.ID)
@@ -278,7 +279,7 @@ namespace TestApp
                     for (int i = 0; i < goods.Length; i++)
                     {
                         if ((ObjectId)goods[i].Category.ID == (ObjectId)catDress.ID)
-                            Assert.IsTrue(found[i]);
+                            ClassicAssert.IsTrue(found[i]);
                     }
                 }
 
@@ -314,27 +315,27 @@ namespace TestApp
                     query.AddOrderBy(nameof(Transaction.Timestamp), SortDir.Asc);
                     EntityCollection<Transaction> coll = query.ReadAll<EntityCollection<Transaction>, Transaction>();
 
-                    Assert.AreEqual(transactions.Length, coll.Count);
+                    ClassicAssert.AreEqual(transactions.Length, coll.Count);
 
-                    DateTime prev = new DateTime(0);
+                    DateTime prev = new DateTime(0, DateTimeKind.Unspecified);
 
                     foreach (Transaction tr in coll)
                     {
-                        Assert.IsTrue(prev.Ticks <= tr.Timestamp.Ticks);
+                        ClassicAssert.IsTrue(prev.Ticks <= tr.Timestamp.Ticks);
                         prev = tr.Timestamp;
 
                         Transaction otr = transactions[tr.Index];
-                        Assert.AreEqual(otr.Timestamp, tr.Timestamp);
-                        Assert.AreEqual(otr.Total, tr.Total);
-                        Assert.AreEqual(otr.Goods.Length, tr.Goods.Length);
+                        ClassicAssert.AreEqual(otr.Timestamp, tr.Timestamp);
+                        ClassicAssert.AreEqual(otr.Total, tr.Total);
+                        ClassicAssert.AreEqual(otr.Goods.Length, tr.Goods.Length);
 
                         for (int i = 0; i < tr.Goods.Length; i++)
                         {
                             Good good = tr.Goods[i], ogood = otr.Goods[i];
-                            Assert.AreEqual((ObjectId)ogood.ID, (ObjectId)good.ID);
-                            Assert.AreEqual(ogood.Name, good.Name);
-                            Assert.AreEqual((ObjectId)ogood.Category.ID, (ObjectId)good.Category.ID);
-                            Assert.AreEqual(ogood.Category.Name, good.Category.Name);
+                            ClassicAssert.AreEqual((ObjectId)ogood.ID, (ObjectId)good.ID);
+                            ClassicAssert.AreEqual(ogood.Name, good.Name);
+                            ClassicAssert.AreEqual((ObjectId)ogood.Category.ID, (ObjectId)good.Category.ID);
+                            ClassicAssert.AreEqual(ogood.Category.Name, good.Category.Name);
                         }
 
                         tr.Total = r.Next(2000, 5000);
@@ -367,7 +368,7 @@ namespace TestApp
                                         checkPoint2 = true;
                                 }
 
-                                Assert.IsTrue(found);
+                                ClassicAssert.IsTrue(found);
                             }
                         }
 
@@ -378,15 +379,15 @@ namespace TestApp
                             EntityCollection<Transaction> coll = query.ReadAll<Transaction>();
                             foreach (Transaction tr in coll)
                             {
-                                Assert.IsTrue(tr.Goods.Length >= 2);
-                                Assert.AreEqual((ObjectId)tr.Goods[1].ID, (ObjectId)good.ID);
+                                ClassicAssert.IsTrue(tr.Goods.Length >= 2);
+                                ClassicAssert.AreEqual((ObjectId)tr.Goods[1].ID, (ObjectId)good.ID);
                             }
                         }
                     }
                 }
 
-                Assert.IsTrue(checkPoint1);
-                Assert.IsTrue(checkPoint2);
+                ClassicAssert.IsTrue(checkPoint1);
+                ClassicAssert.IsTrue(checkPoint2);
             }
         }
 
@@ -415,7 +416,7 @@ namespace TestApp
                     connection.GetCreateListQuery(info.EntityType).Execute();
 
                 using (var query = connection.GetCountQuery<TestNoIdEntity>())
-                    Assert.AreEqual(0, query.RowCount);
+                    ClassicAssert.AreEqual(0, query.RowCount);
 
                 TestNoIdEntity entity = new TestNoIdEntity()
                 {
@@ -430,7 +431,7 @@ namespace TestApp
                 }
 
                 using (var query = connection.GetCountQuery<TestNoIdEntity>())
-                    Assert.AreEqual(0, query.RowCount);
+                    ClassicAssert.AreEqual(0, query.RowCount);
 
                 using (var query = connection.GetUpdateEntityQuery<TestNoIdEntity>())
                 {
@@ -440,7 +441,7 @@ namespace TestApp
                 }
 
                 using (var query = connection.GetCountQuery<TestNoIdEntity>())
-                    Assert.AreEqual(1, query.RowCount);
+                    ClassicAssert.AreEqual(1, query.RowCount);
 
                 using (var query = connection.GetUpdateEntityQuery<TestNoIdEntity>())
                 {
@@ -450,7 +451,7 @@ namespace TestApp
                 }
 
                 using (var query = connection.GetCountQuery<TestNoIdEntity>())
-                    Assert.AreEqual(1, query.RowCount);
+                    ClassicAssert.AreEqual(1, query.RowCount);
 
                 using (var query = connection.GetUpdateEntityQuery<TestNoIdEntity>())
                 {
@@ -460,7 +461,7 @@ namespace TestApp
                 }
 
                 using (var query = connection.GetCountQuery<TestNoIdEntity>())
-                    Assert.AreEqual(2, query.RowCount);
+                    ClassicAssert.AreEqual(2, query.RowCount);
             }
         }
 

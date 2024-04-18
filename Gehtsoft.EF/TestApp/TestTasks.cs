@@ -8,6 +8,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Entities;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -87,13 +88,13 @@ namespace TestApp
 
             wt.Wait();
 
-            Assert.IsFalse(hasError);
-            Assert.AreEqual(10, completedCount);
+            ClassicAssert.IsFalse(hasError);
+            ClassicAssert.AreEqual(10, completedCount);
 
             using (var query = connection.GetSelectEntitiesCountQuery<MTTestEntity>())
             {
                 var cc = query.RowCount;
-                Assert.AreEqual(100, cc);
+                ClassicAssert.AreEqual(100, cc);
             }
         }
     }

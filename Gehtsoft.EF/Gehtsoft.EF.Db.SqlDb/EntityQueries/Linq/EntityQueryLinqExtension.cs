@@ -11,6 +11,8 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Utils;
 
+#pragma warning disable S1133 // Deprecated code should be removed
+
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 {
     /// <summary>

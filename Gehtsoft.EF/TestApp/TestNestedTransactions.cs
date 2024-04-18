@@ -8,6 +8,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace TestApp
 {
@@ -25,7 +26,7 @@ namespace TestApp
 
         public static void Do(SqlDbConnection connection)
         {
-            Assert.AreEqual(SqlDbLanguageSpecifics.TransactionSupport.Nested, connection.GetLanguageSpecifics().SupportsTransactions);
+            ClassicAssert.AreEqual(SqlDbLanguageSpecifics.TransactionSupport.Nested, connection.GetLanguageSpecifics().SupportsTransactions);
 
             DropTableBuilder dbuilder = connection.GetDropTableBuilder(gTable);
             CreateTableBuilder cbuilder = connection.GetCreateTableBuilder(gTable);
@@ -36,8 +37,8 @@ namespace TestApp
             using (query = connection.GetQuery(dbuilder))
                 query.ExecuteNoData();
             TableDescriptor[] schema = connection.Schema();
-            Assert.NotNull(schema);
-            Assert.IsFalse(schema.Contains(gTable.Name));
+            ClassicAssert.NotNull(schema);
+            ClassicAssert.IsFalse(schema.Contains(gTable.Name));
             using (query = connection.GetQuery(cbuilder))
                 query.ExecuteNoData();
 
@@ -86,7 +87,7 @@ namespace TestApp
                 query.BindParam("vstring", "s1");
                 query.ExecuteReader();
                 query.ReadNext();
-                Assert.AreEqual(1, query.GetValue<int>(0));
+                ClassicAssert.AreEqual(1, query.GetValue<int>(0));
             }
 
             using (query = connection.GetQuery(sbuilder))
@@ -94,7 +95,7 @@ namespace TestApp
                 query.BindParam("vstring", "s2");
                 query.ExecuteReader();
                 query.ReadNext();
-                Assert.AreEqual(1, query.GetValue<int>(0));
+                ClassicAssert.AreEqual(1, query.GetValue<int>(0));
             }
 
             using (query = connection.GetQuery(sbuilder))
@@ -102,7 +103,7 @@ namespace TestApp
                 query.BindParam("vstring", "s3");
                 query.ExecuteReader();
                 query.ReadNext();
-                Assert.AreEqual(0, query.GetValue<int>(0));
+                ClassicAssert.AreEqual(0, query.GetValue<int>(0));
             }
 
             using (query = connection.GetQuery(sbuilder))
@@ -110,7 +111,7 @@ namespace TestApp
                 query.BindParam("vstring", "s4");
                 query.ExecuteReader();
                 query.ReadNext();
-                Assert.AreEqual(1, query.GetValue<int>(0));
+                ClassicAssert.AreEqual(1, query.GetValue<int>(0));
             }
         }
     }
