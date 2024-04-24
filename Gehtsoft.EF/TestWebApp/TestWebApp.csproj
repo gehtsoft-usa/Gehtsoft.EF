@@ -31,7 +31,7 @@
   </Target>
 
   <Target Name="Content">
-   <GetContent Source="$(gs-feed)/bower/packages/Kendo.UI/2020.3.1109.zip" Destination="$(MSBuildProjectDirectory)/wwwroot/lib/Kendo.UI" Unzip="true" />
+   <GetContent Source="https://www.myget.org/F/gehtsoft-public/bower/packages/Kendo.UI/2022.3.1109.zip" Destination="$(MSBuildProjectDirectory)/wwwroot/lib/Kendo.UI" Unzip="true" />
   </Target>
 
 </Project>
