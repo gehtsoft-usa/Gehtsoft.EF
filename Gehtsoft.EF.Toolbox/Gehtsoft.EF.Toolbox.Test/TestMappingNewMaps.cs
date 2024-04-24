@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Mapper;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace Gehtsoft.EF.Toolbox.Test
 {
@@ -152,35 +153,35 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             entity = new Entity2() { ID = 5, Entity1 = new Entity1() { ID = 10, Name = "Name10" }, StringValue1 = " 1 ", StringValue2 = " 2 ", IntegerValue = 123, EnumValue = EntityEnum.Value3 };
             model = MapFactory.Map<Entity2, Entity2Model>(entity);
-            Assert.IsNotNull(model);
-            Assert.AreEqual(5, model.ID);
-            Assert.AreEqual(10, model.Reference);
-            Assert.AreEqual("Name10", model.ReferenceName);
-            Assert.AreEqual("1", model.StringValue1);
-            Assert.AreEqual(" 2 ", model.StringValue2);
-            Assert.AreEqual(123m, model.IntegerValue);
-            Assert.AreEqual((int)EntityEnum.Value3, model.EnumValue);
-            Assert.IsNull(model.Aggregates);
+            ClassicAssert.IsNotNull(model);
+            ClassicAssert.AreEqual(5, model.ID);
+            ClassicAssert.AreEqual(10, model.Reference);
+            ClassicAssert.AreEqual("Name10", model.ReferenceName);
+            ClassicAssert.AreEqual("1", model.StringValue1);
+            ClassicAssert.AreEqual(" 2 ", model.StringValue2);
+            ClassicAssert.AreEqual(123m, model.IntegerValue);
+            ClassicAssert.AreEqual((int)EntityEnum.Value3, model.EnumValue);
+            ClassicAssert.IsNull(model.Aggregates);
 
             model.StringValue1 = "  1   ";
             entity = MapFactory.Map<Entity2Model, Entity2>(model);
-            Assert.AreEqual(5, entity.ID);
-            Assert.IsNotNull(entity.Entity1);
-            Assert.AreEqual(10, entity.Entity1.ID);
-            Assert.AreEqual("1", entity.StringValue1);
-            Assert.AreEqual(" 2 ", entity.StringValue2);
-            Assert.AreEqual(123, entity.IntegerValue);
-            Assert.AreEqual(EntityEnum.Value3, entity.EnumValue);
+            ClassicAssert.AreEqual(5, entity.ID);
+            ClassicAssert.IsNotNull(entity.Entity1);
+            ClassicAssert.AreEqual(10, entity.Entity1.ID);
+            ClassicAssert.AreEqual("1", entity.StringValue1);
+            ClassicAssert.AreEqual(" 2 ", entity.StringValue2);
+            ClassicAssert.AreEqual(123, entity.IntegerValue);
+            ClassicAssert.AreEqual(EntityEnum.Value3, entity.EnumValue);
 
             model = new Entity2Model();
             entity = MapFactory.Map<Entity2Model, Entity2>(model);
-            Assert.AreEqual(0, entity.ID);
-            Assert.IsNull(entity.Entity1);
-            Assert.IsNull(entity.StringValue1);
-            Assert.IsNull(entity.StringValue2);
-            Assert.AreEqual(0, entity.IntegerValue);
-            Assert.IsNull(entity.EnumValue);
-            Assert.IsNull(entity.Aggregates);
+            ClassicAssert.AreEqual(0, entity.ID);
+            ClassicAssert.IsNull(entity.Entity1);
+            ClassicAssert.IsNull(entity.StringValue1);
+            ClassicAssert.IsNull(entity.StringValue2);
+            ClassicAssert.AreEqual(0, entity.IntegerValue);
+            ClassicAssert.IsNull(entity.EnumValue);
+            ClassicAssert.IsNull(entity.Aggregates);
 
             entity = new Entity2()
             {
@@ -195,21 +196,21 @@ namespace Gehtsoft.EF.Toolbox.Test
             };
 
             model = MapFactory.Map<Entity2, Entity2Model>(entity);
-            Assert.IsNotNull(model.Aggregates);
-            Assert.AreEqual(5, model.Aggregates.Length);
+            ClassicAssert.IsNotNull(model.Aggregates);
+            ClassicAssert.AreEqual(5, model.Aggregates.Length);
             for (int i = 0; i < 5; i++)
             {
-                Assert.IsNotNull(model.Aggregates[i]);
-                Assert.AreEqual((i + 1) * 100, model.Aggregates[i].Ident);
+                ClassicAssert.IsNotNull(model.Aggregates[i]);
+                ClassicAssert.AreEqual((i + 1) * 100, model.Aggregates[i].Ident);
             }
 
             entity = MapFactory.Map<Entity2Model, Entity2>(model);
-            Assert.IsNotNull(entity.Aggregates);
-            Assert.AreEqual(5, entity.Aggregates.Length);
+            ClassicAssert.IsNotNull(entity.Aggregates);
+            ClassicAssert.AreEqual(5, entity.Aggregates.Length);
             for (int i = 0; i < 5; i++)
             {
-                Assert.IsNotNull(entity.Aggregates[i]);
-                Assert.AreEqual((i + 1) * 100, entity.Aggregates[i].ID);
+                ClassicAssert.IsNotNull(entity.Aggregates[i]);
+                ClassicAssert.AreEqual((i + 1) * 100, entity.Aggregates[i].ID);
             }
         }
 
@@ -219,19 +220,19 @@ namespace Gehtsoft.EF.Toolbox.Test
             Entity2 entity = new Entity2() { ID = 100, Entity1 = new Entity1() { ID = 500, Name = "Hello" } };
             Entity2Model2 model2 = MapFactory.Map<Entity2, Entity2Model2>(entity);
             Entity2Model3 model3 = MapFactory.Map<Entity2, Entity2Model3>(entity);
-            Assert.AreEqual(500, model2.Reference);
-            Assert.AreEqual(500, model3.Reference.ID);
-            Assert.AreEqual("Hello", model3.Reference.Name);
+            ClassicAssert.AreEqual(500, model2.Reference);
+            ClassicAssert.AreEqual(500, model3.Reference.ID);
+            ClassicAssert.AreEqual("Hello", model3.Reference.Name);
 
             model2.Reference = 10;
             entity = MapFactory.Map<Entity2Model2, Entity2>(model2);
-            Assert.AreEqual(10, entity.Entity1.ID);
-            Assert.IsNull(entity.Entity1.Name);
+            ClassicAssert.AreEqual(10, entity.Entity1.ID);
+            ClassicAssert.IsNull(entity.Entity1.Name);
             model3.Reference.ID = 15;
             model3.Reference.Name = "Newname";
             entity = MapFactory.Map<Entity2Model3, Entity2>(model3);
-            Assert.AreEqual(15, entity.Entity1.ID);
-            Assert.AreEqual("Newname", entity.Entity1.Name);
+            ClassicAssert.AreEqual(15, entity.Entity1.ID);
+            ClassicAssert.AreEqual("Newname", entity.Entity1.Name);
         }
 
         [Test]
@@ -243,37 +244,37 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             map1.BeforeMapping((e, m) =>
             {
-                Assert.IsNull(m.ID);
+                ClassicAssert.IsNull(m.ID);
                 f1 = true;
             });
 
             map1.AfterMapping((e, m) =>
             {
-                Assert.AreEqual(e.ID, m.ID);
+                ClassicAssert.AreEqual(e.ID, m.ID);
                 f2 = true;
             });
 
             map2.BeforeMapping((e, m) =>
             {
-                Assert.AreEqual(0, m.ID);
+                ClassicAssert.AreEqual(0, m.ID);
                 f1 = true;
             });
 
             map2.AfterMapping((m, e) =>
             {
-                Assert.AreEqual(m.ID, e.ID);
+                ClassicAssert.AreEqual(m.ID, e.ID);
                 f2 = true;
             });
 
             f1 = f2 = false;
             MapFactory.Map<Entity2, Entity2Model2>(new Entity2() { ID = 5 });
-            Assert.IsTrue(f1);
-            Assert.IsTrue(f2);
+            ClassicAssert.IsTrue(f1);
+            ClassicAssert.IsTrue(f2);
 
             f1 = f2 = false;
             MapFactory.Map<Entity2Model2, Entity2>(new Entity2Model2() { ID = 5 });
-            Assert.IsTrue(f1);
-            Assert.IsTrue(f2);
+            ClassicAssert.IsTrue(f1);
+            ClassicAssert.IsTrue(f2);
         }
 
         public class SourceClass
@@ -300,19 +301,19 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             sourceClass = new SourceClass() { Name = "Yeahname", Values = new int[] { 1, 2, 3 } };
             model = MapFactory.Map<SourceClass, Model>(sourceClass);
-            Assert.IsNotNull(model);
-            Assert.AreEqual("Yeahname", model.Name);
-            Assert.AreEqual(3, model.ValueList.Count);
-            Assert.AreEqual(1, model.ValueList[0]);
-            Assert.AreEqual(2, model.ValueList[1]);
-            Assert.AreEqual(3, model.ValueList[2]);
+            ClassicAssert.IsNotNull(model);
+            ClassicAssert.AreEqual("Yeahname", model.Name);
+            ClassicAssert.AreEqual(3, model.ValueList.Count);
+            ClassicAssert.AreEqual(1, model.ValueList[0]);
+            ClassicAssert.AreEqual(2, model.ValueList[1]);
+            ClassicAssert.AreEqual(3, model.ValueList[2]);
 
             sourceClass1 = MapFactory.Map<Model, SourceClass>(model);
-            Assert.AreEqual("Yeahname", sourceClass1.Name);
-            Assert.AreEqual(3, sourceClass1.Values.Length);
-            Assert.AreEqual(1, sourceClass1.Values[0]);
-            Assert.AreEqual(2, sourceClass1.Values[1]);
-            Assert.AreEqual(3, sourceClass1.Values[2]);
+            ClassicAssert.AreEqual("Yeahname", sourceClass1.Name);
+            ClassicAssert.AreEqual(3, sourceClass1.Values.Length);
+            ClassicAssert.AreEqual(1, sourceClass1.Values[0]);
+            ClassicAssert.AreEqual(2, sourceClass1.Values[1]);
+            ClassicAssert.AreEqual(3, sourceClass1.Values[2]);
         }
 
         [Test]
@@ -326,17 +327,17 @@ namespace Gehtsoft.EF.Toolbox.Test
             };
 
             Model[] models = MapFactory.Map<SourceClass[], Model[]>(sourceClasses);
-            Assert.IsNotNull(models);
-            Assert.AreEqual(sourceClasses.Length, models.Length);
+            ClassicAssert.IsNotNull(models);
+            ClassicAssert.AreEqual(sourceClasses.Length, models.Length);
             for (int i = 0; i < sourceClasses.Length; i++)
             {
-                Assert.AreEqual(sourceClasses[i].Name, models[i].Name);
+                ClassicAssert.AreEqual(sourceClasses[i].Name, models[i].Name);
                 if (sourceClasses[i].Values == null)
-                    Assert.IsNull(models[i].ValueList);
+                    ClassicAssert.IsNull(models[i].ValueList);
                 else
                 {
-                    Assert.AreEqual(sourceClasses[i].Values.Length, models[i].ValueList.Count);
-                    Assert.AreEqual(sourceClasses[i].Values, models[i].ValueList);
+                    ClassicAssert.AreEqual(sourceClasses[i].Values.Length, models[i].ValueList.Count);
+                    ClassicAssert.AreEqual(sourceClasses[i].Values, models[i].ValueList);
                 }
             }
         }
@@ -349,14 +350,14 @@ namespace Gehtsoft.EF.Toolbox.Test
             map.AfterMapping((s, d) => d[0] = s.Name).When((s, d) => s != null);
             SourceClass cls = null;
 
-            Assert.IsNull(MapFactory.Map<SourceClass, string[]>(cls));
+            ClassicAssert.IsNull(MapFactory.Map<SourceClass, string[]>(cls));
 
             cls = new SourceClass() { Name = "123" };
             string[] r = MapFactory.Map<SourceClass, string[]>(cls);
 
-            Assert.IsNotNull(r);
-            Assert.AreEqual(1, r.Length);
-            Assert.AreEqual("123", r[0]);
+            ClassicAssert.IsNotNull(r);
+            ClassicAssert.AreEqual(1, r.Length);
+            ClassicAssert.AreEqual("123", r[0]);
         }
 
         public class Entity2Model4
@@ -384,20 +385,20 @@ namespace Gehtsoft.EF.Toolbox.Test
                 Entity2 e = new Entity2() { ID = 123, Entity1 = new Entity1() { ID = 456, Name = "MyName" } };
                 Entity2Model4 m = MapFactory.Map<Entity2, Entity2Model4>(e);
 
-                Assert.AreEqual(e.ID, m.ID);
-                Assert.AreEqual(e.Entity1.Name, m.ReferenceName);
-                Assert.AreEqual("123", m.Field1);
-                Assert.AreEqual(e.ID, m.Field2);
-                Assert.AreEqual(e.ID * 5, m.Field3);
+                ClassicAssert.AreEqual(e.ID, m.ID);
+                ClassicAssert.AreEqual(e.Entity1.Name, m.ReferenceName);
+                ClassicAssert.AreEqual("123", m.Field1);
+                ClassicAssert.AreEqual(e.ID, m.Field2);
+                ClassicAssert.AreEqual(e.ID * 5, m.Field3);
 
                 e = new Entity2() { ID = 123, Entity1 = null };
                 m = MapFactory.Map<Entity2, Entity2Model4>(e);
 
-                Assert.AreEqual(e.ID, m.ID);
-                Assert.AreEqual("null", m.ReferenceName);
-                Assert.AreEqual("123", m.Field1);
-                Assert.AreEqual(e.ID, m.Field2);
-                Assert.AreEqual(e.ID * 5, m.Field3);
+                ClassicAssert.AreEqual(e.ID, m.ID);
+                ClassicAssert.AreEqual("null", m.ReferenceName);
+                ClassicAssert.AreEqual("123", m.Field1);
+                ClassicAssert.AreEqual(e.ID, m.Field2);
+                ClassicAssert.AreEqual(e.ID * 5, m.Field3);
             }
         }
 
@@ -408,23 +409,23 @@ namespace Gehtsoft.EF.Toolbox.Test
             e1 = new Entity2() { ID = 1, Entity1 = new Entity1() { ID = 10 }, Aggregates = new AggEntity[] { new AggEntity() { ID = 20 } } };
 
             e2 = MapFactory.Map<Entity2, Entity2>(e1);
-            Assert.IsTrue(object.ReferenceEquals(e1, e2));
+            ClassicAssert.IsTrue(object.ReferenceEquals(e1, e2));
 
             var map = MapFactory.CreateMap<Entity2, Entity2>();
-            Assert.IsFalse(map.ContainsRuleFor(nameof(Entity2.ID)));
+            ClassicAssert.IsFalse(map.ContainsRuleFor(nameof(Entity2.ID)));
             map.MapPropertiesByName();
-            Assert.IsTrue(map.ContainsRuleFor(nameof(Entity2.ID)));
+            ClassicAssert.IsTrue(map.ContainsRuleFor(nameof(Entity2.ID)));
             e2 = MapFactory.Map<Entity2, Entity2>(e1);
-            Assert.IsFalse(object.ReferenceEquals(e1, e2));
-            Assert.AreEqual(e1.ID, e2.ID);
-            Assert.IsTrue(object.ReferenceEquals(e1.Entity1, e2.Entity1));
-            Assert.IsTrue(object.ReferenceEquals(e1.Aggregates, e2.Aggregates));
+            ClassicAssert.IsFalse(object.ReferenceEquals(e1, e2));
+            ClassicAssert.AreEqual(e1.ID, e2.ID);
+            ClassicAssert.IsTrue(object.ReferenceEquals(e1.Entity1, e2.Entity1));
+            ClassicAssert.IsTrue(object.ReferenceEquals(e1.Aggregates, e2.Aggregates));
 
             var map1 = MapFactory.CreateMap<Entity1, Entity1>();
             map1.MapPropertiesByName();
             e2 = MapFactory.Map<Entity2, Entity2>(e1);
-            Assert.IsFalse(object.ReferenceEquals(e1.Entity1, e2.Entity1));
-            Assert.AreEqual(e1.Entity1.ID, e2.Entity1.ID);
+            ClassicAssert.IsFalse(object.ReferenceEquals(e1.Entity1, e2.Entity1));
+            ClassicAssert.AreEqual(e1.Entity1.ID, e2.Entity1.ID);
 
             var map2 = MapFactory.CreateMap<AggEntity[], AggEntity[]>();
             map2.Factory = entities => entities == null ? null : new AggEntity[entities.Length];
@@ -434,8 +435,8 @@ namespace Gehtsoft.EF.Toolbox.Test
             }).When((source, destination) => source != null);
 
             e2 = MapFactory.Map<Entity2, Entity2>(e1);
-            Assert.IsFalse(object.ReferenceEquals(e1.Aggregates, e2.Aggregates));
-            Assert.AreEqual(e1.Aggregates.Length, e2.Aggregates.Length);
+            ClassicAssert.IsFalse(object.ReferenceEquals(e1.Aggregates, e2.Aggregates));
+            ClassicAssert.AreEqual(e1.Aggregates.Length, e2.Aggregates.Length);
         }
 
         public class Parent
@@ -459,21 +460,21 @@ namespace Gehtsoft.EF.Toolbox.Test
             {
                 child = new Child() { ID = 100 };
                 parent = MapFactory.Map<Child, Parent>(child);
-                Assert.IsTrue(object.ReferenceEquals(parent, child));
+                ClassicAssert.IsTrue(object.ReferenceEquals(parent, child));
 
                 Map<Child, Parent> map = MapFactory.CreateMap<Child, Parent>();
                 map.For(p => p.ID).From(c => c.ID);
 
                 parent = MapFactory.Map<Child, Parent>(child);
-                Assert.IsFalse(object.ReferenceEquals(parent, child));
-                Assert.AreEqual(child.ID, parent.ID);
+                ClassicAssert.IsFalse(object.ReferenceEquals(parent, child));
+                ClassicAssert.AreEqual(child.ID, parent.ID);
 
                 MapFactory.RemoveMap<Child, Parent>();
                 parent = MapFactory.Map<Child, Parent>(child);
-                Assert.IsTrue(object.ReferenceEquals(parent, child));
+                ClassicAssert.IsTrue(object.ReferenceEquals(parent, child));
 
                 parent = new Parent() { ID = 100 };
-                Assert.Throws<ArgumentException>(() => MapFactory.Map<Parent, Child>(parent));
+                ClassicAssert.Throws<ArgumentException>(() => MapFactory.Map<Parent, Child>(parent));
             }
 
             {
@@ -497,16 +498,16 @@ namespace Gehtsoft.EF.Toolbox.Test
                 rule1 = rule2 = false;
                 parent = new Parent() { ID = 0 };
                 child = MapFactory.Map<Parent, Child>(parent);
-                Assert.IsTrue(rule1);
-                Assert.IsFalse(rule2);
-                Assert.AreEqual(1000, child.ID);
+                ClassicAssert.IsTrue(rule1);
+                ClassicAssert.IsFalse(rule2);
+                ClassicAssert.AreEqual(1000, child.ID);
 
                 rule1 = rule2 = false;
                 parent = new Parent() { ID = 1 };
                 child = MapFactory.Map<Parent, Child>(parent);
-                Assert.IsFalse(rule1);
-                Assert.IsTrue(rule2);
-                Assert.AreEqual(1, child.ID);
+                ClassicAssert.IsFalse(rule1);
+                ClassicAssert.IsTrue(rule2);
+                ClassicAssert.AreEqual(1, child.ID);
 
                 map.For(c => c.ID)
                     .ReplaceWith()
@@ -519,10 +520,10 @@ namespace Gehtsoft.EF.Toolbox.Test
                 rule1 = rule2 = rule3 = false;
                 parent = new Parent() { ID = 2 };
                 child = MapFactory.Map<Parent, Child>(parent);
-                Assert.IsFalse(rule1);
-                Assert.IsFalse(rule2);
-                Assert.IsTrue(rule3);
-                Assert.AreEqual(4, child.ID);
+                ClassicAssert.IsFalse(rule1);
+                ClassicAssert.IsFalse(rule2);
+                ClassicAssert.IsTrue(rule3);
+                ClassicAssert.AreEqual(4, child.ID);
             }
         }
 
@@ -548,29 +549,29 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             cls1 = new NullableClass1() { Value1 = 10, Value2 = "abc" };
             cls2 = MapFactory.Map<NullableClass1, NullableClass2>(cls1);
-            Assert.AreEqual("10", cls2.Value1);
-            Assert.AreEqual("abc", cls2.Value2);
+            ClassicAssert.AreEqual("10", cls2.Value1);
+            ClassicAssert.AreEqual("abc", cls2.Value2);
 
             cls2 = new NullableClass2() { Value1 = "15", Value2 = "def" };
             cls1 = MapFactory.Map<NullableClass2, NullableClass1>(cls2);
-            Assert.AreEqual(15, cls1.Value1);
-            Assert.AreEqual("def", cls1.Value2);
+            ClassicAssert.AreEqual(15, cls1.Value1);
+            ClassicAssert.AreEqual("def", cls1.Value2);
 
             cls1 = new NullableClass1() { Value1 = 1, Value2 = "2" };
             cls2 = new NullableClass2() { Value1 = "123", Value2 = "456" };
             MapFactory.Map(cls1, cls2);
-            Assert.AreEqual("1", cls2.Value1);
-            Assert.AreEqual("2", cls2.Value2);
+            ClassicAssert.AreEqual("1", cls2.Value1);
+            ClassicAssert.AreEqual("2", cls2.Value2);
 
             cls1.Value1 = null;
             cls1.Value2 = null;
             MapFactory.GetMap<NullableClass1, NullableClass2>().Do(cls1, cls2, true);
-            Assert.AreEqual("1", cls2.Value1);
-            Assert.AreEqual("2", cls2.Value2);
+            ClassicAssert.AreEqual("1", cls2.Value1);
+            ClassicAssert.AreEqual("2", cls2.Value2);
 
             MapFactory.GetMap<NullableClass1, NullableClass2>().Do(cls1, cls2, false);
-            Assert.AreEqual(null, cls2.Value1);
-            Assert.AreEqual(null, cls2.Value2);
+            ClassicAssert.AreEqual(null, cls2.Value1);
+            ClassicAssert.AreEqual(null, cls2.Value2);
         }
     }
 }

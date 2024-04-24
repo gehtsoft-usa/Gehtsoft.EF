@@ -12,6 +12,7 @@ using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Mapper;
 using Gehtsoft.Tools2.Extensions;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace Gehtsoft.EF.Toolbox.Test
 {
@@ -60,13 +61,13 @@ namespace Gehtsoft.EF.Toolbox.Test
         [Test]
         public void TestTypeRecognizer()
         {
-            Assert.AreEqual(null, ValueMapper.GetElementType(typeof(int)));
-            Assert.AreEqual(typeof(char), ValueMapper.GetElementType(typeof(string)));
-            Assert.AreEqual(typeof(string), ValueMapper.GetElementType(typeof(EntityCollection<string>)));
-            Assert.AreEqual(typeof(double?), ValueMapper.GetElementType(typeof(List<double?>)));
-            Assert.AreEqual(typeof(DateTime?), ValueMapper.GetElementType(typeof(DateTime?[])));
-            Assert.AreEqual(typeof(string[]), ValueMapper.GetElementType(typeof(EntityCollection<string[]>)));
-            Assert.AreEqual(typeof(List<int>), ValueMapper.GetElementType(typeof(Queue<List<int>>)));
+            ClassicAssert.AreEqual(null, ValueMapper.GetElementType(typeof(int)));
+            ClassicAssert.AreEqual(typeof(char), ValueMapper.GetElementType(typeof(string)));
+            ClassicAssert.AreEqual(typeof(string), ValueMapper.GetElementType(typeof(EntityCollection<string>)));
+            ClassicAssert.AreEqual(typeof(double?), ValueMapper.GetElementType(typeof(List<double?>)));
+            ClassicAssert.AreEqual(typeof(DateTime?), ValueMapper.GetElementType(typeof(DateTime?[])));
+            ClassicAssert.AreEqual(typeof(string[]), ValueMapper.GetElementType(typeof(EntityCollection<string[]>)));
+            ClassicAssert.AreEqual(typeof(List<int>), ValueMapper.GetElementType(typeof(Queue<List<int>>)));
         }
 
         [Test]
@@ -75,22 +76,22 @@ namespace Gehtsoft.EF.Toolbox.Test
             Model1 model1 = new Model1();
 
             ClassPropertyAccessor mapping = new ClassPropertyAccessor(typeof(Model1).GetTypeInfo().GetProperty(nameof(Model1.ID)));
-            Assert.AreEqual(nameof(Model1.ID), mapping.Name);
-            Assert.AreEqual(typeof(int), mapping.ValueType);
+            ClassicAssert.AreEqual(nameof(Model1.ID), mapping.Name);
+            ClassicAssert.AreEqual(typeof(int), mapping.ValueType);
             mapping.Set(model1, 10);
-            Assert.AreEqual(10, model1.ID);
+            ClassicAssert.AreEqual(10, model1.ID);
             model1.ID = 15;
-            Assert.AreEqual(15, mapping.Get(model1));
+            ClassicAssert.AreEqual(15, mapping.Get(model1));
 
             ClassPropertyAccessor mapping1 = null;
-            Assert.IsFalse(mapping.Equals(mapping1));
+            ClassicAssert.IsFalse(mapping.Equals(mapping1));
             mapping1 = mapping;
-            Assert.IsTrue(mapping.Equals(mapping1));
+            ClassicAssert.IsTrue(mapping.Equals(mapping1));
             mapping1 = new ClassPropertyAccessor(typeof(Model1).GetTypeInfo().GetProperty(nameof(Model1.ID)));
-            Assert.IsTrue(mapping.Equals(mapping1));
-            Assert.IsFalse(ReferenceEquals(mapping, mapping1));
+            ClassicAssert.IsTrue(mapping.Equals(mapping1));
+            ClassicAssert.IsFalse(ReferenceEquals(mapping, mapping1));
             mapping1 = new ClassPropertyAccessor(typeof(Model1).GetTypeInfo().GetProperty(nameof(Model1.Name)));
-            Assert.IsFalse(mapping.Equals(mapping1));
+            ClassicAssert.IsFalse(mapping.Equals(mapping1));
         }
 
         [Test]
@@ -100,43 +101,43 @@ namespace Gehtsoft.EF.Toolbox.Test
             EntityDescriptor entity1Descriptor = AllEntities.Inst[typeof(Entity1)];
 
             EntityPropertyAccessor accessor = new EntityPropertyAccessor(entity1Descriptor[nameof(Entity1.ID)]);
-            Assert.AreEqual(nameof(Entity1.ID), accessor.Name);
-            Assert.AreEqual(typeof(int), accessor.ValueType);
+            ClassicAssert.AreEqual(nameof(Entity1.ID), accessor.Name);
+            ClassicAssert.AreEqual(typeof(int), accessor.ValueType);
             accessor.Set(entity1, 10);
-            Assert.AreEqual(10, entity1.ID);
+            ClassicAssert.AreEqual(10, entity1.ID);
             entity1.ID = 15;
-            Assert.AreEqual(15, accessor.Get(entity1));
+            ClassicAssert.AreEqual(15, accessor.Get(entity1));
 
             EntityPropertyAccessor mapping1 = null;
-            Assert.IsFalse(accessor.Equals(mapping1));
+            ClassicAssert.IsFalse(accessor.Equals(mapping1));
             mapping1 = accessor;
-            Assert.IsTrue(accessor.Equals(mapping1));
+            ClassicAssert.IsTrue(accessor.Equals(mapping1));
             mapping1 = new EntityPropertyAccessor(entity1Descriptor[nameof(Entity1.ID)]);
-            Assert.IsTrue(accessor.Equals(mapping1));
-            Assert.IsFalse(ReferenceEquals(accessor, mapping1));
+            ClassicAssert.IsTrue(accessor.Equals(mapping1));
+            ClassicAssert.IsFalse(ReferenceEquals(accessor, mapping1));
             mapping1 = new EntityPropertyAccessor(entity1Descriptor[nameof(Entity1.Title)]);
-            Assert.IsFalse(accessor.Equals(mapping1));
+            ClassicAssert.IsFalse(accessor.Equals(mapping1));
 
             Entity2 entity2 = new Entity2();
             EntityDescriptor entity2Descriptor = AllEntities.Inst[typeof(Entity2)];
             EntityPrimaryKeySource pksource = new EntityPrimaryKeySource(entity2Descriptor[nameof(Entity2.Reference)]);
-            Assert.AreEqual(nameof(Entity2.Reference), pksource.Name);
-            Assert.AreEqual(typeof(int), pksource.ValueType);
-            Assert.IsNull(pksource.Get(entity2));
+            ClassicAssert.AreEqual(nameof(Entity2.Reference), pksource.Name);
+            ClassicAssert.AreEqual(typeof(int), pksource.ValueType);
+            ClassicAssert.IsNull(pksource.Get(entity2));
 
             entity2.Reference = entity1;
-            Assert.AreEqual(15, pksource.Get(entity2));
+            ClassicAssert.AreEqual(15, pksource.Get(entity2));
 
             Model2 model2 = new Model2();
             ModelPrimaryKeySource pksource1 = new ModelPrimaryKeySource(entity2Descriptor[nameof(Entity2.Reference)], model2.GetType().GetTypeInfo().GetProperty(nameof(Model2.Reference)));
-            Assert.AreEqual(nameof(Model2.Reference), pksource1.Name);
-            Assert.AreEqual(typeof(Entity1), pksource1.ValueType);
-            Assert.IsNull(pksource1.Get(model2));
+            ClassicAssert.AreEqual(nameof(Model2.Reference), pksource1.Name);
+            ClassicAssert.AreEqual(typeof(Entity1), pksource1.ValueType);
+            ClassicAssert.IsNull(pksource1.Get(model2));
             model2.Reference = 55;
             object ro = pksource1.Get(model2);
-            Assert.IsNotNull(ro);
-            Assert.AreEqual(typeof(Entity1), ro.GetType());
-            Assert.AreEqual(55, (ro as Entity1)?.ID);
+            ClassicAssert.IsNotNull(ro);
+            ClassicAssert.AreEqual(typeof(Entity1), ro.GetType());
+            ClassicAssert.AreEqual(55, (ro as Entity1)?.ID);
         }
 
         [Test]
@@ -145,13 +146,13 @@ namespace Gehtsoft.EF.Toolbox.Test
             Model1 model1 = new Model1() { ID = 10, Number = null };
 
             ExpressionSource<Model1, double> expression = new ExpressionSource<Model1, double>(model => model.ID + (model.Number ?? 5));
-            Assert.AreEqual(typeof(double), expression.ValueType);
-            Assert.AreEqual("expression", expression.Name);
-            Assert.AreEqual(10, model1.ID);
-            Assert.AreEqual(15, expression.Get(model1));
+            ClassicAssert.AreEqual(typeof(double), expression.ValueType);
+            ClassicAssert.AreEqual("expression", expression.Name);
+            ClassicAssert.AreEqual(10, model1.ID);
+            ClassicAssert.AreEqual(15, expression.Get(model1));
 
             model1.Number = 55;
-            Assert.AreEqual(65, expression.Get(model1));
+            ClassicAssert.AreEqual(65, expression.Get(model1));
         }
 
         public enum TestEnum
@@ -165,58 +166,58 @@ namespace Gehtsoft.EF.Toolbox.Test
         public void TestValueMapper()
         {
             //test null mappings
-            Assert.IsNull(ValueMapper.MapValue(null, typeof(Model1)));
-            Assert.IsNull(ValueMapper.MapValue(null, typeof(int?)));
-            Assert.AreEqual(0, ValueMapper.MapValue(null, typeof(int)));
-            Assert.AreEqual(new DateTime(0), ValueMapper.MapValue(null, typeof(DateTime)));
+            ClassicAssert.IsNull(ValueMapper.MapValue(null, typeof(Model1)));
+            ClassicAssert.IsNull(ValueMapper.MapValue(null, typeof(int?)));
+            ClassicAssert.AreEqual(0, ValueMapper.MapValue(null, typeof(int)));
+            ClassicAssert.AreEqual(new DateTime(0), ValueMapper.MapValue(null, typeof(DateTime)));
 
             //test self-mappings
             Model1 model1 = new Model1();
-            Assert.IsTrue(ReferenceEquals(model1, ValueMapper.MapValue(model1, typeof(Model1))));
-            Assert.AreEqual(10, ValueMapper.MapValue(10, typeof(int)));
+            ClassicAssert.IsTrue(ReferenceEquals(model1, ValueMapper.MapValue(model1, typeof(Model1))));
+            ClassicAssert.AreEqual(10, ValueMapper.MapValue(10, typeof(int)));
 
             //test value-to-value mappings
-            Assert.AreEqual("10", ValueMapper.MapValue(10, typeof(string)));
-            Assert.IsTrue(ValueMapper.MapValue(10, typeof(string)) is string);
-            Assert.AreEqual(10.0, ValueMapper.MapValue(10, typeof(double)));
-            Assert.IsTrue(ValueMapper.MapValue(10, typeof(double)) is double);
+            ClassicAssert.AreEqual("10", ValueMapper.MapValue(10, typeof(string)));
+            ClassicAssert.IsTrue(ValueMapper.MapValue(10, typeof(string)) is string);
+            ClassicAssert.AreEqual(10.0, ValueMapper.MapValue(10, typeof(double)));
+            ClassicAssert.IsTrue(ValueMapper.MapValue(10, typeof(double)) is double);
 
             //test map-to-nullable mappings
-            Assert.AreEqual(10.0, ValueMapper.MapValue(10, typeof(double?)));
-            Assert.IsTrue(ValueMapper.MapValue(10, typeof(double?)) is double);
+            ClassicAssert.AreEqual(10.0, ValueMapper.MapValue(10, typeof(double?)));
+            ClassicAssert.IsTrue(ValueMapper.MapValue(10, typeof(double?)) is double);
 
             //test enum mappings
-            Assert.AreEqual(TestEnum.E1, ValueMapper.MapValue((int)TestEnum.E1, typeof(TestEnum)));
-            Assert.AreEqual(TestEnum.E2, ValueMapper.MapValue(nameof(TestEnum.E2), typeof(TestEnum)));
-            Assert.AreEqual(TestEnum.E3, ValueMapper.MapValue(TestEnum.E3, typeof(TestEnum)));
-            Assert.AreEqual(TestEnum.E1, ValueMapper.MapValue((int)TestEnum.E1, typeof(TestEnum?)));
-            Assert.AreEqual(TestEnum.E2, ValueMapper.MapValue(nameof(TestEnum.E2), typeof(TestEnum?)));
-            Assert.AreEqual(TestEnum.E3, ValueMapper.MapValue(TestEnum.E3, typeof(TestEnum?)));
-            Assert.AreEqual(null, ValueMapper.MapValue(null, typeof(TestEnum?)));
+            ClassicAssert.AreEqual(TestEnum.E1, ValueMapper.MapValue((int)TestEnum.E1, typeof(TestEnum)));
+            ClassicAssert.AreEqual(TestEnum.E2, ValueMapper.MapValue(nameof(TestEnum.E2), typeof(TestEnum)));
+            ClassicAssert.AreEqual(TestEnum.E3, ValueMapper.MapValue(TestEnum.E3, typeof(TestEnum)));
+            ClassicAssert.AreEqual(TestEnum.E1, ValueMapper.MapValue((int)TestEnum.E1, typeof(TestEnum?)));
+            ClassicAssert.AreEqual(TestEnum.E2, ValueMapper.MapValue(nameof(TestEnum.E2), typeof(TestEnum?)));
+            ClassicAssert.AreEqual(TestEnum.E3, ValueMapper.MapValue(TestEnum.E3, typeof(TestEnum?)));
+            ClassicAssert.AreEqual(null, ValueMapper.MapValue(null, typeof(TestEnum?)));
 
             //array-to-array mappings
             int[] array1 = new[] { 1, 2, 3, 4, 5 };
             double[] array2;
             object ro = ValueMapper.MapValue(array1, typeof(double[]));
-            Assert.IsNotNull(ro);
-            Assert.IsTrue(ro is double[]);
+            ClassicAssert.IsNotNull(ro);
+            ClassicAssert.IsTrue(ro is double[]);
             array2 = (double[])ro;
-            Assert.AreEqual(new double[] { 1, 2, 3, 4, 5 }, array2);
+            ClassicAssert.AreEqual(new double[] { 1, 2, 3, 4, 5 }, array2);
 
             //enumerable-to-array mappings
             List<string> list = new List<string>(new string[] { "1.1", "2.2", "3.3" });
             ro = ValueMapper.MapValue(list, typeof(double[]));
-            Assert.IsNotNull(ro);
-            Assert.IsTrue(ro is double[]);
+            ClassicAssert.IsNotNull(ro);
+            ClassicAssert.IsTrue(ro is double[]);
             array2 = (double[])ro;
-            Assert.AreEqual(new double[] { 1.1, 2.2, 3.3 }, array2);
+            ClassicAssert.AreEqual(new double[] { 1.1, 2.2, 3.3 }, array2);
 
             //array-to-list mappings
             ro = ValueMapper.MapValue(array1, typeof(List<string>));
-            Assert.IsNotNull(ro);
-            Assert.IsTrue(ro is List<string>);
+            ClassicAssert.IsNotNull(ro);
+            ClassicAssert.IsTrue(ro is List<string>);
             list = (List<string>)ro;
-            Assert.AreEqual(new string[] { "1", "2", "3", "4", "5" }, list);
+            ClassicAssert.AreEqual(new string[] { "1", "2", "3", "4", "5" }, list);
 
             //enumerable-to-list mappings
             Queue<DateTime> queue = new Queue<DateTime>();
@@ -224,17 +225,17 @@ namespace Gehtsoft.EF.Toolbox.Test
             queue.Enqueue(new DateTime(2001, 1, 1));
             queue.Enqueue(new DateTime(2002, 1, 1));
             ro = ValueMapper.MapValue(queue, typeof(List<string>));
-            Assert.IsNotNull(ro);
-            Assert.IsTrue(ro is List<string>);
+            ClassicAssert.IsNotNull(ro);
+            ClassicAssert.IsTrue(ro is List<string>);
             list = (List<string>)ro;
-            Assert.AreEqual(new string[] { new DateTime(2000, 1, 1).ToString(CultureInfo.InvariantCulture), new DateTime(2001, 1, 1).ToString(CultureInfo.InvariantCulture), new DateTime(2002, 1, 1).ToString(CultureInfo.InvariantCulture) }, list);
+            ClassicAssert.AreEqual(new string[] { new DateTime(2000, 1, 1).ToString(CultureInfo.InvariantCulture), new DateTime(2001, 1, 1).ToString(CultureInfo.InvariantCulture), new DateTime(2002, 1, 1).ToString(CultureInfo.InvariantCulture) }, list);
 
             //flags
-            Assert.AreEqual("abcd", ValueMapper.MapValue(" abcd ", typeof(string), MapFlag.TrimStrings));
-            Assert.AreEqual(0, ((DateTime)ValueMapper.MapValue(DateTime.Now, typeof(DateTime), MapFlag.TrimToSeconds)).Millisecond);
-            Assert.AreEqual(0, ((DateTime)ValueMapper.MapValue(DateTime.Now, typeof(DateTime), MapFlag.TrimToDate)).Hour);
-            Assert.AreEqual(0, ((DateTime)ValueMapper.MapValue(DateTime.Now, typeof(DateTime), MapFlag.TrimToDate)).Minute);
-            Assert.AreEqual(0, ((DateTime)ValueMapper.MapValue(DateTime.Now, typeof(DateTime), MapFlag.TrimToDate)).Second);
+            ClassicAssert.AreEqual("abcd", ValueMapper.MapValue(" abcd ", typeof(string), MapFlag.TrimStrings));
+            ClassicAssert.AreEqual(0, ((DateTime)ValueMapper.MapValue(DateTime.Now, typeof(DateTime), MapFlag.TrimToSeconds)).Millisecond);
+            ClassicAssert.AreEqual(0, ((DateTime)ValueMapper.MapValue(DateTime.Now, typeof(DateTime), MapFlag.TrimToDate)).Hour);
+            ClassicAssert.AreEqual(0, ((DateTime)ValueMapper.MapValue(DateTime.Now, typeof(DateTime), MapFlag.TrimToDate)).Minute);
+            ClassicAssert.AreEqual(0, ((DateTime)ValueMapper.MapValue(DateTime.Now, typeof(DateTime), MapFlag.TrimToDate)).Second);
         }
 
         [Test]
@@ -242,37 +243,37 @@ namespace Gehtsoft.EF.Toolbox.Test
         {
             PropertyMapping<Model1, Entity1> propertyMapping = new PropertyMapping<Model1, Entity1>(null);
             propertyMapping.From(s => s.ID).To(d => d.ID).When(s => s.ID > 10);
-            Assert.IsNotNull(propertyMapping.Source);
-            Assert.IsTrue(propertyMapping.Source is ClassPropertyAccessor);
-            Assert.IsNotNull(propertyMapping.Target);
-            Assert.IsTrue(propertyMapping.Target is ClassPropertyAccessor);
+            ClassicAssert.IsNotNull(propertyMapping.Source);
+            ClassicAssert.IsTrue(propertyMapping.Source is ClassPropertyAccessor);
+            ClassicAssert.IsNotNull(propertyMapping.Target);
+            ClassicAssert.IsTrue(propertyMapping.Target is ClassPropertyAccessor);
 
             Model1 model = new Model1();
             Entity1 entity = new Entity1();
 
             model.ID = 20;
             propertyMapping.Map(model, entity);
-            Assert.AreEqual(20, entity.ID);
+            ClassicAssert.AreEqual(20, entity.ID);
             model.ID = 10;
             propertyMapping.Map(model, entity);
-            Assert.AreEqual(20, entity.ID);
+            ClassicAssert.AreEqual(20, entity.ID);
 
             propertyMapping.Ignore();
             model.ID = 25;
             propertyMapping.Map(model, entity);
-            Assert.AreEqual(20, entity.ID);
+            ClassicAssert.AreEqual(20, entity.ID);
 
             propertyMapping.Always();
             model.ID = 10;
             propertyMapping.Map(model, entity);
-            Assert.AreEqual(10, entity.ID);
+            ClassicAssert.AreEqual(10, entity.ID);
 
-            Assert.Throws<ArgumentException>(() => propertyMapping.From(s => s.ID + 0x1000).To(d => d.ID + 50));
-            Assert.Throws<ArgumentException>(() => propertyMapping.From(s => s.ID + 0x1000).To("123"));
+            ClassicAssert.Throws<ArgumentException>(() => propertyMapping.From(s => s.ID + 0x1000).To(d => d.ID + 50));
+            ClassicAssert.Throws<ArgumentException>(() => propertyMapping.From(s => s.ID + 0x1000).To("123"));
             propertyMapping.From(s => s.ID + 0x1000).To(nameof(Entity1.ID)).Always();
             model.ID = 1;
             propertyMapping.Map(model, entity);
-            Assert.AreEqual(0x1001, entity.ID);
+            ClassicAssert.AreEqual(0x1001, entity.ID);
         }
 
         [Test]
@@ -289,32 +290,32 @@ namespace Gehtsoft.EF.Toolbox.Test
             Model1 model1 = new Model1() { ID = 1, Name = "MyName", DateTime = DateTime.Now, Number = 25 };
             Entity1 entity = map.Do(model1);
 
-            Assert.IsNotNull(entity);
-            Assert.AreEqual(1, entity.ID);
-            Assert.AreEqual("MyName", entity.Title);
-            Assert.AreEqual(model1.DateTime, entity.DateTime);
-            Assert.AreEqual(25, entity.Number);
-            Assert.AreEqual(5, entity.SquareRoot);
+            ClassicAssert.IsNotNull(entity);
+            ClassicAssert.AreEqual(1, entity.ID);
+            ClassicAssert.AreEqual("MyName", entity.Title);
+            ClassicAssert.AreEqual(model1.DateTime, entity.DateTime);
+            ClassicAssert.AreEqual(25, entity.Number);
+            ClassicAssert.AreEqual(5, entity.SquareRoot);
 
             map.Find(d => d.SquareRoot).ForAll(r => r.Ignore());
             entity = map.Do(model1);
-            Assert.AreEqual(25, entity.Number);
-            Assert.AreEqual(null, entity.SquareRoot);
+            ClassicAssert.AreEqual(25, entity.Number);
+            ClassicAssert.AreEqual(null, entity.SquareRoot);
 
             map.Find(d => d.SquareRoot).ForAll(r => r.WhenDestination(d => d.HasSquareRoot != null));
             entity = map.Do(model1);
-            Assert.AreEqual(25, entity.Number);
-            Assert.AreEqual(null, entity.SquareRoot);
+            ClassicAssert.AreEqual(25, entity.Number);
+            ClassicAssert.AreEqual(null, entity.SquareRoot);
 
             map.BeforeMapping((source, destination) => destination.HasSquareRoot = false);
             entity = map.Do(model1);
-            Assert.AreEqual(25, entity.Number);
-            Assert.AreEqual(5, entity.SquareRoot);
-            Assert.IsFalse(entity.HasSquareRoot);
+            ClassicAssert.AreEqual(25, entity.Number);
+            ClassicAssert.AreEqual(5, entity.SquareRoot);
+            ClassicAssert.IsFalse(entity.HasSquareRoot);
 
             map.AfterMapping((source, destination) => destination.HasSquareRoot = destination.SquareRoot != null);
             entity = map.Do(model1);
-            Assert.IsTrue(entity.HasSquareRoot);
+            ClassicAssert.IsTrue(entity.HasSquareRoot);
         }
 
         [Test]
@@ -332,22 +333,22 @@ namespace Gehtsoft.EF.Toolbox.Test
             Entity1 entity;
             Model1 model1 = new Model1() { ID = 1, Name = "MyName", DateTime = DateTime.Now, Number = 25 };
             entity = MapFactory.Map<Model1, Entity1>(model1);
-            Assert.IsNotNull(entity);
-            Assert.AreEqual(1, entity.ID);
-            Assert.AreEqual("MyName", entity.Title);
-            Assert.AreEqual(model1.DateTime, entity.DateTime);
-            Assert.AreEqual(25, entity.Number);
-            Assert.AreEqual(5, entity.SquareRoot);
-            Assert.IsTrue(entity.HasSquareRoot);
+            ClassicAssert.IsNotNull(entity);
+            ClassicAssert.AreEqual(1, entity.ID);
+            ClassicAssert.AreEqual("MyName", entity.Title);
+            ClassicAssert.AreEqual(model1.DateTime, entity.DateTime);
+            ClassicAssert.AreEqual(25, entity.Number);
+            ClassicAssert.AreEqual(5, entity.SquareRoot);
+            ClassicAssert.IsTrue(entity.HasSquareRoot);
 
             entity = new Entity1();
             MapFactory.Map<Model1, Entity1>(model1, entity);
-            Assert.AreEqual(1, entity.ID);
-            Assert.AreEqual("MyName", entity.Title);
-            Assert.AreEqual(model1.DateTime, entity.DateTime);
-            Assert.AreEqual(25, entity.Number);
-            Assert.AreEqual(5, entity.SquareRoot);
-            Assert.IsTrue(entity.HasSquareRoot);
+            ClassicAssert.AreEqual(1, entity.ID);
+            ClassicAssert.AreEqual("MyName", entity.Title);
+            ClassicAssert.AreEqual(model1.DateTime, entity.DateTime);
+            ClassicAssert.AreEqual(25, entity.Number);
+            ClassicAssert.AreEqual(5, entity.SquareRoot);
+            ClassicAssert.IsTrue(entity.HasSquareRoot);
 
             Model1[] models = new Model1[]
             {
@@ -358,13 +359,13 @@ namespace Gehtsoft.EF.Toolbox.Test
 
             Entity1[] entities = MapFactory.Map<Model1[], Entity1[]>(models);
 
-            Assert.IsNotNull(entities);
-            Assert.AreEqual(3, entities.Length);
-            Assert.IsNotNull(entities[0]);
-            Assert.IsNotNull(entities[1]);
-            Assert.IsNull(entities[2]);
-            Assert.AreEqual(3, entities[0].SquareRoot);
-            Assert.AreEqual(9, entities[1].SquareRoot);
+            ClassicAssert.IsNotNull(entities);
+            ClassicAssert.AreEqual(3, entities.Length);
+            ClassicAssert.IsNotNull(entities[0]);
+            ClassicAssert.IsNotNull(entities[1]);
+            ClassicAssert.IsNull(entities[2]);
+            ClassicAssert.AreEqual(3, entities[0].SquareRoot);
+            ClassicAssert.AreEqual(9, entities[1].SquareRoot);
         }
     }
 }

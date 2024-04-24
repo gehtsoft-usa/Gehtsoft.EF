@@ -16,6 +16,7 @@ using Gehtsoft.EF.Mapper.Validator;
 using Gehtsoft.EF.Validator;
 using Gehtsoft.Validator;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace Gehtsoft.EF.Toolbox.Test
 {
@@ -319,26 +320,26 @@ namespace Gehtsoft.EF.Toolbox.Test
             //validate entity model
             TDM dictionary = new TDM() { ID = null, Name = null };
             result = dictionaryValidator.Validate(dictionary);
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(2, result.Failures.Count);
-            Assert.IsTrue(result.Failures.Contains(nameof(IDictionaryModel.ID), "isnull"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IDictionaryModel.Name), "isnull"));
+            ClassicAssert.IsFalse(result.IsValid);
+            ClassicAssert.AreEqual(2, result.Failures.Count);
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IDictionaryModel.ID), "isnull"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IDictionaryModel.Name), "isnull"));
 
             dictionary.ID = 0;
             dictionary.Name = new string('a', 256);
             result = dictionaryValidator.Validate(dictionary);
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Failures.Count);
-            Assert.IsTrue(result.Failures.Contains(nameof(IDictionaryModel.Name), "toolong"));
+            ClassicAssert.IsFalse(result.IsValid);
+            ClassicAssert.AreEqual(1, result.Failures.Count);
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IDictionaryModel.Name), "toolong"));
 
             TEM entity = new TEM();
             result = entityValidator.Validate(entity);
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(4, result.Failures.Count);
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.ID), "isnull"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.Reference), "isnull"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NumericValue), "isnull"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.DateTimeValue), "isnull"));
+            ClassicAssert.IsFalse(result.IsValid);
+            ClassicAssert.AreEqual(4, result.Failures.Count);
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.ID), "isnull"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.Reference), "isnull"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NumericValue), "isnull"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.DateTimeValue), "isnull"));
 
             entity.ID = 1;
             entity.Reference = 3;
@@ -348,48 +349,48 @@ namespace Gehtsoft.EF.Toolbox.Test
             entity.NullableNumericValue = 100000;
             entity.NullableDateTimeValue = new DateTime(1000, 1, 1);
             result = entityValidator.Validate(entity);
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(hasConnection ? 6 : 4, result.Failures.Count);
-            Assert.IsTrue(!hasConnection || result.Failures.Contains(nameof(IEntityModel.Reference), "mustexist"));
-            Assert.IsTrue(!hasConnection || result.Failures.Contains(nameof(IEntityModel.SecondReference), "mustexist"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NumericValue), "outofrange"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.DateTimeValue), "outofrange"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NullableNumericValue), "outofrange"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NullableDateTimeValue), "outofrange"));
+            ClassicAssert.IsFalse(result.IsValid);
+            ClassicAssert.AreEqual(hasConnection ? 6 : 4, result.Failures.Count);
+            ClassicAssert.IsTrue(!hasConnection || result.Failures.Contains(nameof(IEntityModel.Reference), "mustexist"));
+            ClassicAssert.IsTrue(!hasConnection || result.Failures.Contains(nameof(IEntityModel.SecondReference), "mustexist"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NumericValue), "outofrange"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.DateTimeValue), "outofrange"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NullableNumericValue), "outofrange"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NullableDateTimeValue), "outofrange"));
 
             result = entityValidator.ValidateAsync(entity).Result;
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(hasConnection ? 6 : 4, result.Failures.Count);
-            Assert.IsTrue(!hasConnection || result.Failures.Contains(nameof(IEntityModel.Reference), "mustexist"));
-            Assert.IsTrue(!hasConnection || result.Failures.Contains(nameof(IEntityModel.SecondReference), "mustexist"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NumericValue), "outofrange"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.DateTimeValue), "outofrange"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NullableNumericValue), "outofrange"));
-            Assert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NullableDateTimeValue), "outofrange"));
+            ClassicAssert.IsFalse(result.IsValid);
+            ClassicAssert.AreEqual(hasConnection ? 6 : 4, result.Failures.Count);
+            ClassicAssert.IsTrue(!hasConnection || result.Failures.Contains(nameof(IEntityModel.Reference), "mustexist"));
+            ClassicAssert.IsTrue(!hasConnection || result.Failures.Contains(nameof(IEntityModel.SecondReference), "mustexist"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NumericValue), "outofrange"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.DateTimeValue), "outofrange"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NullableNumericValue), "outofrange"));
+            ClassicAssert.IsTrue(result.Failures.Contains(nameof(IEntityModel.NullableDateTimeValue), "outofrange"));
 
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             result = entityValidator.ValidateAsync(entity, tokenSource.Token).Result;
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(hasConnection ? 6 : 4, result.Failures.Count);
+            ClassicAssert.IsFalse(result.IsValid);
+            ClassicAssert.AreEqual(hasConnection ? 6 : 4, result.Failures.Count);
 
             tokenSource.Cancel();
-            Assert.Throws<OperationCanceledException>(() => entityValidator.ValidateAsync(entity, tokenSource.Token).ConfigureAwait(true).GetAwaiter().GetResult());
+            ClassicAssert.Throws<OperationCanceledException>(() => entityValidator.ValidateAsync(entity, tokenSource.Token).ConfigureAwait(true).GetAwaiter().GetResult());
 
             if (hasConnection)
             {
                 dictionary.Name = "Record1";
                 result = dictionaryValidator.Validate(dictionary);
-                Assert.IsFalse(result.IsValid);
-                Assert.AreEqual(1, result.Failures.Count);
-                Assert.IsTrue(result.Failures.Contains(nameof(IDictionaryModel.Name), "notunique"));
+                ClassicAssert.IsFalse(result.IsValid);
+                ClassicAssert.AreEqual(1, result.Failures.Count);
+                ClassicAssert.IsTrue(result.Failures.Contains(nameof(IDictionaryModel.Name), "notunique"));
 
                 dictionary.ID = 1;
                 result = dictionaryValidator.Validate(dictionary);
-                Assert.IsTrue(result.IsValid);
+                ClassicAssert.IsTrue(result.IsValid);
 
                 dictionary.Name = "Record3";
                 result = dictionaryValidator.Validate(dictionary);
-                Assert.IsTrue(result.IsValid);
+                ClassicAssert.IsTrue(result.IsValid);
             }
         }
 

@@ -2,6 +2,7 @@
 <nuget xmlns="http://www.gehtsoft.com/build/nuget">
  <!-- versions. the FIRST version is the current -->
  <versions>
+  <version id="1.4.9">- Update dependencies</version>
   <version id="1.4.8">- Update dependencies</version>
   <version id="1.4.7">- Update dependencies</version>
   <version id="1.4.6">- Update dependencies</version>
@@ -27,40 +28,33 @@
  <properties>
   <owner>Gehtsoft</owner>
   <projectUrl>http://docs.gehtsoftusa.com/Gehtsoft.EF/ef.toolbox/web-content#index.html</projectUrl>
-  <license type="file">license.txt</license>
+  <license type="expression">Apache-2.0</license>
   <copyright>Gehtsoft USA LLC 2016-2019</copyright>
  </properties>
  <projects>
   <project id="Gehtsoft.Mapper" location="..\Gehtsoft.Mapper\Gehtsoft.Mapper.csproj">
    <description>Entity to Model mapper</description>
-   <additional-file file="../../license.txt" target="" />
   </project>
   <project id="Gehtsoft.EF.Mapper" location="..\Gehtsoft.EF.Mapper\Gehtsoft.EF.Mapper.csproj">
    <description>Entity to Model mapper</description>
    <additional-file file="../doc/Gehtsoft.EF.Mapper.xml" target="*"></additional-file>
-   <additional-file file="../../license.txt" target="" />
   </project>
   <project id="Gehtsoft.Validator" location="..\Gehtsoft.Validator\Gehtsoft.Validator.csproj">
    <description>Basic Validation Framework</description>
    <additional-file file="../doc/Gehtsoft.Validator.xml" target="*"></additional-file>
-   <additional-file file="../../license.txt" target="" />
   </project>
   <project id="Gehtsoft.EF.Validator" location="..\Gehtsoft.EF.Validator\Gehtsoft.EF.Validator.csproj">
    <description>Extension of Validation Framework for EF entities</description>
    <additional-file file="../doc/Gehtsoft.EF.Validator.xml" target="*"></additional-file>
-   <additional-file file="../../license.txt" target="" />
   </project>
   <project id="Gehtsoft.EF.Mapper.Validator" location="..\Gehtsoft.EF.Mapper.Validator\Gehtsoft.EF.Mapper.Validator.csproj">
    <description>Extension of Validation Framework for EF mapped models</description>
-   <additional-file file="../../license.txt" target="" />
   </project>
   <project id="Gehtsoft.EF.Serialization" location="..\Gehtsoft.EF.Serialization\Gehtsoft.EF.Serialization.csproj">
    <description>Implementation of sequental readers and writers for all entities for DB and XML</description>
-   <additional-file file="../../license.txt" target="" />
   </project>
   <project id="Gehtsoft.EF.TestDatabase" location="..\Gehtsoft.EF.TestDatabase\Gehtsoft.EF.TestDatabase.csproj">
    <description>Test database factory</description>
-   <additional-file file="../../license.txt" target="" />
   </project>
  </projects>
 </nuget>
