@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+
+#pragma warning disable S6966 // Awaitable method should be used
 
 namespace Gehtsoft.EF.Db.MssqlDb
 {
@@ -218,7 +220,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
     {
         public static SqlDbConnection Create(string connectionString)
         {
-            SqlConnection connection = new System.Data.SqlClient.SqlConnection
+            var connection = new Microsoft.Data.SqlClient.SqlConnection
             {
                 ConnectionString = connectionString
             };
@@ -228,7 +230,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
 
         public static async Task<SqlDbConnection> CreateAsync(string connectionString, CancellationToken? token)
         {
-            SqlConnection connection = new System.Data.SqlClient.SqlConnection
+            SqlConnection connection = new Microsoft.Data.SqlClient.SqlConnection
             {
                 ConnectionString = connectionString
             };

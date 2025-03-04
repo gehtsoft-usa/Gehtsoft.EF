@@ -85,9 +85,5 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
         {
             ErrorCode = code;
         }
-
-        protected EfODataException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 }

@@ -8,15 +8,18 @@ namespace Gehtsoft.EF.Test.Utils
 {
     public class BsonValueAssertions : ReferenceTypeAssertions<BsonValue, BsonValueAssertions>
     {
-        public BsonValueAssertions(BsonValue subject) : base(subject)
+        private readonly AssertionChain mChain;
+
+        public BsonValueAssertions(BsonValue subject, AssertionChain chain) : base(subject, chain)
         {
+            mChain = chain;
         }
 
         protected override string Identifier => "value";
 
         public AndConstraint<BsonValueAssertions> BeOfBsonType(BsonType type, string because = null, params object[] args)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .Given(() => Subject)
                 .ForCondition(s => s.BsonType == type)
@@ -37,7 +40,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public AndConstraint<BsonValueAssertions> HaveProperty(string name, string because = null, params object[] args)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .Given(() => Subject)
                 .ForCondition(s => s.IsBsonDocument)
@@ -51,7 +54,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public AndConstraint<BsonValueAssertions> HavePropertiesCount(int count, string because = null, params object[] args)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .Given(() => Subject)
                 .ForCondition(s => s.IsBsonDocument)
@@ -65,7 +68,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public AndConstraint<BsonValueAssertions> HaveCount(int count, string because = null, params object[] args)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .Given(() => Subject)
                 .ForCondition(s => s.IsBsonArray)
@@ -79,7 +82,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public AndConstraint<BsonValueAssertions> HavePropertyMatching(string name, Func<BsonValue, bool> predicate, string because = null, params object[] args)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .Given(() => Subject)
                 .ForCondition(s => s.IsBsonDocument)
@@ -96,7 +99,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public AndConstraint<BsonValueAssertions> HaveProperty(string name, object value, string because = null, params object[] args)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .Given(() => Subject)
                 .ForCondition(s => s.IsBsonDocument)
@@ -126,7 +129,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public AndConstraint<BsonValueAssertions> HaveElement(int index, object value, string because = null, params object[] args)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .Given(() => Subject)
                 .ForCondition(s => s.IsBsonArray)
@@ -166,7 +169,7 @@ namespace Gehtsoft.EF.Test.Utils
             else
                 eq = subject.Equals(value);
 
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .ForCondition(eq)
                 .FailWith("Expected {context:value} to be {0} but it is {1}", value, subject);

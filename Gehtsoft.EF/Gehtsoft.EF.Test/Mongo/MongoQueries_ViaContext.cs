@@ -518,7 +518,7 @@ namespace Gehtsoft.EF.Test.Mongo
                 for (int i = 1; i < all.Count; i++)
                 {
                     var rc = all[i].AA.CompareTo(all[i - 1].AA);
-                    rc.Should().BeGreaterOrEqualTo(0, "AA must be in ascending order");
+                    rc.Should().BeGreaterThanOrEqualTo(0, "AA must be in ascending order");
                     if (rc == 0)
                         all[i].AB.Should().BeLessThan(all[i - 1].AB, "AB must be in descending order");
                 }
@@ -541,7 +541,7 @@ namespace Gehtsoft.EF.Test.Mongo
                 for (int i = 1; i < all.Count; i++)
                 {
                     var rc = all[i].AA.CompareTo(all[i - 1].AA);
-                    rc.Should().BeLessOrEqualTo(0, "AA must be in descending order");
+                    rc.Should().BeLessThanOrEqualTo(0, "AA must be in descending order");
                     if (rc == 0)
                         all[i].AB.Should().BeGreaterThan(all[i - 1].AB, "AB must be in ascending order");
                 }

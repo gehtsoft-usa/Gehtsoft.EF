@@ -48,14 +48,14 @@ namespace TestApp
 
             model.EntityContainer.FindEntitySet(nameof(TestEntity1.Employee)).Should().NotBeNull();
             var es = model.EntityContainer.FindEntitySet(nameof(TestEntity1.Employee));
-            es.EntityType().Should().Be(model.FindType("entities." + nameof(TestEntity1.Employee) + "_Type"));
+            es.EntityType.Should().Be(model.FindType("entities." + nameof(TestEntity1.Employee) + "_Type"));
 
             //try to save model into XML
             using (var stringWriter = new StringWriter())
             {
                 using (var writer = XmlWriter.Create(stringWriter))
                 {
-                    CsdlWriter.TryWriteCsdl(model, writer, CsdlTarget.OData, out IEnumerable<EdmError> errors);
+                    CsdlWriter.TryWriteCsdl(model, writer, CsdlTarget.OData, out IEnumerable<EdmError> _);
                 }
                 var csdl = stringWriter.ToString();
                 Console.Write("{0}", csdl);

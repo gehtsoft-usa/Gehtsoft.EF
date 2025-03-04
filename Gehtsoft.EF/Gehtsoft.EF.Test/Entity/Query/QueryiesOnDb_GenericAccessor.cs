@@ -807,7 +807,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             k = entityAccessor.NextKey(e, order, null, false);
             e = entityAccessor.NextEntity(e, order, null, false);
 
-            k.Should().BeLessOrEqualTo(0);
+            k.Should().BeLessThanOrEqualTo(0);
             e.Should().BeNull();
 
             e = (Entity)null;
@@ -825,7 +825,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             k = entityAccessor.NextKey(e, order, null, true);
             e = entityAccessor.NextEntity(e, order, null, true);
 
-            k.Should().BeLessOrEqualTo(0);
+            k.Should().BeLessThanOrEqualTo(0);
             e.Should().BeNull();
         }
 

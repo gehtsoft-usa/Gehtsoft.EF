@@ -13,10 +13,12 @@ namespace Gehtsoft.EF.Test.Entity.Utils
 {
     public static class GenericCollectionAssertionExtension
     {
+        
+
         public static AndConstraint<GenericCollectionAssertions<T>> HaveElementMatching<T>(this GenericCollectionAssertions<T> collection, Expression<Func<T, bool>> predicate, string because = null, params object[] args)
         {
             var p = predicate.Compile();
-            Execute.Assertion
+            collection.CurrentAssertionChain
                .BecauseOf(because, args)
                .Given(() => collection.Subject)
                .ForCondition(e => e != null)
@@ -31,7 +33,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
         public static AndConstraint<GenericCollectionAssertions<T>> HaveElementMatchingAt<T>(this GenericCollectionAssertions<T> collection, int index, Expression<Func<T, bool>> predicate, string because = null, params object[] args)
         {
             var p = predicate.Compile();
-            Execute.Assertion
+            collection.CurrentAssertionChain 
                .BecauseOf(because, args)
                .Given(() => collection.Subject)
                .ForCondition(e => e != null)
@@ -46,7 +48,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
         public static AndConstraint<GenericCollectionAssertions<T>> HaveNoElementMatching<T>(this GenericCollectionAssertions<T> collection, Expression<Func<T, bool>> predicate, string because = null, params object[] args)
         {
             var p = predicate.Compile();
-            Execute.Assertion
+            collection.CurrentAssertionChain
                .BecauseOf(because, args)
                .Given(() => collection.Subject)
                .ForCondition(e => e == null || !e.Any(i => p(i)))
@@ -58,7 +60,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
         public static AndConstraint<GenericCollectionAssertions<T>> HaveAllElementsMatching<T>(this GenericCollectionAssertions<T> collection, Expression<Func<T, bool>> predicate, string because = null, params object[] args)
         {
             var p = predicate.Compile();
-            Execute.Assertion
+            collection.CurrentAssertionChain
                .BecauseOf(because, args)
                .Given(() => collection.Subject)
                .ForCondition(e => e.All(i => p(i)))
@@ -69,7 +71,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
 
         public static AndConstraint<GenericCollectionAssertions<T>> HaveOneElementAfterTheOther<T>(this GenericCollectionAssertions<T> collection, T one, T two, string because = null, params object[] args)
         {
-            Execute.Assertion
+            collection.CurrentAssertionChain
                 .BecauseOf(because, args)
                 .Given(() => collection.Subject)
                 .ForCondition(e =>
@@ -94,7 +96,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
             var _one = one.Compile();
             var _two = two.Compile();
 
-            Execute.Assertion
+            collection.CurrentAssertionChain
                 .BecauseOf(because, args)
                 .Given(() => collection.Subject)
                 .ForCondition(e =>

@@ -288,7 +288,7 @@ namespace Gehtsoft.EF.Test.SqlDb
                     var q = query.GetValue<double>(mFixture.OrderDetailType[nameof(OrderDetail.Quantity)].Name);
 
                     if (cc > 1)
-                        q.Should().BeGreaterOrEqualTo(lq);
+                        q.Should().BeGreaterThanOrEqualTo(lq);
 
                     (oid == mFixture.Snapshot.Orders[0].OrderID ||
                      oid == mFixture.Snapshot.Orders[1].OrderID).Should().BeTrue();

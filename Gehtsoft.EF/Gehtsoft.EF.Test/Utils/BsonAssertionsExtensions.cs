@@ -1,13 +1,14 @@
-﻿using MongoDB.Bson;
+﻿using FluentAssertions.Execution;
+using MongoDB.Bson;
 using Xunit.Sdk;
 
 namespace Gehtsoft.EF.Test.Utils
 {
     public static class BsonAssertionsExtensions
     {
-        public static BsonDocumentAssertions Should(this BsonDocument document) => new BsonDocumentAssertions(document);
-        public static BsonValueAssertions Should(this BsonValue document) => new BsonValueAssertions(document);
-        public static BsonValueAssertions Should(this BsonArray document) => new BsonValueAssertions(document);
+        public static BsonDocumentAssertions Should(this BsonDocument document) => new BsonDocumentAssertions(document, AssertionChain.GetOrCreate());
+        public static BsonValueAssertions Should(this BsonValue document) => new BsonValueAssertions(document, AssertionChain.GetOrCreate());
+        public static BsonValueAssertions Should(this BsonArray document) => new BsonValueAssertions(document, AssertionChain.GetOrCreate());
 
         public static object ValueOf(this BsonValue value)
         {

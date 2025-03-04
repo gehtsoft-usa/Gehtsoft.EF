@@ -9,15 +9,18 @@ namespace Gehtsoft.EF.Test.Utils
 {
     public class BsonDocumentAssertions : ReferenceTypeAssertions<BsonDocument, BsonDocumentAssertions>
     {
-        public BsonDocumentAssertions(BsonDocument subject) : base(subject)
+        private readonly AssertionChain mChain;
+
+        public BsonDocumentAssertions(BsonDocument subject, AssertionChain chain) : base(subject, chain)
         {
+            mChain = chain;
         }
 
         protected override string Identifier => "bson";
 
         public AndConstraint<BsonDocumentAssertions> HaveProperty(string name, string because = null, params object[] args)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .Given(() => Subject)
                 .ForCondition(s => s.Contains(name))
@@ -28,7 +31,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public AndConstraint<BsonDocumentAssertions> HavePropertiesCount(int count, string because = null, params object[] args)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .Given(() => Subject)
                 .ForCondition(s => s.Elements.Count() == count)
@@ -39,7 +42,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public AndConstraint<BsonDocumentAssertions> HaveProperty(string name, Func<BsonValue, bool> predicate, string because = null, params object[] args)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .Given(() => Subject)
                 .ForCondition(s => s.Contains(name))
@@ -53,7 +56,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public AndConstraint<BsonDocumentAssertions> HaveProperty(string name, object value, string because = null, params object[] args)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, args)
                 .Given(() => Subject)
                 .ForCondition(s => s.Contains(name))

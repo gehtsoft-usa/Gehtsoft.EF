@@ -937,7 +937,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             entities.Sort((a, b) => a.ID.CompareTo(b.ID));
             entities = entities.Where(b => b.ID == entities.Where(b1 => b1.Dict.ID == b.Dict.ID).Min(b => b.ID)).ToList();
             entities.Count.Should().BeGreaterThan(0);
-            entities.Count.Should().BeLessOrEqualTo(10);
+            entities.Count.Should().BeLessThanOrEqualTo(10);
 
             using (var subquery = connection.GetSelectEntitiesQueryBase<Entity>())
             using (var query = connection.GetSelectEntitiesQuery<Entity>())

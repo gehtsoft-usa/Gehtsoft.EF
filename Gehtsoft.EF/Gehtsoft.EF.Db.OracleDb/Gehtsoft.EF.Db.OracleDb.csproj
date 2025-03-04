@@ -18,7 +18,7 @@
 
    <ItemGroup>
      <PackageReference Include="Oracle.ManagedDataAccess.Core">
-        <Version>23.5.1</Version>
+        <Version>23.7.0</Version>
     </PackageReference>
    </ItemGroup>
 

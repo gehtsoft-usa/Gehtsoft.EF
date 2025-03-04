@@ -477,7 +477,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             result = func(null);
             int totalCountNotNull = (int)(result[0].Total);
             totalCountNotNull.Should().BeGreaterThan(0);
-            totalCountNotNull.Should().BeLessOrEqualTo(totalNotNull);
+            totalCountNotNull.Should().BeLessThanOrEqualTo(totalNotNull);
 
             total.Should().Be(totalNull + totalNotNull);
         }

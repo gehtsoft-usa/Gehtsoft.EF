@@ -19,14 +19,14 @@ namespace Gehtsoft.EF.Db.MssqlDb
             if (queryBuilder.Query == null)
                 queryBuilder.PrepareQuery();
 
-            if (queryBuilder is MssqlHierarchicalSelectQueryBuilder)
+            if (queryBuilder is MssqlHierarchicalSelectQueryBuilder hierarchicalSelectQueryBuilder)
             {
-                mBuilder.With = (queryBuilder as MssqlHierarchicalSelectQueryBuilder).With;
-                return (queryBuilder as MssqlHierarchicalSelectQueryBuilder).Select;
+                mBuilder.With = hierarchicalSelectQueryBuilder.With;
+                return hierarchicalSelectQueryBuilder.Select;
             }
-            else if (queryBuilder is MssqlSelectQueryBuilder && (queryBuilder as MssqlSelectQueryBuilder).With != null)
+            else if (queryBuilder is MssqlSelectQueryBuilder selectQueryBuilder && (queryBuilder as MssqlSelectQueryBuilder).With != null)
             {
-                mBuilder.With = (queryBuilder as MssqlSelectQueryBuilder).With;
+                mBuilder.With = selectQueryBuilder.With;
                 if (queryBuilder.Query == null)
                     queryBuilder.PrepareQuery();
                 string query = queryBuilder.Query.Substring(mBuilder.With.Length);

@@ -1,5 +1,6 @@
 ﻿using System;
 using Gehtsoft.EF.Db.SqlDb;
+using Microsoft.Data.SqlClient;
 
 namespace Gehtsoft.EF.Db.MssqlDb
 {
@@ -8,12 +9,12 @@ namespace Gehtsoft.EF.Db.MssqlDb
         private MssqlDbConnection mDb;
         private readonly string mSavePointName = null;
 
-        internal MssqlTransaction(MssqlDbConnection db, System.Data.SqlClient.SqlTransaction transaction) : base(transaction)
+        internal MssqlTransaction(MssqlDbConnection db, SqlTransaction transaction) : base(transaction)
         {
             DbTransaction = transaction;
             mDb = db;
         }
-        internal MssqlTransaction(MssqlDbConnection db, System.Data.SqlClient.SqlTransaction transaction, string savepointName) : base(transaction)
+        internal MssqlTransaction(MssqlDbConnection db, SqlTransaction transaction, string savepointName) : base(transaction)
         {
             DbTransaction = transaction;
             mDb = db;
@@ -21,7 +22,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
             DbTransaction.Save(mSavePointName);
         }
 
-        public System.Data.SqlClient.SqlTransaction DbTransaction { get; set; }
+        public SqlTransaction DbTransaction { get; set; }
 
         public override void Commit()
         {

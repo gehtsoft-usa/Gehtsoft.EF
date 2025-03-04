@@ -126,3 +126,6 @@ dotnet_diagnostic.RCS1098.severity = none
 
 # RCS1033: Remove redundant boolean literal.
 dotnet_diagnostic.RCS1033.severity = none
+
+# VSSpell001: Spell Check
+dotnet_diagnostic.VSSpell001.severity = none

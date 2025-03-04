@@ -1,4 +1,4 @@
-﻿using System.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Gehtsoft.EF.Db.SqlDb;
 
 namespace Gehtsoft.EF.Db.MssqlDb

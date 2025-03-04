@@ -281,7 +281,7 @@ namespace TestApp
                 {
                     if (salePagingLimit > 0)
                     {
-                        array.Count().Should().BeLessOrEqualTo(salePagingLimit);
+                        array.Count().Should().BeLessThanOrEqualTo(salePagingLimit);
                     }
                 }
             }

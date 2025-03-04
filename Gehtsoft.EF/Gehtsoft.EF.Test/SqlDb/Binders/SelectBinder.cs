@@ -154,7 +154,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Binders
         {
             SelectQueryResultBinder binder = new SelectQueryResultBinder(typeof(Type1));
             binder.AutoBindType();
-            binder.Rules.Count.Should().BeGreaterOrEqualTo(12);
+            binder.Rules.Count.Should().BeGreaterThanOrEqualTo(12);
             for (int i = 1; i < 12; i++)
                 binder.Rules.Should().Contain(r => r.ColumnName == "F" + i && r.PropertyAccessor.Name == "F" + i);
         }
@@ -164,7 +164,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Binders
         {
             SelectQueryResultBinder binder = new SelectQueryResultBinder(typeof(Type1));
             binder.AutoBindType("prefix_");
-            binder.Rules.Count.Should().BeGreaterOrEqualTo(12);
+            binder.Rules.Count.Should().BeGreaterThanOrEqualTo(12);
             for (int i = 1; i < 12; i++)
                 binder.Rules.Should().Contain(r => r.ColumnName == "prefix_F" + i && r.PropertyAccessor.Name == "F" + i);
         }

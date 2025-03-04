@@ -66,7 +66,7 @@ namespace Gehtsoft.EF.Test.Utils
             else
                 which = nodes[0];
 
-            Execute.Assertion
+            assertions.CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => nodes)
                 .ForCondition(list => list != null && list.Count > 0)
@@ -83,7 +83,7 @@ namespace Gehtsoft.EF.Test.Utils
             else
                 which = nodes[0];
 
-            Execute.Assertion
+            assertions.CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => nodes)
                 .ForCondition(list => list != null && list.Count > 0)
@@ -103,7 +103,7 @@ namespace Gehtsoft.EF.Test.Utils
             else
                 which = nodes[0];
 
-            Execute.Assertion
+            assertions.CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => nodes)
                 .ForCondition(list => list != null && list.Count > index)
@@ -113,7 +113,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public static AndConstraint<XmlNodeAssertions> HaveAttribute(this XmlNodeAssertions assertions, string attributeName, string attributeValue, string because = null, params object[] becauseArgs)
         {
-            Execute.Assertion
+            assertions.CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => assertions.Subject as XmlElement)
                 .ForCondition(el => el != null)
@@ -147,7 +147,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public static AndConstraint<XmlNodeAssertions> HaveText(this XmlNodeAssertions assertions, string text, string because = null, params object[] becauseArgs)
         {
-            Execute.Assertion
+            assertions.CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => assertions.Subject as XmlElement)
                 .ForCondition(el => el != null)
@@ -161,7 +161,7 @@ namespace Gehtsoft.EF.Test.Utils
 
         public static AndConstraint<XmlNodeAssertions> ContainText(this XmlNodeAssertions assertions, string text, string because = null, params object[] becauseArgs)
         {
-            Execute.Assertion
+            assertions.CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => assertions.Subject as XmlElement)
                 .ForCondition(el => el != null)

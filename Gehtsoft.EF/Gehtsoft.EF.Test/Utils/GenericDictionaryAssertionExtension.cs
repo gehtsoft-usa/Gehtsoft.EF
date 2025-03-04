@@ -10,7 +10,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
     {
         public static AndConstraint<GenericDictionaryAssertions<IDictionary<TK, TV>, TK, TV>> HaveNoElement<TK, TV>(this GenericDictionaryAssertions<IDictionary<TK, TV>, TK, TV> assertions, TK key, string because = null, params object[] args)
         {
-            Execute.Assertion
+            assertions.CurrentAssertionChain
                 .BecauseOf(because, args)
                 .Given(() => assertions.Subject)
                 .ForCondition(d => !d.ContainsKey(key))
@@ -21,7 +21,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
 
         public static AndConstraint<GenericDictionaryAssertions<IDictionary<TK, TV>, TK, TV>> HaveElement<TK, TV>(this GenericDictionaryAssertions<IDictionary<TK, TV>, TK, TV> assertions, TK key, TV value, string because = null, params object[] args)
         {
-            Execute.Assertion
+            assertions.CurrentAssertionChain
                 .BecauseOf(because, args)
                 .Given(() => assertions.Subject)
                 .ForCondition(d => d.ContainsKey(key))
@@ -51,7 +51,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
 
         public static AndConstraint<GenericDictionaryAssertions<IDictionary<TK, TV>, TK, TV>> HaveElementMatching<TK, TV>(this GenericDictionaryAssertions<IDictionary<TK, TV>, TK, TV> assertions, TK key, Func<TV, bool> predicate, string because = null, params object[] args)
         {
-            Execute.Assertion
+            assertions.CurrentAssertionChain
                 .BecauseOf(because, args)
                 .Given(() => assertions.Subject)
                 .ForCondition(d => d.ContainsKey(key))

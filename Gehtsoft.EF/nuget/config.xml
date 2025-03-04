@@ -2,6 +2,8 @@
 <nuget xmlns="http://www.gehtsoft.com/build/nuget">
  <!-- versions. the FIRST version is the current -->
  <versions>
+  <version id="1.9.1">- pgsql, mssql moved to net 8.0, dependencies updated</version>
+  <version id="1.8.11">- Update dependencies..</version>
   <version id="1.8.10">- Update dependencies..</version>
   <version id="1.8.9">- Move toward net 8.0, Update dependencies..</version>
   <version id="1.8.8">- Update dependencies..</version>
@@ -47,54 +49,67 @@
   <projectUrl>https://github.com/gehtsoft-usa/Gehtsoft.EF</projectUrl>
   <license type="expression">Apache-2.0</license>
   <copyright>Gehtsoft USA LLC 2016-2022</copyright>
+  <custom-property id="readme">docs/readme.md</custom-property>
  </properties>
  <projects>
    <project id="Gehtsoft.EF.Utils">
     <description>Gehtsoft Entity Framework: Utilities</description>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Entities">
     <description>Gehtsoft Entity Framework: Entity Definition and Management Tools</description>
     <additional-file file="../doc/Gehtsoft.EF.Entities.xml" target="*"></additional-file>
-    <additional-file file="../../readme.md" target="/"/>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Db.SqlDb">
     <description>Gehtsoft Entity Framework: Core Implementation for SQL databases.</description>
     <additional-file file="../doc/Gehtsoft.EF.Db.SqlDb.xml" target="*"></additional-file>
-    <additional-file file="../../readme.md" target="/"/>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Db.SqlDb.Sql">
     <description>Gehtsoft Entity Framework: Platform-agnostic SQL 92 parser and executor to operated entities using SQL queries.</description>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Db.SqlDb.OData">
     <description>Gehtsoft Entity Framework: Utilities: OData support.</description>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Db.MssqlDb">
     <description>Gehtsoft Entity Framework: Microsoft SQL 2005+ Driver</description>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Db.MysqlDb">
     <description>Gehtsoft Entity Framework: MySQL/MariaDB Driver</description>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Db.OracleDb">
     <description>Gehtsoft Entity Framework: Oracle 11+ Driver</description>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Db.PostgresDb">
     <description>Gehtsoft Entity Framework: Postgres Driver</description>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Db.SqliteDb">
     <description>Gehtsoft Entity Framework: SQLite Driver</description>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.FTS">
     <description>Gehtsoft Entity Framework: DB-Agnostic Full Text Search</description>
     <additional-file file="../doc/Gehtsoft.EF.FTS.xml" target="*"></additional-file>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Bson" >
     <description>Gehtsoft Entity Framework: Entity framework BSON serializer</description>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.MongoDb">
     <description>Gehtsoft Entity Framework: MongoDB-based implementation</description>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Northwind">
     <description>Gehtsoft Entity Framework: Northwind sample database</description>
+    <additional-file file="../../readme.md" target="/docs"/>
    </project>
  </projects>
 </nuget>

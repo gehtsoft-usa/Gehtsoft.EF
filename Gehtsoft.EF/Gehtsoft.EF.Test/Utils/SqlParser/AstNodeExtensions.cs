@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using FluentAssertions.Execution;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
 using Hime.Redist;
 
@@ -197,6 +198,6 @@ namespace Gehtsoft.EF.Test.SqlParser
         public static IAstNode SelectNode(this IAstNode node, string astPathExpression, int index = 1)
             => ExecuteOneLevel(Self(node), astPathExpression, 0).Skip(index - 1).FirstOrDefault();
 
-        public static AstNodeAssertions Should(this IAstNode node) => new AstNodeAssertions(node);
+        public static AstNodeAssertions Should(this IAstNode node) => new AstNodeAssertions(node, AssertionChain.GetOrCreate());
     }
 }

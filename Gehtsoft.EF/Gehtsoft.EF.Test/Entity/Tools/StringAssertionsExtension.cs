@@ -23,7 +23,7 @@ namespace Gehtsoft.EF.Test.Entity.Tools
         public static AndConstraint<StringAssertions> MatchPattern(this StringAssertions s, QueryWithWhereBuilder query, string pattern, string because = null, params object[] args)
         {
             var re = new Regex(ProcessRegex(pattern, query));
-            Execute.Assertion
+            s.CurrentAssertionChain
                 .BecauseOf(because, args)
                 .Given(() => s.Subject)
                 .ForCondition(m => re.IsMatch(m))

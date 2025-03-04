@@ -9,7 +9,7 @@ namespace Gehtsoft.EF.Test.Entity.Utils
     {
         public static AndConstraint<StringAssertions> Be(this StringAssertions assertions, string v, StringComparison comparison, string because = null, params object[] becauseParams)
         {
-            Execute.Assertion
+            assertions.CurrentAssertionChain
                .BecauseOf(because, becauseParams)
                .Given(() => assertions.Subject)
                .ForCondition(e => e?.Equals(v, comparison) ?? false)

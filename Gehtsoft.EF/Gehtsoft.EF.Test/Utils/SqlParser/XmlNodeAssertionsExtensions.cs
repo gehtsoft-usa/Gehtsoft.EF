@@ -14,8 +14,11 @@ namespace Gehtsoft.EF.Test.SqlParser
 {
     public class AstNodeAssertions : ReferenceTypeAssertions<IAstNode, AstNodeAssertions>
     {
-        public AstNodeAssertions(IAstNode node) : base(node)
+        private readonly AssertionChain mChain;
+
+        public AstNodeAssertions(IAstNode node, AssertionChain chain) : base(node, chain)
         {
+            mChain = chain;
         }
 
         protected override string Identifier => "node";
@@ -28,7 +31,7 @@ namespace Gehtsoft.EF.Test.SqlParser
 
         public AndConstraint<AstNodeAssertions> HaveSymbol(string symbol, string because = null, params object[] becauseArgs)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => Subject)
                 .ForCondition(node => node?.Symbol == symbol)
@@ -38,7 +41,7 @@ namespace Gehtsoft.EF.Test.SqlParser
 
         public AndConstraint<AstNodeAssertions> HaveValue(string value, string because = null, params object[] becauseArgs)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => Subject)
                 .ForCondition(node => node?.Value == value)
@@ -48,7 +51,7 @@ namespace Gehtsoft.EF.Test.SqlParser
 
         public AndConstraint<AstNodeAssertions> Contain(string path, string because = null, params object[] becauseArgs)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => Subject)
                 .ForCondition(node => node.SelectNode(path) != null)
@@ -58,7 +61,7 @@ namespace Gehtsoft.EF.Test.SqlParser
 
         public AndConstraint<AstNodeAssertions> ContainMatching(string path, Expression<Func<IAstNode, bool>> predicate, string because = null, params object[] becauseArgs)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => Subject)
                 .ForCondition(node => node.SelectNode(path) != null)
@@ -72,7 +75,7 @@ namespace Gehtsoft.EF.Test.SqlParser
 
         public AndConstraint<AstNodeAssertions> NotContain(string path, string because = null, params object[] becauseArgs)
         {
-            Execute.Assertion
+            mChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => Subject)
                 .ForCondition(node => !node.Select(path).Any())
