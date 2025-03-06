@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net472;net70</TargetFrameworks>
+    <TargetFrameworks>net472;net80</TargetFrameworks>
     <DefineConstants Condition=" '$(TargetFramework)' == 'net472' ">NET4</DefineConstants>
     <DefineConstants Condition=" '$(TargetFramework)' == 'net70' ">NETCORE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.EF.Db.SqliteDb" Version="1.8.9" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="NUnit" Version="4.1.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="Gehtsoft.EF.Db.SqliteDb" Version="1.9.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="NUnit" Version="4.3.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
