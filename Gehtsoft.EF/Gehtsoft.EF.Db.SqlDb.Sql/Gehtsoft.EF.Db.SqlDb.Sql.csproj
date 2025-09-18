@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Hime.SDK" Version="3.5.1" />
     <PackageReference Include="Hime.Build.Task" Version="0.1.6" IncludeAssets="build" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
   <Target Name="AddGrammarFiles" DependsOnTargets="CompileGrammar" BeforeTargets="BeforeResGen">
@@ -27,10 +28,8 @@
      </ItemGroup>
   </Target>
 
-  <Target Name="CompileGrammar" Inputs="sql.gram"
-          Outputs="$(IntermediateOutputPath)SqlLexer.cs;$(IntermediateOutputPath)SqlParser.cs;$(IntermediateOutputPath)SqlLexer.bin;$(IntermediateOutputPath)SqlParser.bin;">
-     <CompileGrammar GrammarName="Sql" GrammarFile="sql.gram" Namespace="Gehtsoft.eF.Db.SqlDb.Sql"
-                     OutputMode="Source" CodeAccess="Internal" OutputPath="$(IntermediateOutputPath)" />
+  <Target Name="CompileGrammar" Inputs="sql.gram" Outputs="$(IntermediateOutputPath)SqlLexer.cs;$(IntermediateOutputPath)SqlParser.cs;$(IntermediateOutputPath)SqlLexer.bin;$(IntermediateOutputPath)SqlParser.bin;">
+     <CompileGrammar GrammarName="Sql" GrammarFile="sql.gram" Namespace="Gehtsoft.eF.Db.SqlDb.Sql" OutputMode="Source" CodeAccess="Internal" OutputPath="$(IntermediateOutputPath)" />
   </Target>
 
    <ItemGroup>

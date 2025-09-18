@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.9.1" />
+    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.9.2" />
     <PackageReference Include="Gehtsoft.Tools2" Version="0.0.3" />
   </ItemGroup>
 
