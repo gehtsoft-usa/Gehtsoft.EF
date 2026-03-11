@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using DotLiquid;
 using DotLiquid.Util;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.OracleDb;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;

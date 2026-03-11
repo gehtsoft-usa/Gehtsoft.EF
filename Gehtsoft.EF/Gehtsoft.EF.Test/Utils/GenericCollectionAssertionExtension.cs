@@ -4,9 +4,9 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
-using FluentAssertions.Collections;
-using FluentAssertions.Execution;
+using AwesomeAssertions;
+using AwesomeAssertions.Collections;
+using AwesomeAssertions.Execution;
 using Gehtsoft.Tools2.Extensions;
 
 namespace Gehtsoft.EF.Test.Entity.Utils

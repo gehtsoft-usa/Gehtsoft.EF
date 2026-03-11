@@ -1,5 +1,5 @@
 ﻿using System;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Northwind;
 using Xunit;

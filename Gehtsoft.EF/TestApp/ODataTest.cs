@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.OData.Edm;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.OData.UriParser;
 using System.Security.Policy;
 using Microsoft.OData;

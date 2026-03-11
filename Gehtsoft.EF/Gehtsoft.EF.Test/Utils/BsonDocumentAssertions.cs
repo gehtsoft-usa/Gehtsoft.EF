@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using FluentAssertions;
+using AwesomeAssertions;
 using MongoDB.Bson;
-using FluentAssertions.Primitives;
-using FluentAssertions.Execution;
+using AwesomeAssertions.Primitives;
+using AwesomeAssertions.Execution;
 
 namespace Gehtsoft.EF.Test.Utils
 {

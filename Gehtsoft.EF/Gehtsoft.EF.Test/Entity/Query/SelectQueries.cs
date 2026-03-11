@@ -3,7 +3,7 @@ using System.Data;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;

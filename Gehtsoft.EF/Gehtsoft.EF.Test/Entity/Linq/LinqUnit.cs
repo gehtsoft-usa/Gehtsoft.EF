@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using DnsClient;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
 using Gehtsoft.EF.Entities;

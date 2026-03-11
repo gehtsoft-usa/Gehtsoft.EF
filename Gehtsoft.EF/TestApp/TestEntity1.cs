@@ -20,7 +20,7 @@ using MySqlConnector.Logging;
 using NUnit.Framework;
 using NUnit.Framework.Internal.Commands;
 using NUnit.Framework.Legacy;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace TestApp
 {

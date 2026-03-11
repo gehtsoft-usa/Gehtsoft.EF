@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Entities.Context;
 using Gehtsoft.Tools.TypeUtils;

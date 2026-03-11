@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Test.Entity.Utils;
 using Gehtsoft.EF.Test.SqlParser;
 using Hime.SDK.Grammars;

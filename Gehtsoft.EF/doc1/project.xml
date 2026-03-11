@@ -38,4 +38,6 @@
   <dg:define name="assembly" value="Gehtsoft.EF.FTS" />
   <dg:define name="namespace" value="Gehtsoft.EF.FTS" />
  </dg:output>
+
+ <dg:output template="%docgen%/template/null/null.xsl" file="model.xml" encoding="utf-8" />
 </dg:help-project>

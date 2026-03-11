@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Test.SqlParser;

@@ -6,7 +6,7 @@ using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Test.Utils;
 using Gehtsoft.EF.Bson;
 using Xunit;
-using FluentAssertions;
+using AwesomeAssertions;
 using MongoDB.Bson;
 
 namespace Gehtsoft.EF.Test.Mongo

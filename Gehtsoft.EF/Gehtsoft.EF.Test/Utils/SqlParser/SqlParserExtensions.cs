@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
-using FluentAssertions.Collections;
-using FluentAssertions.Primitives;
+using AwesomeAssertions.Collections;
+using AwesomeAssertions.Primitives;
 using Hime.Redist;
 using MongoDB.Driver.Core.Events;
 

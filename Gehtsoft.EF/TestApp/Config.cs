@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using Gehtsoft.Tools.ConfigurationProfile;
 using System;
 using System.Collections.Generic;

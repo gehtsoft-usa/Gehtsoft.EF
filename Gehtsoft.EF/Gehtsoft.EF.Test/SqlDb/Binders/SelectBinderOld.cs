@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Test.Entity.Utils;
 using Gehtsoft.EF.Test.Utils;

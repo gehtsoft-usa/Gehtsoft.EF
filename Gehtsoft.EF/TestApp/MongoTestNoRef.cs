@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.MongoDb;
 using Gehtsoft.EF.Utils;

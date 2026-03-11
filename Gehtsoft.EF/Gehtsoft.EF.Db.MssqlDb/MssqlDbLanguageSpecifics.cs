@@ -102,6 +102,8 @@ namespace Gehtsoft.EF.Db.MssqlDb
 
         public override object TranslateValue(object value, Type type)
         {
+            if (value is System.DateOnly dol)
+                value = dol.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
             if (type == typeof(bool))
             {
                 if (value == null)

@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Test.Utils;
 using Gehtsoft.EF.Utils;
 using Xunit;

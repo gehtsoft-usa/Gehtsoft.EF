@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.OracleDb;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor;

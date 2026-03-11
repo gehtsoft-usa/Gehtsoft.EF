@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb.Sql.CodeDom;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Northwind;

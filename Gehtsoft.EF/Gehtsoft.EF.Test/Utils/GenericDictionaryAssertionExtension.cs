@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using FluentAssertions;
-using FluentAssertions.Collections;
-using FluentAssertions.Execution;
+using AwesomeAssertions;
+using AwesomeAssertions.Collections;
+using AwesomeAssertions.Execution;
 
 namespace Gehtsoft.EF.Test.Entity.Utils
 {

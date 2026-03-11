@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Test.Utils;
 using Microsoft.Extensions.Configuration;
 using Xunit;

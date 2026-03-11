@@ -2,7 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Text;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using NUnit.Framework;

@@ -5,7 +5,7 @@ using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Northwind;
 using Xunit;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqliteDb;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test

@@ -1,7 +1,7 @@
 ﻿using System;
-using FluentAssertions;
-using FluentAssertions.Execution;
-using FluentAssertions.Primitives;
+using AwesomeAssertions;
+using AwesomeAssertions.Execution;
+using AwesomeAssertions.Primitives;
 
 namespace Gehtsoft.EF.Test.Entity.Utils
 {

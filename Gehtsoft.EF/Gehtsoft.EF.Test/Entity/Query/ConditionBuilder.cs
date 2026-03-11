@@ -10,7 +10,7 @@ using Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder;
 using Gehtsoft.EF.Test.SqlParser;
 using Gehtsoft.EF.Test.Utils;
 using Gehtsoft.EF.Test.Utils.DummyDb;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 using Hime.SDK.Grammars.LR;
 using System.Data;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using FluentAssertions.Execution;
+using AwesomeAssertions.Execution;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
 using Hime.Redist;
 

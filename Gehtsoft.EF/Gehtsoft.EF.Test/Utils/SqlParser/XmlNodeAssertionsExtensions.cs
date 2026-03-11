@@ -5,10 +5,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using DotLiquid.Exceptions;
-using FluentAssertions;
-using FluentAssertions.Execution;
-using FluentAssertions.Primitives;
-using FluentAssertions.Xml;
+using AwesomeAssertions;
+using AwesomeAssertions.Execution;
+using AwesomeAssertions.Primitives;
+using AwesomeAssertions.Xml;
 
 namespace Gehtsoft.EF.Test.SqlParser
 {

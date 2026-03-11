@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Entities;
 using NUnit.Framework;
-using FluentAssertions;
+using AwesomeAssertions;
 using NUnit.Framework.Legacy;
 
 namespace TestApp

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using NUnit.Framework;
 

@@ -1,5 +1,5 @@
-﻿using FluentAssertions;
-using FluentAssertions.Common;
+﻿using AwesomeAssertions;
+using AwesomeAssertions.Common;
 using Gehtsoft.EF.Db.SqlDb;
 using NUnit.Framework;
 using System;

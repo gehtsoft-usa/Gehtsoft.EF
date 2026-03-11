@@ -107,5 +107,12 @@ namespace Gehtsoft.EF.Db.PostgresDb
         public override DateTime? MaxTimestamp => new DateTime(9999, 12, 31);
 
         public override bool SupportFunctionsInIndexes => true;
+
+        public override object TranslateValue(object value, Type type)
+        {
+            if (value is System.DateOnly dol)
+                value = dol.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
+            return base.TranslateValue(value, type);
+        }
     }
 }

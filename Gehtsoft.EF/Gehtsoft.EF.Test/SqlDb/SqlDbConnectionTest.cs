@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.MssqlDb;
 using Gehtsoft.EF.Db.MysqlDb;
 using Gehtsoft.EF.Db.OracleDb;

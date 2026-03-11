@@ -1,4 +1,4 @@
-﻿using FluentAssertions.Execution;
+﻿using AwesomeAssertions.Execution;
 using MongoDB.Bson;
 using Xunit.Sdk;
 

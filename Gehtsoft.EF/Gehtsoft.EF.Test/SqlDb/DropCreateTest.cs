@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Runtime.InteropServices;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Northwind;
 using Gehtsoft.EF.Test.Entity.Utils;
 using Gehtsoft.EF.Test.Utils;

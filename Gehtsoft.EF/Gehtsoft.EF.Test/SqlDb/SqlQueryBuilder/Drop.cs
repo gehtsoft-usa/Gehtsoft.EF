@@ -1,6 +1,6 @@
 ﻿using System.Data;
 using System.Linq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Test.SqlParser;
 using Gehtsoft.EF.Test.Utils.DummyDb;

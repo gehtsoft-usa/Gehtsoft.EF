@@ -4,7 +4,7 @@ using System.Data;
 using System.Globalization;
 using System.Net;
 using System.Runtime.CompilerServices;
-using FluentAssertions;
+using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;

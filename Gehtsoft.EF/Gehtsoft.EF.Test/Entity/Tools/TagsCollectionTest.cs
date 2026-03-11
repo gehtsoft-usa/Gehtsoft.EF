@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using Gehtsoft.EF.Test.Utils;
 using Gehtsoft.EF.Utils;
 using Xunit;
