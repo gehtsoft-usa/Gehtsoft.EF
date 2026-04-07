@@ -88,11 +88,11 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <summary>
         /// The maximum date value supported
         /// </summary>
-        public DateTime MaximumDate { get; set; } = new DateTime(9999, 12, 31);
+        public DateTime MaximumDate { get; set; } = new DateTime(9999, 12, 31, 0, 0, 0, DateTimeKind.Unspecified);
         /// <summary>
         /// The minimum date value supported.
         /// </summary>
-        public DateTime MinimumDate { get; set; } = new DateTime(1, 1, 1);
+        public DateTime MinimumDate { get; set; } = new DateTime(1, 1, 1, 0, 0, 0, DateTimeKind.Unspecified);
 
         /// <summary>
         /// Truncates the value to the parameters of the type.

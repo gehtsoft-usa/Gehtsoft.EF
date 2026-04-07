@@ -158,7 +158,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
                                 first = false;
                             builder.Append(arg);
                         }
-                        builder.Append(")");
+                        builder.Append(')');
                         return builder.ToString();
                     }
                 default:

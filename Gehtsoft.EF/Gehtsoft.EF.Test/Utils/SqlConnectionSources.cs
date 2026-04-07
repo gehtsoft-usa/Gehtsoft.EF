@@ -89,7 +89,7 @@ namespace Gehtsoft.EF.Test.Utils
                 if (!string.IsNullOrEmpty(flag))
                 {
                     if (t.Length > 0)
-                        t.Append(",");
+                        t.Append(',');
                     t.Append(flag);
                 }
             }

@@ -50,7 +50,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
                         .Append(") ")
                         .Append(" OUTPUT INSERTED.")
                         .Append(autoIncrement.Name)
-                        .Append(" ");
+                        .Append(' ');
                     if (string.IsNullOrEmpty(mSelect.Query))
                         mSelect.PrepareQuery();
                     builder.Append(mSelect.Query);

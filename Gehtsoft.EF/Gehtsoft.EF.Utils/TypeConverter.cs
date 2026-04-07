@@ -38,7 +38,7 @@ namespace Gehtsoft.EF.Utils
             if (type == typeof(DateTime) && value is double d1)
                 return DateTime.FromOADate(d1);
             else if (type == typeof(DateTime) && value is long l)
-                return new DateTime(l);
+                return new DateTime(l, DateTimeKind.Unspecified);
             else if (type == typeof(double) && value is DateTime dt1)
                 return dt1.ToOADate();
             else if (type == typeof(long) && value is DateTime dt2)

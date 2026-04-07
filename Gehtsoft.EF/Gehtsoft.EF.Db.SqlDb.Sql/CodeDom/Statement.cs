@@ -222,11 +222,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             bool retval = false;
 
-            if (expression is SqlField)
-            {
-                retval = false;
-            }
-            else if (expression is SqlAggrFunc)
+            if (expression is SqlField || expression is SqlAggrFunc)
             {
                 retval = false;
             }
@@ -236,19 +232,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 bool isCalculableRight = IsCalculable(binaryExpression.RightOperand);
                 retval = isCalculableLeft && isCalculableRight;
             }
-            else if (expression is SqlConstant)
-            {
-                retval = true;
-            }
-            else if (expression is AssignExpression)
-            {
-                retval = true;
-            }
-            else if (expression is GlobalParameter)
-            {
-                retval = true;
-            }
-            else if (expression is GetLastResult)
+            else if (expression is SqlConstant || expression is AssignExpression || expression is GlobalParameter ||
+                     expression is GetLastResult || expression is NewRowSet || expression is NewRow ||
+                     expression is SqlSelectExpression)
             {
                 retval = true;
             }
@@ -264,21 +250,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 retval = IsCalculable(getField.RowParameter) && IsCalculable(getField.NameParameter);
             }
-            else if (expression is NewRowSet)
-            {
-                retval = true;
-            }
-            else if (expression is NewRow)
-            {
-                retval = true;
-            }
             else if (expression is Fetch fetch)
             {
                 retval = IsCalculable(fetch.Parameter);
-            }
-            else if (expression is SqlSelectExpression)
-            {
-                retval = true;
             }
             else if (expression is SqlUnaryExpression unar)
             {

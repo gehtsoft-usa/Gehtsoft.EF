@@ -359,7 +359,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         private static int UnixTimeStampUTC(DateTime currentTime)
         {
             DateTime zuluTime = currentTime.ToUniversalTime();
-            DateTime unixEpoch = new DateTime(1970, 1, 1);
+            DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Unspecified);
             return (Int32)(zuluTime.Subtract(unixEpoch)).TotalSeconds;
         }
 
@@ -638,7 +638,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         start = " -(";
                         break;
                     case SqlUnaryExpression.OperationType.Plus:
-                        start = " -(";
+                        start = " +(";
                         break;
                     case SqlUnaryExpression.OperationType.Not:
                         start = Connection.GetLanguageSpecifics().GetLogOp(LogOp.Not);

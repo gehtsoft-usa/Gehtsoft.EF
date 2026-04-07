@@ -184,12 +184,12 @@ namespace Gehtsoft.EF.Db.SqliteDb
             else if (type == typeof(DateTime))
             {
                 if (value == null)
-                    return new DateTime(0);
+                    return new DateTime(0, DateTimeKind.Unspecified);
 
                 if (SqliteGlobalOptions.StoreDateAsString)
                 {
                     if (!DateTime.TryParseExact((string)value, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var dt))
-                        return new DateTime(0);
+                        return new DateTime(0, DateTimeKind.Unspecified);
                     return dt;
                 }
                 else

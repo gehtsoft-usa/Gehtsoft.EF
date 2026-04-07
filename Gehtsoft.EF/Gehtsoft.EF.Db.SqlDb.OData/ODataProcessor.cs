@@ -451,7 +451,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 else if (pair.Value is DateTimeOffset dateTimeOffsetValue)
                     query.BindParam(pair.Key, dateTimeOffsetValue.LocalDateTime);
                 else if (pair.Value is Microsoft.OData.Edm.Date dateValue)
-                    query.BindParam(pair.Key, new DateTime(dateValue.Year, dateValue.Month, dateValue.Day));
+                    query.BindParam(pair.Key, new DateTime(dateValue.Year, dateValue.Month, dateValue.Day, 0, 0, 0, DateTimeKind.Unspecified));
                 else
                     query.BindParam(pair.Key, pair.Value.ToString());
             }

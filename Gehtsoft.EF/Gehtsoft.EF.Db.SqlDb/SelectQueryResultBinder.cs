@@ -84,7 +84,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                 if (exact)
                     columnInfo = entity.TableDescriptor.HasColumn(name) ? entity[name] : null;
                 else
-                    columnInfo = ((IEnumerable<TableDescriptor.ColumnInfo>)entity)
+                    columnInfo = entity.TableDescriptor
                         .FirstOrDefault(ci => ci.ID.Equals(name, StringComparison.OrdinalIgnoreCase) ||
                                               ci.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 

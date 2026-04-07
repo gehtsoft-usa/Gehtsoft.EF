@@ -92,7 +92,7 @@ namespace Gehtsoft.EF.MongoDb
             public override string ToString()
             {
                 StringBuilder builder = new StringBuilder();
-                builder.Append("(");
+                builder.Append('(');
 
                 foreach (Element element in Elements)
                 {
@@ -100,7 +100,7 @@ namespace Gehtsoft.EF.MongoDb
                         builder.Append(' ').Append(LogOp ?? "$and").Append(' ');
                     builder.Append(element.ToString());
                 }
-                builder.Append(")");
+                builder.Append(')');
                 return builder.ToString();
             }
         }
@@ -227,9 +227,11 @@ namespace Gehtsoft.EF.MongoDb
                                 if (c == '%')
                                     pattern.Append(".*");
                                 else if (c == '.')
-                                    pattern.Append(".");
+                                    pattern.Append('.');
                                 else if (c == '[')
                                 {
+                                    // intentional: inner loop advances outer loop's index to skip past bracket group
+#pragma warning disable S127
                                     for (; i < svalue.Length; i++)
                                     {
                                         c = svalue[i];
@@ -237,6 +239,7 @@ namespace Gehtsoft.EF.MongoDb
                                         if (c == ']')
                                             break;
                                     }
+#pragma warning restore S127
                                 }
                                 else
                                     pattern.Append(c);
