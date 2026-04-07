@@ -129,3 +129,7 @@ dotnet_diagnostic.RCS1033.severity = none
 
 # VSSpell001: Spell Check
 dotnet_diagnostic.VSSpell001.severity = none
+
+# S3267: Loops should be simplified with LINQ expressions
+# Disagree with policy: explicit loops are often more readable
+dotnet_diagnostic.S3267.severity = none

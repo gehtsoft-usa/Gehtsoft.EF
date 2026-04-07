@@ -11,10 +11,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="8.0.0">
+    <PackageReference Include="coverlet.collector" Version="8.0.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="LiquidTestReports.Markdown" Version="1.0.9" />
+
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gehtsoft.EF.Db.SqlDb.Sql\Gehtsoft.EF.Db.SqlDb.Sql.csproj" />

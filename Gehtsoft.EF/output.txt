@@ -1,0 +1,4 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+
+Workload updates are available. Run `dotnet workload list` for more information.
