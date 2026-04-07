@@ -10,6 +10,8 @@ using System.Data;
 using System;
 using System.Globalization;
 
+#pragma warning disable S6966 // false positive: methods use sync/async branching pattern
+
 namespace Gehtsoft.EF.Db.SqliteDb
 {
     public class SqliteDbConnection : SqlDbConnection

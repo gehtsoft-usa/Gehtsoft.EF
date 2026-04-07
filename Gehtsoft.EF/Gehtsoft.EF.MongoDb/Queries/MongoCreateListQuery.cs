@@ -12,6 +12,8 @@ using Gehtsoft.EF.Utils;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
+#pragma warning disable S6966 // false positive: methods use sync/async branching pattern
+
 namespace Gehtsoft.EF.MongoDb
 {
     /// <summary>

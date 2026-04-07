@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
+#pragma warning disable S6966 // false positive: methods use sync/async branching pattern
+
 namespace Gehtsoft.EF.Db.SqlDb
 {
     /// <summary>
@@ -364,7 +366,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// <param name="value"></param>
         /// <param name="insert"></param>
         public virtual void BindAndExecute(SqlDbQuery query, object value, bool? insert = null) =>
-            BindAndExecuteCore(false, query, value, insert, null)
+            BindAndExecuteCore(true, query, value, insert, null)
                 .ConfigureAwait(false)
                 .GetAwaiter()
                 .GetResult();

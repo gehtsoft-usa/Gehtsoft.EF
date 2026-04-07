@@ -10,6 +10,8 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Utils;
 
+#pragma warning disable S6966 // false positive: methods use sync/async branching pattern
+
 namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
 {
     /// <summary>
@@ -481,6 +483,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor
             using (SelectEntitiesCountQuery query = Connection.GetSelectEntitiesCountQuery<T>())
             {
                 filter?.BindToQuery(query);
+                // not a bug: RowCount getter auto-executes the query synchronously
+                // when not yet executed, so we only need to pre-execute for async path
                 if (!sync)
                     await query.ExecuteAsync(token);
                 return query.RowCount;

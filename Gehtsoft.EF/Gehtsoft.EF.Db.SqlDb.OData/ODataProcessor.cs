@@ -20,6 +20,8 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
+#pragma warning disable S6966 // false positive: methods use sync/async branching pattern
+
 namespace Gehtsoft.EF.Db.SqlDb.OData
 {
     public class ODataProcessor

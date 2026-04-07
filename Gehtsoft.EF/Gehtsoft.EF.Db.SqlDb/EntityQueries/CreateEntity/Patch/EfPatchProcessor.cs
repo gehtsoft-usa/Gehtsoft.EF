@@ -8,6 +8,8 @@ using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
+#pragma warning disable S6966 // false positive: methods use sync/async branching pattern
+
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch
 {
     public static class EfPatchProcessor

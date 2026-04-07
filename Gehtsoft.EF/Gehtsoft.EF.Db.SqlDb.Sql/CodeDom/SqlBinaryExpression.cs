@@ -134,11 +134,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             switch (operation)
                             {
                                 case OperationType.Eq:
+#pragma warning disable S1244 // intentional: replicating SQL exact comparison semantics on constants
                                     value = (double)leftConstant.Value == (double)rightConstant.Value;
+#pragma warning restore S1244
                                     type = ResultTypes.Boolean;
                                     break;
                                 case OperationType.Neq:
+#pragma warning disable S1244
                                     value = (double)leftConstant.Value != (double)rightConstant.Value;
+#pragma warning restore S1244
                                     type = ResultTypes.Boolean;
                                     break;
                                 case OperationType.Gt:
@@ -275,11 +279,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         switch (operation)
                         {
                             case OperationType.Eq:
+#pragma warning disable S1244 // intentional: replicating SQL exact comparison semantics on constants
                                 value = leftValue == rightValue;
+#pragma warning restore S1244
                                 type = ResultTypes.Boolean;
                                 break;
                             case OperationType.Neq:
+#pragma warning disable S1244
                                 value = leftValue != rightValue;
+#pragma warning restore S1244
                                 type = ResultTypes.Boolean;
                                 break;
                             case OperationType.Gt:

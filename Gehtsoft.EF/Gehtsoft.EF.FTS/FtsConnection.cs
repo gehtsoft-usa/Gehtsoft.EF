@@ -14,6 +14,8 @@ using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Utils;
 using Gehtsoft.Tools2.Extensions;
 
+#pragma warning disable S6966 // false positive: methods use sync/async branching pattern
+
 namespace Gehtsoft.EF.FTS
 {
     public static class FtsConnection

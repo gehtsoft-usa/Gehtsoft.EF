@@ -7,6 +7,8 @@ using System.Threading;
 using System.Data;
 using System;
 
+#pragma warning disable S6966 // false positive: methods use sync/async branching pattern
+
 namespace Gehtsoft.EF.Db.PostgresDb
 {
     public class PostgresDbConnection : SqlDbConnection

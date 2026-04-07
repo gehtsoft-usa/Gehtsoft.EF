@@ -7,6 +7,8 @@ using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using System.Threading.Tasks;
 using System.Threading;
 
+#pragma warning disable S6966 // false positive: methods use sync/async branching pattern
+
 namespace Gehtsoft.EF.Db.OracleDb
 {
     public class OracleDbConnection : SqlDbConnection
