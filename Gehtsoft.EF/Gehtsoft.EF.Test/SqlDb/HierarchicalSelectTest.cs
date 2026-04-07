@@ -11,7 +11,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 {
     public class HierarchicalSelectTest : IClassFixture<HierarchicalSelectTest.Fixture>
     {
-        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.SqlConnectionNames(flags);
+        public static TheoryData<string> ConnectionNames(string flags = null) => SqlConnectionSources.SqlConnectionNames(flags);
 
         #region fixture
 

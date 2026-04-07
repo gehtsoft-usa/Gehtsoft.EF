@@ -19,7 +19,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
     public class QueryiesOnDb_Infrastructure : IClassFixture<QueryiesOnDb_Infrastructure.Fixture>
     {
         private const string mFlags = "";
-        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.SqlConnectionNames(flags, mFlags);
+        public static TheoryData<string> ConnectionNames(string flags = "") => SqlConnectionSources.SqlConnectionNames(flags, mFlags);
 
         private readonly Fixture mFixture;
 

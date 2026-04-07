@@ -88,7 +88,7 @@ namespace Gehtsoft.EF.Test.SqlDb
 
         private readonly Fixture mFixture;
 
-        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.SqlConnectionNames(flags);
+        public static TheoryData<string> ConnectionNames(string flags = null) => SqlConnectionSources.SqlConnectionNames(flags);
 
         public SchemaTest(Fixture fixture)
         {

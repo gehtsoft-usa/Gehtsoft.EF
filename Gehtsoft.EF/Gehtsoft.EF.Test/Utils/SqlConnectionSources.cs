@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Xunit;
 
 namespace Gehtsoft.EF.Test.Utils
 {
@@ -77,7 +78,7 @@ namespace Gehtsoft.EF.Test.Utils
         /// <param name="flags">Comma-separated list of the connection or driver names with `+` prefix to include only and `-` prefix to exclude</param>
         /// <param name="flags1">more flags</param>
         /// <returns></returns>
-        public static IEnumerable<object[]> SqlConnectionNames(string flags, params string[] flags1)
+        public static TheoryData<string> SqlConnectionNames(string flags, params string[] flags1)
         {
             StringBuilder t = new StringBuilder();
             if (!string.IsNullOrEmpty(flags))
@@ -101,15 +102,25 @@ namespace Gehtsoft.EF.Test.Utils
         /// </summary>
         /// <param name="flags">Comma-separated list of the connection or driver names with `+` prefix to include only and `-` prefix to exclude</param>
         /// <returns></returns>
-        public static IEnumerable<object[]> SqlConnectionNames(string flags = null)
-            => SqlConnections(flags).Select(c => new object[] { c.Name });
+        public static TheoryData<string> SqlConnectionNames(string flags = null)
+        {
+            var data = new TheoryData<string>();
+            foreach (var c in SqlConnections(flags))
+                data.Add(c.Name);
+            return data;
+        }
 
         /// <summary>
         /// Gets list of the connections from the config
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<object[]> MongoConnectionNames()
-            => MongoConnections().Select(c => new object[] { c.Name });
+        public static TheoryData<string> MongoConnectionNames()
+        {
+            var data = new TheoryData<string>();
+            foreach (var c in MongoConnections())
+                data.Add(c.Name);
+            return data;
+        }
 
         /// <summary>
         /// Gets list of the connections from the config

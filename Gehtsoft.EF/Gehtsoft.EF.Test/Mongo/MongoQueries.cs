@@ -77,7 +77,7 @@ namespace Gehtsoft.EF.Test.Mongo
             mFixture = fixture;
         }
 
-        public static IEnumerable<object[]> ConnectionNames() => SqlConnectionSources.MongoConnectionNames();
+        public static TheoryData<string> ConnectionNames() => SqlConnectionSources.MongoConnectionNames();
 
         [TestOrder(1)]
         [Theory]

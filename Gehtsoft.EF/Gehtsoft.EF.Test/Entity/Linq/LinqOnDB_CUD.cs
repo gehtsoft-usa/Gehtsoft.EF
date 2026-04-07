@@ -13,7 +13,7 @@ namespace Gehtsoft.EF.Test.Entity.Linq
     public class LinqOnDB_CUD : IClassFixture<LinqOnDB_CUD.Fixture>
     {
         private const string mFlags = "";
-        public static IEnumerable<object[]> ConnectionNames(string flags = "") => SqlConnectionSources.SqlConnectionNames(flags, mFlags);
+        public static TheoryData<string> ConnectionNames(string flags = "") => SqlConnectionSources.SqlConnectionNames(flags, mFlags);
 
         [Entity(Scope = "linq4", Table = "LinqDict")]
         public class Dict

@@ -20,7 +20,7 @@ namespace Gehtsoft.EF.Test.SqlDb
     {
         private readonly NorthwindFixture mFixture;
 
-        public static IEnumerable<object[]> ConnectionNames(string flags = null) => SqlConnectionSources.SqlConnectionNames(flags);
+        public static TheoryData<string> ConnectionNames(string flags = null) => SqlConnectionSources.SqlConnectionNames(flags);
 
         public AdvancedSelectTest(NorthwindFixture fixture)
         {
