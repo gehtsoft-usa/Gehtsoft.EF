@@ -304,16 +304,16 @@ namespace TestApp
             ClassicAssert.AreEqual(test1.EnumValue, test2.EnumValue);
             ClassicAssert.AreEqual(test1.DictValue, test2.DictValue);
 
-            test1.StringValue = new string[] { };
-            test1.BoolValue = new bool[] { };
-            test1.IntValue = new int[] { };
-            test1.LongValue = new long[] { };
-            test1.DoubleValue = new double[] { };
-            test1.DecimalValue = new decimal[] { };
-            test1.GuidValue = new Guid[] { };
-            test1.DateTimeValue = new DateTime?[] { };
-            test1.DictValue = new EntityTestDict[] { };
-            test1.EnumValue = new TestEnum[] { };
+            test1.StringValue = Array.Empty<string>();
+            test1.BoolValue = Array.Empty<bool>();
+            test1.IntValue = Array.Empty<int>();
+            test1.LongValue = Array.Empty<long>();
+            test1.DoubleValue = Array.Empty<double>();
+            test1.DecimalValue = Array.Empty<decimal>();
+            test1.GuidValue = Array.Empty<Guid>();
+            test1.DateTimeValue = Array.Empty<DateTime?>();
+            test1.DictValue = Array.Empty<EntityTestDict>();
+            test1.EnumValue = Array.Empty<TestEnum>();
 
             doc = test1.ConvertToBson();
             test2 = doc.ToEntity(typeof(EntityTestAllArr)) as EntityTestAllArr;

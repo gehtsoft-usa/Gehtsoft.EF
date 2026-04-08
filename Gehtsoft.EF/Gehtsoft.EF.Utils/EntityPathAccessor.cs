@@ -19,7 +19,7 @@ namespace Gehtsoft.EF.Utils
             object GetValue(object thisObject);
         }
 
-        private class PropertyAccessor : IAccessor
+        private sealed class PropertyAccessor : IAccessor
         {
             private readonly PropertyInfo mPropertyInfo;
 
@@ -31,7 +31,7 @@ namespace Gehtsoft.EF.Utils
             }
         }
 
-        private class ObjectAccessor : IAccessor
+        private sealed class ObjectAccessor : IAccessor
         {
             private readonly string mPropertyName;
 

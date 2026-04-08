@@ -58,7 +58,7 @@ namespace TestApp
                     CsdlWriter.TryWriteCsdl(model, writer, CsdlTarget.OData, out IEnumerable<EdmError> _);
                 }
                 var csdl = stringWriter.ToString();
-                Console.Write("{0}", csdl);
+                //Console.Write("{0}", csdl);
             }
 
             //check that model is enough to parse OData queries

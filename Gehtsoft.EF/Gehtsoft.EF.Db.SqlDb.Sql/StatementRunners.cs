@@ -933,7 +933,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
     {
         internal static bool Like(this string toSearch, string toFind)
         {
-            return new Regex(@"\A" + new Regex(@"\.|\$|\^|\{|\[|\(|\||\)|\*|\+|\?|\\").Replace(toFind, ch => @"\" + ch).Replace('_', '.').Replace("%", ".*") + @"\z", RegexOptions.Singleline).IsMatch(toSearch);
+            return new Regex(@"\A" + new Regex(@"\.|\$|\^|\{|\[|\(|\||\)|\*|\+|\?|\\", RegexOptions.None, TimeSpan.FromSeconds(1)).Replace(toFind, ch => @"\" + ch).Replace('_', '.').Replace("%", ".*") + @"\z", RegexOptions.Singleline, TimeSpan.FromSeconds(1)).IsMatch(toSearch);
         }
     }
 }

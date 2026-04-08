@@ -44,7 +44,7 @@ namespace TestApp
             var r5 = details.Sum(o => o.UnitPrice);
             var r6 = details.Sum(o => o.UnitPrice * o.Quantity);
 
-            Console.WriteLine("{0} {1} {2} {3} {4} {5}", r1, r2, r3, r4, r5, r6);
+            //Console.WriteLine("{0} {1} {2} {3} {4} {5}", r1, r2, r3, r4, r5, r6);
 
             var r21 = orders.Where(o => o.ShippedDate == null).Count();
             var r22 = orders.Where(o => o.ShippedDate != null).Count();
@@ -52,7 +52,7 @@ namespace TestApp
 
             var ra1 = (from o in orders group o by 1 into g select new { c = g.Count(), m = g.Max(v => v.OrderDate) }).ToArray();
 
-            Console.WriteLine("{0} {1} {2} {3}", r21, r22, r23, ra1);
+            //Console.WriteLine("{0} {1} {2} {3}", r21, r22, r23, ra1);
         }
     }
 }

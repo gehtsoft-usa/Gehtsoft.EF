@@ -158,6 +158,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     /// </summary>
     public class SelectQueryBuilder : QueryWithWhereBuilder
     {
+        private const string ScalarInjectionMessage = "Query should not consists of string scalars";
         [DocgenIgnore]
         internal protected SelectQueryBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor mainTable) : base(specifics, mainTable)
         {
@@ -236,9 +237,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (expression.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(expression));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(expression));
                 if (alias.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(alias));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
             }
 
             if (alias == null)
@@ -259,7 +260,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(alias));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
             }
             mResultset.Add(new SelectQueryBuilderResultsetItem(GetAlias(column, entity), alias, false, column.DbType));
         }
@@ -274,7 +275,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(alias));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
             }
 
             mResultset.Add(new SelectQueryBuilderResultsetItem(GetAlias(column, null), alias, false, column.DbType));
@@ -294,7 +295,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(alias));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
             }
 
             if (alias == null)
@@ -313,7 +314,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(alias));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
             }
 
             if (alias == null)
@@ -333,7 +334,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(alias));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
             }
 
             if (alias == null)
@@ -355,7 +356,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (aliasPrefix.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(aliasPrefix));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(aliasPrefix));
             }
 
             foreach (TableDescriptor.ColumnInfo column in table)
@@ -374,7 +375,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (aliasPrefix.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(aliasPrefix));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(aliasPrefix));
             }
 
             foreach (TableDescriptor.ColumnInfo column in table)
@@ -397,10 +398,10 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (query.Query.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(query));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(query));
 
                 if (!string.IsNullOrEmpty(alias) && alias.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(alias));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
             }
 
             AddExpressionToResultset($"({query.Query})", type, false, alias);
@@ -456,7 +457,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (expression.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(expression));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(expression));
             }
             mOrderBy.Add(new SelectQueryBuilderByItem(expression, direction));
         }
@@ -466,7 +467,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (expression.ContainsScalar())
-                    throw new ArgumentException("Query should not consists of string scalars", nameof(expression));
+                    throw new ArgumentException(ScalarInjectionMessage, nameof(expression));
             }
 
             mGroupBy.Add(new SelectQueryBuilderByItem(expression, SortDir.Asc));

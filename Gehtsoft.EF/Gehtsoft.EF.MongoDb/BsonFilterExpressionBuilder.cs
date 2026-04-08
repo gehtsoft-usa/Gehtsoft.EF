@@ -218,7 +218,7 @@ namespace Gehtsoft.EF.MongoDb
                 case CmpOp.Like:
                     {
                         string svalue = (string)value;
-                        if (!svalue.StartsWith("/"))
+                        if (!svalue.StartsWith('/'))
                         {
                             StringBuilder pattern = new StringBuilder();
                             for (int i = 0; i < svalue.Length; i++)

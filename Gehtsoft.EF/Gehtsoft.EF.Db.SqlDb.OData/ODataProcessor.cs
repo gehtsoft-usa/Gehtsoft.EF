@@ -26,6 +26,11 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 {
     public class ODataProcessor
     {
+        private static readonly char[] QuerySeparators = { '&', '?' };
+        private const string EdmBooleanType = "Edm.Boolean";
+        private const string BooleanFalse = "False";
+        private const string BooleanTrue = "True";
+
         internal enum FormatType
         {
             Json,
@@ -50,7 +55,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             mConnectionFactory = connectionFactory;
             mModelBuilder = edmModelBuilder;
             Root = root;
-            while (Root.Length > 0 && Root.EndsWith("/")) Root = Root.Substring(0, Root.Length - 1);
+            while (Root.Length > 0 && Root.EndsWith('/')) Root = Root.Substring(0, Root.Length - 1);
         }
 
         public String GetRelativeUrl(string url) => url.Substring(Root.Length);
@@ -70,7 +75,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 if (queryStr.Contains("/$metadata#"))
                     return SelectMetadata(queryStr);
 
-                string[] queryParts = queryStr.Split(new char[] { '&', '?' });
+                string[] queryParts = queryStr.Split(QuerySeparators);
                 if (queryParts.Length > 1)
                 {
                     for (int i = 1; i < queryParts.Length; i++)
@@ -88,7 +93,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         }
                         if (queryParameter.StartsWith("$format="))
                         {
-                            string[] parts = queryParameter.Split(new char[] { '=' });
+                            string[] parts = queryParameter.Split('=');
                             if (parts.Length < 2 || parts[1].Length == 0)
                             {
                                 throw new EfODataException(EfODataExceptionCode.UnsupportedFormat);
@@ -107,7 +112,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                             throw new EfODataException(EfODataExceptionCode.UnsupportedFormat);
                         }
                     }
-                    if (!queryParts[0].StartsWith("/")) queryParts[0] = "/" + queryParts[0];
+                    if (!queryParts[0].StartsWith('/')) queryParts[0] = "/" + queryParts[0];
                 }
 
                 ODataUriParser parser = new ODataUriParser(Model, uri);
@@ -355,28 +360,28 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     .Done();
 
                 document.AppendElement("IsKey", "d")
-                    .AppendAttribute("type", "m", "Edm.Boolean")
-                    .AppendText(property.IsKey() ? "True" : "False")
+                    .AppendAttribute("type", "m", EdmBooleanType)
+                    .AppendText(property.IsKey() ? BooleanTrue : BooleanFalse)
                     .Done();
 
                 document.AppendElement("IsPrimitive", "d")
-                    .AppendAttribute("type", "m", "Edm.Boolean")
-                    .AppendText(property.Type.IsPrimitive() ? "True" : "False")
+                    .AppendAttribute("type", "m", EdmBooleanType)
+                    .AppendText(property.Type.IsPrimitive() ? BooleanTrue : BooleanFalse)
                     .Done();
 
                 document.AppendElement("IsComplexType", "d")
-                    .AppendAttribute("type", "m", "Edm.Boolean")
-                    .AppendText(property.Type.IsComplex() ? "True" : "False")
+                    .AppendAttribute("type", "m", EdmBooleanType)
+                    .AppendText(property.Type.IsComplex() ? BooleanTrue : BooleanFalse)
                     .Done();
 
                 document.AppendElement("IsReference", "d")
-                    .AppendAttribute("type", "m", "Edm.Boolean")
-                    .AppendText(property.Type.IsEntityReference() ? "True" : "False")
+                    .AppendAttribute("type", "m", EdmBooleanType)
+                    .AppendText(property.Type.IsEntityReference() ? BooleanTrue : BooleanFalse)
                     .Done();
 
                 document.AppendElement("IsSetReference", "d")
-                    .AppendAttribute("type", "m", "Edm.Boolean")
-                    .AppendText(property.Type.IsCollection() ? "True" : "False")
+                    .AppendAttribute("type", "m", EdmBooleanType)
+                    .AppendText(property.Type.IsCollection() ? BooleanTrue : BooleanFalse)
                     .Done();
 
                 document.AppendElement("ResourceTypeName", "d")

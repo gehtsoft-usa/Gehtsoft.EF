@@ -24,7 +24,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         protected abstract IEnumerable<IDynamicEntityProperty> InitializeProperties();
         private readonly DynamicEntityPropertyCollection mProperties;
 
-        private class Container
+        private sealed class Container
         {
             internal IDynamicEntityProperty PropertyInfo { get; set; }
             internal object Value { get; set; }

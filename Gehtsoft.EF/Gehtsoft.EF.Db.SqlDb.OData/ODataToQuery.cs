@@ -494,7 +494,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                         start = where.InfoProvider.Specifics.GetLogOp(LogOp.Not);
                         break;
                 }
-                if (start.Contains("(")) end = ")";
+                if (start.Contains('(')) end = ")";
                 return $"{start}{GetStrExpression(unar.Operand, where, entityDescriptor)}{end}";
             }
             else if (node is InNode inNode)

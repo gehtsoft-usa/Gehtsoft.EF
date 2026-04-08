@@ -22,7 +22,7 @@ namespace Gehtsoft.EF.Northwind.Factory
             mMaxRecords = maxRecords;
         }
 
-        private class ColumnInfo
+        private sealed class ColumnInfo
         {
             public EntityPropertyAttribute Attribute { get; set; }
             public PropertyInfo Property { get; set; }

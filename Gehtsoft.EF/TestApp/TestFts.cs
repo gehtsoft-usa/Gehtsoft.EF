@@ -115,9 +115,9 @@ namespace TestApp
             sw.Stop();
             ClassicAssert.AreNotEqual(0, distance);
 
-            Console.WriteLine($"Test size {nsamples} samples, {nwords} words");
-            Console.WriteLine($"Total test {sw.ElapsedMilliseconds} ms");
-            Console.WriteLine($"One word per {sw.ElapsedMilliseconds * 1.0 / nwords} ms");
+            //Console.WriteLine($"Test size {nsamples} samples, {nwords} words");
+            //Console.WriteLine($"Total test {sw.ElapsedMilliseconds} ms");
+            //Console.WriteLine($"One word per {sw.ElapsedMilliseconds * 1.0 / nwords} ms");
         }
 
         private static string RandomWord(Random r, int minlength, int maxlength)

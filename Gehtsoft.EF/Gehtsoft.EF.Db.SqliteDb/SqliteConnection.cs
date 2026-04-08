@@ -16,6 +16,8 @@ namespace Gehtsoft.EF.Db.SqliteDb
 {
     public class SqliteDbConnection : SqlDbConnection
     {
+        private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+
         protected SqliteConnection mSqlConnection;
         private SqliteDbTransaction mCurrentTransaction;
 
@@ -35,7 +37,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 {
                     if (string.IsNullOrEmpty(s))
                         return 0;
-                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    if (DateTime.TryParseExact(s, DateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
                     {
                         d = d.ToUniversalTime();
                         return d.Year;
@@ -47,7 +49,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 {
                     if (string.IsNullOrEmpty(s))
                         return 0;
-                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    if (DateTime.TryParseExact(s, DateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
                     {
                         d = d.ToUniversalTime();
                         return d.Month;
@@ -59,7 +61,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 {
                     if (string.IsNullOrEmpty(s))
                         return 0;
-                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    if (DateTime.TryParseExact(s, DateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
                     {
                         d = d.ToUniversalTime();
                         return d.Day;
@@ -71,7 +73,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 {
                     if (string.IsNullOrEmpty(s))
                         return 0;
-                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    if (DateTime.TryParseExact(s, DateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
                     {
                         d = d.ToUniversalTime();
                         return d.Hour;
@@ -83,7 +85,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 {
                     if (string.IsNullOrEmpty(s))
                         return 0;
-                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    if (DateTime.TryParseExact(s, DateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
                     {
                         d = d.ToUniversalTime();
                         return d.Minute;
@@ -95,7 +97,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 {
                     if (string.IsNullOrEmpty(s))
                         return 0;
-                    if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
+                    if (DateTime.TryParseExact(s, DateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var d))
                     {
                         d = d.ToUniversalTime();
                         return d.Second;

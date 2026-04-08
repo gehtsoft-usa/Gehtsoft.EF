@@ -13,7 +13,7 @@ namespace TestWebApp.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ODataController : Controller
+    public class ODataController : ControllerBase
     {
         private readonly ODataProcessor mProcessor;
 

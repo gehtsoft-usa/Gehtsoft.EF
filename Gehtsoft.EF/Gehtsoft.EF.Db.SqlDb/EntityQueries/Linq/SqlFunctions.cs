@@ -31,7 +31,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
         public static bool Like(object value, string mask)
         {
-            Regex re = new Regex(mask.Replace(".", "\\.").Replace('_', '.').Replace("%", ".*"));
+            Regex re = new Regex(mask.Replace(".", "\\.").Replace('_', '.').Replace("%", ".*"), RegexOptions.None, TimeSpan.FromSeconds(1));
             return re.IsMatch(value.ToString());
         }
 

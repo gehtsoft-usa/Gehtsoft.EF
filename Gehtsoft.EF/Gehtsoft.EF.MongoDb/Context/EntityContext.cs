@@ -59,7 +59,7 @@ namespace Gehtsoft.EF.MongoDb
             return new ContextCount(this.GetCountQuery(type));
         }
 
-        private class ExistingTable : IEntityTable
+        private sealed class ExistingTable : IEntityTable
         {
             public string Name { get; set; }
             public Type EntityType { get; set; }

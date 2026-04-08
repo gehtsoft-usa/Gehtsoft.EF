@@ -846,7 +846,7 @@ namespace Gehtsoft.EF.Test.Mongo
                 var all = query.ReadAll<EntityB>();
                 all.Should()
                     .NotBeEmpty()
-                    .And.HaveAllElementsMatching(e => e.BA.Contains("2"));
+                    .And.HaveAllElementsMatching(e => e.BA.Contains('2'));
             }
         }
 
@@ -863,7 +863,7 @@ namespace Gehtsoft.EF.Test.Mongo
                 var all = query.ReadAll<EntityB>();
                 all.Should()
                     .NotBeEmpty()
-                    .And.HaveAllElementsMatching(e => e.BC.AA.Contains("2"));
+                    .And.HaveAllElementsMatching(e => e.BC.AA.Contains('2'));
             }
         }
 
@@ -881,7 +881,7 @@ namespace Gehtsoft.EF.Test.Mongo
                 var all = query.ReadAll<EntityB>();
                 all.Should()
                     .NotBeEmpty()
-                    .And.HaveAllElementsMatching(e => e.BA.Contains("2") || e.BA.Contains("3"));
+                    .And.HaveAllElementsMatching(e => e.BA.Contains('2') || e.BA.Contains('3'));
             }
         }
 

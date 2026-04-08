@@ -11,6 +11,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal static class SqlExpressionParser
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Critical Code Smell", "S1479:Consider refactoring this method to reduce the number of switch cases", Justification = "Parser switch is clear and self-contained")]
         internal static SqlBaseExpression ParseExpression(Statement parentStatement, ASTNode fieldNode, string source)
         {
             SqlBaseExpression result = null;

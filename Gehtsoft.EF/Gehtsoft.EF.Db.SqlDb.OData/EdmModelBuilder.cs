@@ -81,7 +81,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     }
                     else if (property.ForeignKey)
                     {
-                        string[] arr = property.Name.Split(new char[] { '.' });
+                        string[] arr = property.Name.Split('.');
                         string propertyName = arr[arr.Length - 1];
                         if (propertyName == property.PropertyAccessor.Name)
                         {

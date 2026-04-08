@@ -97,7 +97,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             void DropColumns(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType, TableDescriptor td, TableDescriptor.ColumnInfo[] columns);
         }
 
-        private class CreateEntityControllerAction : ICreateEntityControllerAction
+        private sealed class CreateEntityControllerAction : ICreateEntityControllerAction
         {
             public void AddColumns(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType, TableDescriptor td, TableDescriptor.ColumnInfo[] columns)
             {
@@ -188,7 +188,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 attribute.Invoke(connection);
         }
 
-        private class UpdateModeHelper
+        private sealed class UpdateModeHelper
         {
             private readonly UpdateMode mDefaultMode;
             private readonly IDictionary<Type, UpdateMode> mSpecificModes;

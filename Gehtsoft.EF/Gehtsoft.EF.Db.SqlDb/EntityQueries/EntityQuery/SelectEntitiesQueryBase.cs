@@ -306,7 +306,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 if (mDynamicNames == null)
                 {
                     mDynamicNames = new List<Tuple<string, bool>>();
-                    for (int i = 0, a = 0; i < mQuery.FieldCount; i++)
+                    int a = 0;
+                    for (int i = 0; i < mQuery.FieldCount; i++)
                     {
                         FieldInfo field = mQuery.Field(i);
                         string name = mSelectBuilder.ResultColumn(i).Alias?.Trim();

@@ -20,6 +20,7 @@ namespace Gehtsoft.EF.FTS
 {
     public static class FtsConnection
     {
+        private const string ObjectIdParameterName = "objID";
         private static readonly Type[] gTypes = new Type[] { typeof(FtsWordEntity), typeof(FtsObjectEntity), typeof(FtsWord2ObjectEntity) };
 
         private static async ValueTask FtsCreateTablesCore(this SqlDbConnection connection, bool sync, CancellationToken? token)
@@ -181,10 +182,10 @@ namespace Gehtsoft.EF.FTS
                 objectEntity = await connection.FtsFindOrCreateObjectCore(false, objectID, type, sorter, true, token);
 
             DeleteEntityQueryBuilder builder = connection.GetDeleteEntityQueryBuilder(typeof(FtsWord2ObjectEntity));
-            builder.Where.Add(LogOp.And).PropertyOf(nameof(FtsWord2ObjectEntity.Object), typeof(FtsWord2ObjectEntity)).Is(CmpOp.Eq).Parameter("objID");
+            builder.Where.Add(LogOp.And).PropertyOf(nameof(FtsWord2ObjectEntity.Object), typeof(FtsWord2ObjectEntity)).Is(CmpOp.Eq).Parameter(ObjectIdParameterName);
             using (SqlDbQuery query = connection.GetQuery(builder.QueryBuilder))
             {
-                query.BindParam("objID", objectEntity.ID);
+                query.BindParam(ObjectIdParameterName, objectEntity.ID);
                 if (sync)
                     query.ExecuteNoData();
                 else
@@ -226,11 +227,11 @@ namespace Gehtsoft.EF.FTS
             if (entity != null)
             {
                 DeleteEntityQueryBuilder builder = connection.GetDeleteEntityQueryBuilder(typeof(FtsWord2ObjectEntity));
-                builder.Where.Add(LogOp.And).PropertyOf(nameof(FtsWord2ObjectEntity.Object), typeof(FtsWord2ObjectEntity)).Is(CmpOp.Eq).Parameter("objID");
+                builder.Where.Add(LogOp.And).PropertyOf(nameof(FtsWord2ObjectEntity.Object), typeof(FtsWord2ObjectEntity)).Is(CmpOp.Eq).Parameter(ObjectIdParameterName);
 
                 using (SqlDbQuery query = connection.GetQuery(builder))
                 {
-                    query.BindParam("objID", entity.ID);
+                    query.BindParam(ObjectIdParameterName, entity.ID);
 
                     if (sync)
                         query.ExecuteNoData();

@@ -267,7 +267,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <returns></returns>
         public ColumnInfo this[int index] => mColumns[index];
 
-        private class ColumnIndexComparer : IEqualityComparer<string>
+        private sealed class ColumnIndexComparer : IEqualityComparer<string>
         {
             public bool Equals(string x, string y)
             {

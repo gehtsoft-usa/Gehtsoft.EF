@@ -21,7 +21,7 @@ namespace Gehtsoft.EF.MongoDb
 
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<string, string>> gPathCache = new ConcurrentDictionary<Type, ConcurrentDictionary<string, string>>();
 
-        private class CurrentElementOfPath
+        private sealed class CurrentElementOfPath
         {
             internal bool IsArray { get; set; }
             internal Type ValueType { get; set; }

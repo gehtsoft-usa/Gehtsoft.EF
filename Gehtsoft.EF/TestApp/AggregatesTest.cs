@@ -152,8 +152,8 @@ namespace TestApp
             };
 
             aggregatingAccessor.Save(agg);
-            ClassicAssert.AreEqual(contained1.Length, aggregatingAccessor.SaveAggregates<AggregatedEntity1>(agg, new AggregatedEntity1[] { }, contained1, CompareContent<AggregatedEntity1>, CompareID<AggregatedEntity1>, IsDefined<AggregatedEntity1>, IsNew<AggregatedEntity1>));
-            ClassicAssert.AreEqual(contained2.Length, aggregatingAccessor.SaveAggregates<AggregatedEntity2>(agg, new AggregatedEntity2[] { }, contained2, CompareContent<AggregatedEntity2>, CompareID<AggregatedEntity2>, IsDefined<AggregatedEntity2>, IsNew<AggregatedEntity2>));
+            ClassicAssert.AreEqual(contained1.Length, aggregatingAccessor.SaveAggregates<AggregatedEntity1>(agg, Array.Empty<AggregatedEntity1>(), contained1, CompareContent<AggregatedEntity1>, CompareID<AggregatedEntity1>, IsDefined<AggregatedEntity1>, IsNew<AggregatedEntity1>));
+            ClassicAssert.AreEqual(contained2.Length, aggregatingAccessor.SaveAggregates<AggregatedEntity2>(agg, Array.Empty<AggregatedEntity2>(), contained2, CompareContent<AggregatedEntity2>, CompareID<AggregatedEntity2>, IsDefined<AggregatedEntity2>, IsNew<AggregatedEntity2>));
 
             return agg.ID;
         }
