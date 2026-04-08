@@ -293,7 +293,23 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             var updateModes = new UpdateModeHelper(defaultUpdateMode, individualUpdateModes);
 
             LoadTypes(includeObsolete: true);
+
+            foreach (EntityFinder.EntityTypeInfo info in mTypes.Where(info => !info.View))
+            {
+                if (info.Obsolete || updateModes.GetUpdateMode(info.EntityType) == UpdateMode.Recreate)
+                {
+                    var dependent = Array.Find(mTypes, i => i != info &&
+                        !i.Obsolete &&
+                        updateModes.GetUpdateMode(i.EntityType) != UpdateMode.Recreate &&
+                        HasActiveForeignKey(i.EntityType, info.EntityType));
+                    if (dependent != null)
+                        throw new EfSqlException(EfExceptionCode.CannotRecreateTable, info.Table, dependent.Table);
+                }
+            }
+
             var schema = connection.Schema();
+
+            var droppedTables = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (EntityFinder.EntityTypeInfo info in mTypes.Where(info => info.View))
             {
@@ -302,23 +318,27 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     InvokeAttribute<OnEntityDropAttribute>(info, connection);
                     RaiseDrop(info.Table);
                     ActionController.Drop(connection, info);
+                    droppedTables.Add(info.Table);
                 }
             }
 
             //drop obsolete tables and/or columns and tables which are forced to be recreated
             foreach (EntityFinder.EntityTypeInfo info in mTypes.Reverse().Where(info => !info.View))
             {
-                if (schema.Contains(info.Table))
+                if (schema.Contains(info.Table) && !droppedTables.Contains(info.Table))
                 {
                     if (info.Obsolete || updateModes.GetUpdateMode(info.EntityType) == UpdateMode.Recreate)
                     {
                         if (connection.GetLanguageSpecifics().DropColumnSupported ||
                             Array.Find(mTypes, i => i != info &&
+                                               schema.Contains(i.Table) &&
+                                               !droppedTables.Contains(i.Table) &&
                                                i.DependsOn.Find(i1 => i1 == info.EntityType) != null) == null)
                         {
                             InvokeAttribute<OnEntityDropAttribute>(info, connection);
                             RaiseDrop(info.Table);
                             ActionController.Drop(connection, info);
+                            droppedTables.Add(info.Table);
                         }
                     }
                     else
@@ -419,6 +439,23 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 CreateEntityControllerEventArgs args = new CreateEntityControllerEventArgs(CreateEntityControllerEventArgs.Action.Create, table);
                 OnAction.Invoke(this, args);
             }
+        }
+
+        private static bool HasActiveForeignKey(Type dependentType, Type referencedType)
+        {
+            foreach (PropertyInfo property in dependentType.GetProperties())
+            {
+                if (property.PropertyType != referencedType)
+                    continue;
+                if (property.GetCustomAttribute<ObsoleteEntityPropertyAttribute>() != null)
+                    continue;
+                EntityPropertyAttribute attr = property.GetCustomAttribute<EntityPropertyAttribute>();
+                if (attr != null && attr.ForeignKey)
+                    return true;
+                if (property.GetCustomAttribute<ForeignKeyAttribute>() != null)
+                    return true;
+            }
+            return false;
         }
 
         private void RaiseDrop(string table)

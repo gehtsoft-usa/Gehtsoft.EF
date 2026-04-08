@@ -24,6 +24,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         WrongOperator,
         UnknownOperator,
         TypeIsUnsupported,
+        CannotRecreateTable,
     }
 
     [ExcludeFromCodeCoverage]
@@ -81,6 +82,9 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                     case EfExceptionCode.TypeIsUnsupported:
                         return "The data type {0} isn't supported";
+
+                    case EfExceptionCode.CannotRecreateTable:
+                        return "Cannot recreate table {0} because table {1} depends on it and is not set to be dropped or recreated";
 
                     default:
                         return $"Unknown exception {code}";

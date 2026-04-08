@@ -19,8 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gehtsoft.EF.Db.PostgresDb",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gehtsoft.EF.Db.OracleDb", "Gehtsoft.EF.Db.OracleDb\Gehtsoft.EF.Db.OracleDb.csproj", "{6E771013-F30B-4C48-A272-1FB1295D9F2E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.csproj", "{61C7207C-DFCC-4C6F-951C-FA28726762D9}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gehtsoft.EF.FTS", "Gehtsoft.EF.FTS\Gehtsoft.EF.FTS.csproj", "{BEC825E1-164A-4530-BC3A-A38172015415}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gehtsoft.EF.Bson", "Gehtsoft.EF.Bson\Gehtsoft.EF.Bson.csproj", "{7A354871-5341-4A00-85E2-40123FB5686D}"

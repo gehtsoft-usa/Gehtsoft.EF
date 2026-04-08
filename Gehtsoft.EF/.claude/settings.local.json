@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(curl:*)",
-      "WebFetch(domain:192.168.1.25)"
+      "WebFetch(domain:192.168.1.25)",
+      "Bash(grep -l \"Employee\\\\|Category\\\\|Good\\\\|Sale\\\\|SalesPerson\" /mnt/d/develop/components/Gehtsoft.EF/Gehtsoft.EF/TestApp/*.cs)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet list:*)",
+      "Bash(find:*)",
+      "Bash(xargs strings:*)"
     ]
   }
 }
