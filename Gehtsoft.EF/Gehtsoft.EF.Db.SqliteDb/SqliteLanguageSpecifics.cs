@@ -116,16 +116,35 @@ namespace Gehtsoft.EF.Db.SqliteDb
             }
             else if (type == typeof(DateTime?))
             {
-                dbtype = DbType.Double;
-                if (value == null)
-                    value = DBNull.Value;
-                else
+                if (SqliteGlobalOptions.StoreDateAsString)
                 {
-                    DateTime dt = (DateTime)(DateTime?)value;
-                    if (dt.Ticks == 0)
+                    dbtype = DbType.String;
+                    if (value == null)
                         value = DBNull.Value;
                     else
-                        value = DateTimeTool.ToOADate(dt);
+                    {
+                        DateTime dt = (DateTime)(DateTime?)value;
+                        if (dt.Kind != DateTimeKind.Utc)
+                            dt = dt.ToUniversalTime();
+                        if (dt.Ticks == 0)
+                            value = DBNull.Value;
+                        else
+                            value = dt.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                    }
+                }
+                else
+                {
+                    dbtype = DbType.Double;
+                    if (value == null)
+                        value = DBNull.Value;
+                    else
+                    {
+                        DateTime dt = (DateTime)(DateTime?)value;
+                        if (dt.Ticks == 0)
+                            value = DBNull.Value;
+                        else
+                            value = DateTimeTool.ToOADate(dt);
+                    }
                 }
             }
             else if (type == typeof(decimal))

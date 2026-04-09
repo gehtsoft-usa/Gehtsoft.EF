@@ -85,25 +85,38 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             yield return new object[] { DbType.Boolean, 0, 0, false, typeof(bool), true };
             yield return new object[] { DbType.Boolean, 0, 0, false, typeof(bool), false };
-            yield return new object[] { DbType.Boolean, 32, 0, true, typeof(bool?), null };
+            yield return new object[] { DbType.Boolean, 0, 0, true, typeof(bool?), null };
+            yield return new object[] { DbType.Boolean, 0, 0, true, typeof(bool?), true };
+            yield return new object[] { DbType.Boolean, 0, 0, true, typeof(bool?), false };
 
             yield return new object[] { DbType.Guid, 0, 0, false, typeof(Guid), "f5cab275-1181-47be-a1a3-ca9a804867bf" };
             yield return new object[] { DbType.Guid, 0, 0, true, typeof(Guid?), null };
+            yield return new object[] { DbType.Guid, 0, 0, true, typeof(Guid?), "f5cab275-1181-47be-a1a3-ca9a804867bf" };
 
             yield return new object[] { DbType.Date, 0, 0, true, typeof(DateTime), "2010-11-24" };
-            yield return new object[] { DbType.Date, 32, 0, true, typeof(DateTime?), null };
+            yield return new object[] { DbType.Date, 0, 0, true, typeof(DateTime?), null };
+            yield return new object[] { DbType.Date, 0, 0, true, typeof(DateTime?), "2010-11-24" };
 
             yield return new object[] { DbType.DateTime, 0, 0, true, typeof(DateTime), "2020-05-27 10:45:38" };
-            yield return new object[] { DbType.DateTime, 32, 0, true, typeof(DateTime?), null };
+            yield return new object[] { DbType.DateTime, 0, 0, true, typeof(DateTime?), null };
+            yield return new object[] { DbType.DateTime, 0, 0, true, typeof(DateTime?), "2020-05-27 10:45:38" };
 
             yield return new object[] { DbType.Int32, 0, 0, false, typeof(int), 5 };
             yield return new object[] { DbType.Int32, 0, 0, false, typeof(int), int.MaxValue };
             yield return new object[] { DbType.Int32, 0, 0, false, typeof(int), int.MinValue };
             yield return new object[] { DbType.Int32, 0, 0, true, typeof(int?), null };
+            yield return new object[] { DbType.Int32, 0, 0, true, typeof(int?), 5 };
+
+            yield return new object[] { DbType.Int16, 0, 0, false, typeof(short), (short)5 };
+            yield return new object[] { DbType.Int16, 0, 0, false, typeof(short), short.MaxValue };
+            yield return new object[] { DbType.Int16, 0, 0, false, typeof(short), short.MinValue };
+            yield return new object[] { DbType.Int16, 0, 0, true, typeof(short?), null };
+            yield return new object[] { DbType.Int16, 0, 0, true, typeof(short?), (short)42 };
 
             yield return new object[] { DbType.Int64, 0, 0, false, typeof(long), long.MaxValue };
             yield return new object[] { DbType.Int64, 0, 0, false, typeof(long), long.MinValue };
             yield return new object[] { DbType.Int64, 0, 0, true, typeof(long?), null };
+            yield return new object[] { DbType.Int64, 0, 0, true, typeof(long?), 100L };
 
             yield return new object[] { DbType.Double, 0, 0, false, typeof(double), 1.234 };
             if (!connection.Equals("oracle", StringComparison.OrdinalIgnoreCase))
@@ -112,6 +125,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 yield return new object[] { DbType.Double, 0, 0, false, typeof(double), Double.MaxValue };
             }
             yield return new object[] { DbType.Double, 0, 0, true, typeof(double?), null };
+            yield return new object[] { DbType.Double, 0, 0, true, typeof(double?), 1.234 };
 
             yield return new object[] { DbType.Decimal, 0, 3, false, typeof(decimal), 1.234m };
 
@@ -122,6 +136,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 yield return new object[] { DbType.Decimal, 0, 2, false, typeof(decimal), 12_345_678_912_345.12m };
 
             yield return new object[] { DbType.Decimal, 0, 0, true, typeof(decimal?), null };
+            yield return new object[] { DbType.Decimal, 0, 3, true, typeof(decimal?), 1.234m };
 
             yield return new object[] { DbType.Binary, 32, 0, true, typeof(byte[]), new byte[] { 1, 2, 3, 4, 5 } };
             yield return new object[] { DbType.Binary, 32, 0, true, typeof(byte[]), null };

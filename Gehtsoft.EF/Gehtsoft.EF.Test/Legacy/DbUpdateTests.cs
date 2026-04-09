@@ -270,22 +270,22 @@ namespace Gehtsoft.EF.Test.Legacy
 
         private static bool f1, f2, f3, f4;
 
-        public static void OnEntity0Created(SqlDbConnection conneciton)
+        private static void OnEntity0Created(SqlDbConnection conneciton)
         {
             f1 = true;
         }
 
-        public static void OnEntity0Dropped(SqlDbConnection conneciton)
+        private static void OnEntity0Dropped(SqlDbConnection conneciton)
         {
             f2 = true;
         }
 
-        public static void OnEntity1ColCreated(SqlDbConnection conneciton)
+        private static void OnEntity1ColCreated(SqlDbConnection conneciton)
         {
             f3 = true;
         }
 
-        public static void OnEntity1ColDropped(SqlDbConnection conneciton)
+        private static void OnEntity1ColDropped(SqlDbConnection conneciton)
         {
             f4 = true;
         }

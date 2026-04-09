@@ -452,8 +452,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 EntityPropertyAttribute attr = property.GetCustomAttribute<EntityPropertyAttribute>();
                 if (attr != null && attr.ForeignKey)
                     return true;
-                if (property.GetCustomAttribute<ForeignKeyAttribute>() != null)
-                    return true;
             }
             return false;
         }

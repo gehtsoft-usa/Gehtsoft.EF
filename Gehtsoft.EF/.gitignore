@@ -1,1 +1,3 @@
+.claude/settings.local.json
 sonarqube.bat
+coverage.xml

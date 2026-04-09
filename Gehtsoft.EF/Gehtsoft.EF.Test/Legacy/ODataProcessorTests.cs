@@ -448,7 +448,7 @@ namespace Gehtsoft.EF.Test.Legacy
                     }
                     else
                     {
-                        value.Count().Should().BeGreaterThan(0);
+                        value.Count.Should().BeGreaterThan(0);
                     }
                     string dateStr = value[0]["SalesDate"].Value<string>();
                     dateStr.Should().NotBeNull();

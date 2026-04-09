@@ -1,0 +1,1 @@
+dotnet-coverage collect dotnet test Gehtsoft.EF.sln -o TestResults/coverage.bin
