@@ -64,30 +64,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal GetRow(SqlBaseExpression rowSetParameter, SqlBaseExpression indexParameter)
-        {
-            RowSetParameter = rowSetParameter;
-            if (RowSetParameter.ResultType != ResultTypes.RowSet)
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    "No ROWSET parameter in GET_ROW function call"));
-            }
-            if (!Statement.IsCalculable(RowSetParameter))
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    "Not calculable parameter in GET_ROW function call"));
-            }
-            IndexParameter = indexParameter;
-            if (IndexParameter.ResultType != ResultTypes.Integer)
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    "No index parameter in GET_ROW function call"));
-            }
-            if (!Statement.IsCalculable(IndexParameter))
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    "Not calculable index parameter in GET_ROW function call"));
-            }
-        }
     }
 }

@@ -55,21 +55,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlDeleteStatement(SqlCodeDomBuilder builder, string tableName, SqlWhereClause whereClause = null)
-            : base(builder, StatementId.Delete, null, 0, 0)
-        {
-            TableName = tableName;
-            try
-            {
-                this.AddEntityEntry(TableName, null);
-            }
-            catch
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{TableName}'"));
-            }
-            WhereClause = whereClause;
-        }
-
         internal override Expression ToLinqWxpression()
         {
             DeleteRunner runner = new DeleteRunner(CodeDomBuilder, CodeDomBuilder.Connection);

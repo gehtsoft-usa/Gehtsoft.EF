@@ -48,20 +48,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mResultType = RightOperand.ResultType;
         }
 
-        internal AssignExpression(SqlCodeDomBuilder builder, GlobalParameter leftOperand, SqlBaseExpression rightOperand)
-        {
-            mCodeDomBuilder = builder;
-            LeftOperand = leftOperand;
-            RightOperand = rightOperand;
-            if (!Statement.IsCalculable(RightOperand))
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0, "Not calculable expression in assign statement"));
-            }
-            CheckLeftOperand();
-            CheckOperands(LeftOperand, RightOperand);
-            mResultType = RightOperand.ResultType;
-        }
-
         private void CheckLeftOperand()
         {
             SqlBaseExpression existing = mCodeDomBuilder.FindGlobalParameter(LeftOperand.Name);

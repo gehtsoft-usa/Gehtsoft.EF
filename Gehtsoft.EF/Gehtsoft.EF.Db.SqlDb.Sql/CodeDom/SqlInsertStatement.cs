@@ -90,40 +90,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             CheckFieldsAndValues();
         }
 
-        internal SqlInsertStatement(SqlCodeDomBuilder builder, string tableName, SqlFieldCollection fields, SqlConstantCollection values)
-            : base(builder, StatementId.Insert, null, 0, 0)
-        {
-            TableName = tableName;
-            try
-            {
-                this.AddEntityEntry(TableName, null);
-            }
-            catch
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{TableName}'"));
-            }
-
-            Fields = fields;
-            Values = values;
-        }
-
-        internal SqlInsertStatement(SqlCodeDomBuilder builder, string tableName, SqlFieldCollection fields, SqlSelectStatement rightSelect)
-            : base(builder, StatementId.Insert, null, 0, 0)
-        {
-            TableName = tableName;
-            try
-            {
-                this.AddEntityEntry(TableName, null);
-            }
-            catch
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{TableName}'"));
-            }
-
-            Fields = fields;
-            RightSelect = rightSelect;
-        }
-
         internal override Expression ToLinqWxpression()
         {
             InsertRunner runner = new InsertRunner(CodeDomBuilder, CodeDomBuilder.Connection);

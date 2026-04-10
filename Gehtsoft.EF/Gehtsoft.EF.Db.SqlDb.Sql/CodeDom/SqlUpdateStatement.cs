@@ -64,23 +64,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlUpdateStatement(SqlCodeDomBuilder builder, string tableName, SqlUpdateAssignCollection updateAssigns, SqlWhereClause whereClause = null)
-            : base(builder, StatementId.Update, null, 0, 0)
-        {
-            TableName = tableName;
-            try
-            {
-                this.AddEntityEntry(TableName, null);
-            }
-            catch
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{TableName}'"));
-            }
-
-            UpdateAssigns = updateAssigns;
-            WhereClause = whereClause;
-        }
-
         internal override Expression ToLinqWxpression()
         {
             UpdateRunner runner = new UpdateRunner(CodeDomBuilder, CodeDomBuilder.Connection);

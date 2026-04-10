@@ -23,8 +23,8 @@
      <ItemGroup>
        <EmbeddedResource Include="$(IntermediateOutputPath)SqlLexer.bin" Type="Non-Resx" WithCulture="false" />
        <EmbeddedResource Include="$(IntermediateOutputPath)SqlParser.bin" Type="Non-Resx" WithCulture="false" />
-       <Compile Include="$(IntermediateOutputPath)SqlLexer.cs" ExcludeFromSourceAnalysis="true" />
-       <Compile Include="$(IntermediateOutputPath)SqlParser.cs" ExcludeFromSourceAnalysis="true" />
+       <Compile Include="$(IntermediateOutputPath)SqlLexer.cs" ExcludeFromSourceAnalysis="true" SonarQubeExclude="true" />
+       <Compile Include="$(IntermediateOutputPath)SqlParser.cs" ExcludeFromSourceAnalysis="true" SonarQubeExclude="true" />
      </ItemGroup>
   </Target>
 

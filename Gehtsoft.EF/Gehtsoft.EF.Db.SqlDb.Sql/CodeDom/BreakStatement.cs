@@ -25,7 +25,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             if (builder.BlockDescriptors.Count > 0)
             {
                 BlockDescriptor[] array = builder.BlockDescriptors.ToArray();
-                for (int i = array.Length - 1; i >= 0; i--)
+                for (int i = 0; i < array.Length; i++)
                 {
                     BlockDescriptor descr = array[i];
                     if (descr.StatementType == StatementType.Loop || descr.StatementType == StatementType.Switch)
@@ -50,7 +50,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             BlockDescriptor[] array = CodeDomBuilder.BlockDescriptors.ToArray();
             BlockDescriptor foundDescr = null;
-            for (int i = array.Length - 1; i >= 0; i--)
+            for (int i = 0; i < array.Length; i++)
             {
                 BlockDescriptor descr = array[i];
                 if (descr.StatementType == StatementType.Loop || descr.StatementType == StatementType.Switch)

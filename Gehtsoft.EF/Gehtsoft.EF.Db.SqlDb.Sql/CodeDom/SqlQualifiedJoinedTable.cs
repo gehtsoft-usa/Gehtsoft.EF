@@ -118,12 +118,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlQualifiedJoinedTable(SqlTableSpecification leftTable, SqlPrimaryTable rightTable, string joinType, SqlBaseExpression joinCondition)
-        {
-            LeftTable = leftTable;
-            RightTable = rightTable;
-            JoinType = joinType;
-            mJoinCondition = joinCondition;
-        }
     }
 }

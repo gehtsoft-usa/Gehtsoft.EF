@@ -60,10 +60,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlAutoJoinedTable(SqlTableSpecification leftTable, SqlPrimaryTable rightTable)
-        {
-            LeftTable = leftTable;
-            RightTable = rightTable;
-        }
     }
 }

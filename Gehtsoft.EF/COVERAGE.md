@@ -37,7 +37,7 @@ These branches in driver `TypeName` methods require specific size/precision comb
 
 These could be covered by direct `TypeName` unit tests in `LanguageSpecificsTypeTests.cs` if desired.
 
-## Priority 2: SqlDb.Sql — High-level Query Tests (~2033 uncovered lines, 62%)
+## Priority 2: SqlDb.Sql — High-level Query Tests (~2033 uncovered lines, 62%) — DONE
 
 Test the SQL DSL parser via real queries, not unit-testing individual CodeDom nodes.
 
@@ -81,7 +81,8 @@ Each test: parse SQL text → execute against SQLite → verify results.
 | `Gehtsoft.EF.Test/Entity/Query/QueryiesOnDb_Infrastructure.cs` | P1 | DONE — 14 cases added to TestDataTypeArgs |
 | `Gehtsoft.EF.Test/SqlDb/LanguageSpecificsTypeTests.cs` | P1 | DONE — 44 direct ToDbValue/TranslateValue tests |
 | `Gehtsoft.EF.Db.SqliteDb/SqliteLanguageSpecifics.cs` | P1 | DONE — DateTime? StoreDateAsString bug fixed |
-| `Gehtsoft.EF.Test/SqlDb/SqlDslExecutionTests.cs` | P2 | TODO — SQL DSL parser + runners |
+| `Gehtsoft.EF.Db.SqlDb.Sql.Test/SqlDslExecutionTests.cs` | P2 | DONE — 35 tests (5 groups: SET expressions, built-in functions, SELECT features, DML, error paths) |
+| `Gehtsoft.EF.Db.SqlDb.Sql.Test/SqlDslBugFixTests.cs` | P2 | DONE — 15 tests for 9 bug fixes in SQL DSL engine |
 | `Gehtsoft.EF.Test/SqlDb/CoreApiCoverageTests.cs` | P3 | TODO — Remaining public API gaps |
 
 ## Verification

@@ -202,7 +202,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                             resultType = ResultTypes.String;
                             value = pars[0].Value.ToString();
                             break;
-                        case "TOINTEGER":
+                        case "TOINT":
                             int intRes;
                             if (int.TryParse((string)pars[0].Value, out intRes))
                             {
@@ -260,15 +260,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                             break;
                         case "STARTSWITH":
                             resultType = ResultTypes.Boolean;
-                            value = !((string)pars[0].Value).StartsWith((string)pars[1].Value);
+                            value = ((string)pars[0].Value).StartsWith((string)pars[1].Value);
                             break;
                         case "ENDSWITH":
                             resultType = ResultTypes.Boolean;
-                            value = !((string)pars[0].Value).EndsWith((string)pars[1].Value);
+                            value = ((string)pars[0].Value).EndsWith((string)pars[1].Value);
                             break;
                         case "CONTAINS":
                             resultType = ResultTypes.Boolean;
-                            value = !((string)pars[0].Value).Contains((string)pars[1].Value);
+                            value = ((string)pars[0].Value).Contains((string)pars[1].Value);
                             break;
                     }
                 }
@@ -290,10 +290,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 {
                     foreach (SqlBaseExpression expr in inExpression.RightOperandAsList)
                     {
-                        rightOperand = CalculateExpression(inExpression.LeftOperand, codeDomBuilder, connection);
+                        rightOperand = CalculateExpression(expr, codeDomBuilder, connection);
                         if (rightOperand == null)
                             return null;
-                        if (((SqlConstant)leftOperand).Equals((SqlConstant)rightOperand))
+                        if (((SqlConstant)leftOperand).Value.Equals(((SqlConstant)rightOperand).Value))
                         {
                             inExpressionResult = true;
                             break;
@@ -306,7 +306,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     List<object> selectResult = runner.Run(inExpression.RightOperandAsSelect) as List<object>;
                     foreach (object recordObj in selectResult)
                     {
-                        Dictionary<string, object> record = recordObj as Dictionary<string, object>;
+                        IDictionary<string, object> record = recordObj as IDictionary<string, object>;
                         if (((SqlConstant)leftOperand).Value.Equals(record[record.Keys.First()]))
                         {
                             inExpressionResult = true;
@@ -314,6 +314,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         }
                     }
                 }
+                if (inExpression.Operation == SqlInExpression.OperationType.NotIn)
+                    inExpressionResult = !inExpressionResult;
                 return new SqlConstant(inExpressionResult, ResultTypes.Boolean);
             }
             else if (expression is SqlSelectExpression selectExpression)
@@ -323,7 +325,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 if (selectResult.Count > 0)
                 {
                     object recordObj = selectResult[0];
-                    Dictionary<string, object> record = recordObj as Dictionary<string, object>;
+                    IDictionary<string, object> record = recordObj as IDictionary<string, object>;
                     return new SqlConstant(record[record.Keys.First()], selectExpression.ResultType);
                 }
                 else
@@ -693,7 +695,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     case "TOSTRING":
                         funcId = SqlFunctionId.ToString;
                         break;
-                    case "TOINTEGER":
+                    case "TOINT":
                         funcId = SqlFunctionId.ToInteger;
                         break;
                     case "TODOUBLE":
@@ -777,7 +779,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                     if (isNot)
                     {
                         string start = Connection.GetLanguageSpecifics().GetLogOp(LogOp.Not);
-                        retval = $"{start}{retval}";
+                        string end = Connection.GetLanguageSpecifics().CloseLogOp(LogOp.Not);
+                        retval = $"{start}{retval}{end}";
                     }
                     return retval;
                 }

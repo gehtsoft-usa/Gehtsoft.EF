@@ -43,24 +43,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     $"Not found entity with name '{TableName}'"));
             }
         }
-        internal SqlPrimaryTable(SqlStatement parentStatement, string tableName, string correlationName)
-        {
-            TableName = tableName;
-            CorrelationName = correlationName;
-            try
-            {
-                parentStatement.AddEntityEntry(TableName, CorrelationName);
-            }
-            catch
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Not found entity with name '{TableName}'"));
-            }
-        }
-        internal SqlPrimaryTable(SqlStatement parentStatement, string tableName) :
-            this(parentStatement, tableName, null)
-        {
-            TableName = tableName;
-            CorrelationName = null;
-        }
     }
 }

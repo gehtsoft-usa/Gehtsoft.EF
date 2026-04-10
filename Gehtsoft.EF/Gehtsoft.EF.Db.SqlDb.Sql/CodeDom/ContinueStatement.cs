@@ -23,7 +23,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             BlockDescriptor[] array = CodeDomBuilder.BlockDescriptors.ToArray();
             BlockDescriptor foundDescr = null;
-            for (int i = array.Length - 1; i >= 0; i--)
+            for (int i = 0; i < array.Length; i++)
             {
                 BlockDescriptor descr = array[i];
                 if (descr.StatementType == StatementType.Loop)
@@ -47,7 +47,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         {
             BlockDescriptor[] array = CodeDomBuilder.BlockDescriptors.ToArray();
             BlockDescriptor foundDescr = null;
-            for (int i = array.Length - 1; i >= 0; i--)
+            for (int i = 0; i < array.Length; i++)
             {
                 BlockDescriptor descr = array[i];
                 if (descr.StatementType == StatementType.Loop)
@@ -58,7 +58,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
             if (foundDescr == null)
             {
-                throw new SqlParserException(new SqlError(null, 0, 0, "Runtime error: BREAK out of appropriate body"));
+                throw new SqlParserException(new SqlError(null, 0, 0, "Runtime error: CONTINUE out of appropriate body"));
             }
             List<Expression> leaveSet = new List<Expression>();
             if (foundDescr.OnContinue != null)

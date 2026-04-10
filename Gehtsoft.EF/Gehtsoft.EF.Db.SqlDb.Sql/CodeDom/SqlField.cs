@@ -67,33 +67,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     error));
             }
         }
-        internal SqlField(Statement parentStatement, string name, string prefix)
-        {
-            Name = name;
-            Prefix = prefix;
-            ProcessField(parentStatement, Prefix, Name, out string error);
-            if (error != null)
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0, error));
-            }
-        }
-        internal SqlField(Statement parentStatement, string name)
-        {
-            Name = name;
-            Prefix = null;
-            ProcessField(parentStatement, Prefix, Name, out string error);
-            if (error != null)
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0, error));
-            }
-        }
-        internal SqlField(string name, Type fieldType)
-        {
-            Name = name;
-            Prefix = null;
-            mResultType = GetResultType(fieldType);
-        }
-
         private void ProcessField(Statement parentStatement, string prefix, string name, out string error)
         {
             error = null;

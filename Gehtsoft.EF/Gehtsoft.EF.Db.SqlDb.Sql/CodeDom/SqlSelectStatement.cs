@@ -99,23 +99,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlSelectStatement(SqlCodeDomBuilder builder, SqlSelectList selectList, SqlFromClause fromClause, SqlWhereClause whereClause = null)
-            : base(builder, StatementId.Select, null, 0, 0)
-        {
-            SetQuantifier = string.Empty;
-            FromClause = fromClause;
-            SelectList = selectList;
-            WhereClause = whereClause;
-        }
-
-        internal SqlSelectStatement(SqlCodeDomBuilder builder, string setQuantifier, SqlSelectList selectList, SqlFromClause fromClause, SqlWhereClause whereClause = null)
-            : base(builder, StatementId.Select, null, 0, 0)
-        {
-            SetQuantifier = setQuantifier;
-            FromClause = fromClause;
-            SelectList = selectList;
-            WhereClause = whereClause;
-        }
         internal override Expression ToLinqWxpression()
         {
             SelectRunner runner = new SelectRunner(CodeDomBuilder, CodeDomBuilder.Connection);

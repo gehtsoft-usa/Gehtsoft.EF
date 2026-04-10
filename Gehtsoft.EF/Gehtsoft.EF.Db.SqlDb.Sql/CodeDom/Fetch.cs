@@ -46,19 +46,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal Fetch(SqlBaseExpression parameter)
-        {
-            Parameter = parameter;
-            if (Parameter.ResultType != ResultTypes.Cursor)
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    "No cursor parameter in FETCH function call"));
-            }
-            if (!Statement.IsCalculable(Parameter))
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    "Not calculable parameter in FETCH function call"));
-            }
-        }
     }
 }

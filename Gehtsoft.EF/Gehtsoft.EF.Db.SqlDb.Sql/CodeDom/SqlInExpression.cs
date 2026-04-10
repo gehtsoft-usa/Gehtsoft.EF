@@ -87,18 +87,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Operation = operation;
         }
 
-        internal SqlInExpression(SqlBaseExpression leftOperand, OperationType operation, SqlBaseExpressionCollection rightOperand)
-        {
-            LeftOperand = leftOperand;
-            RightOperandAsList = rightOperand;
-            Operation = operation;
-        }
-
-        internal SqlInExpression(SqlBaseExpression leftOperand, OperationType operation, SqlSelectStatement rightOperand)
-        {
-            LeftOperand = leftOperand;
-            RightOperandAsSelect = rightOperand;
-            Operation = operation;
-        }
     }
 }

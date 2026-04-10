@@ -67,31 +67,5 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mResultType = Statement.GetResultTypeByName(fieldNode.Children[2].Value);
         }
 
-        internal GetField(SqlBaseExpression rowParameter, SqlBaseExpression nameParameter, ResultTypes resultType)
-        {
-            mResultType = resultType;
-            RowParameter = rowParameter;
-            if (RowParameter.ResultType != ResultTypes.Row)
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    "No ROW parameter in GET_FIELD function call"));
-            }
-            if (!Statement.IsCalculable(RowParameter))
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    "Not calculable parameter in GET_FIELD function call"));
-            }
-            NameParameter = nameParameter;
-            if (NameParameter.ResultType != ResultTypes.String)
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    "No valid Name parameter in GET_FIELD function call"));
-            }
-            if (!Statement.IsCalculable(NameParameter))
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0,
-                    "Not calculable Name parameter in GET_FIELD function call"));
-            }
-        }
     }
 }

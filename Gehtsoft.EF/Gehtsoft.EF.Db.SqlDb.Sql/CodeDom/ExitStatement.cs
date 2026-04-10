@@ -39,7 +39,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal override Expression ToLinqWxpression()
         {
-            BlockDescriptor descr = CodeDomBuilder.BlockDescriptors.ToArray()[0];
+            var array = CodeDomBuilder.BlockDescriptors.ToArray();
+            BlockDescriptor descr = array[array.Length - 1];
             return Expression.Block(
                 Expression.Call(Expression.Constant(CodeDomBuilder), "ExitRun", null, Expression.Constant(this.ExitExpression)),
                 Expression.Goto(descr.EndLabel)

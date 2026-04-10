@@ -246,9 +246,12 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 case SqlFunctionId.ToString:
                     return $"TOSTRING({args[0]})";
                 case SqlFunctionId.ToDate:
-                    throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+                    if (SqliteGlobalOptions.StoreDateAsString)
+                        return $"STRFTIME('%Y-%m-%d %H:%M:%S', {args[0]})";
+                    else
+                        return $"(JULIANDAY({args[0]}) - 2415018.5)";
                 case SqlFunctionId.ToTimestamp:
-                    throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+                    return $"CAST((JULIANDAY({args[0]}) - 2440587.5) * 86400 AS INTEGER)";
                 case SqlFunctionId.Left:
                     return $"SLEFT({args[0]}, {args[1]})";
                 default:

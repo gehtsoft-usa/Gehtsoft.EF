@@ -34,24 +34,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     $"Duplicate alias name '{Alias}'"));
             }
         }
-        internal SqlExpressionAlias(SqlStatement parentStatement, SqlBaseExpression expression, string alias)
-        {
-            Expression = expression;
-            Alias = alias;
-            try
-            {
-                Alias = parentStatement.AddAliasEntry(Alias, Expression);
-            }
-            catch
-            {
-                throw new SqlParserException(new SqlError(null, 0, 0, $"Duplicate alias name '{Alias}'"));
-            }
-        }
-        internal SqlExpressionAlias(SqlStatement parentStatement, SqlBaseExpression expression)
-        {
-            Expression = expression;
-            Alias = parentStatement.AddAliasEntry(Alias, Expression);
-        }
     }
 
     /// <summary>

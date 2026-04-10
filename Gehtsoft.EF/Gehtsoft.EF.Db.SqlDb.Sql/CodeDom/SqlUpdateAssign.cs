@@ -33,16 +33,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                 Expression = SqlExpressionParser.ParseExpression(parentStatement, operand, source);
             }
         }
-        internal SqlUpdateAssign(SqlField field, SqlBaseExpression expression)
-        {
-            Field = field;
-            Expression = expression;
-        }
-        internal SqlUpdateAssign(SqlField field, SqlSelectStatement select)
-        {
-            Field = field;
-            Select = select;
-        }
     }
 
     [Serializable]

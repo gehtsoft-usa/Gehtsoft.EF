@@ -206,7 +206,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         case "TOSTRING":
                             funcResultType = ResultTypes.String;
                             break;
-                        case "TOINTEGER":
+                        case "TOINT":
                             funcResultType = ResultTypes.Integer;
                             break;
                         case "TODOUBLE":
@@ -216,7 +216,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                             funcResultType = ResultTypes.DateTime;
                             break;
                         case "TOTIMESTAMP":
-                            funcResultType = ResultTypes.DateTime;
+                            funcResultType = ResultTypes.Integer;
                             break;
                     }
                     SqlBaseExpression parameterCustFunc = ParseExpression(parentStatement, parameterNodeCustFunc, source);

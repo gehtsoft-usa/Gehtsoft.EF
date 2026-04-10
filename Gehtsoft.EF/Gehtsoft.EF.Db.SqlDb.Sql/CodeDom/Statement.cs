@@ -258,14 +258,29 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             {
                 retval = IsCalculable(unar.Operand);
             }
+            else if (expression is SqlInExpression inExpr)
+            {
+                retval = IsCalculable(inExpr.LeftOperand);
+                if (retval && inExpr.RightOperandAsList != null)
+                {
+                    foreach (SqlBaseExpression item in inExpr.RightOperandAsList)
+                    {
+                        if (!IsCalculable(item))
+                        {
+                            retval = false;
+                            break;
+                        }
+                    }
+                }
+            }
             else if (expression is SqlCallFuncExpression callFunc)
             {
-                retval = false;
+                retval = true;
                 foreach (SqlBaseExpression paramExpression in callFunc.Parameters)
                 {
-                    if (IsCalculable(paramExpression))
+                    if (!IsCalculable(paramExpression))
                     {
-                        retval = true;
+                        retval = false;
                         break;
                     }
                 }
