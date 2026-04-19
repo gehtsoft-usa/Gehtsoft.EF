@@ -18,7 +18,6 @@ TestResults/
 *.chi
 *.chm
 *.chw
-
-
+claude/settings.local.json
 /gehtsoft.ef/archive/
 /gehtsoft.ef/Gehtsoft.EF.Db.SqlDb.Sql/*.bin

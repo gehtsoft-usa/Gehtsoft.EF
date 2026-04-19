@@ -30,6 +30,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         Nullable = propertyAttribute.Nullable,
                         Size = pk.Size,
                         Precision = pk.Precision,
+                        Sorted = propertyAttribute.Sorted,
                         ForeignTable = foreignTable,
                         PropertyAccessor = propertyAccessor,
                         DefaultValue = propertyAttribute.DefaultValue,
