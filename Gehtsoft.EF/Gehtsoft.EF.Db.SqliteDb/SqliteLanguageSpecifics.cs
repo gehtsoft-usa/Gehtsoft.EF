@@ -240,9 +240,9 @@ namespace Gehtsoft.EF.Db.SqliteDb
             switch (function)
             {
                 case SqlFunctionId.ToInteger:
-                    return $"TOREAL({args[0]})";
+                    return $"CAST({args[0]} AS INTEGER)";
                 case SqlFunctionId.ToDouble:
-                    return $"TOREAL({args[0]})";
+                    return $"CAST({args[0]} AS REAL)";
                 case SqlFunctionId.ToString:
                     return $"TOSTRING({args[0]})";
                 case SqlFunctionId.ToDate:

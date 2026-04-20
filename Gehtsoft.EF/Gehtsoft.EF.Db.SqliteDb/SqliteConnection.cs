@@ -190,6 +190,8 @@ namespace Gehtsoft.EF.Db.SqliteDb
                     return (double)f;
                 if (v is decimal dc)
                     return (double)dc;
+                if (v is long l)
+                    return (double)l;
                 if (v is string s)
                     return double.TryParse(s, out double dv) ? dv : 0;
                 return 0;

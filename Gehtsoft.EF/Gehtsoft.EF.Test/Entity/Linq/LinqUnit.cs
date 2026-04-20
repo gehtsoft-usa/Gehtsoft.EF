@@ -25,6 +25,12 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             public string Name { get; set; }
         };
 
+        public enum SampleEnum
+        {
+            ValueA = 0,
+            ValueB = 1,
+        }
+
         [Entity(Scope = "linq1")]
         public class Entity
         {
@@ -60,6 +66,9 @@ namespace Gehtsoft.EF.Test.Entity.Linq
 
             [EntityProperty]
             public DateTime? NullableDataTime { get; set; }
+
+            [EntityProperty]
+            public SampleEnum EnumValue { get; set; }
         }
 
         [Theory]
@@ -228,6 +237,45 @@ namespace Gehtsoft.EF.Test.Entity.Linq
 
             r = ec.Visit<Entity, string>(e => e.NullableDataTime.ToString());
             r.Expression.ToString().Should().MatchPattern(query, "TOSTRING(@1.nullabledatatime)");
+        }
+
+        [Fact]
+        public void Convert_SameType_Elided()
+        {
+            using var dummyConnection = new DummySqlConnection();
+            using var query = dummyConnection.GetSelectEntitiesQuery<Entity>();
+            var ec = new ExpressionCompiler(query);
+            var parameter = Expression.Parameter(typeof(Entity));
+
+            var r = ec.Visit(Expression.Equal(
+                Expression.Convert(Expression.PropertyOrField(parameter, nameof(Entity.IntValue)), typeof(int)),
+                Expression.Constant(5, typeof(int))));
+            r.Expression.ToString().Should().MatchPattern(query, "(@1.intvalue = @p)");
+
+            r = ec.Visit(Expression.Equal(
+                Expression.Convert(Expression.PropertyOrField(parameter, nameof(Entity.RealValue)), typeof(double)),
+                Expression.Constant(1.5, typeof(double))));
+            r.Expression.ToString().Should().MatchPattern(query, "(@1.realvalue = @p)");
+
+            r = ec.Visit(Expression.Equal(
+                Expression.Convert(Expression.PropertyOrField(parameter, nameof(Entity.BooleanValue)), typeof(bool)),
+                Expression.Constant(true, typeof(bool))));
+            r.Expression.ToString().Should().MatchPattern(query, "(@1.booleanvalue = @p)");
+
+            r = ec.Visit(Expression.Equal(
+                Expression.Convert(Expression.PropertyOrField(parameter, nameof(Entity.DateTimeValue)), typeof(DateTime)),
+                Expression.Constant(new DateTime(2020, 1, 2), typeof(DateTime))));
+            r.Expression.ToString().Should().MatchPattern(query, "(@1.datetimevalue = @p)");
+
+            r = ec.Visit(Expression.Equal(
+                Expression.Convert(Expression.PropertyOrField(parameter, nameof(Entity.NullableIntValue)), typeof(int)),
+                Expression.Constant(5, typeof(int))));
+            r.Expression.ToString().Should().MatchPattern(query, "(@1.nullableintvalue = @p)");
+
+            r = ec.Visit(Expression.Equal(
+                Expression.Convert(Expression.PropertyOrField(parameter, nameof(Entity.EnumValue)), typeof(int)),
+                Expression.Constant(1, typeof(int))));
+            r.Expression.ToString().Should().MatchPattern(query, "(@1.enumvalue = @p)");
         }
 
         [Fact]

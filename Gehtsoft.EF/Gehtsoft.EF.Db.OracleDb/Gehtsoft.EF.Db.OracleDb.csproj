@@ -18,7 +18,7 @@
 
    <ItemGroup>
      <PackageReference Include="Oracle.ManagedDataAccess.Core">
-        <Version>23.26.100</Version>
+        <Version>23.26.200</Version>
     </PackageReference>
      <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
    </ItemGroup>

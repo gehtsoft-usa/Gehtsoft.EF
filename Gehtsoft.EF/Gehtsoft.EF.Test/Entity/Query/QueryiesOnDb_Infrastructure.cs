@@ -8,6 +8,7 @@ using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
 using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Test.Utils;
@@ -666,6 +667,131 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 query.GetValue<int>(5).Should().Be(12);
                 query.GetValue<int>(6).Should().Be(55);
             }
+        }
+
+        public enum ExpressionFilterEnum
+        {
+            FIAT = 0,
+            CRYPTO = 1,
+            TOKEN = 2,
+        }
+
+        [Entity(Scope = "ifrstructure")]
+        public class ExpressionFilterEntity
+        {
+            [AutoId]
+            public int ID { get; set; }
+
+            [EntityProperty]
+            public int IntValue { get; set; }
+
+            [EntityProperty]
+            public double RealValue { get; set; }
+
+            [EntityProperty]
+            public bool BooleanValue { get; set; }
+
+            [EntityProperty]
+            public DateTime DateTimeValue { get; set; }
+
+            [EntityProperty(DbType = DbType.Int32)]
+            public ExpressionFilterEnum EnumValue { get; set; }
+        }
+
+        private IDisposable SetupExpressionFilterTest(string connectionName, out SqlDbConnection connection)
+        {
+            var c = mFixture.GetInstance(connectionName);
+            using (var query = c.GetDropEntityQuery<ExpressionFilterEntity>())
+                query.Execute();
+            using (var query = c.GetCreateEntityQuery<ExpressionFilterEntity>())
+                query.Execute();
+
+            using (var query = c.GetInsertEntityQuery<ExpressionFilterEntity>())
+            {
+                query.Execute(new ExpressionFilterEntity { IntValue = 5, RealValue = 1.5, BooleanValue = true, DateTimeValue = new DateTime(2020, 1, 1), EnumValue = ExpressionFilterEnum.FIAT });
+                query.Execute(new ExpressionFilterEntity { IntValue = 10, RealValue = 2.5, BooleanValue = false, DateTimeValue = new DateTime(2020, 2, 2), EnumValue = ExpressionFilterEnum.CRYPTO });
+                query.Execute(new ExpressionFilterEntity { IntValue = 15, RealValue = 3.5, BooleanValue = true, DateTimeValue = new DateTime(2020, 3, 3), EnumValue = ExpressionFilterEnum.TOKEN });
+            }
+
+            connection = c;
+            return new DelayedAction(() =>
+            {
+                using (var query = c.GetDropEntityQuery<ExpressionFilterEntity>())
+                    query.Execute();
+            });
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void ExpressionFilter_Int(string connectionName)
+        {
+            using var finalizer = SetupExpressionFilterTest(connectionName, out var connection);
+            using var query = connection.GetSelectEntitiesQuery<ExpressionFilterEntity>();
+            query.Where.Expression<ExpressionFilterEntity>(e => e.IntValue == 10);
+            var result = query.ReadAll<ExpressionFilterEntity>();
+            result.Should().HaveCount(1);
+            result[0].IntValue.Should().Be(10);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void ExpressionFilter_Double(string connectionName)
+        {
+            using var finalizer = SetupExpressionFilterTest(connectionName, out var connection);
+            using var query = connection.GetSelectEntitiesQuery<ExpressionFilterEntity>();
+            query.Where.Expression<ExpressionFilterEntity>(e => e.RealValue == 2.5);
+            var result = query.ReadAll<ExpressionFilterEntity>();
+            result.Should().HaveCount(1);
+            result[0].RealValue.Should().Be(2.5);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void ExpressionFilter_Boolean(string connectionName)
+        {
+            using var finalizer = SetupExpressionFilterTest(connectionName, out var connection);
+            using var query = connection.GetSelectEntitiesQuery<ExpressionFilterEntity>();
+            query.Where.Expression<ExpressionFilterEntity>(e => e.BooleanValue == false);
+            var result = query.ReadAll<ExpressionFilterEntity>();
+            result.Should().HaveCount(1);
+            result[0].BooleanValue.Should().BeFalse();
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void ExpressionFilter_DateTime(string connectionName)
+        {
+            using var finalizer = SetupExpressionFilterTest(connectionName, out var connection);
+            using var query = connection.GetSelectEntitiesQuery<ExpressionFilterEntity>();
+            var target = new DateTime(2020, 2, 2);
+            query.Where.Expression<ExpressionFilterEntity>(e => e.DateTimeValue == target);
+            var result = query.ReadAll<ExpressionFilterEntity>();
+            result.Should().HaveCount(1);
+            result[0].DateTimeValue.Should().Be(target);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void ExpressionFilter_Enum(string connectionName)
+        {
+            using var finalizer = SetupExpressionFilterTest(connectionName, out var connection);
+            using var query = connection.GetSelectEntitiesQuery<ExpressionFilterEntity>();
+            query.Where.Expression<ExpressionFilterEntity>(e => e.EnumValue == ExpressionFilterEnum.CRYPTO);
+            var result = query.ReadAll<ExpressionFilterEntity>();
+            result.Should().HaveCount(1);
+            result[0].EnumValue.Should().Be(ExpressionFilterEnum.CRYPTO);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void ExpressionFilter_EnumCastToInt(string connectionName)
+        {
+            using var finalizer = SetupExpressionFilterTest(connectionName, out var connection);
+            using var query = connection.GetSelectEntitiesQuery<ExpressionFilterEntity>();
+            query.Where.Expression<ExpressionFilterEntity>(e => (int)e.EnumValue == (int)ExpressionFilterEnum.CRYPTO);
+            var result = query.ReadAll<ExpressionFilterEntity>();
+            result.Should().HaveCount(1);
+            result[0].EnumValue.Should().Be(ExpressionFilterEnum.CRYPTO);
         }
     }
 }

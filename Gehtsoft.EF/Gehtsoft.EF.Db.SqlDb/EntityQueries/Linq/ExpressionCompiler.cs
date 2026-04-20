@@ -231,6 +231,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             switch (node.NodeType)
             {
                 case ExpressionType.Convert:
+                    Type sourceConvertType = Nullable.GetUnderlyingType(node.Operand.Type) ?? node.Operand.Type;
+                    Type targetConvertType = Nullable.GetUnderlyingType(node.Type) ?? node.Type;
+                    if (sourceConvertType.IsEnum)
+                        sourceConvertType = Enum.GetUnderlyingType(sourceConvertType);
+                    if (targetConvertType.IsEnum)
+                        targetConvertType = Enum.GetUnderlyingType(targetConvertType);
+                    if (sourceConvertType == targetConvertType)
+                        return arg;
                     if (node.Type == typeof(int) || node.Type == typeof(short) || node.Type == typeof(long))
                     {
                         result.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.ToInteger, new string[] { arg.Expression.ToString() }));
