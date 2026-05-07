@@ -2052,6 +2052,11 @@ the column definition and supported value range.</p>
       <declaration language="cs" name="TypeIsUnsupported" prefix="" suffix=" = 14" name-suffix="" return="[link=Gehtsoft.EF.Db.SqlDb.EfExceptionCode]EfExceptionCode[/link]" params="" custom="" />
       <sig>F:Gehtsoft.EF.Db.SqlDb.EfExceptionCode.TypeIsUnsupported</sig>
     </member>
+    <member name="CannotRecreateTable" visibility="public" scope="class" brief="" key="CannotRecreateTable.Bp6" type="field" transform="def" custom="" divisor="." class="Gehtsoft.EF.Db.SqlDb.EfExceptionCode" class-name="EfExceptionCode" exclude-from-list="false">
+      <return />
+      <declaration language="cs" name="CannotRecreateTable" prefix="" suffix=" = 15" name-suffix="" return="[link=Gehtsoft.EF.Db.SqlDb.EfExceptionCode]EfExceptionCode[/link]" params="" custom="" />
+      <sig>F:Gehtsoft.EF.Db.SqlDb.EfExceptionCode.CannotRecreateTable</sig>
+    </member>
     <parent>Enum</parent>
   </class>
   <class name="EfSqlException" sig="T:Gehtsoft.EF.Db.SqlDb.EfSqlException" key="Gehtsoft.EF.Db.SqlDb.EfSqlException" brief="EF exception" type="class" prefix="" in-group="Gehtsoft.EF.Db.SqlDb" decl-name="EfSqlException" sort="true" class-name-in-key="true" transform="def" members-to-content="false" write-signatures="def">

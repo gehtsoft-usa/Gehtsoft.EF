@@ -4,12 +4,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DocgenVersion>0.1.32</DocgenVersion>
+    <DocgenVersion>0.1.34</DocgenVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Gehtsoft.Build.DocGen" Version="$(DocgenVersion)" IncludeAssets="build" />
-    <PackageReference Include="Gehtsoft.Build.ContentDelivery" Version="0.1.10" IncludeAssets="build" />
+    <PackageReference Include="Gehtsoft.Build.ContentDelivery" Version="0.1.11" IncludeAssets="build" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -46,13 +46,13 @@
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb/bin/Debug/netstandard2.0/Gehtsoft.EF.Db.SqlDb.dll" />
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.FTS/bin/Debug/netstandard2.0/Gehtsoft.EF.FTS.dll" />
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb.Sql/bin/Debug/netstandard2.0/Gehtsoft.EF.Db.SqlDb.Sql.dll" />
-    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb.OData/bin/Debug/netstandard2.0/Gehtsoft.EF.Db.SqlDb.OData.dll" />
-    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Bson/bin/Debug/netstandard2.0/Gehtsoft.EF.Bson.dll" />
-    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.MongoDB/bin/Debug/netstandard2.0/Gehtsoft.EF.MongoDB.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb.OData/bin/Debug/net8.0/Gehtsoft.EF.Db.SqlDb.OData.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Bson/bin/Debug/net8.0/Gehtsoft.EF.Bson.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.MongoDB/bin/Debug/net8.0/Gehtsoft.EF.MongoDB.dll" />
  </ItemGroup>
 
  <Target Name="Scan">
-    <Asm2Xml Assemblies="@(DocSource)" OutputXml="obj/raw.xml" Mode="net50" />
+    <Asm2Xml Assemblies="@(DocSource)" OutputXml="obj/raw.xml" Mode="net10.0" />
  </Target>
 
  <Target Name="Prepare">
