@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.SqlDb
 {
-    [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
+    [TestCaseOrderer(typeof(TestOrderAttributeOrderer))]
     public class FtsTest : IClassFixture<FtsTest.Fixture>
     {
         private readonly Fixture mFixture;

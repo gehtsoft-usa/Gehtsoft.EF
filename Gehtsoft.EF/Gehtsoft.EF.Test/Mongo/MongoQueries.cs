@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.Mongo
 {
-    [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
+    [TestCaseOrderer(typeof(TestOrderAttributeOrderer))]
     public class MongoQueries : IClassFixture<MongoQueries.Fixture>
     {
         [Entity(Scope = "MongoQueries", NamingPolicy = EntityNamingPolicy.LowerCase, Table = "queriestest1")]

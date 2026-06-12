@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.Northwind
 {
-    [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
+    [TestCaseOrderer(typeof(TestOrderAttributeOrderer))]
     [Collection(nameof(NorthwindFixture))]
     public class TestNorthwind
     {

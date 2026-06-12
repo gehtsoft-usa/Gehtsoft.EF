@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.Entity.Query
 {
-    [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
+    [TestCaseOrderer(typeof(TestOrderAttributeOrderer))]
     public class QueryiesOnDb_Create : IClassFixture<QueryiesOnDb_Create.Fixture>
     {
         private const string mFlags = "";

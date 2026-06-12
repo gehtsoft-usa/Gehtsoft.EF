@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.SqlDb
 {
-    [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
+    [TestCaseOrderer(typeof(TestOrderAttributeOrderer))]
     public class QueryAsyncMethodsTest : IClassFixture<QueryAsyncMethodsTest.Fixture>
     {
         #region fixture

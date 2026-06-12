@@ -18,7 +18,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Factory
     public class UnversalConfigurationFactory
     {
         [Theory]
-        [MemberData(nameof(Connections), parameters: "")]
+        [MemberData(nameof(Connections), arguments: "")]
         public void GetConnection(string connectionName, Type expectedType)
         {
             var config = AppConfiguration.Instance.GetSqlConnection(connectionName);
@@ -29,7 +29,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Factory
         }
 
         [Theory]
-        [MemberData(nameof(Connections), parameters: "")]
+        [MemberData(nameof(Connections), arguments: "")]
         public async Task GetConnectionAsync(string connectionName, Type expectedType)
         {
             var config = AppConfiguration.Instance.GetSqlConnection(connectionName);

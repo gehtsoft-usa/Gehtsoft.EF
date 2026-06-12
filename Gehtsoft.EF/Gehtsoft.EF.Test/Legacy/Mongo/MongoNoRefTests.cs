@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Gehtsoft.EF.Test.Legacy.Mongo
 {
-    [TestCaseOrderer(TestOrderAttributeOrderer.CLASS, TestOrderAttributeOrderer.ASSEMBLY)]
+    [TestCaseOrderer(typeof(TestOrderAttributeOrderer))]
     public class MongoNoRefTests : IClassFixture<MongoNoRefTests.Fixture>
     {
         [Entity(Table = "datatest1", Scope = "mongo0")]

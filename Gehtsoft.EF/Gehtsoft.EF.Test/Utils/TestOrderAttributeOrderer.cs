@@ -1,27 +1,23 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
+using System.Reflection;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Gehtsoft.EF.Test.Utils
 {
     public class TestOrderAttributeOrderer : ITestCaseOrderer
     {
-        public const string CLASS = "Gehtsoft.EF.Test.Utils.TestOrderAttributeOrderer";
-        public const string ASSEMBLY = "Gehtsoft.EF.Test";
-
-        private static int GetOrder<TTestCase>(TTestCase testCase)
-            where TTestCase : ITestCase
+        private static int GetOrder(ITestCase testCase)
         {
-            var attribute = testCase.TestMethod.Method.GetCustomAttributes(typeof(TestOrderAttribute).AssemblyQualifiedName).FirstOrDefault();
-            if (attribute == null)
-                return int.MaxValue;
-            int x = (int)attribute.GetConstructorArguments().First();
-            return x;
+            var attribute = (testCase as IXunitTestCase)?.TestMethod.Method
+                .GetCustomAttribute<TestOrderAttribute>();
+            return attribute?.Order ?? int.MaxValue;
         }
 
-        IEnumerable<TTestCase> ITestCaseOrderer.OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
+        public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
+            where TTestCase : notnull, ITestCase
         {
             var cases = testCases.ToArray();
             Array.Sort(cases, (a, b) => GetOrder(a).CompareTo(GetOrder(b)));
