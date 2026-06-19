@@ -70,6 +70,7 @@
     <description>Gehtsoft Entity Framework: Core Implementation for SQL databases.</description>
     <additional-file file="../doc/Gehtsoft.EF.Db.SqlDb.xml" target="*"></additional-file>
     <additional-file file="../../readme.md" target="/docs"/>
+    <additional-file file="../skill/SKILL.md" target="/skills"/>
    </project>
    <project id="Gehtsoft.EF.Db.SqlDb.Sql">
     <description>Gehtsoft Entity Framework: Platform-agnostic SQL 92 parser and executor to operated entities using SQL queries.</description>
