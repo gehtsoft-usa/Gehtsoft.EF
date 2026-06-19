@@ -52,6 +52,8 @@ namespace Gehtsoft.EF.Validator
 
         public string RemoteScript(Type compilerType) => null;
 
+        public RuleExecutionSide Side => RuleExecutionSide.Server;
+
         protected abstract Task<bool> ValidateCore(bool sync, SqlDbConnection connection, object value, CancellationToken? token);
     }
 }

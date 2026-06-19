@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Gehtsoft.Validator;
-using NUnit.Framework;
-using NUnit.Framework.Legacy;
+using AwesomeAssertions;
+using Xunit;
 
 namespace Gehtsoft.EF.Toolbox.Test
 {
-    [TestFixture()]
     public class TestValidationValidators
     {
         public enum TestEnum1
@@ -55,37 +54,37 @@ namespace Gehtsoft.EF.Toolbox.Test
             }
         }
 
-        [Test]
+        [Fact]
         public void TestRules()
         {
             TestEntity1Validator validator = new TestEntity1Validator();
             ValidationResult result = validator.Validate(null);
-            ClassicAssert.IsTrue(result.IsValid);
+            result.IsValid.Should().BeTrue();
 
             TestEntity1 entity1 = new TestEntity1();
             result = validator.Validate(entity1);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.IsTrue(result.Failures.Contains("whole", 1000));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Contains("whole", 1000).Should().BeTrue();
             entity1.Valid = true;
             result = validator.Validate(entity1);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.IsFalse(result.Failures.Contains("whole", 1000));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Contains("whole", 1000).Should().BeFalse();
 
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(TestEntity1.IntValue), 2001));
-            ClassicAssert.AreEqual("message21", result.Failures.Find(nameof(TestEntity1.IntValue), 2001).Message);
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.IntValue), 2002));
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(TestEntity1.IntValue), 2003));
-            ClassicAssert.AreEqual("message23", result.Failures.Find(nameof(TestEntity1.IntValue), 2003).Message);
+            result.Failures.Contains(nameof(TestEntity1.IntValue), 2001).Should().BeTrue();
+            result.Failures.Find(nameof(TestEntity1.IntValue), 2001).Message.Should().Be("message21");
+            result.Failures.Contains(nameof(TestEntity1.IntValue), 2002).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.IntValue), 2003).Should().BeTrue();
+            result.Failures.Find(nameof(TestEntity1.IntValue), 2003).Message.Should().Be("message23");
 
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(TestEntity1.StringValue), 3001));
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.StringValue), 3002));
+            result.Failures.Contains(nameof(TestEntity1.StringValue), 3001).Should().BeTrue();
+            result.Failures.Contains(nameof(TestEntity1.StringValue), 3002).Should().BeFalse();
 
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.DateTimeValue), 4001));
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.ArrayValue), 5001));
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.ArrayValue), 5002));
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.ListValue), 6001));
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.ListValue), 6002));
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.EnumValue), 7001));
+            result.Failures.Contains(nameof(TestEntity1.DateTimeValue), 4001).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.ArrayValue), 5001).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.ArrayValue), 5002).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.ListValue), 6001).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.ListValue), 6002).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.EnumValue), 7001).Should().BeFalse();
 
             entity1.IntValue = (int)TestEnum1.E2;
             entity1.StringValue = new string('x', 50);
@@ -94,34 +93,34 @@ namespace Gehtsoft.EF.Toolbox.Test
             entity1.ListValue = new List<int>(new int[] { 1, 11, 12, 13, 14, 15, 2 });
             entity1.DateTimeValue = new DateTime(2004, 12, 31, 23, 59, 59);
             result = validator.Validate(entity1);
-            ClassicAssert.IsFalse(result.IsValid);
+            result.IsValid.Should().BeFalse();
 
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.IntValue), 2001));
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.IntValue), 2002));
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.IntValue), 2003));
+            result.Failures.Contains(nameof(TestEntity1.IntValue), 2001).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.IntValue), 2002).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.IntValue), 2003).Should().BeFalse();
 
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.StringValue), 3001));
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(TestEntity1.StringValue), 3002));
+            result.Failures.Contains(nameof(TestEntity1.StringValue), 3001).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.StringValue), 3002).Should().BeTrue();
 
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.DateTimeValue), 4001));
+            result.Failures.Contains(nameof(TestEntity1.DateTimeValue), 4001).Should().BeFalse();
 
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.ArrayValue), 5001));
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.ArrayValue), 5002));
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.ArrayValue) + "[0]", 5002));
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(TestEntity1.ArrayValue) + "[1]", 5002));
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(TestEntity1.ArrayValue) + "[2]", 5002));
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(TestEntity1.ArrayValue) + "[3]", 5002));
+            result.Failures.Contains(nameof(TestEntity1.ArrayValue), 5001).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.ArrayValue), 5002).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.ArrayValue) + "[0]", 5002).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.ArrayValue) + "[1]", 5002).Should().BeTrue();
+            result.Failures.Contains(nameof(TestEntity1.ArrayValue) + "[2]", 5002).Should().BeTrue();
+            result.Failures.Contains(nameof(TestEntity1.ArrayValue) + "[3]", 5002).Should().BeTrue();
 
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(TestEntity1.ListValue), 6001));
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.ListValue), 6002));
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(TestEntity1.ListValue) + "[0]", 6002));
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(TestEntity1.ListValue) + "[6]", 6002));
+            result.Failures.Contains(nameof(TestEntity1.ListValue), 6001).Should().BeTrue();
+            result.Failures.Contains(nameof(TestEntity1.ListValue), 6002).Should().BeFalse();
+            result.Failures.Contains(nameof(TestEntity1.ListValue) + "[0]", 6002).Should().BeTrue();
+            result.Failures.Contains(nameof(TestEntity1.ListValue) + "[6]", 6002).Should().BeTrue();
 
-            ClassicAssert.IsFalse(result.Failures.Contains(nameof(TestEntity1.EnumValue), 7001));
+            result.Failures.Contains(nameof(TestEntity1.EnumValue), 7001).Should().BeFalse();
 
             entity1.EnumValue = (TestEnum1)50;
             result = validator.Validate(entity1);
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(TestEntity1.EnumValue), 7001));
+            result.Failures.Contains(nameof(TestEntity1.EnumValue), 7001).Should().BeTrue();
 
             entity1.IntValue = (int)TestEnum1.E2;
             entity1.StringValue = new string('x', 4);
@@ -130,7 +129,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             entity1.ListValue = new List<int>(new int[] { 11, 12 });
             entity1.DateTimeValue = null;
             result = validator.Validate(entity1);
-            ClassicAssert.IsTrue(result.IsValid);
+            result.IsValid.Should().BeTrue();
         }
 
         public class TestEntity2
@@ -169,21 +168,21 @@ namespace Gehtsoft.EF.Toolbox.Test
             }
         }
 
-        [Test]
+        [Fact]
         public void TestValidateUsing()
         {
             TestEntity2 e2 = new TestEntity2() { ID = 0, Self = new TestEntity2() { ID = 0 } };
             TestEntity2Validator validator2 = new TestEntity2Validator();
             ValidationResult result = validator2.Validate(e2);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.IsTrue(result.Failures.Contains("ID", 1));
-            ClassicAssert.IsTrue(result.Failures.Contains("Self.ID", 1));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Contains("ID", 1).Should().BeTrue();
+            result.Failures.Contains("Self.ID", 1).Should().BeTrue();
 
             e2.ID = 5;
             result = validator2.Validate(e2);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.IsFalse(result.Failures.Contains("ID", 1));
-            ClassicAssert.IsTrue(result.Failures.Contains("Self.ID", 1));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Contains("ID", 1).Should().BeFalse();
+            result.Failures.Contains("Self.ID", 1).Should().BeTrue();
 
             TestEntity3 e3 = new TestEntity3()
             {
@@ -192,21 +191,21 @@ namespace Gehtsoft.EF.Toolbox.Test
             };
             TestEntity3Validator validator3 = new TestEntity3Validator();
             result = validator3.Validate(e3);
-            ClassicAssert.IsTrue(result.Failures.Contains("ID", 2));
-            ClassicAssert.IsTrue(result.Failures.Contains("Reference.Self.ID", 1));
-            ClassicAssert.IsTrue(result.Failures.Contains("MultiReference", 3));
+            result.Failures.Contains("ID", 2).Should().BeTrue();
+            result.Failures.Contains("Reference.Self.ID", 1).Should().BeTrue();
+            result.Failures.Contains("MultiReference", 3).Should().BeTrue();
 
             e3.ID = 5;
             e3.MultiReference = new TestEntity2[] { null, e2, new TestEntity2() { ID = 0 }, new TestEntity2() { ID = 1 } };
             result = validator3.Validate(e3);
-            ClassicAssert.IsFalse(result.Failures.Contains("ID", 2));
-            ClassicAssert.IsTrue(result.Failures.Contains("Reference.Self.ID", 1));
-            ClassicAssert.IsFalse(result.Failures.Contains("MultiReference", 3));
-            ClassicAssert.IsTrue(result.Failures.Contains("MultiReference[0]", 4));
-            ClassicAssert.IsTrue(result.Failures.Contains("MultiReference[1].Self.ID", 1));
-            ClassicAssert.IsTrue(result.Failures.Contains("MultiReference[2].ID", 1));
-            ClassicAssert.IsFalse(result.Failures.Contains("MultiReference[3].ID", 1));
-            ClassicAssert.IsFalse(result.Failures.Contains("MultiReference[3]", 3));
+            result.Failures.Contains("ID", 2).Should().BeFalse();
+            result.Failures.Contains("Reference.Self.ID", 1).Should().BeTrue();
+            result.Failures.Contains("MultiReference", 3).Should().BeFalse();
+            result.Failures.Contains("MultiReference[0]", 4).Should().BeTrue();
+            result.Failures.Contains("MultiReference[1].Self.ID", 1).Should().BeTrue();
+            result.Failures.Contains("MultiReference[2].ID", 1).Should().BeTrue();
+            result.Failures.Contains("MultiReference[3].ID", 1).Should().BeFalse();
+            result.Failures.Contains("MultiReference[3]", 3).Should().BeFalse();
         }
 
         [AttributeUsage(AttributeTargets.Property)]
@@ -273,7 +272,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             }
         }
 
-        [Test]
+        [Fact]
         public void TestAttributeBaseValidationAndMessageResolver()
         {
             ValidationMessageResolverFactory.SetResolverFor<TestEntity4>(new TestEntity4MessageResolver());
@@ -284,13 +283,13 @@ namespace Gehtsoft.EF.Toolbox.Test
                 StringValue = new string(' ', 50)
             };
             ValidationResult result = validator.Validate(entity);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.AreEqual(5, result.Failures.Count);
-            ClassicAssert.AreEqual("String Value must be not empty", result.Failures[0].Message);
-            ClassicAssert.AreEqual("String Value is too long", result.Failures[1].Message);
-            ClassicAssert.AreEqual("Array of String must be not null", result.Failures[2].Message);
-            ClassicAssert.AreEqual("IntegerValue is out of range", result.Failures[3].Message);
-            ClassicAssert.AreEqual("notzero", result.Failures[4].Message);
+            result.IsValid.Should().BeFalse();
+            result.Failures.Count.Should().Be(5);
+            result.Failures[0].Message.Should().Be("String Value must be not empty");
+            result.Failures[1].Message.Should().Be("String Value is too long");
+            result.Failures[2].Message.Should().Be("Array of String must be not null");
+            result.Failures[3].Message.Should().Be("IntegerValue is out of range");
+            result.Failures[4].Message.Should().Be("notzero");
 
             entity.StringValue = "123";
             entity.IntegerValue = 15;
@@ -300,13 +299,13 @@ namespace Gehtsoft.EF.Toolbox.Test
                 "abc", "abd", "efg", new string('a', 20), "aaa", "eee"
             };
             result = validator.Validate(entity);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.AreEqual(4, result.Failures.Count);
+            result.IsValid.Should().BeFalse();
+            result.Failures.Count.Should().Be(4);
 
-            ClassicAssert.AreEqual("An element of Array of String value does not match to the pattern", result.Failures[0].Message);
-            ClassicAssert.AreEqual("An element of Array of String value does not match to the pattern", result.Failures[1].Message);
-            ClassicAssert.AreEqual("Array of String is too long", result.Failures[2].Message);
-            ClassicAssert.AreEqual("An element of Array of String is too long", result.Failures[3].Message);
+            result.Failures[0].Message.Should().Be("An element of Array of String value does not match to the pattern");
+            result.Failures[1].Message.Should().Be("An element of Array of String value does not match to the pattern");
+            result.Failures[2].Message.Should().Be("Array of String is too long");
+            result.Failures[3].Message.Should().Be("An element of Array of String is too long");
         }
 
         public class SubValidator : BaseValidator
@@ -332,7 +331,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             }
         }
 
-        [Test]
+        [Fact]
         public void TestValidateUsingOptions()
         {
             TestEntity3 entity = new TestEntity3() { Reference = new TestEntity2() };
@@ -343,27 +342,27 @@ namespace Gehtsoft.EF.Toolbox.Test
             validator.RuleFor(e => e.Reference).ValidateUsing(new SubValidator());
 
             rs = validator.Validate(entity);
-            ClassicAssert.IsFalse(rs.IsValid);
-            ClassicAssert.IsTrue(rs.Failures.Contains("Reference.all", "noconstructor"));
+            rs.IsValid.Should().BeFalse();
+            rs.Failures.Contains("Reference.all", "noconstructor").Should().BeTrue();
 
             validator = new AbstractValidator<TestEntity3>();
             validator.RuleFor(e => e.Reference).ValidateUsing(new SubValidator(0x1234));
 
             rs = validator.Validate(entity);
-            ClassicAssert.IsTrue(rs.IsValid);
+            rs.IsValid.Should().BeTrue();
 
             validator = new AbstractValidator<TestEntity3>();
             validator.RuleFor(e => e.Reference).ValidateUsing<SubValidator>();
 
             rs = validator.Validate(entity);
-            ClassicAssert.IsFalse(rs.IsValid);
-            ClassicAssert.IsTrue(rs.Failures.Contains("Reference.all", "noconstructor"));
+            rs.IsValid.Should().BeFalse();
+            rs.Failures.Contains("Reference.all", "noconstructor").Should().BeTrue();
 
             validator = new AbstractValidator<TestEntity3>();
             validator.RuleFor(e => e.Reference).ValidateUsing<SubValidator>(new object[] { 0x1234 });
 
             rs = validator.Validate(entity);
-            ClassicAssert.IsTrue(rs.IsValid);
+            rs.IsValid.Should().BeTrue();
         }
     }
 }

@@ -17,6 +17,10 @@ namespace Gehtsoft.Validator
             mParameterIsEntity = parameterIsEntity;
         }
 
+        public override RuleExecutionSide Side => RuleExecutionSide.Both;
+
+        public override bool ParameterIsEntity => mParameterIsEntity;
+
         public override string RemoteScript(Type expressionCompilerType)
         {
             if (expressionCompilerType == null)

@@ -263,15 +263,16 @@ namespace Gehtsoft.Validator
 
             if (rule.Validator != null)
             {
+                object subject = rule.Validator.ParameterIsEntity ? entity : value.Value;
                 bool success;
                 if (sync)
-                    success = rule.Validator.Validate(value.Value);
+                    success = rule.Validator.Validate(subject);
                 else
                 {
                     if (rule.Validator is IValidationPredicateAsync asyncValidator)
-                        success = await asyncValidator.ValidateAsync(value.Value, token);
+                        success = await asyncValidator.ValidateAsync(subject, token);
                     else
-                        success = rule.Validator.Validate(value.Value);
+                        success = rule.Validator.Validate(subject);
                 }
                 if (!success)
                 {

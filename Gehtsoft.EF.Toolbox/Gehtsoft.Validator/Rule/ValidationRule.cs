@@ -15,6 +15,12 @@ namespace Gehtsoft.Validator
         bool HasAnotherValidator { get; }
         IBaseValidator AnotherValidator { get; }
         bool IgnoreOnClient { get; }
+
+        /// <summary>
+        /// The side on which the rule is executed. When the side is not set explicitly,
+        /// it is derived from the rule's validation predicate.
+        /// </summary>
+        RuleExecutionSide Side => IgnoreOnClient ? RuleExecutionSide.Server : RuleExecutionSide.Both;
     }
 
     public class ValidationRule : IValidationRule
@@ -32,7 +38,16 @@ namespace Gehtsoft.Validator
         public string Message { get; set; }
         public bool HasAnotherValidator => AnotherValidatorType != null || mAnotherValidator != null;
         public Type AnotherValidatorType { get; set; }
-        public bool IgnoreOnClient { get; set; }
+        internal RuleExecutionSide? ExplicitSide { get; set; }
+
+        public RuleExecutionSide Side => ExplicitSide ?? Validator?.Side ?? RuleExecutionSide.Both;
+
+        public bool IgnoreOnClient
+        {
+            get => Side == RuleExecutionSide.Server;
+            set => ExplicitSide = value ? RuleExecutionSide.Server : (RuleExecutionSide?)null;
+        }
+
         internal object[] AnotherValidatorArgs { get; set; }
 
         public IBaseValidator AnotherValidatorInstance

@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Gehtsoft.ExpressionToJs;
@@ -33,7 +32,10 @@ namespace Gehtsoft.Validator.JSConvertor
             bool hasPrefix = !string.IsNullOrEmpty(prefix);
             foreach (IValidationRule rule in validator)
             {
-                if (rule.Validator != null && !rule.IgnoreOnClient)
+                if (rule.Side == RuleExecutionSide.Server)
+                    continue;
+
+                if (rule.Validator != null)
                 {
                     JsValidatorRule jsRule = new JsValidatorRule()
                     {
@@ -43,33 +45,27 @@ namespace Gehtsoft.Validator.JSConvertor
                         ErrorMessage = rule.Message,
                     };
 
-                    if (jsRule.JsValidationExpression == null) //isn't supported on the client
-                        continue;
+                    if (jsRule.JsValidationExpression == null)
+                        throw new InvalidOperationException($"The validation predicate of the rule {jsRule.JsTargetName} cannot be translated to JS. Mark the rule with SetSide(RuleExecutionSide.Server) if the rule is intended to be validated on the server only.");
 
-                    if (!string.IsNullOrEmpty(prefix))
+                    if (hasPrefix)
                         jsRule.JsValidationExpression = jsRule.JsValidationExpression.Replace("reference('", $"reference('{prefix}.");
 
-                    bool hasWhen = true;
                     if (rule.WhenEntity != null)
-                        jsRule.JsWhenExpression = rule.WhenEntity.RemoteScript(compilerType);
+                        jsRule.JsWhenExpression = ConditionScript(rule.WhenEntity, compilerType, jsRule.JsTargetName, negate: false);
                     else if (rule.WhenValue != null)
-                        jsRule.JsWhenExpression = rule.WhenValue.RemoteScript(compilerType);
+                        jsRule.JsWhenExpression = ConditionScript(rule.WhenValue, compilerType, jsRule.JsTargetName, negate: false);
                     else if (rule.UnlessEntity != null)
-                        jsRule.JsWhenExpression = $"!({rule.UnlessEntity.RemoteScript(compilerType)})";
+                        jsRule.JsWhenExpression = ConditionScript(rule.UnlessEntity, compilerType, jsRule.JsTargetName, negate: true);
                     else if (rule.UnlessValue != null)
-                        jsRule.JsWhenExpression = $"!({rule.UnlessValue.RemoteScript(compilerType)})";
-                    else
-                        hasWhen = false;
+                        jsRule.JsWhenExpression = ConditionScript(rule.UnlessValue, compilerType, jsRule.JsTargetName, negate: true);
 
-                    if (hasWhen && jsRule.JsValidationExpression == null)
-                        throw new ArgumentNullException($"Rule {jsRule.JsTargetName} has a condition predicate which can't be compiled to the JS.");
-
-                    if (hasWhen && !string.IsNullOrEmpty(prefix))
+                    if (jsRule.JsWhenExpression != null && hasPrefix)
                         jsRule.JsWhenExpression = jsRule.JsWhenExpression.Replace("reference('", $"reference('{prefix}.");
 
                     list.Add(jsRule);
                 }
-                else if (rule.HasAnotherValidator && !rule.IgnoreOnClient)
+                else if (rule.HasAnotherValidator)
                 {
                     bool isArray = !rule.Target.IsSingleValue;
                     string pprefix = hasPrefix ? $"{prefix}.{rule.Target.TargetName}" : rule.Target.TargetName;
@@ -78,6 +74,14 @@ namespace Gehtsoft.Validator.JSConvertor
                     ScanJsRules(rule.AnotherValidator, list, compilerType, pprefix, isArray || isArrayValidator);
                 }
             }
+        }
+
+        private static string ConditionScript(IValidationPredicate predicate, Type compilerType, string targetName, bool negate)
+        {
+            string script = predicate.RemoteScript(compilerType);
+            if (script == null)
+                throw new InvalidOperationException($"The condition predicate of the rule {targetName} cannot be translated to JS. Mark the rule with SetSide(RuleExecutionSide.Server) if the rule is intended to be validated on the server only.");
+            return negate ? $"!({script})" : script;
         }
     }
 }

@@ -60,5 +60,9 @@ namespace Gehtsoft.Validator
         }
 
         public virtual string RemoteScript(Type compilerType) => null;
+
+        public virtual RuleExecutionSide Side => RuleExecutionSide.Server;
+
+        public virtual bool ParameterIsEntity => false;
     }
 }

@@ -186,6 +186,12 @@ namespace Gehtsoft.Validator
             return this;
         }
 
+        public new GenericValidationRuleBuilder<TE, TV> SetSide(RuleExecutionSide side)
+        {
+            base.SetSide(side);
+            return this;
+        }
+
         public GenericValidationRuleBuilder<TE, TV> Otherwise()
         {
             ValidationRule newRule = Validator.Rule(Rule.Target).Rule;
@@ -202,7 +208,7 @@ namespace Gehtsoft.Validator
             else if (Rule.UnlessEntity != null)
                 newRule.WhenEntity = Rule.UnlessEntity;
 
-            newRule.IgnoreOnClient = Rule.IgnoreOnClient;
+            newRule.ExplicitSide = Rule.ExplicitSide;
 
             GenericValidationRuleBuilder<TE, TV> newBuilder = new GenericValidationRuleBuilder<TE, TV>(Validator, newRule);
 
@@ -217,7 +223,7 @@ namespace Gehtsoft.Validator
             newRule.UnlessValue = Rule.UnlessValue;
             newRule.UnlessEntity = Rule.UnlessEntity;
 
-            newRule.IgnoreOnClient = Rule.IgnoreOnClient;
+            newRule.ExplicitSide = Rule.ExplicitSide;
 
             GenericValidationRuleBuilder<TE, TV> newBuilder = new GenericValidationRuleBuilder<TE, TV>(Validator, newRule);
 

@@ -14,11 +14,11 @@ using Gehtsoft.EF.Mapper;
 using Gehtsoft.EF.Mapper.Validator;
 using Gehtsoft.EF.Validator;
 using Gehtsoft.Validator;
-using NUnit.Framework;
+using AwesomeAssertions;
+using Xunit;
 
 namespace Gehtsoft.EF.Toolbox.Test
 {
-    [TestFixture]
     public class Example
     {
         public class Source
@@ -35,8 +35,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             }
         }
 
-        [Explicit]
-        [Test]
+        [Fact(Explicit = true)]
         public void Debug()
         {
             var map = MapFactory.CreateMap<Source, Destination>();

@@ -16,5 +16,6 @@ namespace Gehtsoft.Validator
         public Type ParameterType => mParameterType;
         public bool Validate(object value) => value != null && Enum.IsDefined(ParameterType, value);
         public string RemoteScript(Type compilerType) => null;
+        public RuleExecutionSide Side => RuleExecutionSide.Server;
     }
 }

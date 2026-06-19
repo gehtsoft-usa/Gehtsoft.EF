@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.IO;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
@@ -8,33 +7,11 @@ using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Validator;
 using Gehtsoft.Validator;
-using NUnit.Framework;
-using NUnit.Framework.Legacy;
+using AwesomeAssertions;
+using Xunit;
 
 namespace Gehtsoft.EF.Toolbox.Test
 {
-    public static class SqliteInitializerNet4
-    {
-        private static bool gInitialized = false;
-
-        public static void Initialize()
-        {
-            if (!gInitialized)
-            {
-#if NET4
-                string basePath = new FileInfo(Path.GetFullPath(typeof(SqliteInitializerNet4).Assembly.Location)).DirectoryName;
-                ClassicAssert.IsTrue(Environment.OSVersion.Platform == PlatformID.Win32NT, "Must be run on windows only");
-                string path = Path.Combine(basePath, "runtimes", Environment.Is64BitProcess ? "win-x64" : "win-x86", "native", "e_sqlite3.dll");
-                ClassicAssert.IsTrue(File.Exists(path), "Runtime should exist");
-                File.Copy(path, Path.Combine(basePath, "e_sqlite3.dll"), true);
-#endif
-
-                gInitialized = true;
-            }
-        }
-    }
-
-    [TestFixture()]
     public class TestEntityValidators
     {
         public enum ValidatorTestValues
@@ -139,25 +116,23 @@ namespace Gehtsoft.EF.Toolbox.Test
 
         }
 
-        [OneTimeSetUp]
-        public void Setup()
+        public TestEntityValidators()
         {
-            SqliteInitializerNet4.Initialize();
-            ClassicAssert.IsNotNull(AllEntities.Inst[typeof(ValidatorTestEntityDict), false]);
-            ClassicAssert.IsNotNull(AllEntities.Inst[typeof(ValidatorTestEntity), false]);
+            AllEntities.Inst[typeof(ValidatorTestEntityDict), false].Should().NotBeNull();
+            AllEntities.Inst[typeof(ValidatorTestEntity), false].Should().NotBeNull();
         }
 
-        [Test]
+        [Fact]
         public void TestBareValidator()
         {
             EfEntityValidator<ValidatorTestEntity> entityValidator = new EfEntityValidator<ValidatorTestEntity>(new DummySqlLanguageSpecifics());
 
             ValidatorTestEntity entity = new ValidatorTestEntity();
             ValidationResult result = entityValidator.Validate(entity);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.AreEqual(2, result.Failures.Count);
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.StringValue), (int)EfValidationErrorCode.NullValue));
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.TsValue), (int)EfValidationErrorCode.TimestampIsOutOfRange));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Count.Should().Be(2);
+            result.Failures.Contains(nameof(ValidatorTestEntity.StringValue), (int)EfValidationErrorCode.NullValue).Should().BeTrue();
+            result.Failures.Contains(nameof(ValidatorTestEntity.TsValue), (int)EfValidationErrorCode.TimestampIsOutOfRange).Should().BeTrue();
 
             entity.StringValue = "123";
             entity.DateValue = DateTime.Now;
@@ -169,79 +144,79 @@ namespace Gehtsoft.EF.Toolbox.Test
             entity.Reference = null;
 
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsTrue(result.IsValid);
+            result.IsValid.Should().BeTrue();
 
             entity.Reference = new ValidatorTestEntityDict() { ID = 1 };
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsTrue(result.IsValid);
+            result.IsValid.Should().BeTrue();
 
             entity.StringValue = new string('0', 257);
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.AreEqual(1, result.Failures.Count);
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.StringValue), (int)EfValidationErrorCode.StringIsTooLong));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Count.Should().Be(1);
+            result.Failures.Contains(nameof(ValidatorTestEntity.StringValue), (int)EfValidationErrorCode.StringIsTooLong).Should().BeTrue();
             entity.StringValue = "";
 
             entity.DateValue = new DateTime(2050, 1, 1);
             entity.TsValue = new DateTime(2050, 1, 1);
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.AreEqual(1, result.Failures.Count);
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.TsValue), (int)EfValidationErrorCode.TimestampIsOutOfRange));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Count.Should().Be(1);
+            result.Failures.Contains(nameof(ValidatorTestEntity.TsValue), (int)EfValidationErrorCode.TimestampIsOutOfRange).Should().BeTrue();
 
             entity.DateValue = new DateTime(9999, 1, 1);
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.AreEqual(2, result.Failures.Count);
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.DateValue), (int)EfValidationErrorCode.DateIsOutRange));
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.TsValue), (int)EfValidationErrorCode.TimestampIsOutOfRange));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Count.Should().Be(2);
+            result.Failures.Contains(nameof(ValidatorTestEntity.DateValue), (int)EfValidationErrorCode.DateIsOutRange).Should().BeTrue();
+            result.Failures.Contains(nameof(ValidatorTestEntity.TsValue), (int)EfValidationErrorCode.TimestampIsOutOfRange).Should().BeTrue();
 
             entity.DateValue = DateTime.Now;
             entity.TsValue = DateTime.Now;
 
             entity.DoubleValue = 9999.99;
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsTrue(result.IsValid);
+            result.IsValid.Should().BeTrue();
             entity.DoubleValue = -9999.99;
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsTrue(result.IsValid);
+            result.IsValid.Should().BeTrue();
             entity.DoubleValue = 10000;
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.DoubleValue), (int)EfValidationErrorCode.NumberIsOutOfRange));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Contains(nameof(ValidatorTestEntity.DoubleValue), (int)EfValidationErrorCode.NumberIsOutOfRange).Should().BeTrue();
             entity.DoubleValue = -10000;
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.DoubleValue), (int)EfValidationErrorCode.NumberIsOutOfRange));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Contains(nameof(ValidatorTestEntity.DoubleValue), (int)EfValidationErrorCode.NumberIsOutOfRange).Should().BeTrue();
             entity.DoubleValue = 0;
 
             entity.DecimalValue = 9999.99m;
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsTrue(result.IsValid);
+            result.IsValid.Should().BeTrue();
             entity.DecimalValue = -9999.99m;
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsTrue(result.IsValid);
+            result.IsValid.Should().BeTrue();
             entity.DecimalValue = 10000;
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.DecimalValue), (int)EfValidationErrorCode.NumberIsOutOfRange));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Contains(nameof(ValidatorTestEntity.DecimalValue), (int)EfValidationErrorCode.NumberIsOutOfRange).Should().BeTrue();
             entity.DecimalValue = -10000;
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.DecimalValue), (int)EfValidationErrorCode.NumberIsOutOfRange));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Contains(nameof(ValidatorTestEntity.DecimalValue), (int)EfValidationErrorCode.NumberIsOutOfRange).Should().BeTrue();
             entity.DecimalValue = 0;
 
             entity.EnumValue = ValidatorTestValues.EnumValue1;
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsTrue(result.IsValid);
+            result.IsValid.Should().BeTrue();
 
             entity.EnumValue = (ValidatorTestValues)123;
             result = entityValidator.Validate(entity);
-            ClassicAssert.IsFalse(result.IsValid);
-            ClassicAssert.IsTrue(result.Failures.Contains(nameof(ValidatorTestEntity.EnumValue), (int)EfValidationErrorCode.EnumerationValueIsInvalid));
+            result.IsValid.Should().BeFalse();
+            result.Failures.Contains(nameof(ValidatorTestEntity.EnumValue), (int)EfValidationErrorCode.EnumerationValueIsInvalid).Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void TestDbValidator()
         {
             using (SqlDbConnection connection = SqliteDbConnectionFactory.CreateMemory())
@@ -278,18 +253,18 @@ namespace Gehtsoft.EF.Toolbox.Test
                     StringValue = "entity2"
                 };
                 ValidationResult res = dictValidator.Validate(dictEntry);
-                ClassicAssert.IsFalse(res.IsValid);
-                ClassicAssert.IsTrue(res.Failures.Contains(nameof(ValidatorTestEntityDict.StringValue), (int)EfValidationErrorCode.ValueIsNotUnique));
+                res.IsValid.Should().BeFalse();
+                res.Failures.Contains(nameof(ValidatorTestEntityDict.StringValue), (int)EfValidationErrorCode.ValueIsNotUnique).Should().BeTrue();
 
                 dictEntry.ID = 2;
                 dictEntry.StringValue = "entity2";
                 res = dictValidator.Validate(dictEntry);
-                ClassicAssert.IsTrue(res.IsValid);
+                res.IsValid.Should().BeTrue();
 
                 dictEntry.ID = 0;
                 dictEntry.StringValue = "entity3";
                 res = dictValidator.Validate(dictEntry);
-                ClassicAssert.IsTrue(res.IsValid);
+                res.IsValid.Should().BeTrue();
 
                 entity = new ValidatorTestEntity
                 {
@@ -304,16 +279,16 @@ namespace Gehtsoft.EF.Toolbox.Test
                 };
 
                 res = entityValidator.Validate(entity);
-                ClassicAssert.IsTrue(res.IsValid);
+                res.IsValid.Should().BeTrue();
 
                 entity.Reference = new ValidatorTestEntityDict() { ID = 2 };
                 res = entityValidator.Validate(entity);
-                ClassicAssert.IsTrue(res.IsValid);
+                res.IsValid.Should().BeTrue();
 
                 entity.Reference = new ValidatorTestEntityDict() { ID = 3 };
                 res = entityValidator.Validate(entity);
-                ClassicAssert.IsFalse(res.IsValid);
-                ClassicAssert.IsTrue(res.Failures.Contains(nameof(ValidatorTestEntity.Reference), (int)EfValidationErrorCode.ReferenceDoesNotExists));
+                res.IsValid.Should().BeFalse();
+                res.Failures.Contains(nameof(ValidatorTestEntity.Reference), (int)EfValidationErrorCode.ReferenceDoesNotExists).Should().BeTrue();
             }
         }
 
@@ -325,7 +300,7 @@ namespace Gehtsoft.EF.Toolbox.Test
             }
         }
 
-        [Test]
+        [Fact]
         public void TestMessageProvider()
         {
             EfEntityValidator<ValidatorTestEntityDict> validator = new EfEntityValidator<ValidatorTestEntityDict>(null, null, new MessageProvider());
@@ -334,9 +309,9 @@ namespace Gehtsoft.EF.Toolbox.Test
                 StringValue = new string('a', 512)
             };
             ValidationResult res = validator.Validate(rec);
-            ClassicAssert.IsFalse(res.IsValid);
-            ClassicAssert.AreEqual(1, res.Failures.Count);
-            ClassicAssert.AreEqual($"ValidatorTestEntityDict.StringValue - error {(int)EfValidationErrorCode.StringIsTooLong}", res.Failures[0].Message);
+            res.IsValid.Should().BeFalse();
+            res.Failures.Count.Should().Be(1);
+            res.Failures[0].Message.Should().Be($"ValidatorTestEntityDict.StringValue - error {(int)EfValidationErrorCode.StringIsTooLong}");
         }
     }
 }

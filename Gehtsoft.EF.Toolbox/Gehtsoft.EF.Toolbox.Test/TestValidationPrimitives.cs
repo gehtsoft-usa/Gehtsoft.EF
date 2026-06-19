@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Gehtsoft.Validator;
-using NUnit.Framework;
-using NUnit.Framework.Legacy;
+using AwesomeAssertions;
+using Xunit;
 
 namespace Gehtsoft.EF.Toolbox.Test
 {
-    [TestFixture()]
     public class TestValidationPrimitives
     {
         public enum TestEnum
@@ -32,168 +31,168 @@ namespace Gehtsoft.EF.Toolbox.Test
             public TestTarget1[] MultiReference { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void TestPredicates()
         {
             IValidationPredicate predicate;
             predicate = new IsNullPredicate(typeof(object));
-            ClassicAssert.IsTrue(predicate.Validate(null));
-            ClassicAssert.IsFalse(predicate.Validate(5));
-            ClassicAssert.IsFalse(predicate.Validate(predicate));
+            predicate.Validate(null).Should().BeTrue();
+            predicate.Validate(5).Should().BeFalse();
+            predicate.Validate(predicate).Should().BeFalse();
 
             predicate = new IsNotNullPredicate(typeof(object));
-            ClassicAssert.IsFalse(predicate.Validate(null));
-            ClassicAssert.IsTrue(predicate.Validate(5));
-            ClassicAssert.IsTrue(predicate.Validate(""));
-            ClassicAssert.IsTrue(predicate.Validate(predicate));
+            predicate.Validate(null).Should().BeFalse();
+            predicate.Validate(5).Should().BeTrue();
+            predicate.Validate("").Should().BeTrue();
+            predicate.Validate(predicate).Should().BeTrue();
 
             predicate = new IsNotNullOrEmptyPredicate(typeof(object));
-            ClassicAssert.IsFalse(predicate.Validate(null));
-            ClassicAssert.IsTrue(predicate.Validate(5));
-            ClassicAssert.IsFalse(predicate.Validate(""));
-            ClassicAssert.IsTrue(predicate.Validate("     "));
-            ClassicAssert.IsTrue(predicate.Validate(predicate));
-            ClassicAssert.IsTrue(predicate.Validate("1"));
+            predicate.Validate(null).Should().BeFalse();
+            predicate.Validate(5).Should().BeTrue();
+            predicate.Validate("").Should().BeFalse();
+            predicate.Validate("     ").Should().BeTrue();
+            predicate.Validate(predicate).Should().BeTrue();
+            predicate.Validate("1").Should().BeTrue();
 
-            ClassicAssert.IsTrue(predicate.Validate(new int[] { 1 }));
-            ClassicAssert.IsFalse(predicate.Validate(new int[0]));
+            predicate.Validate(new int[] { 1 }).Should().BeTrue();
+            predicate.Validate(new int[0]).Should().BeFalse();
             List<int> l = new List<int>();
-            ClassicAssert.IsFalse(predicate.Validate(l));
+            predicate.Validate(l).Should().BeFalse();
             l.Add(1);
-            ClassicAssert.IsTrue(predicate.Validate(l));
+            predicate.Validate(l).Should().BeTrue();
 
             predicate = new IsNotNullOrWhitespacePredicate(typeof(object));
-            ClassicAssert.IsFalse(predicate.Validate(null));
-            ClassicAssert.IsTrue(predicate.Validate(5));
-            ClassicAssert.IsFalse(predicate.Validate(""));
-            ClassicAssert.IsFalse(predicate.Validate("     "));
-            ClassicAssert.IsTrue(predicate.Validate(predicate));
-            ClassicAssert.IsTrue(predicate.Validate("1"));
+            predicate.Validate(null).Should().BeFalse();
+            predicate.Validate(5).Should().BeTrue();
+            predicate.Validate("").Should().BeFalse();
+            predicate.Validate("     ").Should().BeFalse();
+            predicate.Validate(predicate).Should().BeTrue();
+            predicate.Validate("1").Should().BeTrue();
 
             predicate = new ValueIsBetweenPredicate(typeof(int), 1.0, true, null, false);
-            ClassicAssert.IsFalse(predicate.Validate(0.9999999));
-            ClassicAssert.IsTrue(predicate.Validate(1.0));
-            ClassicAssert.IsTrue(predicate.Validate(1.1));
+            predicate.Validate(0.9999999).Should().BeFalse();
+            predicate.Validate(1.0).Should().BeTrue();
+            predicate.Validate(1.1).Should().BeTrue();
 
             predicate = new ValueIsBetweenPredicate(typeof(int), 1.0, false, null, false);
-            ClassicAssert.IsFalse(predicate.Validate(0.9999999));
-            ClassicAssert.IsFalse(predicate.Validate(1.0));
-            ClassicAssert.IsTrue(predicate.Validate(1.1));
+            predicate.Validate(0.9999999).Should().BeFalse();
+            predicate.Validate(1.0).Should().BeFalse();
+            predicate.Validate(1.1).Should().BeTrue();
 
             predicate = new ValueIsBetweenPredicate(typeof(int), null, false, 1.0, true);
-            ClassicAssert.IsTrue(predicate.Validate(0.9999999));
-            ClassicAssert.IsTrue(predicate.Validate(1.0));
-            ClassicAssert.IsFalse(predicate.Validate(1.1));
+            predicate.Validate(0.9999999).Should().BeTrue();
+            predicate.Validate(1.0).Should().BeTrue();
+            predicate.Validate(1.1).Should().BeFalse();
 
             predicate = new ValueIsBetweenPredicate(typeof(int), null, false, 1.0, false);
-            ClassicAssert.IsTrue(predicate.Validate(0.9999999));
-            ClassicAssert.IsFalse(predicate.Validate(1.0));
-            ClassicAssert.IsFalse(predicate.Validate(1.1));
+            predicate.Validate(0.9999999).Should().BeTrue();
+            predicate.Validate(1.0).Should().BeFalse();
+            predicate.Validate(1.1).Should().BeFalse();
 
             predicate = new FunctionPredicate<int>(a => a > 0);
-            ClassicAssert.IsTrue(predicate.Validate(1));
-            ClassicAssert.IsFalse(predicate.Validate(0.0));
-            ClassicAssert.IsFalse(predicate.Validate("-1"));
+            predicate.Validate(1).Should().BeTrue();
+            predicate.Validate(0.0).Should().BeFalse();
+            predicate.Validate("-1").Should().BeFalse();
 
             predicate = new FunctionPredicate<TestEnum>(a => a == TestEnum.E2);
-            ClassicAssert.IsFalse(predicate.Validate(0));
-            ClassicAssert.IsFalse(predicate.Validate(1));
-            ClassicAssert.IsFalse(predicate.Validate(TestEnum.E1));
-            ClassicAssert.IsTrue(predicate.Validate(2));
-            ClassicAssert.IsTrue(predicate.Validate(TestEnum.E2));
-            ClassicAssert.IsFalse(predicate.Validate(3));
-            ClassicAssert.IsFalse(predicate.Validate(TestEnum.E3));
-            ClassicAssert.IsFalse(predicate.Validate(4));
+            predicate.Validate(0).Should().BeFalse();
+            predicate.Validate(1).Should().BeFalse();
+            predicate.Validate(TestEnum.E1).Should().BeFalse();
+            predicate.Validate(2).Should().BeTrue();
+            predicate.Validate(TestEnum.E2).Should().BeTrue();
+            predicate.Validate(3).Should().BeFalse();
+            predicate.Validate(TestEnum.E3).Should().BeFalse();
+            predicate.Validate(4).Should().BeFalse();
 
             predicate = new IsEnumValueCorrectPredicate(typeof(TestEnum?));
-            ClassicAssert.IsTrue(predicate.Validate(TestEnum.E1));
-            ClassicAssert.IsTrue(predicate.Validate(1));
-            ClassicAssert.IsTrue(predicate.Validate("E1"));
-            ClassicAssert.IsFalse(predicate.Validate("1"));
-            ClassicAssert.IsFalse(predicate.Validate(0));
-            ClassicAssert.IsFalse(predicate.Validate(null));
+            predicate.Validate(TestEnum.E1).Should().BeTrue();
+            predicate.Validate(1).Should().BeTrue();
+            predicate.Validate("E1").Should().BeTrue();
+            predicate.Validate("1").Should().BeFalse();
+            predicate.Validate(0).Should().BeFalse();
+            predicate.Validate(null).Should().BeFalse();
 
             predicate = new DoesMatchPredicate(typeof(string), "^1.+");
-            ClassicAssert.IsFalse(predicate.Validate(null));
-            ClassicAssert.IsFalse(predicate.Validate(""));
-            ClassicAssert.IsFalse(predicate.Validate("2aaaa"));
-            ClassicAssert.IsFalse(predicate.Validate("a1aaaa"));
-            ClassicAssert.IsTrue(predicate.Validate(1000));
-            ClassicAssert.IsTrue(predicate.Validate("1aaaa"));
+            predicate.Validate(null).Should().BeFalse();
+            predicate.Validate("").Should().BeFalse();
+            predicate.Validate("2aaaa").Should().BeFalse();
+            predicate.Validate("a1aaaa").Should().BeFalse();
+            predicate.Validate(1000).Should().BeTrue();
+            predicate.Validate("1aaaa").Should().BeTrue();
 
             predicate = new IsShorterThanPredicate(typeof(object), 5);
-            ClassicAssert.IsTrue(predicate.Validate(null));
-            ClassicAssert.IsTrue(predicate.Validate(""));
-            ClassicAssert.IsTrue(predicate.Validate("123"));
-            ClassicAssert.IsTrue(predicate.Validate(123));
-            ClassicAssert.IsTrue(predicate.Validate(new int[4]));
-            ClassicAssert.IsTrue(predicate.Validate(new Dictionary<int, int>() { { 1, 1 }, { 2, 2 } }));
-            ClassicAssert.IsFalse(predicate.Validate("12345"));
-            ClassicAssert.IsFalse(predicate.Validate(-1234));
-            ClassicAssert.IsFalse(predicate.Validate(new int[5]));
-            ClassicAssert.IsFalse(predicate.Validate(new Dictionary<int, int>() { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 } }));
+            predicate.Validate(null).Should().BeTrue();
+            predicate.Validate("").Should().BeTrue();
+            predicate.Validate("123").Should().BeTrue();
+            predicate.Validate(123).Should().BeTrue();
+            predicate.Validate(new int[4]).Should().BeTrue();
+            predicate.Validate(new Dictionary<int, int>() { { 1, 1 }, { 2, 2 } }).Should().BeTrue();
+            predicate.Validate("12345").Should().BeFalse();
+            predicate.Validate(-1234).Should().BeFalse();
+            predicate.Validate(new int[5]).Should().BeFalse();
+            predicate.Validate(new Dictionary<int, int>() { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 } }).Should().BeFalse();
 
             predicate = new EmailAddressPredicate();
-            ClassicAssert.IsFalse(predicate.Validate("a@b.c"));
-            ClassicAssert.IsTrue(predicate.Validate("a@b.co"));
-            ClassicAssert.IsTrue(predicate.Validate("a@b.com"));
-            ClassicAssert.IsTrue(predicate.Validate("my.address@mydomain.it.can.be.long.veryNewDomain"));
-            ClassicAssert.IsTrue(predicate.Validate("my.add'ress@mydomain.it.can.be.long.veryNewDomain"));
-            ClassicAssert.IsTrue(predicate.Validate("петяпупупкин@из.петушков.рф"));
-            ClassicAssert.IsFalse(predicate.Validate("@mydomain.it.can.be.long.veryNewDomain"));
-            ClassicAssert.IsFalse(predicate.Validate("address@mydomain"));
-            ClassicAssert.IsFalse(predicate.Validate("address"));
+            predicate.Validate("a@b.c").Should().BeFalse();
+            predicate.Validate("a@b.co").Should().BeTrue();
+            predicate.Validate("a@b.com").Should().BeTrue();
+            predicate.Validate("my.address@mydomain.it.can.be.long.veryNewDomain").Should().BeTrue();
+            predicate.Validate("my.add'ress@mydomain.it.can.be.long.veryNewDomain").Should().BeTrue();
+            predicate.Validate("петяпупупкин@из.петушков.рф").Should().BeTrue();
+            predicate.Validate("@mydomain.it.can.be.long.veryNewDomain").Should().BeFalse();
+            predicate.Validate("address@mydomain").Should().BeFalse();
+            predicate.Validate("address").Should().BeFalse();
 
             predicate = new PhoneNumberPredicate();
-            ClassicAssert.IsTrue(predicate.Validate("2013108861"));
-            ClassicAssert.IsTrue(predicate.Validate("(201) 310 8861"));
-            ClassicAssert.IsTrue(predicate.Validate("201-310-8861"));
-            ClassicAssert.IsTrue(predicate.Validate("+1 201-310-8861"));
-            ClassicAssert.IsTrue(predicate.Validate("+79139701980"));
-            ClassicAssert.IsTrue(predicate.Validate("+7 (913) 970-1980"));
-            ClassicAssert.IsFalse(predicate.Validate("201310886"));
-            ClassicAssert.IsFalse(predicate.Validate("-7 (913) 970-1980"));
-            ClassicAssert.IsFalse(predicate.Validate("+7 (913) 970-198"));
-            ClassicAssert.IsFalse(predicate.Validate("(913) 97 1980"));
+            predicate.Validate("2013108861").Should().BeTrue();
+            predicate.Validate("(201) 310 8861").Should().BeTrue();
+            predicate.Validate("201-310-8861").Should().BeTrue();
+            predicate.Validate("+1 201-310-8861").Should().BeTrue();
+            predicate.Validate("+79139701980").Should().BeTrue();
+            predicate.Validate("+7 (913) 970-1980").Should().BeTrue();
+            predicate.Validate("201310886").Should().BeFalse();
+            predicate.Validate("-7 (913) 970-1980").Should().BeFalse();
+            predicate.Validate("+7 (913) 970-198").Should().BeFalse();
+            predicate.Validate("(913) 97 1980").Should().BeFalse();
 
             predicate = new CreditCardNumberPredicate(typeof(string));
-            ClassicAssert.IsTrue(predicate.Validate("4024007118787224"));
-            ClassicAssert.IsTrue(predicate.Validate("4024 0071 1878 7224"));
-            ClassicAssert.IsTrue(predicate.Validate("4024-0071-1878-7224"));
-            ClassicAssert.IsTrue(predicate.Validate("379381132444727"));
-            ClassicAssert.IsTrue(predicate.Validate("5499403770619321"));
-            ClassicAssert.IsTrue(predicate.Validate("6376124198503386"));
-            ClassicAssert.IsTrue(predicate.Validate("5373792250060563"));
-            ClassicAssert.IsFalse(predicate.Validate("4024-0071-1878-7225"));
-            ClassicAssert.IsFalse(predicate.Validate("4024-0071-1878-722"));
-            ClassicAssert.IsFalse(predicate.Validate("4024-0071-1878-72"));
+            predicate.Validate("4024007118787224").Should().BeTrue();
+            predicate.Validate("4024 0071 1878 7224").Should().BeTrue();
+            predicate.Validate("4024-0071-1878-7224").Should().BeTrue();
+            predicate.Validate("379381132444727").Should().BeTrue();
+            predicate.Validate("5499403770619321").Should().BeTrue();
+            predicate.Validate("6376124198503386").Should().BeTrue();
+            predicate.Validate("5373792250060563").Should().BeTrue();
+            predicate.Validate("4024-0071-1878-7225").Should().BeFalse();
+            predicate.Validate("4024-0071-1878-722").Should().BeFalse();
+            predicate.Validate("4024-0071-1878-72").Should().BeFalse();
 
             predicate = new DoesNotMatchPredicate(typeof(string), @"(\w+)\s+(\w+)");
-            ClassicAssert.IsTrue(predicate.Validate("abcd"));
-            ClassicAssert.IsFalse(predicate.Validate("abcd efg"));
+            predicate.Validate("abcd").Should().BeTrue();
+            predicate.Validate("abcd efg").Should().BeFalse();
 
             predicate = new HtmlInjectionPredicate();
-            ClassicAssert.IsTrue(predicate.Validate("abcd & eqlm"));
-            ClassicAssert.IsFalse(predicate.Validate("<a href=123>"));
+            predicate.Validate("abcd & eqlm").Should().BeTrue();
+            predicate.Validate("<a href=123>").Should().BeFalse();
         }
 
-        [Test]
+        [Fact]
         public void TestExpressionUtils()
         {
             Expression<Func<TestTarget2, object>> expression1;
             expression1 = target2 => target2;
-            ClassicAssert.AreEqual("", ExpressionUtils.ExpressionToName(expression1));
+            ExpressionUtils.ExpressionToName(expression1).Should().Be("");
             expression1 = target2 => target2.ID;
-            ClassicAssert.AreEqual("ID", ExpressionUtils.ExpressionToName(expression1));
+            ExpressionUtils.ExpressionToName(expression1).Should().Be("ID");
             expression1 = target2 => target2.SelfReference.ID;
-            ClassicAssert.AreEqual("SelfReference.ID", ExpressionUtils.ExpressionToName(expression1));
+            ExpressionUtils.ExpressionToName(expression1).Should().Be("SelfReference.ID");
             expression1 = target2 => target2.MultiReference[1];
-            ClassicAssert.AreEqual("MultiReference[1]", ExpressionUtils.ExpressionToName(expression1));
+            ExpressionUtils.ExpressionToName(expression1).Should().Be("MultiReference[1]");
             expression1 = target2 => target2.MultiReference[1].Names[2];
-            ClassicAssert.AreEqual("MultiReference[1].Names[2]", ExpressionUtils.ExpressionToName(expression1));
+            ExpressionUtils.ExpressionToName(expression1).Should().Be("MultiReference[1].Names[2]");
         }
 
-        [Test]
+        [Fact]
         public void TestTargets()
         {
             TestTarget1 target1 = new TestTarget1() { };
@@ -203,65 +202,65 @@ namespace Gehtsoft.EF.Toolbox.Test
             ValidationTarget target;
 
             target = new EntityValidationTarget(typeof(TestTarget1), "entity");
-            ClassicAssert.AreEqual(typeof(TestTarget1), target.ValueType);
-            ClassicAssert.IsTrue(target.IsSingleValue);
-            ClassicAssert.AreEqual(target1, target.First(target1).Value);
-            ClassicAssert.AreEqual("entity", target.First(target1).Name);
-            ClassicAssert.AreEqual(1, target.All(target1).Length);
+            target.ValueType.Should().Be(typeof(TestTarget1));
+            target.IsSingleValue.Should().BeTrue();
+            target.First(target1).Value.Should().Be(target1);
+            target.First(target1).Name.Should().Be("entity");
+            target.All(target1).Length.Should().Be(1);
 
             target = new PropertyValidationTarget(typeof(TestTarget1), nameof(TestTarget1.ID));
 
-            ClassicAssert.AreEqual(typeof(int), target.ValueType);
-            ClassicAssert.IsTrue(target.IsSingleValue);
-            ClassicAssert.AreEqual(1, target.First(target2).Value);
-            ClassicAssert.AreEqual("ID", target.First(target1).Name);
-            ClassicAssert.AreEqual(1, target.All(target1).Length);
-            ClassicAssert.IsTrue(target.IsProperty);
+            target.ValueType.Should().Be(typeof(int));
+            target.IsSingleValue.Should().BeTrue();
+            target.First(target2).Value.Should().Be(1);
+            target.First(target1).Name.Should().Be("ID");
+            target.All(target1).Length.Should().Be(1);
+            target.IsProperty.Should().BeTrue();
 
             target = new PropertyValidationArrayTarget(typeof(TestTarget1), nameof(TestTarget1.Names));
-            ClassicAssert.AreEqual(typeof(string), target.ValueType);
-            ClassicAssert.IsFalse(target.IsSingleValue);
-            ClassicAssert.AreEqual("aaa", target.First(target3).Value);
-            ClassicAssert.AreEqual("Names[0]", target.First(target3).Name);
-            ClassicAssert.AreEqual(3, target.All(target3).Length);
-            ClassicAssert.AreEqual("ccc", target.All(target3)[2].Value);
-            ClassicAssert.AreEqual("Names[2]", target.All(target3)[2].Name);
-            ClassicAssert.AreEqual(0, target.All(target1).Length);
-            ClassicAssert.AreEqual(0, target.All(target2).Length);
+            target.ValueType.Should().Be(typeof(string));
+            target.IsSingleValue.Should().BeFalse();
+            target.First(target3).Value.Should().Be("aaa");
+            target.First(target3).Name.Should().Be("Names[0]");
+            target.All(target3).Length.Should().Be(3);
+            target.All(target3)[2].Value.Should().Be("ccc");
+            target.All(target3)[2].Name.Should().Be("Names[2]");
+            target.All(target1).Length.Should().Be(0);
+            target.All(target2).Length.Should().Be(0);
 
             target = new PropertyValidationArrayTarget(typeof(TestTarget1), nameof(TestTarget1.ENames));
-            ClassicAssert.AreEqual(typeof(string), target.ValueType);
-            ClassicAssert.IsFalse(target.IsSingleValue);
-            ClassicAssert.AreEqual(0, target.All(target2).Length);
-            ClassicAssert.AreEqual(3, target.All(target3).Length);
+            target.ValueType.Should().Be(typeof(string));
+            target.IsSingleValue.Should().BeFalse();
+            target.All(target2).Length.Should().Be(0);
+            target.All(target3).Length.Should().Be(3);
 
             target = new FunctionValidationTarget<TestTarget1, int>(a => a.ID, null);
-            ClassicAssert.AreEqual(typeof(int), target.ValueType);
-            ClassicAssert.IsTrue(target.IsSingleValue);
-            ClassicAssert.AreEqual("ID", target.First(target1).Name);
-            ClassicAssert.AreEqual(0, target.First(target1).Value);
-            ClassicAssert.IsTrue(target.IsProperty);
-            ClassicAssert.AreEqual(nameof(TestTarget1.ID), target.PropertyName);
+            target.ValueType.Should().Be(typeof(int));
+            target.IsSingleValue.Should().BeTrue();
+            target.First(target1).Name.Should().Be("ID");
+            target.First(target1).Value.Should().Be(0);
+            target.IsProperty.Should().BeTrue();
+            target.PropertyName.Should().Be(nameof(TestTarget1.ID));
 
             target = new FunctionValidationTarget<TestTarget1, int>(a => a.ID + 2, "f1");
-            ClassicAssert.AreEqual(typeof(int), target.ValueType);
-            ClassicAssert.IsTrue(target.IsSingleValue);
-            ClassicAssert.AreEqual("f1", target.First(target1).Name);
-            ClassicAssert.AreEqual(2, target.First(target1).Value);
-            ClassicAssert.IsFalse(target.IsProperty);
-            ClassicAssert.IsNull(target.PropertyName);
+            target.ValueType.Should().Be(typeof(int));
+            target.IsSingleValue.Should().BeTrue();
+            target.First(target1).Name.Should().Be("f1");
+            target.First(target1).Value.Should().Be(2);
+            target.IsProperty.Should().BeFalse();
+            target.PropertyName.Should().BeNull();
 
-            ClassicAssert.Throws<ArgumentException>(() => new FunctionValidationTarget<TestTarget1, int>(a => a.ID + 2, null));
+            ((Action)(() => new FunctionValidationTarget<TestTarget1, int>(a => a.ID + 2, null))).Should().Throw<ArgumentException>();
 
             target = new FunctionValidationArrayTarget<TestTarget1, string[]>(a => a.Names, null);
-            ClassicAssert.AreEqual(typeof(string), target.ValueType);
-            ClassicAssert.IsFalse(target.IsSingleValue);
-            ClassicAssert.AreEqual("aaa", target.First(target3).Value);
-            ClassicAssert.AreEqual("Names[0]", target.First(target3).Name);
-            ClassicAssert.AreEqual(3, target.All(target3).Length);
-            ClassicAssert.AreEqual("ccc", target.All(target3)[2].Value);
-            ClassicAssert.AreEqual("Names[2]", target.All(target3)[2].Name);
-            ClassicAssert.AreEqual(0, target.All(target2).Length);
+            target.ValueType.Should().Be(typeof(string));
+            target.IsSingleValue.Should().BeFalse();
+            target.First(target3).Value.Should().Be("aaa");
+            target.First(target3).Name.Should().Be("Names[0]");
+            target.All(target3).Length.Should().Be(3);
+            target.All(target3)[2].Value.Should().Be("ccc");
+            target.All(target3)[2].Name.Should().Be("Names[2]");
+            target.All(target2).Length.Should().Be(0);
         }
     }
 }
