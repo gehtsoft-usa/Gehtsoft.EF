@@ -132,6 +132,21 @@ namespace Gehtsoft.EF.Db.SqlDb
                 return d;
             }
 
+            if (type == DbType.Single && size > 0 && TruncateNumbers)
+            {
+                double d;
+                if (value is float xf)
+                    d = xf;
+                else
+                    d = Convert.ToDouble(value);
+                double m = Math.Pow(10.0, size) - 1;
+                if (d > m)
+                    return (float)m;
+                else if (d < -m)
+                    return (float)-m;
+                return (float)d;
+            }
+
             if (type == DbType.Int16 && size > 0 && TruncateNumbers)
             {
                 double d;

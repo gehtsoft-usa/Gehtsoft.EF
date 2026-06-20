@@ -10,11 +10,13 @@ namespace Gehtsoft.EF.Serialization.IO
     {
         public static string Format(short value) => value.ToString(CultureInfo.InvariantCulture);
         public static string Format(int value) => value.ToString(CultureInfo.InvariantCulture);
+        public static string Format(long value) => value.ToString(CultureInfo.InvariantCulture);
         public static string Format(float value) => value.ToString(CultureInfo.InvariantCulture);
         public static string Format(double value) => value.ToString(CultureInfo.InvariantCulture);
         public static string Format(bool value) => value ? "true" : "false";
         public static string Format(DateTime value) => (value.Hour != 0 || value.Minute != 0 || value.Second != 0 || value.Millisecond != 0) ? value.ToString("O", CultureInfo.InvariantCulture) : value.ToString("d", CultureInfo.InvariantCulture);
         public static string Format(decimal value) => value.ToString(CultureInfo.InvariantCulture);
+        public static string Format(Guid value) => value.ToString("D");
         public static string Format(byte[] value) => Convert.ToBase64String(value);
 
         public static bool Format(object value, out string formatted, out string type)
@@ -49,6 +51,13 @@ namespace Gehtsoft.EF.Serialization.IO
             {
                 type = "i";
                 formatted = Format(i);
+                return true;
+            }
+
+            if (value is long lng)
+            {
+                type = "q";
+                formatted = Format(lng);
                 return true;
             }
 
@@ -87,6 +96,13 @@ namespace Gehtsoft.EF.Serialization.IO
                 return true;
             }
 
+            if (value is Guid g)
+            {
+                type = "g";
+                formatted = Format(g);
+                return true;
+            }
+
             if (value is byte[] l)
             {
                 type = "l";
@@ -106,11 +122,13 @@ namespace Gehtsoft.EF.Serialization.IO
 
         public static short ParseShort(string value) => (short)Int32.Parse(value, CultureInfo.InvariantCulture);
         public static int ParseInt(string value) => Int32.Parse(value, CultureInfo.InvariantCulture);
+        public static long ParseLong(string value) => Int64.Parse(value, CultureInfo.InvariantCulture);
         public static float ParseFloat(string value) => Single.Parse(value, CultureInfo.InvariantCulture);
         public static double ParseDouble(string value) => Double.Parse(value, CultureInfo.InvariantCulture);
         public static bool ParseBool(string value) => value == "true";
         public static DateTime ParseDateTime(string value) => DateTime.Parse(value, CultureInfo.InvariantCulture);
         public static decimal ParseDecimal(string value) => Decimal.Parse(value, CultureInfo.InvariantCulture);
+        public static Guid ParseGuid(string value) => Guid.Parse(value);
         public static byte[] ParseByteArray(string value) => Convert.FromBase64String(value);
 
         public static object Parse(string type, string value)
@@ -123,6 +141,8 @@ namespace Gehtsoft.EF.Serialization.IO
                 return ParseShort(value);
             if (type == "i")
                 return ParseInt(value);
+            if (type == "q")
+                return ParseLong(value);
             if (type == "f")
                 return ParseFloat(value);
             if (type == "r")
@@ -133,6 +153,8 @@ namespace Gehtsoft.EF.Serialization.IO
                 return ParseDateTime(value);
             if (type == "c")
                 return ParseDecimal(value);
+            if (type == "g")
+                return ParseGuid(value);
             if (type == "l")
                 return ParseByteArray(value);
 

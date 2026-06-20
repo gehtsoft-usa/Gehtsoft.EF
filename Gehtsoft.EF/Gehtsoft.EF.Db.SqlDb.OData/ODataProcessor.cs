@@ -4,8 +4,6 @@ using Gehtsoft.EF.Entities;
 using Microsoft.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.UriParser;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,6 +12,10 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -27,6 +29,15 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
     public class ODataProcessor
     {
         private static readonly char[] QuerySeparators = { '&', '?' };
+
+        // Mirrors the previous Newtonsoft settings: nulls are dropped and only the
+        // characters that strictly require escaping are escaped (relaxed encoder).
+        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        };
+
         private const string EdmBooleanType = "Edm.Boolean";
         private const string BooleanFalse = "False";
         private const string BooleanTrue = "True";
@@ -489,18 +500,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
             }
             else if (mFormat == FormatType.Json)
             {
-                using (StringWriter writer = new StringWriter())
-                {
-                    using (JsonTextWriter jswriter = new JsonTextWriter(writer))
-                    {
-                        JsonSerializer sr = JsonSerializer.Create();
-                        sr.Formatting = Newtonsoft.Json.Formatting.None;
-                        sr.NullValueHandling = NullValueHandling.Ignore;
-                        sr.StringEscapeHandling = StringEscapeHandling.Default;
-                        sr.Serialize(jswriter, obj);
-                    }
-                    result = writer.ToString();
-                }
+                result = JsonSerializer.Serialize(obj, obj.GetType(), JsonOptions);
             }
             else if (mFormat == FormatType.Xml)
             {
@@ -589,9 +589,8 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
                 EntityDescriptor entityDescriptor = AllEntities.Inst[entityType];
                 string pKey = entityDescriptor.TableDescriptor.PrimaryKey.ID;
-                JValue pKeyJValue = null;
-                JValue pCanDeleteJValue = null;
-                JObject body = null;
+                bool bodyHasCanDelete = false;
+                JsonObject body;
                 object entity;
                 if (sourceId <= 0)
                 {
@@ -609,25 +608,14 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     }
                 }
 
-                using (StringReader reader = new StringReader(serializedBody))
-                {
-                    using (JsonTextReader jsreader = new JsonTextReader(reader))
-                    {
-                        JsonSerializer sr = JsonSerializer.Create();
-                        sr.Formatting = Newtonsoft.Json.Formatting.None;
-                        sr.NullValueHandling = NullValueHandling.Ignore;
-                        sr.StringEscapeHandling = StringEscapeHandling.Default;
-                        body = (JObject)sr.Deserialize(jsreader);
+                body = (JsonObject)JsonNode.Parse(serializedBody);
 
-                        foreach (KeyValuePair<string, JToken> item in body)
-                        {
-                            string fieldName = item.Key;
-                            if (fieldName == pKey) pKeyJValue = (JValue)item.Value;
-                            if (fieldName == CanDeleteName) pCanDeleteJValue = (JValue)item.Value;
-                            object value = ((JValue)item.Value).Value;
-                            ChangeFieldValueInEntity(entity, fieldName, value);
-                        }
-                    }
+                foreach (KeyValuePair<string, JsonNode> item in body)
+                {
+                    string fieldName = item.Key;
+                    if (fieldName == CanDeleteName) bodyHasCanDelete = true;
+                    object value = JsonValueToClr(item.Value);
+                    ChangeFieldValueInEntity(entity, fieldName, value);
                 }
                 ModifyEntityQuery query;
                 if (sourceId <= 0)
@@ -642,39 +630,16 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
 
                 PropertyInfo propertyInfo = entity.GetType().GetProperty(pKey);
                 object newKey = propertyInfo.GetValue(entity);
-                if (pKeyJValue != null)
-                {
-                    pKeyJValue.Value = newKey;
-                }
-                else
-                {
-                    body.Add(pKey, new JValue(newKey));
-                }
-                if (sourceId <= 0 || pCanDeleteJValue != null)
+                // The indexer assigns when the key is missing and replaces when present,
+                // so both the add and update cases collapse into a single statement.
+                body[pKey] = JsonSerializer.SerializeToNode(newKey, JsonOptions);
+                if (sourceId <= 0 || bodyHasCanDelete)
                 {
                     bool recordCanBeDeleted = (sourceId <= 0) || this.CanDelete(entityType, (int)newKey);
-                    if (pCanDeleteJValue != null)
-                    {
-                        pCanDeleteJValue.Value = recordCanBeDeleted;
-                    }
-                    else
-                    {
-                        body.Add(CanDeleteName, new JValue(recordCanBeDeleted));
-                    }
+                    body[CanDeleteName] = JsonValue.Create(recordCanBeDeleted);
                 }
 
-                using (StringWriter writer = new StringWriter())
-                {
-                    using (JsonTextWriter jswriter = new JsonTextWriter(writer))
-                    {
-                        JsonSerializer sr = JsonSerializer.Create();
-                        sr.Formatting = Newtonsoft.Json.Formatting.None;
-                        sr.NullValueHandling = NullValueHandling.Ignore;
-                        sr.StringEscapeHandling = StringEscapeHandling.Default;
-                        sr.Serialize(jswriter, body);
-                    }
-                    result = writer.ToString();
-                }
+                result = body.ToJsonString(JsonOptions);
             }
             catch (Exception ex)
             {
@@ -746,6 +711,31 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     propertyInfo.SetValue(entity, Convert.ChangeType(value, propertyType));
                 }
                 catch { }
+            }
+        }
+
+        // Extracts the underlying CLR value from a parsed JSON leaf so that it can be
+        // fed to Convert.ChangeType in ChangeFieldValueInEntity. Numbers are returned as
+        // long/double (matching the previous Newtonsoft JValue behaviour); date-like
+        // strings stay strings and are parsed later by Convert.ChangeType when the target
+        // property is a DateTime.
+        private static object JsonValueToClr(JsonNode node)
+        {
+            if (node is not JsonValue jsonValue)
+                return null;
+
+            JsonElement element = jsonValue.GetValue<JsonElement>();
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.String:
+                    return element.GetString();
+                case JsonValueKind.Number:
+                    return element.TryGetInt64(out long l) ? l : element.GetDouble();
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                    return element.GetBoolean();
+                default:
+                    return null;
             }
         }
 

@@ -24,6 +24,7 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
         public string EntityElementName { get; set; } = "e";
         public string PropertyElementName { get; set; } = "p";
         public string NameAttributeName { get; set; } = "n";
+        public string ScopeAttributeName { get; set; } = "s";
         public string IDAttributeName { get; set; } = "i";
         public string TypeAttributeName { get; set; } = "t";
         public string EncodedAttributeName { get; set; } = "u";
@@ -96,13 +97,8 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
 
             mDescriptor = AllEntities.Inst[type];
             mWriter.WriteStartElement(TypeElementName);
-            string v = type.GetTypeInfo().AssemblyQualifiedName;
-            if (v.IndexOfAny(XMLCHARS) >= 0)
-            {
-                mWriter.WriteAttributeString(EncodedAttributeName, "t");
-                v = Convert.ToBase64String(Encoding.UTF8.GetBytes(v));
-            }
-            mWriter.WriteAttributeString(TypeAttributeName, v);
+            mWriter.WriteAttributeString(ScopeAttributeName, mDescriptor.TableDescriptor.Scope ?? string.Empty);
+            mWriter.WriteAttributeString(NameAttributeName, mDescriptor.TableDescriptor.Name);
             int id = 0;
             foreach (TableDescriptor.ColumnInfo column in mDescriptor.TableDescriptor)
             {

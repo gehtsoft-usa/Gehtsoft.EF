@@ -20,6 +20,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
                 case DbType.Date:
                 case DbType.DateTime:
                     return SqliteGlobalOptions.StoreDateAsString ? "TEXT" : "REAL";
+                case DbType.Single:
                 case DbType.Double:
                     return "REAL";
                 case DbType.Binary:

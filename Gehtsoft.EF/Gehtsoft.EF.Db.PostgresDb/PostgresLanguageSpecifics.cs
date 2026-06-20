@@ -38,6 +38,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
                 case DbType.DateTime:
                     typeName = "timestamp";
                     break;
+                case DbType.Single:
                 case DbType.Double:
                     if (size == 0 && precision == 0)
                         typeName = "double precision";

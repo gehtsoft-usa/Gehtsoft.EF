@@ -354,6 +354,11 @@ namespace Gehtsoft.EF.Db.SqlDb
                 dbtype = DbType.Double;
                 return true;
             }
+            else if (type == typeof(float))
+            {
+                dbtype = DbType.Single;
+                return true;
+            }
             else if (type == typeof(decimal))
             {
                 dbtype = DbType.Decimal;
@@ -442,6 +447,10 @@ namespace Gehtsoft.EF.Db.SqlDb
             else if (type == typeof(double))
             {
                 dbtype = DbType.Double;
+            }
+            else if (type == typeof(float))
+            {
+                dbtype = DbType.Single;
             }
             else if (type == typeof(decimal))
             {
@@ -679,6 +688,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                     return "INTEGER";
                 case DbType.Int64:
                     return "NUMERIC(19, 0)";
+                case DbType.Single:
                 case DbType.Double:
                 case DbType.Decimal:
                     return $"NUMERIC({size}, {precision})";

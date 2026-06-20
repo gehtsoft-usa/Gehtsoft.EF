@@ -34,6 +34,7 @@ namespace Gehtsoft.EF.Db.OracleDb
                 case DbType.DateTime:
                     typeName = "timestamp(3)";
                     break;
+                case DbType.Single:
                 case DbType.Double:
                     if (size == 0 && precision == 0)
                         typeName = "number";

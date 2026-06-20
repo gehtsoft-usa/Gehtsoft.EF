@@ -83,6 +83,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                             propertyAttribute.DbType = DbType.Boolean;
                             propertyAttribute.Nullable = nullable;
                         }
+                        else if (propType == typeof(short))
+                        {
+                            propertyAttribute.DbType = DbType.Int16;
+                            propertyAttribute.Nullable = nullable;
+                        }
                         else if (propType == typeof(int))
                         {
                             propertyAttribute.DbType = DbType.Int32;
@@ -96,6 +101,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         else if (propType == typeof(double))
                         {
                             propertyAttribute.DbType = DbType.Double;
+                            propertyAttribute.Nullable = nullable;
+                            if (propertyAttribute.Size == 0)
+                            {
+                                propertyAttribute.Size = 18;
+                                if (propertyAttribute.Precision == 0)
+                                    propertyAttribute.Precision = 7;
+                            }
+                        }
+                        else if (propType == typeof(float))
+                        {
+                            propertyAttribute.DbType = DbType.Single;
                             propertyAttribute.Nullable = nullable;
                             if (propertyAttribute.Size == 0)
                             {

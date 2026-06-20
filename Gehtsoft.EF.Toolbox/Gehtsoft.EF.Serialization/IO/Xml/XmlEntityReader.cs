@@ -18,6 +18,7 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
         public string EntityElementName { get; set; } = "e";
         public string PropertyElementName { get; set; } = "p";
         public string NameAttributeName { get; set; } = "n";
+        public string ScopeAttributeName { get; set; } = "s";
         public string IDAttributeName { get; set; } = "i";
         public string TypeAttributeName { get; set; } = "t";
         public string EncodedAttributeName { get; set; } = "u";
@@ -40,17 +41,19 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
 
         private XmlReader mReader;
         private readonly bool mIsNewReader;
+        private readonly EntityTypeResolver mResolver;
 
-        public XmlEntityReader(Stream reader, XmlReaderSettings settings = null, CancellationToken? token = null) : this(settings == null ? XmlReader.Create(reader) : XmlReader.Create(reader, settings), true, token)
+        public XmlEntityReader(EntityFinder.EntityTypeInfo[] types, Stream reader, XmlReaderSettings settings = null, CancellationToken? token = null) : this(types, settings == null ? XmlReader.Create(reader) : XmlReader.Create(reader, settings), true, token)
         {
         }
 
-        public XmlEntityReader(string buffer, CancellationToken? token = null) : this(XmlReader.Create(new StringReader(buffer)), true, token)
+        public XmlEntityReader(EntityFinder.EntityTypeInfo[] types, string buffer, CancellationToken? token = null) : this(types, XmlReader.Create(new StringReader(buffer)), true, token)
         {
         }
 
-        public XmlEntityReader(XmlReader reader, bool isNewReader = false, CancellationToken? token = null)
+        public XmlEntityReader(EntityFinder.EntityTypeInfo[] types, XmlReader reader, bool isNewReader = false, CancellationToken? token = null)
         {
+            mResolver = new EntityTypeResolver(types);
             mCancellationToken = token;
             mReader = reader;
             mIsNewReader = isNewReader;
@@ -86,18 +89,16 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
         {
             if (element.Name == TypeElementName)
             {
-                string typeName = element.Attributes[TypeAttributeName];
-                if (element.Attributes.ContainsKey(EncodedAttributeName))
-                    typeName = Encoding.UTF8.GetString(Convert.FromBase64String(typeName));
-                Type entityType = Type.GetType(typeName);
-                mCurrentType = AllEntities.Inst[entityType];
+                element.Attributes.TryGetValue(ScopeAttributeName, out string scope);
+                string name = element.Attributes[NameAttributeName];
+                mCurrentType = mResolver.Resolve(scope, name);
                 mInEntity = false;
                 for (int i = 0; i < mCurrentProperties.Length; i++)
                 {
                     mCurrentProperties[i] = null;
                     mColumns[i] = null;
                 }
-                OnTypeStarted?.Invoke(entityType);
+                OnTypeStarted?.Invoke(mCurrentType.EntityType);
             }
             else if (element.Name == EntityElementName)
             {

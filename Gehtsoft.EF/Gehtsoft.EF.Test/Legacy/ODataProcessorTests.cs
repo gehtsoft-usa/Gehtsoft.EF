@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json.Nodes;
 using System.Xml;
 using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb;
@@ -12,8 +13,6 @@ using Gehtsoft.EF.Db.SqlDb.OData;
 using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Test.Legacy.Entities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Gehtsoft.EF.Test.Legacy
@@ -430,56 +429,40 @@ namespace Gehtsoft.EF.Test.Legacy
             DateTime.TryParse(str, CultureInfo.InvariantCulture, out DateTime _).Should().BeTrue();
 
             str = processor.GetFormattedData(new Uri("/Sale?$select=ID,SalesDate&$expand=Good($select=Name)", UriKind.Relative));
-            using (StringReader reader = new StringReader(str))
             {
-                using (JsonTextReader jsreader = new JsonTextReader(reader))
+                JsonObject obj = JsonNode.Parse(str).AsObject();
+
+                JsonArray value = obj["value"].AsArray();
+                value.Should().NotBeNull();
+                if (salePagingLimit > 0)
                 {
-                    JsonSerializer sr = JsonSerializer.Create();
-                    sr.Formatting = Newtonsoft.Json.Formatting.None;
-                    sr.NullValueHandling = NullValueHandling.Ignore;
-                    sr.StringEscapeHandling = StringEscapeHandling.Default;
-                    JObject obj = (JObject)sr.Deserialize(jsreader);
-
-                    JArray value = (JArray)obj["value"];
-                    value.Should().NotBeNull();
-                    if (salePagingLimit > 0)
-                    {
-                        value.Count.Should().Be(salePagingLimit);
-                    }
-                    else
-                    {
-                        value.Count.Should().BeGreaterThan(0);
-                    }
-                    string dateStr = value[0]["SalesDate"].Value<string>();
-                    dateStr.Should().NotBeNull();
-
-                    (DateTime.TryParse(dateStr, CultureInfo.InvariantCulture, out DateTime dt)).Should().BeTrue();
-
-                    JValue next = (JValue)obj["odata.nextLink"];
-                    ((IEnumerable<JToken>)next).Should().NotBeNull();
-                    string nextStr = next.Value.ToString();
-
-                    Uri testUri = new Uri(nextStr, UriKind.Relative);
-                    testUri.Should().NotBeNull();
+                    value.Count.Should().Be(salePagingLimit);
                 }
+                else
+                {
+                    value.Count.Should().BeGreaterThan(0);
+                }
+                string dateStr = value[0]["SalesDate"].GetValue<string>();
+                dateStr.Should().NotBeNull();
+
+                (DateTime.TryParse(dateStr, CultureInfo.InvariantCulture, out DateTime dt)).Should().BeTrue();
+
+                JsonNode next = obj["odata.nextLink"];
+                next.Should().NotBeNull();
+                string nextStr = next.GetValue<string>();
+
+                Uri testUri = new Uri(nextStr, UriKind.Relative);
+                testUri.Should().NotBeNull();
             }
 
             str = processor.GetFormattedData(new Uri("/Sale?$format=atom", UriKind.Relative));
-            using (StringReader reader = new StringReader(str))
             {
-                using (JsonTextReader jsreader = new JsonTextReader(reader))
-                {
-                    JsonSerializer sr = JsonSerializer.Create();
-                    sr.Formatting = Newtonsoft.Json.Formatting.None;
-                    sr.NullValueHandling = NullValueHandling.Ignore;
-                    sr.StringEscapeHandling = StringEscapeHandling.Default;
-                    JObject obj = (JObject)sr.Deserialize(jsreader);
+                JsonObject obj = JsonNode.Parse(str).AsObject();
 
-                    JObject error = (JObject)obj["odata.error"];
-                    error.Should().NotBeNull();
-                    JValue code = (JValue)error["code"];
-                    code.Value.ToString().Should().Be(nameof(EfODataExceptionCode.UnsupportedFormat));
-                }
+                JsonObject error = obj["odata.error"].AsObject();
+                error.Should().NotBeNull();
+                JsonNode code = error["code"];
+                code.GetValue<string>().Should().Be(nameof(EfODataExceptionCode.UnsupportedFormat));
             }
 
             str = processor.GetFormattedData(new Uri("/Sale?$expand=Good($select=Name)&$inlinecount=allpages&$format=xml", UriKind.Relative));
@@ -537,39 +520,30 @@ namespace Gehtsoft.EF.Test.Legacy
             long goodCount = (long)result;
 
             // Add a new Good
-            string crudResult = processor.AddNewRecord("Good", "{Category:100,Name:'MyGood'}", out bool wasError);
+            string crudResult = processor.AddNewRecord("Good", "{\"Category\":100,\"Name\":\"MyGood\"}", out bool wasError);
             wasError.Should().BeFalse();
 
             int newGoodId = 0;
             // Check that 'ID' was added
-            using (StringReader reader = new StringReader(crudResult))
             {
-                using (JsonTextReader jsreader = new JsonTextReader(reader))
-                {
-                    JsonSerializer sr = JsonSerializer.Create();
-                    sr.Formatting = Newtonsoft.Json.Formatting.None;
-                    sr.NullValueHandling = NullValueHandling.Ignore;
-                    sr.StringEscapeHandling = StringEscapeHandling.Default;
-                    JObject obj = (JObject)sr.Deserialize(jsreader);
+                JsonObject obj = JsonNode.Parse(crudResult).AsObject();
 
-                    JValue idValue = (JValue)obj["ID"];
-                    ((IEnumerable<JToken>)idValue).Should().NotBeNull();
-                    (Int32.TryParse(idValue.Value.ToString(), out newGoodId)).Should().BeTrue();
-                    (newGoodId > 0).Should().BeTrue();
+                JsonNode idValue = obj["ID"];
+                idValue.Should().NotBeNull();
+                newGoodId = idValue.GetValue<int>();
+                (newGoodId > 0).Should().BeTrue();
 
-                    JValue categoryValue = (JValue)obj["Category"];
-                    ((IEnumerable<JToken>)categoryValue).Should().NotBeNull();
-                    (Int32.TryParse(categoryValue.Value.ToString(), out int category)).Should().BeTrue();
-                    (category == 100).Should().BeTrue();
+                JsonNode categoryValue = obj["Category"];
+                categoryValue.Should().NotBeNull();
+                categoryValue.GetValue<int>().Should().Be(100);
 
-                    JValue nameValue = (JValue)obj["Name"];
-                    ((IEnumerable<JToken>)nameValue).Should().NotBeNull();
-                    (nameValue.Value.ToString() == "MyGood").Should().BeTrue();
-                }
+                JsonNode nameValue = obj["Name"];
+                nameValue.Should().NotBeNull();
+                nameValue.GetValue<string>().Should().Be("MyGood");
             }
 
             // Try to add the same new Good
-            crudResult = processor.AddNewRecord("Good", "{Category:100,Name:'MyGood'}", out wasError);
+            crudResult = processor.AddNewRecord("Good", "{\"Category\":100,\"Name\":\"MyGood\"}", out wasError);
             crudResult.Should().NotBeNull();
             wasError.Should().BeTrue();
 
@@ -578,33 +552,23 @@ namespace Gehtsoft.EF.Test.Legacy
             (goodCount + 1 == (long)result).Should().BeTrue();
 
             // Edit the new added Good
-            crudResult = processor.UpdateRecord("Good", "{Category:100,Name:'ChangedGood'}", newGoodId, out wasError);
+            crudResult = processor.UpdateRecord("Good", "{\"Category\":100,\"Name\":\"ChangedGood\"}", newGoodId, out wasError);
             wasError.Should().BeFalse();
             // Check the changes
-            using (StringReader reader = new StringReader(crudResult))
             {
-                using (JsonTextReader jsreader = new JsonTextReader(reader))
-                {
-                    JsonSerializer sr = JsonSerializer.Create();
-                    sr.Formatting = Newtonsoft.Json.Formatting.None;
-                    sr.NullValueHandling = NullValueHandling.Ignore;
-                    sr.StringEscapeHandling = StringEscapeHandling.Default;
-                    JObject obj = (JObject)sr.Deserialize(jsreader);
+                JsonObject obj = JsonNode.Parse(crudResult).AsObject();
 
-                    JValue idValue = (JValue)obj["ID"];
-                    ((IEnumerable<JToken>)idValue).Should().NotBeNull();
-                    (Int32.TryParse(idValue.Value.ToString(), out int id)).Should().BeTrue();
-                    (newGoodId == id).Should().BeTrue();
+                JsonNode idValue = obj["ID"];
+                idValue.Should().NotBeNull();
+                idValue.GetValue<int>().Should().Be(newGoodId);
 
-                    JValue categoryValue = (JValue)obj["Category"];
-                    ((IEnumerable<JToken>)categoryValue).Should().NotBeNull();
-                    (Int32.TryParse(categoryValue.Value.ToString(), out int category)).Should().BeTrue();
-                    (category == 100).Should().BeTrue();
+                JsonNode categoryValue = obj["Category"];
+                categoryValue.Should().NotBeNull();
+                categoryValue.GetValue<int>().Should().Be(100);
 
-                    JValue nameValue = (JValue)obj["Name"];
-                    ((IEnumerable<JToken>)nameValue).Should().NotBeNull();
-                    (nameValue.Value.ToString() == "ChangedGood").Should().BeTrue();
-                }
+                JsonNode nameValue = obj["Name"];
+                nameValue.Should().NotBeNull();
+                nameValue.GetValue<string>().Should().Be("ChangedGood");
             }
 
             // Read the new Good and compare values

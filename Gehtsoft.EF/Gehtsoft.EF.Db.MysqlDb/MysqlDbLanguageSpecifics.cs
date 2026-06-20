@@ -33,6 +33,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
                 case DbType.DateTime:
                     typeName = "datetime";
                     break;
+                case DbType.Single:
                 case DbType.Double:
                     if (size == 0 && precision == 0)
                         typeName = "double";

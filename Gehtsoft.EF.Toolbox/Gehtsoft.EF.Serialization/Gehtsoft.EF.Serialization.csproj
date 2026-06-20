@@ -6,8 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.9.5" />
-    <PackageReference Include="Gehtsoft.EF.Entities" Version="1.9.5" />
+    <PackageReference Include="Gehtsoft.EF.Db.SqlDb" Version="1.9.5.1" />
+    <PackageReference Include="Gehtsoft.EF.Entities" Version="1.9.5.1" />
+    <PackageReference Include="System.Text.Json" Version="9.0.10" />
   </ItemGroup>
 
 </Project>
