@@ -22,3 +22,5 @@ claude/settings.local.json
 /gehtsoft.ef/archive/
 /gehtsoft.ef/Gehtsoft.EF.Db.SqlDb.Sql/*.bin
 coverage.xml
+Gehtsoft.EF/.claude/skills/
+Gehtsoft.EF.ToolBox/.claude/skills/

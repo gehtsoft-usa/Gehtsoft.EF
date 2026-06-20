@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Gehtsoft.ExpressionToJs;
@@ -7,128 +7,87 @@ namespace Gehtsoft.Validator.JSConvertor
 {
     public class ValidationExpressionCompiler : ExpressionCompiler
     {
-        private readonly ParameterExpression mEntityParameter = null;
-        private readonly ParameterExpression mValueParameter = null;
-
-        public ValidationExpressionCompiler(LambdaExpression lambdaExpression, int? entityParameterIndex = null, int? valueParameterIndex = null) : base(lambdaExpression)
+        public ValidationExpressionCompiler(LambdaExpression lambdaExpression, int? entityParameterIndex = null, int? valueParameterIndex = null)
+            : base(lambdaExpression)
         {
             if ((lambdaExpression.Parameters.Count < 1 && (entityParameterIndex != null || valueParameterIndex != null)) || lambdaExpression.Parameters.Count > 2)
                 throw new ArgumentException("The expression must have only one or two parameters", nameof(lambdaExpression));
 
+            // ExpressionPredicate always sets exactly one of these (and the rule is single-parameter),
+            // so the binding targets that one root parameter regardless of its type -> the match is _ => true.
+            // Nested LINQ-lambda parameters are not root parameters, so they keep their names automatically.
             if (entityParameterIndex != null)
-                mEntityParameter = lambdaExpression.Parameters[(int)entityParameterIndex];
-            if (valueParameterIndex != null)
-                mValueParameter = lambdaExpression.Parameters[(int)valueParameterIndex];
+            {
+                // m.Password -> reference('Password'); m.Scores[0] -> jsv_index(reference('Scores'), 0)
+                Parameters.MapReference(_ => true);
+            }
+            else if (valueParameterIndex != null)
+            {
+                // the field, rendered as the object 'value'. Since 0.3.2 the library decomposes array
+                // indexing inside Map (like MapReference), so parameterAccess only ever sees a member
+                // chain or the bare parameter and ParameterAccessPath no longer throws on ArrayIndex:
+                //   v        -> value
+                //   v.Length -> jsv_length(value)
+                //   v[0]     -> jsv_index(value, 0)
+                Parameters.Map(_ => true,
+                               p => "value",
+                               (e, p) => "value." + ParameterAccessPath(e));
+            }
+
+            // Bridge the process-global custom handlers to this instance's registries, evaluated at
+            // emit time (so handlers registered before JavaScriptExpression is read still apply).
+            Members.AddTranslator(new GlobalMemberHandlers());
+            Methods.AddTranslator(new GlobalCallHandlers());
         }
-
-        protected bool InLambdaParameter { get; private set; } = false;
-
-        protected override string AddLambdaParameter(LambdaExpression expression)
-        {
-            bool inLambdaParameter = InLambdaParameter;
-            InLambdaParameter = true;
-            string s = base.AddLambdaParameter(expression);
-            InLambdaParameter = inLambdaParameter;
-            return s;
-        }
-
-        protected override string AddParameter(ParameterExpression parameterExpression)
-        {
-            if (parameterExpression == mEntityParameter)
-                return "reference()";
-            else if (parameterExpression == mValueParameter)
-                return "value";
-            else if (InLambdaParameter)
-                return base.AddParameter(parameterExpression);
-            else
-                throw new InvalidOperationException("Only 'value' and 'entity' parameters are supported");
-        }
-
-        protected override string AddParameterAccess(Expression expression) => AddParameterAccess(expression, true);
 
         private static readonly object mCustomMutex = new object();
         private static readonly List<Func<MemberExpression, Func<Expression, string>, string>> mCustomMembers = new List<Func<MemberExpression, Func<Expression, string>, string>>();
+        private static readonly List<Func<MethodCallExpression, Func<Expression, string>, string>> mCustomCalls = new List<Func<MethodCallExpression, Func<Expression, string>, string>>();
 
         public static void AddCustomMemberAccess(Func<MemberExpression, Func<Expression, string>, string> handler)
         {
             lock (mCustomMutex)
-            {
                 mCustomMembers.Add(handler);
-            }
         }
-
-        protected override string AddMemberAccess(MemberExpression expression)
-        {
-            if (mCustomMembers.Count > 0)
-            {
-                lock (mCustomMutex)
-                {
-                    for (int i = 0; i < mCustomMembers.Count; i++)
-                    {
-                        string s = mCustomMembers[i]?.Invoke(expression, WalkExpression);
-                        if (s != null)
-                            return s;
-                    }
-                }
-            }
-            return base.AddMemberAccess(expression);
-        }
-
-        private static readonly List<Func<MethodCallExpression, Func<Expression, string>, string>> mCustomCalls = new List<Func<MethodCallExpression, Func<Expression, string>, string>>();
 
         public static void AddCustomCall(Func<MethodCallExpression, Func<Expression, string>, string> handler)
         {
             lock (mCustomMutex)
-            {
                 mCustomCalls.Add(handler);
-            }
         }
 
-        protected override string AddCall(MethodCallExpression expression)
+        // Adapters: a single translator each, iterating the global list at emit time (preserves the
+        // old global + dynamic semantics; returns false so the built-ins still run when none matches).
+        // User registrations run before built-ins, so custom handlers keep priority - matching the
+        // old "custom first, then base" override order.
+        private sealed class GlobalMemberHandlers : IMemberTranslator
         {
-            if (mCustomCalls.Count > 0)
+            public bool TryTranslate(MemberExpression member, IExpressionEmitContext context, out string js)
             {
                 lock (mCustomMutex)
                 {
-                    for (int i = 0; i < mCustomCalls.Count; i++)
-                    {
-                        string s = mCustomCalls[i]?.Invoke(expression, this.WalkExpression);
-                        if (s != null)
-                            return s;
-                    }
+                    foreach (var h in mCustomMembers)
+                        if ((js = h?.Invoke(member, context.Emit)) != null)
+                            return true;
                 }
+                js = null;
+                return false;
             }
-            return base.AddCall(expression);
         }
 
-        protected virtual string AddParameterAccess(Expression expression, bool initial)
+        private sealed class GlobalCallHandlers : IMethodCallTranslator
         {
-            string result = null;
-            if (expression.NodeType == ExpressionType.MemberAccess)
+            public bool TryTranslate(MethodCallExpression call, IExpressionEmitContext context, out string js)
             {
-                MemberExpression memberExpression = (MemberExpression)expression;
-                result = AddParameterAccess(memberExpression.Expression, false);
-                if (result != "")
-                    result += ".";
-                result += memberExpression.Member.Name;
+                lock (mCustomMutex)
+                {
+                    foreach (var h in mCustomCalls)
+                        if ((js = h?.Invoke(call, context.Emit)) != null)
+                            return true;
+                }
+                js = null;
+                return false;
             }
-            else if (expression.NodeType == ExpressionType.ArrayIndex)
-            {
-                BinaryExpression binaryExpression = (BinaryExpression)expression;
-                return $"jsv_index({AddParameterAccess(binaryExpression.Left)}, {WalkExpression(binaryExpression.Right)})";
-            }
-            else if (expression.NodeType == ExpressionType.Parameter)
-            {
-                if (expression == mValueParameter)
-                    return "value";
-                if (expression != mEntityParameter)
-                    throw new InvalidOperationException("Only 'value' and 'entity' parameters are supported");
-                return "";
-            }
-
-            if (initial)
-                result = $"reference('{result}')";
-            return result;
         }
     }
 }

@@ -6,6 +6,6 @@
     <Version>$(VersionMajor)</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Gehtsoft.ExpressionToJs" Version="0.2.1" />
+    <PackageReference Include="Gehtsoft.ExpressionToJs" Version="0.3.2" />
   </ItemGroup>
 </Project>

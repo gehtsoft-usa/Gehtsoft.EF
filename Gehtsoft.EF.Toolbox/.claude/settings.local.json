@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//mnt/d/develop/components/Gehtsoft.EF/**)",
+      "Read(//home/ngeht/.claude/skills/**)"
+    ]
+  }
+}
