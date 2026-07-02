@@ -23,21 +23,21 @@ namespace Gehtsoft.EF.Mapper
 
         protected override IMappingTarget GetTargetByName(string name)
         {
-            IMappingTarget target = null;
-
+            // When the destination is an entity, allow the lookup name to be a column ID or a DB
+            // column name in addition to the CLR property name. Whatever it matches, resolve it to
+            // the CLR property and let the base build the target, so the returned target is a
+            // ClassPropertyAccessor that compares equal to the rules registered through For(...).
             if (mDestinationDescriptor != null)
             {
-                TableDescriptor.ColumnInfo columnInfo = null;
-
                 for (int i = 0; i < mDestinationDescriptor.TableDescriptor.Count; i++)
-                    if (mDestinationDescriptor.TableDescriptor[i].ID == name || mDestinationDescriptor.TableDescriptor[i].Name == name)
-                        columnInfo = mDestinationDescriptor.TableDescriptor[i];
-
-                if (columnInfo != null)
-                    target = new EntityPropertyAccessor(columnInfo);
+                {
+                    TableDescriptor.ColumnInfo columnInfo = mDestinationDescriptor.TableDescriptor[i];
+                    if (columnInfo.ID == name || columnInfo.Name == name)
+                        return base.GetTargetByName(columnInfo.PropertyAccessor.Name);
+                }
             }
 
-            return target ?? base.GetTargetByName(name);
+            return base.GetTargetByName(name);
         }
     }
 }

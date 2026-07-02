@@ -620,3 +620,109 @@
 
 @end
 
+
+@article
+    @title=Two-side validation
+    @key=validationarticle8
+    @ingroup=validation
+    @brief=
+
+    A validator is defined once, in C#, and executed on the server. The very same validator can
+    additionally be translated into a client-side JavaScript, so the same set of rules validates the
+    data in the browser before the data is even submitted. This is what "two-side validation" means:
+    one definition, two execution sides - the server and the client.
+
+    [b]Execution side of a rule[/b]
+
+    Every rule has an execution side described by the [clink=Gehtsoft.Validator.RuleExecutionSide]RuleExecutionSide[/clink]
+    enumeration:
+
+    @list
+        @list-item
+            [clink=Gehtsoft.Validator.RuleExecutionSide]Both[/clink] - the rule is executed on the server and is also
+            translated into a client-side script. This is the default.
+        @end
+        @list-item
+            [clink=Gehtsoft.Validator.RuleExecutionSide]Server[/clink] - the rule is executed on the server only and is
+            never translated into a client-side script.
+        @end
+    @end
+
+    The side is derived from the predicates the rule uses. Every predicate declares its own
+    [clink=Gehtsoft.Validator.IValidationPredicate]Side[/clink]. The built-in value predicates (null, length, range,
+    regular expression, enumeration-value and so on) are translatable and declare [c]Both[/c]. Predicates that cannot
+    be expressed as a self-contained client script declare [c]Server[/c]. These are, in particular:
+
+    @list
+        @list-item
+            The predicates built from an arbitrary C# lambda or function.
+        @end
+        @list-item
+            The database predicates (a unique-value check, a foreign-key existence check), because they need a database
+            connection.
+        @end
+    @end
+
+    [b]Translating a validator into JavaScript[/b]
+
+    To translate a validator use the [clink=Gehtsoft.Validator.JSConvertor.ConvertToJsExtension.GetJsRules.0]GetJsRules()[/clink]
+    extension method. It returns an array of [clink=Gehtsoft.Validator.JSConvertor.JsValidatorRule]JsValidatorRule[/clink]
+    descriptors, one per each rule that is executed on the client side. The server-only rules are simply omitted from the
+    result.
+
+    The C# expressions inside the rules are compiled into JavaScript by an expression compiler. Unless another type is
+    passed, the [clink=Gehtsoft.Validator.JSConvertor.ValidationExpressionCompiler]ValidationExpressionCompiler[/clink] is
+    used. You may supply your own compiler type to support additional, application-specific functions or operations inside
+    the expressions.
+
+    @example
+        @title=Example: translating a validator into JavaScript
+        @highlight=csharp
+        @show=yes
+       !public class TestEntityValidator : AbstractValidator<TestEntity>
+       !{
+       !    public TestEntityValidator()
+       !    {
+       !        RuleFor(e => e.Name).NotNullOrEmpty().WithMessage("The name is required");
+       !        RuleFor(e => e.Name).ShorterThan(64).WithMessage("The name is too long");
+       !    }
+       !}
+       !
+       !    .................
+       !
+       !    JsValidatorRule[] jsRules = new TestEntityValidator().GetJsRules();
+       !    // serialize jsRules and send them to the browser
+    @end
+
+    [b]Forcing a rule to the server side[/b]
+
+    Sometimes a rule must not run on the client even though all of its predicates could be translated - for example, a
+    business rule you do not want to expose to the browser. Use
+    [clink=Gehtsoft.Validator.ValidationRuleBuilder.ServerOnly.0]ServerOnly()[/clink] (a shorthand for
+    [clink=Gehtsoft.Validator.ValidationRuleBuilder.SetSide.0]SetSide[/clink]([clink=Gehtsoft.Validator.RuleExecutionSide]RuleExecutionSide.Server[/clink]))
+    to keep such a rule on the server only. It is then executed by [c]Validate()[/c] but omitted from
+    [c]GetJsRules()[/c].
+
+    @example
+        @title=Example: a rule kept on the server only
+        @highlight=csharp
+        @show=yes
+       !RuleFor(e => e.Discount).Must(e => e.Discount <= MaxAllowedDiscount(e.CustomerId))
+       !                        .WithMessage("The discount exceeds the allowed maximum")
+       !                        .ServerOnly();
+    @end
+
+    [b]Rules that cannot be translated[/b]
+
+    A rule is [clink=Gehtsoft.Validator.RuleExecutionSide]Both[/clink] by default. When such a rule contains a predicate
+    that supports server-side execution only (for example, a database check or a rule built from a C# lambda), the rule
+    cannot be translated into a client script.
+
+    In that case the translation throws an [c]InvalidOperationException[/c] telling you which rule cannot be translated.
+    The fix is to mark that rule with [clink=Gehtsoft.Validator.ValidationRuleBuilder.ServerOnly.0]ServerOnly()[/clink] so
+    it is deliberately excluded from the client-side script and executed on the server only.
+
+    The database rules produced automatically by the EF entity and mapper-model validators (the unique-value and
+    foreign-key-existence checks) are already declared server-only, so they are silently skipped during translation and do
+    not require any additional action.
+@end

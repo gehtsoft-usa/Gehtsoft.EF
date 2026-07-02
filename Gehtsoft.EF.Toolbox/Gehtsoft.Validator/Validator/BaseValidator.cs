@@ -38,7 +38,7 @@ namespace Gehtsoft.Validator
                     {
                         predicate = new DoesMatchPredicate(typeof(string), attribute.Pattern);
                         baseAttribute = attribute;
-                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.WidthCode, baseAttribute.WithMessage);
+                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.HasCode ? baseAttribute.WithCode : (int?)null, baseAttribute.WithMessage);
                     }
                 }
 
@@ -48,7 +48,7 @@ namespace Gehtsoft.Validator
                     {
                         predicate = new ValueIsBetweenPredicate(property.PropertyType, attribute.Mininum, attribute.MinimumInclusive, attribute.Maximum, attribute.MaximumInclusive);
                         baseAttribute = attribute;
-                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.WidthCode, baseAttribute.WithMessage);
+                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.HasCode ? baseAttribute.WithCode : (int?)null, baseAttribute.WithMessage);
                     }
                 }
 
@@ -58,7 +58,7 @@ namespace Gehtsoft.Validator
                     {
                         predicate = new IsNotNullPredicate(property.PropertyType);
                         baseAttribute = attribute;
-                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.WidthCode, baseAttribute.WithMessage);
+                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.HasCode ? baseAttribute.WithCode : (int?)null, baseAttribute.WithMessage);
                     }
                 }
 
@@ -68,7 +68,7 @@ namespace Gehtsoft.Validator
                     {
                         predicate = new IsNotNullOrWhitespacePredicate(property.PropertyType);
                         baseAttribute = attribute;
-                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.WidthCode, baseAttribute.WithMessage);
+                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.HasCode ? baseAttribute.WithCode : (int?)null, baseAttribute.WithMessage);
                     }
                 }
 
@@ -78,7 +78,7 @@ namespace Gehtsoft.Validator
                     {
                         predicate = new IsNotNullOrEmptyPredicate(property.PropertyType);
                         baseAttribute = attribute;
-                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.WidthCode, baseAttribute.WithMessage);
+                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.HasCode ? baseAttribute.WithCode : (int?)null, baseAttribute.WithMessage);
                     }
                 }
 
@@ -88,7 +88,7 @@ namespace Gehtsoft.Validator
                     {
                         predicate = new IsShorterThanPredicate(property.PropertyType, attribute.Length);
                         baseAttribute = attribute;
-                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.WidthCode, baseAttribute.WithMessage);
+                        AddRule(property.Name, property.PropertyType, baseAttribute.ForElement, predicate, baseAttribute.HasCode ? baseAttribute.WithCode : (int?)null, baseAttribute.WithMessage);
                     }
                 }
             }

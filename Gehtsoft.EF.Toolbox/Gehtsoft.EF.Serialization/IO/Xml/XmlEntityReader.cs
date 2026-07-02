@@ -230,16 +230,15 @@ namespace Gehtsoft.EF.Serialization.IO.Xml
                         }
                         break;
                     case XmlNodeType.CDATA:
-                        mStack.Peek().Text.Append(mReader.Value);
-                        break;
                     case XmlNodeType.Text:
-                        mStack.Peek().Text.Append(mReader.Value);
-                        break;
                     case XmlNodeType.Whitespace:
-                        mStack.Peek().Text.Append(mReader.Value);
-                        break;
                     case XmlNodeType.EntityReference:
-                        mStack.Peek().Text.Append(mReader.Value);
+                        // Text nodes belong to the element on top of the stack. Stray
+                        // top-level nodes (e.g. the insignificant whitespace an indented
+                        // document places between the root's start tag and its first
+                        // child) have no owning element and are simply ignored.
+                        if (mStack.Count > 0)
+                            mStack.Peek().Text.Append(mReader.Value);
                         break;
                 }
             }

@@ -31,8 +31,8 @@ namespace Gehtsoft.EF.Mapper.Validator
                     if (attribute != null)
                     {
                         ValidationRuleBuilder builder = RuleFor(property.Name).MustHaveValidDbSize().WhenNotNull();
-                        if (attribute.WidthCode != null)
-                            builder.WithCode((int)attribute.WidthCode);
+                        if (attribute.HasCode)
+                            builder.WithCode(attribute.WithCode);
                         if (attribute.WithMessage != null)
                             builder.WithMessage(attribute.WithMessage);
                     }
@@ -43,8 +43,8 @@ namespace Gehtsoft.EF.Mapper.Validator
                     if (attribute != null)
                     {
                         ValidationRuleBuilder builder = RuleFor(property.Name).MustBeInValidDbRange().WhenNotNull();
-                        if (attribute.WidthCode != null)
-                            builder.WithCode((int)attribute.WidthCode);
+                        if (attribute.HasCode)
+                            builder.WithCode(attribute.WithCode);
                         if (attribute.WithMessage != null)
                             builder.WithMessage(attribute.WithMessage);
                     }
@@ -55,8 +55,8 @@ namespace Gehtsoft.EF.Mapper.Validator
                     if (attribute != null)
                     {
                         ValidationRuleBuilder builder = RuleFor(property.Name).MustBeUnique().WhenNotNull();
-                        if (attribute.WidthCode != null)
-                            builder.WithCode((int)attribute.WidthCode);
+                        if (attribute.HasCode)
+                            builder.WithCode(attribute.WithCode);
                         if (attribute.WithMessage != null)
                             builder.WithMessage(attribute.WithMessage);
                     }
@@ -67,8 +67,8 @@ namespace Gehtsoft.EF.Mapper.Validator
                     if (attribute != null)
                     {
                         ValidationRuleBuilder builder = RuleFor(property.Name).MustExists().WhenNotNull();
-                        if (attribute.WidthCode != null)
-                            builder.WithCode((int)attribute.WidthCode);
+                        if (attribute.HasCode)
+                            builder.WithCode(attribute.WithCode);
                         if (attribute.WithMessage != null)
                             builder.WithMessage(attribute.WithMessage);
                     }

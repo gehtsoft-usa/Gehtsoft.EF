@@ -120,6 +120,10 @@ namespace Gehtsoft.EF.Mapper
                     if (columnInfo.PropertyAccessor.GetCustomAttribute<DoNotAutoMapAttribute>() != null)
                         continue;
 
+                    // Target stays an EntityPropertyAccessor: downstream (Gehtsoft.EF.Mapper.Validator)
+                    // recovers ColumnInfo metadata by matching `property.Target is EntityPropertyAccessor`.
+                    // EntityPropertyAccessor.Equals now recognizes the equivalent ClassPropertyAccessor,
+                    // so these rules are still discoverable via ContainsRuleFor/Find.
                     target = new EntityPropertyAccessor(columnInfo);
 
                     //detect whether the column is a reference

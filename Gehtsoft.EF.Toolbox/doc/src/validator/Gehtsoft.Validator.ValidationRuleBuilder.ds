@@ -517,6 +517,40 @@
     @end
 
     @member
+        @name=SetSide
+        @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.SetSide(Gehtsoft.Validator.RuleExecutionSide)
+        @key=SetSide.0
+        @divisor=.
+        @brief=Explicitly sets the side on which the rule is executed.
+        @scope=instance
+        @visibility=public
+        @type=method
+
+        @declaration
+            @language=cs
+            @name=SetSide
+            @return=[clink=Gehtsoft.Validator.ValidationRuleBuilder]ValidationRuleBuilder[/clink]
+            @params=[clink=Gehtsoft.Validator.RuleExecutionSide]RuleExecutionSide[/clink] side
+        @end
+
+        @param
+            @name=side
+            The side on which the rule is executed.
+        @end
+
+        By default a rule is executed on [clink=Gehtsoft.Validator.RuleExecutionSide]both sides[/clink] - on the server
+        and, after translation into JavaScript, on the client. Use this method to override the side for an individual rule.
+
+        Setting the side to [clink=Gehtsoft.Validator.RuleExecutionSide]Both[/clink] requires every predicate of the rule
+        (the validation predicate as well as any [c]When[/c]/[c]Unless[/c] condition) to be translatable into a client-side
+        script. If any of them supports server-side execution only, the method throws an [c]InvalidOperationException[/c].
+
+        See the [link=validationarticle8]Two-side validation[/link] article for the details.
+
+        See also [clink=Gehtsoft.Validator.ValidationRuleBuilder.ServerOnly.0]ServerOnly()[/clink].
+    @end
+
+    @member
         @name=ServerOnly
         @sig=M:Gehtsoft.Validator.ValidationRuleBuilder.ServerOnly
         @key=ServerOnly.0
@@ -528,6 +562,8 @@
 
         The rule marked as a server only will not be compiled into remote JavaScript validation rule even
         if all predicates in the rule may be compiled.
+
+        This is a shorthand for [clink=Gehtsoft.Validator.ValidationRuleBuilder.SetSide.0]SetSide[/clink]([clink=Gehtsoft.Validator.RuleExecutionSide]RuleExecutionSide.Server[/clink]).
 
         @declaration
             @language=cs

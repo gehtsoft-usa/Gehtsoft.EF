@@ -1,0 +1,53 @@
+@class
+    @name=RuleExecutionSide
+    @key=Gehtsoft.Validator.RuleExecutionSide
+    @brief=Defines on which side a validation rule is executed.
+    @type=enum
+    @ingroup=Gehtsoft.Validator
+    @sig=T:Gehtsoft.Validator.RuleExecutionSide
+
+    @member
+        @name=Server
+        @sig=F:Gehtsoft.Validator.RuleExecutionSide.Server
+        @key=Server.0
+        @divisor=.
+        @brief=The rule is executed on the server side only and is never translated to a client-side script.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Server
+            @return=[clink=Gehtsoft.Validator.RuleExecutionSide]RuleExecutionSide[/clink]
+        @end
+
+    @end
+
+    @member
+        @name=Both
+        @sig=F:Gehtsoft.Validator.RuleExecutionSide.Both
+        @key=Both.0
+        @divisor=.
+        @brief=The rule is executed on the server side and is also translated to a client-side script.
+        @scope=class
+        @visibility=public
+
+        @type=field
+
+        @declaration
+            @language=cs
+            @name=Both
+            @return=[clink=Gehtsoft.Validator.RuleExecutionSide]RuleExecutionSide[/clink]
+        @end
+
+    @end
+
+    A rule is executed on [clink=Gehtsoft.Validator.RuleExecutionSide]Both[/clink] sides by default. See the
+    [link=validationarticle8]Two-side validation[/link] article for the details of how a validator is translated
+    into a client-side JavaScript.
+
+    The type defined in the [c]Gehtsoft.Validator.dll[/c] assembly.
+    The namespace is [clink=Gehtsoft.Validator]Gehtsoft.Validator[/clink].
+@end

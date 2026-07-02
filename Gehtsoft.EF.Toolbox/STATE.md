@@ -71,8 +71,80 @@ Tests / docs — `Gehtsoft.EF.Toolbox/`:
    `XmlEntityReader` ctor signature change are **breaking**. (Packaging is Nikolay's process.)
 2. Other Toolbox projects (Mapper, Validator, TestDatabase) still reference EF **1.9.5**; they
    unify up to 1.9.5.1 without conflict — bump for consistency if desired.
-3. Remaining Serialization coverage (~17%): `FileBlobAccessor`, the Stream/StringWriter ctors,
-   cancellation-token + frame-paging paths, and guard clauses. Optional JSON indentation option
-   and a large-blob path for Binary were offered but not implemented.
-4. Carried over from prior session: docgen pass for `RuleExecutionSide`/`SetSide`; ExpressionToJs
-   package fixes (separate repo).
+3. Remaining Serialization coverage: **done — module now 96.19%** (was ~80%). New file
+   `Gehtsoft.EF.Toolbox.Test/TestSerializationCoverage.cs` (38 tests) covers `FileBlobAccessor`,
+   the Stream/StringWriter/FileStream ctors, cancellation + DB frame-paging, all writer guard
+   clauses, Binary/Text codec error codes, `EntityTypeResolver` failures, malformed JSON/Binary
+   input, and the XML default-value / max-properties paths. **Bug found & fixed**:
+   `XmlEntityReader.Scan` threw "Stack empty" on indented/pretty-printed XML (whitespace before
+   the first child of `<es>`) — text-node cases now guard on `mStack.Count > 0`; logged in
+   KNOWN_BUGS.md. The ~10 still-uncovered lines are defensive/unreachable (a nullable-boxing
+   branch, a `Convert.ChangeType` fallback that a matched type set never hits, an in-entity
+   too-many-properties throw shadowed by the type-def throw, and one recursion-descent
+   cancellation line). Optional JSON indentation option and a large-blob Binary path still not
+   implemented.
+5. **Toolbox module coverage (one module at a time):**
+   - **Gehtsoft.Mapper: 76.34% → 93.81%** — `TestMapperCoverage.cs` (24 tests): interface-typed
+     fluent overloads, `MappingAction` predicate helpers, both property/action collections (incl.
+     the unused non-generic one + explicit interface members), filtered `MapPropertiesByName`,
+     positional `MapPropertyAttribute` ctors, `ClassToModelInitializer` error/skip branches, map
+     guards, `Map` equality/`Find`, `ValueMapper` edges. Remaining ~5 lines are defensive/dead.
+   - **Gehtsoft.Validator: 80.88% → 90.21%** — `TestValidatorCoverage.cs` (15 tests): fluent
+     `Null/DoesNotMatch/PhoneNumber/CreditCardNumber` builders + predicates, `Otherwise()` branches,
+     entity-level `When` overloads, Always/Never predicates, `MustBeNotEmpty` attribute rule,
+     `BaseValidator` enumeration, extra `ValidationFailure` ctors, unused rule/predicate collections'
+     read surface. Remaining ~99 lines are mostly mechanical accessors, JS-gen catch blocks, and
+     `internal` mutators on unused collections (test project has no InternalsVisibleTo).
+     **Bug found & fixed**: `ValidatorAttributeBase.WidthCode` was `int?` (illegal as an attribute
+     argument, so attribute-supplied rule codes were unreachable). Renamed to plain-`int` `WithCode`
+     with an auto-set `bool HasCode`; `BaseValidator` + `EfModelValidator` updated to test `HasCode`.
+     Logged in KNOWN_BUGS.md; verified by the `MustBeNotEmpty`/`WithCode` tests.
+   - **Gehtsoft.EF.Mapper: 77.78% → 97.11%** — `TestEfMapperCoverage.cs` (13 tests): `EfMap<,>`
+     ctor (entity + non-entity destination) and `GetTargetByName` override (lookup by property name,
+     DB column name and column ID; non-column base fallthrough; missing-name); `EntityMapInitializer`
+     `SourceToModel`/`ModelToSource` guard, skip and not-found branches (entity-type mismatch throw,
+     `[DoNotAutoMap]` model property and `[DoNotAutoMap]` column skips, name-not-found throw,
+     missing-`[MapEntity]` throw); the null-obj guards of `EntityPrimaryKeySource`/`ModelPrimaryKeySource`.
+     Remaining ~5 lines are mechanical ctors/accessors.
+   - **Defect found AND fixed** (`ContainsRuleFor`/`Find` couldn't discover `EfMap` column rules nor
+     `EntityMapInitializer.ModelToSource` auto-rules, because `EntityPropertyAccessor` never equalled
+     the `ClassPropertyAccessor` the lookups build): (a) `EfMap.GetTargetByName` now resolves a column
+     by ID/DB-name and returns the base `ClassPropertyAccessor` target for the CLR property;
+     (b) `EntityPropertyAccessor.Equals`/`GetHashCode` now compare by property identity (Name+ValueType)
+     so it matches the equivalent `ClassPropertyAccessor`. Stored target type unchanged, so
+     `Gehtsoft.EF.Mapper.Validator` (which reads `ColumnInfo` off `property.Target is EntityPropertyAccessor`)
+     is unaffected — confirmed by the full 169-test suite incl. `TestModelValidator`/`TestJsConvertor`.
+     Both changes confined to `Gehtsoft.EF.Mapper`; no base-lib/public-API change. See KNOWN_BUGS.md.
+     **Watch-out captured**: the validator bridge depends on the target being an `EntityPropertyAccessor`
+     — do not swap it for `ClassPropertyAccessor` (an earlier attempt broke 8 validator tests).
+   - **Gehtsoft.EF.Validator: 69.33% → 95.38%** — `TestEfValidatorCoverage.cs` (10 tests): the
+     stand-alone `EfPredicateFactory.GetPredicates` helper (all column kinds incl. both enum branches),
+     `AddDbValidation` non-nullable-enum branch, `ValidatorConnectionFactory` (sync/async delegate
+     wrapper, both ctors, all Get overloads), `Number`/`DecimalPropertyRangePredicate.Validate`
+     (null/in-range/out-of-range/int-conversion) + their `RemoteScript`, `DatabasePredicate`
+     owned-connection dispose branch + null `RemoteScript`/`Server` side (via a NeedToDispose=true
+     factory around `IsUniquePredicate`), `DefaultEfValidatorMessageProvider` fallbacks (unknown
+     language → en, unknown code → -1), and the otherwise-unused `EntityPropertyTarget`. Remaining
+     ~7 lines are unreachable defensive code: the `Nullable.GetUnderlyingType(value.GetType())` branch
+     in the two range predicates can never fire because a boxed `Nullable<T>` unboxes to its
+     underlying type. Reuses `TestEntityValidators` entities/`DummySqlLanguageSpecifics`.
+   - **Gehtsoft.EF.Mapper.Validator: 81.05% → 95.75%** — `TestEfMapperValidatorCoverage.cs` (8 tests):
+     the `EfModelValidator` ctor attribute-`WithCode` branches (all four Must* attributes), the
+     `ValidateModel` throw (no `[MapEntity]`) + aspNet/null-message-provider rule-building path,
+     every `RuleBuilderExtension` guard throw (no `[MapEntity]` → ArgumentException; unmapped
+     property → InvalidOperationException, ×4 rules), `AddUnique`'s `UnlessValue` branch, the
+     `GetLanguageSpecifics`/`GetConnectionFactory` null-return paths (rule used on a plain
+     `AbstractValidator`, not an `EfModelValidator`), and the two obsolete `MustBeUnqiue` overloads.
+     Reuses `TestModelValidator` entities/models/`DummySqlSpecifics`. Remaining ~1 line + 12 partials
+     are OR-branch alternatives (`AnsiString`/`StringFixedLength` DbType variants, accessor
+     type-check false sides) — defensive, not chased. No product bugs found.
+   - **All four modules the user asked about are done.** Overall toolbox line coverage **94.22%**
+     (187 tests). Lowest remaining module is `Gehtsoft.Validator` at 89.92% (base library, larger).
+6. Carried over from prior session: ~~docgen pass for `RuleExecutionSide`/`SetSide`~~ **DONE** —
+   `doc/src/validator/Gehtsoft.Validator.RuleExecutionSide.ds` (new enum doc), `SetSide` member added
+   to `ValidationRuleBuilder.ds` (+ `ServerOnly` cross-link), and a new "Two-side validation" article
+   (`validationarticle8`) in `doc/src/validator/index.ds`. Docs build clean (only pre-existing
+   unknown-key warnings; none from the new content). NOTE: on Linux/WSL the docgen build fails at
+   project load because `project.xml` uses Windows `\` folder paths (`src\validator`); validated
+   locally via temporary backslash-named symlinks (removed afterward) — build normally on Windows.
+   Still open: ExpressionToJs package fixes (separate repo).

@@ -55,8 +55,5 @@
   <project id="Gehtsoft.EF.Serialization" location="..\Gehtsoft.EF.Serialization\Gehtsoft.EF.Serialization.csproj">
    <description>Implementation of sequental readers and writers for all entities for DB and XML</description>
   </project>
-  <project id="Gehtsoft.EF.TestDatabase" location="..\Gehtsoft.EF.TestDatabase\Gehtsoft.EF.TestDatabase.csproj">
-   <description>Test database factory</description>
-  </project>
  </projects>
 </nuget>
