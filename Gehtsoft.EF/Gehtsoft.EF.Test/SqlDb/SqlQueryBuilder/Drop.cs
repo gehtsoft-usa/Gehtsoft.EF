@@ -22,12 +22,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("DROP_TABLE").Should().HaveCount(1);
-            ast.SelectNode("/DROP_TABLE[1]/IF_EXIST").Should().Exist();
-
-            ast.SelectNode("/DROP_TABLE[1]/TABLE_NAME/IDENTIFIER")
-                .Should().Exist()
-                .And.HaveValue("tableName");
+            ast.Should().HaveDropTable("tableName").And.HaveIfExists();
         }
 
         [Fact]
@@ -38,11 +33,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("DROP_VIEW").Should().HaveCount(1);
-            ast.SelectNode("/DROP_VIEW[1]/IF_EXIST").Should().Exist();
-            ast.SelectNode("/DROP_VIEW[1]/TABLE_NAME/IDENTIFIER")
-                .Should().Exist()
-                .And.HaveValue("viewName");
+            ast.Should().HaveDropView("viewName").And.HaveIfExists();
         }
 
         [Fact]
@@ -57,16 +48,8 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             var builder = connection.GetDropIndexBuilder(table, "indexName");
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
-            ast.Select("DROP_INDEX").Should().HaveCount(1);
 
-            ast.SelectNode("/DROP_INDEX[1]/IF_EXIST").Should().Exist();
-            ast.SelectNode("/DROP_INDEX[1]/TABLE_NAME[1]/IDENTIFIER")
-                .Should().Exist()
-                .And.HaveValue("tableName_indexName");
-
-            ast.SelectNode("/DROP_INDEX[1]/TABLE_NAME[2]/IDENTIFIER")
-                .Should().Exist()
-                .And.HaveValue("tableName");
+            ast.Should().HaveDropIndex("tableName_indexName", "tableName").And.HaveIfExists();
         }
     }
 }
