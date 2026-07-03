@@ -1,10 +1,3 @@
-﻿using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class GetField : SqlBaseExpression
@@ -28,44 +21,39 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal GetField(Statement parentStatement, ASTNode fieldNode, string source)
+        internal GetField(Statement parentStatement, SqlParser.GetFieldCallContext fieldNode, string source)
         {
-            ASTNode expressionNode = fieldNode.Children[0];
-            RowParameter = SqlExpressionParser.ParseExpression(parentStatement, expressionNode, source);
+            SqlParser.ExprContext rowNode = fieldNode.expr(0);
+            RowParameter = SqlExpressionParser.ParseExpression(parentStatement, rowNode, source);
             if (RowParameter.ResultType != ResultTypes.Row)
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    rowNode.Line(), rowNode.Col(),
                     "No ROW parameter in GET_FIELD function call"));
             }
             if (!Statement.IsCalculable(RowParameter))
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    rowNode.Line(), rowNode.Col(),
                     "Not calculable parameter in GET_FIELD function call"));
             }
 
-            expressionNode = fieldNode.Children[1];
-            NameParameter = SqlExpressionParser.ParseExpression(parentStatement, expressionNode, source);
+            SqlParser.ExprContext nameNode = fieldNode.expr(1);
+            NameParameter = SqlExpressionParser.ParseExpression(parentStatement, nameNode, source);
             if (NameParameter.ResultType != ResultTypes.String)
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    nameNode.Line(), nameNode.Col(),
                     "No valid Name parameter in GET_FIELD function call"));
             }
             if (!Statement.IsCalculable(NameParameter))
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    nameNode.Line(), nameNode.Col(),
                     "Not calculable index parameter in GET_ROW function call"));
             }
 
-            mResultType = Statement.GetResultTypeByName(fieldNode.Children[2].Value);
+            mResultType = Statement.GetResultTypeByName(fieldNode.baseType().GetText());
         }
-
     }
 }

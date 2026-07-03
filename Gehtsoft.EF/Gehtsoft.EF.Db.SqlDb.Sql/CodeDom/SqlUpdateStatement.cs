@@ -1,12 +1,4 @@
-﻿using Gehtsoft.EF.Db.SqlDb.EntityQueries;
-using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
-using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
@@ -19,10 +11,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal string TableName { get; } = null;
         internal SqlWhereClause WhereClause { get; } = null;
 
-        internal SqlUpdateStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
-            : base(builder, StatementId.Update, currentSource, statementNode.Position.Line, statementNode.Position.Column)
+        internal SqlUpdateStatement(SqlCodeDomBuilder builder, SqlParser.UpdateStatementContext statementNode, string currentSource)
+            : base(builder, StatementId.Update, currentSource, statementNode.Line(), statementNode.Col())
         {
-            TableName = statementNode.Children[0].Value;
+            TableName = statementNode.IDENTIFIER().GetText();
             try
             {
                 this.AddEntityEntry(TableName, null);
@@ -30,36 +22,34 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             catch
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    statementNode.Children[0].Position.Line,
-                    statementNode.Children[0].Position.Column,
+                    statementNode.Line(),
+                    statementNode.Col(),
                     $"Not found entity with name '{TableName}'"));
             }
 
-            ASTNode updateListNode = statementNode.Children[1];
-
             UpdateAssigns = new SqlUpdateAssignCollection();
-            foreach (ASTNode updateAssugnNode in updateListNode.Children)
+            foreach (SqlParser.UpdateAssignContext updateAssignNode in statementNode.updateList().updateAssign())
             {
-                UpdateAssigns.Add(new SqlUpdateAssign(this, updateAssugnNode, currentSource));
+                UpdateAssigns.Add(new SqlUpdateAssign(this, updateAssignNode, currentSource));
             }
 
-            if (statementNode.Children.Count > 2)
+            if (statementNode.whereClause() != null)
             {
-                ASTNode whereNode = statementNode.Children[2];
+                SqlParser.WhereClauseContext whereNode = statementNode.whereClause();
                 WhereClause = new SqlWhereClause(this, whereNode, currentSource);
                 if (WhereClause.RootExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
                 {
                     throw new SqlParserException(new SqlError(currentSource,
-                        whereNode.Position.Line,
-                        whereNode.Position.Column,
-                        $"Result of WHERE should be boolean {whereNode.Symbol.Name} ({whereNode.Value ?? "null"})"));
+                        whereNode.Line(),
+                        whereNode.Col(),
+                        $"Result of WHERE should be boolean ({whereNode.GetText()})"));
                 }
                 if (HasAggregateFunctions(WhereClause.RootExpression))
                 {
                     throw new SqlParserException(new SqlError(currentSource,
-                        whereNode.Position.Line,
-                        whereNode.Position.Column,
-                        $"WHERE expression should not contain calls of aggregate functions ({whereNode.Value ?? "null"})"));
+                        whereNode.Line(),
+                        whereNode.Col(),
+                        $"WHERE expression should not contain calls of aggregate functions ({whereNode.GetText()})"));
                 }
             }
         }

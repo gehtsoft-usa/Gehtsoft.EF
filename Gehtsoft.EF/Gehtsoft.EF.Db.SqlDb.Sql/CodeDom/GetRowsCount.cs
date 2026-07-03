@@ -1,10 +1,3 @@
-﻿using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class GetRowsCount : SqlBaseExpression
@@ -26,23 +19,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal GetRowsCount(Statement parentStatement, ASTNode fieldNode, string source)
+        internal GetRowsCount(Statement parentStatement, SqlParser.RowsCountCallContext fieldNode, string source)
         {
-            ASTNode expressionNode = fieldNode.Children[0];
+            SqlParser.ExprContext expressionNode = fieldNode.expr();
             Parameter = SqlExpressionParser.ParseExpression(parentStatement, expressionNode, source);
             if (Parameter.ResultType != ResultTypes.RowSet)
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
-                    $"No ROWSET parameter in GET_ROWS function call ({expressionNode.Value ?? "null"})"));
+                    expressionNode.Line(), expressionNode.Col(),
+                    $"No ROWSET parameter in GET_ROWS function call ({expressionNode.GetText()})"));
             }
             if (!Statement.IsCalculable(Parameter))
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
-                    $"Not calculable parameter in GET_ROWS function call ({expressionNode.Value ?? "null"})"));
+                    expressionNode.Line(), expressionNode.Col(),
+                    $"Not calculable parameter in GET_ROWS function call ({expressionNode.GetText()})"));
             }
         }
     }

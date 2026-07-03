@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Hime.Redist;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
@@ -13,25 +12,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     {
         internal SqlBaseExpression ExitExpression { get; } = null;
 
-        internal ExitStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
+        internal ExitStatement(SqlCodeDomBuilder builder, SqlParser.ExitStatementContext statementNode, string currentSource)
             : base(builder, StatementType.Exit)
         {
-            if (statementNode.Children.Count > 0)
+            if (statementNode.expr().Length > 0)
             {
-                ASTNode expressionNode = statementNode.Children[0];
+                SqlParser.ExprContext expressionNode = statementNode.expr(0);
                 ExitExpression = SqlExpressionParser.ParseExpression(this, expressionNode, currentSource);
                 if (!Statement.IsCalculable(ExitExpression))
                 {
                     throw new SqlParserException(new SqlError(currentSource,
-                        expressionNode.Position.Line,
-                        expressionNode.Position.Column,
+                        expressionNode.Line(),
+                        expressionNode.Col(),
                         "Not calculable expression in EXIT statement"));
                 }
                 if (ExitExpression.ResultType == SqlBaseExpression.ResultTypes.Cursor)
                 {
                     throw new SqlParserException(new SqlError(currentSource,
-                        expressionNode.Position.Line,
-                        expressionNode.Position.Column,
+                        expressionNode.Line(),
+                        expressionNode.Col(),
                         "Cursor expression can not be used in EXIT statement"));
                 }
             }

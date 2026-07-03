@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Hime.Redist;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
@@ -13,49 +8,44 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     internal class IfStatement : Statement
     {
         internal ConditionalStatementsRunCollection ConditionalRuns { get; }
-        internal IfStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
+        internal IfStatement(SqlCodeDomBuilder builder, SqlParser.IfStatementContext statementNode, string currentSource)
             : base(builder, StatementType.If)
         {
             ConditionalRuns = new ConditionalStatementsRunCollection();
-            ConditionalStatementsRun currentConditionalRun = null;
-            foreach (ASTNode node in statementNode.Children)
+
+            // IF cond THEN body (ELSIF cond THEN body)* (ELSE body)? — condition[i] pairs with body[i];
+            // an ELSE body has no matching condition and gets an implicit `true`.
+            int conditionCount = statementNode.expr().Length;
+            for (int i = 0; i < conditionCount; i++)
             {
-                if (node.Symbol.ID == SqlParser.ID.VariableRoot)
+                SqlParser.ExprContext node = statementNode.expr(i);
+                SqlBaseExpression conditionalExpression = SqlExpressionParser.ParseExpression(this, node, currentSource);
+                if (!Statement.IsCalculable(conditionalExpression))
                 {
-                    if (currentConditionalRun == null)
-                    {
-                        currentConditionalRun = new ConditionalStatementsRun(new SqlConstant(true, ResultTypes.Boolean));
-                    }
-                    currentConditionalRun.LinqExpression = builder.ParseNodeToLinq("IF-ELSE Body", node, this);
-                    ConditionalRuns.Add(currentConditionalRun);
-                    currentConditionalRun = null;
+                    throw new SqlParserException(new SqlError(currentSource,
+                        node.Line(), node.Col(),
+                        "Not calculable expression in IF statement"));
                 }
-                else
+                if (conditionalExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
                 {
-                    if (currentConditionalRun != null)
-                    {
-                        throw new SqlParserException(new SqlError(currentSource,
-                            node.Position.Line,
-                            node.Position.Column,
-                            $"Unexpected condition expression in IF statement {node.Symbol.Name} ({node.Value ?? "null"})"));
-                    }
-                    SqlBaseExpression conditionalExpression = SqlExpressionParser.ParseExpression(this, node, currentSource);
-                    if (!Statement.IsCalculable(conditionalExpression))
-                    {
-                        throw new SqlParserException(new SqlError(currentSource,
-                            node.Position.Line,
-                            node.Position.Column,
-                            "Not calculable expression in IF statement"));
-                    }
-                    if (conditionalExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
-                    {
-                        throw new SqlParserException(new SqlError(currentSource,
-                            node.Position.Line,
-                            node.Position.Column,
-                            $"Condition expression of IF(ELSIF) should be boolean {node.Symbol.Name} ({node.Value ?? "null"})"));
-                    }
-                    currentConditionalRun = new ConditionalStatementsRun(conditionalExpression);
+                    throw new SqlParserException(new SqlError(currentSource,
+                        node.Line(), node.Col(),
+                        $"Condition expression of IF(ELSIF) should be boolean ({node.GetText()})"));
                 }
+                ConditionalStatementsRun run = new ConditionalStatementsRun(conditionalExpression)
+                {
+                    LinqExpression = builder.ParseNodeToLinq("IF-ELSE Body", statementNode.statementList(i), this)
+                };
+                ConditionalRuns.Add(run);
+            }
+
+            if (statementNode.statementList().Length > conditionCount)
+            {
+                ConditionalStatementsRun elseRun = new ConditionalStatementsRun(new SqlConstant(true, ResultTypes.Boolean))
+                {
+                    LinqExpression = builder.ParseNodeToLinq("IF-ELSE Body", statementNode.statementList(conditionCount), this)
+                };
+                ConditionalRuns.Add(elseRun);
             }
         }
 

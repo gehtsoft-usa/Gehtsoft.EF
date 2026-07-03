@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Hime.Redist;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
@@ -13,19 +12,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     internal class DeclareStatement : Statement
     {
         private readonly Dictionary<string, ResultTypes> variables = new Dictionary<string, ResultTypes>();
-        internal DeclareStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
+        internal DeclareStatement(SqlCodeDomBuilder builder, SqlParser.DeclareStatementContext statementNode, string currentSource)
             : base(builder, StatementType.Declare)
         {
-            foreach (ASTNode node in statementNode.Children[0].Children)
+            foreach (SqlParser.DeclareItemContext node in statementNode.declareList().declareItem())
             {
-                string name = $"?{node.Children[0].Value}";
-                ResultTypes resultType = GetResultTypeByName(node.Children[1].Value);
+                string name = $"?{node.IDENTIFIER().GetText()}";
+                ResultTypes resultType = GetResultTypeByName(node.parameterType().GetText());
 
                 if (!builder.AddGlobalParameter(name, resultType))
                 {
                     throw new SqlParserException(new SqlError(currentSource,
-                        node.Children[0].Position.Line,
-                        node.Children[0].Position.Column,
+                        node.Line(),
+                        node.Col(),
                         $"Duplicate declared name ({name})"));
                 }
 

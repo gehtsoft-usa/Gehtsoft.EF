@@ -1,5 +1,4 @@
-﻿using Hime.Redist;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -43,19 +42,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         internal void Add(SqlError error) => mList.Add(error);
 
         internal void Add(string source, int line, int position, string error) => Add(new SqlError(source, line, position, error));
-
-        internal static SqlErrorCollection ToSqlErrors(string source, ParseResult r)
-        {
-            if (r == null)
-                throw new ArgumentNullException(nameof(r));
-            if (r.IsSuccess)
-                throw new ArgumentException("Parser result is succesful", nameof(r));
-
-            SqlErrorCollection collection = new SqlErrorCollection();
-            foreach (var e in r.Errors)
-                collection.Add(source, e.Position.Line, e.Position.Column, e.Message);
-            return collection;
-        }
 
         protected SqlErrorCollection(SerializationInfo info, StreamingContext context)
         {

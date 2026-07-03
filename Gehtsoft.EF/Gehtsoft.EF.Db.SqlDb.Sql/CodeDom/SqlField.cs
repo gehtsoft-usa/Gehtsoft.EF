@@ -1,5 +1,4 @@
 ﻿using Gehtsoft.EF.Db.SqlDb.EntityQueries;
-using Hime.Redist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,23 +46,23 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             mResultType = resultType;
         }
 
-        internal SqlField(Statement parentStatement, ASTNode fieldNode, string source)
+        internal SqlField(Statement parentStatement, SqlParser.FieldContext fieldNode, string source)
         {
-            if (fieldNode.Children.Count > 1)
+            if (fieldNode.IDENTIFIER().Length > 1)
             {
-                Prefix = fieldNode.Children[0].Value;
-                Name = fieldNode.Children[1].Value;
+                Prefix = fieldNode.IDENTIFIER(0).GetText();
+                Name = fieldNode.IDENTIFIER(1).GetText();
             }
             else
             {
-                Name = fieldNode.Children[0].Value;
+                Name = fieldNode.IDENTIFIER(0).GetText();
             }
             ProcessField(parentStatement, Prefix, Name, out string error);
             if (error != null)
             {
                 throw new SqlParserException(new SqlError(source,
-                    fieldNode.Position.Line,
-                    fieldNode.Position.Column,
+                    fieldNode.Line(),
+                    fieldNode.Col(),
                     error));
             }
         }

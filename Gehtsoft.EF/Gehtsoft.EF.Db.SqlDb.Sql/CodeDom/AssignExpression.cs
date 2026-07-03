@@ -1,10 +1,3 @@
-﻿using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class AssignExpression : SqlBaseExpression
@@ -31,20 +24,19 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal SqlBaseExpression RightOperand { get; }
         private readonly SqlCodeDomBuilder mCodeDomBuilder;
 
-        internal AssignExpression(Statement parentStatement, ASTNode leftOperand, ASTNode rightOperand, string source)
+        internal AssignExpression(Statement parentStatement, GlobalParameter leftOperand, SqlParser.ExprContext rightOperand, string source)
         {
             mCodeDomBuilder = parentStatement.CodeDomBuilder;
-            LeftOperand = (GlobalParameter)SqlExpressionParser.ParseExpression(parentStatement, leftOperand, source);
+            LeftOperand = leftOperand;
             RightOperand = SqlExpressionParser.ParseExpression(parentStatement, rightOperand, source);
             if (!Statement.IsCalculable(RightOperand))
             {
                 throw new SqlParserException(new SqlError(source,
-                    rightOperand.Position.Line,
-                    rightOperand.Position.Column,
+                    rightOperand.Line(), rightOperand.Col(),
                     "Not calculable expression in assign statement"));
             }
             CheckLeftOperand();
-            CheckOperands(LeftOperand, RightOperand, source, rightOperand.Position.Line, rightOperand.Position.Column);
+            CheckOperands(LeftOperand, RightOperand, source, rightOperand.Line(), rightOperand.Col());
             mResultType = RightOperand.ResultType;
         }
 

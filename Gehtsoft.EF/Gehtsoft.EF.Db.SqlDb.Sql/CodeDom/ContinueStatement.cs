@@ -6,15 +6,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Hime.Redist;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class ContinueStatement : Statement
     {
-        internal ContinueStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
-            : this(builder, currentSource, statementNode.Position.Line, statementNode.Position.Column)
+        internal ContinueStatement(SqlCodeDomBuilder builder, SqlParser.ContinueStatementContext statementNode, string currentSource)
+            : this(builder, currentSource, statementNode.Line(), statementNode.Col())
         {
         }
 

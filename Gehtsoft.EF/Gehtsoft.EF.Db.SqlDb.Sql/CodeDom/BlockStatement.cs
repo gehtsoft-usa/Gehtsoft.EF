@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Hime.Redist;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
@@ -14,11 +13,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     {
         protected Expression LinqExpression { get; set; }
 
-        internal BlockStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
+        internal BlockStatement(SqlCodeDomBuilder builder, SqlParser.StatementListContext statementNode, string currentSource)
             : base(builder, StatementType.Block)
         {
-            ASTNode node = statementNode.Children[0];
-            LinqExpression = builder.ParseNodeToLinq("Block Body", node, this);
+            LinqExpression = builder.ParseNodeToLinq("Block Body", statementNode, this, false);
         }
         protected BlockStatement(SqlCodeDomBuilder builder, StatementType type)
             : base(builder, type)

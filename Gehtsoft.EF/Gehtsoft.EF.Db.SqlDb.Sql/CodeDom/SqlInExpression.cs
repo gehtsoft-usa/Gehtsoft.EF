@@ -1,10 +1,3 @@
-﻿using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlInExpression : SqlBaseExpression
@@ -35,13 +28,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal OperationType Operation { get; }
 
-        internal SqlInExpression(Statement parentStatement, ASTNode leftOperand, OperationType operation, ASTNode rightOperand, string source)
+        internal SqlInExpression(Statement parentStatement, SqlParser.ExprContext leftOperand, OperationType operation, SqlParser.InPredicateValueContext rightOperand, string source)
         {
             LeftOperand = SqlExpressionParser.ParseExpression(parentStatement, leftOperand, source);
-            if (rightOperand.Symbol.ID == SqlParser.ID.VariableInValueArgs)
+            if (rightOperand is SqlParser.InListContext listNode)
             {
                 RightOperandAsList = new SqlBaseExpressionCollection();
-                foreach (ASTNode node in rightOperand.Children)
+                foreach (SqlParser.ExprContext node in listNode.inValueList().inValueArgs().expr())
                 {
                     SqlBaseExpression item = SqlExpressionParser.ParseExpression(parentStatement, node, source);
                     if (LeftOperand.ResultType != item.ResultType)
@@ -49,22 +42,20 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                         if (!((LeftOperand.ResultType == ResultTypes.Integer || LeftOperand.ResultType == ResultTypes.Double) &&
                            (item.ResultType == ResultTypes.Integer || item.ResultType == ResultTypes.Double)))
                             throw new SqlParserException(new SqlError(source,
-                                rightOperand.Position.Line,
-                                rightOperand.Position.Column,
-                                $"Incorrect type of operand {rightOperand.Symbol.Name} ({rightOperand.Value ?? "null"})"));
+                                rightOperand.Line(), rightOperand.Col(),
+                                $"Incorrect type of operand ({rightOperand.GetText()})"));
                     }
                     RightOperandAsList.Add(item);
                 }
             }
-            else if (rightOperand.Symbol.ID == SqlParser.ID.VariableSelect)
+            else if (rightOperand is SqlParser.InSelectContext selectNode)
             {
-                RightOperandAsSelect = new SqlSelectStatement(parentStatement.CodeDomBuilder, rightOperand, source);
+                RightOperandAsSelect = new SqlSelectStatement(parentStatement.CodeDomBuilder, selectNode.selectStatement(), source);
                 if (RightOperandAsSelect.SelectList.FieldAliasCollection.Count != 1)
                 {
                     throw new SqlParserException(new SqlError(source,
-                        rightOperand.Position.Line,
-                        rightOperand.Position.Column,
-                        $"Expected 1 column in inner SELECT {rightOperand.Symbol.Name} ({rightOperand.Value ?? "null"})"));
+                        rightOperand.Line(), rightOperand.Col(),
+                        $"Expected 1 column in inner SELECT ({rightOperand.GetText()})"));
                 }
                 ResultTypes selectExptType = RightOperandAsSelect.SelectList.FieldAliasCollection[0].Expression.ResultType;
                 if (LeftOperand.ResultType != selectExptType)
@@ -72,20 +63,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
                     if (!((LeftOperand.ResultType == ResultTypes.Integer || LeftOperand.ResultType == ResultTypes.Double) &&
                        (selectExptType == ResultTypes.Integer || selectExptType == ResultTypes.Double)))
                         throw new SqlParserException(new SqlError(source,
-                            rightOperand.Position.Line,
-                            rightOperand.Position.Column,
-                            $"Incorrect type of operand {rightOperand.Symbol.Name} ({rightOperand.Value ?? "null"})"));
+                            rightOperand.Line(), rightOperand.Col(),
+                            $"Incorrect type of operand ({rightOperand.GetText()})"));
                 }
             }
             else
             {
                 throw new SqlParserException(new SqlError(source,
-                    rightOperand.Position.Line,
-                    rightOperand.Position.Column,
-                    $"Incorrect type of IN right operand {rightOperand.Symbol.Name} ({rightOperand.Value ?? "null"})"));
+                    rightOperand.Line(), rightOperand.Col(),
+                    $"Incorrect type of IN right operand ({rightOperand.GetText()})"));
             }
             Operation = operation;
         }
-
     }
 }

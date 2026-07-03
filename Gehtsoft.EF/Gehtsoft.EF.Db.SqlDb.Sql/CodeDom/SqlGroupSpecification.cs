@@ -1,5 +1,4 @@
 ﻿using Gehtsoft.EF.Entities;
-using Hime.Redist;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,9 +9,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     {
         internal SqlBaseExpression Expression { get; } = null;
 
-        internal SqlGroupSpecification(SqlStatement parentStatement, ASTNode sortSpecificationNode, string source)
+        internal SqlGroupSpecification(SqlStatement parentStatement, SqlParser.GroupSpecificationContext sortSpecificationNode, string source)
         {
-            Expression = SqlExpressionParser.ParseExpression(parentStatement, sortSpecificationNode.Children[0], source);
+            Expression = SqlExpressionParser.ParseExpression(parentStatement, sortSpecificationNode.expr(), source);
         }
 
         internal SqlGroupSpecification(SqlField field)

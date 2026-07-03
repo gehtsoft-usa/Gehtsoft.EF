@@ -207,12 +207,11 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             ((int)result.Count).Should().Be(3);
         }
 
-        [Fact(Skip = "KNOWN_BUGS.md #3: bare JOIN (no explicit type) throws at parse; " +
-                     "enable if the ANTLR rewrite fixes it to default to INNER.")]
+        [Fact]
         public void PlainJoin_DefaultsToInner()
         {
-            // Intended behavior: grammar marks JOIN_TYPE optional, so a bare JOIN should
-            // behave as INNER JOIN. Currently throws "Unexpected table reference node".
+            // Fixed in the ANTLR migration: a bare JOIN (no explicit type) now defaults to
+            // INNER (KNOWN_BUGS.md #3), via the typed joinType() accessor in SqlQualifiedJoinedTable.
             var func = Env().Parse("test",
                 "SELECT OrderDetail.Quantity FROM OrderDetail JOIN Order " +
                 "ON OrderDetail.Order = Order.OrderID LIMIT 3");

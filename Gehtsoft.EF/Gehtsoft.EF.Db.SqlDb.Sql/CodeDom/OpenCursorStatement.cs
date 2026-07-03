@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Hime.Redist;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
@@ -13,26 +12,18 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     internal class OpenCursorStatement : Statement
     {
         internal GlobalParameter CursorParameter { get; }
-        internal OpenCursorStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
+        internal OpenCursorStatement(SqlCodeDomBuilder builder, SqlParser.OpenCursorStatementContext statementNode, string currentSource)
             : base(builder, StatementType.OpenCursor)
         {
-            ASTNode expressionNode = statementNode.Children[0];
-            SqlBaseExpression cursorExpression = SqlExpressionParser.ParseExpression(this, expressionNode, currentSource);
-            if (cursorExpression.ResultType != ResultTypes.Cursor)
+            SqlParser.GlobalParameterSimpleContext expressionNode = statementNode.globalParameterSimple();
+            CursorParameter = new GlobalParameter(this, expressionNode);
+            if (CursorParameter.ResultType != ResultTypes.Cursor)
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    expressionNode.Line(),
+                    expressionNode.Col(),
                     "Parameter of OPEN CURSOR is not declared as CURSOR"));
             }
-            if (cursorExpression.ExpressionType != ExpressionTypes.GlobalParameter)
-            {
-                throw new SqlParserException(new SqlError(currentSource,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
-                    "Parameter of OPEN CURSOR should be global variable"));
-            }
-            CursorParameter = (GlobalParameter)cursorExpression;
         }
 
         internal OpenCursorStatement(SqlCodeDomBuilder builder, GlobalParameter cursorParameter)

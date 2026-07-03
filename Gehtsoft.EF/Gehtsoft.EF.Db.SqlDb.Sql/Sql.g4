@@ -51,6 +51,9 @@ expr
     : op=('-'|'+') expr                                  # UnarySignExpr
     | expr op=('*'|'/') expr                             # MulExpr
     | expr op=('+'|'-'|'||') expr                        # AddExpr
+    // ':=' binds looser than arithmetic but tighter than comparisons/IS NULL, so that
+    // `?p := FETCH() IS NOT NULL` parses as `(?p := FETCH()) IS NOT NULL` (matches Hime).
+    | expr ':=' expr                                     # AssignExpr
     | expr op=('='|'<>'|'>'|'>='|'<'|'<=') expr          # RelExpr
     | expr not='NOT'? 'LIKE' expr                        # LikeExpr
     | expr not='NOT'? 'IN' inPredicateValue             # InExpr
@@ -58,7 +61,6 @@ expr
     | 'NOT' expr                                         # NotExpr
     | expr 'AND' expr                                    # AndExpr
     | expr 'OR' expr                                     # OrExpr
-    | globalParameterSimple ':=' expr                    # AssignExpr
     | primary                                            # PrimaryExpr
     ;
 

@@ -6,15 +6,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Hime.Redist;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class BreakStatement : Statement
     {
-        internal BreakStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
-            : this(builder, currentSource, statementNode.Position.Line, statementNode.Position.Column)
+        internal BreakStatement(SqlCodeDomBuilder builder, SqlParser.BreakStatementContext statementNode, string currentSource)
+            : this(builder, currentSource, statementNode.Line(), statementNode.Col())
         {
         }
 

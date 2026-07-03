@@ -1,77 +1,59 @@
-﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Hime.Redist;
-using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class ForDoStatement : BlockStatement
     {
-        internal ForDoStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
+        internal ForDoStatement(SqlCodeDomBuilder builder, SqlParser.ForStatementContext statementNode, string currentSource)
             : base(builder, StatementType.Loop)
         {
-            ASTNode node;
-
-            LabelTarget startLabel;
-            LabelTarget endLabel;
-            List<Expression> blockSet;
-            List<Expression> nextSet;
-
-            startLabel = Expression.Label();
-            endLabel = Expression.Label();
-            blockSet = new List<Expression>
+            LabelTarget startLabel = Expression.Label();
+            LabelTarget endLabel = Expression.Label();
+            List<Expression> blockSet = new List<Expression>
             {
                 builder.StartBlock(startLabel, endLabel, Statement.StatementType.Block),
                 Expression.Label(startLabel)
             };
             SqlCodeDomBuilder.PushDescriptor(builder, startLabel, endLabel, Statement.StatementType.Block);
-            node = statementNode.Children[0];
-            BlockExpression linqExpression = (BlockExpression)builder.ParseNodeToLinq("FOR Body", node, new DummyPersistBlock(builder));
+
+            BlockExpression linqExpression = (BlockExpression)builder.ParseNodeToLinq("FOR Body", statementNode.statementList(0), new DummyPersistBlock(builder));
             int cnt = linqExpression.Expressions.Count;
             for (int i = 2; i < cnt - 2; i++)
             {
-                Expression expr = linqExpression.Expressions[i];
-                blockSet.Add(expr);
+                blockSet.Add(linqExpression.Expressions[i]);
             }
-            node = statementNode.Children[1];
-            SqlBaseExpression whileExpression = SqlExpressionParser.ParseExpression(this, node, currentSource);
+
+            SqlParser.ExprContext whileNode = statementNode.expr();
+            SqlBaseExpression whileExpression = SqlExpressionParser.ParseExpression(this, whileNode, currentSource);
             if (!Statement.IsCalculable(whileExpression))
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    node.Position.Line,
-                    node.Position.Column,
+                    whileNode.Line(),
+                    whileNode.Col(),
                     "Not calculable expression in WHILE statement"));
             }
             if (whileExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    node.Position.Line,
-                    node.Position.Column,
-                    $"WHILE expression of LOOP should be boolean {node.Symbol.Name} ({node.Value ?? "null"})"));
+                    whileNode.Line(),
+                    whileNode.Col(),
+                    $"WHILE expression of LOOP should be boolean ({whileNode.GetText()})"));
             }
 
-            node = statementNode.Children[2];
-            nextSet = new List<Expression>();
-            linqExpression = (BlockExpression)builder.ParseNodeToLinq("FOR-NEXT Body", node, null);
+            List<Expression> nextSet = new List<Expression>();
+            linqExpression = (BlockExpression)builder.ParseNodeToLinq("FOR-NEXT Body", statementNode.statementList(1), null);
             cnt = linqExpression.Expressions.Count;
             for (int i = 2; i < cnt - 2; i++)
             {
-                Expression expr = linqExpression.Expressions[i];
-                nextSet.Add(expr);
+                nextSet.Add(linqExpression.Expressions[i]);
             }
-
-            node = statementNode.Children[3];
 
             ConditionalStatementsRun condition = new ConditionalStatementsRun(new SqlUnaryExpression(whileExpression, SqlUnaryExpression.OperationType.Not));
             IfStatement ifStatement = new IfStatement(builder, new ConditionalStatementsRunCollection() { condition });
 
             this.OnContinue = Expression.Block(nextSet);
-            linqExpression = (BlockExpression)builder.ParseNodeToLinq("FOR-LOOP Body", node, this);
+            linqExpression = (BlockExpression)builder.ParseNodeToLinq("FOR-LOOP Body", statementNode.statementList(2), this);
             List<Expression> expressionList = new List<Expression>();
             cnt = linqExpression.Expressions.Count;
 
@@ -89,8 +71,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             expressionList.Add(ifStatement.ToLinqWxpression());
             for (int i = 2; i < cnt - 2; i++)
             {
-                Expression expr = linqExpression.Expressions[i];
-                expressionList.Add(expr);
+                expressionList.Add(linqExpression.Expressions[i]);
             }
             ContinueStatement cntn = new ContinueStatement(builder);
             expressionList.Add(cntn.ToLinqWxpression());

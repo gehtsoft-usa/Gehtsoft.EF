@@ -1,10 +1,3 @@
-﻿using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlPrimaryTable : SqlTableSpecification
@@ -19,16 +12,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlPrimaryTable(SqlStatement parentStatement, ASTNode fieldNode, string source)
+        internal SqlPrimaryTable(SqlStatement parentStatement, SqlParser.TablePrimaryContext fieldNode, string source)
         {
-            if (fieldNode.Children.Count > 1)
+            if (fieldNode.IDENTIFIER().Length > 1)
             {
-                TableName = fieldNode.Children[0].Value;
-                CorrelationName = fieldNode.Children[1].Value;
+                TableName = fieldNode.IDENTIFIER(0).GetText();
+                CorrelationName = fieldNode.IDENTIFIER(1).GetText();
             }
             else
             {
-                TableName = fieldNode.Children[0].Value;
+                TableName = fieldNode.IDENTIFIER(0).GetText();
             }
 
             try
@@ -38,8 +31,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             catch
             {
                 throw new SqlParserException(new SqlError(source,
-                    fieldNode.Position.Line,
-                    fieldNode.Position.Column,
+                    fieldNode.Line(),
+                    fieldNode.Col(),
                     $"Not found entity with name '{TableName}'"));
             }
         }
