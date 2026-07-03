@@ -171,6 +171,22 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             return new AndConstraint<AstNodeAssertions>(assertions);
         }
 
+        // ---- ALTER TABLE (subject narrows to the ALTER TABLE statement) ----
+
+        public static AndConstraint<AstNodeAssertions> HaveAlterTable(this AstNodeAssertions assertions, string tableName)
+        {
+            var node = assertions.Subject.SelectNode("/ALTER_TABLE[1]");
+            node.Should().Exist();
+            node.SelectNode("/TABLE_NAME/IDENTIFIER").Should().HaveValue(tableName);
+            return new AndConstraint<AstNodeAssertions>(node.Should());
+        }
+
+        public static AndConstraint<AstNodeAssertions> HaveDropColumn(this AstNodeAssertions assertions, string name)
+        {
+            assertions.Subject.SelectNode("//DROP_FIELD_CLAUSE/FIELD_DEFINITION_NAME/IDENTIFIER").Should().HaveValue(name);
+            return new AndConstraint<AstNodeAssertions>(assertions);
+        }
+
         // ---- CREATE VIEW ----
 
         public static AndConstraint<AstNodeAssertions> HaveCreateView(this AstNodeAssertions assertions, string viewName)
