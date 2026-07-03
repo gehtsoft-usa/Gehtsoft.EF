@@ -12,7 +12,6 @@ using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
 using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Test.Utils;
-using Hime.SDK.Output;
 using Xunit;
 
 namespace Gehtsoft.EF.Test.Entity.Query

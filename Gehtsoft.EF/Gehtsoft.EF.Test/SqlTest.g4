@@ -111,7 +111,13 @@ aggrFunc : 'COUNT' | 'MAX' | 'MIN' | 'AVG' | 'SUM' ;
 // ---------------------------- SELECT ----------------------------
 
 selectStatement
-    : 'SELECT' setQuantifier? selectList tableExpression groupBy? havingClause? orderBy? limitOffset? eos
+    : selectCore orderBy? limitOffset? eos
+    ;
+
+// The SELECT body without a trailing ORDER BY / LIMIT. Used inside UNION so that a UNION's
+// trailing ORDER BY binds to the whole union rather than being greedily eaten by the last SELECT.
+selectCore
+    : 'SELECT' setQuantifier? selectList tableExpression groupBy? havingClause?
     ;
 
 setQuantifier : 'DISTINCT' | 'ALL' ;
@@ -214,7 +220,7 @@ foreignKeyDefinition
 
 debugExpr : 'DEBUG' expr ;
 
-unionStatement : selectStatement unionOp selectStatement (unionOp selectStatement)* orderBy? ;
+unionStatement : selectCore unionOp selectCore (unionOp selectCore)* orderBy? eos ;
 unionOp : 'UNION' 'ALL'? ;
 
 nop : ';' ;

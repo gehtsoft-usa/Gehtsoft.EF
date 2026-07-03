@@ -62,24 +62,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hime.SDK" Version="3.5.1" />
-    <PackageReference Include="Hime.Build.Task" Version="0.1.6" IncludeAssets="build" />
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <PackageReference Include="Antlr4BuildTasks" Version="12.8.0" PrivateAssets="all" />
   </ItemGroup>
 
-  <Target Name="AddGrammarFiles" DependsOnTargets="CompileGrammar" BeforeTargets="PreBuildEvent">
-      <ItemGroup>
-          <Compile Include="$(IntermediateOutputPath)SqlTestLexer.cs" />
-          <Compile Include="$(IntermediateOutputPath)SqlTestParser.cs" />
-      </ItemGroup>
-
-      <ItemGroup>
-          <EmbeddedResource Include="$(IntermediateOutputPath)SqlTestLexer.bin" Type="Non-Resx" WithCulture="false" />
-          <EmbeddedResource Include="$(IntermediateOutputPath)SqlTestParser.bin" Type="Non-Resx" WithCulture="false" />
-      </ItemGroup>
-  </Target>
-
-  <Target Name="CompileGrammar" Inputs="sql.gram" Outputs="$(IntermediateOutputPath)SqlTestLexer.cs;$(IntermediateOutputPath)SqlTestParser.cs;$(IntermediateOutputPath)SqlLexer.bin;$(IntermediateOutputPath)SqlParser.bin;">
-     <CompileGrammar GrammarName="SqlTest" GrammarFile="sql.gram" Namespace="Gehtsoft.eF.Test.SqlParser" OutputMode="Source" CodeAccess="Internal" OutputPath="$(IntermediateOutputPath)" />
-  </Target>
+  <ItemGroup>
+    <Antlr4 Include="SqlTest.g4">
+      <Package>Gehtsoft.EF.Test.SqlParser</Package>
+      <Listener>false</Listener>
+      <Visitor>true</Visitor>
+    </Antlr4>
+  </ItemGroup>
 
 </Project>

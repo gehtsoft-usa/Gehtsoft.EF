@@ -12,7 +12,6 @@ using Gehtsoft.EF.Test.Utils;
 using Gehtsoft.EF.Test.Utils.DummyDb;
 using AwesomeAssertions;
 using Xunit;
-using Hime.SDK.Grammars.LR;
 using System.Data;
 using System.Reflection;
 
