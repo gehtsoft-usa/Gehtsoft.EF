@@ -1,5 +1,4 @@
-﻿using Hime.Redist;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,20 +11,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal SqlSelectStatement Select { get; } = null;
         internal SqlBaseExpression Expression { get; } = null;
 
-        internal SqlUpdateAssign(SqlStatement parentStatement, ASTNode updateAssignNode, string source)
+        internal SqlUpdateAssign(SqlStatement parentStatement, SqlParser.UpdateAssignContext updateAssignNode, string source)
         {
-            Field = new SqlField(parentStatement, updateAssignNode.Children[0], source);
-            ASTNode operand = updateAssignNode.Children[1];
+            Field = new SqlField(parentStatement, updateAssignNode.field(), source);
+            SqlParser.ExprContext operand = updateAssignNode.updateOperand().expr();
 
-            if (operand.Symbol.ID == SqlParser.ID.VariableSelect)
+            // `field = (SELECT ...)` parses as a scalar-subquery expression (PrimaryExpr -> selectExpr);
+            // preserve the original behavior of exposing it via the Select property.
+            SqlParser.SelectExprContext selectExpr =
+                (operand is SqlParser.PrimaryExprContext pe) ? pe.primary().selectExpr() : null;
+
+            if (selectExpr != null)
             {
-                Select = new SqlSelectStatement(parentStatement.CodeDomBuilder, operand, source);
+                SqlParser.SelectStatementContext selectNode = selectExpr.selectStatement();
+                Select = new SqlSelectStatement(parentStatement.CodeDomBuilder, selectNode, source);
                 if (Select.SelectList.FieldAliasCollection.Count != 1)
                 {
                     throw new SqlParserException(new SqlError(source,
-                        operand.Position.Line,
-                        operand.Position.Column,
-                        $"Expected 1 column in inner SELECT {operand.Symbol.Name} ({operand.Value ?? "null"})"));
+                        selectNode.Line(),
+                        selectNode.Col(),
+                        $"Expected 1 column in inner SELECT ({selectNode.GetText()})"));
                 }
             }
             else

@@ -1,10 +1,3 @@
-﻿using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class GetRow : SqlBaseExpression
@@ -27,42 +20,37 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal GetRow(Statement parentStatement, ASTNode fieldNode, string source)
+        internal GetRow(Statement parentStatement, SqlParser.GetRowCallContext fieldNode, string source)
         {
-            ASTNode expressionNode = fieldNode.Children[0];
-            RowSetParameter = SqlExpressionParser.ParseExpression(parentStatement, expressionNode, source);
+            SqlParser.ExprContext rowSetNode = fieldNode.expr(0);
+            RowSetParameter = SqlExpressionParser.ParseExpression(parentStatement, rowSetNode, source);
             if (RowSetParameter.ResultType != ResultTypes.RowSet)
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    rowSetNode.Line(), rowSetNode.Col(),
                     "No ROWSET parameter in GET_ROW function call"));
             }
             if (!Statement.IsCalculable(RowSetParameter))
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    rowSetNode.Line(), rowSetNode.Col(),
                     "Not calculable parameter in GET_ROW function call"));
             }
 
-            expressionNode = fieldNode.Children[1];
-            IndexParameter = SqlExpressionParser.ParseExpression(parentStatement, expressionNode, source);
+            SqlParser.ExprContext indexNode = fieldNode.expr(1);
+            IndexParameter = SqlExpressionParser.ParseExpression(parentStatement, indexNode, source);
             if (IndexParameter.ResultType != ResultTypes.Integer)
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    indexNode.Line(), indexNode.Col(),
                     "No index parameter in GET_ROW function call"));
             }
             if (!Statement.IsCalculable(IndexParameter))
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    indexNode.Line(), indexNode.Col(),
                     "Not calculable index parameter in GET_ROW function call"));
             }
         }
-
     }
 }

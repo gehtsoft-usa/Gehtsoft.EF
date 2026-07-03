@@ -3,7 +3,6 @@ using System.Linq;
 using AwesomeAssertions;
 using Gehtsoft.EF.Test.Entity.Utils;
 using Gehtsoft.EF.Test.SqlParser;
-using Hime.SDK.Grammars;
 using Microsoft.OData;
 using Xunit.Sdk;
 
@@ -114,6 +113,12 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         public static AndConstraint<AstNodeAssertions> BeConstant(this AstNodeAssertions assertions)
         {
             assertions.Subject.ExprIsConst().Should().Be(true);
+            return new AndConstraint<AstNodeAssertions>(assertions);
+        }
+
+        public static AndConstraint<AstNodeAssertions> BeSubquery(this AstNodeAssertions assertions)
+        {
+            assertions.Subject.ExprIsSubquery().Should().BeTrue();
             return new AndConstraint<AstNodeAssertions>(assertions);
         }
 

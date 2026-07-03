@@ -1,5 +1,4 @@
 ﻿using Gehtsoft.EF.Entities;
-using Hime.Redist;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,12 +10,12 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal SqlBaseExpression Expression { get; } = null;
         internal SortDir Ordering { get; } = SortDir.Asc;
 
-        internal SqlSortSpecification(SqlStatement parentStatement, ASTNode sortSpecificationNode, string source)
+        internal SqlSortSpecification(SqlStatement parentStatement, SqlParser.SortSpecificationContext sortSpecificationNode, string source)
         {
-            Expression = SqlExpressionParser.ParseExpression(parentStatement, sortSpecificationNode.Children[0], source);
-            if (sortSpecificationNode.Children.Count > 1)
+            Expression = SqlExpressionParser.ParseExpression(parentStatement, sortSpecificationNode.expr(), source);
+            if (sortSpecificationNode.orderingSpecification() != null)
             {
-                Ordering = sortSpecificationNode.Children[1].Value == "DESC" ? SortDir.Desc : SortDir.Asc;
+                Ordering = sortSpecificationNode.orderingSpecification().GetText() == "DESC" ? SortDir.Desc : SortDir.Asc;
             }
         }
 

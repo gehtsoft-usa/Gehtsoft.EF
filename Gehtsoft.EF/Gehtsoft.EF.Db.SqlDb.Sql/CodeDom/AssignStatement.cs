@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Hime.Redist;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
@@ -13,10 +12,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     internal class AssignStatement : Statement
     {
         internal AssignExpression AssignExpression { get; }
-        internal AssignStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
+        internal AssignStatement(SqlCodeDomBuilder builder, SqlParser.AssignStatementContext statementNode, string currentSource)
             : base(builder, StatementType.Assign)
         {
-            AssignExpression = new AssignExpression(this, statementNode.Children[0], statementNode.Children[1], currentSource);
+            AssignExpression = new AssignExpression(this, new GlobalParameter(this, statementNode.globalParameterSimple()), statementNode.expr(), currentSource);
         }
 
         internal AssignStatement(SqlCodeDomBuilder builder, AssignExpression assignExpression)

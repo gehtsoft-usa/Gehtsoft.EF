@@ -1,10 +1,3 @@
-﻿using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlSelectList
@@ -12,16 +5,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal bool All { get; }
         internal SqlExpressionAliasCollection FieldAliasCollection { get; } = null;
 
-        internal SqlSelectList(SqlStatement parentStatement, ASTNode statementNode, string source)
+        internal SqlSelectList(SqlStatement parentStatement, SqlParser.SelectListContext statementNode, string source)
         {
-            if (statementNode.Children[0].Symbol.ID == SqlParser.ID.VariableAsrerisk)
+            if (statementNode is SqlParser.SelectAllContext)
+            {
                 All = true;
-            else if (statementNode.Children[0].Symbol.ID == SqlParser.ID.VariableSelectSublist)
+            }
+            else if (statementNode is SqlParser.SelectItemsContext items)
             {
                 All = false;
                 FieldAliasCollection = new SqlExpressionAliasCollection();
-                ASTNode expressionAliasCollectionNode = statementNode.Children[0];
-                foreach (ASTNode expressionAliasNode in expressionAliasCollectionNode.Children)
+                foreach (SqlParser.ExprAliasContext expressionAliasNode in items.selectSublist().exprAlias())
                 {
                     FieldAliasCollection.Add(new SqlExpressionAlias(parentStatement, expressionAliasNode, source));
                 }
@@ -29,9 +23,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             else
             {
                 throw new SqlParserException(new SqlError(source,
-                    statementNode.Position.Line,
-                    statementNode.Position.Column,
-                    $"Unexpected or incorrect node {statementNode.Symbol.Name}({statementNode.Value ?? "null"})"));
+                    statementNode.Line(),
+                    statementNode.Col(),
+                    $"Unexpected or incorrect node ({statementNode.GetText()})"));
             }
         }
 

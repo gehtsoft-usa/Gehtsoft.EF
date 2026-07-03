@@ -1,38 +1,31 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Hime.Redist;
-using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class WhileDoStatement : BlockStatement
     {
-        internal WhileDoStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
+        internal WhileDoStatement(SqlCodeDomBuilder builder, SqlParser.WhileStatementContext statementNode, string currentSource)
             : base(builder, StatementType.Loop)
         {
-            ASTNode node = statementNode.Children[0];
-            SqlBaseExpression whileExpression = SqlExpressionParser.ParseExpression(this, node, currentSource);
+            SqlParser.ExprContext conditionNode = statementNode.expr();
+            SqlBaseExpression whileExpression = SqlExpressionParser.ParseExpression(this, conditionNode, currentSource);
             if (!Statement.IsCalculable(whileExpression))
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    node.Position.Line,
-                    node.Position.Column,
+                    conditionNode.Line(),
+                    conditionNode.Col(),
                     "Not calculable expression in WHILE statement"));
             }
             if (whileExpression.ResultType != SqlBaseExpression.ResultTypes.Boolean)
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    node.Position.Line,
-                    node.Position.Column,
-                    $"While expression of LOOP should be boolean {node.Symbol.Name} ({node.Value ?? "null"})"));
+                    conditionNode.Line(),
+                    conditionNode.Col(),
+                    $"While expression of LOOP should be boolean ({conditionNode.GetText()})"));
             }
 
-            node = statementNode.Children[1];
+            SqlParser.StatementListContext node = statementNode.statementList();
             ConditionalStatementsRun condition = new ConditionalStatementsRun(new SqlUnaryExpression(whileExpression, SqlUnaryExpression.OperationType.Not));
             IfStatement ifStatement = new IfStatement(builder, new ConditionalStatementsRunCollection() { condition });
 

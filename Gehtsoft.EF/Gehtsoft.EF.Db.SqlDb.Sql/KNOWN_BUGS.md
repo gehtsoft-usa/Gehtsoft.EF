@@ -8,7 +8,25 @@
 
 `SqlConstant` uses default reference equality. Any code calling `.Equals()` on two `SqlConstant` instances with the same value will get `false`. The IN-list comparison in `StatementRunners.cs` was fixed to compare `.Value` directly, but other call sites may be affected.
 
+### 2. CloseCursorStatement error messages say "OPEN CURSOR"
+
+**File:** `CodeDom/CloseCursorStatement.cs` (lines 26, 33)
+
+Both validation error messages read `"Parameter of OPEN CURSOR ..."` — copy-paste from `OpenCursorStatement`. When `CLOSE CURSOR ?x` is given a non-cursor or non-global-variable argument, the reported error names the wrong statement. Should say "CLOSE CURSOR". Characterization tests assert only the shared substring `"not declared as CURSOR"` to avoid enshrining the wrong word.
+
+### 4. Mixing a qualified JOIN with an AUTO JOIN generates invalid SQL
+
+**File:** `SelectRunner.cs` (SQL generation for `FROM ... INNER JOIN ... AUTO JOIN ...`)
+
+`SELECT ... FROM A INNER JOIN B ON ... AUTO JOIN C` parses and builds a valid Code DOM (the AUTO JOIN's left side is the qualified join — `SqlAutoJoinedTable:35-37`), but executing it throws `SQLite Error 1: 'no such column: INNER'` — the join-type keyword leaks into the generated SQL. This is a SQL-generation defect in `SelectRunner`, not in the parse/DOM layer, so it is out of scope for the Hime→ANTLR walker rewrite. Characterization test `NestedQualifiedJoin_AsLeftOfAutoJoin_Parses` asserts only that Code-DOM construction succeeds.
+
 ## Fixed
+
+### Qualified JOIN without an explicit join type failed to parse
+
+**File:** `CodeDom/SqlQualifiedJoinedTable.cs`
+
+The grammar marks the join type optional, so `FROM A JOIN B ON ...` should be valid (defaulting to INNER). Under Hime, the constructor read fixed `Children[0..3]` assuming `JOIN_TYPE` was present, so a plain `JOIN` shifted the indices and threw `"Unexpected table reference node JOIN_SPECIFICATION"`. Fixed in the Hime→ANTLR migration: `SqlQualifiedJoinedTable` uses the typed `joinType()` accessor and defaults to `"INNER"` when it is null. Test `PlainJoin_DefaultsToInner` is now enabled.
 
 ### TODATE/TOTIMESTAMP in SQLite query context
 

@@ -12,7 +12,6 @@ using Gehtsoft.EF.Test.Utils;
 using Gehtsoft.EF.Test.Utils.DummyDb;
 using AwesomeAssertions;
 using Xunit;
-using Hime.SDK.Grammars.LR;
 using System.Data;
 using System.Reflection;
 
@@ -511,7 +510,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var expr = ("DEBUG " + query.Where.ToString()).ParseSql().Statement(0).DebugExpr();
             expr.Should().BeOpExpression(expectedOp);
 
-            expr.ExprOpArg(0).Should().HaveSymbol("SELECT");
+            expr.ExprOpArg(0).Should().BeSubquery();
 
             var select = expr.ExprOpArg(0);
 
@@ -542,7 +541,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var expr = ("DEBUG " + query.Where.ToString()).ParseSql().Statement(0).DebugExpr();
             expr.Should().BeOpExpression(expectedOp);
 
-            expr.ExprOpArg(0).Should().HaveSymbol("SELECT");
+            expr.ExprOpArg(0).Should().BeSubquery();
 
             var select = expr.ExprOpArg(0);
 
@@ -572,7 +571,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var expr = ("DEBUG " + query.Where.ToString()).ParseSql().Statement(0).DebugExpr();
             expr.Should().BeOpExpression(expectedOp);
 
-            expr.ExprOpArg(0).Should().HaveSymbol("SELECT");
+            expr.ExprOpArg(0).Should().BeSubquery();
 
             var select = expr.ExprOpArg(0);
 
@@ -602,7 +601,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var expr = ("DEBUG " + query.Where.ToString()).ParseSql().Statement(0).DebugExpr();
             expr.Should().BeOpExpression(expectedOp);
 
-            expr.ExprOpArg(0).Should().HaveSymbol("SELECT");
+            expr.ExprOpArg(0).Should().BeSubquery();
 
             var select = expr.ExprOpArg(0);
 
@@ -636,7 +635,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var expr = ("DEBUG " + query.Where.ToString()).ParseSql().Statement(0).DebugExpr();
             expr.Should().BeOpExpression(expectedOp);
 
-            expr.ExprOpArg(0).Should().HaveSymbol("SELECT");
+            expr.ExprOpArg(0).Should().BeSubquery();
 
             var select = expr.ExprOpArg(0);
 
@@ -667,7 +666,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var expr = ("DEBUG " + query.Where.ToString()).ParseSql().Statement(0).DebugExpr();
             expr.Should().BeOpExpression(expectedOp);
 
-            expr.ExprOpArg(1).Should().HaveSymbol("SELECT");
+            expr.ExprOpArg(1).Should().BeSubquery();
 
             var select = expr.ExprOpArg(1);
 
@@ -697,7 +696,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             var expr = ("DEBUG " + query.Where.ToString()).ParseSql().Statement(0).DebugExpr();
             expr.Should().BeOpExpression(expectedOp);
 
-            expr.ExprOpArg(1).Should().HaveSymbol("SELECT");
+            expr.ExprOpArg(1).Should().BeSubquery();
 
             var select = expr.ExprOpArg(1);
 

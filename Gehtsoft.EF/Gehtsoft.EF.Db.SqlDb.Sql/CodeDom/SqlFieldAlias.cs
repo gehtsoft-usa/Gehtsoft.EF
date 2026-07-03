@@ -1,5 +1,4 @@
-﻿using Hime.Redist;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -13,14 +12,14 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal SqlBaseExpression Expression { get; } = null;
         internal string Alias { get; private set; } = null;
         internal void SetAlias(string alias) => Alias = alias;
-        internal SqlExpressionAlias(SqlStatement parentStatement, ASTNode fieldAliasNode, string source)
+        internal SqlExpressionAlias(SqlStatement parentStatement, SqlParser.ExprAliasContext fieldAliasNode, string source)
         {
             parentStatement.IgnoreAlias = true;
-            Expression = SqlExpressionParser.ParseExpression(parentStatement, fieldAliasNode.Children[0], source);
+            Expression = SqlExpressionParser.ParseExpression(parentStatement, fieldAliasNode.expr(), source);
             parentStatement.IgnoreAlias = false;
-            if (fieldAliasNode.Children.Count > 1)
+            if (fieldAliasNode.IDENTIFIER() != null)
             {
-                Alias = fieldAliasNode.Children[1].Value;
+                Alias = fieldAliasNode.IDENTIFIER().GetText();
             }
             try
             {
@@ -29,8 +28,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             catch
             {
                 throw new SqlParserException(new SqlError(source,
-                    fieldAliasNode.Position.Line,
-                    fieldAliasNode.Position.Column,
+                    fieldAliasNode.Line(),
+                    fieldAliasNode.Col(),
                     $"Duplicate alias name '{Alias}'"));
             }
         }

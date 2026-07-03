@@ -1,17 +1,11 @@
-﻿using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
-using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class SqlQualifiedJoinedTable : SqlTableSpecification
     {
         private SqlBaseExpression mJoinCondition;
-        private ASTNode? mExpressionNode;
+        private SqlParser.ExprContext mExpressionNode;
         private readonly SqlStatement mParentStatement;
         private readonly string mSource;
 
@@ -19,29 +13,29 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal void TryExpression()
         {
-            if (mExpressionNode.HasValue)
+            if (mExpressionNode != null)
             {
-                mJoinCondition = SqlExpressionParser.ParseExpression(mParentStatement, mExpressionNode.Value, mSource);
+                mJoinCondition = SqlExpressionParser.ParseExpression(mParentStatement, mExpressionNode, mSource);
                 if (mJoinCondition == null)
                 {
                     throw new SqlParserException(new SqlError(mSource,
-                        mExpressionNode.Value.Position.Line,
-                        mExpressionNode.Value.Position.Column,
-                        $"Unexpected or incorrect expression node {mExpressionNode.Value.Symbol.Name}({mExpressionNode.Value.Value ?? "null"})"));
+                        mExpressionNode.Line(),
+                        mExpressionNode.Col(),
+                        $"Unexpected or incorrect expression node ({mExpressionNode.GetText()})"));
                 }
                 if (mJoinCondition.ResultType != SqlBaseExpression.ResultTypes.Boolean)
                 {
                     throw new SqlParserException(new SqlError(mSource,
-                        mExpressionNode.Value.Position.Line,
-                        mExpressionNode.Value.Position.Column,
-                        $"Result of ON should be boolean {mExpressionNode.Value.Symbol.Name} ({mExpressionNode.Value.Value ?? "null"})"));
+                        mExpressionNode.Line(),
+                        mExpressionNode.Col(),
+                        $"Result of ON should be boolean ({mExpressionNode.GetText()})"));
                 }
                 if (Statement.HasAggregateFunctions(mJoinCondition))
                 {
                     throw new SqlParserException(new SqlError(mSource,
-                        mExpressionNode.Value.Position.Line,
-                        mExpressionNode.Value.Position.Column,
-                        $"ON expression should not contain calls of aggregate functions ({mExpressionNode.Value.Value ?? "null"})"));
+                        mExpressionNode.Line(),
+                        mExpressionNode.Col(),
+                        $"ON expression should not contain calls of aggregate functions ({mExpressionNode.GetText()})"));
                 }
                 mExpressionNode = null;
             }
@@ -69,54 +63,21 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlQualifiedJoinedTable(SqlStatement parentStatement, ASTNode fieldNode, string source)
+        internal SqlQualifiedJoinedTable(SqlStatement parentStatement, SqlParser.QualifiedJoinRefContext fieldNode, string source)
         {
             mSource = source;
             mParentStatement = parentStatement;
 
-            ASTNode node1 = fieldNode.Children[0];
-            ASTNode node2 = fieldNode.Children[1];
-            ASTNode node3 = fieldNode.Children[2];
-            ASTNode node4 = fieldNode.Children[3];
+            LeftTable = SqlFromClause.BuildTableReference(parentStatement, fieldNode.tableReference(), source);
 
-            if (node1.Symbol.ID == SqlParser.ID.VariableTablePrimary)
-            {
-                LeftTable = new SqlPrimaryTable(parentStatement, node1, source);
-            }
-            else if (node1.Symbol.ID == SqlParser.ID.VariableQualifiedJoin)
-            {
-                LeftTable = new SqlQualifiedJoinedTable(parentStatement, node1, source);
-            }
-            else
-            {
-                throw new SqlParserException(new SqlError(source,
-                    node1.Position.Line,
-                    node1.Position.Column,
-                    $"Unexpected table reference node {node1.Symbol.Name}({node1.Value ?? "null"})"));
-            }
+            SqlParser.JoinTypeContext joinType = fieldNode.joinType();
+            // A bare JOIN (no explicit type) defaults to INNER; see KNOWN_BUGS.md #3.
+            JoinType = joinType == null ? "INNER"
+                : (joinType.outerJoinType() != null ? joinType.outerJoinType().GetText() : "INNER");
 
-            JoinType = node2.Value;
+            RightTable = new SqlPrimaryTable(parentStatement, fieldNode.tablePrimary(), source);
 
-            if (node3.Symbol.ID == SqlParser.ID.VariableTablePrimary)
-            {
-                RightTable = new SqlPrimaryTable(parentStatement, node3, source);
-            }
-            else
-            {
-                throw new SqlParserException(new SqlError(source,
-                    node3.Position.Line,
-                    node3.Position.Column,
-                    $"Unexpected table reference node {node3.Symbol.Name}({node3.Value ?? "null"})"));
-            }
-
-            if (node4.Symbol.ID == SqlParser.ID.VariableJoinSpecification)
-            {
-                if (node4.Children[0].Symbol.ID == SqlParser.ID.VariableJoinCondition)
-                {
-                    mExpressionNode = node4.Children[0].Children[0];
-                }
-            }
+            mExpressionNode = fieldNode.joinCondition().expr();
         }
-
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -57,22 +57,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            var tableNode = ast.SelectNode("/CREATE_TABLE[1]");
-
-            tableNode.Select("//*_CLAUSE").Should().HaveCount(1);
-            tableNode.Select("//FIELD_DEFINITION").Should().HaveCount(1, "the query must have only one field definition");
-            tableNode.SelectNode("//*_DEFINITION[1]/*_NAME/*[1]").Should().HaveValue("columnName");
-            tableNode.SelectNode("//*_DEFINITION[1]/*_TYPE/*[1]").Should().HaveValue(expectedType);
-
-            if (columnSizeExpected != null)
-                tableNode.SelectNode("//*_DEFINITION[1]/*_TYPE/*_SIZE/INT[1]")
-                    .Should().Exist()
-                    .And.HaveValue(columnSizeExpected.ToString());
-
-            if (columnPrecision != null)
-                tableNode.SelectNode("//*_DEFINITION[1]/*_TYPE/*_SIZE/INT[2]")
-                    .Should().Exist()
-                    .And.HaveValue(columnPrecision.ToString());
+            ast.Should().HaveCreateTable("tableName")
+                .And.HaveColumnCount(1)
+                .And.HaveColumn(1, "columnName", expectedType, columnSizeExpected, columnPrecision);
         }
 
         [Fact]
@@ -100,11 +87,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("CREATE_TABLE").Should().HaveCount(1);
-
-            ast.SelectNode("/CREATE_TABLE[1]/TABLE_NAME/IDENTIFIER")
-                .Should().Exist()
-                .And.HaveValue("tableName");
+            ast.Should().HaveCreateTable("tableName");
         }
 
         [Fact]
@@ -132,10 +115,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_TABLE[1]//*_DEFINITION[1]//*_FLAG")
-                .Should().HaveElementMatching(node => node.Select("/*_PRIMARY_KEY").Any());
-
-            ast.Select("/CREATE_TABLE[1]//*_DEFINITION[1]//*_FLAG").Should().HaveCount(1, "no more flags must be specified with primary key");
+            ast.Should().HaveCreateTable("tableName")
+                .And.HaveColumn(1, "columnName", "INTEGER")
+                .And.BePrimaryKey();
         }
 
         [Fact]
@@ -164,11 +146,10 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_TABLE[1]//*_DEFINITION[1]//*_FLAG")
-                .Should().HaveElementMatching(node => node.Select("/*_PRIMARY_KEY").Any());
-
-            ast.Select("/CREATE_TABLE[1]//*_DEFINITION[1]//*_FLAG")
-                .Should().HaveElementMatching(node => node.Select("/*_AUTOINCREMENT").Any());
+            ast.Should().HaveCreateTable("tableName")
+                .And.HaveColumn(1, "columnName", "INTEGER")
+                .And.BePrimaryKey()
+                .And.BeAutoincrement();
         }
 
         [Fact]
@@ -196,8 +177,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_TABLE[1]//*_DEFINITION[1]//*_FLAG")
-                .Should().HaveElementMatching(node => node.Select("/*_NOT_NULL").Any());
+            ast.Should().HaveCreateTable("tableName")
+                .And.HaveColumn(1, "columnName", "INTEGER")
+                .And.BeNotNull();
         }
 
         [Fact]
@@ -225,8 +207,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_TABLE[1]//*_DEFINITION[1]//*_FLAG")
-                .Should().HaveNoElementMatching(node => !node.Select("/*_NOT_NULL").Any());
+            ast.Should().HaveCreateTable("tableName")
+                .And.HaveColumn(1, "columnName", "INTEGER")
+                .And.BeNotNull();
         }
 
         [Fact]
@@ -254,11 +237,10 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_TABLE[1]//*_DEFINITION[1]//*_FLAG")
-                .Should().HaveElementMatching(node => node.Select("/*_UNIQUE").Any());
-
-            ast.Select("/CREATE_TABLE[1]//*_DEFINITION[1]//*_FLAG")
-                .Should().HaveElementMatching(node => node.Select("/*_NOT_NULL").Any());
+            ast.Should().HaveCreateTable("tableName")
+                .And.HaveColumn(1, "columnName", "INTEGER")
+                .And.BeUnique()
+                .And.BeNotNull();
         }
 
         [Fact]
@@ -296,13 +278,13 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_TABLE[1]//*_CLAUSE[1]//*_FLAG/*_DEFAULT").Should().HaveCount(1);
-            ast.SelectNode("/CREATE_TABLE[1]//*_CLAUSE[1]//*_FLAG/*_DEFAULT/*[1]")
-                .Should().HaveValue("123");
+            ast.Should().HaveCreateTable("tableName")
+                .And.HaveColumn(1, "columnName", "INTEGER")
+                .And.HaveDefault("123");
 
-            ast.Select("/CREATE_TABLE[1]//*_CLAUSE[2]//*_FLAG/*_DEFAULT").Should().HaveCount(1);
-            ast.SelectNode("/CREATE_TABLE[1]//*_CLAUSE[2]//*_FLAG/*_DEFAULT/*[1]")
-                .Should().HaveValue("'abcdef'");
+            ast.Should().HaveCreateTable("tableName")
+                .And.HaveColumn(2, "columnName", "VARCHAR")
+                .And.HaveDefault("'abcdef'");
         }
 
         [Fact]
@@ -350,23 +332,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_INDEX").Should().HaveCount(2);
-
-            var index = ast.SelectNode("/CREATE_INDEX[1]");
-            index.Should().Exist();
-
-            index.SelectNode("/TABLE_NAME[1]/IDENTIFIER").Should().HaveValue("tableName_f1");
-            index.SelectNode("/TABLE_NAME[2]/IDENTIFIER").Should().HaveValue("tableName");
-            index.Select("/SORT_SPECIFICATION_LIST").Should().HaveCount(1);
-            index.SelectNode("//SORT_SPECIFICATION[1]/FIELD/IDENTIFIER").Should().HaveValue("f1");
-
-            index = ast.SelectNode("/CREATE_INDEX[2]");
-            index.Should().Exist();
-
-            index.SelectNode("/TABLE_NAME[1]/IDENTIFIER").Should().HaveValue("tableName_f3");
-            index.SelectNode("/TABLE_NAME[2]/IDENTIFIER").Should().HaveValue("tableName");
-            index.Select("/SORT_SPECIFICATION_LIST").Should().HaveCount(1);
-            index.SelectNode("//SORT_SPECIFICATION[1]/FIELD/IDENTIFIER").Should().HaveValue("f3");
+            ast.Should().HaveCreateIndexCount(2);
+            ast.Should().HaveCreateIndex("tableName_f1", "tableName", 1).And.HaveIndexColumn(1, "f1");
+            ast.Should().HaveCreateIndex("tableName_f3", "tableName", 2).And.HaveIndexColumn(1, "f3");
         }
 
         [Theory]
@@ -421,25 +389,19 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_TABLE[1]//FIELD_DEFINITION").Should().HaveCount(2);
-            ast.Select("/CREATE_TABLE[1]//FOREIGN_KEY_DEFINITION").Should().HaveCount(1);
+            ast.Should().HaveCreateTable("table")
+                .And.HaveColumnCount(2)
+                .And.HaveForeignKeyCount(1)
+                .And.HaveForeignKey("ref", "dictionaryName", "id");
 
-            var fkField = ast.SelectNode("/CREATE_TABLE[1]//FIELD_DEFINITION", 2);
-            fkField.Select("//*_FLAG/*_NOT_NULL").Should().HaveCount(nullable ? 0 : 1);
+            var fkColumn = ast.Should().HaveCreateTable("table").And.HaveColumn(2, "ref", "INTEGER");
+            if (nullable)
+                fkColumn.And.BeNullable();
+            else
+                fkColumn.And.BeNotNull();
 
-            var fkDefinition = ast.SelectNode("/CREATE_TABLE[1]//FOREIGN_KEY_DEFINITION");
-
-            fkDefinition.SelectNode("/FIELD_*_NAME[1]/IDENTIFIER").Should().HaveValue("ref");
-            fkDefinition.SelectNode("/TABLE_NAME/IDENTIFIER").Should().HaveValue("dictionaryName");
-            fkDefinition.SelectNode("/FIELD_*_NAME[2]/IDENTIFIER").Should().HaveValue("id");
-
-            var index = ast.SelectNode("/CREATE_INDEX[1]");
-            index.Should().Exist();
-
-            index.SelectNode("/TABLE_NAME[1]/IDENTIFIER").Should().HaveValue($"{table.Name}_{table[1].Name}");
-            index.SelectNode("/TABLE_NAME[2]/IDENTIFIER").Should().HaveValue(table.Name);
-            index.Select("/SORT_SPECIFICATION_LIST").Should().HaveCount(1);
-            index.SelectNode("//SORT_SPECIFICATION[1]/FIELD/IDENTIFIER").Should().HaveValue(table[1].Name);
+            ast.Should().HaveCreateIndex($"{table.Name}_{table[1].Name}", table.Name)
+                .And.HaveIndexColumn(1, table[1].Name);
         }
 
         private static TableDescriptor StageCompositeIndexText(Func<IEnumerable<CompositeIndex>> indexes)
@@ -496,18 +458,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_INDEX").Should().HaveCount(1);
-            var index = ast.SelectNode("/CREATE_INDEX[1]");
-            index.Should().Exist();
-
-            var indexNode = ast.SelectNode("/CREATE_INDEX[1]");
-            indexNode.Should().Exist();
-
-            indexNode.SelectNode("/TABLE_NAME[1]/IDENTIFIER").Should().HaveValue("tableName_index1");
-            indexNode.SelectNode("/TABLE_NAME[2]/IDENTIFIER").Should().HaveValue("tableName");
-            indexNode.Select("/SORT_SPECIFICATION_LIST/SORT_SPECIFICATION").Should().HaveCount(1);
-            indexNode.SelectNode("//SORT_SPECIFICATION[1]/FIELD/IDENTIFIER").Should().HaveValue("f1");
-            indexNode.Select("//SORT_SPECIFICATION[1]/DESC").Should().HaveCount(direction == SortDir.Asc ? 0 : 1);
+            ast.Should().HaveCreateIndexCount(1);
+            ast.Should().HaveCreateIndex("tableName_index1", "tableName")
+                .And.HaveIndexColumn(1, "f1", direction);
         }
 
         [Fact]
@@ -525,36 +478,10 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_INDEX").Should().HaveCount(3);
-            var index = ast.SelectNode("/CREATE_INDEX[1]");
-            index.Should().Exist();
-
-            var indexNode = ast.SelectNode("/CREATE_INDEX[1]");
-            indexNode.Should().Exist();
-
-            indexNode.SelectNode("/TABLE_NAME[1]/IDENTIFIER").Should().HaveValue("tableName_index1");
-            indexNode.SelectNode("/TABLE_NAME[2]/IDENTIFIER").Should().HaveValue("tableName");
-            indexNode.Select("/SORT_SPECIFICATION_LIST").Should().HaveCount(1);
-            indexNode.SelectNode("//SORT_SPECIFICATION[1]/FIELD/IDENTIFIER").Should().HaveValue("f1");
-            indexNode.Select("//SORT_SPECIFICATION[1]/DESC").Should().HaveCount(0);
-
-            indexNode = ast.SelectNode("/CREATE_INDEX[2]");
-            indexNode.Should().Exist();
-
-            indexNode.SelectNode("/TABLE_NAME[1]/IDENTIFIER").Should().HaveValue("tableName_index2");
-            indexNode.SelectNode("/TABLE_NAME[2]/IDENTIFIER").Should().HaveValue("tableName");
-            indexNode.Select("/SORT_SPECIFICATION_LIST").Should().HaveCount(1);
-            indexNode.SelectNode("//SORT_SPECIFICATION[1]/FIELD/IDENTIFIER").Should().HaveValue("f2");
-            indexNode.Select("//SORT_SPECIFICATION[1]/DESC").Should().HaveCount(0);
-
-            indexNode = ast.SelectNode("/CREATE_INDEX[3]");
-            indexNode.Should().Exist();
-
-            indexNode.SelectNode("/TABLE_NAME[1]/IDENTIFIER").Should().HaveValue("tableName_index3");
-            indexNode.SelectNode("/TABLE_NAME[2]/IDENTIFIER").Should().HaveValue("tableName");
-            indexNode.Select("/SORT_SPECIFICATION_LIST").Should().HaveCount(1);
-            indexNode.SelectNode("//SORT_SPECIFICATION[1]/FIELD/IDENTIFIER").Should().HaveValue("f3");
-            indexNode.Select("//SORT_SPECIFICATION[1]/DESC").Should().HaveCount(0);
+            ast.Should().HaveCreateIndexCount(3);
+            ast.Should().HaveCreateIndex("tableName_index1", "tableName", 1).And.HaveIndexColumn(1, "f1");
+            ast.Should().HaveCreateIndex("tableName_index2", "tableName", 2).And.HaveIndexColumn(1, "f2");
+            ast.Should().HaveCreateIndex("tableName_index3", "tableName", 3).And.HaveIndexColumn(1, "f3");
         }
 
         [Fact]
@@ -569,19 +496,11 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_INDEX").Should().HaveCount(1);
-            var index = ast.SelectNode("/CREATE_INDEX[1]");
-            index.Should().Exist();
-
-            var indexNode = ast.SelectNode("/CREATE_INDEX[1]");
-            indexNode.Should().Exist();
-
-            indexNode.SelectNode("/TABLE_NAME[1]/IDENTIFIER").Should().HaveValue("tableName_index1");
-            indexNode.SelectNode("/TABLE_NAME[2]/IDENTIFIER").Should().HaveValue("tableName");
-            indexNode.Select("/SORT_SPECIFICATION_LIST/SORT_SPECIFICATION").Should().HaveCount(3);
-            indexNode.SelectNode("/SORT_SPECIFICATION_LIST//SORT_SPECIFICATION[1]/FIELD/IDENTIFIER").Should().HaveValue("f1");
-            indexNode.SelectNode("/SORT_SPECIFICATION_LIST//SORT_SPECIFICATION[2]/FIELD/IDENTIFIER").Should().HaveValue("f2");
-            indexNode.SelectNode("/SORT_SPECIFICATION_LIST//SORT_SPECIFICATION[3]/FIELD/IDENTIFIER").Should().HaveValue("f3");
+            ast.Should().HaveCreateIndexCount(1);
+            ast.Should().HaveCreateIndex("tableName_index1", "tableName")
+                .And.HaveIndexColumn(1, "f1")
+                .And.HaveIndexColumn(2, "f2")
+                .And.HaveIndexColumn(3, "f3");
         }
 
         [Fact]
@@ -601,19 +520,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_INDEX").Should().HaveCount(1);
-            var index = ast.SelectNode("/CREATE_INDEX[1]");
-            index.Should().Exist();
-
-            var indexNode = ast.SelectNode("/CREATE_INDEX[1]");
-            indexNode.Should().Exist();
-
-            indexNode.SelectNode("/TABLE_NAME[1]/IDENTIFIER").Should().HaveValue("tableName_index1");
-            indexNode.SelectNode("/TABLE_NAME[2]/IDENTIFIER").Should().HaveValue("tableName");
-            indexNode.Select("/SORT_SPECIFICATION_LIST").Should().HaveCount(1);
-            indexNode.SelectNode("//SORT_SPECIFICATION[1]/*_CALL/UPPER").Should().Exist();
-            indexNode.SelectNode("//SORT_SPECIFICATION[1]/*_CALL/*[2]/IDENTIFIER").Should().HaveValue("f1");
-            indexNode.Select("//SORT_SPECIFICATION[1]/DESC").Should().HaveCount(0);
+            ast.Should().HaveCreateIndexCount(1);
+            ast.Should().HaveCreateIndex("tableName_index1", "tableName")
+                .And.HaveIndexFunctionColumn(1, "UPPER", "f1");
         }
 
         [Fact]
@@ -633,7 +542,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/CREATE_INDEX").Should().HaveCount(0);
+            ast.Should().HaveCreateIndexCount(0);
         }
 
         [Fact]
@@ -668,28 +577,15 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
 
             view.PrepareQuery();
             var ast = view.Query.ParseSql();
-            ast.Select("/CREATE_VIEW").Should().HaveCount(1);
-            ast.SelectNode("/CREATE_VIEW[1]/TABLE_NAME/IDENTIFIER")
-                .Should().Exist()
-                .And.HaveValue("viewName");
-            ast.Select("//SELECT").Should().HaveCount(1);
 
-            ast.Select("//SELECT//SELECT_SUBLIST/*").Should().HaveCount(3);
-            ast.SelectNode("//SELECT//SELECT_SUBLIST/*", 1)
-                .Should().HaveSymbol("EXPR_ALIAS")
-                .And.Match(n => n.SelectNode("/FIELD/IDENTIFIER(f1)", 1) != null);
+            ast.Should().HaveCreateView("viewName");
 
-            ast.SelectNode("//SELECT//SELECT_SUBLIST/*", 2)
-                .Should().HaveSymbol("EXPR_ALIAS")
-                .And.Match(n => n.SelectNode("/FIELD/IDENTIFIER(f2)", 1) != null);
-
-            ast.SelectNode("//SELECT//SELECT_SUBLIST/*", 3)
-                .Should().HaveSymbol("EXPR_ALIAS")
-                .And.Match(n => n.SelectNode("/FIELD/IDENTIFIER(f3)", 1) != null);
-
-            ast.SelectNode("//SELECT/TABLE_EXPRESSION/FROM_CLAUSE//TABLE_PRIMARY[1]")
-                .Should().Exist()
-                .And.Match(n => n.SelectNode("/TABLE_NAME/IDENTIFIER(tableName)", 1) != null);
+            var viewSelect = ast.ViewSelect();
+            viewSelect.Resultset().Should().HaveCount(3);
+            viewSelect.ResultsetItem(0).ResultsetExpr().Should().BeFieldExpression().And.HaveFieldName("f1");
+            viewSelect.ResultsetItem(1).ResultsetExpr().Should().BeFieldExpression().And.HaveFieldName("f2");
+            viewSelect.ResultsetItem(2).ResultsetExpr().Should().BeFieldExpression().And.HaveFieldName("f3");
+            viewSelect.Table(0).Should().HaveTableName("tableName");
         }
     }
 }

@@ -1,10 +1,3 @@
-﻿using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class Fetch : SqlBaseExpression
@@ -26,25 +19,22 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal Fetch(Statement parentStatement, ASTNode fieldNode, string source)
+        internal Fetch(Statement parentStatement, SqlParser.FetchCallContext fieldNode, string source)
         {
-            ASTNode expressionNode = fieldNode.Children[0];
-            Parameter = SqlExpressionParser.ParseExpression(parentStatement, expressionNode, source);
+            SqlParser.GlobalParameterSimpleContext paramNode = fieldNode.globalParameterSimple();
+            Parameter = new GlobalParameter(parentStatement, paramNode);
             if (Parameter.ResultType != ResultTypes.Cursor)
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
-                    $"No cursor parameter in FETCH function call ({expressionNode.Value ?? "null"})"));
+                    paramNode.Line(), paramNode.Col(),
+                    $"No cursor parameter in FETCH function call ({paramNode.GetText()})"));
             }
             if (!Statement.IsCalculable(Parameter))
             {
                 throw new SqlParserException(new SqlError(source,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
-                    $"Not calculable parameter in FETCH function call ({expressionNode.Value ?? "null"})"));
+                    paramNode.Line(), paramNode.Col(),
+                    $"Not calculable parameter in FETCH function call ({paramNode.GetText()})"));
             }
         }
-
     }
 }

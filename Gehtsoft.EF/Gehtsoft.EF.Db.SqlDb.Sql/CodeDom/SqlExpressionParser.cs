@@ -1,392 +1,245 @@
-﻿using Hime.Redist;
+using Antlr4.Runtime.Tree;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal static class SqlExpressionParser
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Critical Code Smell", "S1479:Consider refactoring this method to reduce the number of switch cases", Justification = "Parser switch is clear and self-contained")]
-        internal static SqlBaseExpression ParseExpression(Statement parentStatement, ASTNode fieldNode, string source)
+        internal static SqlBaseExpression ParseExpression(Statement parentStatement, SqlParser.ExprContext exprNode, string source)
         {
-            SqlBaseExpression result = null;
-            ResultTypes opType = ResultTypes.Unknown;
-            object constant = null;
-            SqlBinaryExpression.OperationType? binaryOp = null;
-            SqlUnaryExpression.OperationType? unarOp = null;
-            SqlInExpression.OperationType? inOp = null;
-            string funcName = null;
-            SqlBaseExpressionCollection callParameters = null;
-            ResultTypes funcResultType = ResultTypes.Unknown;
-
-            switch (fieldNode.Symbol.ID)
+            switch (exprNode)
             {
-                case SqlParser.ID.VariableSelectExpr:
-                    result = new SqlSelectExpression(parentStatement, fieldNode, source);
-                    break;
-                case SqlParser.ID.VariableField:
-                    result = new SqlField(parentStatement, fieldNode, source);
-                    break;
-                case SqlParser.ID.VariableNull:
-                    opType = ResultTypes.Unknown;
-                    constant = "NULL";
-                    break;
-                case SqlLexer.ID.TerminalInt:
-                    opType = ResultTypes.Integer;
-                    constant = int.Parse(fieldNode.Value);
-                    break;
-                case SqlLexer.ID.TerminalReal:
-                    opType = ResultTypes.Double;
-                    constant = double.Parse(fieldNode.Value);
-                    break;
-                case SqlLexer.ID.TerminalStringdq:
-                case SqlLexer.ID.TerminalStringsq:
-                    opType = ResultTypes.String;
-                    constant = fieldNode.Value.Substring(1, fieldNode.Value.Length - 2);
-                    break;
-                case SqlParser.ID.VariableBooleanTrue:
-                    opType = ResultTypes.Boolean;
-                    constant = true;
-                    break;
-                case SqlParser.ID.VariableBooleanFalse:
-                    opType = ResultTypes.Boolean;
-                    constant = false;
-                    break;
-                case SqlParser.ID.VariableDateConst:
-                    DateTime dt;
-                    if (!DateTime.TryParseExact(fieldNode.Children[0].Value.Substring(1, fieldNode.Children[0].Value.Length - 2),
-                        "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
+                case SqlParser.PrimaryExprContext c:
+                    return ParsePrimary(parentStatement, c.primary(), source);
+
+                case SqlParser.UnarySignExprContext c:
                     {
-                        throw new SqlParserException(new SqlError(source,
-                            fieldNode.Children[0].Position.Line,
-                            fieldNode.Children[0].Position.Column,
-                            $"Incorrect DateTime ({fieldNode.Children[0].Value ?? "null"})"));
+                        var op = c.op.Text == "-" ? SqlUnaryExpression.OperationType.Minus : SqlUnaryExpression.OperationType.Plus;
+                        return BuildUnary(parentStatement, c.expr(), op, source);
                     }
-                    constant = dt;
-                    opType = ResultTypes.DateTime;
-                    break;
-                case SqlParser.ID.VariableDatetimeConst:
-                    DateTime dtt;
-                    string valueToParse = fieldNode.Children[0].Value.Substring(1, fieldNode.Children[0].Value.Length - 2);
-                    if (!DateTime.TryParseExact(valueToParse,
-                        "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
+                case SqlParser.NotExprContext c:
+                    return BuildUnary(parentStatement, c.expr(), SqlUnaryExpression.OperationType.Not, source);
+
+                case SqlParser.NullExprContext c:
+                    return BuildUnary(parentStatement, c.expr(),
+                        c.not != null ? SqlUnaryExpression.OperationType.IsNotNull : SqlUnaryExpression.OperationType.IsNull, source);
+
+                case SqlParser.MulExprContext c:
+                    return BuildBinary(parentStatement, c.expr(0), c.expr(1),
+                        c.op.Text == "*" ? SqlBinaryExpression.OperationType.Mult : SqlBinaryExpression.OperationType.Div, source);
+
+                case SqlParser.AddExprContext c:
                     {
-                        if (!DateTime.TryParseExact(valueToParse,
-                            "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
+                        SqlBinaryExpression.OperationType op;
+                        switch (c.op.Text)
                         {
-                            if (!DateTime.TryParseExact(valueToParse,
-                                "yyyy-MM-dd HH", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
-                            {
-                                if (!DateTime.TryParseExact(valueToParse,
-                                    "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtt))
-                                {
-                                    throw new SqlParserException(new SqlError(source,
-                                        fieldNode.Children[0].Position.Line,
-                                        fieldNode.Children[0].Position.Column,
-                                        $"Incorrect DateTime ({fieldNode.Children[0].Value ?? "null"})"));
-                                }
-                            }
+                            case "+": op = SqlBinaryExpression.OperationType.Plus; break;
+                            case "-": op = SqlBinaryExpression.OperationType.Minus; break;
+                            default: op = SqlBinaryExpression.OperationType.Concat; break;
                         }
+                        return BuildBinary(parentStatement, c.expr(0), c.expr(1), op, source);
                     }
-                    constant = dtt;
-                    opType = ResultTypes.DateTime;
-                    break;
-                case SqlParser.ID.VariableAndOp:
-                    binaryOp = SqlBinaryExpression.OperationType.And;
-                    break;
-                case SqlParser.ID.VariableOrOp:
-                    binaryOp = SqlBinaryExpression.OperationType.Or;
-                    break;
-                case SqlParser.ID.VariableGeOp:
-                    binaryOp = SqlBinaryExpression.OperationType.Ge;
-                    break;
-                case SqlParser.ID.VariableGtOp:
-                    binaryOp = SqlBinaryExpression.OperationType.Gt;
-                    break;
-                case SqlParser.ID.VariableLeOp:
-                    binaryOp = SqlBinaryExpression.OperationType.Le;
-                    break;
-                case SqlParser.ID.VariableLtOp:
-                    binaryOp = SqlBinaryExpression.OperationType.Ls;
-                    break;
-                case SqlParser.ID.VariableEqOp:
-                    binaryOp = SqlBinaryExpression.OperationType.Eq;
-                    break;
-                case SqlParser.ID.VariableNeqOp:
-                    binaryOp = SqlBinaryExpression.OperationType.Neq;
-                    break;
-                case SqlParser.ID.VariableConcatOp:
-                    binaryOp = SqlBinaryExpression.OperationType.Concat;
-                    break;
-                case SqlParser.ID.VariableMinusOp:
-                    if (fieldNode.Children.Count > 1)
+                case SqlParser.RelExprContext c:
                     {
-                        binaryOp = SqlBinaryExpression.OperationType.Minus;
+                        SqlBinaryExpression.OperationType op;
+                        switch (c.op.Text)
+                        {
+                            case "=": op = SqlBinaryExpression.OperationType.Eq; break;
+                            case "<>": op = SqlBinaryExpression.OperationType.Neq; break;
+                            case ">": op = SqlBinaryExpression.OperationType.Gt; break;
+                            case ">=": op = SqlBinaryExpression.OperationType.Ge; break;
+                            case "<": op = SqlBinaryExpression.OperationType.Ls; break;
+                            default: op = SqlBinaryExpression.OperationType.Le; break;
+                        }
+                        return BuildBinary(parentStatement, c.expr(0), c.expr(1), op, source);
                     }
-                    else
-                    {
-                        unarOp = SqlUnaryExpression.OperationType.Minus;
-                    }
-                    break;
-                case SqlParser.ID.VariablePlusOp:
-                    if (fieldNode.Children.Count > 1)
-                    {
-                        binaryOp = SqlBinaryExpression.OperationType.Plus;
-                    }
-                    else
-                    {
-                        unarOp = SqlUnaryExpression.OperationType.Plus;
-                    }
-                    break;
-                case SqlParser.ID.VariableNotOp:
-                    unarOp = SqlUnaryExpression.OperationType.Not;
-                    break;
-                case SqlParser.ID.VariableMulOp:
-                    binaryOp = SqlBinaryExpression.OperationType.Mult;
-                    break;
-                case SqlParser.ID.VariableDivOp:
-                    binaryOp = SqlBinaryExpression.OperationType.Div;
-                    break;
-                case SqlParser.ID.VariableTrimCall:
-                    funcName = "TRIM";
-                    funcResultType = ResultTypes.String;
-                    ASTNode parameterNode = fieldNode.Children[0];
-                    if (fieldNode.Children.Count > 1)
-                    {
-                        if (fieldNode.Children[0].Symbol.ID == SqlParser.ID.VariableTrimLeading)
-                            funcName = "LTRIM";
-                        else if (fieldNode.Children[0].Symbol.ID == SqlParser.ID.VariableTrimTrailing)
-                            funcName = "RTRIM";
+                case SqlParser.AndExprContext c:
+                    return BuildBinary(parentStatement, c.expr(0), c.expr(1), SqlBinaryExpression.OperationType.And, source);
+                case SqlParser.OrExprContext c:
+                    return BuildBinary(parentStatement, c.expr(0), c.expr(1), SqlBinaryExpression.OperationType.Or, source);
 
-                        parameterNode = fieldNode.Children[1];
-                    }
-                    SqlBaseExpression parameter = ParseExpression(parentStatement, parameterNode, source);
-                    if (parameter.ResultType != ResultTypes.String)
-                    {
-                        throw new SqlParserException(new SqlError(source,
-                            parameterNode.Position.Line,
-                            parameterNode.Position.Column,
-                            $"Incorrect type of parameter ({parameterNode.Value ?? "null"})"));
-                    }
-                    callParameters = new SqlBaseExpressionCollection
-                    {
-                        parameter
-                    };
+                case SqlParser.LikeExprContext c:
+                    return BuildLike(parentStatement, c, source);
 
-                    break;
-                case SqlParser.ID.VariableStrFuncCall:
-                    funcName = fieldNode.Children[0].Value;
-                    funcResultType = ResultTypes.String;
-                    ASTNode parameterNodeStrFunc = fieldNode.Children[1];
-                    SqlBaseExpression parameterStrFunc = ParseExpression(parentStatement, parameterNodeStrFunc, source);
-                    if (parameterStrFunc.ResultType != ResultTypes.String)
-                    {
-                        throw new SqlParserException(new SqlError(source,
-                            parameterNodeStrFunc.Position.Line,
-                            parameterNodeStrFunc.Position.Column,
-                            $"Incorrect type of parameter ({parameterNodeStrFunc.Value ?? "null"})"));
-                    }
-                    callParameters = new SqlBaseExpressionCollection
-                    {
-                        parameterStrFunc
-                    };
+                case SqlParser.InExprContext c:
+                    return new SqlInExpression(parentStatement, c.expr(),
+                        c.not != null ? SqlInExpression.OperationType.NotIn : SqlInExpression.OperationType.In,
+                        c.inPredicateValue(), source);
 
-                    break;
-                case SqlParser.ID.VariableCastFuncCall:
-                    funcName = fieldNode.Children[0].Value;
-                    funcResultType = ResultTypes.String;
-                    ASTNode parameterNodeCustFunc = fieldNode.Children[1];
-                    switch (funcName)
-                    {
-                        case "TOSTRING":
-                            funcResultType = ResultTypes.String;
-                            break;
-                        case "TOINT":
-                            funcResultType = ResultTypes.Integer;
-                            break;
-                        case "TODOUBLE":
-                            funcResultType = ResultTypes.Double;
-                            break;
-                        case "TODATE":
-                            funcResultType = ResultTypes.DateTime;
-                            break;
-                        case "TOTIMESTAMP":
-                            funcResultType = ResultTypes.Integer;
-                            break;
-                    }
-                    SqlBaseExpression parameterCustFunc = ParseExpression(parentStatement, parameterNodeCustFunc, source);
-                    callParameters = new SqlBaseExpressionCollection
-                    {
-                        parameterCustFunc
-                    };
-
-                    break;
-                case SqlParser.ID.VariableMathFuncCall:
-                    funcName = fieldNode.Children[0].Value;
-                    ASTNode parameterNodeMathFunc = fieldNode.Children[1];
-                    SqlBaseExpression parameterMathFunc = ParseExpression(parentStatement, parameterNodeMathFunc, source);
-                    if (parameterMathFunc.ResultType != ResultTypes.Integer && parameterMathFunc.ResultType != ResultTypes.Double)
-                    {
-                        throw new SqlParserException(new SqlError(source,
-                            parameterNodeMathFunc.Position.Line,
-                            parameterNodeMathFunc.Position.Column,
-                            $"Incorrect type of parameter ({parameterNodeMathFunc.Value ?? "null"})"));
-                    }
-                    funcResultType = parameterMathFunc.ResultType;
-                    callParameters = new SqlBaseExpressionCollection
-                    {
-                        parameterMathFunc
-                    };
-
-                    break;
-                case SqlParser.ID.VariableAggrFunc:
-                    ASTNode nameNode = fieldNode.Children[0];
-                    ASTNode innerFieldNode = fieldNode.Children[1];
-                    ResultTypes? resultType = null;
-                    if (nameNode.Value == "COUNT")
-                    {
-                        resultType = ResultTypes.Integer;
-                    }
-                    result = new SqlAggrFunc(nameNode.Value, new SqlField(parentStatement, innerFieldNode, source), resultType);
-                    break;
-                case SqlParser.ID.VariableAggrCountAll:
-                    result = new SqlAggrFunc("COUNT", null, ResultTypes.Integer);
-                    break;
-                case SqlParser.ID.VariableExactLikeOp:
-                case SqlParser.ID.VariableNotLikeOp:
-                    funcName = fieldNode.Symbol.ID == SqlParser.ID.VariableExactLikeOp ? "LIKE" : "NOTLIKE";
-                    funcResultType = ResultTypes.Boolean;
-                    ASTNode parameter1Node = fieldNode.Children[0];
-                    SqlBaseExpression parameter1 = ParseExpression(parentStatement, parameter1Node, source);
-                    if (parameter1.ResultType != ResultTypes.String)
-                    {
-                        throw new SqlParserException(new SqlError(source,
-                            parameter1Node.Position.Line,
-                            parameter1Node.Position.Column,
-                            $"Incorrect type of parameter ({parameter1Node.Value ?? "null"})"));
-                    }
-                    ASTNode parameter2Node = fieldNode.Children[1];
-                    SqlBaseExpression parameter2 = ParseExpression(parentStatement, parameter2Node, source);
-                    if (parameter2.ResultType != ResultTypes.String)
-                    {
-                        throw new SqlParserException(new SqlError(source,
-                            parameter2Node.Position.Line,
-                            parameter2Node.Position.Column,
-                            $"Incorrect type of parameter ({parameter2Node.Value ?? "null"})"));
-                    }
-
-                    callParameters = new SqlBaseExpressionCollection
-                    {
-                        parameter1,
-                        parameter2
-                    };
-
-                    break;
-                case SqlParser.ID.VariableBoolStrFuncCall:
-                    funcName = fieldNode.Children[0].Value;
-                    funcResultType = ResultTypes.Boolean;
-                    ASTNode param1Node = fieldNode.Children[1];
-                    SqlBaseExpression param1 = ParseExpression(parentStatement, param1Node, source);
-                    if (param1.ResultType != ResultTypes.String)
-                    {
-                        throw new SqlParserException(new SqlError(source,
-                            param1Node.Position.Line,
-                            param1Node.Position.Column,
-                            $"Incorrect type of parameter ({param1Node.Value ?? "null"})"));
-                    }
-                    ASTNode param2Node = fieldNode.Children[2];
-                    SqlBaseExpression param2 = ParseExpression(parentStatement, param2Node, source);
-                    if (param2.ResultType != ResultTypes.String)
-                    {
-                        throw new SqlParserException(new SqlError(source,
-                            param2Node.Position.Line,
-                            param2Node.Position.Column,
-                            $"Incorrect type of parameter ({param2Node.Value ?? "null"})"));
-                    }
-
-                    callParameters = new SqlBaseExpressionCollection
-                    {
-                        param1,
-                        param2
-                    };
-
-                    break;
-                case SqlParser.ID.VariableExactInOp:
-                    inOp = SqlInExpression.OperationType.In;
-                    break;
-                case SqlParser.ID.VariableNotInOp:
-                    inOp = SqlInExpression.OperationType.NotIn;
-                    break;
-                case SqlParser.ID.VariableExactNullOp:
-                    unarOp = SqlUnaryExpression.OperationType.IsNull;
-                    break;
-                case SqlParser.ID.VariableNotNullOp:
-                    unarOp = SqlUnaryExpression.OperationType.IsNotNull;
-                    break;
-                case SqlParser.ID.VariableGlobalParameter:
-                case SqlParser.ID.VariableGlobalParameterSimple:
-                    result = new GlobalParameter(parentStatement, fieldNode);
-                    break;
-                case SqlParser.ID.VariableLastResultCall:
-                    result = new GetLastResult();
-                    break;
-                case SqlParser.ID.VariableRowsCountCall:
-                    result = new GetRowsCount(parentStatement, fieldNode, source);
-                    break;
-                case SqlParser.ID.VariableGetRowCall:
-                    result = new GetRow(parentStatement, fieldNode, source);
-                    break;
-                case SqlParser.ID.VariableGetFieldCall:
-                    result = new GetField(parentStatement, fieldNode, source);
-                    break;
-                case SqlParser.ID.VariableNewRowsetCall:
-                    result = new NewRowSet();
-                    break;
-                case SqlParser.ID.VariableNewRowCall:
-                    result = new NewRow();
-                    break;
-                case SqlParser.ID.VariableFetchCall:
-                    result = new Fetch(parentStatement, fieldNode, source);
-                    break;
-                case SqlParser.ID.VariableAssignExpr:
-                    result = new AssignExpression(parentStatement, fieldNode.Children[0], fieldNode.Children[1], source);
-                    break;
+                case SqlParser.AssignExprContext c:
+                    return new AssignExpression(parentStatement,
+                        (GlobalParameter)ParseExpression(parentStatement, c.expr(0), source), c.expr(1), source);
             }
-            if (funcName != null)
-            {
-                result = new SqlCallFuncExpression(funcResultType, funcName, callParameters);
-            }
-            if (constant != null)
-            {
-                if (opType == ResultTypes.Unknown && (string)constant == "NULL") constant = null;
-                result = new SqlConstant(constant, opType);
-            }
-            if (binaryOp.HasValue)
-            {
-                SqlBaseExpression mLeftOperand = ParseExpression(parentStatement, fieldNode.Children[0], source);
-                SqlBaseExpression mRightOperand = ParseExpression(parentStatement, fieldNode.Children[1], source);
-
-                SqlConstant mConstant = SqlBinaryExpression.TryGetConstant(mLeftOperand, binaryOp.Value, mRightOperand);
-                result = mConstant ?? (SqlBaseExpression)new SqlBinaryExpression(mLeftOperand, binaryOp.Value, mRightOperand);
-            }
-            if (unarOp.HasValue)
-            {
-                SqlBaseExpression mOperand = ParseExpression(parentStatement, fieldNode.Children[0], source);
-
-                SqlConstant mConstant = SqlUnaryExpression.TryGetConstant(mOperand, unarOp.Value);
-                result = mConstant ?? (SqlBaseExpression)new SqlUnaryExpression(mOperand, unarOp.Value);
-            }
-            if (inOp.HasValue)
-            {
-                result = new SqlInExpression(parentStatement, fieldNode.Children[0], inOp.Value, fieldNode.Children[1], source);
-            }
-
-            return result;
+            throw new SqlParserException(new SqlError(source, exprNode.Line(), exprNode.Col(),
+                $"Unexpected or incorrect expression ({exprNode.GetText()})"));
         }
+
+        private static SqlBaseExpression ParsePrimary(Statement parentStatement, SqlParser.PrimaryContext primary, string source)
+        {
+            switch (primary.GetChild(0))
+            {
+                case SqlParser.ConstantContext c: return ParseConstant(c, source);
+                case SqlParser.FieldContext c: return new SqlField(parentStatement, c, source);
+                case SqlParser.GlobalParameterContext c: return new GlobalParameter(parentStatement, c);
+                case SqlParser.FuncCallContext c: return ParseFuncCall(parentStatement, c, source);
+                case SqlParser.AggrCallContext c: return ParseAggrCall(parentStatement, c, source);
+                case SqlParser.SelectExprContext c: return new SqlSelectExpression(parentStatement, c, source);
+                case ITerminalNode _: return ParseExpression(parentStatement, primary.expr(), source); // '(' expr ')'
+            }
+            throw new SqlParserException(new SqlError(source, primary.Line(), primary.Col(),
+                $"Unexpected or incorrect expression ({primary.GetText()})"));
+        }
+
+        internal static SqlBaseExpression ParseConstant(SqlParser.ConstantContext ctx, string source)
+        {
+            switch (ctx)
+            {
+                case SqlParser.NullConstContext _:
+                    return new SqlConstant(null, ResultTypes.Unknown);
+                case SqlParser.BoolConstContext c:
+                    return new SqlConstant(c.GetText() == "TRUE", ResultTypes.Boolean);
+                case SqlParser.StringConstContext c:
+                    return new SqlConstant(StripQuotes(c.GetText()), ResultTypes.String);
+                case SqlParser.NumberConstContext c:
+                    return c.INT() != null
+                        ? new SqlConstant(int.Parse(c.GetText()), ResultTypes.Integer)
+                        : new SqlConstant(double.Parse(c.GetText()), ResultTypes.Double);
+                case SqlParser.DateConstContext c:
+                    {
+                        string v = StripQuotes(GetStringToken(c.STRINGDQ(), c.STRINGSQ()));
+                        if (!DateTime.TryParseExact(v, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
+                            throw new SqlParserException(new SqlError(source, c.Line(), c.Col(), $"Incorrect DateTime ({v})"));
+                        return new SqlConstant(dt, ResultTypes.DateTime);
+                    }
+                case SqlParser.DatetimeConstContext c:
+                    {
+                        string v = StripQuotes(GetStringToken(c.STRINGDQ(), c.STRINGSQ()));
+                        string[] formats = { "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM-dd HH", "yyyy-MM-dd" };
+                        if (!DateTime.TryParseExact(v, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
+                            throw new SqlParserException(new SqlError(source, c.Line(), c.Col(), $"Incorrect DateTime ({v})"));
+                        return new SqlConstant(dt, ResultTypes.DateTime);
+                    }
+            }
+            throw new SqlParserException(new SqlError(source, ctx.Line(), ctx.Col(), $"Unexpected constant ({ctx.GetText()})"));
+        }
+
+        private static SqlBaseExpression ParseAggrCall(Statement parentStatement, SqlParser.AggrCallContext ctx, string source)
+        {
+            switch (ctx)
+            {
+                case SqlParser.AggrCountAllContext _:
+                    return new SqlAggrFunc("COUNT", null, ResultTypes.Integer);
+                case SqlParser.AggrFuncCallContext c:
+                    {
+                        string name = c.aggrFunc().GetText();
+                        ResultTypes? resultType = name == "COUNT" ? ResultTypes.Integer : (ResultTypes?)null;
+                        return new SqlAggrFunc(name, new SqlField(parentStatement, c.field(), source), resultType);
+                    }
+            }
+            throw new SqlParserException(new SqlError(source, ctx.Line(), ctx.Col(), $"Unexpected aggregate ({ctx.GetText()})"));
+        }
+
+        private static SqlBaseExpression ParseFuncCall(Statement parentStatement, SqlParser.FuncCallContext ctx, string source)
+        {
+            switch (ctx.GetChild(0))
+            {
+                case SqlParser.MathFuncCallContext c:
+                    {
+                        var p = ParseExpression(parentStatement, c.expr(), source);
+                        if (p.ResultType != ResultTypes.Integer && p.ResultType != ResultTypes.Double)
+                            throw IncorrectParam(source, c.expr());
+                        return new SqlCallFuncExpression(p.ResultType, c.name.Text, new SqlBaseExpressionCollection { p });
+                    }
+                case SqlParser.CastFuncCallContext c:
+                    {
+                        var p = ParseExpression(parentStatement, c.expr(), source);
+                        ResultTypes rt;
+                        switch (c.name.Text)
+                        {
+                            case "TOINT": rt = ResultTypes.Integer; break;
+                            case "TODOUBLE": rt = ResultTypes.Double; break;
+                            case "TODATE": rt = ResultTypes.DateTime; break;
+                            case "TOTIMESTAMP": rt = ResultTypes.Integer; break;
+                            default: rt = ResultTypes.String; break; // TOSTRING
+                        }
+                        return new SqlCallFuncExpression(rt, c.name.Text, new SqlBaseExpressionCollection { p });
+                    }
+                case SqlParser.StrFuncCallContext c:
+                    {
+                        var p = ParseExpression(parentStatement, c.expr(), source);
+                        if (p.ResultType != ResultTypes.String)
+                            throw IncorrectParam(source, c.expr());
+                        return new SqlCallFuncExpression(ResultTypes.String, c.name.Text, new SqlBaseExpressionCollection { p });
+                    }
+                case SqlParser.TrimCallContext c:
+                    {
+                        string funcName = "TRIM";
+                        if (c.trimSpecification() != null)
+                        {
+                            string spec = c.trimSpecification().GetText();
+                            if (spec == "LEADING") funcName = "LTRIM";
+                            else if (spec == "TRAILING") funcName = "RTRIM";
+                        }
+                        var p = ParseExpression(parentStatement, c.expr(), source);
+                        if (p.ResultType != ResultTypes.String)
+                            throw IncorrectParam(source, c.expr());
+                        return new SqlCallFuncExpression(ResultTypes.String, funcName, new SqlBaseExpressionCollection { p });
+                    }
+                case SqlParser.BoolStrFuncCallContext c:
+                    {
+                        var p1 = ParseExpression(parentStatement, c.expr(0), source);
+                        if (p1.ResultType != ResultTypes.String)
+                            throw IncorrectParam(source, c.expr(0));
+                        var p2 = ParseExpression(parentStatement, c.expr(1), source);
+                        if (p2.ResultType != ResultTypes.String)
+                            throw IncorrectParam(source, c.expr(1));
+                        return new SqlCallFuncExpression(ResultTypes.Boolean, c.name.Text, new SqlBaseExpressionCollection { p1, p2 });
+                    }
+                case SqlParser.LastResultCallContext _: return new GetLastResult();
+                case SqlParser.RowsCountCallContext c: return new GetRowsCount(parentStatement, c, source);
+                case SqlParser.GetRowCallContext c: return new GetRow(parentStatement, c, source);
+                case SqlParser.GetFieldCallContext c: return new GetField(parentStatement, c, source);
+                case SqlParser.NewRowsetCallContext _: return new NewRowSet();
+                case SqlParser.NewRowCallContext _: return new NewRow();
+                case SqlParser.FetchCallContext c: return new Fetch(parentStatement, c, source);
+            }
+            throw new SqlParserException(new SqlError(source, ctx.Line(), ctx.Col(), $"Unexpected function call ({ctx.GetText()})"));
+        }
+
+        private static SqlBaseExpression BuildLike(Statement parentStatement, SqlParser.LikeExprContext c, string source)
+        {
+            string funcName = c.not != null ? "NOTLIKE" : "LIKE";
+            var p1 = ParseExpression(parentStatement, c.expr(0), source);
+            if (p1.ResultType != ResultTypes.String)
+                throw IncorrectParam(source, c.expr(0));
+            var p2 = ParseExpression(parentStatement, c.expr(1), source);
+            if (p2.ResultType != ResultTypes.String)
+                throw IncorrectParam(source, c.expr(1));
+            return new SqlCallFuncExpression(ResultTypes.Boolean, funcName, new SqlBaseExpressionCollection { p1, p2 });
+        }
+
+        private static SqlBaseExpression BuildBinary(Statement parentStatement, SqlParser.ExprContext left, SqlParser.ExprContext right, SqlBinaryExpression.OperationType op, string source)
+        {
+            var l = ParseExpression(parentStatement, left, source);
+            var r = ParseExpression(parentStatement, right, source);
+            SqlConstant folded = SqlBinaryExpression.TryGetConstant(l, op, r);
+            return folded ?? (SqlBaseExpression)new SqlBinaryExpression(l, op, r);
+        }
+
+        private static SqlBaseExpression BuildUnary(Statement parentStatement, SqlParser.ExprContext operand, SqlUnaryExpression.OperationType op, string source)
+        {
+            var o = ParseExpression(parentStatement, operand, source);
+            SqlConstant folded = SqlUnaryExpression.TryGetConstant(o, op);
+            return folded ?? (SqlBaseExpression)new SqlUnaryExpression(o, op);
+        }
+
+        private static SqlParserException IncorrectParam(string source, SqlParser.ExprContext ctx)
+            => new SqlParserException(new SqlError(source, ctx.Line(), ctx.Col(), $"Incorrect type of parameter ({ctx.GetText()})"));
+
+        private static string StripQuotes(string s) => s.Substring(1, s.Length - 2);
+
+        private static string GetStringToken(ITerminalNode dq, ITerminalNode sq) => (dq ?? sq).GetText();
     }
 }

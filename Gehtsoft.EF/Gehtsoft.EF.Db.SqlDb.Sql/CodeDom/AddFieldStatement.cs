@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Hime.Redist;
 using static Gehtsoft.EF.Db.SqlDb.Sql.CodeDom.SqlBaseExpression;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
@@ -15,53 +14,46 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal SqlBaseExpression FieldNameExpression { get; }
         internal SqlBaseExpression ValueExpression { get; }
         internal GlobalParameter RowParameter { get; }
-        internal AddFieldStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
+        internal AddFieldStatement(SqlCodeDomBuilder builder, SqlParser.AddFieldStatementContext statementNode, string currentSource)
             : base(builder, StatementType.AddField)
         {
-            ASTNode expressionNode = statementNode.Children[0];
+            SqlParser.ExprContext expressionNode = statementNode.expr(0);
             FieldNameExpression = SqlExpressionParser.ParseExpression(this, expressionNode, currentSource);
             if (FieldNameExpression.ResultType != ResultTypes.String)
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    expressionNode.Line(),
+                    expressionNode.Col(),
                     "Field name expression in ADD FIELD statement should have STRING type"));
             }
             if (!Statement.IsCalculable(FieldNameExpression))
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    expressionNode.Line(),
+                    expressionNode.Col(),
                     "Not calculable field name expression in ADD FIELD statement"));
             }
 
-            expressionNode = statementNode.Children[1];
+            expressionNode = statementNode.expr(1);
             ValueExpression = SqlExpressionParser.ParseExpression(this, expressionNode, currentSource);
             if (!Statement.IsCalculable(ValueExpression))
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    expressionNode.Line(),
+                    expressionNode.Col(),
                     "Not calculable value expression in ADD FIELD statement"));
             }
 
-            expressionNode = statementNode.Children[2];
-            SqlBaseExpression rowExpression = SqlExpressionParser.ParseExpression(this, expressionNode, currentSource);
+            SqlParser.GlobalParameterSimpleContext rowNode = statementNode.globalParameterSimple();
+            GlobalParameter rowExpression = new GlobalParameter(this, rowNode);
             if (rowExpression.ResultType != ResultTypes.Row)
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
+                    rowNode.Line(),
+                    rowNode.Col(),
                     "Row expression in ADD FIELD statement should have ROW type"));
             }
-            if (rowExpression.ExpressionType != ExpressionTypes.GlobalParameter)
-            {
-                throw new SqlParserException(new SqlError(currentSource,
-                    expressionNode.Position.Line,
-                    expressionNode.Position.Column,
-                    "Row should be set by global variable in ADD FIELD statement"));
-            }
-            RowParameter = (GlobalParameter)rowExpression;
+            RowParameter = rowExpression;
         }
 
         internal void Run(SqlDbConnection connection)

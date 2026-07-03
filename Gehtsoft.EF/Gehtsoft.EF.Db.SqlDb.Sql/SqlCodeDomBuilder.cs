@@ -1,8 +1,8 @@
 ﻿using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Db.SqlDb.Sql.CodeDom;
+using Antlr4.Runtime;
 using Gehtsoft.EF.Entities;
-using Hime.Redist;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,19 +30,26 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         /// <param name="name">The name</param>
         /// <param name="source"></param>
         /// <returns></returns>
-        internal ASTNode ParseToRawTree(string name, TextReader source)
+        internal SqlParser.StatementListContext ParseToRawTree(string name, TextReader source)
         {
-            SqlParser parser = new SqlParser(new SqlLexer(source));
-            ParseResult result = parser.Parse();
-            if (!result.IsSuccess)
-            {
-                var errors = SqlErrorCollection.ToSqlErrors(name, result);
-                throw new SqlParserException(errors);
-            }
-            return result.Root;
+            SqlErrorListener listener = new SqlErrorListener(name);
+
+            SqlLexer lexer = new SqlLexer(new AntlrInputStream(source.ReadToEnd()));
+            lexer.RemoveErrorListeners();
+            lexer.AddErrorListener(listener);
+
+            SqlParser parser = new SqlParser(new CommonTokenStream(lexer));
+            parser.RemoveErrorListeners();
+            parser.AddErrorListener(listener);
+
+            SqlParser.ProgramContext program = parser.program();
+            if (listener.HasErrors)
+                throw new SqlParserException(listener.Errors);
+
+            return program.statementList();
         }
 
-        internal Expression ParseNodeToLinq(string name, ASTNode root, Statement parentStatement, bool clear = false)
+        internal Expression ParseNodeToLinq(string name, SqlParser.StatementListContext root, Statement parentStatement, bool clear = false)
         {
             var visitor = new SqlAstVisitor();
             Expression result = visitor.VisitStatementsToLinq(this, name, root, parentStatement?.Type ?? Statement.StatementType.Block, parentStatement?.OnContinue, clear);

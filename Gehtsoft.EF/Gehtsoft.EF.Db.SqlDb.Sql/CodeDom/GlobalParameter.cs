@@ -1,10 +1,3 @@
-﻿using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
     internal class GlobalParameter : SqlBaseExpression
@@ -57,12 +50,17 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             Name = name;
             mResultType = resultType ?? ResultTypes.Unknown;
         }
-        internal GlobalParameter(Statement parentStatement, ASTNode node)
+        internal GlobalParameter(Statement parentStatement, SqlParser.GlobalParameterContext node)
         {
-            Name = node.Children[0].Value;
+            Name = node.GLOBAL_PARAMETER_NAME().GetText();
             mParentStatement = parentStatement;
-            if (node.Children.Count > 1)
-                mResultType = Statement.GetResultTypeByName(node.Children[1].Value);
+            if (node.parameterType() != null)
+                mResultType = Statement.GetResultTypeByName(node.parameterType().GetText());
+        }
+        internal GlobalParameter(Statement parentStatement, SqlParser.GlobalParameterSimpleContext node)
+        {
+            Name = node.GLOBAL_PARAMETER_NAME().GetText();
+            mParentStatement = parentStatement;
         }
     }
 }

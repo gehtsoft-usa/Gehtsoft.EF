@@ -1,12 +1,6 @@
-﻿using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
-using Hime.Redist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
@@ -29,10 +23,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             }
         }
 
-        internal SqlInsertStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
-            : base(builder, StatementId.Insert, currentSource, statementNode.Position.Line, statementNode.Position.Column)
+        internal SqlInsertStatement(SqlCodeDomBuilder builder, SqlParser.InsertStatementContext statementNode, string currentSource)
+            : base(builder, StatementId.Insert, currentSource, statementNode.Line(), statementNode.Col())
         {
-            TableName = statementNode.Children[0].Value;
+            TableName = statementNode.IDENTIFIER().GetText();
             try
             {
                 this.AddEntityEntry(TableName, null);
@@ -40,52 +34,51 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
             catch
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    statementNode.Children[0].Position.Line,
-                    statementNode.Children[0].Position.Column,
+                    statementNode.Line(),
+                    statementNode.Col(),
                     $"Not found entity with name '{TableName}'"));
             }
 
-            ASTNode fieldsNode = statementNode.Children[1];
-
             Fields = new SqlFieldCollection();
-            foreach (ASTNode fieldNode in fieldsNode.Children)
+            foreach (SqlParser.FieldContext fieldNode in statementNode.fieldsList().fields().field())
             {
                 Fields.Add(new SqlField(this, fieldNode, currentSource));
             }
 
-            if (statementNode.Children[2].Symbol.ID == SqlParser.ID.VariableValues)
+            SqlParser.ToInsertContext toInsert = statementNode.toInsert();
+            if (toInsert.valuesList() != null)
             {
-                ASTNode valuesNode = statementNode.Children[2];
                 Values = new SqlConstantCollection();
-                foreach (ASTNode constantNode in valuesNode.Children)
+                foreach (SqlParser.ConstantContext constantNode in toInsert.valuesList().values().constant())
                 {
-                    Values.Add((SqlConstant)(SqlExpressionParser.ParseExpression(this, constantNode, currentSource)));
+                    Values.Add((SqlConstant)SqlExpressionParser.ParseConstant(constantNode, currentSource));
                 }
             }
-            else if (statementNode.Children[2].Symbol.ID == SqlParser.ID.VariableSelect)
+            else if (toInsert.selectStatement() != null)
             {
-                RightSelect = new SqlSelectStatement(this.CodeDomBuilder, statementNode.Children[2], currentSource);
+                SqlParser.SelectStatementContext selectNode = toInsert.selectStatement();
+                RightSelect = new SqlSelectStatement(this.CodeDomBuilder, selectNode, currentSource);
                 if (RightSelect.Grouping != null)
                 {
                     throw new SqlParserException(new SqlError(currentSource,
-                        statementNode.Children[2].Position.Line,
-                        statementNode.Children[2].Position.Column,
+                        selectNode.Line(),
+                        selectNode.Col(),
                         "GROUP BY can not be used in SELECT part of INSERT operator"));
                 }
                 if (RightSelect.Sorting != null)
                 {
                     throw new SqlParserException(new SqlError(currentSource,
-                        statementNode.Children[2].Position.Line,
-                        statementNode.Children[2].Position.Column,
+                        selectNode.Line(),
+                        selectNode.Col(),
                         "SORT BY can not be used in SELECT part of INSERT operator"));
                 }
             }
             else
             {
                 throw new SqlParserException(new SqlError(currentSource,
-                    statementNode.Children[2].Position.Line,
-                    statementNode.Children[2].Position.Column,
-                    $"Unknown right part of INSERT ({statementNode.Children[2].Value ?? "null"})"));
+                    toInsert.Line(),
+                    toInsert.Col(),
+                    $"Unknown right part of INSERT ({toInsert.GetText()})"));
             }
             CheckFieldsAndValues();
         }

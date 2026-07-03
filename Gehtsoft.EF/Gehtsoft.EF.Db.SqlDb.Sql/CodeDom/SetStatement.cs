@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Hime.Redist;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
@@ -13,32 +12,32 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
     {
         internal SetItemCollection SetItems { get; }
 
-        internal SetStatement(SqlCodeDomBuilder builder, ASTNode statementNode, string currentSource)
+        internal SetStatement(SqlCodeDomBuilder builder, SqlParser.SetStatementContext statementNode, string currentSource)
             : base(builder, StatementType.Set)
         {
             SetItems = new SetItemCollection();
-            foreach (ASTNode node in statementNode.Children[0].Children)
+            foreach (SqlParser.SetItemContext node in statementNode.setList().setItem())
             {
-                string name = node.Children[0].Value;
+                string name = node.IDENTIFIER().GetText();
                 SqlBaseExpression existing = builder.FindGlobalParameter($"?{name}");
-                if (node.Children.Count > 1)
+                if (node.expr() != null)
                 {
-                    ASTNode expressionNode = node.Children[1];
+                    SqlParser.ExprContext expressionNode = node.expr();
                     SqlBaseExpression expression = SqlExpressionParser.ParseExpression(this, expressionNode, currentSource);
                     if (!Statement.IsCalculable(expression))
                     {
                         throw new SqlParserException(new SqlError(currentSource,
-                            expressionNode.Position.Line,
-                            expressionNode.Position.Column,
-                            $"Not calculable expression in SET statement ({expressionNode.Value ?? "null"})"));
+                            expressionNode.Line(),
+                            expressionNode.Col(),
+                            $"Not calculable expression in SET statement ({expressionNode.GetText()})"));
                     }
                     if (existing != null)
                     {
                         if (existing.ResultType != expression.ResultType)
                         {
                             throw new SqlParserException(new SqlError(currentSource,
-                                expressionNode.Position.Line,
-                                expressionNode.Position.Column,
+                                expressionNode.Line(),
+                                expressionNode.Col(),
                                 $"Expression in SET statement doesn't match type of declared before ({existing.ResultType})"));
                         }
                     }

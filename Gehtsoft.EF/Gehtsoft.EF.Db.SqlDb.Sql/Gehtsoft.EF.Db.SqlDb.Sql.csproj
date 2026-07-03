@@ -14,23 +14,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hime.SDK" Version="3.5.1" />
-    <PackageReference Include="Hime.Build.Task" Version="0.1.6" IncludeAssets="build" />
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <PackageReference Include="Antlr4BuildTasks" Version="12.8.0" PrivateAssets="all" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
-  <Target Name="AddGrammarFiles" DependsOnTargets="CompileGrammar" BeforeTargets="BeforeResGen">
-     <ItemGroup>
-       <EmbeddedResource Include="$(IntermediateOutputPath)SqlLexer.bin" Type="Non-Resx" WithCulture="false" />
-       <EmbeddedResource Include="$(IntermediateOutputPath)SqlParser.bin" Type="Non-Resx" WithCulture="false" />
-       <Compile Include="$(IntermediateOutputPath)SqlLexer.cs" ExcludeFromSourceAnalysis="true" SonarQubeExclude="true" />
-       <Compile Include="$(IntermediateOutputPath)SqlParser.cs" ExcludeFromSourceAnalysis="true" SonarQubeExclude="true" />
-     </ItemGroup>
-  </Target>
-
-  <Target Name="CompileGrammar" Inputs="sql.gram" Outputs="$(IntermediateOutputPath)SqlLexer.cs;$(IntermediateOutputPath)SqlParser.cs;$(IntermediateOutputPath)SqlLexer.bin;$(IntermediateOutputPath)SqlParser.bin;">
-     <CompileGrammar GrammarName="Sql" GrammarFile="sql.gram" Namespace="Gehtsoft.eF.Db.SqlDb.Sql" OutputMode="Source" CodeAccess="Internal" OutputPath="$(IntermediateOutputPath)" />
-  </Target>
+  <ItemGroup>
+    <Antlr4 Include="Sql.g4">
+      <Package>Gehtsoft.EF.Db.SqlDb.Sql</Package>
+      <Listener>false</Listener>
+      <Visitor>false</Visitor>
+    </Antlr4>
+  </ItemGroup>
 
    <ItemGroup>
     <Compile Include="CodeDom\AddFieldStatement.cs" />
@@ -89,6 +84,8 @@
     <Compile Include="CodeDom\IParametersHolder.cs" />
     <Compile Include="CodeDom\SwitchStatement.cs" />
     <Compile Include="CodeDom\WhileDoStatement.cs" />
+    <Compile Include="AntlrParseExtensions.cs" />
+    <Compile Include="SqlErrorListener.cs" />
     <Compile Include="DeleteRunner.cs" />
     <Compile Include="InsertRunner.cs" />
     <Compile Include="StatementRunners.cs" />
@@ -100,12 +97,5 @@
     <Compile Include="SqlParserException.cs" />
     <Compile Include="UpdateRunner.cs" />
   </ItemGroup>
-
-  <Target Name="CleanGrammar" BeforeTargets="Clean">
-    <Delete Files="SqlParser.cs" />
-    <Delete Files="SqlLexer.cs" />
-    <Delete Files="SqlParser.bin" />
-    <Delete Files="SqlLexer.bin" />
-  </Target>
 
 </Project>

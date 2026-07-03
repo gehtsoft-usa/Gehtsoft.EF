@@ -261,7 +261,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             expr.Should().BeOpExpression(expectedOp);
 
             var arg = expr.ExprOpArg(hasLeft ? 1 : 0);
-            arg.Should().HaveSymbol("SELECT");
+            arg.Should().BeSubquery();
         }
 
         [Theory]
@@ -300,7 +300,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             expr.Should().BeOpExpression(expectedOp);
 
             var arg = expr.ExprOpArg(hasLeft ? 1 : 0);
-            arg.Should().HaveSymbol("SELECT");
+            arg.Should().BeSubquery();
         }
 
         [Theory]

@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AwesomeAssertions.Execution;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
-using Hime.Redist;
 
 #pragma warning disable RCS1224 // Make method an extension method.
 

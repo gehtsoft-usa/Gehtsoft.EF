@@ -1,5 +1,4 @@
-﻿using Hime.Redist;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -51,16 +50,6 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
         internal SqlBaseExpression RightOperand { get; }
 
         internal OperationType Operation { get; }
-
-        internal SqlBinaryExpression(SqlStatement parentStatement, ASTNode leftOperand, OperationType operation, ASTNode rightOperand, string source)
-        {
-            LeftOperand = SqlExpressionParser.ParseExpression(parentStatement, leftOperand, source);
-            RightOperand = SqlExpressionParser.ParseExpression(parentStatement, rightOperand, source);
-
-            CheckOperands(LeftOperand, operation, RightOperand, source, rightOperand.Position.Line, rightOperand.Position.Column);
-            mResultType = GetResultType(operation, LeftOperand.ResultType);
-            Operation = operation;
-        }
 
         internal SqlBinaryExpression(SqlBaseExpression leftOperand, OperationType operation, SqlBaseExpression rightOperand)
         {

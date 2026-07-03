@@ -706,7 +706,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             var where = select.SelectWhere().ClauseCondition();
 
             where.Should().BeOpExpression("EXISTS_OP")
-                .And.ItsParameter(0, p => p.Should().HaveSymbol("SELECT"));
+                .And.ItsParameter(0, p => p.Should().BeSubquery());
 
             var subselect = where.ExprOpArg(0);
 
