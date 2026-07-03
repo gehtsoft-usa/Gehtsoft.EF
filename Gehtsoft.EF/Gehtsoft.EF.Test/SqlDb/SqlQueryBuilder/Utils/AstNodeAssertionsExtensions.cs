@@ -117,6 +117,12 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             return new AndConstraint<AstNodeAssertions>(assertions);
         }
 
+        public static AndConstraint<AstNodeAssertions> BeSubquery(this AstNodeAssertions assertions)
+        {
+            assertions.Subject.ExprIsSubquery().Should().BeTrue();
+            return new AndConstraint<AstNodeAssertions>(assertions);
+        }
+
         public static AndConstraint<AstNodeAssertions> BeCountAllCall(this AstNodeAssertions assertions)
         {
             assertions.Subject.ExprIsCountAll().Should().Be(true);

@@ -1,6 +1,5 @@
-﻿using System.Data;
+using System.Data;
 using System.Linq;
-using System.Security.Cryptography;
 using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
@@ -55,39 +54,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/INSERT")
-                .Should().HaveCount(1);
-
-            var stmt = ast.SelectNode("/INSERT");
-
-            stmt.SelectNode("/*", 1)
-                .Should().HaveSymbol("TABLE_NAME")
-                .And.Subject.SelectNode("/*", 1)
-                    .Should().HaveSymbol("IDENTIFIER")
-                    .And.HaveValue("tableName");
-
-            stmt.SelectNode("/*", 2)
-                .Should().HaveSymbol("FIELDS");
-
-            var f = stmt.Select("/*[2]/FIELD").ToArray();
-            f.Should().HaveCount(4);
-
-            f[0].Should().ContainMatching("/*", n => n.Value == "id");
-            f[1].Should().ContainMatching("/*", n => n.Value == "f1");
-            f[2].Should().ContainMatching("/*", n => n.Value == "f2");
-            f[3].Should().ContainMatching("/*", n => n.Value == "f3");
-
-            stmt.SelectNode("/*", 3)
-                .Should().HaveSymbol("INSERT_VALUES_LIST");
-
-            f = stmt.Select("/*[3]/INSERT_VALUES/INSERT_VALUE/PARAM").ToArray();
-
-            f.Should().HaveCount(4);
-
-            f[0].Should().ContainMatching("/*", n => n.Value == "id");
-            f[1].Should().ContainMatching("/*", n => n.Value == "f1");
-            f[2].Should().ContainMatching("/*", n => n.Value == "f2");
-            f[3].Should().ContainMatching("/*", n => n.Value == "f3");
+            ast.Should().HaveInsert("tableName")
+                .And.HaveInsertFields("id", "f1", "f2", "f3")
+                .And.HaveInsertValues("id", "f1", "f2", "f3");
         }
 
         [Fact]
@@ -99,37 +68,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/INSERT")
-                .Should().HaveCount(1);
-
-            var stmt = ast.SelectNode("/INSERT");
-
-            stmt.SelectNode("/*", 1)
-                .Should().HaveSymbol("TABLE_NAME")
-                .And.Subject.SelectNode("/*", 1)
-                    .Should().HaveSymbol("IDENTIFIER")
-                    .And.HaveValue("tableName");
-
-            stmt.SelectNode("/*", 2)
-                .Should().HaveSymbol("FIELDS");
-
-            var f = stmt.Select("/*[2]/FIELD").ToArray();
-            f.Should().HaveCount(3);
-
-            f[0].Should().ContainMatching("/*", n => n.Value == "f1");
-            f[1].Should().ContainMatching("/*", n => n.Value == "f2");
-            f[2].Should().ContainMatching("/*", n => n.Value == "f3");
-
-            stmt.SelectNode("/*", 3)
-                .Should().HaveSymbol("INSERT_VALUES_LIST");
-
-            f = stmt.Select("/*[3]/INSERT_VALUES/INSERT_VALUE/PARAM").ToArray();
-
-            f.Should().HaveCount(3);
-
-            f[0].Should().ContainMatching("/*", n => n.Value == "f1");
-            f[1].Should().ContainMatching("/*", n => n.Value == "f2");
-            f[2].Should().ContainMatching("/*", n => n.Value == "f3");
+            ast.Should().HaveInsert("tableName")
+                .And.HaveInsertFields("f1", "f2", "f3")
+                .And.HaveInsertValues("f1", "f2", "f3");
         }
 
         [Fact]
@@ -141,39 +82,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/INSERT")
-                .Should().HaveCount(1);
-
-            var stmt = ast.SelectNode("/INSERT");
-
-            stmt.SelectNode("/*", 1)
-                .Should().HaveSymbol("TABLE_NAME")
-                .And.Subject.SelectNode("/*", 1)
-                    .Should().HaveSymbol("IDENTIFIER")
-                    .And.HaveValue("tableName");
-
-            stmt.SelectNode("/*", 2)
-                .Should().HaveSymbol("FIELDS");
-
-            var f = stmt.Select("/*[2]/FIELD").ToArray();
-            f.Should().HaveCount(4);
-
-            f[0].Should().ContainMatching("/*", n => n.Value == "id");
-            f[1].Should().ContainMatching("/*", n => n.Value == "f1");
-            f[2].Should().ContainMatching("/*", n => n.Value == "f2");
-            f[3].Should().ContainMatching("/*", n => n.Value == "f3");
-
-            stmt.SelectNode("/*", 3)
-                .Should().HaveSymbol("INSERT_VALUES_LIST");
-
-            f = stmt.Select("/*[3]/INSERT_VALUES/INSERT_VALUE/PARAM").ToArray();
-
-            f.Should().HaveCount(4);
-
-            f[0].Should().ContainMatching("/*", n => n.Value == "id");
-            f[1].Should().ContainMatching("/*", n => n.Value == "f1");
-            f[2].Should().ContainMatching("/*", n => n.Value == "f2");
-            f[3].Should().ContainMatching("/*", n => n.Value == "f3");
+            ast.Should().HaveInsert("tableName")
+                .And.HaveInsertFields("id", "f1", "f2", "f3")
+                .And.HaveInsertValues("id", "f1", "f2", "f3");
         }
 
         [Fact]
@@ -195,72 +106,26 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/INSERT")
-                .Should().HaveCount(1);
+            ast.Should().HaveInsert("tableName")
+                .And.HaveInsertFields("id", "f1", "f2", "f3");
 
-            var stmt = ast.SelectNode("/INSERT");
+            var select = ast.InsertStatement().InsertSelect();
+            select.Should().Exist();
 
-            stmt.SelectNode("/*", 1)
-                .Should().HaveSymbol("TABLE_NAME")
-                .And.Subject.SelectNode("/*", 1)
-                    .Should().HaveSymbol("IDENTIFIER")
-                    .And.HaveValue("tableName");
+            var alias = select.Table(0).TableAlias().Value;
+            select.Table(0).Should().HaveTableName("tableName1");
 
-            stmt.SelectNode("/*", 2)
-                .Should().HaveSymbol("FIELDS");
+            select.Should()
+                .HaveResultsetSize(4)
+                .And.HaveResultsetItemExpression(0, e => e.Should().BeFieldExpression(alias, "id"))
+                .And.HaveResultsetItemExpression(1, e => e.Should().BeFieldExpression(alias, "f1"))
+                .And.HaveResultsetItemExpression(2, e => e.Should().BeFieldExpression(alias, "f2"))
+                .And.HaveResultsetItemExpression(3, e => e.Should().BeFieldExpression(alias, "f3"));
 
-            var f = stmt.Select("/*[2]/FIELD").ToArray();
-            f.Should().HaveCount(4);
-
-            f[0].Should().ContainMatching("/*", n => n.Value == "id");
-            f[1].Should().ContainMatching("/*", n => n.Value == "f1");
-            f[2].Should().ContainMatching("/*", n => n.Value == "f2");
-            f[3].Should().ContainMatching("/*", n => n.Value == "f3");
-
-            var select = stmt.SelectNode("/*", 3);
-
-            select.Should().HaveSymbol("SELECT");
-
-            var from = stmt.SelectNode("/*", 3)
-                .SelectNode("/TABLE_EXPRESSION/FROM_CLAUSE/TABLE_REFERENCE_LIST/TABLE_PRIMARY");
-
-            from.Should().Exist();
-
-            var alias = from.SelectNode("/IDENTIFIER").Value;
-
-            from.SelectNode("/TABLE_NAME/IDENTIFIER")
-                .Should().Exist()
-                .And.HaveValue("tableName1");
-
-            var rs = stmt.SelectNode("/*", 3).Select("/SELECT_LIST/SELECT_SUBLIST/EXPR_ALIAS/FIELD").ToArray();
-            rs.Should().HaveCount(4);
-            rs[0].Should().ContainMatching("/*[1]", n => n.Value == alias);
-            rs[0].Should().ContainMatching("/*[2]", n => n.Value == "id");
-            rs[1].Should().ContainMatching("/*[1]", n => n.Value == alias);
-            rs[1].Should().ContainMatching("/*[2]", n => n.Value == "f1");
-            rs[2].Should().ContainMatching("/*[1]", n => n.Value == alias);
-            rs[2].Should().ContainMatching("/*[2]", n => n.Value == "f2");
-            rs[3].Should().ContainMatching("/*[1]", n => n.Value == alias);
-            rs[3].Should().ContainMatching("/*[2]", n => n.Value == "f3");
-
-            var where = stmt.SelectNode("/*", 3)
-                .SelectNode("/TABLE_EXPRESSION/WHERE_CLAUSE");
-
-            var whereOp = where.SelectNode("/*", 1);
-            whereOp.Should().HaveSymbol("EQ_OP");
-
-            var arg1 = whereOp.SelectNode("/*", 1);
-            arg1.Should()
-                .HaveSymbol("FIELD")
-                .And.ContainMatching("/IDENTIFIER[1]", n => n.Value == alias)
-                .And.ContainMatching("/IDENTIFIER[2]", n => n.Value == "id");
-
-            var arg2 = whereOp.SelectNode("/*", 2);
-            arg2.Should()
-                .HaveSymbol("INT")
-                .And.HaveValue("1");
-
-            where.Should().Exist();
+            select.SelectWhere().ClauseCondition().Should()
+                .BeOpExpression("EQ_OP")
+                .And.ItsParameter(0, p => p.Should().BeFieldExpression(alias, "id"))
+                .And.ItsParameter(1, p => p.Should().BeConstant(1));
         }
 
         [Fact]
@@ -279,29 +144,10 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/INSERT")
-                .Should().HaveCount(1);
+            ast.Should().HaveInsert("tableName")
+                .And.HaveInsertFields("f1", "f2", "f3");
 
-            var stmt = ast.SelectNode("/INSERT");
-
-            stmt.SelectNode("/*", 1)
-                .Should().HaveSymbol("TABLE_NAME")
-                .And.Subject.SelectNode("/*", 1)
-                    .Should().HaveSymbol("IDENTIFIER")
-                    .And.HaveValue("tableName");
-
-            stmt.SelectNode("/*", 2)
-                .Should().HaveSymbol("FIELDS");
-
-            var f = stmt.Select("/*[2]/FIELD").ToArray();
-            f.Should().HaveCount(3);
-
-            f[0].Should().ContainMatching("/*", n => n.Value == "f1");
-            f[1].Should().ContainMatching("/*", n => n.Value == "f2");
-            f[2].Should().ContainMatching("/*", n => n.Value == "f3");
-
-            stmt.SelectNode("/*", 3)
-                .Should().HaveSymbol("SELECT");
+            ast.InsertStatement().InsertSelect().Should().Exist();
         }
 
         [Fact]
@@ -315,35 +161,9 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/INSERT")
-                .Should().HaveCount(1);
-
-            var stmt = ast.SelectNode("/INSERT");
-
-            stmt.SelectNode("/*", 1)
-                .Should().HaveSymbol("TABLE_NAME")
-                .And.Subject.SelectNode("/*", 1)
-                    .Should().HaveSymbol("IDENTIFIER")
-                    .And.HaveValue("tableName");
-
-            stmt.SelectNode("/*", 2)
-                .Should().HaveSymbol("FIELDS");
-
-            var f = stmt.Select("/*[2]/FIELD").ToArray();
-            f.Should().HaveCount(2);
-
-            f[0].Should().ContainMatching("/*", n => n.Value == "f1");
-            f[1].Should().ContainMatching("/*", n => n.Value == "f3");
-
-            stmt.SelectNode("/*", 3)
-                .Should().HaveSymbol("INSERT_VALUES_LIST");
-
-            f = stmt.Select("/*[3]/INSERT_VALUES/INSERT_VALUE/PARAM").ToArray();
-
-            f.Should().HaveCount(2);
-
-            f[0].Should().ContainMatching("/*", n => n.Value == "f1");
-            f[1].Should().ContainMatching("/*", n => n.Value == "f3");
+            ast.Should().HaveInsert("tableName")
+                .And.HaveInsertFields("f1", "f3")
+                .And.HaveInsertValues("f1", "f3");
         }
 
         [Fact]
@@ -362,28 +182,10 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/INSERT")
-                .Should().HaveCount(1);
+            ast.Should().HaveInsert("tableName")
+                .And.HaveInsertFields("f1", "f3");
 
-            var stmt = ast.SelectNode("/INSERT");
-
-            stmt.SelectNode("/*", 1)
-                .Should().HaveSymbol("TABLE_NAME")
-                .And.Subject.SelectNode("/*", 1)
-                    .Should().HaveSymbol("IDENTIFIER")
-                    .And.HaveValue("tableName");
-
-            stmt.SelectNode("/*", 2)
-                .Should().HaveSymbol("FIELDS");
-
-            var f = stmt.Select("/*[2]/FIELD").ToArray();
-            f.Should().HaveCount(2);
-
-            f[0].Should().ContainMatching("/*", n => n.Value == "f1");
-            f[1].Should().ContainMatching("/*", n => n.Value == "f3");
-
-            stmt.SelectNode("/*", 3)
-                .Should().HaveSymbol("SELECT");
+            ast.InsertStatement().InsertSelect().Should().Exist();
         }
 
         [Fact]
@@ -398,37 +200,22 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/UPDATE")
-                .Should().HaveCount(1);
+            ast.Should().HaveUpdate("tableName")
+                .And.HaveUpdateAssignCount(3);
 
-            ast.SelectNode("/UPDATE/TABLE_NAME/IDENTIFIER")
-               .Should().Exist()
-               .And.HaveValue("tableName");
+            var update = ast.UpdateStatement();
 
-            ast.Select("/UPDATE/UPDATE_LIST/UPDATE_ASSIGN")
-               .Should().HaveCount(3);
+            foreach (var (index, name) in new[] { (0, "f1"), (1, "f2"), (2, "f3") })
+            {
+                var assign = update.UpdateAssign(index);
+                assign.AssignTarget().Should().HaveFieldName(name);
+                assign.AssignValue().Should().BeParamExpression().And.HaveParamName(name);
+            }
 
-            var list = ast.Select("/UPDATE/UPDATE_LIST/UPDATE_ASSIGN").ToArray();
-
-            list[0].SelectNode("/FIELD/IDENTIFIER[1]").Should().HaveValue("f1");
-            list[0].SelectNode("/PARAM/IDENTIFIER[1]").Should().HaveValue("f1");
-
-            list[1].SelectNode("/FIELD/IDENTIFIER[1]").Should().HaveValue("f2");
-            list[1].SelectNode("/PARAM/IDENTIFIER[1]").Should().HaveValue("f2");
-
-            list[2].SelectNode("/FIELD/IDENTIFIER[1]").Should().HaveValue("f3");
-            list[2].SelectNode("/PARAM/IDENTIFIER[1]").Should().HaveValue("f3");
-
-            var where = ast.SelectNode("/UPDATE/WHERE_CLAUSE");
-
-            var whereOp = where.SelectNode("*", 1);
-            whereOp.Should().HaveSymbol("EQ_OP");
-            whereOp.SelectNode("*", 1).Should().HaveSymbol("FIELD");
-            whereOp.SelectNode("*", 1).SelectNode("IDENTIFIER", 1).Should().HaveValue("tableName");
-            whereOp.SelectNode("*", 1).SelectNode("IDENTIFIER", 2).Should().HaveValue("id");
-
-            whereOp.SelectNode("*", 2).Should().HaveSymbol("PARAM");
-            whereOp.SelectNode("*", 2).SelectNode("IDENTIFIER").Should().HaveValue("id");
+            update.WhereCondition().Should()
+                .BeOpExpression("EQ_OP")
+                .And.ItsParameter(0, p => p.Should().BeFieldExpression("tableName", "id"))
+                .And.ItsParameter(1, p => p.Should().BeParamExpression().And.HaveParamName("id"));
         }
 
         [Fact]
@@ -444,31 +231,19 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/UPDATE")
-                .Should().HaveCount(1);
+            ast.Should().HaveUpdate("tableName")
+                .And.HaveUpdateAssignCount(1);
 
-            ast.SelectNode("/UPDATE/TABLE_NAME/IDENTIFIER")
-               .Should().Exist()
-               .And.HaveValue("tableName");
+            var update = ast.UpdateStatement();
 
-            ast.Select("/UPDATE/UPDATE_LIST/UPDATE_ASSIGN")
-               .Should().HaveCount(1);
+            var assign = update.UpdateAssign(0);
+            assign.AssignTarget().Should().HaveFieldName("f2");
+            assign.AssignValue().Should().BeParamExpression().And.HaveParamName("f2");
 
-            var list = ast.Select("/UPDATE/UPDATE_LIST/UPDATE_ASSIGN").ToArray();
-
-            list[0].SelectNode("/FIELD/IDENTIFIER[1]").Should().HaveValue("f2");
-            list[0].SelectNode("/PARAM/IDENTIFIER[1]").Should().HaveValue("f2");
-
-            var where = ast.SelectNode("/UPDATE/WHERE_CLAUSE");
-
-            var whereOp = where.SelectNode("*", 1);
-            whereOp.Should().HaveSymbol("LE_OP");
-            whereOp.SelectNode("*", 1).Should().HaveSymbol("FIELD");
-            whereOp.SelectNode("*", 1).SelectNode("IDENTIFIER", 1).Should().HaveValue("tableName");
-            whereOp.SelectNode("*", 1).SelectNode("IDENTIFIER", 2).Should().HaveValue("f1");
-
-            whereOp.SelectNode("*", 2).Should().HaveSymbol("PARAM");
-            whereOp.SelectNode("*", 2).SelectNode("IDENTIFIER").Should().HaveValue("p1");
+            update.WhereCondition().Should()
+                .BeOpExpression("LE_OP")
+                .And.ItsParameter(0, p => p.Should().BeFieldExpression("tableName", "f1"))
+                .And.ItsParameter(1, p => p.Should().BeParamExpression().And.HaveParamName("p1"));
         }
 
         [Fact]
@@ -484,40 +259,22 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/UPDATE")
-                .Should().HaveCount(1);
+            ast.Should().HaveUpdate("tableName")
+                .And.HaveUpdateAssignCount(1);
 
-            ast.SelectNode("/UPDATE/TABLE_NAME/IDENTIFIER")
-               .Should().Exist()
-               .And.HaveValue("tableName");
+            var update = ast.UpdateStatement();
 
-            ast.Select("/UPDATE/UPDATE_LIST/UPDATE_ASSIGN")
-               .Should().HaveCount(1);
+            var assign = update.UpdateAssign(0);
+            assign.AssignTarget().Should().HaveFieldName("f2");
+            assign.AssignValue().Should()
+                .BeOpExpression("MUL_OP")
+                .And.ItsParameter(0, p => p.Should().BeFieldExpression().And.HaveFieldName("f2"))
+                .And.ItsParameter(1, p => p.Should().BeConstant(1.5));
 
-            var list = ast.Select("/UPDATE/UPDATE_LIST/UPDATE_ASSIGN").ToArray();
-
-            list[0].SelectNode("/FIELD/IDENTIFIER[1]").Should().HaveValue("f2");
-
-            var expr = list[0].SelectNode("/*[2]");
-            expr.Should().HaveSymbol("MUL_OP");
-            expr.SelectNode("*", 1)
-                .Should().HaveSymbol("FIELD")
-                .And.ContainMatching("/IDENTIFIER", m => m.Value == "f2");
-
-            expr.SelectNode("*", 2)
-                .Should().HaveSymbol("REAL")
-                .And.HaveValue("1.5");
-
-            var where = ast.SelectNode("/UPDATE/WHERE_CLAUSE");
-
-            var whereOp = where.SelectNode("*", 1);
-            whereOp.Should().HaveSymbol("LE_OP");
-            whereOp.SelectNode("*", 1).Should().HaveSymbol("FIELD");
-            whereOp.SelectNode("*", 1).SelectNode("IDENTIFIER", 1).Should().HaveValue("tableName");
-            whereOp.SelectNode("*", 1).SelectNode("IDENTIFIER", 2).Should().HaveValue("f1");
-
-            whereOp.SelectNode("*", 2).Should().HaveSymbol("PARAM");
-            whereOp.SelectNode("*", 2).SelectNode("IDENTIFIER").Should().HaveValue("p1");
+            update.WhereCondition().Should()
+                .BeOpExpression("LE_OP")
+                .And.ItsParameter(0, p => p.Should().BeFieldExpression("tableName", "f1"))
+                .And.ItsParameter(1, p => p.Should().BeParamExpression().And.HaveParamName("p1"));
         }
 
         [Fact]
@@ -540,59 +297,30 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             updateBuilder.PrepareQuery();
             var ast = updateBuilder.Query.ParseSql();
 
-            ast.Select("/UPDATE")
-                .Should().HaveCount(1);
+            ast.Should().HaveUpdate("tableName")
+                .And.HaveUpdateAssignCount(1);
 
-            ast.SelectNode("/UPDATE/TABLE_NAME/IDENTIFIER")
-               .Should().Exist()
-               .And.HaveValue("tableName");
+            var update = ast.UpdateStatement();
 
-            ast.Select("/UPDATE/UPDATE_LIST/UPDATE_ASSIGN")
-               .Should().HaveCount(1);
+            var assign = update.UpdateAssign(0);
+            assign.AssignTarget().Should().HaveFieldName("f2");
 
-            var list = ast.Select("/UPDATE/UPDATE_LIST/UPDATE_ASSIGN").ToArray();
+            var subquery = assign.AssignValue();
+            subquery.Should().Exist();
 
-            list[0].SelectNode("/FIELD/IDENTIFIER[1]").Should().HaveValue("f2");
+            var alias = subquery.Table(0).TableAlias().Value;
+            subquery.Table(0).Should().HaveTableName("tableName1");
 
-            var subquery = list[0].SelectNode("/*[2]");
+            subquery.Should()
+                .HaveResultsetSize(1)
+                .And.HaveResultsetItemExpression(0, e => e.Should().BeFieldExpression(alias, "f1"));
 
-            subquery.Should().HaveSymbol("SELECT");
+            subquery.SelectWhere().ClauseCondition().Should()
+                .BeOpExpression("EQ_OP")
+                .And.ItsParameter(0, p => p.Should().BeFieldExpression(alias, "id"))
+                .And.ItsParameter(1, p => p.Should().BeFieldExpression("tableName", "id"));
 
-            var from = subquery
-                .SelectNode("/TABLE_EXPRESSION/FROM_CLAUSE/TABLE_REFERENCE_LIST/TABLE_PRIMARY");
-
-            from.Should().Exist();
-
-            var alias = from.SelectNode("/IDENTIFIER").Value;
-
-            from.SelectNode("/TABLE_NAME/IDENTIFIER")
-                .Should().Exist()
-                .And.HaveValue("tableName1");
-
-            var rs = subquery.Select("/SELECT_LIST/SELECT_SUBLIST/EXPR_ALIAS/FIELD").ToArray();
-            rs.Should().HaveCount(1);
-            rs[0].Should().ContainMatching("/*[1]", n => n.Value == alias);
-            rs[0].Should().ContainMatching("/*[2]", n => n.Value == "f1");
-
-            var where = subquery
-                .SelectNode("/TABLE_EXPRESSION/WHERE_CLAUSE");
-
-            var whereOp = where.SelectNode("/*", 1);
-            whereOp.Should().HaveSymbol("EQ_OP");
-
-            var arg1 = whereOp.SelectNode("/*", 1);
-            arg1.Should()
-                .HaveSymbol("FIELD")
-                .And.ContainMatching("/IDENTIFIER[1]", n => n.Value == alias)
-                .And.ContainMatching("/IDENTIFIER[2]", n => n.Value == "id");
-
-            var arg2 = whereOp.SelectNode("/*", 2);
-            arg2.Should()
-                .HaveSymbol("FIELD")
-                .And.ContainMatching("/IDENTIFIER[1]", n => n.Value == "tableName")
-                .And.ContainMatching("/IDENTIFIER[2]", n => n.Value == "id");
-
-            ast.SelectNode("/UPDATE/WHERE_CLAUSE").Should().NotExist();
+            update.Should().HaveNoWhere();
         }
 
         [Fact]
@@ -606,23 +334,12 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/DELETE")
-                .Should().HaveCount(1);
+            ast.Should().HaveDelete("tableName");
 
-            ast.SelectNode("/DELETE/TABLE_NAME/IDENTIFIER")
-               .Should().Exist()
-               .And.HaveValue("tableName");
-
-            var where = ast.SelectNode("/DELETE/WHERE_CLAUSE");
-
-            var whereOp = where.SelectNode("*", 1);
-            whereOp.Should().HaveSymbol("EQ_OP");
-            whereOp.SelectNode("*", 1).Should().HaveSymbol("FIELD");
-            whereOp.SelectNode("*", 1).SelectNode("IDENTIFIER", 1).Should().HaveValue("tableName");
-            whereOp.SelectNode("*", 1).SelectNode("IDENTIFIER", 2).Should().HaveValue("id");
-
-            whereOp.SelectNode("*", 2).Should().HaveSymbol("PARAM");
-            whereOp.SelectNode("*", 2).SelectNode("IDENTIFIER").Should().HaveValue("id");
+            ast.DeleteStatement().WhereCondition().Should()
+                .BeOpExpression("EQ_OP")
+                .And.ItsParameter(0, p => p.Should().BeFieldExpression("tableName", "id"))
+                .And.ItsParameter(1, p => p.Should().BeParamExpression().And.HaveParamName("id"));
         }
 
         [Fact]
@@ -636,23 +353,12 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             builder.PrepareQuery();
             var ast = builder.Query.ParseSql();
 
-            ast.Select("/DELETE")
-                .Should().HaveCount(1);
+            ast.Should().HaveDelete("tableName");
 
-            ast.SelectNode("/DELETE/TABLE_NAME/IDENTIFIER")
-               .Should().Exist()
-               .And.HaveValue("tableName");
-
-            var where = ast.SelectNode("/DELETE/WHERE_CLAUSE");
-
-            var whereOp = where.SelectNode("*", 1);
-            whereOp.Should().HaveSymbol("LE_OP");
-            whereOp.SelectNode("*", 1).Should().HaveSymbol("FIELD");
-            whereOp.SelectNode("*", 1).SelectNode("IDENTIFIER", 1).Should().HaveValue("tableName");
-            whereOp.SelectNode("*", 1).SelectNode("IDENTIFIER", 2).Should().HaveValue("f1");
-
-            whereOp.SelectNode("*", 2).Should().HaveSymbol("PARAM");
-            whereOp.SelectNode("*", 2).SelectNode("IDENTIFIER").Should().HaveValue("p1");
+            ast.DeleteStatement().WhereCondition().Should()
+                .BeOpExpression("LE_OP")
+                .And.ItsParameter(0, p => p.Should().BeFieldExpression("tableName", "f1"))
+                .And.ItsParameter(1, p => p.Should().BeParamExpression().And.HaveParamName("p1"));
         }
     }
 }

@@ -54,6 +54,8 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             throw new ArgumentException("The expression is not a constant", nameof(expr));
         }
 
+        public static bool ExprIsSubquery(this IAstNode expr) => ExprIs(expr, "SELECT");
+
         public static bool ExprIsCountAll(this IAstNode expr) => ExprIs(expr, "AGGR_COUNT_ALL");
         public static bool ExprIsAggFnCall(this IAstNode expr) => ExprIs(expr, "AGGR_FUNC");
         public static bool ExprIsMathFnCall(this IAstNode expr) => ExprIs(expr, "MATH_FUNC_CALL");
