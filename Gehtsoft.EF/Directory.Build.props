@@ -1,0 +1,15 @@
+<Project>
+  <!--
+    Cross-OS build isolation: this tree is built both from Windows (D:) and from
+    WSL (/mnt/d, the same files). MSBuild/NuGet bake absolute paths into obj/, so
+    a shared obj/ breaks the other OS. Give each OS its own intermediate subfolder
+    and exclude everything under obj/ from the compile glob (NuGet restore always
+    leaves files under obj/; without this exclude their generated *.cs get compiled
+    twice -> CS0579 duplicate attributes).
+  -->
+  <PropertyGroup>
+    <BaseIntermediateOutputPath Condition="'$(OS)' == 'Windows_NT'">obj\win\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath Condition="'$(OS)' != 'Windows_NT'">obj\unix\</BaseIntermediateOutputPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj\**</DefaultItemExcludes>
+  </PropertyGroup>
+</Project>
