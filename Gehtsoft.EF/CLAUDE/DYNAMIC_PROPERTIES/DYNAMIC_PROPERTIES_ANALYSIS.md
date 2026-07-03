@@ -1,7 +1,7 @@
 # Dynamic Entity Properties — Options Analysis
 
 *Research and analysis performed 2026-07-03. Decision made: Option B (see end of document).
-The implementation plan is in `DYNAMIC_PROPERTY_PLAN.md`.*
+The implementation plan is in `DYNAMIC_PROPERTIES_PLAN.md`.*
 
 ## Requirements
 
@@ -48,7 +48,7 @@ Add per-row dynamic properties to Gehtsoft.EF entities:
   `EntityQueryConditionBuilder` extension building a low-level subquery, binding its
   parameters onto the main query, resolving the main-table PK alias via
   `condition.BaseQuery.ConditionQueryBuilder.Alias(pk.ID, out _)` (see `AddFtsSearch`, line ~576).
-- User's original sketch: `CLAUDE/ProperitySet/OVERVIEW.md` (Property: GetName/GetType/GetValue<T>).
+- User's original sketch (Property: GetName/GetType/GetValue<T>) — since removed; superseded by this plan.
 
 ## Option A — JSON column on the entity table (queried natively)
 
@@ -164,7 +164,37 @@ sparse-column waste. Only the accessor pattern is worth reusing.
    Trade-off accepted: stored dates aren't human-readable in raw SQL and can't feed SQL
    date functions.
 
-→ Implementation plan: `CLAUDE/DYNAMIC_PROPERTY_PLAN.md`.
+→ Implementation plan: `CLAUDE/DYNAMIC_PROPERTIES/DYNAMIC_PROPERTIES_PLAN.md`.
+
+## Decisions — REVISION 2 (2026-07-03, superseding item 3 above; items 1, 2, 4, 5 stand)
+
+After further discussion the **runtime registry / declared-only model was dropped** in favour
+of a **registration-less (catalogue-free)** design. Rationale: the registry was doing three
+jobs and only paid for itself on one edge:
+
+1. Type consistency per name — *not enforced*; a name may hold different types in different
+   rows. Semantics: a query targets one value column (chosen by the operand's type), so a
+   row whose value is stored in a *different* column reads as `NULL` there and simply drops
+   out of the predicate (`NULL > 5` → UNKNOWN). This is automatic from the EAV layout — no
+   catalogue needed.
+2. Value-column for a bare name in ORDER BY / resultset — supplied instead by an **explicit
+   `EntityPropertyType` argument** at those call sites (WHERE infers it from the operand).
+3. Searchable subset — replaced by **three static composite indexes** `(name, v_str)`,
+   `(name, v_int)`, `(name, v_real)` created with the table, so *every* property is fast; the
+   `Searchable` flag and per-subset index-sync are removed.
+
+Also revised:
+- **Save = change-tracking**, not delete-all+insert-all. The bag records touched + removed
+  property names; the saver upserts changed rows by `(owner, name)` (a type change updates the
+  row in place, nulling the other value columns) and deletes tombstoned ones. This is
+  **partial-load safe**: saving an entity whose bag was never loaded (opt-in loading) touches
+  nothing, so it can't wipe unloaded properties.
+
+Dropped as a result: `PropertySetRegistry`, `EntityPropertyDeclaration`,
+`DynamicPropertyDeclarationAttribute`, the `Changed` event, declared-only enforcement, the
+`DynamicPropertyNotDeclared` error, `UpdateDynamicPropertiesSchema` (searchable-subset sync),
+and declaration-driven `CleanupDynamicProperties`. `DynamicPropertiesAttribute` stays (marks
+the owner + carries `NameSize`/`StringValueSize`/`TableSuffix`). `PLAN.md` reflects rev 2.
 
 ---
 
