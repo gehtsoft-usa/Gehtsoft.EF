@@ -20,6 +20,12 @@ Both validation error messages read `"Parameter of OPEN CURSOR ..."` — copy-pa
 
 The grammar marks the join type optional (`QUALIFIED_JOIN -> TABLE_REFERENCE (JOIN_TYPE)? 'JOIN'! ...`), so `FROM A JOIN B ON ...` should be valid (defaulting to INNER). But the constructor reads fixed `Children[0..3]` assuming `JOIN_TYPE` is present, so a plain `JOIN` shifts the indices and throws `"Unexpected table reference node JOIN_SPECIFICATION(null)"`. All explicit types work (`INNER`/`LEFT`/`RIGHT`/`FULL`, with or without `OUTER`); only the bare `JOIN` is broken. The ANTLR rewrite uses a typed `joinType()` accessor and should decide whether to fix this (default to INNER) — a skipped intended-behavior test `PlainJoin_DefaultsToInner` is ready to enable in `CharacterizationTests.cs`.
 
+### 4. Mixing a qualified JOIN with an AUTO JOIN generates invalid SQL
+
+**File:** `SelectRunner.cs` (SQL generation for `FROM ... INNER JOIN ... AUTO JOIN ...`)
+
+`SELECT ... FROM A INNER JOIN B ON ... AUTO JOIN C` parses and builds a valid Code DOM (the AUTO JOIN's left side is the qualified join — `SqlAutoJoinedTable:35-37`), but executing it throws `SQLite Error 1: 'no such column: INNER'` — the join-type keyword leaks into the generated SQL. This is a SQL-generation defect in `SelectRunner`, not in the parse/DOM layer, so it is out of scope for the Hime→ANTLR walker rewrite. Characterization test `NestedQualifiedJoin_AsLeftOfAutoJoin_Parses` asserts only that Code-DOM construction succeeds.
+
 ## Fixed
 
 ### TODATE/TOTIMESTAMP in SQLite query context

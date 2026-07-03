@@ -219,5 +219,61 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             dynamic result = func(null);
             ((int)result.Count).Should().Be(3);
         }
+
+        [Fact]
+        public void NestedQualifiedJoin_AsLeftOfAutoJoin_Parses()
+        {
+            // Pins the DOM-construction branch where the left side of an AUTO JOIN is itself a
+            // qualified join (SqlAutoJoinedTable:35-37) — exercised during Parse.
+            // NOTE: executing this currently generates invalid SQL ("no such column: INNER");
+            // see KNOWN_BUGS.md #4. That is a SelectRunner SQL-generation defect, out of scope
+            // for the walker rewrite, so we only assert that Code-DOM construction succeeds.
+            var act = () => Env().Parse("test",
+                "SELECT OrderDetail.Quantity FROM OrderDetail " +
+                "INNER JOIN Order ON OrderDetail.Order = Order.OrderID " +
+                "AUTO JOIN Customer LIMIT 3");
+            act.Should().NotThrow();
+        }
+
+        // ───────────── Entity / field resolution errors (parse-time) ─────────────
+
+        [Fact]
+        public void UnknownTable_Throws()
+        {
+            var ex = ParseThrows(Env(), "SELECT * FROM NoSuchTable");
+            ex.Message.Should().Contain("Not found entity with name 'NoSuchTable'");
+        }
+
+        [Fact]
+        public void UnknownField_Throws()
+        {
+            var ex = ParseThrows(Env(), "SELECT NoSuchField FROM Category");
+            ex.Message.Should().Contain("Not found field");
+        }
+
+        [Fact]
+        public void UnknownFieldPrefix_Throws()
+        {
+            var ex = ParseThrows(Env(), "SELECT bad.CategoryName FROM Category");
+            ex.Message.Should().Contain("Not found entity 'bad'");
+        }
+
+        // ───────────── Scalar subquery arity (parse-time) ─────────────
+
+        [Fact]
+        public void ScalarSubquery_MultipleColumns_Throws()
+        {
+            var ex = ParseThrows(Env(), "EXIT WITH (SELECT OrderID, ShipCountry FROM Order)");
+            ex.Message.Should().Contain("Expected 1 column in inner SELECT");
+        }
+
+        // ───────────── Assignment operand-type mismatch (parse-time) ─────────────
+
+        [Fact]
+        public void Assign_ReassignIncompatibleType_Throws()
+        {
+            var ex = ParseThrows(Env(), "?x := 5 ?x := 'str'");
+            ex.Message.Should().Contain("Types of operands don't match");
+        }
     }
 }
