@@ -6,7 +6,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
 {
     public class MssqlTableDdlBuilder : TableDdlBuilder
     {
-        public MssqlTableDdlBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics, tableDescriptor)
+        public MssqlTableDdlBuilder(SqlDbLanguageSpecifics specifics) : base(specifics)
         {
         }
 
@@ -23,7 +23,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
                     builder.Append(", ");
                 builder
                     .Append("CONSTRAINT ")
-                    .Append(mDescriptor.Name)
+                    .Append(column.Table.Name)
                     .Append('_')
                     .Append(column.Name)
                     .Append("_fk FOREIGN KEY (")

@@ -18,7 +18,7 @@ namespace Gehtsoft.EF.Db.OracleDb
 
         protected override TableDdlBuilder CreateDdlBuilder()
         {
-            return new OracleTableDdlBuilder(mSpecifics, mDescriptor);
+            return new OracleTableDdlBuilder(mSpecifics);
         }
 
         protected override void HandlePreDropQuery(TableDescriptor.ColumnInfo column)

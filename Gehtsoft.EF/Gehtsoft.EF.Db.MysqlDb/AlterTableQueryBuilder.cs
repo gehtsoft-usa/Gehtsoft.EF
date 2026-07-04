@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
 
         protected override TableDdlBuilder CreateDdlBuilder()
         {
-            return new MysqlTableDdlBuilder(mSpecifics, mDescriptor);
+            return new MysqlTableDdlBuilder(mSpecifics);
         }
 
         protected override void HandlePreDropQuery(TableDescriptor.ColumnInfo column)

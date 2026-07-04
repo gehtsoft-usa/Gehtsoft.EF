@@ -162,7 +162,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     if (td == null)
                         return null;
 
-                    descriptor = new EntityDescriptor() { TableDescriptor = td, EntityType = type };
+                    descriptor = new EntityDescriptor() { TableDescriptor = td, EntityType = type, DynamicProperties = type.GetCustomAttribute<DynamicPropertiesAttribute>() };
                     if (!td.Obsolete)
                     {
                         mEntities[type] = descriptor;
@@ -203,7 +203,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 {
                     if (!mEntities.ContainsKey(type.EntityType))
                     {
-                        EntityDescriptor descriptor = new EntityDescriptor() { TableDescriptor = CreateTableDescriptor(type.EntityType, true), EntityType = type.EntityType };
+                        EntityDescriptor descriptor = new EntityDescriptor() { TableDescriptor = CreateTableDescriptor(type.EntityType, true), EntityType = type.EntityType, DynamicProperties = type.EntityType.GetCustomAttribute<DynamicPropertiesAttribute>() };
                         foreach (TableDescriptor.ColumnInfo column in descriptor.TableDescriptor)
                         {
                             if (column.ForeignKey && column.ForeignTable == descriptor.TableDescriptor)

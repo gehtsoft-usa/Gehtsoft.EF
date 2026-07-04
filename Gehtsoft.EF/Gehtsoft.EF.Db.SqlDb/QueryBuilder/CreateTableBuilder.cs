@@ -18,7 +18,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     public class CreateTableBuilder : AQueryBuilder
     {
         protected virtual TableDdlBuilder DdlBuilder { get; set; }
-        protected TableDescriptor mDescriptor;
+        protected readonly List<TableDescriptor> mDescriptors = new List<TableDescriptor>();
         protected string mQuery;
 
         [DocgenIgnore]
@@ -27,7 +27,20 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         internal protected CreateTableBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics)
         {
             mSpecifics = specifics;
-            mDescriptor = tableDescriptor;
+            mDescriptors.Add(tableDescriptor);
+        }
+
+        /// <summary>
+        /// Adds another table to be created by the same query.
+        ///
+        /// The tables are created in the order they are added; add a table before the tables
+        /// that reference it via a foreign key.
+        /// </summary>
+        /// <param name="tableDescriptor"></param>
+        public void AddTable(TableDescriptor tableDescriptor)
+        {
+            mDescriptors.Add(tableDescriptor);
+            mQuery = null;
         }
 
         [DocgenIgnore]
@@ -35,45 +48,50 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public override void PrepareQuery()
         {
             if (DdlBuilder == null)
-                DdlBuilder = new TableDdlBuilder(mSpecifics, mDescriptor);
+                DdlBuilder = new TableDdlBuilder(mSpecifics);
 
             if (mQuery != null)
                 return;
 
             StringBuilder builder = new StringBuilder();
-            bool first = true;
 
             builder.Append(mSpecifics.PreBlock);
-            builder.Append(mSpecifics.PreQueryInBlock);
-            builder.Append("CREATE TABLE ").Append(mDescriptor.Name).Append(" (");
 
-            foreach (TableDescriptor.ColumnInfo column in mDescriptor)
+            foreach (TableDescriptor descriptor in mDescriptors)
             {
-                if (!first)
-                    builder.Append(',');
-                else
-                    first = false;
+                bool first = true;
 
-                DdlBuilder.HandleColumnDDL(builder, column, false);
-            }
+                builder.Append(mSpecifics.PreQueryInBlock);
+                builder.Append("CREATE TABLE ").Append(descriptor.Name).Append(" (");
 
-            foreach (TableDescriptor.ColumnInfo column in mDescriptor)
-            {
-                DdlBuilder.HandlePostfixDDL(builder, column, false);
-            }
+                foreach (TableDescriptor.ColumnInfo column in descriptor)
+                {
+                    if (!first)
+                        builder.Append(',');
+                    else
+                        first = false;
 
-            builder.Append(')');
-            if (mSpecifics.TerminateWithSemicolon)
-                builder.Append(';');
-            builder.Append(mSpecifics.PostQueryInBlock);
+                    DdlBuilder.HandleColumnDDL(builder, column, false);
+                }
 
-            foreach (TableDescriptor.ColumnInfo column in mDescriptor)
-                DdlBuilder.HandleAfterQuery(builder, column);
+                foreach (TableDescriptor.ColumnInfo column in descriptor)
+                {
+                    DdlBuilder.HandlePostfixDDL(builder, column, false);
+                }
 
-            if (mDescriptor.Metadata is ICompositeIndexMetadata compositeIndex)
-            {
-                foreach (var index in compositeIndex.Indexes)
-                    HandleCompositeIndex(builder, index);
+                builder.Append(')');
+                if (mSpecifics.TerminateWithSemicolon)
+                    builder.Append(';');
+                builder.Append(mSpecifics.PostQueryInBlock);
+
+                foreach (TableDescriptor.ColumnInfo column in descriptor)
+                    DdlBuilder.HandleAfterQuery(builder, column);
+
+                if (descriptor.Metadata is ICompositeIndexMetadata compositeIndex)
+                {
+                    foreach (var index in compositeIndex.Indexes)
+                        HandleCompositeIndex(builder, descriptor, index);
+                }
             }
 
             builder.Append(mSpecifics.PostBlock);
@@ -81,7 +99,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mQuery = builder.ToString();
         }
 
-        protected virtual void HandleCompositeIndex(StringBuilder builder, CompositeIndex index)
+        protected virtual void HandleCompositeIndex(StringBuilder builder, TableDescriptor descriptor, CompositeIndex index)
         {
             if (!mSpecifics.SupportFunctionsInIndexes && index.Any(f => f.Function != null))
             {
@@ -96,25 +114,25 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
             builder
                 .Append("CREATE INDEX ")
-                .Append(mDescriptor.Name)
+                .Append(descriptor.Name)
                 .Append('_')
                 .Append(index.Name)
                 .Append(" ON ")
-                .Append(mDescriptor.Name)
+                .Append(descriptor.Name)
                 .Append('(');
-            HandleCompositeIndexColumns(builder, index);
+            HandleCompositeIndexColumns(builder, descriptor, index);
             builder.Append(")");
             if (mSpecifics.TerminateWithSemicolon)
                 builder.Append(';');
             builder.Append(mSpecifics.PostQueryInBlock);
         }
 
-        protected virtual void HandleCompositeIndexColumns(StringBuilder builder, CompositeIndex index)
+        protected virtual void HandleCompositeIndexColumns(StringBuilder builder, TableDescriptor descriptor, CompositeIndex index)
         {
             for (int i = 0; i < index.Fields.Count; i++)
             {
                 var field = index.Fields[i];
-                var name = mDescriptor.FirstOrDefault(c => c.ID == field.Name || c.Name == field.Name)?.Name ?? field.Name;
+                var name = descriptor.FirstOrDefault(c => c.ID == field.Name || c.Name == field.Name)?.Name ?? field.Name;
                 if (i > 0)
                     builder.Append(", ");
                 if (field.Function != null)

@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
 
         protected override TableDdlBuilder CreateDdlBuilder()
         {
-            return new PostgresTableDdlBuilder(mSpecifics, mDescriptor);
+            return new PostgresTableDdlBuilder(mSpecifics);
         }
     }
 }

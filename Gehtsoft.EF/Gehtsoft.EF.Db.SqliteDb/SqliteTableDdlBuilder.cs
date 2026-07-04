@@ -5,7 +5,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
 {
     internal class SqliteTableDdlBuilder : TableDdlBuilder
     {
-        public SqliteTableDdlBuilder(SqlDb.SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics, tableDescriptor)
+        public SqliteTableDdlBuilder(SqlDb.SqlDbLanguageSpecifics specifics) : base(specifics)
         {
         }
 

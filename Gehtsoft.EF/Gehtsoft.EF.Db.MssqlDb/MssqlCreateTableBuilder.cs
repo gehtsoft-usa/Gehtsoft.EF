@@ -11,7 +11,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
     {
         public MssqlCreateTableBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics, tableDescriptor)
         {
-            DdlBuilder = new MssqlTableDdlBuilder(specifics, tableDescriptor);
+            DdlBuilder = new MssqlTableDdlBuilder(specifics);
         }
     }
 }

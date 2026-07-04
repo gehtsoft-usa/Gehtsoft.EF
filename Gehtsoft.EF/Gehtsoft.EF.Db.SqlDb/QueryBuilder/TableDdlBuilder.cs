@@ -9,12 +9,10 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     [DocgenIgnore]
     public class TableDdlBuilder
     {
-        protected TableDescriptor mDescriptor;
         protected SqlDbLanguageSpecifics mSpecifics;
 
-        public TableDdlBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor)
+        public TableDdlBuilder(SqlDbLanguageSpecifics specifics)
         {
-            mDescriptor = tableDescriptor;
             mSpecifics = specifics;
         }
 
@@ -69,11 +67,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 builder.Append(mSpecifics.PreQueryInBlock);
                 builder
                     .Append("CREATE INDEX ")
-                    .Append(mDescriptor.Name)
+                    .Append(column.Table.Name)
                     .Append('_')
                     .Append(column.Name)
                     .Append(" ON ")
-                    .Append(mDescriptor.Name)
+                    .Append(column.Table.Name)
                     .Append('(')
                     .Append(column.Name)
                     .Append(')');

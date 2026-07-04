@@ -398,7 +398,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     List<TableDescriptor.ColumnInfo> addColumns = null;
                     List<OnEntityPropertyCreateAttribute> delegates = null;
 
-                    TableDescriptor descriptor = AllEntities.Inst[info.EntityType].TableDescriptor;
+                    EntityDescriptor entityDescriptor = AllEntities.Inst[info.EntityType];
+                    TableDescriptor descriptor = entityDescriptor.TableDescriptor;
 
                     foreach (TableDescriptor.ColumnInfo column in descriptor)
                     {
@@ -419,6 +420,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         for (int i = 0; i < addColumns.Count; i++)
                             InvokeAttribute<OnEntityPropertyCreateAttribute>(addColumns[i], connection);
                     }
+
+                    ReconcileDynamicPropertiesTable(connection, info, entityDescriptor, schema);
                 }
             }
 
@@ -429,6 +432,44 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 RaiseCreate(info.Table);
                 ActionController.Create(connection, info);
                 InvokeAttribute<OnEntityCreateAttribute>(info, connection);
+            }
+        }
+
+        /// <summary>
+        /// Reconciles the dynamic-property side table for an existing owner table during
+        /// <see cref="UpdateTables"/>: creates it if the entity gained dynamic properties, drops
+        /// the orphan if the entity lost them.
+        /// </summary>
+        private void ReconcileDynamicPropertiesTable(SqlDbConnection connection, EntityFinder.EntityTypeInfo info, EntityDescriptor descriptor, TableDescriptor[] schema)
+        {
+            if (descriptor.HasDynamicProperties)
+            {
+                TableDescriptor propsTable = descriptor.DynamicPropertiesTable;
+                if (!schema.Contains(propsTable.Name))
+                {
+                    using (var query = connection.GetQuery(connection.GetCreateTableBuilder(propsTable)))
+                        query.ExecuteNoData();
+                    RaiseUpdate(info.Table);
+                }
+            }
+            else
+            {
+                // The entity no longer owns dynamic properties. The side table (if any) always
+                // has the fixed <table>_props name and the standard layout, so rebuild the
+                // standard descriptor from the factory (defaults - only the name matters for the
+                // drop, plus the autoincrement id so Oracle also drops its sequence).
+                TableDescriptor propsTable = DynamicPropertiesTableBuilder.Build(descriptor.TableDescriptor, null);
+
+                // Only drop it when the schema table really looks like an EAV side table (has the
+                // signature value columns) so a coincidentally-named user table is never destroyed.
+                if (schema.Contains(propsTable.Name) &&
+                    schema.Contains(propsTable.Name, DynamicPropertiesTableBuilder.PropTypeColumn) &&
+                    schema.Contains(propsTable.Name, DynamicPropertiesTableBuilder.IntValueColumn))
+                {
+                    using (var query = connection.GetQuery(connection.GetDropTableBuilder(propsTable)))
+                        query.ExecuteNoData();
+                    RaiseUpdate(info.Table);
+                }
             }
         }
 

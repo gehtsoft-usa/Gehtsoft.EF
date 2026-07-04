@@ -1,4 +1,5 @@
-﻿using Gehtsoft.EF.Db.SqlDb;
+using System.Text;
+using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.MssqlDb
@@ -9,10 +10,10 @@ namespace Gehtsoft.EF.Db.MssqlDb
         {
         }
 
-        public override void PrepareQuery()
+        protected override void AppendDropTable(StringBuilder builder, TableDescriptor descriptor)
         {
-            mQuery = $@"IF OBJECT_ID ('{mDescriptor.Name}', 'U') IS NOT NULL
-                                     DROP TABLE {mDescriptor.Name};";
+            builder.Append($@"IF OBJECT_ID ('{descriptor.Name}', 'U') IS NOT NULL
+                                     DROP TABLE {descriptor.Name}");
         }
     }
 }

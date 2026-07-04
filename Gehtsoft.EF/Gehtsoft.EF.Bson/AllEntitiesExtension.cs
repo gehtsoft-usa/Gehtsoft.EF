@@ -26,6 +26,9 @@ namespace Gehtsoft.EF.Bson
 
         private static BsonEntityDescription CreateBsonEntityDescription(EntityDescriptor descriptor)
         {
+            if (descriptor.HasDynamicProperties)
+                throw new BsonException(BsonExceptionCode.DynamicPropertiesNotSupported);
+
             BsonEntityDescription description = new BsonEntityDescription
             {
                 EntityType = descriptor.EntityType,

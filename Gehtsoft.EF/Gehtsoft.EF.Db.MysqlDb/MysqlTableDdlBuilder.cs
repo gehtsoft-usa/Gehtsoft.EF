@@ -5,7 +5,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
 {
     internal class MysqlTableDdlBuilder : TableDdlBuilder
     {
-        public MysqlTableDdlBuilder(SqlDb.SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics, tableDescriptor)
+        public MysqlTableDdlBuilder(SqlDb.SqlDbLanguageSpecifics specifics) : base(specifics)
         {
         }
 

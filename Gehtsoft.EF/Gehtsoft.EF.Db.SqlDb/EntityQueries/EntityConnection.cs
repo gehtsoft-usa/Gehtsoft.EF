@@ -23,7 +23,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public static AQueryBuilder GetCreateEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
-            return connection.GetCreateTableBuilder(AllEntities.Inst[type].TableDescriptor);
+            EntityDescriptor descriptor = AllEntities.Inst[type];
+            CreateTableBuilder builder = connection.GetCreateTableBuilder(descriptor.TableDescriptor);
+            if (descriptor.HasDynamicProperties)
+                builder.AddTable(descriptor.DynamicPropertiesTable);
+            return builder;
         }
 
         /// <summary>
@@ -66,7 +70,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public static AQueryBuilder GetDropEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
-            return connection.GetDropTableBuilder(AllEntities.Inst[type].TableDescriptor);
+            EntityDescriptor descriptor = AllEntities.Inst[type];
+            if (descriptor.HasDynamicProperties)
+            {
+                DropTableBuilder builder = connection.GetDropTableBuilder(descriptor.DynamicPropertiesTable);
+                builder.AddTable(descriptor.TableDescriptor);
+                return builder;
+            }
+            return connection.GetDropTableBuilder(descriptor.TableDescriptor);
         }
 
         /// <summary>

@@ -46,7 +46,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mQueries = new List<string>();
         }
 
-        protected virtual TableDdlBuilder CreateDdlBuilder() => new TableDdlBuilder(mSpecifics, mDescriptor);
+        protected virtual TableDdlBuilder CreateDdlBuilder() => new TableDdlBuilder(mSpecifics);
 
         /// <summary>
         /// Get queries to perform requested operations.

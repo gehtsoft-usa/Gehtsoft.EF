@@ -6,7 +6,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
 {
     internal class PostgresTableDdlBuilder : TableDdlBuilder
     {
-        public PostgresTableDdlBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics, tableDescriptor)
+        public PostgresTableDdlBuilder(SqlDbLanguageSpecifics specifics) : base(specifics)
         {
         }
         public override void HandleAutoincrement(StringBuilder builder, TableDescriptor.ColumnInfo ci)

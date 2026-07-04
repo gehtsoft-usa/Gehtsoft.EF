@@ -6,7 +6,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
     {
         public MysqlCreateTableBuilder(MysqlDbLanguageSpecifics specifics, TableDescriptor table) : base(specifics, table)
         {
-            DdlBuilder = new MysqlTableDdlBuilder(specifics, table);
+            DdlBuilder = new MysqlTableDdlBuilder(specifics);
         }
     }
 }
