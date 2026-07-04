@@ -161,17 +161,56 @@ entity just deletes 0 rows).
 - Delete an opted-in entity that has no property rows → no error.
 - Non-opted-in entity delete → unaffected. Async path exercised.
 
-### Task 4 — MultiDelete — *not planned yet; two distinct parts (noted by NG)*
-`MultiDeleteEntityQuery` deletes every entity matching a condition. Two separate concerns:
+### Task 4 — MultiDelete — *design decided (NG); ready to plan concretely*
+
+**Guiding design intent (NG):** dynamic properties are for **storage + occasional filtering**, *not*
+extensive/hot-path search. Main search fields stay hardcoded real columns. So the filter path is
+deliberately kept simple — we do **not** optimize for many-property predicates.
+
+`MultiDeleteEntityQuery` deletes every entity matching a condition. Two concerns:
+
 1. **Cascade the property rows of the deleted objects.** Delete the side-table rows for *all* owners
-   the delete will remove, **before** the owner rows (FK order) — i.e. `DELETE FROM <t>_props WHERE
-   owner IN (SELECT <pk> FROM <t> WHERE <same condition>)` (subquery/EXISTS against the owner table).
-   Must use the *same* condition the main delete uses so the two stay in sync.
-2. **Allow a dynamic property to be used *as* the delete condition.** e.g. "delete every entity whose
-   property `color` = 'red'". Because properties live in the EAV side table, a condition on a property
-   has to translate to an `EXISTS`/`IN` against `<t>_props` (`... WHERE name='color' AND v_str='red'`).
-   This needs condition-builder support to *express* "property X op value" and lower it to the EAV
-   join — a bigger design piece; plan it explicitly when we reach Task 4.
+   the delete will remove, **before** the owner rows (FK order): `DELETE FROM <t>_props WHERE owner
+   IN (SELECT <pk> FROM <t> WHERE <same condition>)` — the same condition the main delete uses.
+
+2. **Allow a dynamic property as a delete condition** (`DynamicPropertyOf<T>`).
+
+**Lowering — decided: flat N × `IN`, no aggregation.** Each dynamic-property predicate becomes a
+**self-contained** subquery and composes through the *existing* outer And/Or/Not boolean tree:
+- `DynamicPropertyOf<T>(name).{op}(value)` → `id IN (SELECT owner FROM <t>_props WHERE name=@n AND
+  <valcol> {op} @v)`; the value's CLR type picks `<valcol>` (`v_str`/`v_int`/`v_real`) via the mapper.
+- Negation → `id NOT IN (…)` — correctly includes owners with **zero** prop rows.
+- Rejected `GROUP BY owner HAVING MAX(CASE…)`: for the small N we target it's a wash on data touched
+  (both do ~N index seeks on the `name_*` indexes) and it needs new HAVING/CASE builder support and
+  mishandles absence. Kept in back pocket only for large-N or "K-of-N" threshold semantics (not our case).
+- Consequence: **no mandatory nested builder** — the flat `DynamicPropertyOf<T>` surface suffices;
+  an OR-group→single-subquery merge is optional future sugar. **No lower-layer (`QueryBuilder`)
+  change at all** — just subquery + `IN`/`NOT IN`, which already exist.
+
+**Layering:** `DynamicPropertyOf<T>` is **entity-level only** (it knows the descriptor → side table +
+owner PK + mapper) and hands `QueryBuilder` a plain `id IN (SELECT …)`; `QueryBuilder` never sees a
+"dynamic property." v1 scope: positive predicates (`=,<,>,<=,>=`, range, `LIKE`) + `NOT`, combined by
+the existing And/Or.
+
+**Part 2 WHERE — ✅ implemented 2026-07-04 (SQLite; 8 filter tests).**
+- `DynamicPropertyConditionBuilder` (new, `EntityQueries/EntityQuery/`) + two `DynamicPropertyOf<T>`
+  extensions (on `EntityQueryConditionBuilder` for the first And-condition, and on
+  `SingleEntityQueryConditionBuilder` for continuation after `And/Or/AndNot/OrNot`). Ops:
+  `Eq/Neq/Gt/Ge/Ls/Le/Like`, each → `pk IN (SELECT owner FROM <t>_props WHERE name=@n AND
+  <valcol> {op} @v)` built from a table-level `SelectQueryBuilder`; params bound on the outer query
+  via `NextParam`; value's CLR type → value column + bind `DbType` via the mapper.
+- Reused existing machinery entirely (`PropertyOf(pk).Is(In).Query(sub)`); the outer `Not` bit yields
+  `NOT IN` → absence semantics. `Neq` (inner `<>`, requires the property set) vs `AndNot(...).Eq`
+  (`NOT IN`, includes unset) verified as distinct.
+- Support: promoted the side-table column IDs to consts on `DynamicPropertiesTableBuilder`
+  (`NameColumnId`, value-column IDs, etc.). New file added to `Gehtsoft.EF.Db.SqlDb.csproj`
+  (explicit `<Compile Include>`). **No `QueryBuilder`-layer change.**
+- Tests `DynamicProperties.DataManagement.DynamicPropertiesFilterTest` (filtered select verifies the
+  WHERE in isolation): Eq, AND, OR, Ge range, Neq, AndNot(+unset), composes-with-regular-property,
+  all six value types.
+
+**Still to do for Task 4:** MultiDelete part 1 (cascade props for matched owners, before the owner
+rows) + wiring `MultiDeleteEntityQuery` + MultiDelete tests using `DynamicPropertyOf` as the condition.
 
 ### Tasks 5–7 + load — *not planned yet* (planned each when reached).
 

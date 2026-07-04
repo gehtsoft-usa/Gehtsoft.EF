@@ -19,8 +19,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         internal const string IntValueColumn = "v_int";
         internal const string RealValueColumn = "v_real";
 
-        // Column identifier (TableDescriptor.ColumnInfo.ID) of the owner column, for descriptor lookups.
+        // Column identifiers (TableDescriptor.ColumnInfo.ID), for descriptor lookups (side[Id]).
+        internal const string IdColumnId = "Id";
         internal const string OwnerColumnId = "Owner";
+        internal const string NameColumnId = "Name";
+        internal const string PropTypeColumnId = "PropType";
+        internal const string StringValueColumnId = "StringValue";
+        internal const string IntValueColumnId = "IntValue";
+        internal const string RealValueColumnId = "RealValue";
 
         internal const string OwnerNameIndex = "owner_name";
         internal const string NameStringIndex = "name_str";
@@ -70,7 +76,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             descriptor.Add(new TableDescriptor.ColumnInfo()
             {
-                ID = "Id",
+                ID = IdColumnId,
                 Name = IdColumn,
                 DbType = DbType.Int64,
                 PrimaryKey = true,
@@ -91,7 +97,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             descriptor.Add(new TableDescriptor.ColumnInfo()
             {
-                ID = "Name",
+                ID = NameColumnId,
                 Name = NameColumn,
                 DbType = DbType.String,
                 Size = options.NameSize,
@@ -100,7 +106,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             descriptor.Add(new TableDescriptor.ColumnInfo()
             {
-                ID = "PropType",
+                ID = PropTypeColumnId,
                 Name = PropTypeColumn,
                 DbType = DbType.Int32,
                 Nullable = false,
@@ -108,7 +114,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             descriptor.Add(new TableDescriptor.ColumnInfo()
             {
-                ID = "StringValue",
+                ID = StringValueColumnId,
                 Name = StringValueColumn,
                 DbType = DbType.String,
                 Size = options.StringValueSize,
@@ -117,7 +123,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             descriptor.Add(new TableDescriptor.ColumnInfo()
             {
-                ID = "IntValue",
+                ID = IntValueColumnId,
                 Name = IntValueColumn,
                 DbType = DbType.Int64,
                 Nullable = true,
@@ -125,7 +131,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             descriptor.Add(new TableDescriptor.ColumnInfo()
             {
-                ID = "RealValue",
+                ID = RealValueColumnId,
                 Name = RealValueColumn,
                 DbType = DbType.Double,
                 Size = options.RealValueSize < 0 ? 0 : options.RealValueSize,

@@ -79,6 +79,7 @@
     <Compile Include="EntityQueries\CreateEntity\CreateEntityController.cs" />
     <Compile Include="EntityQueries\EntityQuery\ConditionEntityQueryBaseBackwardCompatibility.cs" />
     <Compile Include="EntityQueries\EntityQuery\DeleteEntityQuery.cs" />
+    <Compile Include="EntityQueries\EntityQuery\DynamicPropertyConditionBuilder.cs" />
     <Compile Include="EntityQueries\DynamicEntity\DynamicEntity.cs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
