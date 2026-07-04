@@ -60,6 +60,8 @@
     <Compile Include="EntityQueries\EntityDiscovery\ColumnDiscoverer.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\DynamicEntityDiscoverer.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\DynamicPropertiesTableBuilder.cs" />
+    <Compile Include="EntityQueries\EntityDiscovery\DynamicPropertiesSaver.cs" />
+    <Compile Include="EntityQueries\EntityDiscovery\DynamicPropertiesValueMapper.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\EntityDescriptor.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\EntityDescriptorEventArgs.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\IEntityDisoverer.cs" />
@@ -123,6 +125,7 @@
     <Compile Include="QueryBuilder\DropQueryBuilder.cs" />
     <Compile Include="QueryBuilder\HierarchicalSelectQueryBuilder.cs" />
     <Compile Include="QueryBuilder\InsertQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\MultiSqlQueryBuilder.cs" />
     <Compile Include="QueryBuilder\InsertSelectQueryBuilder.cs" />
     <Compile Include="QueryBuilder\QueryBuilder.cs" />
     <Compile Include="QueryBuilder\QueryWithWhereBuilder.cs" />

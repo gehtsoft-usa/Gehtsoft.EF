@@ -13,6 +13,9 @@
     <Compile Include="Attributes.cs" />
     <Compile Include="Attributes\AutoIdAttribute.cs" />
     <Compile Include="Attributes\DynamicPropertiesAttribute.cs" />
+    <Compile Include="PropertySet\DynamicPropertiesExtension.cs" />
+    <Compile Include="PropertySet\DynamicPropertyBag.cs" />
+    <Compile Include="PropertySet\IDynamicPropertiesOwner.cs" />
     <Compile Include="Attributes\EntityAttribute.cs" />
     <Compile Include="Attributes\EntityPropertyAttribute.cs" />
     <Compile Include="Attributes\ForeignKeyAttribute.cs" />

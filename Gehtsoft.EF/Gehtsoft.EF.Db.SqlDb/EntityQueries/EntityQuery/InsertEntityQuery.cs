@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Utils;
 
@@ -24,6 +26,29 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         [DocgenIgnore]
         public override bool IsInsert => !mInsertBuilder.IgnoreAutoIncrement;
+
+        /// <summary>
+        /// Inserts the entity and then, if it owns dynamic properties, its property rows.
+        /// </summary>
+        /// <param name="entity"></param>
+        public override void Execute(object entity)
+        {
+            base.Execute(entity);
+            if (EntityQueryBuilder.Descriptor.HasDynamicProperties)
+                DynamicPropertiesSaver.SaveOnInsert(mQuery.Connection, EntityQueryBuilder.Descriptor, entity);
+        }
+
+        /// <summary>
+        /// Asynchronous version of <see cref="Execute(object)"/>.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="token"></param>
+        public override async Task ExecuteAsync(object entity, CancellationToken? token = null)
+        {
+            await base.ExecuteAsync(entity, token);
+            if (EntityQueryBuilder.Descriptor.HasDynamicProperties)
+                await DynamicPropertiesSaver.SaveOnInsertAsync(mQuery.Connection, EntityQueryBuilder.Descriptor, entity, token);
+        }
     }
 
     /// <summary>

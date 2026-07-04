@@ -96,6 +96,12 @@ namespace Gehtsoft.EF.Db.SqlDb
         public virtual string PostQueryInBlock => "";
 
         /// <summary>
+        /// The terminator that separates SQL statements combined into a single command
+        /// (see <see cref="QueryBuilder.MultiSqlQueryBuilder"/>).
+        /// </summary>
+        public virtual string StatementTerminator => ";";
+
+        /// <summary>
         /// The prefix of the parameter name inside the query.
         /// </summary>
         public virtual string ParameterInQueryPrefix => "@";

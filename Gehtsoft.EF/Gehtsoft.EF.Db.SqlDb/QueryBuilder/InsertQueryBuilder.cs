@@ -25,6 +25,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
 
         protected HashSet<string> mInclude;
+        protected Dictionary<string, string> mParameterNames;
 
         /// <summary>
         /// Sets the columns to be inserted by the statement.
@@ -40,6 +41,28 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 if (!mInclude.Contains(s))
                     mInclude.Add(s);
         }
+
+        /// <summary>
+        /// Overrides the parameter name used for specific columns.
+        ///
+        /// By default a column's parameter has the same name as the column. Pass
+        /// `(column, parameter)` pairs to use a different parameter name for those columns - e.g.
+        /// to combine several inserts in one command with unique (or intentionally shared)
+        /// parameter names. Columns not listed keep the default (column-name) parameter.
+        /// </summary>
+        /// <param name="names">The `(column, parameter)` name pairs.</param>
+        public void SetParameterNames(params (string Column, string Parameter)[] names)
+        {
+            if (names == null || names.Length == 0)
+                return;
+            if (mParameterNames == null)
+                mParameterNames = new Dictionary<string, string>();
+            foreach ((string column, string parameter) in names)
+                mParameterNames[column] = parameter;
+        }
+
+        protected string ParameterNameFor(string column)
+            => mParameterNames != null && mParameterNames.TryGetValue(column, out string parameter) ? parameter : column;
 
         [DocgenIgnore]
         public override void PrepareQuery()
@@ -76,7 +99,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 else
                 {
                     rightSide.Append(mSpecifics.ParameterInQueryPrefix);
-                    rightSide.Append(info.Name);
+                    rightSide.Append(ParameterNameFor(info.Name));
                 }
             }
             mQuery = BuildQuery(leftSide, rightSide, autoIncrement);
@@ -88,13 +111,28 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             StringBuilder builder = new StringBuilder();
             builder.Append("INSERT INTO ");
             builder.Append(mTable.Name);
-            builder.Append(" ( ");
-            builder.Append(leftSide);
-            builder.Append(") VALUES (");
-            builder.Append(rightSide);
-            builder.Append(" ) ");
+            if (leftSide.Length == 0)
+            {
+                // no columns to insert (e.g. an entity whose only column is the autoincrement id)
+                builder.Append(' ').Append(EmptyInsertClause);
+            }
+            else
+            {
+                builder.Append(" ( ");
+                builder.Append(leftSide);
+                builder.Append(") VALUES (");
+                builder.Append(rightSide);
+                builder.Append(" ) ");
+            }
             return builder.ToString();
         }
+
+        /// <summary>
+        /// The clause used to insert a row with no explicit column values (all defaults /
+        /// autoincrement). The SQL-standard form works on most engines; override where it doesn't.
+        /// </summary>
+        [DocgenIgnore]
+        protected virtual string EmptyInsertClause => "DEFAULT VALUES";
 
         [DocgenIgnore]
         protected virtual bool HasExpressionForAutoincrement => false;

@@ -25,6 +25,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         UnknownOperator,
         TypeIsUnsupported,
         CannotRecreateTable,
+        DynamicPropertiesBagIsNotNew,
     }
 
     [ExcludeFromCodeCoverage]
@@ -85,6 +86,9 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                     case EfExceptionCode.CannotRecreateTable:
                         return "Cannot recreate table {0} because table {1} depends on it and is not set to be dropped or recreated";
+
+                    case EfExceptionCode.DynamicPropertiesBagIsNotNew:
+                        return "The dynamic properties bag must be a new bag to be inserted (create it with InitializeDynamicProperties on a new entity)";
 
                     default:
                         return $"Unknown exception {code}";
