@@ -19,6 +19,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         internal const string IntValueColumn = "v_int";
         internal const string RealValueColumn = "v_real";
 
+        // Column identifier (TableDescriptor.ColumnInfo.ID) of the owner column, for descriptor lookups.
+        internal const string OwnerColumnId = "Owner";
+
         internal const string OwnerNameIndex = "owner_name";
         internal const string NameStringIndex = "name_str";
         internal const string NameIntIndex = "name_int";
@@ -77,7 +80,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
             descriptor.Add(new TableDescriptor.ColumnInfo()
             {
-                ID = "Owner",
+                ID = OwnerColumnId,
                 Name = OwnerColumn,
                 DbType = ownerPk.DbType,
                 Size = ownerPk.Size,

@@ -136,7 +136,44 @@ the props. Access the `EntityDescriptor` via the internal `EntityQueryBuilder.De
 - After insert: `bag.IsNew` is false and `AnyModified` is false.
 - Entity with no props set (empty/null bag) → no props rows. Non-opted-in entity → unaffected.
 
-### Tasks 3–7 + load — *not planned yet* (planned each when reached).
+### Task 3 — Delete  ✅ *implemented 2026-07-04 (SQLite; 5 tests)*
+When an entity is deleted, delete its property rows too.
+
+**Hook:** `DeleteEntityQuery` overrides `Execute(object)` / `ExecuteAsync(object)`: if
+`descriptor.HasDynamicProperties`, delete the property rows **first** (child before parent — the
+side table has an FK to the owner; on engines that enforce FKs deleting the owner first would fail,
+and on SQLite it would orphan rows), **then** `base.Execute` (delete the owner row). Cheap
+`HasDynamicProperties` guard at the call site (skip the call / async frame otherwise).
+
+**Deleter:** `DynamicPropertiesSaver.DeleteOwned(SqlDbConnection, EntityDescriptor, object entity)`
+(+Async): `DELETE FROM <table>_props WHERE owner = @owner`, binding the entity's PK
+(`descriptor.PrimaryKey.PropertyAccessor.GetValue(entity)`) — built via
+`GetDeleteQueryBuilder(descriptor.DynamicPropertiesTable)` + `Where.Property(owner).Is(Eq).Parameter`.
+**No bag involved** — delete is by owner PK, so it works whether or not properties were ever loaded
+(and there's no `IsNew` guard: deleting by PK is safe regardless of bag state; a never-inserted
+entity just deletes 0 rows).
+(Needs the owner column's `ID` — add `internal const OwnerColumnId = "Owner"` to
+`DynamicPropertiesTableBuilder` and use it for the descriptor's owner-column and the lookup.)
+
+**Tests (SQLite; raw table SQL):** namespace `DynamicProperties.DataManagement`.
+- Insert an owner + props, delete it → no `_props` rows for that owner, owner row gone.
+- Delete when the bag was never loaded (fresh entity object carrying just the PK) → props still gone.
+- Delete an opted-in entity that has no property rows → no error.
+- Non-opted-in entity delete → unaffected. Async path exercised.
+
+### Task 4 — MultiDelete — *not planned yet; two distinct parts (noted by NG)*
+`MultiDeleteEntityQuery` deletes every entity matching a condition. Two separate concerns:
+1. **Cascade the property rows of the deleted objects.** Delete the side-table rows for *all* owners
+   the delete will remove, **before** the owner rows (FK order) — i.e. `DELETE FROM <t>_props WHERE
+   owner IN (SELECT <pk> FROM <t> WHERE <same condition>)` (subquery/EXISTS against the owner table).
+   Must use the *same* condition the main delete uses so the two stay in sync.
+2. **Allow a dynamic property to be used *as* the delete condition.** e.g. "delete every entity whose
+   property `color` = 'red'". Because properties live in the EAV side table, a condition on a property
+   has to translate to an `EXISTS`/`IN` against `<t>_props` (`... WHERE name='color' AND v_str='red'`).
+   This needs condition-builder support to *express* "property X op value" and lower it to the EAV
+   join — a bigger design piece; plan it explicitly when we reach Task 4.
+
+### Tasks 5–7 + load — *not planned yet* (planned each when reached).
 
 ## Conventions
 - Explicit `<Compile Include>` for the new file; test csproj auto-includes.
