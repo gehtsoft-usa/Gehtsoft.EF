@@ -26,6 +26,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         TypeIsUnsupported,
         CannotRecreateTable,
         DynamicPropertiesBagIsNotNew,
+        DynamicPropertiesBagIsNew,
     }
 
     [ExcludeFromCodeCoverage]
@@ -89,6 +90,8 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                     case EfExceptionCode.DynamicPropertiesBagIsNotNew:
                         return "The dynamic properties bag must be a new bag to be inserted (create it with InitializeDynamicProperties on a new entity)";
+                    case EfExceptionCode.DynamicPropertiesBagIsNew:
+                        return "The dynamic properties bag is a new bag; a new bag can only be inserted, not updated (load the entity's dynamic properties before updating)";
 
                     default:
                         return $"Unknown exception {code}";

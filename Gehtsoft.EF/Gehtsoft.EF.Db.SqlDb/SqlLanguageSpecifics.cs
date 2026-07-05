@@ -50,6 +50,15 @@ namespace Gehtsoft.EF.Db.SqlDb
         public virtual TransactionSupport SupportsTransactions => TransactionSupport.Nested;
 
         /// <summary>
+        /// Whether the engine allows a `DELETE`/`UPDATE` whose sub-query reads the **same** table
+        /// being modified (a self-reference). `true` on most engines (PostgreSQL, Oracle, SQL Server,
+        /// SQLite); MySQL/MariaDB reject it (error 1093), so there such an operation must be rewritten
+        /// as materialize-the-ids-then-`IN`. This is a general limitation of the caller's own
+        /// statements too, not only of framework-generated cascades.
+        /// </summary>
+        public virtual bool SelfReferenceInDeleteAllowed => true;
+
+        /// <summary>
         /// The paging support modes.
         /// </summary>
         public enum PagingSupport

@@ -33,7 +33,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(base.BuildQuery(leftSide, rightSide, autoIncrement));
-            if (autoIncrement != null)
+            if (autoIncrement != null && ReturnAutoincrement)
                 builder.Append("; SELECT LAST_INSERT_ID();");
             else if (mHasAutoId)
             {

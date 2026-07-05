@@ -14,7 +14,7 @@ namespace Gehtsoft.EF.Db.OracleDb
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(base.BuildQuery(leftSide, rightSide, autoIncrement));
-            if (autoIncrement != null)
+            if (autoIncrement != null && ReturnAutoincrement)
             {
                 builder.Append(" RETURNING ");
                 builder.Append(autoIncrement.Name);

@@ -534,7 +534,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="includeOnlyProperties"></param>
         /// <returns></returns>
         public static InsertSelectEntityQuery GetInsertSelectEntityQuery(this SqlDbConnection connection, Type entityType, SelectEntitiesQueryBase selectQuery, bool ignoreAutoIncrement = false, string[] includeOnlyProperties = null)
-            => new InsertSelectEntityQuery(connection.GetQuery(), entityType, selectQuery.SelectBuilder, ignoreAutoIncrement, includeOnlyProperties);
+        {
+            if (AllEntities.Get(entityType).HasDynamicProperties)
+                throw new NotSupportedException(
+                    "INSERT ... SELECT is not supported for an entity that owns dynamic properties: the " +
+                    "select produces column values only and cannot populate the dynamic-property side " +
+                    "table. Insert the entities individually (each insert can carry its property bag).");
+            return new InsertSelectEntityQuery(connection.GetQuery(), entityType, selectQuery.SelectBuilder, ignoreAutoIncrement, includeOnlyProperties);
+        }
 
         /// <summary>
         /// Returns the query that inserts the results of an entity select query into another entity (generic version).

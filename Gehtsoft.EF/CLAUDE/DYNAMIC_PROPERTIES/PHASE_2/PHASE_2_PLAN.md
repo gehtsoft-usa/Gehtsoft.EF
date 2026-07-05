@@ -212,7 +212,110 @@ the existing And/Or.
 **Still to do for Task 4:** MultiDelete part 1 (cascade props for matched owners, before the owner
 rows) + wiring `MultiDeleteEntityQuery` + MultiDelete tests using `DynamicPropertyOf` as the condition.
 
-### Tasks 5–7 + load — *not planned yet* (planned each when reached).
+#### Architectural problem surfaced by part 1 (cascade) — and why we use a workaround
+Cascading needs the **same** predicate `P` in **two** statements: the direct root `DELETE … WHERE P`
+(MySQL forbids `DELETE FROM t WHERE id IN (SELECT … FROM t …)`, so the root delete can't self-reference
+→ must carry `P` directly) **and** the child `DELETE FROM <t>_props WHERE owner IN (SELECT root FROM t
+WHERE P)`. But the two render `P` differently — modify statements qualify columns by **table name**
+(`owner.col`; SQLite forbids an alias on a DELETE/UPDATE target), selects by **synthetic alias**
+(`entity7.col`; needed for joins). A predicate that's been rendered to a *string* is welded to one
+statement's aliasing and can't be reused in the other. This violates two ground assumptions of the
+entity layer: **A1** WHERE is rendered eagerly at author-time, and **A2** one entity query = one SQL
+statement (A1 depends on A2).
+
+The correct fix — **detach the abstract predicate (EntityWhere) from query-specific SQL (SQLWhere),
+make predicates copyable, and compile to SQL at the last moment** — is a refactor of the *universal*
+condition builder. **Decision (2026-07-04): defer it, use a contained workaround**, because the blast
+radius is large (every entity query) and the only consumer today is EAV MultiDelete/MultiUpdate
+(dynamic properties are scoped as occasional filtering, not a hot feature). Full problem + proposed
+refactor + backward-compat contract + staging are recorded in **`CLAUDE/ENTITY_WHERE_PROBLEM.md`**;
+revisit when a second consumer appears.
+
+**Workaround (for MultiDelete + MultiUpdate):** after `PrepareQuery`, reuse the modify statement's
+already-rendered, table-name-qualified WHERE text verbatim inside `SELECT root FROM t WHERE <text>` for
+the child `owner IN (…)`, and combine `{child delete ; root delete}` in one `MultiSqlQueryBuilder`
+(params bound once on the shared query). Works precisely because modify-WHERE is table-name-qualified.
+
+#### Status — end of day 2026-07-04
+`MultiDeleteEntityQuery` implemented as **3 tiers** (detected by whether the rendered WHERE contains the
+`_props` table name — the qualifier only lands there via a `DynamicPropertyOf` subquery, values are
+parameterized so no literal can spoof it):
+1. **no WHERE** → one command: delete all props; delete all owners.
+2. **WHERE, regular columns** → one command: `DELETE props WHERE owner IN (SELECT id FROM owner WHERE
+   cond); DELETE owner WHERE cond` (props-first, FK-safe, MySQL-safe). Reuses the rendered WHERE with a
+   qualifier-prefix realign (builder aliases differ: delete `table.col`, select `entityN.col`). **Works.**
+3. **WHERE filters on a dynamic property** (reads `_props`) → **materialize the matched owner ids to
+   the client, then delete by that fixed id-set** (implemented 2026-07-05). In a (nested) transaction,
+   batches ≤50: pre-read `SELECT owner.id WHERE <cond>`; delete props (subquery form where the engine
+   allows a table in its own delete's sub-query, else by `IN [ids]`); delete owners by `IN [ids]`.
+   NG chose client-side materialization over a temp table (dynamic properties are for storage +
+   occasional filtering, not mass ops). New capability flag `SqlDbLanguageSpecifics
+   .SelfReferenceInDeleteAllowed` (true; MySQL false) drives the props-delete branch. Works on all 6
+   connections (`DynamicPropertiesMultiDeleteTest` 30/30, incl. Eq / composed-AND / async, validated
+   by *which* owners survive, not just counts).
+
+**Multi-driver INSERT defect — ✅ FIXED 2026-07-05** (was: dynamic-property INSERT broken on
+MySQL/Oracle via the batched multi-statement command). Two root causes fixed: (1) the owner insert left
+its auto-id readback reader open → added `SqlDbQuery.CloseReader()`, called in the binder after reading
+the id (fixed PG/MSSQL/MySQL connection conflict); (2) each batched props insert emitted a per-row
+autoincrement readback (`; SELECT LAST_INSERT_ID();` → `;;` on MySQL; `RETURNING id INTO :id` → ORA-50028
+on Oracle) → added `InsertQueryBuilder.ReturnAutoincrement` (default true), set false for the batch; each
+driver's `BuildQuery` guards its readback on it. See `../KNOWN_ISSUES.md #1`. Now green on all drivers:
+`DynamicPropertiesMultiDeleteTest` 18/18, debug 6/6, entity insert 42/42, dynamic-properties suite 132/132.
+
+**Tier-3 dynamic-property MultiDelete — ✅ DONE 2026-07-05** via client-side id materialization (see the
+3-tier list above). The same "materialize ids → batched IN operations in a (nested) transaction" logic
+will be reused for **MultiUpdate**. Nothing committed yet; NG to run full regression.
+
+### Task 5 — Update  ✅ *implemented 2026-07-05 (all 6 drivers; 6 tests)*
+`UpdateEntityQuery` applies the bag's **net changes** after the owner update (Option A, precise):
+`Added` → INSERT, `Changed` → UPDATE, `Removed` → DELETE, combined in one command (owner a shared
+param, each change row-suffixed; a running row index keeps params unique across the mixed statements).
+Guards: null bag → skip; **new bag → throw** (`DynamicPropertiesBagIsNew` — a new bag belongs to an
+insert / signals a never-loaded bag); `!AnyModified` → skip. No reader-close needed (the owner update
+is `ExecuteNoData`, no read-back).
+
+The per-property statement/row builders were **promoted to `DynamicPropertiesSaver`** (shared:
+`AddInsert`/`AddUpdate`/`AddDelete`, `BindValueRow`/`BindNameRow`/`BindOwner`, `Suffixed`,
+`RequireExistingBag`); `InsertEntityQuery` was refactored onto them. Tests
+(`DynamicPropertiesUpdateTest`, 6×6): add / change / remove / **mixed** (verifies changed changes,
+unchanged stays, added added, removed removed) / other-owner-untouched / async / new-bag-rejected.
+
+### Task 6 — MultiUpdate  ✅ *implemented 2026-07-05 (all 6 drivers; 7 tests)*
+`MultiUpdateEntityQuery` now updates owner **columns** and/or **dynamic properties** in bulk. Three cases:
+- **owner columns only** (no prop changes) → the existing single `UPDATE owner SET … WHERE <cond>`
+  (works with any condition incl. a dynamic-property filter — `owner` target, `_props` sub-query, no
+  self-reference). Unchanged base path.
+- **any `SetDynamicProperty`/`RemoveDynamicProperty`** → **materialize the matched owner ids** (uniform,
+  avoids self-reference on MySQL and mutual dependency), then in a **nested transaction, batches ≤50**:
+  owner-column `UPDATE` (one statement by the original condition, run *before* prop changes so a set
+  can't disturb the filter) + per-name clear `DELETE props WHERE owner IN [ids] AND name=@n` + per-owner
+  bulk `INSERT` for each set-property (option (b): owner varies per row — new `DynamicPropertiesSaver
+  .AddBulkInsert`/`BindBulkInsert`).
+
+New API: `SetDynamicProperty(name, value)` / `RemoveDynamicProperty(name)`. The owner update runs through
+a query created **inside** the transaction (`GetQuery(mBuilder.QueryBuilder)` + `CopyParametersFrom`) so
+it enlists — `mQuery` predates the transaction and would not be. The ids-select + alias-realign were
+promoted to `DynamicPropertiesSaver` (`BuildMatchedIdsSelect`, `ConditionReferencesProps`) and MultiDelete
+refactored onto them. Tests (`DynamicPropertiesMultiUpdateTest`, 7×6): owner-only / props-only set /
+replace / remove / mixed (both matched rows) / **60-owner batch-boundary** / async. All 6 drivers green.
+
+### Task 7 — InsertSelect  ✅ *2026-07-05 — rejected by design*
+`INSERT … SELECT` (`GetInsertSelectEntityQuery`) for an entity that owns dynamic properties **throws
+`NotSupportedException`** (guard in the factory, before the query is allocated): a select produces
+column values only and cannot populate the side table. Non-dynamic entities are unaffected (guard
+condition false; 43 existing InsertSelect tests green). Test:
+`DynamicProperties.DataManagement.DynamicPropertiesInsertSelectTest`.
+
+### Read-side filtering by dynamic property ✅
+`SelectEntitiesQuery` / `SelectEntitiesCountQuery` filtered by `DynamicPropertyOf` need no special code
+(a read never touches `_props`, so it's just `owner.id IN (SELECT owner FROM <t>_props WHERE …)`).
+Tests: `DataSelecting.DynamicPropertiesSelectByPropertyTest` (Eq/And/Or/range/composed/no-match/count),
+7×6 all drivers.
+
+### Still to do: the **load path** — populate the bag on select (opt-in on SelectEntitiesQuery and/or a
+standalone LoadDynamicProperties), batched `WHERE owner IN (…)` per page, reflection-set the bag. Decided
+in Task 1b, not yet implemented.
 
 ## Conventions
 - Explicit `<Compile Include>` for the new file; test csproj auto-includes.

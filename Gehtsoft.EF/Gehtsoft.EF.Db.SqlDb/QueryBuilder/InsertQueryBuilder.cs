@@ -28,6 +28,15 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected Dictionary<string, string> mParameterNames;
 
         /// <summary>
+        /// Whether the statement reads the generated autoincrement value back (default `true` - the
+        /// historical behavior). Set to `false` to insert into an autoincrement table *without* the
+        /// read-back: the database still generates the id, but the statement omits the driver's
+        /// read-back tail (e.g. `; SELECT LAST_INSERT_ID();`, `RETURNING id INTO :id`). Used when the
+        /// generated id is not needed and the read-back would break a combined multi-statement command.
+        /// </summary>
+        public bool ReturnAutoincrement { get; set; } = true;
+
+        /// <summary>
         /// Sets the columns to be inserted by the statement.
         ///
         /// If this method isn't called, all columns will be added.

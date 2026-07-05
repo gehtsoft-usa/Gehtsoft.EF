@@ -30,7 +30,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(base.BuildQuery(leftSide, rightSide, autoIncrement));
-            if (autoIncrement != null)
+            if (autoIncrement != null && ReturnAutoincrement)
                 builder
                     .Append("; SELECT last_value from ")
                     .Append(mTable.Name)
