@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
@@ -64,6 +65,15 @@ namespace Gehtsoft.EF.Test.DynamicProperties.DataSelecting
             using (var q = c.GetDropEntityQuery<Owner>()) q.Execute();
             using (var q = c.GetCreateEntityQuery<Owner>()) q.Execute();
             try { Seed(c); body(c); }
+            finally { using (var q = c.GetDropEntityQuery<Owner>()) q.Execute(); }
+        }
+
+        private async Task RunAsync(string connectionName, Func<SqlDbConnection, Task> body)
+        {
+            var c = mFixture.GetInstance(connectionName);
+            using (var q = c.GetDropEntityQuery<Owner>()) q.Execute();
+            using (var q = c.GetCreateEntityQuery<Owner>()) q.Execute();
+            try { Seed(c); await body(c); }
             finally { using (var q = c.GetDropEntityQuery<Owner>()) q.Execute(); }
         }
 
@@ -137,6 +147,47 @@ namespace Gehtsoft.EF.Test.DynamicProperties.DataSelecting
                 }
 
                 c.LoadPropertiesFor(one);
+                one.DynamicProperties.Should().NotBeNull();
+                one.DynamicProperties.IsNew.Should().BeFalse();
+                one.DynamicProperties.Get<string>("color").Should().Be("blue");
+            });
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public Task Preload_ReadAllAsync_AttachesLoadedBags(string connectionName)
+            => RunAsync(connectionName, async c =>
+            {
+                List<Owner> all;
+                using (var q = c.GetSelectEntitiesQuery<Owner>())
+                {
+                    q.PreloadProperties = true;
+                    all = new List<Owner>(await q.ReadAllAsync<Owner>());
+                }
+
+                var full = ByName(all, "full");
+                full.DynamicProperties.Should().NotBeNull();
+                full.DynamicProperties.IsNew.Should().BeFalse();
+                full.DynamicProperties.AnyModified.Should().BeFalse();
+                full.DynamicProperties.Get<string>("color").Should().Be("red");
+                full.DynamicProperties.Get<long>("big").Should().Be(5_000_000_000L);
+                full.DynamicProperties.Get<DateTime>("when").Should().Be(SampleUtc);
+
+                ByName(all, "none").DynamicProperties.Count.Should().Be(0);
+            });
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public Task LoadPropertiesForAsync_OnDemand_FillsBag(string connectionName)
+            => RunAsync(connectionName, async c =>
+            {
+                Owner one;
+                using (var q = c.GetSelectEntitiesQuery<Owner>())
+                {
+                    q.Where.Property(nameof(Owner.Name)).Eq("one");
+                    one = q.ReadOne<Owner>();     // no preload -> bag not populated yet
+                }
+
+                await c.LoadPropertiesForAsync(one);
                 one.DynamicProperties.Should().NotBeNull();
                 one.DynamicProperties.IsNew.Should().BeFalse();
                 one.DynamicProperties.Get<string>("color").Should().Be("blue");

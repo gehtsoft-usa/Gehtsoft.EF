@@ -118,6 +118,30 @@ namespace Gehtsoft.EF.Test.DynamicProperties.DataSelecting
 
         [Theory]
         [MemberData(nameof(ConnectionNames), "")]
+        public void Project_Long(string connectionName)
+            => Run(connectionName, c =>
+            {
+                // a 64-bit value beyond the Int32 range, projected as Long
+                const long huge = 5_000_000_000L;
+                Insert(c, "big", b => b.Set("huge", huge));
+
+                using var q = c.GetSelectEntitiesQueryBase<Owner>();
+                q.AddToResultset(typeof(Owner), nameof(Owner.Name), "name");
+                q.AddDynamicPropertyToResultset<Owner>("huge", DynamicPropertyValueType.Long, "value");
+
+                object value = null;
+                foreach (var row in q.ReadAllDynamic())
+                {
+                    var dict = (IDictionary<string, object>)row;
+                    if ((string)dict["name"] == "big")
+                        value = dict["value"];
+                }
+
+                value.Should().Be(huge);   // decoded back to a long, not truncated to int
+            });
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
         public void Project_DateTime_Exact(string connectionName)
             => Run(connectionName, c =>
             {

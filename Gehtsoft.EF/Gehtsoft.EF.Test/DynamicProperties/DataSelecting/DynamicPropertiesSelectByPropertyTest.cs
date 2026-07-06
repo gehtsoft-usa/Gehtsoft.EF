@@ -112,6 +112,34 @@ namespace Gehtsoft.EF.Test.DynamicProperties.DataSelecting
 
         [Theory]
         [MemberData(nameof(ConnectionNames), "")]
+        public void Select_ByDynamicProperty_Gt(string connectionName)
+            => Run(connectionName, c =>
+                SelectNames(c, w => w.DynamicPropertyOf<Owner>("size").Gt(20))
+                    .Should().BeEquivalentTo(new[] { "blue30", "green30" }));
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Select_ByDynamicProperty_Ls(string connectionName)
+            => Run(connectionName, c =>
+                SelectNames(c, w => w.DynamicPropertyOf<Owner>("size").Ls(20))
+                    .Should().BeEquivalentTo(new[] { "red10" }));
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Select_ByDynamicProperty_Le(string connectionName)
+            => Run(connectionName, c =>
+                SelectNames(c, w => w.DynamicPropertyOf<Owner>("size").Le(20))
+                    .Should().BeEquivalentTo(new[] { "red10", "red20" }));
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Select_ByDynamicProperty_Like(string connectionName)
+            => Run(connectionName, c =>
+                SelectNames(c, w => w.DynamicPropertyOf<Owner>("color").Like("re%"))
+                    .Should().BeEquivalentTo(new[] { "red10", "red20" }));
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
         public void Select_ComposedWithRegularColumn(string connectionName)
             => Run(connectionName, c =>
                 SelectNames(c, w => w.Property(nameof(Owner.Name)).Like("red%")
