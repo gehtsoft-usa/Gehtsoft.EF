@@ -103,8 +103,8 @@ trimSpecification : 'LEADING' | 'TRAILING' | 'BOTH' ;
 // ---------------------------- aggregates ----------------------------
 
 aggrCall
-    : aggrFunc '(' field ')'    # aggrFuncCall
-    | AGGR_COUNT_ALL            # aggrCountAll
+    : aggrFunc '(' setQuantifier? field ')'    # aggrFuncCall
+    | AGGR_COUNT_ALL                           # aggrCountAll
     ;
 aggrFunc : 'COUNT' | 'MAX' | 'MIN' | 'AVG' | 'SUM' ;
 

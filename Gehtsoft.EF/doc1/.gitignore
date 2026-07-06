@@ -1,5 +1,6 @@
 dst/
 src/raw/
+model.xml
 Gehtsoft.EF.Db.SqlDb.xml
 Gehtsoft.EF.Entities.xml
 Gehtsoft.EF.FTS.xml

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Gehtsoft.EF.Entities
@@ -20,6 +21,30 @@ namespace Gehtsoft.EF.Entities
         /// <returns>The newly attached bag.</returns>
         public static DynamicPropertyBag InitializeDynamicProperties(this object entity)
         {
+            DynamicPropertyBag bag = new DynamicPropertyBag { IsNew = true };
+            AttachBag(entity, bag);
+            return bag;
+        }
+
+        /// <summary>
+        /// Attaches a loaded dynamic property bag to an entity read from the database: the supplied
+        /// properties become the bag's contents and its change-tracking baseline (nothing is reported
+        /// as modified, and the bag is <b>not</b> flagged as new). Assigned reflectively, like
+        /// <see cref="InitializeDynamicProperties(object)"/>.
+        /// </summary>
+        /// <param name="entity">The entity, which must implement <see cref="IDynamicPropertiesOwner"/>.</param>
+        /// <param name="properties">The properties loaded from the side table.</param>
+        /// <returns>The attached, loaded bag.</returns>
+        public static DynamicPropertyBag LoadDynamicProperties(this object entity, IEnumerable<(string Name, object Value)> properties)
+        {
+            DynamicPropertyBag bag = new DynamicPropertyBag();
+            bag.Initialize(properties);
+            AttachBag(entity, bag);
+            return bag;
+        }
+
+        private static void AttachBag(object entity, DynamicPropertyBag bag)
+        {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
             if (!(entity is IDynamicPropertiesOwner))
@@ -29,9 +54,7 @@ namespace Gehtsoft.EF.Entities
             if (property == null || property.SetMethod == null)
                 throw new InvalidOperationException($"The type '{entity.GetType().FullName}' does not expose a settable '{nameof(IDynamicPropertiesOwner.DynamicProperties)}' property");
 
-            DynamicPropertyBag bag = new DynamicPropertyBag { IsNew = true };
             property.SetValue(entity, bag);
-            return bag;
         }
     }
 }

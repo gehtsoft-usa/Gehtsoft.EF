@@ -1453,6 +1453,393 @@
 @end
 
 @article
+    @key=tutorialen_dynentity
+    @title=Dynamic Entities
+    @brief=
+    @ingroup=tutorialsen
+
+    [b]What is a Dynamic Entity?[/b]
+
+    An ordinary entity is a compiled class - its table name and its set of columns are fixed at compile time. A
+    [b]dynamic entity[/b] describes the same information [i]at run time[/i] instead: the table and the list of properties
+    (columns) are produced by code rather than by fixed class members. This is useful when the schema is known only at run
+    time - for example a table described by configuration, or a per-tenant table.
+
+    A dynamic entity is, in every other respect, a normal entity: it is created, dropped, inserted, updated, deleted and
+    queried exactly like a compiled one.
+
+    [b]How to Define a Dynamic Entity?[/b]
+
+    Derive from [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.DynamicEntity]DynamicEntity[/clink] and override two members:
+
+    @list
+        @list-item
+            the [c]EntityAttribute[/c] property - it returns the [clink=Gehtsoft.EF.Entities.EntityAttribute]EntityAttribute[/clink]
+            that names the table (the same attribute a compiled entity would carry);
+        @end
+        @list-item
+            the [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.DynamicEntity.InitializeProperties.dDF]InitializeProperties[/clink] method -
+            it returns the list of properties, each described by a
+            [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.DynamicEntityProperty]DynamicEntityProperty[/clink] (a CLR type, a name and an
+            [clink=Gehtsoft.EF.Entities.EntityPropertyAttribute]EntityPropertyAttribute[/clink] - exactly the information the
+            [c]EntityProperty[/c] attribute carries for a compiled entity).
+        @end
+    @end
+
+    @example
+        @title=Example: defining a dynamic entity
+        @show=yes
+        @highlight=cs
+       !public class Product : DynamicEntity
+       !{
+       !    public override EntityAttribute EntityAttribute
+       !        => new EntityAttribute() { Scope = "catalog", Table = "product" };
+       !
+       !    protected override IEnumerable<IDynamicEntityProperty> InitializeProperties()
+       !    {
+       !        yield return new DynamicEntityProperty(typeof(int), "Id",
+       !            new EntityPropertyAttribute() { PrimaryKey = true, Autoincrement = true });
+       !        yield return new DynamicEntityProperty(typeof(string), "Name",
+       !            new EntityPropertyAttribute() { Size = 64, Nullable = true });
+       !        yield return new DynamicEntityProperty(typeof(double), "Price",
+       !            new EntityPropertyAttribute());
+       !    }
+       !}
+    @end
+
+    [b]How to Use a Dynamic Entity?[/b]
+
+    Pass the dynamic entity type to the ordinary entity queries. Because the class derives from [c]DynamicObject[/c], the
+    property values are read and written dynamically (through a [c]dynamic[/c] reference).
+
+    @example
+        @title=Example: creating the table and inserting a row
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetCreateEntityQuery(typeof(Product)))
+       !    query.Execute();
+       !
+       !dynamic product = new Product();
+       !product.Name = "Widget";
+       !product.Price = 9.99;
+       !
+       !using (var query = connection.GetInsertEntityQuery(typeof(Product)))
+       !    query.Execute((object)product);
+    @end
+
+    [b]Discovery[/b]
+
+    Dynamic entities are [b]not[/b] discovered by the entity finder automatically. If you rely on entity discovery, call
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities.EnableDynamicEntityDiscoveryInEntityFinder.k26]AllEntities.EnableDynamicEntityDiscoveryInEntityFinder()[/clink]
+    once at start-up to enable it.
+@end
+
+@article
+    @key=tutorialen_dynprops1
+    @title=Dynamic (Per-Row) Properties
+    @brief=
+    @ingroup=tutorialsen
+
+    [b]What are Dynamic Properties?[/b]
+
+    Regular entity properties are fixed by the class definition - every row has exactly the same columns.
+    [b]Dynamic properties[/b] let an individual row carry additional, named values that are [i]not[/i] part of the
+    class - a flat bag of name/value pairs that may differ from one row to the next, without any schema change.
+
+    They are useful for user-defined fields, sparse attributes, or data whose shape is not known at compile time.
+
+    [b]Why Do You Need Them?[/b]
+
+    Their main purpose is to [b]avoid a schema change for small or infrequent additions to the model[/b]. Adding a
+    regular column means altering the table (a migration) and changing the entity class; for a handful of optional or
+    rarely-used fields - especially ones that only some rows need, or that are defined by the user rather than by the
+    developer - that overhead is rarely justified. A dynamic property stores such a value without touching the table
+    structure or changing the entity.
+
+    Good candidates are optional metadata, user-defined fields, feature flags and other sparse attributes. If a value is
+    present on (almost) every row and is central to the model, a regular column is still the better choice.
+
+    [b]Not the Same as Dynamic Entities![/b]
+
+    Despite the similar name, dynamic properties have nothing to do with [link=tutorialen_dynentity]dynamic entities[/link].
+    A dynamic entity defines a whole table's schema at run time, but every row of that table still has the same fixed set of
+    columns. Dynamic properties are the opposite idea: extra, [i]per-row[/i] values layered on top of an entity, where
+    different rows may carry different names. The two features are independent - and can even be combined (a dynamic entity
+    may also own dynamic properties).
+
+    [b]How are They Stored?[/b]
+
+    The values are kept in a separate [i]side table[/i], one per entity table, named [c]&lt;entity_table&gt;_props[/c]
+    (the suffix is configurable). Each value is stored in its own row together with the owner's primary key and the
+    property name, so no change to the entity table itself is ever required. The layout is plain SQL and works on
+    every supported driver.
+
+    The side table is created and dropped [b]automatically[/b] together with the entity table - the ordinary
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetCreateEntityQuery]GetCreateEntityQuery[/clink] and
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetDropEntityQuery]GetDropEntityQuery[/clink] calls
+    take care of it. You do not create it yourself.
+
+    [b]How to Enable Dynamic Properties on an Entity?[/b]
+
+    Mark the entity class with the [clink=Gehtsoft.EF.Entities.DynamicPropertiesAttribute]DynamicProperties[/clink] attribute
+    and implement the [clink=Gehtsoft.EF.Entities.IDynamicPropertiesOwner]IDynamicPropertiesOwner[/clink]
+    interface. The interface exposes the bag as a read-only property backed by a private setter (the framework fills it
+    in via reflection when the properties are loaded).
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "document")]
+       ![DynamicProperties]
+       !public class Document : IDynamicPropertiesOwner
+       !{
+       !    [AutoId]
+       !    public int Id { get; set; }
+       !
+       !    [EntityProperty(Size = 64, Nullable = true)]
+       !    public string Name { get; set; }
+       !
+       !    public DynamicPropertyBag DynamicProperties { get; private set; }
+       !}
+    @end
+
+    The [c]DynamicProperties[/c] attribute also carries optional tuning:
+    [clink=Gehtsoft.EF.Entities.DynamicPropertiesAttribute.NameSize.fE2]NameSize[/clink] (default 64),
+    [clink=Gehtsoft.EF.Entities.DynamicPropertiesAttribute.StringValueSize.mdB]StringValueSize[/clink] (default 256) and the
+    [clink=Gehtsoft.EF.Entities.DynamicPropertiesAttribute.TableSuffix.sl7]TableSuffix[/clink] used for the side table (default [c]_props[/c]).
+
+    [b]Which Value Types are Supported?[/b]
+
+    A dynamic property value may be one of the following types:
+
+    @list
+        @list-item
+            [c]string[/c]
+        @end
+        @list-item
+            [c]int[/c] and [c]long[/c]
+        @end
+        @list-item
+            [c]double[/c]
+        @end
+        @list-item
+            [c]bool[/c]
+        @end
+        @list-item
+            [c]DateTime[/c] (stored as UTC)
+        @end
+    @end
+
+    [b]How to Set and Get Values?[/b]
+
+    The values live in the [clink=Gehtsoft.EF.Entities.DynamicPropertyBag]DynamicPropertyBag[/clink]. For a brand-new entity,
+    call [clink=Gehtsoft.EF.Entities.DynamicPropertiesExtension.InitializeDynamicProperties.x1B]InitializeDynamicProperties()[/clink]
+    to create an empty bag; then use [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Set.R3F]Set[/clink] to assign values by name.
+    The bag also offers [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Get]Get[/clink], the typed [c]Get&lt;T&gt;[/c],
+    [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Contains.LnA]Contains[/clink],
+    [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Remove.CpA]Remove[/clink] and
+    [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Count.P04]Count[/clink].
+
+    @example
+        @title=Example: creating an entity with dynamic properties
+        @show=yes
+        @highlight=cs
+       !var document = new Document() { Name = "contract" };
+       !var bag = document.InitializeDynamicProperties();
+       !bag.Set("color", "red");
+       !bag.Set("pages", 12);
+       !bag.Set("archived", false);
+       !bag.Set("signed_at", DateTime.UtcNow);
+       !
+       !using (var query = connection.GetInsertEntityQuery<Document>())
+       !    query.Execute(document);
+    @end
+
+    [b]When are the Values Saved?[/b]
+
+    The bag is saved [b]automatically[/b] whenever the owning entity is inserted or updated with the ordinary
+    entity modify queries - there is no separate save call. The bag tracks its own changes, so an update writes only
+    the values that were added, changed or removed and leaves the rest untouched. Deleting the entity removes its
+    dynamic property rows as well.
+
+    [b]How to Load the Values Back?[/b]
+
+    Dynamic properties are [b]not[/b] loaded automatically when an entity is read (that would cost an extra query per
+    row). There are two ways to load them:
+
+    @list
+        @list-item
+            Set [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery.PreloadProperties.ON7]PreloadProperties[/clink] to
+            [c]true[/c] on a [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery]SelectEntitiesQuery[/clink]
+            before reading. The properties for the whole result set are then loaded in batches and attached to each entity.
+        @end
+        @list-item
+            Call [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.LoadPropertiesFor.ei1]connection.LoadPropertiesFor(entity)[/clink]
+            to load (or reload) the bag of a single entity you already have.
+        @end
+    @end
+
+    @example
+        @title=Example: reading entities together with their dynamic properties
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Document>())
+       !{
+       !    query.PreloadProperties = true;
+       !    foreach (var document in query.ReadAll<Document>())
+       !    {
+       !        string color = document.DynamicProperties.Get<string>("color");
+       !        //...
+       !    }
+       !}
+    @end
+
+    [b]Performance Considerations[/b]
+
+    Dynamic properties trade query performance for schema flexibility. Each value is a separate row in the side table, so
+    reading or filtering by a property costs a join (or a sub-query) against that table rather than a plain column read.
+    The side table is indexed by name and value, so looking up or filtering a [i]single[/i] property is efficient, but:
+
+    @list
+        @list-item
+            If you need to [b]search, sort or aggregate by a field extensively[/b] (or join on it), make it a regular
+            entity property - a real column - not a dynamic one. A native column with its own index will always outperform
+            an EAV lookup.
+        @end
+        @list-item
+            Reading many properties for a row means reading many side-table rows; prefer [c]PreloadProperties[/c] (which
+            batches the load for the whole result set) over loading each entity individually.
+        @end
+        @list-item
+            A value that exists on nearly every row is cheaper and simpler as a regular column.
+        @end
+    @end
+
+    In short: use dynamic properties for sparse, occasionally-queried, user- or configuration-driven data; promote a value
+    to a real column as soon as it becomes "hot" - frequently searched, sorted or joined.
+
+    See [link=tutorialen_dynprops2]Querying by Dynamic Properties[/link] for how to filter, sort, group and aggregate by a dynamic property.
+@end
+
+@article
+    @key=tutorialen_dynprops2
+    @title=Querying by Dynamic Properties
+    @brief=
+    @ingroup=tutorialsen
+
+    Once an entity owns [link=tutorialen_dynprops1]dynamic properties[/link], you can filter, sort, group and aggregate
+    by them in queries.
+
+    [b]How to Filter by a Dynamic Property?[/b]
+
+    In the [c]Where[/c] condition of any entity query, start a dynamic-property predicate with
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilderDynamicPropertiesExtension.DynamicPropertyOf]DynamicPropertyOf[/clink],
+    passing the owner entity type and the property name, then apply the comparison. The value column and its type are
+    inferred from the value you compare against.
+
+    @example
+        @title=Example: filter by a dynamic property
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Document>())
+       !{
+       !    query.Where.DynamicPropertyOf<Document>("color").Eq("red");
+       !    var red = query.ReadAll<Document>();
+       !}
+    @end
+
+    Dynamic-property predicates compose with the ordinary [c]And[/c]/[c]Or[/c] and with normal column conditions, and
+    they also work with [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesCountQuery]SelectEntitiesCountQuery[/clink].
+    A row whose property is absent (or was stored under a different type) simply does not match the predicate.
+
+    @example
+        @title=Example: combining conditions
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Document>())
+       !{
+       !    query.Where.Property(nameof(Document.Name)).Is(CmpOp.Like).Value("contract%")
+       !               .And().DynamicPropertyOf<Document>("pages").Ge(10);
+       !    var found = query.ReadAll<Document>();
+       !}
+    @end
+
+    [b]Projecting, Sorting, Grouping and Aggregating[/b]
+
+    To use a dynamic property as a [i]selected[/i], [i]sortable[/i], [i]groupable[/i] or [i]aggregatable[/i] value, use the
+    custom query surface, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]
+    (obtained via [c]connection.GetSelectEntitiesQueryBase(...)[/c]).
+
+    Because these clauses have no value to infer the type from, the value type is specified explicitly with the
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.DynamicPropertyValueType]DynamicPropertyValueType[/clink] enumeration
+    ([c]String[/c], [c]Integer[/c], [c]Long[/c], [c]Real[/c], [c]Boolean[/c], [c]DateTime[/c]). Add the property to the
+    result set with [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddDynamicPropertyToResultset]AddDynamicPropertyToResultset[/clink];
+    the value is returned already decoded to the declared type.
+
+    @example
+        @title=Example: selecting a dynamic property
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Document>())
+       !{
+       !    query.AddToResultset(typeof(Document), nameof(Document.Name), "name");
+       !    query.AddDynamicPropertyToResultset<Document>("color", DynamicPropertyValueType.String, "color");
+       !    foreach (dynamic row in query.ReadAllDynamic())
+       !    {
+       !        string name = row.name;
+       !        string color = row.color;   // null when the row has no "color"
+       !    }
+       !}
+    @end
+
+    An aggregate overload wraps the value in an aggregate function.
+
+    @example
+        @title=Example: aggregating a dynamic property
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Document>())
+       !{
+       !    query.AddDynamicPropertyToResultset<Document>(AggFn.Max, "pages", DynamicPropertyValueType.Integer, "max_pages");
+       !    dynamic row = query.ReadOneDynamic();
+       !    int maxPages = row.max_pages;
+       !}
+    @end
+
+    [b]Ordering, Grouping and Having[/b]
+
+    A dynamic property can be added to [c]ORDER BY[/c]
+    ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddDynamicPropertyToOrderBy]AddDynamicPropertyToOrderBy[/clink]),
+    [c]GROUP BY[/c]
+    ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddDynamicPropertyToGroupBy]AddDynamicPropertyToGroupBy[/clink])
+    and [c]HAVING[/c]
+    ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.HavingDynamicPropertyOf]HavingDynamicPropertyOf[/clink]),
+    but [b]only after it has been added to the result set[/b] (with the same name, type and occurrence) - the query reuses
+    that projection. Adding one of these for a property that was not projected throws an exception.
+
+    @example
+        @title=Example: group by a dynamic property with a filtered aggregate
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Document>())
+       !{
+       !    query.AddDynamicPropertyToResultset<Document>("color", DynamicPropertyValueType.String, "color");
+       !    query.AddToResultset(AggFn.Count, typeof(Document), nameof(Document.Id), "count");
+       !    query.AddDynamicPropertyToGroupBy<Document>("color", DynamicPropertyValueType.String);
+       !    query.HavingDynamicPropertyOf<Document>("pages", DynamicPropertyValueType.Integer).Sum().Gt(100);
+       !    query.AddDynamicPropertyToOrderBy<Document>("color", DynamicPropertyValueType.String);
+       !    var groups = query.ReadAllDynamic();
+       !}
+    @end
+
+    [b]A Note on Efficiency[/b]
+
+    When a dynamic property is both projected and used in the [c]Where[/c] condition, the query filters the already-joined
+    value directly instead of issuing an additional sub-query - so projecting a property you also filter on costs nothing extra.
+@end
+
+@article
     @key=tutorialen_entities19
     @title=Other useful entity related things
     @brief=

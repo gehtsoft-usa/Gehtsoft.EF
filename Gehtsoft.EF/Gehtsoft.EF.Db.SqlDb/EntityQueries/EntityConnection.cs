@@ -453,6 +453,38 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             => GetSelectEntitiesQuery(connection, typeof(T), exclusions);
 
         /// <summary>
+        /// Loads (or reloads) the dynamic properties of an already-read entity from its side table
+        /// and attaches them as a loaded bag. Use this to fill the bag on demand, instead of the
+        /// eager <see cref="SelectEntitiesQuery.PreloadProperties"/>. A no-op for a type that does
+        /// not own dynamic properties.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="connection"></param>
+        /// <param name="entity"></param>
+        public static void LoadPropertiesFor<T>(this SqlDbConnection connection, T entity) where T : class
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            EntityDescriptor descriptor = AllEntities.Get(typeof(T));
+            if (!descriptor.HasDynamicProperties)
+                return;
+            DynamicPropertiesLoader.LoadOne(connection, descriptor, entity);
+        }
+
+        /// <summary>
+        /// Asynchronous version of <see cref="LoadPropertiesFor{T}(SqlDbConnection, T)"/>.
+        /// </summary>
+        public static Task LoadPropertiesForAsync<T>(this SqlDbConnection connection, T entity, CancellationToken? token = null) where T : class
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            EntityDescriptor descriptor = AllEntities.Get(typeof(T));
+            if (!descriptor.HasDynamicProperties)
+                return Task.CompletedTask;
+            return DynamicPropertiesLoader.LoadOneAsync(connection, descriptor, entity, token);
+        }
+
+        /// <summary>
         /// Gets query to construct a free-form entity select query.
         ///
         /// The method is a synonym for <see cref="GetGenericSelectEntityQuery(SqlDbConnection, Type)"/>

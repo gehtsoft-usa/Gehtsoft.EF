@@ -63,8 +63,23 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             SqlDbConnection connection = baseQuery.Query.Connection;
 
             // Which value column the value lands in, and the encoded value to compare against.
-            (DynamicPropertyValueType _, string columnName, object encoded) = DynamicPropertiesValueMapper.Encode(value);
+            (DynamicPropertyValueType valueType, string columnName, object encoded) = DynamicPropertiesValueMapper.Encode(value);
             TableDescriptor.ColumnInfo valueColumn = side[ValueColumnId(columnName)];
+
+            // Optimization: if the property was already projected into this query under the same
+            // type (a side-table join exists), filter its joined column directly instead of a
+            // correlated `owner IN (SELECT ...)` sub-query. The join is a LEFT join, so an absent /
+            // wrong-type row reads NULL and drops out of the comparison - the same rows the
+            // sub-query would have matched.
+            if (baseQuery is SelectEntitiesQueryBase selectQuery &&
+                selectQuery.TryGetDynamicPropertyJoin(mEntityType, mPropertyName, mOccurrence, valueType, out DynamicPropertyJoin join))
+            {
+                string directParameter = baseQuery.NextParam;
+                baseQuery.Query.BindParam(directParameter, join.ValueColumn.DbType, encoded);
+                return mSingle.Raw(join.ColumnAlias, join.ValueColumn.DbType)
+                              .Is(op)
+                              .Parameter(directParameter);
+            }
 
             // Unique parameter names, bound on the OUTER (executing) query - the sub-query only
             // references them by name.

@@ -313,9 +313,29 @@ condition false; 43 existing InsertSelect tests green). Test:
 Tests: `DataSelecting.DynamicPropertiesSelectByPropertyTest` (Eq/And/Or/range/composed/no-match/count),
 7×6 all drivers.
 
-### Still to do: the **load path** — populate the bag on select (opt-in on SelectEntitiesQuery and/or a
-standalone LoadDynamicProperties), batched `WHERE owner IN (…)` per page, reflection-set the bag. Decided
-in Task 1b, not yet implemented.
+### Task 8 — the **load path** ✅ *2026-07-05 (all 6 drivers)*
+Populate the bag on select. Two entry points:
+- **`SelectEntitiesQuery.PreloadProperties`** (default off): `ReadAll` (and `GetAllAsEnumerable`) read all
+  rows first, then **close the main select's reader** (`SqlDbQuery.CloseReader`) and **batch-load** the
+  properties in one `WHERE owner IN (…)` select per chunk (`OwnerBatchSize = 500`), attaching a loaded
+  (baseline-accepted, not-new) bag to each entity — empty bag for owners with no rows.
+- **`SqlDbConnection.LoadPropertiesFor<T>(entity)`** (+`…Async`): on-demand load/reload for one
+  already-read entity (no open reader → always safe). No-op for a non-dynamic type.
+
+**Why not per-`ReadOne`:** loading during iteration needs a *second* command while the main reader is
+still open — the exact conflict fixed for insert (PG "command in progress", MSSQL "open DataReader",
+MySQL "connection in use"), and here the main reader can't be closed mid-stream. So a **direct**
+`ReadOne`/`ReadOneAsync` with `PreloadProperties` set **throws `NotSupportedException`**; an internal
+`mReadingAll` flag distinguishes `ReadAll`'s own `ReadOne` calls (allowed) from direct ones. Batching
+also matches the Task-1b "one props query per page" decision (never N+1).
+
+New shared helper `DynamicPropertiesLoader` (query-agnostic, sibling of the saver): reads `owner, name,
+prop_type, v_str, v_int, v_real`, `Decode`s by the type code, groups rows by owner (string-keyed to
+avoid int-vs-long boxing mismatches), and calls `entity.LoadDynamicProperties(...)` — a new
+`DynamicPropertiesExtension` method that `Initialize`s a bag (IsNew=false) and reflection-sets it (shares
+`AttachBag` with `InitializeDynamicProperties`). Test:
+`DataSelecting.DynamicPropertiesLoadTest` (preload all types / empty bag / on-demand / direct-ReadOne
+throws / update round-trip), 5×6 all drivers. **Phase 2 complete.**
 
 ## Conventions
 - Explicit `<Compile Include>` for the new file; test csproj auto-includes.

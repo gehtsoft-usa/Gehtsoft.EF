@@ -60,6 +60,7 @@
     <Compile Include="EntityQueries\EntityDiscovery\ColumnDiscoverer.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\DynamicEntityDiscoverer.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\DynamicPropertiesTableBuilder.cs" />
+    <Compile Include="EntityQueries\EntityDiscovery\DynamicPropertiesLoader.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\DynamicPropertiesSaver.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\DynamicPropertiesValueMapper.cs" />
     <Compile Include="EntityQueries\EntityDiscovery\EntityDescriptor.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="EntityQueries\EntityQuery\ConditionEntityQueryBaseBackwardCompatibility.cs" />
     <Compile Include="EntityQueries\EntityQuery\DeleteEntityQuery.cs" />
     <Compile Include="EntityQueries\EntityQuery\DynamicPropertyConditionBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQuery\DynamicPropertyProjection.cs" />
     <Compile Include="EntityQueries\DynamicEntity\DynamicEntity.cs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>

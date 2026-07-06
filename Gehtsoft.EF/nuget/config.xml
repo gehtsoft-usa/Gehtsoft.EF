@@ -2,6 +2,7 @@
 <nuget xmlns="http://www.gehtsoft.com/build/nuget">
  <!-- versions. the FIRST version is the current -->
  <versions>
+  <version id="1.9.7">- RAW SQL parsing moved to ANTLR. Support for dynamic properties via EAV table added.</version>
   <version id="1.9.6">- Update dependencies, add nuget skill support.</version>
   <version id="1.9.5.1">- Fix float and short types support.</version>
   <version id="1.9.5">- Dependencies updated.</version>

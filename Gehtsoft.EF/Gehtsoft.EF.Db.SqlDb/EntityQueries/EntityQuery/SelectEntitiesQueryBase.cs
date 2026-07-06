@@ -82,6 +82,33 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         private readonly List<Type> mResultsetTypes = new List<Type>();
 
+        // The dynamic-property side-table joins established in this query, keyed by
+        // (entity type, property name, occurrence, value type) - see DynamicPropertyJoinKey.
+        private Dictionary<DynamicPropertyJoinKey, DynamicPropertyJoin> mDynamicPropertyJoins;
+
+        internal Dictionary<DynamicPropertyJoinKey, DynamicPropertyJoin> DynamicPropertyJoins
+            => mDynamicPropertyJoins ?? (mDynamicPropertyJoins = new Dictionary<DynamicPropertyJoinKey, DynamicPropertyJoin>());
+
+        /// <summary>
+        /// Looks up a dynamic-property side-table join already established in this query (by a prior
+        /// projection). Used to filter the property directly on the joined column instead of a
+        /// correlated `owner IN (SELECT ...)` sub-query.
+        /// </summary>
+        internal bool TryGetDynamicPropertyJoin(Type entityType, string name, int occurrence, DynamicPropertyValueType type, out DynamicPropertyJoin join)
+        {
+            if (mDynamicPropertyJoins == null)
+            {
+                join = null;
+                return false;
+            }
+            return mDynamicPropertyJoins.TryGetValue(new DynamicPropertyJoinKey(entityType, name, occurrence, type), out join);
+        }
+
+        // Resultset column index -> the declared type used to decode the stored (encoded) value at
+        // read time (ticks -> DateTime, 0/1 -> bool, ...). Populated by the dynamic-property
+        // projection methods; consulted by BindOneDynamic.
+        private Dictionary<int, DynamicPropertyValueType> mDynamicPropertyColumns;
+
         /// <summary>
         /// Add all columns of the type specified into the resultset.
         /// </summary>
@@ -213,6 +240,195 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
             mSelectBuilder.AddExpressionToResultset(expression, isaggregate, dbType, alias);
             mResultsetTypes.Add(type);
+        }
+
+        /// <summary>
+        /// Adds a dynamic property to the resultset.
+        ///
+        /// The property's side table is joined (once per property/occurrence/type) and its value
+        /// column is added to the resultset. Because the query has no CLR operand to infer the type
+        /// from, the value type is specified explicitly - it selects the value column and how the
+        /// stored value is decoded when read.
+        /// </summary>
+        /// <typeparam name="T">The entity type that owns the dynamic property.</typeparam>
+        /// <param name="name">The dynamic property name.</param>
+        /// <param name="type">The value type of the property.</param>
+        /// <param name="alias">The resultset column alias, or `null`.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddDynamicPropertyToResultset<T>(string name, DynamicPropertyValueType type, string alias = null, int occurrence = 0)
+            => AddDynamicPropertyToResultset(typeof(T), name, type, alias, occurrence);
+
+        /// <summary>
+        /// Adds a dynamic property of the specified entity type to the resultset.
+        /// </summary>
+        /// <param name="entityType">The entity type that owns the dynamic property.</param>
+        /// <param name="name">The dynamic property name.</param>
+        /// <param name="type">The value type of the property.</param>
+        /// <param name="alias">The resultset column alias, or `null`.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddDynamicPropertyToResultset(Type entityType, string name, DynamicPropertyValueType type, string alias = null, int occurrence = 0)
+        {
+            DynamicPropertyJoin join = DynamicPropertyProjection.EnsureJoin(this, entityType, name, occurrence, type);
+            AddDynamicPropertyColumn(join.ColumnAlias, false, join.ValueColumn.DbType, type, alias);
+        }
+
+        /// <summary>
+        /// Adds a dynamic property aggregated with the specified function to the resultset.
+        ///
+        /// The aggregate runs against the stored value column; the result is decoded back to the
+        /// declared type when read (e.g. `Min`/`Max` of a DateTime property yields a DateTime).
+        /// `Count` is the exception - it yields the row count as an integer and is not decoded.
+        /// </summary>
+        /// <typeparam name="T">The entity type that owns the dynamic property.</typeparam>
+        /// <param name="aggregation">The aggregate function.</param>
+        /// <param name="name">The dynamic property name.</param>
+        /// <param name="type">The value type of the property.</param>
+        /// <param name="alias">The resultset column alias, or `null`.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddDynamicPropertyToResultset<T>(AggFn aggregation, string name, DynamicPropertyValueType type, string alias = null, int occurrence = 0)
+            => AddDynamicPropertyToResultset(aggregation, typeof(T), name, type, alias, occurrence);
+
+        /// <summary>
+        /// Adds a dynamic property of the specified entity type aggregated with the specified function to the resultset.
+        /// </summary>
+        /// <param name="aggregation">The aggregate function.</param>
+        /// <param name="entityType">The entity type that owns the dynamic property.</param>
+        /// <param name="name">The dynamic property name.</param>
+        /// <param name="type">The value type of the property.</param>
+        /// <param name="alias">The resultset column alias, or `null`.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddDynamicPropertyToResultset(AggFn aggregation, Type entityType, string name, DynamicPropertyValueType type, string alias = null, int occurrence = 0)
+        {
+            DynamicPropertyJoin join = DynamicPropertyProjection.EnsureJoin(this, entityType, name, occurrence, type);
+            string expression = SelectBuilder.Specifics.GetAggFn(aggregation, join.ColumnAlias);
+
+            if (aggregation == AggFn.Count)
+                AddExpressionToResultset(expression, true, DbType.Int32, typeof(int), alias);
+            else
+                AddDynamicPropertyColumn(expression, true, join.ValueColumn.DbType, type, alias);
+        }
+
+        // Adds an expression that yields an encoded dynamic-property value to the resultset and
+        // records the resultset index so the value is decoded (per the declared type) when read.
+        private void AddDynamicPropertyColumn(string expression, bool isAggregate, DbType dbType, DynamicPropertyValueType type, string alias)
+        {
+            int index = ResultsetSize;
+            AddExpressionToResultset(expression, isAggregate, dbType, ClrTypeOf(type), alias);
+            if (mDynamicPropertyColumns == null)
+                mDynamicPropertyColumns = new Dictionary<int, DynamicPropertyValueType>();
+            mDynamicPropertyColumns[index] = type;
+        }
+
+        private static Type ClrTypeOf(DynamicPropertyValueType type)
+        {
+            switch (type)
+            {
+                case DynamicPropertyValueType.String:
+                    return typeof(string);
+                case DynamicPropertyValueType.Integer:
+                    return typeof(int);
+                case DynamicPropertyValueType.Long:
+                    return typeof(long);
+                case DynamicPropertyValueType.Real:
+                    return typeof(double);
+                case DynamicPropertyValueType.Boolean:
+                    return typeof(bool);
+                case DynamicPropertyValueType.DateTime:
+                    return typeof(DateTime);
+                default:
+                    return typeof(object);
+            }
+        }
+
+        // Returns the join a dynamic property was projected under, or throws: ORDER BY / GROUP BY /
+        // HAVING can only reference a property that was already added to the resultset.
+        private DynamicPropertyJoin RequireDynamicPropertyJoin(Type entityType, string name, int occurrence, DynamicPropertyValueType type)
+        {
+            if (!TryGetDynamicPropertyJoin(entityType, name, occurrence, type, out DynamicPropertyJoin join))
+                throw new InvalidOperationException($"The dynamic property '{name}' (type '{type}') must be added to the resultset with AddDynamicPropertyToResultset before it can be used in ORDER BY / GROUP BY");
+            return join;
+        }
+
+        /// <summary>
+        /// Adds a dynamic property to the order by.
+        ///
+        /// The property must already have been added to the resultset (with the same type and
+        /// occurrence) via <see cref="AddDynamicPropertyToResultset{T}(string, DynamicPropertyValueType, string, int)"/>.
+        /// </summary>
+        /// <typeparam name="T">The entity type that owns the dynamic property.</typeparam>
+        /// <param name="name">The dynamic property name.</param>
+        /// <param name="type">The value type the property was projected under.</param>
+        /// <param name="direction">The sort direction.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddDynamicPropertyToOrderBy<T>(string name, DynamicPropertyValueType type, SortDir direction = SortDir.Asc, int occurrence = 0)
+            => AddDynamicPropertyToOrderBy(typeof(T), name, type, direction, occurrence);
+
+        /// <summary>
+        /// Adds a dynamic property of the specified entity type to the order by.
+        /// </summary>
+        /// <param name="entityType">The entity type that owns the dynamic property.</param>
+        /// <param name="name">The dynamic property name.</param>
+        /// <param name="type">The value type the property was projected under.</param>
+        /// <param name="direction">The sort direction.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddDynamicPropertyToOrderBy(Type entityType, string name, DynamicPropertyValueType type, SortDir direction = SortDir.Asc, int occurrence = 0)
+            => AddOrderByExpr(RequireDynamicPropertyJoin(entityType, name, occurrence, type).ColumnAlias, direction);
+
+        /// <summary>
+        /// Adds a dynamic property to the group by.
+        ///
+        /// The property must already have been added to the resultset (with the same type and
+        /// occurrence) via <see cref="AddDynamicPropertyToResultset{T}(string, DynamicPropertyValueType, string, int)"/>.
+        /// </summary>
+        /// <typeparam name="T">The entity type that owns the dynamic property.</typeparam>
+        /// <param name="name">The dynamic property name.</param>
+        /// <param name="type">The value type the property was projected under.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddDynamicPropertyToGroupBy<T>(string name, DynamicPropertyValueType type, int occurrence = 0)
+            => AddDynamicPropertyToGroupBy(typeof(T), name, type, occurrence);
+
+        /// <summary>
+        /// Adds a dynamic property of the specified entity type to the group by.
+        /// </summary>
+        /// <param name="entityType">The entity type that owns the dynamic property.</param>
+        /// <param name="name">The dynamic property name.</param>
+        /// <param name="type">The value type the property was projected under.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddDynamicPropertyToGroupBy(Type entityType, string name, DynamicPropertyValueType type, int occurrence = 0)
+            => AddGroupByExpr(RequireDynamicPropertyJoin(entityType, name, occurrence, type).ColumnAlias);
+
+        /// <summary>
+        /// Starts a HAVING condition on a dynamic property.
+        ///
+        /// The property must already have been added to the resultset (with the same type and
+        /// occurrence) via <see cref="AddDynamicPropertyToResultset{T}(string, DynamicPropertyValueType, string, int)"/>.
+        /// The returned builder is positioned on the joined value column; chain an aggregate wrapper
+        /// and a comparison, e.g. `HavingDynamicPropertyOf&lt;T&gt;("price", Real).Sum().Gt(100.0)`.
+        ///
+        /// The comparison value is compared against the stored (encoded) column, so for `DateTime`
+        /// and `Boolean` properties compare against the encoded form (UTC ticks, 0/1); numeric and
+        /// string properties compare directly.
+        /// </summary>
+        /// <typeparam name="T">The entity type that owns the dynamic property.</typeparam>
+        /// <param name="name">The dynamic property name.</param>
+        /// <param name="type">The value type the property was projected under.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public SingleEntityQueryConditionBuilder HavingDynamicPropertyOf<T>(string name, DynamicPropertyValueType type, int occurrence = 0)
+            => HavingDynamicPropertyOf(typeof(T), name, type, occurrence);
+
+        /// <summary>
+        /// Starts a HAVING condition on a dynamic property of the specified entity type.
+        /// </summary>
+        /// <param name="entityType">The entity type that owns the dynamic property.</param>
+        /// <param name="name">The dynamic property name.</param>
+        /// <param name="type">The value type the property was projected under.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public SingleEntityQueryConditionBuilder HavingDynamicPropertyOf(Type entityType, string name, DynamicPropertyValueType type, int occurrence = 0)
+        {
+            DynamicPropertyJoin join = RequireDynamicPropertyJoin(entityType, name, occurrence, type);
+            SingleEntityQueryConditionBuilder single = new SingleEntityQueryConditionBuilder(LogOp.And, Having);
+            single.Raw(join.ColumnAlias, join.ValueColumn.DbType);
+            return single;
         }
 
         /// <summary>
@@ -371,7 +587,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 if (dynamicNames[i].Item2)
                 {
                     object value;
-                    if (mResultsetTypes.Count > i)
+                    if (mDynamicPropertyColumns != null && mDynamicPropertyColumns.TryGetValue(i, out DynamicPropertyValueType dynamicType))
+                        value = mQuery.IsNull(i) ? null : DynamicPropertiesValueMapper.Decode(dynamicType, mQuery.GetValue(i));
+                    else if (mResultsetTypes.Count > i)
                         value = mQuery.GetValue(i, mResultsetTypes[i]);
                     else
                         value = mQuery.GetValue(i);

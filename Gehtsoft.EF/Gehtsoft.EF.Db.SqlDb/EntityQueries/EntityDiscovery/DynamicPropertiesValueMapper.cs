@@ -4,16 +4,30 @@ using System.Globalization;
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     /// <summary>
-    /// The SQL storage type discriminator for a dynamic property value. The numeric values are the
-    /// codes stored in the `prop_type` column and MUST remain stable (the load path decodes by them).
+    /// The storage type of a dynamic property value.
+    ///
+    /// It selects both the EAV value column a query targets (String -> `v_str`; Integer / Long /
+    /// Boolean / DateTime -> `v_int`; Real -> `v_real`) and how a stored value is decoded back to its
+    /// CLR form. It is passed explicitly when a dynamic property is projected, ordered, grouped or
+    /// aggregated in a query - unlike a WHERE filter, those clauses have no CLR operand to infer the
+    /// type from.
+    ///
+    /// The numeric values are the codes stored in the `prop_type` column and MUST remain stable (the
+    /// load path decodes by them).
     /// </summary>
-    internal enum DynamicPropertyValueType
+    public enum DynamicPropertyValueType
     {
+        /// <summary>A string value, stored in `v_str`.</summary>
         String = 0,
+        /// <summary>A 32-bit integer value, stored in `v_int`.</summary>
         Integer = 1,
+        /// <summary>A 64-bit integer value, stored in `v_int`.</summary>
         Long = 2,
+        /// <summary>A double-precision value, stored in `v_real`.</summary>
         Real = 3,
+        /// <summary>A boolean value, stored as 0/1 in `v_int`.</summary>
         Boolean = 4,
+        /// <summary>A date/time value, stored as UTC ticks in `v_int`.</summary>
         DateTime = 5,
     }
 

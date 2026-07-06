@@ -220,7 +220,13 @@ namespace Gehtsoft.EF.Test.SqlParser
         public override IAstNode VisitAggrFuncCall(SqlTestParser.AggrFuncCallContext context)
         {
             var name = context.aggrFunc().GetText();
-            return Tree("AGGR_FUNC", Node(name, name), Visit(context.field()));
+            // The set quantifier (DISTINCT / ALL), if any, is carried on the AGGR_FUNC node's value
+            // rather than as a child, so the generic function-argument navigation (name at child 1,
+            // arguments from child 2) is unaffected.
+            var node = new AstNodeImpl("AGGR_FUNC", context.setQuantifier()?.GetText());
+            node.Add(Node(name, name));
+            node.Add(Visit(context.field()));
+            return node;
         }
 
         public override IAstNode VisitAggrCountAll(SqlTestParser.AggrCountAllContext context)

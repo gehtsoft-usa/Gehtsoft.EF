@@ -48,7 +48,7 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
 
             try
             {
-                // CREATE — the Int64 auto-id must be read back into the entity
+                // CREATE - the Int64 auto-id must be read back into the entity
                 var a = new Int64Entity() { Name = "a" };
                 var b = new Int64Entity() { Name = "b" };
                 using (var query = connection.GetInsertEntityQuery<Int64Entity>())
