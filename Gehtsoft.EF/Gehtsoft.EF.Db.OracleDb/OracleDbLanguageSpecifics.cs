@@ -29,6 +29,21 @@ namespace Gehtsoft.EF.Db.OracleDb
             return $"JSON_VALUE({column}, {q}{path}{q} RETURNING {OracleJsonReturning(type)})";
         }
 
+        // Oracle JSON_VALUE returns a JSON boolean as the text 'true'/'false' (RETURNING VARCHAR2).
+        public override object JsonEncodeValue(DbType type, object value)
+        {
+            if (value != null && type == DbType.Boolean && value is bool b)
+                return b ? "true" : "false";
+            return base.JsonEncodeValue(type, value);
+        }
+
+        public override object JsonDecodeValue(DbType type, object value)
+        {
+            if (value != null && !(value is DBNull) && type == DbType.Boolean)
+                return string.Equals(value.ToString(), "true", StringComparison.OrdinalIgnoreCase);
+            return base.JsonDecodeValue(type, value);
+        }
+
         private static string OracleJsonReturning(DbType type)
         {
             switch (type)

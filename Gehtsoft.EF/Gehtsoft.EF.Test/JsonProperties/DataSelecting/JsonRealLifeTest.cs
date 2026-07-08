@@ -101,7 +101,6 @@ namespace Gehtsoft.EF.Test.JsonProperties.DataSelecting
         private const decimal IncomeThreshold = 100000m;
         private const int FirstChildAgeThreshold = 10;
         private static readonly DateTime DobThreshold = new DateTime(1980, 1, 1);
-        private const string DobThresholdIso = "1980-01-01T00:00:00";
         private const decimal FullClauseMinIncome = 50000m;      // Q7 WHERE lower bound
         private const decimal HavingSumThreshold = 1000000m;     // Q7 HAVING lower bound
 
@@ -295,8 +294,10 @@ namespace Gehtsoft.EF.Test.JsonProperties.DataSelecting
                 }
 
                 // ============================================================
-                // Q4: born on/after 1980  (DateTime stored as ISO string, WHERE)
+                // Q4: born on/after 1980  (native DbType.DateTime, WHERE) - the per-driver codec
+                // encodes the compared DateTime to the ISO-8601 string the extraction yields.
                 // ============================================================
+                var specifics = connection.GetLanguageSpecifics();
                 var expectedYoung = new List<int>();
                 foreach (var c in source)
                     if (c.Data.DoB >= DobThreshold)
@@ -306,20 +307,50 @@ namespace Gehtsoft.EF.Test.JsonProperties.DataSelecting
 
                 var s4 = connection.GetSelectQueryBuilder(table);
                 s4.AddToResultset(table["Id"]);
-                s4.Where.JsonValue(table["Data"], "$.DoB", DbType.String).Ge().Parameter("p_dob");
-                PureSqlIds(connection, s4, q => q.BindParam<string>("p_dob", DobThresholdIso)).Should().Equal(expectedYoung);
+                s4.Where.JsonValue(table["Data"], "$.DoB", DbType.DateTime).Ge().Parameter("p_dob");
+                // pure SQL is the low-level layer: encode the value through the codec explicitly and
+                // bind it by its runtime type (the encoded form differs per driver)
+                PureSqlIds(connection, s4, q => { object e = specifics.JsonEncodeValue(DbType.DateTime, DobThreshold); q.BindParam("p_dob", e.GetType(), e); }).Should().Equal(expectedYoung);
 
                 using (var q = connection.GetSelectEntitiesQuery<Customer>())
                 {
-                    q.Where.JsonPropertyOf<Customer>("Data", "$.DoB", DbType.String).Ge().Value(DobThresholdIso);
+                    q.Where.JsonPropertyOf<Customer>("Data", "$.DoB", DbType.DateTime).Ge().Value(DobThreshold);
                     EntityIds(q).Should().Equal(expectedYoung);
                 }
 
-                // LINQ: force the DateTime leaf to be extracted/compared as an ISO string
+                // LINQ: the DateTime leaf, with an explicit DbType so it is extracted/compared as ISO text
                 using (var q = connection.GetSelectEntitiesQuery<Customer>())
                 {
-                    q.Where.JsonPropertyOf<Customer>(c => c.Data.DoB, DbType.String).Ge().Value(DobThresholdIso);
+                    q.Where.JsonPropertyOf<Customer>(c => c.Data.DoB, DbType.DateTime).Ge().Value(DobThreshold);
                     EntityIds(q).Should().Equal(expectedYoung);
+                }
+
+                // ============================================================
+                // Q4b: married customers (bool, WHERE) - the codec maps the compared bool to each
+                // driver's JSON-boolean representation (SQLite 1/0, Postgres boolean, Oracle 'true'/'false').
+                // ============================================================
+                var expectedMarried = new List<int>();
+                foreach (var c in source)
+                    if (c.Data.Married)
+                        expectedMarried.Add(c.Id);
+                Sorted(expectedMarried);
+                expectedMarried.Should().NotBeEmpty();
+
+                var s4b = connection.GetSelectQueryBuilder(table);
+                s4b.AddToResultset(table["Id"]);
+                s4b.Where.JsonValue(table["Data"], "$.Married", DbType.Boolean).Eq().Parameter("p_m");
+                PureSqlIds(connection, s4b, q => { object e = specifics.JsonEncodeValue(DbType.Boolean, true); q.BindParam("p_m", e.GetType(), e); }).Should().Equal(expectedMarried);
+
+                using (var q = connection.GetSelectEntitiesQuery<Customer>())
+                {
+                    q.Where.JsonPropertyOf<Customer>("Data", "$.Married", DbType.Boolean).Eq().Value(true);
+                    EntityIds(q).Should().Equal(expectedMarried);
+                }
+
+                using (var q = connection.GetSelectEntitiesQuery<Customer>())
+                {
+                    q.Where.JsonPropertyOf<Customer>(c => c.Data.Married, DbType.Boolean).Eq().Value(true);
+                    EntityIds(q).Should().Equal(expectedMarried);
                 }
 
                 // ============================================================
@@ -335,6 +366,32 @@ namespace Gehtsoft.EF.Test.JsonProperties.DataSelecting
                 AssertProjection(PureSqlProjection(connection, table), source, expectedOrderIds);
                 AssertProjection(EntityStringProjection(connection), source, expectedOrderIds);
                 AssertProjection(EntityLinqProjection(connection), source, expectedOrderIds);
+
+                // ============================================================
+                // Q5b: project bool + native DateTime and confirm they DECODE back on read (the codec
+                // read-back path). Entity-query projections auto-decode via the resultset registry.
+                // ============================================================
+                var byId = new Dictionary<int, Customer>();
+                foreach (var c in source)
+                    byId[c.Id] = c;
+
+                using (var q = connection.GetSelectEntitiesQueryBase(typeof(Customer)))
+                {
+                    q.AddToResultset(typeof(Customer), 0, "Id", "cid");
+                    q.AddJsonValueToResultset<Customer>("Data", "$.Married", DbType.Boolean, "married");
+                    q.AddJsonValueToResultset<Customer>("Data", "$.DoB", DbType.DateTime, "dob");
+                    q.Execute();
+                    int seen = 0;
+                    foreach (dynamic row in q.ReadAllDynamic())
+                    {
+                        var d = (IDictionary<string, object>)row;
+                        var c = byId[Convert.ToInt32(d["cid"])];
+                        ((bool)d["married"]).Should().Be(c.Data.Married);
+                        ((DateTime)d["dob"]).Should().Be(c.Data.DoB);
+                        seen++;
+                    }
+                    seen.Should().Be(source.Count);
+                }
 
                 // ============================================================
                 // Q6: SUM(income) and COUNT grouped by state (sub-object in GROUP BY / aggregation)

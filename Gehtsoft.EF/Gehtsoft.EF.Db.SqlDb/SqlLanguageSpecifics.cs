@@ -69,6 +69,45 @@ namespace Gehtsoft.EF.Db.SqlDb
             => throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
 
         /// <summary>
+        /// Encodes a CLR value into the form that <see cref="JsonExtract"/> yields for the same
+        /// <paramref name="type"/> on this dialect, so a `WHERE extract = @value` comparison matches.
+        ///
+        /// The default is identity (numbers and strings compare directly). Dialects override it for the
+        /// types whose JSON representation differs from the natural bound form: a JSON boolean
+        /// (SQLite `1`/`0`, PostgreSQL `boolean`, Oracle `'true'`/`'false'`) and a `DateTime` (stored
+        /// and extracted as an ISO-8601 string). It is the single place that knows the extraction
+        /// convention, shared by the manual and the LINQ query surfaces.
+        /// </summary>
+        /// <param name="type">The declared value type of the JSON path.</param>
+        /// <param name="value">The CLR value being compared, or <c>null</c>.</param>
+        public virtual object JsonEncodeValue(DbType type, object value)
+        {
+            if (value == null)
+                return null;
+            // DateTime is stored/extracted as the ISO-8601 string System.Text.Json produces (uniform
+            // across the JSON dialects), so it compares and sorts as that exact text.
+            if ((type == DbType.DateTime || type == DbType.DateTime2 || type == DbType.Date) && value is DateTime dt)
+                return System.Text.Json.JsonSerializer.Serialize(dt).Trim('"');
+            return value;
+        }
+
+        /// <summary>
+        /// Decodes a value read back from a <see cref="JsonExtract"/> expression into the CLR value of
+        /// the declared <paramref name="type"/> - the inverse of <see cref="JsonEncodeValue"/>. Used
+        /// when a projected JSON value is materialized. The default is identity.
+        /// </summary>
+        /// <param name="type">The declared value type of the JSON path.</param>
+        /// <param name="value">The value read from the database, or <c>null</c>.</param>
+        public virtual object JsonDecodeValue(DbType type, object value)
+        {
+            if (value == null || value is DBNull)
+                return null;
+            if ((type == DbType.DateTime || type == DbType.DateTime2 || type == DbType.Date) && value is string s)
+                return System.Text.Json.JsonSerializer.Deserialize<DateTime>("\"" + s + "\"");
+            return value;
+        }
+
+        /// <summary>
         /// Flag indicating whether the queries must be terminated with semicolon.
         /// </summary>
         public virtual bool TerminateWithSemicolon

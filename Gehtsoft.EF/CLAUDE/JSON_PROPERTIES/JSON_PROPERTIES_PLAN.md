@@ -131,6 +131,13 @@ the next phase. The sequence follows the user's 8-step ordering.
   (`COUNT/SUM/AVG/MIN/MAX`) over one; HAVING on the aggregate. Deep: group-by/having SQL (AST,
   byte-identical expression reuse). Acceptance: grouped counts/sums on 3 drivers. *(Step 8.)*
 - **Phase 8 — docs.** docgen pages + XML doc comments on all new public API (XML-doc generation on).
+- **Phase 9 — JSON values in the entity LINQ surface** *(added 2026-07-08, after the manual surface
+  + docs shipped; mirrors the EAV Phase 4)*. Make a JSON value usable directly in a
+  `GetCollectionOf<T>()` LINQ lambda — `e.Profile.Address.State`, `e.Profile.Scores[0]` — in
+  `Where`/`Select`/`OrderBy`/`GroupBy`/aggregate. Detailed plan: `PHASE_9/PHASE_9_PLAN.md`. Unlike
+  EAV (a `Get<T>` method call → JOIN), JSON is a **member-access chain → an expression on the owning
+  column**, so the hook is the compiler's member-resolution path, not `ProcessCall`; and whole-entity
+  LINQ reads already deserialize the document (the accessor), so there is no preload analog.
 
 ## Constraints / conventions (same as EAV)
 

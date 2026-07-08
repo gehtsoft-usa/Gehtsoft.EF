@@ -25,6 +25,21 @@ namespace Gehtsoft.EF.Db.SqliteDb
         public override string JsonExtract(string column, string path, DbType type, bool forDdl)
             => $"json_extract({column}, '{path}')";
 
+        // SQLite json_extract returns a JSON boolean as the integer 1/0.
+        public override object JsonEncodeValue(DbType type, object value)
+        {
+            if (value != null && type == DbType.Boolean && value is bool b)
+                return b ? 1 : 0;
+            return base.JsonEncodeValue(type, value);
+        }
+
+        public override object JsonDecodeValue(DbType type, object value)
+        {
+            if (value != null && !(value is DBNull) && type == DbType.Boolean)
+                return Convert.ToInt64(value, System.Globalization.CultureInfo.InvariantCulture) != 0;
+            return base.JsonDecodeValue(type, value);
+        }
+
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             switch (type)

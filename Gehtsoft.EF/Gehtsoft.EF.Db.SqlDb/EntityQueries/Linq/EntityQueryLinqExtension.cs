@@ -42,6 +42,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 {
                     if (param.EncodeAs != null && value != null)
                         value = DynamicPropertiesValueMapper.Encode(value).Value;
+                    if (param.JsonEncodeAs != null && value != null)
+                        value = query.Query.Connection.GetLanguageSpecifics().JsonEncodeValue(param.JsonEncodeAs.Value, value);
                     query.BindParam(param.Name, ParameterDirection.Input, value, value.GetType());
                 }
             }
@@ -53,6 +55,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             ExpressionCompiler.Result result = compiler.Visit(expression);
             if (result.DynamicPropertyType != null)
                 query.AddDynamicExpressionToResultset(result.Expression.ToString(), result.HasAggregates, result.DynamicPropertyType.Value, alias);
+            else if (result.JsonValueType != null)
+                query.AddJsonExpressionToResultset(result.Expression.ToString(), result.HasAggregates, result.JsonValueType.Value, expression.Type, alias);
             else
                 query.AddExpressionToResultset(result.Expression.ToString(), result.HasAggregates, DbType.Object, expression.Type, alias);
             query.BindExpressionParameters(result);
@@ -83,7 +87,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         {
             ExpressionCompiler compiler = new ExpressionCompiler(query);
             ExpressionCompiler.Result result = compiler.Visit(expression);
-            query.AddOrderByExpr(result.Expression.ToString(), direction);
+            if (result.JsonValueType != null)
+                query.AddJsonExpressionToOrderBy(result.Expression.ToString(), direction);
+            else
+                query.AddOrderByExpr(result.Expression.ToString(), direction);
         }
 
         /// <summary>
@@ -99,7 +106,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         {
             ExpressionCompiler compiler = new ExpressionCompiler(query);
             ExpressionCompiler.Result result = compiler.Visit(expression);
-            query.AddGroupByExpr(result.Expression.ToString());
+            if (result.JsonValueType != null)
+                query.AddJsonExpressionToGroupBy(result.Expression.ToString());
+            else
+                query.AddGroupByExpr(result.Expression.ToString());
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -24,6 +25,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             // (bool -> 0/1, DateTime -> UTC ticks) before being bound - so a comparison against a
             // bool/DateTime dynamic property (whose column stores the encoded value) is correct.
             internal DynamicPropertyValueType? EncodeAs { get; set; }
+
+            // When set, the resolved value is encoded into the JSON extraction's form for this DbType
+            // (SqlDbLanguageSpecifics.JsonEncodeValue) before being bound - so a comparison against a
+            // JSON bool/DateTime value is correct on every driver.
+            internal DbType? JsonEncodeAs { get; set; }
         }
 
         internal class Result
@@ -37,6 +43,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             // declared value type so ProcessBinary can encode a compared constant and the read path
             // can decode a projected value. Null for every ordinary expression.
             public DynamicPropertyValueType? DynamicPropertyType { get; set; }
+
+            // Set when this expression is a JSON value extraction. Carries the extraction DbType so
+            // ProcessBinary can encode a compared constant (bool/DateTime) and the read path can decode
+            // a projected value. Null for every ordinary expression.
+            public DbType? JsonValueType { get; set; }
 
             public Result()
             {
@@ -185,6 +196,17 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 }
                 else
                 {
+                    // A member chain that descends into a JSON property (e.g. e.Profile.Address.State)
+                    // is a JSON value extraction, not a mapped column - resolve it before the normal
+                    // column lookup, which would otherwise reject it.
+                    if (TryResolveJson(memberExpression, out string jsonAlias, out string jsonPath, out Type jsonLeaf))
+                    {
+                        DbType jsonDbType = JsonDbType(jsonLeaf, nameof(node));
+                        res.Expression.Append(mSpecifics.JsonExtract(jsonAlias, jsonPath, jsonDbType, false));
+                        res.JsonValueType = jsonDbType;
+                        return res;
+                    }
+
                     EntityQueryWithWhereBuilder.EntityQueryItem queryPath = IsQueryPath(memberExpression);
                     if (queryPath != null)
                     {
@@ -200,6 +222,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             }
             else if (node is BinaryExpression binaryExpression)
             {
+                // A terminal array-element access into a JSON property (e.g. e.Profile.Scores[0]) is a
+                // JSON value extraction with an [index] path step.
+                if (binaryExpression.NodeType == ExpressionType.ArrayIndex)
+                {
+                    Result jsonArray = TryResolveJsonArray(binaryExpression);
+                    if (jsonArray != null)
+                        return jsonArray;
+                }
                 Result left = Visit(binaryExpression.Left);
                 Result right = Visit(binaryExpression.Right);
                 if (left.IsParameterExpression && right.IsParameterExpression)
@@ -303,6 +333,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             Result result = new Result();
 
             MarkDynamicPropertyEncoding(left, right);
+            MarkJsonEncoding(left, right);
 
             if (node.NodeType == ExpressionType.Add &&
                 node.Left.Type == typeof(string) &&
@@ -543,6 +574,86 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             Result other = left.DynamicPropertyType != null ? right : left;
             if (other.IsParameterExpression && other.Params.Count > 0 && other.Params[0].Value != null)
                 other.Params[0].EncodeAs = type;
+        }
+
+        // When one side is a JSON bool/DateTime value and the other is a bound constant, the constant
+        // must be encoded to the JSON extraction's form (per driver) before binding.
+        private static void MarkJsonEncoding(Result left, Result right)
+        {
+            DbType? type = left.JsonValueType ?? right.JsonValueType;
+            if (type != DbType.Boolean && type != DbType.DateTime && type != DbType.DateTime2 && type != DbType.Date)
+                return;
+
+            Result other = left.JsonValueType != null ? right : left;
+            if (other.IsParameterExpression && other.Params.Count > 0 && other.Params[0].Value != null)
+                other.Params[0].JsonEncodeAs = type;
+        }
+
+        // Resolves a member chain that descends into a JSON property (e.g. e.Profile.Address.State):
+        // the innermost member must resolve (occurrence 0) to a column carrying JSON metadata, and
+        // there must be at least one member above it forming the JSON path. Returns the column alias,
+        // the JSON path ("$.a.b") and the leaf CLR type.
+        private bool TryResolveJson(MemberExpression node, out string alias, out string jsonPath, out Type leafType)
+        {
+            alias = null;
+            jsonPath = null;
+            leafType = null;
+
+            List<MemberExpression> members = new List<MemberExpression>();
+            Expression current = node;
+            while (current is MemberExpression m)
+            {
+                members.Add(m);
+                current = m.Expression;
+            }
+            if (current == null || current.NodeType != ExpressionType.Parameter || members.Count < 2)
+                return false;
+
+            MemberExpression inner = members[members.Count - 1];
+            Type parameterType = ((ParameterExpression)current).Type;
+            EntityQueryWithWhereBuilder.EntityQueryItem item = mQuery.GetItem(parameterType, inner.Member.Name, 0);
+            if (item == null || item.Column == null || item.Column.Json == null)
+                return false;
+
+            alias = mQuery.GetReference(item).Alias;
+            StringBuilder pathBuilder = new StringBuilder("$");
+            for (int i = members.Count - 2; i >= 0; i--)
+                pathBuilder.Append('.').Append(members[i].Member.Name);
+            jsonPath = pathBuilder.ToString();
+            leafType = members[0].Type;
+            return true;
+        }
+
+        // Resolves e.JsonProperty.Array[index] into a JSON value extraction with an [index] path step.
+        private Result TryResolveJsonArray(BinaryExpression node)
+        {
+            if (!(node.Left is MemberExpression arrayMember))
+                return null;
+            if (!(node.Right is ConstantExpression indexConstant) || !(indexConstant.Value is int index))
+                return null;
+            if (!TryResolveJson(arrayMember, out string alias, out string jsonPath, out Type _))
+                return null;
+
+            DbType dbType = JsonDbType(node.Type, nameof(node));
+            Result res = new Result();
+            res.Expression.Append(mSpecifics.JsonExtract(alias, $"{jsonPath}[{index}]", dbType, false));
+            res.JsonValueType = dbType;
+            return res;
+        }
+
+        // Maps a JSON leaf CLR type to the DbType the value is extracted/compared as. bool and DateTime
+        // get dedicated DbTypes (the codec handles their per-driver representation); the rest go through
+        // the normal type map.
+        private DbType JsonDbType(Type leafType, string parameterName)
+        {
+            Type underlying = Nullable.GetUnderlyingType(leafType) ?? leafType;
+            if (underlying == typeof(bool))
+                return DbType.Boolean;
+            if (underlying == typeof(DateTime))
+                return DbType.DateTime;
+            if (!mSpecifics.TypeToDb(underlying, out DbType dbType))
+                throw new ArgumentException($"The JSON value type {underlying.Name} is not supported", parameterName);
+            return dbType;
         }
 
         private Result ProcessCall(MethodCallExpression callNode)
@@ -798,24 +909,28 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Sum, stringResults));
                 res.HasAggregates = true;
                 res.DynamicPropertyType = argumentResults[0].DynamicPropertyType;
+                res.JsonValueType = argumentResults[0].JsonValueType;
             }
             else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Min))
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Min, stringResults));
                 res.HasAggregates = true;
                 res.DynamicPropertyType = argumentResults[0].DynamicPropertyType;
+                res.JsonValueType = argumentResults[0].JsonValueType;
             }
             else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Max))
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Max, stringResults));
                 res.HasAggregates = true;
                 res.DynamicPropertyType = argumentResults[0].DynamicPropertyType;
+                res.JsonValueType = argumentResults[0].JsonValueType;
             }
             else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Avg))
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Avg, stringResults));
                 res.HasAggregates = true;
                 res.DynamicPropertyType = argumentResults[0].DynamicPropertyType;
+                res.JsonValueType = argumentResults[0].JsonValueType;
             }
             else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Like))
             {

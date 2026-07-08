@@ -499,6 +499,16 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mResultset.Add(new SelectQueryBuilderResultsetItem(JsonExpr(column, entity, jsonPath, type), alias, false, type));
         }
 
+        // Adds a pre-built expression (already produced by the JSON translation) to the resultset,
+        // bypassing the scalar-literal guard - a JSON extraction carries a quoted path literal that the
+        // guard would otherwise reject. Used by the LINQ JSON projection path.
+        internal void AddRawJsonExpressionToResultset(string expression, bool aggregate, DbType type, string alias)
+        {
+            if (alias == null)
+                alias = $"column{++mColumnAlias}";
+            mResultset.Add(new SelectQueryBuilderResultsetItem(expression, alias, aggregate, type));
+        }
+
         /// <summary>
         /// Adds the value at a JSON path inside a JSON column of the first table in the query to the resultset.
         /// </summary>
@@ -546,6 +556,14 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// </summary>
         public virtual void AddJsonValueToGroupBy(TableDescriptor.ColumnInfo column, string jsonPath, DbType type)
             => AddJsonValueToGroupBy(column, null, jsonPath, type);
+
+        // Adds a pre-built JSON extraction (from the LINQ translation) to ORDER BY / GROUP BY, bypassing
+        // the scalar-literal guard (a JSON extraction carries a quoted path).
+        internal void AddRawJsonExpressionToOrderBy(string expression, SortDir direction)
+            => mOrderBy.Add(new SelectQueryBuilderByItem(expression, direction));
+
+        internal void AddRawJsonExpressionToGroupBy(string expression)
+            => mGroupBy.Add(new SelectQueryBuilderByItem(expression, SortDir.Asc));
 
         [DocgenIgnore]
         public override void PrepareQuery()

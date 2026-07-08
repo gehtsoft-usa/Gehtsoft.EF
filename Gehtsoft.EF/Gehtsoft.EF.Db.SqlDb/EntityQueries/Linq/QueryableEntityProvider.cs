@@ -343,6 +343,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
         private static object ReadOneValue(SelectEntitiesQueryBase query, Type type)
         {
+            if (!query.IsNull(0) && query.TryGetJsonColumn(0, out System.Data.DbType jsonType))
+                return query.SelectBuilder.Specifics.JsonDecodeValue(jsonType, query.GetValue(0, typeof(object)));
             if (!query.IsNull(0) && query.TryGetDynamicPropertyColumn(0, out DynamicPropertyValueType dynamicType))
                 return DynamicPropertiesValueMapper.Decode(dynamicType, query.GetValue(0, typeof(object)));
             return query.GetValue(0, type);
@@ -358,7 +360,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             {
                 SelectQueryBuilderResultsetItem column = query.ResultColumn(i);
                 PropertyInfo propertyInfo = type.GetProperty(column.Alias);
-                if (!query.IsNull(i) && query.TryGetDynamicPropertyColumn(i, out DynamicPropertyValueType dynamicType))
+                if (!query.IsNull(i) && query.TryGetJsonColumn(i, out System.Data.DbType jsonType))
+                    args[i] = query.SelectBuilder.Specifics.JsonDecodeValue(jsonType, query.GetValue(i, typeof(object)));
+                else if (!query.IsNull(i) && query.TryGetDynamicPropertyColumn(i, out DynamicPropertyValueType dynamicType))
                     args[i] = DynamicPropertiesValueMapper.Decode(dynamicType, query.GetValue(i, typeof(object)));
                 else
                     args[i] = query.GetValue(i, propertyInfo.PropertyType);

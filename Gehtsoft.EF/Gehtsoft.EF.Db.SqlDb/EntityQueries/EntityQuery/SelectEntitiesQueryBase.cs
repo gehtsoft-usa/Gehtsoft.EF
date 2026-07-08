@@ -110,6 +110,34 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         // projection methods; consulted by BindOneDynamic.
         private Dictionary<int, DynamicPropertyValueType> mDynamicPropertyColumns;
 
+        // Resultset column index -> the DbType of a projected JSON value that must be decoded on read
+        // (bool / DateTime, whose extracted DB representation differs from the CLR value). Populated by
+        // the JSON projection methods; consulted by BindOneDynamic and the LINQ read path.
+        private Dictionary<int, DbType> mJsonColumns;
+
+        // Whether a projected JSON value of this type needs read-back decoding through the codec.
+        private static bool JsonNeedsDecode(DbType type)
+            => type == DbType.Boolean || type == DbType.DateTime || type == DbType.DateTime2 || type == DbType.Date;
+
+        // Records that the JSON value at the given resultset index must be decoded as the given type.
+        internal void RegisterJsonColumn(int index, DbType type)
+        {
+            if (!JsonNeedsDecode(type))
+                return;
+            if (mJsonColumns == null)
+                mJsonColumns = new Dictionary<int, DbType>();
+            mJsonColumns[index] = type;
+        }
+
+        // Whether the resultset column at the given index is a JSON value needing decode (and its type).
+        internal bool TryGetJsonColumn(int index, out DbType type)
+        {
+            if (mJsonColumns != null)
+                return mJsonColumns.TryGetValue(index, out type);
+            type = default;
+            return false;
+        }
+
         /// <summary>
         /// Add all columns of the type specified into the resultset.
         /// </summary>
@@ -326,6 +354,25 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         internal void AddDynamicExpressionToResultset(string expression, bool isAggregate, DynamicPropertyValueType type, string alias)
             => AddDynamicPropertyColumn(expression, isAggregate, DbType.Object, type, alias);
 
+        // Adds a JSON value expression compiled by the LINQ layer to the resultset and records the
+        // resultset index for read-back decode (bool/DateTime; numeric/string pass through). The LINQ
+        // read path (CreateType / ReadOneValue) and BindOneDynamic consult it via TryGetJsonColumn.
+        internal void AddJsonExpressionToResultset(string expression, bool isAggregate, DbType dbType, Type clrType, string alias)
+        {
+            RegisterJsonColumn(ResultsetSize, dbType);
+            mResultsetTypes.Add(clrType);
+            // add the pre-built JSON extraction directly (its quoted path would trip the scalar guard)
+            SelectBuilder.AddRawJsonExpressionToResultset(expression, isAggregate, dbType, alias);
+        }
+
+        // Adds a JSON value expression compiled by the LINQ layer to ORDER BY / GROUP BY, bypassing the
+        // scalar guard the same way the resultset path does.
+        internal void AddJsonExpressionToOrderBy(string expression, SortDir direction)
+            => SelectBuilder.AddRawJsonExpressionToOrderBy(expression, direction);
+
+        internal void AddJsonExpressionToGroupBy(string expression)
+            => SelectBuilder.AddRawJsonExpressionToGroupBy(expression);
+
         // Whether the resultset column at the given index is a dynamic property (and if so, the type
         // its stored value must be decoded to). Consulted by the LINQ projection read path.
         internal bool TryGetDynamicPropertyColumn(int index, out DynamicPropertyValueType type)
@@ -506,6 +553,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public void AddJsonValueToResultset(Type entityType, string property, string jsonPath, DbType type, string alias = null, int occurrence = 0)
         {
             ResolveJsonColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+            RegisterJsonColumn(ResultsetSize, type);
             SelectBuilder.AddJsonValueToResultset(column, entity, jsonPath, type, alias);
             mResultsetTypes.Add(ClrTypeOfJson(type));
         }
@@ -529,6 +577,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         public void AddJsonValueToResultset(AggFn aggregation, Type entityType, string property, string jsonPath, DbType type, string alias = null, int occurrence = 0)
         {
             ResolveJsonColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+            // Count yields an int row count (never decoded); Min/Max of a DateTime still yield that type.
+            if (aggregation != AggFn.Count)
+                RegisterJsonColumn(ResultsetSize, type);
             SelectBuilder.AddJsonValueToResultset(aggregation, column, entity, jsonPath, type, alias);
             mResultsetTypes.Add(aggregation == AggFn.Count ? typeof(int) : ClrTypeOfJson(type));
         }
@@ -783,7 +834,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 if (dynamicNames[i].Item2)
                 {
                     object value;
-                    if (mDynamicPropertyColumns != null && mDynamicPropertyColumns.TryGetValue(i, out DynamicPropertyValueType dynamicType))
+                    if (mJsonColumns != null && mJsonColumns.TryGetValue(i, out DbType jsonType))
+                        value = mQuery.IsNull(i) ? null : SelectBuilder.Specifics.JsonDecodeValue(jsonType, mQuery.GetValue(i));
+                    else if (mDynamicPropertyColumns != null && mDynamicPropertyColumns.TryGetValue(i, out DynamicPropertyValueType dynamicType))
                         value = mQuery.IsNull(i) ? null : DynamicPropertiesValueMapper.Decode(dynamicType, mQuery.GetValue(i));
                     else if (mResultsetTypes.Count > i)
                         value = mQuery.GetValue(i, mResultsetTypes[i]);
