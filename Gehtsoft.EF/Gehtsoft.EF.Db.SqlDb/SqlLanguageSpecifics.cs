@@ -28,6 +28,47 @@ namespace Gehtsoft.EF.Db.SqlDb
         public virtual string DbName => "";
 
         /// <summary>
+        /// Produces the physical (database) name of an index from the owner table name and the
+        /// logical index name. The default is <c>&lt;table&gt;_&lt;index&gt;</c>.
+        ///
+        /// This is the single authority for index naming; index DDL and automatic index
+        /// reconciliation both go through it, so a dialect can override it to satisfy its own
+        /// identifier rules. Any override must keep the physical name starting with
+        /// <c>&lt;table&gt;_</c> and be a deterministic, reversible function of its inputs, so that
+        /// reconciliation can recognise and match framework-owned indexes.
+        /// </summary>
+        /// <param name="tableName">The owner table name.</param>
+        /// <param name="indexName">The logical index name.</param>
+        public virtual string IndexName(string tableName, string indexName) => $"{tableName}_{indexName}";
+
+        /// <summary>
+        /// Flag indicating whether the dialect supports JSON columns
+        /// (<see cref="Gehtsoft.EF.Entities.JsonEntityPropertyAttribute"/>). `false` on the dialects
+        /// where JSON values cannot be indexed with a plain expression index (MS SQL Server, MySQL);
+        /// creating a JSON column on such a dialect throws <see cref="EfExceptionCode.FeatureNotSupported"/>.
+        /// </summary>
+        public virtual bool SupportsJson => false;
+
+        /// <summary>
+        /// Renders an expression that extracts a single primitive value at the given JSON path from
+        /// a JSON column, cast to the specified type. Used both to build a JSON value index and to
+        /// query a JSON value, so the two always agree.
+        ///
+        /// <paramref name="forDdl"/> is `true` when the expression is emitted inside DDL that the
+        /// dialect wraps in a quoted block (Oracle `EXECUTE IMMEDIATE '...'`), in which case the
+        /// path's single quotes must be doubled.
+        ///
+        /// The default throws <see cref="EfExceptionCode.FeatureNotSupported"/>; only the dialects
+        /// with <see cref="SupportsJson"/> override it.
+        /// </summary>
+        /// <param name="column">The JSON column reference (already qualified/aliased as needed).</param>
+        /// <param name="path">The JSON path, for example <c>"$.age"</c>.</param>
+        /// <param name="type">The primitive type of the value at the path.</param>
+        /// <param name="forDdl">Whether the expression is emitted inside a quoted DDL block.</param>
+        public virtual string JsonExtract(string column, string path, DbType type, bool forDdl)
+            => throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+
+        /// <summary>
         /// Flag indicating whether the queries must be terminated with semicolon.
         /// </summary>
         public virtual bool TerminateWithSemicolon

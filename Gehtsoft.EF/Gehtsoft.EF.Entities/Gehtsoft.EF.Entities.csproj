@@ -18,6 +18,8 @@
     <Compile Include="PropertySet\IDynamicPropertiesOwner.cs" />
     <Compile Include="Attributes\EntityAttribute.cs" />
     <Compile Include="Attributes\EntityPropertyAttribute.cs" />
+    <Compile Include="Attributes\JsonEntityPropertyAttribute.cs" />
+    <Compile Include="Attributes\JsonIndexAttribute.cs" />
     <Compile Include="Attributes\ForeignKeyAttribute.cs" />
     <Compile Include="Attributes\ObsoleteEntityAttribute.cs" />
     <Compile Include="Attributes\ObsoleteEntityPropertyAttribute.cs" />

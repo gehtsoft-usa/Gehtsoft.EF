@@ -31,11 +31,30 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
             /// </summary>
             public SortDir Direction { get; }
 
+            /// <summary>
+            /// For a JSON value index: the JSON path extracted from the column named by
+            /// <see cref="Name"/>. `null` for a regular (column or function) field.
+            /// </summary>
+            public string JsonPath { get; }
+
+            /// <summary>
+            /// For a JSON value index: the primitive type of the value at <see cref="JsonPath"/>.
+            /// </summary>
+            public System.Data.DbType JsonType { get; }
+
             internal Field(SqlFunctionId? function, string name, SortDir direction)
             {
                 Function = function;
                 Name = name;
                 Direction = direction;
+            }
+
+            internal Field(string columnName, string jsonPath, System.Data.DbType jsonType)
+            {
+                Name = columnName;
+                Direction = SortDir.Asc;
+                JsonPath = jsonPath;
+                JsonType = jsonType;
             }
         }
 
@@ -85,10 +104,22 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
             get
             {
                 for (int i = 0; i < mFields.Count; i++)
-                    if (mFields[i].Function != null)
+                    if (mFields[i].Function != null || mFields[i].JsonPath != null)
                         return true;
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Builds a single-field JSON value index: an index over the value at
+        /// <paramref name="jsonPath"/> (of type <paramref name="jsonType"/>) inside the JSON column
+        /// <paramref name="columnName"/>. The index is unassociated (columns are raw SQL names).
+        /// </summary>
+        internal static CompositeIndex ForJson(string indexName, string columnName, string jsonPath, System.Data.DbType jsonType)
+        {
+            var index = new CompositeIndex(indexName);
+            index.mFields.Add(new Field(columnName, jsonPath, jsonType));
+            return index;
         }
 
         /// <summary>

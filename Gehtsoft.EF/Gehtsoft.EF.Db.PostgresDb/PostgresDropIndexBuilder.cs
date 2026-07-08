@@ -11,7 +11,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
 
         public override void PrepareQuery()
         {
-            mQuery = $"DROP INDEX IF EXISTS {mTable}_{mName};";
+            mQuery = $"DROP INDEX IF EXISTS {mSpecifics.IndexName(mTable, mName)};";
         }
     }
 }

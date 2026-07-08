@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Text;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 
@@ -9,6 +12,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
     {
         protected void CreateColumnDescriptor(Type type, AllEntities entities, EntityNamingPolicy policy, TableDescriptor descriptor, IPropertyAccessor propertyAccessor)
         {
+            JsonEntityPropertyAttribute jsonAttribute = propertyAccessor.GetCustomAttribute<JsonEntityPropertyAttribute>();
+            if (jsonAttribute != null)
+            {
+                CreateJsonColumnDescriptor(policy, descriptor, propertyAccessor, jsonAttribute);
+                return;
+            }
+
             EntityPropertyAttribute propertyAttribute = propertyAccessor.GetCustomAttribute<EntityPropertyAttribute>();
             if (propertyAttribute != null)
             {
@@ -161,6 +171,107 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         Unique = propertyAttribute.Unique,
                     });
                 }
+            }
+        }
+
+        private void CreateJsonColumnDescriptor(EntityNamingPolicy policy, TableDescriptor descriptor, IPropertyAccessor propertyAccessor, JsonEntityPropertyAttribute attribute)
+        {
+            string columnName = attribute.Field ?? EntityNameConvertor.ConvertName(propertyAccessor.Name, policy);
+
+            JsonIndexAttribute[] indexAttributes = propertyAccessor.GetCustomAttributes<JsonIndexAttribute>();
+            var indexes = new List<JsonIndexDefinition>(indexAttributes.Length);
+            for (int i = 0; i < indexAttributes.Length; i++)
+            {
+                JsonIndexAttribute ia = indexAttributes[i];
+                // The index name is ALWAYS derived (never user-supplied): it encodes column + path +
+                // target type, so that changing the path or the type changes the name — which lets
+                // UpdateTables detect the change as a drop+create (JSON indexes are expression
+                // indexes, for which structural change-detection is name-based).
+                string name = DeriveJsonIndexName(columnName, ia.Path, ia.DbType);
+                indexes.Add(new JsonIndexDefinition(ia.Path, ia.DbType, ia.Unique, name));
+            }
+
+            descriptor.Add(new TableDescriptor.ColumnInfo()
+            {
+                ID = propertyAccessor.Name,
+                Name = columnName,
+                DbType = DbType.String,
+                Size = 0,
+                Nullable = attribute.Nullable,
+                ForeignTable = null,
+                PropertyAccessor = new JsonPropertyAccessor(propertyAccessor),
+                Json = new JsonColumnMetadata(propertyAccessor.PropertyType, indexes),
+            });
+        }
+
+        // e.g. column "profile", "$.address.zip", Int32 -> "profile_address_zip_i32"
+        private static string DeriveJsonIndexName(string columnName, string path, DbType dbType)
+        {
+            var builder = new StringBuilder();
+            builder.Append(columnName.ToLowerInvariant());
+            AppendSlug(builder, path);
+            builder.Append('_').Append(JsonTypeCode(dbType));
+            return builder.ToString();
+        }
+
+        private static void AppendSlug(StringBuilder builder, string path)
+        {
+            bool any = false;
+            if (builder.Length > 0)
+                builder.Append('_');
+            int start = builder.Length;
+            if (!string.IsNullOrEmpty(path))
+            {
+                for (int i = 0; i < path.Length; i++)
+                {
+                    char c = path[i];
+                    if (char.IsLetterOrDigit(c))
+                    {
+                        builder.Append(char.ToLowerInvariant(c));
+                        any = true;
+                    }
+                    else if (builder.Length > start && builder[builder.Length - 1] != '_')
+                    {
+                        builder.Append('_');
+                    }
+                }
+            }
+            while (builder.Length > start && builder[builder.Length - 1] == '_')
+                builder.Length--;
+            if (!any)
+                builder.Append("root");
+        }
+
+        private static string JsonTypeCode(DbType dbType)
+        {
+            switch (dbType)
+            {
+                case DbType.String:
+                case DbType.AnsiString:
+                case DbType.StringFixedLength:
+                case DbType.AnsiStringFixedLength:
+                    return "str";
+                case DbType.Boolean:
+                    return "bool";
+                case DbType.DateTime:
+                case DbType.DateTime2:
+                case DbType.Date:
+                    return "dt";
+                case DbType.Int16:
+                    return "i16";
+                case DbType.Int32:
+                    return "i32";
+                case DbType.Int64:
+                    return "i64";
+                case DbType.Double:
+                    return "dbl";
+                case DbType.Single:
+                    return "sgl";
+                case DbType.Decimal:
+                case DbType.Currency:
+                    return "dec";
+                default:
+                    return ((int)dbType).ToString(System.Globalization.CultureInfo.InvariantCulture);
             }
         }
     }

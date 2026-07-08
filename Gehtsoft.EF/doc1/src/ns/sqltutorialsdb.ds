@@ -180,6 +180,13 @@
     To start using this feature the developer must create metadata for all the tables used in the application. The metadata must
     be described via [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] class.
 
+    A [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.TableDescriptor]TableDescriptor[/clink] can also be
+    obtained [b]automatically[/b] from an entity declaration: when a class is declared as an entity
+    (see [link=tutorialen_entities1]Declaring Entities[/link]), the framework builds its table
+    descriptor from the [clink=Gehtsoft.EF.Entities.EntityAttribute]Entity[/clink] and property
+    attributes. That descriptor can be used with the query builders below exactly like a hand-written
+    one, which lets the entity and the raw-SQL layers share the same schema.
+
 
     @example
         @title=Example: Table Descriptor (these tables will be used in all examples in this section

@@ -35,9 +35,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             builder.Append(mSpecifics.PreQueryInBlock);
 
             builder.Append("DROP INDEX IF EXISTS ")
-                .Append(mTable)
-                .Append('_')
-                .Append(mName)
+                .Append(mSpecifics.IndexName(mTable, mName))
                 .Append(" ON ")
                 .Append(mTable);
 

@@ -131,6 +131,51 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
 
         /// <summary>
+        /// Sets the left or right part of the expression to a value at a JSON path inside a JSON
+        /// property of the entity.
+        /// </summary>
+        /// <param name="propertyPath">The name of the JSON property.</param>
+        /// <param name="jsonPath">The JSON path to the value, for example <c>"$.age"</c>.</param>
+        /// <param name="type">The primitive type of the value at the path.</param>
+        public virtual SingleEntityQueryConditionBuilder JsonProperty(string propertyPath, string jsonPath, DbType type)
+        {
+            string columnAlias = Builder.BaseQuery.Where.BaseWhere.EntityInfoProvider.Alias(propertyPath, out DbType _);
+            return SetJsonSide(columnAlias, jsonPath, type);
+        }
+
+        /// <summary>
+        /// Sets the left or right part of the expression to a value at a JSON path inside a JSON
+        /// property of the specified occurrence of the specified type.
+        /// </summary>
+        public virtual SingleEntityQueryConditionBuilder JsonPropertyOf(string name, string jsonPath, DbType type, Type entityType = null, int occurrence = 0)
+        {
+            string columnAlias = Builder.BaseQuery.Where.BaseWhere.EntityInfoProvider.Alias(entityType, occurrence, name, out DbType _);
+            return SetJsonSide(columnAlias, jsonPath, type);
+        }
+
+        // Renders the JSON extraction (a framework-generated expression with a quoted path literal)
+        // and sets it as the current side directly, bypassing the raw-scalar guard; remembers the
+        // value type so a following Value() can bind the parameter.
+        private SingleEntityQueryConditionBuilder SetJsonSide(string columnAlias, string jsonPath, DbType type)
+        {
+            string expr = Builder.BaseQuery.Where.BaseWhere.ConditionBuilder.InfoProvider.Specifics.JsonExtract(columnAlias, jsonPath, type, false);
+            if (mCmpOp == null)
+            {
+                if (Left != null)
+                    throw new InvalidOperationException("Left side is already set");
+                mParameterType = type;
+                Left = expr;
+            }
+            else
+            {
+                if (Right != null)
+                    throw new InvalidOperationException("Right side is already set");
+                Right = expr;
+            }
+            return this;
+        }
+
+        /// <summary>
         /// Sets the left or right part of the expression to the reference to a column of another entity.
         ///
         /// This method is typically used to add references between the main query and a subquery.

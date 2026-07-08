@@ -17,7 +17,7 @@ namespace Gehtsoft.EF.Db.OracleDb
             builder.Append(mSpecifics.PreBlock);
             builder.Append(mSpecifics.PreQueryInBlock);
             builder.Append("DROP INDEX ")
-                .Append(mTable).Append('_').Append(mName);
+                .Append(mSpecifics.IndexName(mTable, mName));
             builder.Append(mSpecifics.PostQueryInBlock);
             builder.Append("EXCEPTION\r\n");
             builder.Append("  WHEN OTHERS THEN NULL;\r\n");

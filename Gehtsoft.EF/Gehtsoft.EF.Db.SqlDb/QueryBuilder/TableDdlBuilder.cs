@@ -18,6 +18,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         public virtual void HandleColumnDDL(StringBuilder builder, TableDescriptor.ColumnInfo column, bool alterTable)
         {
+            if (column.Json != null && !mSpecifics.SupportsJson)
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+
             string type = mSpecifics.TypeName(column.DbType, column.Size, column.Precision, column.Autoincrement);
             builder.Append(column.Name).Append(' ').Append(type);
             if (column.PrimaryKey)
@@ -67,9 +70,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 builder.Append(mSpecifics.PreQueryInBlock);
                 builder
                     .Append("CREATE INDEX ")
-                    .Append(column.Table.Name)
-                    .Append('_')
-                    .Append(column.Name)
+                    .Append(mSpecifics.IndexName(column.Table.Name, column.Name))
                     .Append(" ON ")
                     .Append(column.Table.Name)
                     .Append('(')

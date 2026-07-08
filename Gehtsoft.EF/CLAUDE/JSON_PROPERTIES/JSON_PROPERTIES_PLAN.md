@@ -12,10 +12,16 @@ A **JSON property** is an entity member whose CLR value (a primitive, a `byte[]`
 array, or a `System.Text.Json`-marked POCO) is serialized to a **single string column** on the
 entity's own table and deserialized automatically on load. Individual values inside the document
 are filterable/sortable/projectable/groupable via native per-driver JSON functions, and can be
-**indexed per value path**. Scope: **SQLite, PostgreSQL, Oracle 12+** only (the drivers where
+**indexed per value path**. Scope: **SQLite, PostgreSQL, Oracle 12.2+ (18c)** only (the drivers where
 `SupportFunctionsInIndexes == true`, so an extracted value is indexable with a function/expression
 index — no computed/generated columns). This is **Option A** (native JSON, queried in place) from
 the EAV analysis, made tractable by the 3-driver scope.
+
+*Oracle floor is **12.2+/18c** (128-char identifiers): the auto-derived JSON index name
+`<table>_<col>_<path>_<type>` can exceed the 30-char limit of Oracle 11g/12.1, which are retired
+(NG, 2026-07-08). Index naming goes through the new overridable
+`SqlDbLanguageSpecifics.IndexName(table, logical)` (default `<table>_<logical>`); at 128 chars it
+stays a plain reversible concat with no hashing.*
 
 ## Decisions (all confirmed with the user 2026-07-08)
 

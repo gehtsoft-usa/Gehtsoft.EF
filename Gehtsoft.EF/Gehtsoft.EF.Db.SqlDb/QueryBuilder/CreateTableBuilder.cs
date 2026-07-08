@@ -92,6 +92,14 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     foreach (var index in compositeIndex.Indexes)
                         HandleCompositeIndex(builder, descriptor, index);
                 }
+
+                foreach (TableDescriptor.ColumnInfo column in descriptor)
+                {
+                    if (column.Json == null)
+                        continue;
+                    foreach (JsonIndexDefinition def in column.Json.Indexes)
+                        HandleCompositeIndex(builder, descriptor, CompositeIndex.ForJson(def.Name, column.Name, def.Path, def.DbType));
+                }
             }
 
             builder.Append(mSpecifics.PostBlock);
@@ -112,9 +120,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
             builder
                 .Append("CREATE INDEX ")
-                .Append(descriptor.Name)
-                .Append('_')
-                .Append(index.Name)
+                .Append(mSpecifics.IndexName(descriptor.Name, index.Name))
                 .Append(" ON ")
                 .Append(descriptor.Name)
                 .Append('(');
@@ -133,7 +139,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 var name = descriptor.FirstOrDefault(c => c.ID == field.Name || c.Name == field.Name)?.Name ?? field.Name;
                 if (i > 0)
                     builder.Append(", ");
-                if (field.Function != null)
+                if (field.JsonPath != null)
+                    builder.Append(mSpecifics.JsonExtract(name, field.JsonPath, field.JsonType, true));
+                else if (field.Function != null)
                     builder.Append(mSpecifics.GetSqlFunction(field.Function.Value, new string[] { name }));
                 else
                     builder.Append(name);

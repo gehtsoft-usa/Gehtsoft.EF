@@ -482,6 +482,71 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mGroupBy.Add(new SelectQueryBuilderByItem(GetAlias(column, null), SortDir.Asc));
         }
 
+        // The JSON extraction is a framework-generated expression containing a quoted path literal,
+        // so these bypass the raw-scalar guard. All of them render the value through the same
+        // SqlDbLanguageSpecifics.JsonExtract, so the resultset / order-by / group-by expressions are
+        // byte-identical for the same (column, path, type) — which is what GROUP BY matching needs.
+        private string JsonExpr(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string jsonPath, DbType type)
+            => mSpecifics.JsonExtract(GetAlias(column, entity), jsonPath, type, false);
+
+        /// <summary>
+        /// Adds the value at a JSON path inside a JSON column of the specified table to the resultset.
+        /// </summary>
+        public virtual void AddJsonValueToResultset(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string jsonPath, DbType type, string alias = null)
+        {
+            if (alias == null)
+                alias = $"column{++mColumnAlias}";
+            mResultset.Add(new SelectQueryBuilderResultsetItem(JsonExpr(column, entity, jsonPath, type), alias, false, type));
+        }
+
+        /// <summary>
+        /// Adds the value at a JSON path inside a JSON column of the first table in the query to the resultset.
+        /// </summary>
+        public virtual void AddJsonValueToResultset(TableDescriptor.ColumnInfo column, string jsonPath, DbType type, string alias = null)
+            => AddJsonValueToResultset(column, null, jsonPath, type, alias);
+
+        /// <summary>
+        /// Adds the value at a JSON path inside a JSON column of the specified table, aggregated with
+        /// the specified function, to the resultset.
+        /// </summary>
+        public virtual void AddJsonValueToResultset(AggFn aggregate, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string jsonPath, DbType type, string alias = null)
+        {
+            if (alias == null)
+                alias = $"column{++mColumnAlias}";
+            mResultset.Add(new SelectQueryBuilderResultsetItem(mSpecifics.GetAggFn(aggregate, JsonExpr(column, entity, jsonPath, type)), alias, true, type));
+        }
+
+        /// <summary>
+        /// Adds the value at a JSON path inside a JSON column of the first table in the query,
+        /// aggregated with the specified function, to the resultset.
+        /// </summary>
+        public virtual void AddJsonValueToResultset(AggFn aggregate, TableDescriptor.ColumnInfo column, string jsonPath, DbType type, string alias = null)
+            => AddJsonValueToResultset(aggregate, column, null, jsonPath, type, alias);
+
+        /// <summary>
+        /// Orders the query by the value at a JSON path inside a JSON column of the specified table.
+        /// </summary>
+        public virtual void AddJsonValueToOrderBy(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string jsonPath, DbType type, SortDir direction = SortDir.Asc)
+            => mOrderBy.Add(new SelectQueryBuilderByItem(JsonExpr(column, entity, jsonPath, type), direction));
+
+        /// <summary>
+        /// Orders the query by the value at a JSON path inside a JSON column of the first table in the query.
+        /// </summary>
+        public virtual void AddJsonValueToOrderBy(TableDescriptor.ColumnInfo column, string jsonPath, DbType type, SortDir direction = SortDir.Asc)
+            => AddJsonValueToOrderBy(column, null, jsonPath, type, direction);
+
+        /// <summary>
+        /// Groups the query by the value at a JSON path inside a JSON column of the specified table.
+        /// </summary>
+        public virtual void AddJsonValueToGroupBy(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string jsonPath, DbType type)
+            => mGroupBy.Add(new SelectQueryBuilderByItem(JsonExpr(column, entity, jsonPath, type), SortDir.Asc));
+
+        /// <summary>
+        /// Groups the query by the value at a JSON path inside a JSON column of the first table in the query.
+        /// </summary>
+        public virtual void AddJsonValueToGroupBy(TableDescriptor.ColumnInfo column, string jsonPath, DbType type)
+            => AddJsonValueToGroupBy(column, null, jsonPath, type);
+
         [DocgenIgnore]
         public override void PrepareQuery()
         {

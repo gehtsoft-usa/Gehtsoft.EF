@@ -274,6 +274,296 @@
 @end
 
 @article
+    @key=tutorialen_compositeindex
+    @title=Compound Indexes
+    @brief=
+    @ingroup=tutorialsen
+
+    A single-column index is created by setting [c]Sorted[/c] on the [c]EntityProperty[/c] attribute.
+    To create a [b]compound[/b] (multi-column) index, provide a metadata class that implements
+    [clink=Gehtsoft.EF.Db.SqlDb.Metadata.ICompositeIndexMetadata]ICompositeIndexMetadata[/clink] and
+    reference it from the [c]Metadata[/c] property of the
+    [clink=Gehtsoft.EF.Entities.EntityAttribute]Entity[/clink] attribute.
+
+    Each index is a [clink=Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex]CompositeIndex[/clink] with a
+    name and an ordered list of fields. A field can be a plain column, a column with a sort direction,
+    or a function applied to a column (an expression index, on the engines that support it).
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "person", Metadata = typeof(PersonMetadata))]
+       !public class Person
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Size = 64)]
+       !    public string LastName { get; set; }
+       !
+       !    [EntityProperty(Size = 64)]
+       !    public string FirstName { get; set; }
+       !}
+       !
+       !public class PersonMetadata : ICompositeIndexMetadata
+       !{
+       !    public IEnumerable<CompositeIndex> Indexes
+       !    {
+       !        get
+       !        {
+       !            var index = new CompositeIndex(typeof(Person), "byName");
+       !            index.Add(nameof(Person.LastName));
+       !            index.Add(nameof(Person.FirstName));
+       !            yield return index;
+       !        }
+       !    }
+       !}
+    @end
+
+    The index is created together with the table. If the set of indexes changes later, the automatic
+    schema update reconciles them (see [link=tutorialen_autoupdate]Automatic Schema Update[/link]).
+
+    An index that a particular engine cannot build (for example a functional index on Microsoft SQL
+    Server or MySQL) can be excluded from those engines by setting the index's [c]ExcludeFor[/c]
+    property to the list of driver names.
+@end
+
+@article
+    @key=tutorialen_jsonproperties
+    @title=JSON Properties
+    @brief=
+    @ingroup=tutorialsen
+
+    A property can be stored as a JSON document in a single column. Mark it with the
+    [clink=Gehtsoft.EF.Entities.JsonEntityPropertyAttribute]JsonEntityProperty[/clink] attribute instead
+    of [c]EntityProperty[/c]. Its value — a primitive, an array of primitives, or an object annotated
+    with [c]System.Text.Json[/c] — is serialized to a JSON string when the entity is saved and
+    deserialized when it is loaded.
+
+    JSON properties are supported on [b]SQLite, PostgreSQL and Oracle 12.2+[/b] only. Creating a JSON
+    column on Microsoft SQL Server or MySQL throws an "unsupported" error.
+
+    Use the [c]Nullable[/c] property to allow a [c]null[/c] value (stored as SQL [c]NULL[/c]).
+
+    [b]Indexing values inside the document[/b]
+
+    Individual primitive values inside the document can be indexed with the repeatable
+    [clink=Gehtsoft.EF.Entities.JsonIndexAttribute]JsonIndex[/clink]
+    attribute. Each index targets one value path (which may reach a value inside a nested object) and
+    its type. Supported value types are string, integer, real, boolean and date/time; arrays, binary
+    data and whole nested objects are stored but cannot be indexed.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !public class Profile
+       !{
+       !    public string Name { get; set; }
+       !    public int Age { get; set; }
+       !}
+       !
+       ![Entity(Table = "person")]
+       !public class Person
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [JsonEntityProperty(Nullable = true)]
+       !    [JsonIndex("$.Age", DbType.Int32)]
+       !    public Profile Profile { get; set; }
+       !}
+    @end
+
+    The whole document is read and written automatically with the entity. Individual values inside the
+    document can also be filtered, projected, sorted, grouped and aggregated in entity queries - see
+    [link=tutorialen_jsonquery]Querying by JSON Properties[/link].
+@end
+
+@article
+    @key=tutorialen_jsonquery
+    @title=Querying by JSON Properties
+    @brief=
+    @ingroup=tutorialsen
+
+    Besides reading and writing the whole document, individual values inside a
+    [link=tutorialen_jsonproperties]JSON property[/link] can be used directly in a query: in the
+    [c]WHERE[/c] condition, in the result set (including an aggregate), and in [c]ORDER BY[/c],
+    [c]GROUP BY[/c] and [c]HAVING[/c]. A value can be addressed either by a JSON path string (for
+    example [c]"$.Address.State"[/c]) or, equivalently, by a member expression such as
+    [c]e =&gt; e.Profile.Address.State[/c] - both forms are shown below.
+
+    The examples below use this entity:
+
+    @example
+        @title=Entity
+        @show=yes
+        @highlight=cs
+       !public class Address
+       !{
+       !    public string City { get; set; }
+       !    public string State { get; set; }
+       !}
+       !
+       !public class Profile
+       !{
+       !    public string Name { get; set; }
+       !    public int Age { get; set; }
+       !    public decimal Income { get; set; }
+       !    public DateTime DoB { get; set; }
+       !    public int[] Scores { get; set; }
+       !    public Address Address { get; set; }
+       !}
+       !
+       ![Entity(Table = "person")]
+       !public class Person
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [JsonEntityProperty(Nullable = true)]
+       !    [JsonIndex("$.Age", DbType.Int32)]
+       !    [JsonIndex("$.Address.State", DbType.String)]
+       !    public Profile Profile { get; set; }
+       !}
+    @end
+
+    [b]Filtering[/b]
+
+    In the [c]Where[/c] (or [c]On[/c]) condition of any entity query, start a JSON-value predicate with
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.JsonPropertyConditionBuilderExtension.JsonPropertyOf]JsonPropertyOf&lt;T&gt;[/clink],
+    then apply the comparison. The value is addressed either by the property name, JSON path and value
+    type, or by a member expression (from which the property, path and value type are inferred). A
+    predicate composes with the ordinary [c]And[/c]/[c]Or[/c] and with normal column conditions, and it
+    also works with the
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesCountQuery]SelectEntitiesCountQuery[/clink].
+
+    @example
+        @title=Example: filter by a JSON value (path form)
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Person>())
+       !{
+       !    query.Where.JsonPropertyOf<Person>("Profile", "$.Address.State", DbType.String).Eq().Value("CA")
+       !               .And().JsonPropertyOf<Person>("Profile", "$.Age", DbType.Int32).Ge().Value(30);
+       !    var adults = query.ReadAll<Person>();
+       !}
+    @end
+
+    The same predicate written with member expressions. The expression may descend into nested objects
+    ([c]e =&gt; e.Profile.Address.State[/c]) and index an array element
+    ([c]e =&gt; e.Profile.Scores[0][/c]); the value type is taken from the member.
+
+    @example
+        @title=Example: filter by a JSON value (expression form)
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Person>())
+       !{
+       !    query.Where.JsonPropertyOf<Person>(e => e.Profile.Address.State).Eq().Value("CA")
+       !               .And().JsonPropertyOf<Person>(e => e.Profile.Age).Ge().Value(30);
+       !    var adults = query.ReadAll<Person>();
+       !}
+    @end
+
+    A row whose JSON value is absent (or [c]null[/c]) simply does not match the predicate.
+
+    [b]Selecting, Ordering, Grouping and Aggregating[/b]
+
+    To use a JSON value as a [i]selected[/i], [i]sortable[/i], [i]groupable[/i] or [i]aggregatable[/i]
+    value, use the custom query surface,
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]
+    (obtained via [c]connection.GetSelectEntitiesQueryBase&lt;T&gt;()[/c]). Add the value to the result
+    set with
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddJsonValueToResultset]AddJsonValueToResultset&lt;T&gt;[/clink];
+    an overload wraps it in an aggregate function. The value is read back through the dynamic reader
+    ([c]ReadAllDynamic[/c] / [c]ReadOneDynamic[/c]). Every method that takes a property name and path
+    also has a member-expression overload.
+
+    @example
+        @title=Example: project and order by JSON values (path form)
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Person>())
+       !{
+       !    query.AddToResultset(typeof(Person), nameof(Person.ID), "id");
+       !    query.AddJsonValueToResultset<Person>("Profile", "$.Address.City", DbType.String, "city");
+       !    query.AddJsonValueToResultset<Person>("Profile", "$.Income", DbType.Currency, "income");
+       !    query.AddJsonValueToOrderBy<Person>("Profile", "$.Income", DbType.Currency, SortDir.Desc);
+       !    foreach (dynamic row in query.ReadAllDynamic())
+       !    {
+       !        string city = row.city;      // null when the path is absent
+       !        decimal income = row.income;
+       !    }
+       !}
+    @end
+
+    @example
+        @title=Example: the same projection with member expressions
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Person>())
+       !{
+       !    query.AddToResultset(typeof(Person), nameof(Person.ID), "id");
+       !    query.AddJsonValueToResultset<Person>(e => e.Profile.Address.City, "city");
+       !    query.AddJsonValueToResultset<Person>(e => e.Profile.Income, "income");
+       !    query.AddJsonValueToOrderBy<Person>(e => e.Profile.Income, SortDir.Desc);
+       !    var rows = query.ReadAllDynamic();
+       !}
+    @end
+
+    A JSON value can be added to [c]GROUP BY[/c]
+    ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddJsonValueToGroupBy]AddJsonValueToGroupBy&lt;T&gt;[/clink])
+    and to [c]ORDER BY[/c]
+    ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddJsonValueToOrderBy]AddJsonValueToOrderBy&lt;T&gt;[/clink]);
+    an aggregate is added to the result set with the [c]AggFn[/c] overload of
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddJsonValueToResultset]AddJsonValueToResultset&lt;T&gt;[/clink].
+    A [c]HAVING[/c] condition on an aggregated JSON value is started with [c]JsonPropertyOf&lt;T&gt;[/c] on
+    the query's [c]Having[/c] builder and wrapped in the aggregate function.
+
+    @example
+        @title=Example: sum grouped by a JSON value with a filtered aggregate
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Person>())
+       !{
+       !    query.AddJsonValueToResultset<Person>(e => e.Profile.Address.State, "state");
+       !    query.AddJsonValueToResultset<Person>(AggFn.Sum, e => e.Profile.Income, "total");
+       !    query.AddJsonValueToGroupBy<Person>(e => e.Profile.Address.State);
+       !    query.Having.JsonPropertyOf<Person>(e => e.Profile.Income).Sum().Gt().Value(1000000m);
+       !    query.AddJsonValueToOrderBy<Person>(e => e.Profile.Address.State);
+       !    var groups = query.ReadAllDynamic();
+       !}
+    @end
+
+    [b]Notes[/b]
+
+    @list
+        @list-item
+            The value type must be a primitive: string, an integer type, real/decimal, boolean or
+            date/time. Whole nested objects and arrays cannot be extracted (but a single array element,
+            such as [c]"$.Scores[0]"[/c] / [c]e =&gt; e.Profile.Scores[0][/c], can).
+        @end
+        @list-item
+            A [c]DateTime[/c] value is stored and indexed as an ISO-8601 string on all three databases,
+            so filter and sort it as [c]DbType.String[/c] and compare against an ISO-8601 string
+            ([c]"2000-01-31T00:00:00"[/c]); ISO-8601 text sorts chronologically. In the expression form,
+            pass the type explicitly to override the one inferred from the member:
+            [c]JsonPropertyOf&lt;Person&gt;(e =&gt; e.Profile.DoB, DbType.String)[/c].
+        @end
+        @list-item
+            When a JSON path is indexed with [clink=Gehtsoft.EF.Entities.JsonIndexAttribute]JsonIndex[/clink],
+            extracting or filtering that path with the [i]same[/i] type lets the database use the index.
+        @end
+        @list-item
+            These expression overloads belong to the entity query surface; JSON values cannot yet be used
+            inside [link=tutorialen_linq]entity LINQ collection[/link] lambdas.
+        @end
+    @end
+@end
+
+@article
     @key=tutorialen_entities4
     @title=Queries
     @brief=

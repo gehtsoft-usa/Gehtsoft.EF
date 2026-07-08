@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -445,6 +446,185 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             SingleEntityQueryConditionBuilder single = new SingleEntityQueryConditionBuilder(LogOp.And, Having);
             single.Raw(join.ColumnAlias, join.ValueColumn.DbType);
             return single;
+        }
+
+        // Resolves an entity property to the query-builder column and table it lives on, so a JSON
+        // value inside that column can be projected / ordered / grouped by. Unlike a dynamic property
+        // (which is a side-table join), a JSON value is just an expression on the owning column.
+        private void ResolveJsonColumn(Type entityType, int occurrence, string property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity)
+        {
+            InQueryName reference = GetReference(entityType, occurrence, property);
+            column = reference.Item.Column;
+            entity = reference.Item.QueryEntity;
+        }
+
+        // Maps the declared JSON value DbType to the CLR type the dynamic reader decodes it to.
+        private static Type ClrTypeOfJson(DbType type)
+        {
+            switch (type)
+            {
+                case DbType.Boolean:
+                    return typeof(bool);
+                case DbType.Int16:
+                    return typeof(short);
+                case DbType.Int32:
+                    return typeof(int);
+                case DbType.Int64:
+                    return typeof(long);
+                case DbType.Single:
+                    return typeof(float);
+                case DbType.Double:
+                    return typeof(double);
+                case DbType.Decimal:
+                case DbType.Currency:
+                    return typeof(decimal);
+                case DbType.DateTime:
+                case DbType.Date:
+                    return typeof(DateTime);
+                case DbType.Binary:
+                    return typeof(byte[]);
+                default:
+                    return typeof(string);
+            }
+        }
+
+        /// <summary>
+        /// Adds a value at a JSON path inside a JSON property to the resultset.
+        /// </summary>
+        /// <typeparam name="T">The entity type that owns the JSON property.</typeparam>
+        /// <param name="property">The name of the JSON property.</param>
+        /// <param name="jsonPath">The JSON path to the value, for example <c>"$.age"</c>.</param>
+        /// <param name="type">The primitive type of the value at the path.</param>
+        /// <param name="alias">The resultset column alias, or <c>null</c>.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddJsonValueToResultset<T>(string property, string jsonPath, DbType type, string alias = null, int occurrence = 0)
+            => AddJsonValueToResultset(typeof(T), property, jsonPath, type, alias, occurrence);
+
+        /// <summary>
+        /// Adds a value at a JSON path inside a JSON property of the specified entity type to the resultset.
+        /// </summary>
+        public void AddJsonValueToResultset(Type entityType, string property, string jsonPath, DbType type, string alias = null, int occurrence = 0)
+        {
+            ResolveJsonColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+            SelectBuilder.AddJsonValueToResultset(column, entity, jsonPath, type, alias);
+            mResultsetTypes.Add(ClrTypeOfJson(type));
+        }
+
+        /// <summary>
+        /// Adds a value at a JSON path inside a JSON property aggregated with the specified function to the resultset.
+        /// </summary>
+        /// <typeparam name="T">The entity type that owns the JSON property.</typeparam>
+        /// <param name="aggregation">The aggregate function.</param>
+        /// <param name="property">The name of the JSON property.</param>
+        /// <param name="jsonPath">The JSON path to the value, for example <c>"$.age"</c>.</param>
+        /// <param name="type">The primitive type of the value at the path.</param>
+        /// <param name="alias">The resultset column alias, or <c>null</c>.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddJsonValueToResultset<T>(AggFn aggregation, string property, string jsonPath, DbType type, string alias = null, int occurrence = 0)
+            => AddJsonValueToResultset(aggregation, typeof(T), property, jsonPath, type, alias, occurrence);
+
+        /// <summary>
+        /// Adds a value at a JSON path inside a JSON property of the specified entity type aggregated with the specified function to the resultset.
+        /// </summary>
+        public void AddJsonValueToResultset(AggFn aggregation, Type entityType, string property, string jsonPath, DbType type, string alias = null, int occurrence = 0)
+        {
+            ResolveJsonColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+            SelectBuilder.AddJsonValueToResultset(aggregation, column, entity, jsonPath, type, alias);
+            mResultsetTypes.Add(aggregation == AggFn.Count ? typeof(int) : ClrTypeOfJson(type));
+        }
+
+        /// <summary>
+        /// Adds a value at a JSON path inside a JSON property to the order by.
+        /// </summary>
+        /// <typeparam name="T">The entity type that owns the JSON property.</typeparam>
+        /// <param name="property">The name of the JSON property.</param>
+        /// <param name="jsonPath">The JSON path to the value, for example <c>"$.age"</c>.</param>
+        /// <param name="type">The primitive type of the value at the path.</param>
+        /// <param name="direction">The sort direction.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddJsonValueToOrderBy<T>(string property, string jsonPath, DbType type, SortDir direction = SortDir.Asc, int occurrence = 0)
+            => AddJsonValueToOrderBy(typeof(T), property, jsonPath, type, direction, occurrence);
+
+        /// <summary>
+        /// Adds a value at a JSON path inside a JSON property of the specified entity type to the order by.
+        /// </summary>
+        public void AddJsonValueToOrderBy(Type entityType, string property, string jsonPath, DbType type, SortDir direction = SortDir.Asc, int occurrence = 0)
+        {
+            ResolveJsonColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+            SelectBuilder.AddJsonValueToOrderBy(column, entity, jsonPath, type, direction);
+        }
+
+        /// <summary>
+        /// Adds a value at a JSON path inside a JSON property to the group by.
+        /// </summary>
+        /// <typeparam name="T">The entity type that owns the JSON property.</typeparam>
+        /// <param name="property">The name of the JSON property.</param>
+        /// <param name="jsonPath">The JSON path to the value, for example <c>"$.age"</c>.</param>
+        /// <param name="type">The primitive type of the value at the path.</param>
+        /// <param name="occurrence">The occurrence of the entity in the query.</param>
+        public void AddJsonValueToGroupBy<T>(string property, string jsonPath, DbType type, int occurrence = 0)
+            => AddJsonValueToGroupBy(typeof(T), property, jsonPath, type, occurrence);
+
+        /// <summary>
+        /// Adds a value at a JSON path inside a JSON property of the specified entity type to the group by.
+        /// </summary>
+        public void AddJsonValueToGroupBy(Type entityType, string property, string jsonPath, DbType type, int occurrence = 0)
+        {
+            ResolveJsonColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+            SelectBuilder.AddJsonValueToGroupBy(column, entity, jsonPath, type);
+        }
+
+        // Parses a member/array-index expression into the JSON property, path and the value type to
+        // extract it as (the leaf type, unless the caller overrides it).
+        private void ParseJson<T>(Expression<Func<T, object>> expression, DbType? typeOverride, out string property, out string jsonPath, out DbType type)
+        {
+            JsonExpressionParser.Parse(expression, out property, out jsonPath, out Type valueType);
+            if (typeOverride.HasValue)
+                type = typeOverride.Value;
+            else if (!SelectBuilder.Specifics.TypeToDb(valueType, out type))
+                throw new ArgumentException($"The JSON value type {valueType.Name} is not supported", nameof(expression));
+        }
+
+        /// <summary>
+        /// Adds a value inside a JSON property addressed by a member/array-index expression such as
+        /// <c>e =&gt; e.Data.Income</c> or <c>e =&gt; e.Data.ChildrenAge[0]</c> to the resultset.
+        /// </summary>
+        /// <typeparam name="T">The entity type that owns the JSON property.</typeparam>
+        /// <param name="expression">The member/array-index expression.</param>
+        /// <param name="alias">The resultset column alias, or <c>null</c>.</param>
+        /// <param name="type">The value type to extract as, overriding the type inferred from the leaf.</param>
+        public void AddJsonValueToResultset<T>(Expression<Func<T, object>> expression, string alias = null, DbType? type = null)
+        {
+            ParseJson(expression, type, out string property, out string jsonPath, out DbType dbType);
+            AddJsonValueToResultset(typeof(T), property, jsonPath, dbType, alias);
+        }
+
+        /// <summary>
+        /// Adds a value inside a JSON property addressed by a member/array-index expression aggregated
+        /// with the specified function to the resultset.
+        /// </summary>
+        public void AddJsonValueToResultset<T>(AggFn aggregation, Expression<Func<T, object>> expression, string alias = null, DbType? type = null)
+        {
+            ParseJson(expression, type, out string property, out string jsonPath, out DbType dbType);
+            AddJsonValueToResultset(aggregation, typeof(T), property, jsonPath, dbType, alias);
+        }
+
+        /// <summary>
+        /// Adds a value inside a JSON property addressed by a member/array-index expression to the order by.
+        /// </summary>
+        public void AddJsonValueToOrderBy<T>(Expression<Func<T, object>> expression, SortDir direction = SortDir.Asc, DbType? type = null)
+        {
+            ParseJson(expression, type, out string property, out string jsonPath, out DbType dbType);
+            AddJsonValueToOrderBy(typeof(T), property, jsonPath, dbType, direction);
+        }
+
+        /// <summary>
+        /// Adds a value inside a JSON property addressed by a member/array-index expression to the group by.
+        /// </summary>
+        public void AddJsonValueToGroupBy<T>(Expression<Func<T, object>> expression, DbType? type = null)
+        {
+            ParseJson(expression, type, out string property, out string jsonPath, out DbType dbType);
+            AddJsonValueToGroupBy(typeof(T), property, jsonPath, dbType);
         }
 
         /// <summary>

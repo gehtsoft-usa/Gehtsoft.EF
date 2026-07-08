@@ -552,6 +552,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         private static List<DesiredIndex> ComputeDesiredIndexes(SqlDbConnection connection, TableDescriptor descriptor)
         {
             var result = new List<DesiredIndex>();
+            SqlDbLanguageSpecifics specifics = connection.GetLanguageSpecifics();
 
             // single-column Sorted / FK indexes (driver decides which columns get one)
             AlterTableQueryBuilder ddl = connection.GetAlterTableQueryBuilder();
@@ -561,26 +562,35 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 {
                     var ci = new CompositeIndex(column.Name);
                     ci.Add(column.Name);
-                    result.Add(MakeDesired(descriptor, ci));
+                    result.Add(MakeDesired(descriptor, ci, specifics));
                 }
             }
 
             // compound indexes declared via ICompositeIndexMetadata
             if (descriptor.Metadata is ICompositeIndexMetadata composite)
                 foreach (CompositeIndex ci in composite.Indexes)
-                    result.Add(MakeDesired(descriptor, ci));
+                    result.Add(MakeDesired(descriptor, ci, specifics));
+
+            // JSON value indexes declared on JSON columns
+            foreach (TableDescriptor.ColumnInfo column in descriptor)
+            {
+                if (column.Json == null)
+                    continue;
+                foreach (JsonIndexDefinition def in column.Json.Indexes)
+                    result.Add(MakeDesired(descriptor, CompositeIndex.ForJson(def.Name, column.Name, def.Path, def.DbType), specifics));
+            }
 
             return result;
         }
 
-        private static DesiredIndex MakeDesired(TableDescriptor descriptor, CompositeIndex index)
+        private static DesiredIndex MakeDesired(TableDescriptor descriptor, CompositeIndex index, SqlDbLanguageSpecifics specifics)
         {
             var columns = new List<string>();
             bool expression = false;
             for (int i = 0; i < index.Fields.Count; i++)
             {
                 CompositeIndex.Field field = index.Fields[i];
-                if (field.Function != null)
+                if (field.Function != null || field.JsonPath != null)
                 {
                     expression = true;
                     continue;
@@ -599,7 +609,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return new DesiredIndex
             {
                 LogicalName = index.Name,
-                DbName = descriptor.Name + "_" + index.Name,
+                DbName = specifics.IndexName(descriptor.Name, index.Name),
                 Index = index,
                 Columns = columns,
                 IsExpression = expression,
