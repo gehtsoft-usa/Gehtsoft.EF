@@ -46,6 +46,8 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         public Attribute GetCustomAttribute(Type attributeType) => null;
 
+        public Attribute[] GetCustomAttributes(Type attributeType) => Array.Empty<Attribute>();
+
         public ExpandoPropertyAccessor(string name, Type propertyType = null)
         {
             Name = name;

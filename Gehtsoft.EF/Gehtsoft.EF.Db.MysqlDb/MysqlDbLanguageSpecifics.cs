@@ -7,6 +7,11 @@ namespace Gehtsoft.EF.Db.MysqlDb
 {
     public class MysqlDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
+        /// <summary>
+        /// The driver identifier of this dialect.
+        /// </summary>
+        public override string DbName => UniversalSqlDbFactory.MYSQL;
+
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             string typeName;
@@ -201,6 +206,9 @@ namespace Gehtsoft.EF.Db.MysqlDb
         }
 
         public override TransactionSupport SupportsTransactions => TransactionSupport.Plain;
+
+        // MySQL/MariaDB reject a DELETE/UPDATE whose sub-query reads the table being modified (error 1093).
+        public override bool SelfReferenceInDeleteAllowed => false;
 
         public override DateTime? MinDate => new DateTime(1000, 1, 1, 0, 0, 0, DateTimeKind.Unspecified);
         public override DateTime? MaxDate => new DateTime(9999, 12, 31, 0, 0, 0, DateTimeKind.Unspecified);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
@@ -35,6 +36,42 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// Gets the primary key of the table.
         /// </summary>
         public TableDescriptor.ColumnInfo PrimaryKey => TableDescriptor.PrimaryKey;
+
+        /// <summary>
+        /// The dynamic properties attribute of the entity, or `null` if the entity does not
+        /// own a dynamic property set.
+        ///
+        /// The attribute carries the shaping options of the dynamic-property side table.
+        /// </summary>
+        public DynamicPropertiesAttribute DynamicProperties { get; internal set; }
+
+        /// <summary>
+        /// The flag indicating whether the entity owns a dynamic property set.
+        ///
+        /// See also <see cref="DynamicPropertiesAttribute"/>.
+        /// </summary>
+        public bool HasDynamicProperties => DynamicProperties != null;
+
+        private TableDescriptor mDynamicPropertiesTable;
+
+        /// <summary>
+        /// The descriptor of the EAV side table that stores the dynamic property set, or
+        /// `null` if the entity does not own a dynamic property set.
+        ///
+        /// The descriptor is a regular table descriptor and can be used with the query
+        /// builder as any other table. It is synthesized on first access and cached.
+        /// </summary>
+        public TableDescriptor DynamicPropertiesTable
+        {
+            get
+            {
+                if (!HasDynamicProperties)
+                    return null;
+                if (mDynamicPropertiesTable == null)
+                    mDynamicPropertiesTable = DynamicPropertiesTableBuilder.Build(this);
+                return mDynamicPropertiesTable;
+            }
+        }
 
         private Dictionary<Type, object> mTags = null;
 

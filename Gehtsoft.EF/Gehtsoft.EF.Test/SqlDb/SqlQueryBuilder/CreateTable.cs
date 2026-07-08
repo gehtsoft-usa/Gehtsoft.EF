@@ -512,7 +512,6 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             var table = StageCompositeIndexText(() =>
             {
                 var r = new[] { new CompositeIndex("index1") { { SqlFunctionId.Upper, "f1" } } };
-                r[0].FailIfUnsupported = true;
                 return r;
             });
 
@@ -526,7 +525,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         }
 
         [Fact]
-        public void CompositeIndex_Function_NotSupported_Ignore()
+        public void CompositeIndex_Function_WhenExcluded_Skipped()
         {
             using var connection = new DummySqlConnection();
             connection.DummyDbSpecifics.SupportFunctionsInIndexesSpec = false;
@@ -534,7 +533,7 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             var table = StageCompositeIndexText(() =>
             {
                 var r = new[] { new CompositeIndex("index1") { { SqlFunctionId.Upper, "f1" } } };
-                r[0].FailIfUnsupported = false;
+                r[0].ExcludeFor = new[] { connection.ConnectionType };
                 return r;
             });
 
@@ -554,7 +553,6 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             var table = StageCompositeIndexText(() =>
             {
                 var r = new[] { new CompositeIndex("index1") { { SqlFunctionId.Upper, "f1" } } };
-                r[0].FailIfUnsupported = true;
                 return r;
             });
 

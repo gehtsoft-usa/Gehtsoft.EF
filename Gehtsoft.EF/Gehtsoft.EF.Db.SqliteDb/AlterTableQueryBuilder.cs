@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Db.SqliteDb
 
         protected override TableDdlBuilder CreateDdlBuilder()
         {
-            return new SqliteTableDdlBuilder(mSpecifics, mDescriptor);
+            return new SqliteTableDdlBuilder(mSpecifics);
         }
 
         protected override void HandleDropQuery(TableDescriptor.ColumnInfo column)

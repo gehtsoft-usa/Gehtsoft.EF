@@ -402,6 +402,22 @@ namespace Gehtsoft.EF.Db.SqlDb
 
         private void PrepareExecute()
         {
+            CloseReader();
+
+            if (mFields != null)
+                mFields.Clear();
+
+            Prepare();
+        }
+
+        /// <summary>
+        /// Closes and releases the active data reader (if any) so the underlying connection is free
+        /// for the next command on the same connection. Idempotent - a no-op when no reader is open,
+        /// and it nulls the reader so a later Dispose does not touch it again. Reading the query's
+        /// results afterwards requires re-executing it.
+        /// </summary>
+        internal void CloseReader()
+        {
             CanRead = false;
 
             if (mReader != null)
@@ -409,11 +425,6 @@ namespace Gehtsoft.EF.Db.SqlDb
                 mReader.Dispose();
                 mReader = null;
             }
-
-            if (mFields != null)
-                mFields.Clear();
-
-            Prepare();
         }
 
         /// <summary>

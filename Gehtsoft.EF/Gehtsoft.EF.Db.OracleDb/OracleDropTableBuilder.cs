@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
@@ -10,13 +10,10 @@ namespace Gehtsoft.EF.Db.OracleDb
         {
         }
 
-        public override void PrepareQuery()
+        protected override void AppendDropTable(StringBuilder builder, TableDescriptor descriptor)
         {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(mSpecifics.PreBlock);
-
             TableDescriptor.ColumnInfo autoIncrementColumn = null;
-            foreach (TableDescriptor.ColumnInfo column in mDescriptor)
+            foreach (TableDescriptor.ColumnInfo column in descriptor)
                 if (column.Autoincrement)
                 {
                     autoIncrementColumn = column;
@@ -29,7 +26,7 @@ namespace Gehtsoft.EF.Db.OracleDb
                 builder.Append(mSpecifics.PreQueryInBlock);
                 builder
                     .Append("DROP SEQUENCE ")
-                    .Append(mDescriptor.Name)
+                    .Append(descriptor.Name)
                     .Append('_')
                     .Append(autoIncrementColumn.Name);
                 builder.Append(mSpecifics.PostQueryInBlock);
@@ -40,15 +37,11 @@ namespace Gehtsoft.EF.Db.OracleDb
 
             builder.Append(mSpecifics.PreBlock);
             builder.Append(mSpecifics.PreQueryInBlock);
-            builder.Append("DROP TABLE ").Append(mDescriptor.Name);
+            builder.Append("DROP TABLE ").Append(descriptor.Name);
             builder.Append(mSpecifics.PostQueryInBlock);
             builder.Append("EXCEPTION\r\n");
             builder.Append("  WHEN OTHERS THEN NULL;\r\n");
             builder.Append(mSpecifics.PostBlock);
-
-            builder.Append(mSpecifics.PostBlock);
-
-            mQuery = builder.ToString();
         }
     }
 }

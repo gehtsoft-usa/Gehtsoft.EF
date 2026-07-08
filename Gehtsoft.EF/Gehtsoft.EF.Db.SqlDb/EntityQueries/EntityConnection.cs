@@ -23,7 +23,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public static AQueryBuilder GetCreateEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
-            return connection.GetCreateTableBuilder(AllEntities.Inst[type].TableDescriptor);
+            EntityDescriptor descriptor = AllEntities.Inst[type];
+            CreateTableBuilder builder = connection.GetCreateTableBuilder(descriptor.TableDescriptor);
+            if (descriptor.HasDynamicProperties)
+                builder.AddTable(descriptor.DynamicPropertiesTable);
+            return builder;
         }
 
         /// <summary>
@@ -66,7 +70,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public static AQueryBuilder GetDropEntityQueryBuilder(this SqlDbConnection connection, Type type)
         {
-            return connection.GetDropTableBuilder(AllEntities.Inst[type].TableDescriptor);
+            EntityDescriptor descriptor = AllEntities.Inst[type];
+            if (descriptor.HasDynamicProperties)
+            {
+                DropTableBuilder builder = connection.GetDropTableBuilder(descriptor.DynamicPropertiesTable);
+                builder.AddTable(descriptor.TableDescriptor);
+                return builder;
+            }
+            return connection.GetDropTableBuilder(descriptor.TableDescriptor);
         }
 
         /// <summary>
@@ -442,6 +453,38 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             => GetSelectEntitiesQuery(connection, typeof(T), exclusions);
 
         /// <summary>
+        /// Loads (or reloads) the dynamic properties of an already-read entity from its side table
+        /// and attaches them as a loaded bag. Use this to fill the bag on demand, instead of the
+        /// eager <see cref="SelectEntitiesQuery.PreloadProperties"/>. A no-op for a type that does
+        /// not own dynamic properties.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="connection"></param>
+        /// <param name="entity"></param>
+        public static void LoadPropertiesFor<T>(this SqlDbConnection connection, T entity) where T : class
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            EntityDescriptor descriptor = AllEntities.Get(typeof(T));
+            if (!descriptor.HasDynamicProperties)
+                return;
+            DynamicPropertiesLoader.LoadOne(connection, descriptor, entity);
+        }
+
+        /// <summary>
+        /// Asynchronous version of <see cref="LoadPropertiesFor{T}(SqlDbConnection, T)"/>.
+        /// </summary>
+        public static Task LoadPropertiesForAsync<T>(this SqlDbConnection connection, T entity, CancellationToken? token = null) where T : class
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            EntityDescriptor descriptor = AllEntities.Get(typeof(T));
+            if (!descriptor.HasDynamicProperties)
+                return Task.CompletedTask;
+            return DynamicPropertiesLoader.LoadOneAsync(connection, descriptor, entity, token);
+        }
+
+        /// <summary>
         /// Gets query to construct a free-form entity select query.
         ///
         /// The method is a synonym for <see cref="GetGenericSelectEntityQuery(SqlDbConnection, Type)"/>
@@ -523,7 +566,14 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="includeOnlyProperties"></param>
         /// <returns></returns>
         public static InsertSelectEntityQuery GetInsertSelectEntityQuery(this SqlDbConnection connection, Type entityType, SelectEntitiesQueryBase selectQuery, bool ignoreAutoIncrement = false, string[] includeOnlyProperties = null)
-            => new InsertSelectEntityQuery(connection.GetQuery(), entityType, selectQuery.SelectBuilder, ignoreAutoIncrement, includeOnlyProperties);
+        {
+            if (AllEntities.Get(entityType).HasDynamicProperties)
+                throw new NotSupportedException(
+                    "INSERT ... SELECT is not supported for an entity that owns dynamic properties: the " +
+                    "select produces column values only and cannot populate the dynamic-property side " +
+                    "table. Insert the entities individually (each insert can carry its property bag).");
+            return new InsertSelectEntityQuery(connection.GetQuery(), entityType, selectQuery.SelectBuilder, ignoreAutoIncrement, includeOnlyProperties);
+        }
 
         /// <summary>
         /// Returns the query that inserts the results of an entity select query into another entity (generic version).

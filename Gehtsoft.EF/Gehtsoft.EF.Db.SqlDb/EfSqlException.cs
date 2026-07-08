@@ -25,6 +25,10 @@ namespace Gehtsoft.EF.Db.SqlDb
         UnknownOperator,
         TypeIsUnsupported,
         CannotRecreateTable,
+        DynamicPropertiesBagIsNotNew,
+        DynamicPropertiesBagIsNew,
+        DynamicPropertiesAttributeWithoutOwner,
+        DynamicPropertiesOwnerWithoutAttribute,
     }
 
     [ExcludeFromCodeCoverage]
@@ -85,6 +89,17 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                     case EfExceptionCode.CannotRecreateTable:
                         return "Cannot recreate table {0} because table {1} depends on it and is not set to be dropped or recreated";
+
+                    case EfExceptionCode.DynamicPropertiesBagIsNotNew:
+                        return "The dynamic properties bag must be a new bag to be inserted (create it with InitializeDynamicProperties on a new entity)";
+                    case EfExceptionCode.DynamicPropertiesBagIsNew:
+                        return "The dynamic properties bag is a new bag; a new bag can only be inserted, not updated (load the entity's dynamic properties before updating)";
+
+                    case EfExceptionCode.DynamicPropertiesAttributeWithoutOwner:
+                        return "The entity {0} is marked with [DynamicProperties] but does not implement IDynamicPropertiesOwner. Add the interface and a 'public DynamicPropertyBag DynamicProperties {{ get; private set; }}' property, or remove the attribute.";
+
+                    case EfExceptionCode.DynamicPropertiesOwnerWithoutAttribute:
+                        return "The entity {0} implements IDynamicPropertiesOwner but is not marked with [DynamicProperties]. Add the [DynamicProperties] attribute, or remove the interface.";
 
                     default:
                         return $"Unknown exception {code}";

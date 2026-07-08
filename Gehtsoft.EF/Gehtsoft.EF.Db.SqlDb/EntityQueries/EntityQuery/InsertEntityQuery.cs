@@ -1,5 +1,10 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
@@ -24,6 +29,94 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 
         [DocgenIgnore]
         public override bool IsInsert => !mInsertBuilder.IgnoreAutoIncrement;
+
+        /// <summary>
+        /// Inserts the entity and then, if it owns dynamic properties, its property rows.
+        /// </summary>
+        /// <param name="entity"></param>
+        public override void Execute(object entity)
+        {
+            base.Execute(entity);
+            if (EntityQueryBuilder.Descriptor.HasDynamicProperties)
+                SaveDynamicProperties(entity);
+        }
+
+        /// <summary>
+        /// Asynchronous version of <see cref="Execute(object)"/>.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="token"></param>
+        public override async Task ExecuteAsync(object entity, CancellationToken? token = null)
+        {
+            await base.ExecuteAsync(entity, token);
+            if (EntityQueryBuilder.Descriptor.HasDynamicProperties)
+                await SaveDynamicPropertiesAsync(entity, token);
+        }
+
+        // Inserts every current property of a freshly-inserted entity's bag - as one combined
+        // multi-statement command - then accepts the bag's changes (resetting tracking and clearing
+        // the new flag). A no-op when the entity has no bag.
+        private void SaveDynamicProperties(object entity)
+        {
+            (DynamicPropertyBag bag, SqlDbQuery query) = PrepareInsert(entity);
+            if (query != null)
+                using (query)
+                    query.ExecuteNoData();
+            bag?.AcceptChanges();
+        }
+
+        private async Task SaveDynamicPropertiesAsync(object entity, CancellationToken? token)
+        {
+            (DynamicPropertyBag bag, SqlDbQuery query) = PrepareInsert(entity);
+            if (query != null)
+                using (query)
+                    await query.ExecuteNoDataAsync(token);
+            bag?.AcceptChanges();
+        }
+
+        // Returns (bag, query): the bag whose changes to accept after execution, and the combined
+        // insert command to execute (null when there is nothing to insert). Both null == nothing to do.
+        private (DynamicPropertyBag bag, SqlDbQuery query) PrepareInsert(object entity)
+        {
+            EntityDescriptor descriptor = EntityQueryBuilder.Descriptor;
+            DynamicPropertyBag bag = DynamicPropertiesSaver.GetBag(descriptor, entity);
+            if (bag == null)
+                return (null, null);
+
+            DynamicPropertiesSaver.RequireNewBag(bag);
+
+            List<(string Name, object Value)> props = Materialize(bag);
+            SqlDbQuery query = props.Count > 0 ? BuildInsert(descriptor, entity, props) : null;
+            return (bag, query);
+        }
+
+        private static List<(string Name, object Value)> Materialize(DynamicPropertyBag bag)
+        {
+            List<(string Name, object Value)> list = new List<(string Name, object Value)>();
+            foreach ((string name, object value) in bag)
+                list.Add((name, value));
+            return list;
+        }
+
+        // Builds one combined command that inserts all property rows, using the shared change-statement
+        // builders. The owner value is a single shared parameter; each row's values are row-suffixed.
+        // Throws (e.g. NoPrimaryKeyInTable) if the entity's side table cannot be resolved.
+        private SqlDbQuery BuildInsert(EntityDescriptor descriptor, object entity, List<(string Name, object Value)> props)
+        {
+            SqlDbConnection connection = mQuery.Connection;
+            TableDescriptor propsTable = descriptor.DynamicPropertiesTable;
+            object ownerPk = descriptor.PrimaryKey.PropertyAccessor.GetValue(entity);
+
+            MultiSqlQueryBuilder multi = new MultiSqlQueryBuilder(connection.GetLanguageSpecifics());
+            for (int row = 0; row < props.Count; row++)
+                DynamicPropertiesSaver.AddInsert(multi, connection, propsTable, row);
+
+            SqlDbQuery query = connection.GetQuery(multi);
+            DynamicPropertiesSaver.BindOwner(query, ownerPk);
+            for (int row = 0; row < props.Count; row++)
+                DynamicPropertiesSaver.BindValueRow(query, row, props[row].Name, props[row].Value);
+            return query;
+        }
     }
 
     /// <summary>

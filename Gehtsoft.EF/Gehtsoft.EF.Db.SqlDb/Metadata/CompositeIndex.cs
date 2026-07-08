@@ -31,11 +31,30 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
             /// </summary>
             public SortDir Direction { get; }
 
+            /// <summary>
+            /// For a JSON value index: the JSON path extracted from the column named by
+            /// <see cref="Name"/>. `null` for a regular (column or function) field.
+            /// </summary>
+            public string JsonPath { get; }
+
+            /// <summary>
+            /// For a JSON value index: the primitive type of the value at <see cref="JsonPath"/>.
+            /// </summary>
+            public System.Data.DbType JsonType { get; }
+
             internal Field(SqlFunctionId? function, string name, SortDir direction)
             {
                 Function = function;
                 Name = name;
                 Direction = direction;
+            }
+
+            internal Field(string columnName, string jsonPath, System.Data.DbType jsonType)
+            {
+                Name = columnName;
+                Direction = SortDir.Asc;
+                JsonPath = jsonPath;
+                JsonType = jsonType;
             }
         }
 
@@ -61,17 +80,63 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
         public IReadOnlyList<Field> Fields => mFields;
 
         /// <summary>
-        /// The flag defining the behavior in case the target database
-        /// does not support functions in the index.
+        /// The list of database drivers (by <see cref="UniversalSqlDbFactory"/> name, e.g.
+        /// <see cref="UniversalSqlDbFactory.MSSQL"/>, <see cref="UniversalSqlDbFactory.MYSQL"/>)
+        /// for which this index must **not** be created.
         ///
-        /// If flag is `true` the exception will be thrown in case functions aren't supported.
+        /// Use it to declare, explicitly and self-documenting, that an index is intentionally
+        /// skipped on drivers that cannot build it — most notably a functional index on a driver
+        /// where <see cref="SqlDbLanguageSpecifics.SupportFunctionsInIndexes"/> is `false`
+        /// (MS SQL Server, MySQL). On an excluded driver the index is silently skipped; on any
+        /// other driver that still cannot build it, an <see cref="EfSqlException"/>
+        /// (<see cref="EfExceptionCode.FeatureNotSupported"/>) is thrown.
         ///
-        /// If flag is `false` the index won't be created.
-        ///
-        /// To check whether the database supports functions in the indexes use
-        /// <see cref="SqlDbLanguageSpecifics.SupportFunctionsInIndexes">SqlDbLanguageSpecifics.SupportFunctionsInIndexes</see> flag.
+        /// `null` or empty means the index applies to every driver.
         /// </summary>
-        public bool FailIfUnsupported { get; set; }
+        public string[] ExcludeFor { get; set; }
+
+        /// <summary>
+        /// Returns `true` when at least one field of the index applies a function (an expression
+        /// index).
+        /// </summary>
+        public bool HasFunction
+        {
+            get
+            {
+                for (int i = 0; i < mFields.Count; i++)
+                    if (mFields[i].Function != null || mFields[i].JsonPath != null)
+                        return true;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Builds a single-field JSON value index: an index over the value at
+        /// <paramref name="jsonPath"/> (of type <paramref name="jsonType"/>) inside the JSON column
+        /// <paramref name="columnName"/>. The index is unassociated (columns are raw SQL names).
+        /// </summary>
+        internal static CompositeIndex ForJson(string indexName, string columnName, string jsonPath, System.Data.DbType jsonType)
+        {
+            var index = new CompositeIndex(indexName);
+            index.mFields.Add(new Field(columnName, jsonPath, jsonType));
+            return index;
+        }
+
+        /// <summary>
+        /// Returns `true` when this index must be skipped for the driver with the specified
+        /// identifier (see <see cref="SqlDbLanguageSpecifics.DbName"/>), i.e. when
+        /// <see cref="ExcludeFor"/> contains that identifier.
+        /// </summary>
+        /// <param name="dbName">The driver identifier to test.</param>
+        public bool IsExcludedFor(string dbName)
+        {
+            if (ExcludeFor == null || dbName == null)
+                return false;
+            for (int i = 0; i < ExcludeFor.Length; i++)
+                if (string.Equals(ExcludeFor[i], dbName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            return false;
+        }
 
         /// <summary>
         /// Constructor for an index not associated with the entity.

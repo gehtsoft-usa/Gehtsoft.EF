@@ -6,6 +6,70 @@ namespace Gehtsoft.EF.Db.PostgresDb
 {
     public class PostgresDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
+        /// <summary>
+        /// The driver identifier of this dialect.
+        /// </summary>
+        public override string DbName => UniversalSqlDbFactory.POSTGRES;
+
+        /// <summary>
+        /// PostgreSQL supports JSON columns (jsonb).
+        /// </summary>
+        public override bool SupportsJson => true;
+
+        /// <summary>
+        /// Renders a PostgreSQL JSON extraction. The JSON is stored as `text`, so it is cast to
+        /// `jsonb` inline, the value is pulled with the `#&gt;&gt;` (text) path operator and then cast
+        /// to the target type. `CREATE INDEX` is not wrapped in a quoted block, so
+        /// <paramref name="forDdl"/> does not affect the expression.
+        /// </summary>
+        public override string JsonExtract(string column, string path, System.Data.DbType type, bool forDdl)
+        {
+            string extract = $"(({column})::jsonb #>> '{PostgresJsonPath(path)}')";
+            string cast = PostgresJsonCast(type);
+            return cast == null ? extract : $"({extract}::{cast})";
+        }
+
+        // "$.address.zip" -> "{address,zip}"; "$.children[0]" -> "{children,0}"
+        private static string PostgresJsonPath(string path)
+        {
+            string p = path;
+            if (p.StartsWith("$", System.StringComparison.Ordinal))
+                p = p.Substring(1);
+            // an array element "[N]" becomes a path step ",N"
+            p = p.Replace("]", "").Replace("[", ".");
+            p = p.Replace(".", ",").Trim(',');
+            return "{" + p + "}";
+        }
+
+        private static string PostgresJsonCast(System.Data.DbType type)
+        {
+            switch (type)
+            {
+                case System.Data.DbType.Int16:
+                case System.Data.DbType.Int32:
+                    return "integer";
+                case System.Data.DbType.Int64:
+                    return "bigint";
+                case System.Data.DbType.Double:
+                    return "double precision";
+                case System.Data.DbType.Single:
+                    return "real";
+                case System.Data.DbType.Decimal:
+                case System.Data.DbType.Currency:
+                    return "numeric";
+                case System.Data.DbType.Boolean:
+                    return "boolean";
+                case System.Data.DbType.DateTime:
+                case System.Data.DbType.DateTime2:
+                case System.Data.DbType.Date:
+                    // text->timestamp is not IMMUTABLE (cannot be indexed); index the ISO-8601 text,
+                    // which sorts chronologically. Same as SQLite/Oracle (string comparison).
+                    return null;
+                default:
+                    return null; // string / other -> keep as text
+            }
+        }
+
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             string typeName;

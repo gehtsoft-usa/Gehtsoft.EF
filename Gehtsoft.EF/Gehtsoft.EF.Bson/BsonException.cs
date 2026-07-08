@@ -17,7 +17,8 @@ namespace Gehtsoft.EF.Bson
     {
         TypeIsNotEntity,
         TypeIsNotSupported,
-        NoPk
+        NoPk,
+        DynamicPropertiesNotSupported
     }
 
     /// <summary>
@@ -46,6 +47,8 @@ namespace Gehtsoft.EF.Bson
                         return "The property type is not supported";
                     case BsonExceptionCode.NoPk:
                         return "The entity type has no primary key to reference";
+                    case BsonExceptionCode.DynamicPropertiesNotSupported:
+                        return "Entities with dynamic properties are not supported by the BSON/Mongo layer";
                     default:
                         return "Unknown code";
                 }

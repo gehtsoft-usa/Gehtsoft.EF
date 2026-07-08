@@ -274,6 +274,296 @@
 @end
 
 @article
+    @key=tutorialen_compositeindex
+    @title=Compound Indexes
+    @brief=
+    @ingroup=tutorialsen
+
+    A single-column index is created by setting [c]Sorted[/c] on the [c]EntityProperty[/c] attribute.
+    To create a [b]compound[/b] (multi-column) index, provide a metadata class that implements
+    [clink=Gehtsoft.EF.Db.SqlDb.Metadata.ICompositeIndexMetadata]ICompositeIndexMetadata[/clink] and
+    reference it from the [c]Metadata[/c] property of the
+    [clink=Gehtsoft.EF.Entities.EntityAttribute]Entity[/clink] attribute.
+
+    Each index is a [clink=Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex]CompositeIndex[/clink] with a
+    name and an ordered list of fields. A field can be a plain column, a column with a sort direction,
+    or a function applied to a column (an expression index, on the engines that support it).
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "person", Metadata = typeof(PersonMetadata))]
+       !public class Person
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [EntityProperty(Size = 64)]
+       !    public string LastName { get; set; }
+       !
+       !    [EntityProperty(Size = 64)]
+       !    public string FirstName { get; set; }
+       !}
+       !
+       !public class PersonMetadata : ICompositeIndexMetadata
+       !{
+       !    public IEnumerable<CompositeIndex> Indexes
+       !    {
+       !        get
+       !        {
+       !            var index = new CompositeIndex(typeof(Person), "byName");
+       !            index.Add(nameof(Person.LastName));
+       !            index.Add(nameof(Person.FirstName));
+       !            yield return index;
+       !        }
+       !    }
+       !}
+    @end
+
+    The index is created together with the table. If the set of indexes changes later, the automatic
+    schema update reconciles them (see [link=tutorialen_autoupdate]Automatic Schema Update[/link]).
+
+    An index that a particular engine cannot build (for example a functional index on Microsoft SQL
+    Server or MySQL) can be excluded from those engines by setting the index's [c]ExcludeFor[/c]
+    property to the list of driver names.
+@end
+
+@article
+    @key=tutorialen_jsonproperties
+    @title=JSON Properties
+    @brief=
+    @ingroup=tutorialsen
+
+    A property can be stored as a JSON document in a single column. Mark it with the
+    [clink=Gehtsoft.EF.Entities.JsonEntityPropertyAttribute]JsonEntityProperty[/clink] attribute instead
+    of [c]EntityProperty[/c]. Its value — a primitive, an array of primitives, or an object annotated
+    with [c]System.Text.Json[/c] — is serialized to a JSON string when the entity is saved and
+    deserialized when it is loaded.
+
+    JSON properties are supported on [b]SQLite, PostgreSQL and Oracle 12.2+[/b] only. Creating a JSON
+    column on Microsoft SQL Server or MySQL throws an "unsupported" error.
+
+    Use the [c]Nullable[/c] property to allow a [c]null[/c] value (stored as SQL [c]NULL[/c]).
+
+    [b]Indexing values inside the document[/b]
+
+    Individual primitive values inside the document can be indexed with the repeatable
+    [clink=Gehtsoft.EF.Entities.JsonIndexAttribute]JsonIndex[/clink]
+    attribute. Each index targets one value path (which may reach a value inside a nested object) and
+    its type. Supported value types are string, integer, real, boolean and date/time; arrays, binary
+    data and whole nested objects are stored but cannot be indexed.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !public class Profile
+       !{
+       !    public string Name { get; set; }
+       !    public int Age { get; set; }
+       !}
+       !
+       ![Entity(Table = "person")]
+       !public class Person
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [JsonEntityProperty(Nullable = true)]
+       !    [JsonIndex("$.Age", DbType.Int32)]
+       !    public Profile Profile { get; set; }
+       !}
+    @end
+
+    The whole document is read and written automatically with the entity. Individual values inside the
+    document can also be filtered, projected, sorted, grouped and aggregated in entity queries - see
+    [link=tutorialen_jsonquery]Querying by JSON Properties[/link].
+@end
+
+@article
+    @key=tutorialen_jsonquery
+    @title=Querying by JSON Properties
+    @brief=
+    @ingroup=tutorialsen
+
+    Besides reading and writing the whole document, individual values inside a
+    [link=tutorialen_jsonproperties]JSON property[/link] can be used directly in a query: in the
+    [c]WHERE[/c] condition, in the result set (including an aggregate), and in [c]ORDER BY[/c],
+    [c]GROUP BY[/c] and [c]HAVING[/c]. A value can be addressed either by a JSON path string (for
+    example [c]"$.Address.State"[/c]) or, equivalently, by a member expression such as
+    [c]e =&gt; e.Profile.Address.State[/c] - both forms are shown below.
+
+    The examples below use this entity:
+
+    @example
+        @title=Entity
+        @show=yes
+        @highlight=cs
+       !public class Address
+       !{
+       !    public string City { get; set; }
+       !    public string State { get; set; }
+       !}
+       !
+       !public class Profile
+       !{
+       !    public string Name { get; set; }
+       !    public int Age { get; set; }
+       !    public decimal Income { get; set; }
+       !    public DateTime DoB { get; set; }
+       !    public int[] Scores { get; set; }
+       !    public Address Address { get; set; }
+       !}
+       !
+       ![Entity(Table = "person")]
+       !public class Person
+       !{
+       !    [EntityProperty(AutoId = true)]
+       !    public int ID { get; set; }
+       !
+       !    [JsonEntityProperty(Nullable = true)]
+       !    [JsonIndex("$.Age", DbType.Int32)]
+       !    [JsonIndex("$.Address.State", DbType.String)]
+       !    public Profile Profile { get; set; }
+       !}
+    @end
+
+    [b]Filtering[/b]
+
+    In the [c]Where[/c] (or [c]On[/c]) condition of any entity query, start a JSON-value predicate with
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.JsonPropertyConditionBuilderExtension.JsonPropertyOf]JsonPropertyOf&lt;T&gt;[/clink],
+    then apply the comparison. The value is addressed either by the property name, JSON path and value
+    type, or by a member expression (from which the property, path and value type are inferred). A
+    predicate composes with the ordinary [c]And[/c]/[c]Or[/c] and with normal column conditions, and it
+    also works with the
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesCountQuery]SelectEntitiesCountQuery[/clink].
+
+    @example
+        @title=Example: filter by a JSON value (path form)
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Person>())
+       !{
+       !    query.Where.JsonPropertyOf<Person>("Profile", "$.Address.State", DbType.String).Eq().Value("CA")
+       !               .And().JsonPropertyOf<Person>("Profile", "$.Age", DbType.Int32).Ge().Value(30);
+       !    var adults = query.ReadAll<Person>();
+       !}
+    @end
+
+    The same predicate written with member expressions. The expression may descend into nested objects
+    ([c]e =&gt; e.Profile.Address.State[/c]) and index an array element
+    ([c]e =&gt; e.Profile.Scores[0][/c]); the value type is taken from the member.
+
+    @example
+        @title=Example: filter by a JSON value (expression form)
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Person>())
+       !{
+       !    query.Where.JsonPropertyOf<Person>(e => e.Profile.Address.State).Eq().Value("CA")
+       !               .And().JsonPropertyOf<Person>(e => e.Profile.Age).Ge().Value(30);
+       !    var adults = query.ReadAll<Person>();
+       !}
+    @end
+
+    A row whose JSON value is absent (or [c]null[/c]) simply does not match the predicate.
+
+    [b]Selecting, Ordering, Grouping and Aggregating[/b]
+
+    To use a JSON value as a [i]selected[/i], [i]sortable[/i], [i]groupable[/i] or [i]aggregatable[/i]
+    value, use the custom query surface,
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]
+    (obtained via [c]connection.GetSelectEntitiesQueryBase&lt;T&gt;()[/c]). Add the value to the result
+    set with
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddJsonValueToResultset]AddJsonValueToResultset&lt;T&gt;[/clink];
+    an overload wraps it in an aggregate function. The value is read back through the dynamic reader
+    ([c]ReadAllDynamic[/c] / [c]ReadOneDynamic[/c]). Every method that takes a property name and path
+    also has a member-expression overload.
+
+    @example
+        @title=Example: project and order by JSON values (path form)
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Person>())
+       !{
+       !    query.AddToResultset(typeof(Person), nameof(Person.ID), "id");
+       !    query.AddJsonValueToResultset<Person>("Profile", "$.Address.City", DbType.String, "city");
+       !    query.AddJsonValueToResultset<Person>("Profile", "$.Income", DbType.Currency, "income");
+       !    query.AddJsonValueToOrderBy<Person>("Profile", "$.Income", DbType.Currency, SortDir.Desc);
+       !    foreach (dynamic row in query.ReadAllDynamic())
+       !    {
+       !        string city = row.city;      // null when the path is absent
+       !        decimal income = row.income;
+       !    }
+       !}
+    @end
+
+    @example
+        @title=Example: the same projection with member expressions
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Person>())
+       !{
+       !    query.AddToResultset(typeof(Person), nameof(Person.ID), "id");
+       !    query.AddJsonValueToResultset<Person>(e => e.Profile.Address.City, "city");
+       !    query.AddJsonValueToResultset<Person>(e => e.Profile.Income, "income");
+       !    query.AddJsonValueToOrderBy<Person>(e => e.Profile.Income, SortDir.Desc);
+       !    var rows = query.ReadAllDynamic();
+       !}
+    @end
+
+    A JSON value can be added to [c]GROUP BY[/c]
+    ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddJsonValueToGroupBy]AddJsonValueToGroupBy&lt;T&gt;[/clink])
+    and to [c]ORDER BY[/c]
+    ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddJsonValueToOrderBy]AddJsonValueToOrderBy&lt;T&gt;[/clink]);
+    an aggregate is added to the result set with the [c]AggFn[/c] overload of
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddJsonValueToResultset]AddJsonValueToResultset&lt;T&gt;[/clink].
+    A [c]HAVING[/c] condition on an aggregated JSON value is started with [c]JsonPropertyOf&lt;T&gt;[/c] on
+    the query's [c]Having[/c] builder and wrapped in the aggregate function.
+
+    @example
+        @title=Example: sum grouped by a JSON value with a filtered aggregate
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Person>())
+       !{
+       !    query.AddJsonValueToResultset<Person>(e => e.Profile.Address.State, "state");
+       !    query.AddJsonValueToResultset<Person>(AggFn.Sum, e => e.Profile.Income, "total");
+       !    query.AddJsonValueToGroupBy<Person>(e => e.Profile.Address.State);
+       !    query.Having.JsonPropertyOf<Person>(e => e.Profile.Income).Sum().Gt().Value(1000000m);
+       !    query.AddJsonValueToOrderBy<Person>(e => e.Profile.Address.State);
+       !    var groups = query.ReadAllDynamic();
+       !}
+    @end
+
+    [b]Notes[/b]
+
+    @list
+        @list-item
+            The value type must be a primitive: string, an integer type, real/decimal, boolean or
+            date/time. Whole nested objects and arrays cannot be extracted (but a single array element,
+            such as [c]"$.Scores[0]"[/c] / [c]e =&gt; e.Profile.Scores[0][/c], can).
+        @end
+        @list-item
+            A [c]DateTime[/c] value is stored and indexed as an ISO-8601 string on all three databases,
+            so filter and sort it as [c]DbType.String[/c] and compare against an ISO-8601 string
+            ([c]"2000-01-31T00:00:00"[/c]); ISO-8601 text sorts chronologically. In the expression form,
+            pass the type explicitly to override the one inferred from the member:
+            [c]JsonPropertyOf&lt;Person&gt;(e =&gt; e.Profile.DoB, DbType.String)[/c].
+        @end
+        @list-item
+            When a JSON path is indexed with [clink=Gehtsoft.EF.Entities.JsonIndexAttribute]JsonIndex[/clink],
+            extracting or filtering that path with the [i]same[/i] type lets the database use the index.
+        @end
+        @list-item
+            These expression overloads belong to the entity query surface; JSON values cannot yet be used
+            inside [link=tutorialen_linq]entity LINQ collection[/link] lambdas.
+        @end
+    @end
+@end
+
+@article
     @key=tutorialen_entities4
     @title=Queries
     @brief=
@@ -444,6 +734,119 @@
          !    }
          !
     @end
+@end
+
+@article
+    @key=tutorialen_autoupdate
+    @title=Automatic Schema Update
+    @brief=
+    @ingroup=tutorialsen
+
+    As shown in the previous topic,
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink]
+    can bring an existing database in line with the current entity definitions without recreating it.
+    This topic describes what the automatic update does and how to control it.
+
+    [b]What the Automatic Update Does[/b]
+
+    When you call the controller's [c]UpdateTables[/c] method against an existing database, it:
+
+    @list
+        @list-item
+            creates a table for an entity that does not exist yet;
+        @end
+        @list-item
+            adds a column for a newly added property (new properties must be nullable);
+        @end
+        @list-item
+            drops a table or a column marked obsolete (see the previous topic);
+        @end
+        @list-item
+            reconciles the table indexes with the entity definition (see below).
+        @end
+    @end
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+
+        !CreateEntityController controller = new CreateEntityController(typeof(Entity).Assembly);
+        !controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+    @end
+
+    [b]Index Reconciliation[/b]
+
+    During the update the controller also keeps the table indexes in sync with the entity definition.
+    For every existing table it:
+
+    @list
+        @list-item
+            creates an index that is declared on the entity but missing in the database;
+        @end
+        @list-item
+            drops an index it previously created whose declaration was removed from the entity;
+        @end
+        @list-item
+            drops and recreates an index whose set of columns has changed.
+        @end
+    @end
+
+    Two kinds of index are reconciled:
+
+    @list
+        @list-item
+            single-column indexes declared with [c]EntityProperty(Sorted = true)[/c] (and the
+            automatic foreign-key indexes);
+        @end
+        @list-item
+            compound indexes declared through
+            [clink=Gehtsoft.EF.Db.SqlDb.Metadata.ICompositeIndexMetadata]ICompositeIndexMetadata[/clink]
+            / [clink=Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex]CompositeIndex[/clink].
+        @end
+    @end
+
+    Adding, dropping or changing a [c]UNIQUE[/c] or [c]PRIMARY KEY[/c] constraint is [b]not[/b]
+    handled by the automatic update, because those are emitted as inline column constraints rather
+    than as standalone indexes. Change such a constraint by recreating the table
+    ([c]UpdateMode.Recreate[/c]).
+
+    [b]Excluding an Index on Specific Databases[/b]
+
+    A functional (expression) index cannot be created directly on the engines that do not allow
+    functions in indexes (Microsoft SQL Server and MySQL); by default such an index throws an
+    exception there. To declare, explicitly, that an index must be skipped on a given engine, set the
+    [c]ExcludeFor[/c] property of the
+    [clink=Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex]CompositeIndex[/clink] to the list of driver
+    names (see [clink=Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory]UniversalSqlDbFactory[/clink]).
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+
+        !var index = new CompositeIndex(typeof(Document), "byTitle")
+        !{
+        !    ExcludeFor = new[] { UniversalSqlDbFactory.MSSQL, UniversalSqlDbFactory.MYSQL }
+        !};
+        !index.Add(SqlFunctionId.Upper, nameof(Document.Title));
+    @end
+
+    On an excluded engine the index is silently skipped and is created on all others. Adding an engine
+    to [c]ExcludeFor[/c] for an index that already exists there causes the next update to drop it on
+    that engine.
+
+    [b]Important: Do Not Reuse the Framework Index Naming[/b]
+
+    The framework names every index it creates [i]table[/i]_[i]index[/i], and it uses exactly that
+    convention to recognise which indexes it owns. During reconciliation any index whose name starts
+    with the table name followed by an underscore, and which is not part of the current entity
+    definition, is treated as an orphaned framework index and is [b]dropped[/b].
+
+    Therefore, when you create an index manually (outside the entity definition), [b]do not[/b] name it
+    using the [i]table[/i]_[i]name[/i] pattern - give it a distinct name (for example [c]ix_manual_...[/c]).
+    Primary-key and unique-constraint indexes are never affected, because the database identifies them
+    as unique or primary regardless of their name.
 @end
 
 @article
@@ -1346,6 +1749,144 @@
 @end
 
 @article
+    @key=tutorialen_linq
+    @title=Using an Entity Collection with LINQ
+    @brief=
+    @ingroup=tutorialsen
+
+    Besides using [link=tutorialen_entities16]LINQ expressions inside a regular query[/link], the framework can expose an
+    entity as an [c]IQueryable&lt;T&gt;[/c] collection that you query with ordinary LINQ - [c]Where[/c], [c]Select[/c],
+    [c]OrderBy[/c], [c]GroupBy[/c], the aggregates, [c]First[/c] and so on. The whole LINQ expression is translated into a
+    single SQL [c]SELECT[/c] and executed on the server.
+
+    [b]A Word of Caution[/b]
+
+    LINQ is convenient for simple, ad-hoc queries, but it is [b]not[/b] the recommended way to write performance-critical
+    ones. LINQ semantics do not map perfectly onto the SQL [c]SELECT[/c] structure, so - as with any LINQ-to-SQL provider -
+    the generated SQL is rarely as good as a query written by hand against the
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] surface; grouping in
+    particular tends to compile into sub-optimal SQL. Prefer the manual query surface on hot paths and reach for LINQ where
+    the convenience outweighs the cost.
+
+    [b]Getting the Collection[/b]
+
+    Call [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqConnectionExtension.GetCollectionOf.ki5]GetCollectionOf&lt;T&gt;[/clink]
+    on a connection to obtain a [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntity]QueryableEntity&lt;T&gt;[/clink],
+    which is an [c]IQueryable&lt;T&gt;[/c]. (The lower-level
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider]QueryableEntityProvider[/clink] can also be used
+    directly, but the connection extension is the simplest entry point.) The examples below use the [c]Entity[/c] and
+    [c]Dictionary[/c] classes from the [link=tutorialen_entities16]previous article[/link].
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !var entities = connection.GetCollectionOf<Entity>();
+    @end
+
+    [b]Filtering[/b]
+
+    Use [c]Where[/c] with the usual C# operators ([c]&amp;&amp;[/c], [c]||[/c], comparisons). Where C# has no operator for a
+    SQL function (e.g. [c]LIKE[/c]), call the corresponding method on
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction]SqlFunction[/clink]. Navigation across a foreign key works too.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !var inRange = connection.GetCollectionOf<Entity>()
+       !    .Where(e => e.Value > 15 && e.Value < 30)
+       !    .ToList();
+       !
+       !var byName = connection.GetCollectionOf<Entity>()
+       !    .Where(e => SqlFunction.Like(e.Name, "item%") || e.Reference.Name == "dict5")
+       !    .ToList();
+    @end
+
+    [b]Selecting[/b]
+
+    Without a [c]Select[/c] the whole entity is returned. A [c]Select[/c] projects into an anonymous type (a custom result
+    set) or into a single scalar value.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !// whole entities
+       !var all = connection.GetCollectionOf<Entity>().ToList();
+       !
+       !// projection into an anonymous type
+       !var rows = connection.GetCollectionOf<Entity>()
+       !    .Select(e => new { e.ID, e.Name, e.Value })
+       !    .ToList();
+       !
+       !// a single scalar
+       !var names = connection.GetCollectionOf<Entity>()
+       !    .Select(e => e.Name)
+       !    .ToList();
+    @end
+
+    [b]Ordering and Grouping[/b]
+
+    [c]OrderBy[/c] sorts the result; [c]GroupBy[/c] groups it, and the group projection may reference the key ([c]g.Key[/c])
+    and aggregates over the group.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !var ordered = connection.GetCollectionOf<Entity>()
+       !    .OrderBy(e => e.Value)
+       !    .ToList();
+       !
+       !var perDictionary = connection.GetCollectionOf<Entity>()
+       !    .GroupBy(e => e.Reference.ID)
+       !    .Select(g => new { DictId = g.Key, MaxValue = g.Max(v => v.Value) })
+       !    .ToList();
+    @end
+
+    [b]Aggregates and Paging[/b]
+
+    [c]Count[/c] (optionally with a predicate) and [c]Average[/c] (and the other aggregates) execute on the server. An
+    aggregate over the whole collection can also be written as a [c]Select[/c] of an
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction]SqlFunction[/clink] aggregate followed by [c]First[/c].
+    [c]First[/c] / [c]FirstOrDefault[/c] read a single row, and [c]Skip[/c] / [c]Take[/c] page the result.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !int count = connection.GetCollectionOf<Entity>().Count(e => e.Value > 15);
+       !double average = connection.GetCollectionOf<Entity>().Average(e => e.Value);
+       !int max = connection.GetCollectionOf<Entity>().Select(e => SqlFunction.Max(e.Value)).First();
+       !
+       !var firstByName = connection.GetCollectionOf<Entity>().OrderBy(e => e.Name).First();
+       !var secondPage = connection.GetCollectionOf<Entity>().OrderBy(e => e.ID).Skip(20).Take(10).ToList();
+    @end
+
+    [b]Limitations[/b]
+
+    @list
+        @list-item
+            The supported operators are [c]Where[/c], [c]Select[/c], [c]OrderBy[/c], [c]GroupBy[/c], [c]Count[/c],
+            [c]Sum[/c], [c]Min[/c], [c]Max[/c], [c]Average[/c], [c]First[/c], [c]FirstOrDefault[/c], [c]Skip[/c] and [c]Take[/c].
+        @end
+        @list-item
+            Only ascending [c]OrderBy[/c] is translated; [c]OrderByDescending[/c] and [c]ThenBy[/c] are not supported.
+        @end
+        @list-item
+            Compare against a local variable or a literal, not a [c]static[/c] field - a static-field reference cannot be
+            compiled into the query.
+        @end
+        @list-item
+            Any function used inside an expression must come from
+            [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction]SqlFunction[/clink] (or a supported [c]string[/c] /
+            [c]DateTime[/c] member), so that it is guaranteed to run on the server.
+        @end
+    @end
+@end
+
+@article
     @key=tutorialen_entities18
     @title=Using plain SQL on entities.
     @brief=
@@ -1449,6 +1990,512 @@
        !            return query.GetValue<int>(0);
        !    }
        !}
+    @end
+@end
+
+@article
+    @key=tutorialen_dynentity
+    @title=Dynamic Entities
+    @brief=
+    @ingroup=tutorialsen
+
+    [b]What is a Dynamic Entity?[/b]
+
+    An ordinary entity is a compiled class - its table name and its set of columns are fixed at compile time. A
+    [b]dynamic entity[/b] describes the same information [i]at run time[/i] instead: the table and the list of properties
+    (columns) are produced by code rather than by fixed class members. This is useful when the schema is known only at run
+    time - for example a table described by configuration, or a per-tenant table.
+
+    A dynamic entity is, in every other respect, a normal entity: it is created, dropped, inserted, updated, deleted and
+    queried exactly like a compiled one.
+
+    [b]How to Define a Dynamic Entity?[/b]
+
+    Derive from [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.DynamicEntity]DynamicEntity[/clink] and override two members:
+
+    @list
+        @list-item
+            the [c]EntityAttribute[/c] property - it returns the [clink=Gehtsoft.EF.Entities.EntityAttribute]EntityAttribute[/clink]
+            that names the table (the same attribute a compiled entity would carry);
+        @end
+        @list-item
+            the [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.DynamicEntity.InitializeProperties.dDF]InitializeProperties[/clink] method -
+            it returns the list of properties, each described by a
+            [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.DynamicEntityProperty]DynamicEntityProperty[/clink] (a CLR type, a name and an
+            [clink=Gehtsoft.EF.Entities.EntityPropertyAttribute]EntityPropertyAttribute[/clink] - exactly the information the
+            [c]EntityProperty[/c] attribute carries for a compiled entity).
+        @end
+    @end
+
+    @example
+        @title=Example: defining a dynamic entity
+        @show=yes
+        @highlight=cs
+       !public class Product : DynamicEntity
+       !{
+       !    public override EntityAttribute EntityAttribute
+       !        => new EntityAttribute() { Scope = "catalog", Table = "product" };
+       !
+       !    protected override IEnumerable<IDynamicEntityProperty> InitializeProperties()
+       !    {
+       !        yield return new DynamicEntityProperty(typeof(int), "Id",
+       !            new EntityPropertyAttribute() { PrimaryKey = true, Autoincrement = true });
+       !        yield return new DynamicEntityProperty(typeof(string), "Name",
+       !            new EntityPropertyAttribute() { Size = 64, Nullable = true });
+       !        yield return new DynamicEntityProperty(typeof(double), "Price",
+       !            new EntityPropertyAttribute());
+       !    }
+       !}
+    @end
+
+    [b]How to Use a Dynamic Entity?[/b]
+
+    Pass the dynamic entity type to the ordinary entity queries. Because the class derives from [c]DynamicObject[/c], the
+    property values are read and written dynamically (through a [c]dynamic[/c] reference).
+
+    @example
+        @title=Example: creating the table and inserting a row
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetCreateEntityQuery(typeof(Product)))
+       !    query.Execute();
+       !
+       !dynamic product = new Product();
+       !product.Name = "Widget";
+       !product.Price = 9.99;
+       !
+       !using (var query = connection.GetInsertEntityQuery(typeof(Product)))
+       !    query.Execute((object)product);
+    @end
+
+    [b]Discovery[/b]
+
+    Dynamic entities are [b]not[/b] discovered by the entity finder automatically. If you rely on entity discovery, call
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.AllEntities.EnableDynamicEntityDiscoveryInEntityFinder.k26]AllEntities.EnableDynamicEntityDiscoveryInEntityFinder()[/clink]
+    once at start-up to enable it.
+@end
+
+@article
+    @key=tutorialen_dynprops1
+    @title=Dynamic (Per-Row) Properties
+    @brief=
+    @ingroup=tutorialsen
+
+    [b]What are Dynamic Properties?[/b]
+
+    Regular entity properties are fixed by the class definition - every row has exactly the same columns.
+    [b]Dynamic properties[/b] let an individual row carry additional, named values that are [i]not[/i] part of the
+    class - a flat bag of name/value pairs that may differ from one row to the next, without any schema change.
+
+    They are useful for user-defined fields, sparse attributes, or data whose shape is not known at compile time.
+
+    [b]Why Do You Need Them?[/b]
+
+    Their main purpose is to [b]avoid a schema change for small or infrequent additions to the model[/b]. Adding a
+    regular column means altering the table (a migration) and changing the entity class; for a handful of optional or
+    rarely-used fields - especially ones that only some rows need, or that are defined by the user rather than by the
+    developer - that overhead is rarely justified. A dynamic property stores such a value without touching the table
+    structure or changing the entity.
+
+    Good candidates are optional metadata, user-defined fields, feature flags and other sparse attributes. If a value is
+    present on (almost) every row and is central to the model, a regular column is still the better choice.
+
+    [b]Not the Same as Dynamic Entities![/b]
+
+    Despite the similar name, dynamic properties have nothing to do with [link=tutorialen_dynentity]dynamic entities[/link].
+    A dynamic entity defines a whole table's schema at run time, but every row of that table still has the same fixed set of
+    columns. Dynamic properties are the opposite idea: extra, [i]per-row[/i] values layered on top of an entity, where
+    different rows may carry different names. The two features are independent - and can even be combined (a dynamic entity
+    may also own dynamic properties).
+
+    [b]How are They Stored?[/b]
+
+    The values are kept in a separate [i]side table[/i], one per entity table, named [c]&lt;entity_table&gt;_props[/c]
+    (the suffix is configurable). Each value is stored in its own row together with the owner's primary key and the
+    property name, so no change to the entity table itself is ever required. The layout is plain SQL and works on
+    every supported driver.
+
+    The side table is created and dropped [b]automatically[/b] together with the entity table - the ordinary
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetCreateEntityQuery]GetCreateEntityQuery[/clink] and
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.GetDropEntityQuery]GetDropEntityQuery[/clink] calls
+    take care of it. You do not create it yourself.
+
+    [b]How to Enable Dynamic Properties on an Entity?[/b]
+
+    Mark the entity class with the [clink=Gehtsoft.EF.Entities.DynamicPropertiesAttribute]DynamicProperties[/clink] attribute
+    and implement the [clink=Gehtsoft.EF.Entities.IDynamicPropertiesOwner]IDynamicPropertiesOwner[/clink]
+    interface. The interface exposes the bag as a read-only property backed by a private setter (the framework fills it
+    in via reflection when the properties are loaded).
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       ![Entity(Table = "document")]
+       ![DynamicProperties]
+       !public class Document : IDynamicPropertiesOwner
+       !{
+       !    [AutoId]
+       !    public int Id { get; set; }
+       !
+       !    [EntityProperty(Size = 64, Nullable = true)]
+       !    public string Name { get; set; }
+       !
+       !    public DynamicPropertyBag DynamicProperties { get; private set; }
+       !}
+    @end
+
+    The [c]DynamicProperties[/c] attribute also carries optional tuning:
+    [clink=Gehtsoft.EF.Entities.DynamicPropertiesAttribute.NameSize.fE2]NameSize[/clink] (default 64),
+    [clink=Gehtsoft.EF.Entities.DynamicPropertiesAttribute.StringValueSize.mdB]StringValueSize[/clink] (default 256) and the
+    [clink=Gehtsoft.EF.Entities.DynamicPropertiesAttribute.TableSuffix.sl7]TableSuffix[/clink] used for the side table (default [c]_props[/c]).
+
+    [b]Which Value Types are Supported?[/b]
+
+    A dynamic property value may be one of the following types:
+
+    @list
+        @list-item
+            [c]string[/c]
+        @end
+        @list-item
+            [c]int[/c] and [c]long[/c]
+        @end
+        @list-item
+            [c]double[/c]
+        @end
+        @list-item
+            [c]bool[/c]
+        @end
+        @list-item
+            [c]DateTime[/c] (stored as UTC)
+        @end
+    @end
+
+    [b]How to Set and Get Values?[/b]
+
+    The values live in the [clink=Gehtsoft.EF.Entities.DynamicPropertyBag]DynamicPropertyBag[/clink]. For a brand-new entity,
+    call [clink=Gehtsoft.EF.Entities.DynamicPropertiesExtension.InitializeDynamicProperties.x1B]InitializeDynamicProperties()[/clink]
+    to create an empty bag; then use [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Set.R3F]Set[/clink] to assign values by name.
+    The bag also offers [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Get]Get[/clink], the typed [c]Get&lt;T&gt;[/c],
+    [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Contains.LnA]Contains[/clink],
+    [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Remove.CpA]Remove[/clink] and
+    [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Count.P04]Count[/clink].
+
+    @example
+        @title=Example: creating an entity with dynamic properties
+        @show=yes
+        @highlight=cs
+       !var document = new Document() { Name = "contract" };
+       !var bag = document.InitializeDynamicProperties();
+       !bag.Set("color", "red");
+       !bag.Set("pages", 12);
+       !bag.Set("archived", false);
+       !bag.Set("signed_at", DateTime.UtcNow);
+       !
+       !using (var query = connection.GetInsertEntityQuery<Document>())
+       !    query.Execute(document);
+    @end
+
+    [b]When are the Values Saved?[/b]
+
+    The bag is saved [b]automatically[/b] whenever the owning entity is inserted or updated with the ordinary
+    entity modify queries - there is no separate save call. The bag tracks its own changes, so an update writes only
+    the values that were added, changed or removed and leaves the rest untouched. Deleting the entity removes its
+    dynamic property rows as well.
+
+    [b]How to Load the Values Back?[/b]
+
+    Dynamic properties are [b]not[/b] loaded automatically when an entity is read (that would cost an extra query per
+    row). There are two ways to load them:
+
+    @list
+        @list-item
+            Set [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery.PreloadProperties.ON7]PreloadProperties[/clink] to
+            [c]true[/c] on a [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQuery]SelectEntitiesQuery[/clink]
+            before reading. The properties for the whole result set are then loaded in batches and attached to each entity.
+        @end
+        @list-item
+            Call [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityConnectionExtension.LoadPropertiesFor.ei1]connection.LoadPropertiesFor(entity)[/clink]
+            to load (or reload) the bag of a single entity you already have.
+        @end
+    @end
+
+    @example
+        @title=Example: reading entities together with their dynamic properties
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Document>())
+       !{
+       !    query.PreloadProperties = true;
+       !    foreach (var document in query.ReadAll<Document>())
+       !    {
+       !        string color = document.DynamicProperties.Get<string>("color");
+       !        //...
+       !    }
+       !}
+    @end
+
+    [b]Performance Considerations[/b]
+
+    Dynamic properties trade query performance for schema flexibility. Each value is a separate row in the side table, so
+    reading or filtering by a property costs a join (or a sub-query) against that table rather than a plain column read.
+    The side table is indexed by name and value, so looking up or filtering a [i]single[/i] property is efficient, but:
+
+    @list
+        @list-item
+            If you need to [b]search, sort or aggregate by a field extensively[/b] (or join on it), make it a regular
+            entity property - a real column - not a dynamic one. A native column with its own index will always outperform
+            an EAV lookup.
+        @end
+        @list-item
+            Reading many properties for a row means reading many side-table rows; prefer [c]PreloadProperties[/c] (which
+            batches the load for the whole result set) over loading each entity individually.
+        @end
+        @list-item
+            A value that exists on nearly every row is cheaper and simpler as a regular column.
+        @end
+    @end
+
+    In short: use dynamic properties for sparse, occasionally-queried, user- or configuration-driven data; promote a value
+    to a real column as soon as it becomes "hot" - frequently searched, sorted or joined.
+
+    See [link=tutorialen_dynprops2]Querying by Dynamic Properties[/link] for how to filter, sort, group and aggregate by a dynamic property.
+@end
+
+@article
+    @key=tutorialen_dynprops2
+    @title=Querying by Dynamic Properties
+    @brief=
+    @ingroup=tutorialsen
+
+    Once an entity owns [link=tutorialen_dynprops1]dynamic properties[/link], you can filter, sort, group and aggregate
+    by them in queries.
+
+    [b]How to Filter by a Dynamic Property?[/b]
+
+    In the [c]Where[/c] condition of any entity query, start a dynamic-property predicate with
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityQueryConditionBuilderDynamicPropertiesExtension.DynamicPropertyOf]DynamicPropertyOf[/clink],
+    passing the owner entity type and the property name, then apply the comparison. The value column and its type are
+    inferred from the value you compare against.
+
+    @example
+        @title=Example: filter by a dynamic property
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Document>())
+       !{
+       !    query.Where.DynamicPropertyOf<Document>("color").Eq("red");
+       !    var red = query.ReadAll<Document>();
+       !}
+    @end
+
+    Dynamic-property predicates compose with the ordinary [c]And[/c]/[c]Or[/c] and with normal column conditions, and
+    they also work with [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesCountQuery]SelectEntitiesCountQuery[/clink].
+    A row whose property is absent (or was stored under a different type) simply does not match the predicate.
+
+    @example
+        @title=Example: combining conditions
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQuery<Document>())
+       !{
+       !    query.Where.Property(nameof(Document.Name)).Is(CmpOp.Like).Value("contract%")
+       !               .And().DynamicPropertyOf<Document>("pages").Ge(10);
+       !    var found = query.ReadAll<Document>();
+       !}
+    @end
+
+    [b]Projecting, Sorting, Grouping and Aggregating[/b]
+
+    To use a dynamic property as a [i]selected[/i], [i]sortable[/i], [i]groupable[/i] or [i]aggregatable[/i] value, use the
+    custom query surface, [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]
+    (obtained via [c]connection.GetSelectEntitiesQueryBase(...)[/c]).
+
+    Because these clauses have no value to infer the type from, the value type is specified explicitly with the
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.DynamicPropertyValueType]DynamicPropertyValueType[/clink] enumeration
+    ([c]String[/c], [c]Integer[/c], [c]Long[/c], [c]Real[/c], [c]Boolean[/c], [c]DateTime[/c]). Add the property to the
+    result set with [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddDynamicPropertyToResultset]AddDynamicPropertyToResultset[/clink];
+    the value is returned already decoded to the declared type.
+
+    @example
+        @title=Example: selecting a dynamic property
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Document>())
+       !{
+       !    query.AddToResultset(typeof(Document), nameof(Document.Name), "name");
+       !    query.AddDynamicPropertyToResultset<Document>("color", DynamicPropertyValueType.String, "color");
+       !    foreach (dynamic row in query.ReadAllDynamic())
+       !    {
+       !        string name = row.name;
+       !        string color = row.color;   // null when the row has no "color"
+       !    }
+       !}
+    @end
+
+    An aggregate overload wraps the value in an aggregate function.
+
+    @example
+        @title=Example: aggregating a dynamic property
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Document>())
+       !{
+       !    query.AddDynamicPropertyToResultset<Document>(AggFn.Max, "pages", DynamicPropertyValueType.Integer, "max_pages");
+       !    dynamic row = query.ReadOneDynamic();
+       !    int maxPages = row.max_pages;
+       !}
+    @end
+
+    [b]Ordering, Grouping and Having[/b]
+
+    A dynamic property can be added to [c]ORDER BY[/c]
+    ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddDynamicPropertyToOrderBy]AddDynamicPropertyToOrderBy[/clink]),
+    [c]GROUP BY[/c]
+    ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.AddDynamicPropertyToGroupBy]AddDynamicPropertyToGroupBy[/clink])
+    and [c]HAVING[/c]
+    ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase.HavingDynamicPropertyOf]HavingDynamicPropertyOf[/clink]),
+    but [b]only after it has been added to the result set[/b] (with the same name, type and occurrence) - the query reuses
+    that projection. Adding one of these for a property that was not projected throws an exception.
+
+    @example
+        @title=Example: group by a dynamic property with a filtered aggregate
+        @show=yes
+        @highlight=cs
+       !using (var query = connection.GetSelectEntitiesQueryBase<Document>())
+       !{
+       !    query.AddDynamicPropertyToResultset<Document>("color", DynamicPropertyValueType.String, "color");
+       !    query.AddToResultset(AggFn.Count, typeof(Document), nameof(Document.Id), "count");
+       !    query.AddDynamicPropertyToGroupBy<Document>("color", DynamicPropertyValueType.String);
+       !    query.HavingDynamicPropertyOf<Document>("pages", DynamicPropertyValueType.Integer).Sum().Gt(100);
+       !    query.AddDynamicPropertyToOrderBy<Document>("color", DynamicPropertyValueType.String);
+       !    var groups = query.ReadAllDynamic();
+       !}
+    @end
+
+    [b]A Note on Efficiency[/b]
+
+    When a dynamic property is both projected and used in the [c]Where[/c] condition, the query filters the already-joined
+    value directly instead of issuing an additional sub-query - so projecting a property you also filter on costs nothing extra.
+@end
+
+@article
+    @key=tutorialen_dynprops3
+    @title=Dynamic Properties in LINQ Queries
+    @brief=
+    @ingroup=tutorialsen
+
+    [link=tutorialen_dynprops1]Dynamic properties[/link] can also be queried through the
+    [link=tutorialen_linq]entity LINQ collection[/link], as an alternative to the
+    [link=tutorialen_dynprops2]manual query surface[/link]. Inside any LINQ lambda, read a dynamic property with
+    [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Get.UG2]Get&lt;T&gt;[/clink] on the entity's [c]DynamicProperties[/c] bag:
+    the same [c]e.DynamicProperties.Get&lt;T&gt;("name")[/c] expression works in [c]Where[/c], in a [c]Select[/c] projection,
+    inside an aggregate, and in [c]OrderBy[/c] / [c]GroupBy[/c]. The type argument [c]T[/c] selects which value the property
+    is read as. The examples below use the [c]Document[/c] entity from
+    [link=tutorialen_dynprops1]Dynamic (Per-Row) Properties[/link].
+
+    [b]Filtering[/b]
+
+    @example
+        @title=Example: filter by a dynamic property
+        @show=yes
+        @highlight=cs
+       !var red = connection.GetCollectionOf<Document>()
+       !    .Where(e => e.DynamicProperties.Get<string>("color") == "red")
+       !    .ToList();
+       !
+       !var big = connection.GetCollectionOf<Document>()
+       !    .Where(e => e.DynamicProperties.Get<int>("pages") >= 10 &&
+       !               e.DynamicProperties.Get<bool>("archived") == false)
+       !    .ToList();
+    @end
+
+    Filtering uses SQL [c]NULL[/c] semantics: a row whose property is absent matches neither [c]==[/c], [c]!=[/c] nor a range
+    comparison. Use [c]== null[/c] to select the rows that do not have the property.
+
+    [b]Selecting[/b]
+
+    A projected dynamic property is returned already decoded to [c]T[/c]. For a value type that may be [i]absent[/i] on some
+    rows, project into the nullable form ([c]int?[/c], [c]DateTime?[/c], ...) so an absent value reads as [c]null[/c].
+
+    @example
+        @title=Example: project dynamic properties
+        @show=yes
+        @highlight=cs
+       !var rows = connection.GetCollectionOf<Document>()
+       !    .Select(e => new
+       !    {
+       !        e.Name,
+       !        Color = e.DynamicProperties.Get<string>("color"),   // null when absent
+       !        Pages = e.DynamicProperties.Get<int?>("pages")      // null when absent
+       !    })
+       !    .ToList();
+    @end
+
+    [b]Aggregating[/b]
+
+    Wrap the property read in an [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction]SqlFunction[/clink] aggregate.
+
+    @example
+        @title=Example: aggregate a dynamic property
+        @show=yes
+        @highlight=cs
+       !int maxPages = connection.GetCollectionOf<Document>()
+       !    .Select(e => SqlFunction.Max(e.DynamicProperties.Get<int>("pages")))
+       !    .First();
+    @end
+
+    [b]Ordering and Grouping[/b]
+
+    @example
+        @title=Example: order and group by a dynamic property
+        @show=yes
+        @highlight=cs
+       !var byColor = connection.GetCollectionOf<Document>()
+       !    .Where(e => e.DynamicProperties.Get<string>("color") != null)
+       !    .OrderBy(e => e.DynamicProperties.Get<string>("color"))
+       !    .ToList();
+       !
+       !var counts = connection.GetCollectionOf<Document>()
+       !    .GroupBy(e => e.DynamicProperties.Get<string>("color"))
+       !    .Select(g => new { Color = g.Key, Count = g.Count() })
+       !    .ToList();
+    @end
+
+    [b]Reading Whole Entities with the Bag Attached[/b]
+
+    When a whole-entity query (one without a [c]Select[/c]) returns entities that own dynamic properties, the bag is loaded
+    and attached to each entity [b]by default[/b], so you can read the values straight off the returned objects. Pass
+    [c]preloadDynamicProperties: false[/c] to
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqConnectionExtension.GetCollectionOf.ki5]GetCollectionOf[/clink]
+    to skip the extra load when you do not need the bag.
+
+    @example
+        @title=Example: whole entities with (and without) the bag
+        @show=yes
+        @highlight=cs
+       !// the bag is attached to every returned entity (default)
+       !foreach (var doc in connection.GetCollectionOf<Document>().Where(e => e.Name == "contract"))
+       !{
+       !    string color = doc.DynamicProperties.Get<string>("color");
+       !}
+       !
+       !// opt out of the extra property load
+       !var lite = connection.GetCollectionOf<Document>(preloadDynamicProperties: false).ToList();
+    @end
+
+    [b]Notes[/b]
+
+    @list
+        @list-item
+            All six value types are supported ([c]string[/c], [c]int[/c], [c]long[/c], [c]double[/c], [c]bool[/c] and
+            [c]DateTime[/c]); [c]bool[/c] and [c]DateTime[/c] are stored in an encoded form and are compared and returned
+            transparently.
+        @end
+        @list-item
+            As with any LINQ query here, compare against a local variable or a literal, not a [c]static[/c] field.
+        @end
     @end
 @end
 

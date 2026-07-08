@@ -56,7 +56,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     }
                 }
 
-                if (info.Autoincrement)
+                // Only treat the autoincrement column as "generated" when we are NOT inserting an
+                // explicit value for it. Otherwise (ignoreAutoIncrement) leaving this null lets the
+                // per-driver builder take its sequence/identity **resync** path instead of the
+                // (meaningless) generated-id readback path.
+                if (info.Autoincrement && !mIgnoreAutoIncrement)
                     autoIncrement = info;
             }
             if (!mIgnoreAutoIncrement && HasExpressionForAutoincrement && autoIncrement != null)

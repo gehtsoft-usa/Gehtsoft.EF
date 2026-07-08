@@ -27,6 +27,24 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         protected bool mIsPostReadCallback;
         private static readonly Type entityCallbackType = typeof(IEntitySerializationCallback);
 
+        // set only while ReadAll/GetAllAsEnumerable drives the ReadOne loop, so a direct ReadOne with
+        // PreloadProperties can be rejected (see the guard in ReadOne) while the batch path is allowed.
+        private bool mReadingAll;
+
+        /// <summary>
+        /// When set, the dynamic properties of every entity read are loaded from the side table and
+        /// attached as a loaded bag. Loading is batched after the rows are read, so it is only
+        /// available through <see cref="ReadAll{T}()"/> (and its overloads): calling
+        /// <see cref="ReadOne()"/> directly with this flag set throws, because the property load would
+        /// need a second command while the main select's reader is still open. Ignored for a type that
+        /// does not own dynamic properties.
+        /// </summary>
+        public bool PreloadProperties { get; set; }
+
+        private EntityDescriptor Descriptor => mSelectBuilder1.Descriptor;
+
+        private bool ShouldPreload => PreloadProperties && Descriptor.HasDynamicProperties;
+
         internal SelectEntitiesQuery(SqlDbQuery query, SelectEntityQueryBuilder builder) : base(query, builder)
         {
             mSelectBuilder1 = builder;
@@ -43,6 +61,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public object ReadOne()
         {
+            if (ShouldPreload && !mReadingAll)
+                throw new NotSupportedException($"{nameof(PreloadProperties)} is only supported through {nameof(ReadAll)}; {nameof(ReadOne)} cannot load dynamic properties per entity while the select's reader is open. Use {nameof(ReadAll)}, or read the entity without the flag and call LoadPropertiesFor afterwards.");
+
             if (!Executed)
                 Execute();
 
@@ -68,6 +89,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <returns></returns>
         public async Task<object> ReadOneAsync(CancellationToken? token = null)
         {
+            if (ShouldPreload && !mReadingAll)
+                throw new NotSupportedException($"{nameof(PreloadProperties)} is only supported through {nameof(ReadAllAsync)}; {nameof(ReadOneAsync)} cannot load dynamic properties per entity while the select's reader is open. Use {nameof(ReadAllAsync)}, or read the entity without the flag and call LoadPropertiesForAsync afterwards.");
+
             if (!Executed)
                 await ExecuteAsync(token);
 
@@ -135,10 +159,26 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             TC coll = new TC();
             T t;
 
-            while ((t = ReadOne<T>()) != null)
+            List<object> forPreload = ShouldPreload ? new List<object>() : null;
+            mReadingAll = true;
+            try
             {
-                coll.Add(t);
-                onrow?.Invoke(t, this);
+                while ((t = ReadOne<T>()) != null)
+                {
+                    coll.Add(t);
+                    forPreload?.Add(t);
+                    onrow?.Invoke(t, this);
+                }
+            }
+            finally
+            {
+                mReadingAll = false;
+            }
+
+            if (forPreload != null && forPreload.Count > 0)
+            {
+                mQuery.CloseReader(); // free the connection: the batched property load opens its own reader
+                DynamicPropertiesLoader.LoadMany(mQuery.Connection, Descriptor, forPreload);
             }
 
             return coll;
@@ -160,10 +200,26 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             TC coll = new TC();
             T t;
 
-            while ((t = await ReadOneAsync<T>(token)) != null)
+            List<object> forPreload = ShouldPreload ? new List<object>() : null;
+            mReadingAll = true;
+            try
             {
-                coll.Add(t);
-                onrow?.Invoke(t, this);
+                while ((t = await ReadOneAsync<T>(token)) != null)
+                {
+                    coll.Add(t);
+                    forPreload?.Add(t);
+                    onrow?.Invoke(t, this);
+                }
+            }
+            finally
+            {
+                mReadingAll = false;
+            }
+
+            if (forPreload != null && forPreload.Count > 0)
+            {
+                mQuery.CloseReader(); // free the connection: the batched property load opens its own reader
+                await DynamicPropertiesLoader.LoadManyAsync(mQuery.Connection, Descriptor, forPreload, token);
             }
 
             return coll;
@@ -179,11 +235,28 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             object obj;
             object[] args = new object[1];
 
-            while ((obj = ReadOne()) != null)
+            List<object> forPreload = ShouldPreload ? new List<object>() : null;
+            mReadingAll = true;
+            try
             {
-                args[0] = obj;
-                add.Invoke(collection, args);
+                while ((obj = ReadOne()) != null)
+                {
+                    args[0] = obj;
+                    add.Invoke(collection, args);
+                    forPreload?.Add(obj);
+                }
             }
+            finally
+            {
+                mReadingAll = false;
+            }
+
+            if (forPreload != null && forPreload.Count > 0)
+            {
+                mQuery.CloseReader(); // free the connection: the batched property load opens its own reader
+                DynamicPropertiesLoader.LoadMany(mQuery.Connection, Descriptor, forPreload);
+            }
+
             return collection;
         }
 

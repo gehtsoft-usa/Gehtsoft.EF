@@ -8,7 +8,7 @@ namespace Gehtsoft.EF.Db.OracleDb
     {
         public OracleCreateTableBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor table) : base(specifics, table)
         {
-            DdlBuilder = new OracleTableDdlBuilder(specifics, table);
+            DdlBuilder = new OracleTableDdlBuilder(specifics);
         }
     }
 }

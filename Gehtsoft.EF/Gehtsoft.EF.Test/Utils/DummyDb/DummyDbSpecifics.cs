@@ -4,6 +4,8 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 {
     internal class DummyDbSpecifics : Sql92LanguageSpecifics
     {
+        public override string DbName => DbNameSpec;
+        public string DbNameSpec { get; set; } = "dummy";
         public override bool AllNonAggregatesInGroupBy => AllNonAggregatesInGroupBySpec;
         public bool AllNonAggregatesInGroupBySpec { get; set; } = false;
         public override bool OuterJoinSupported => OuterJoinSupportedSpec;

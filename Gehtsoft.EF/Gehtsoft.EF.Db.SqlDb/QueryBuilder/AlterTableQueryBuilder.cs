@@ -46,7 +46,22 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mQueries = new List<string>();
         }
 
-        protected virtual TableDdlBuilder CreateDdlBuilder() => new TableDdlBuilder(mSpecifics, mDescriptor);
+        protected virtual TableDdlBuilder CreateDdlBuilder() => new TableDdlBuilder(mSpecifics);
+
+        /// <summary>
+        /// Returns whether the framework emits a standalone single-column index for the specified
+        /// column when the table is created (e.g. a `Sorted` column, or a foreign key under the
+        /// conditions where its index is not created automatically). Delegates to the driver's
+        /// <see cref="TableDdlBuilder.NeedIndex(TableDescriptor.ColumnInfo)"/> so the answer matches
+        /// what table creation actually produces on this dialect.
+        /// </summary>
+        /// <param name="column">The column to test.</param>
+        public bool NeedIndex(TableDescriptor.ColumnInfo column)
+        {
+            if (DdlBuilder == null)
+                DdlBuilder = CreateDdlBuilder();
+            return DdlBuilder.NeedIndex(column);
+        }
 
         /// <summary>
         /// Get queries to perform requested operations.

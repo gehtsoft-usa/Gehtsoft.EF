@@ -74,5 +74,15 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 return mPropertyInfo.ObsoleteEntityPropertyAttribute;
             return null;
         }
+
+        /// <summary>
+        /// Gets all custom attributes of the type specified. Dynamic entities carry no repeatable
+        /// attributes, so this returns the single attribute (if any) as an array.
+        /// </summary>
+        public Attribute[] GetCustomAttributes(Type attributeType)
+        {
+            Attribute one = GetCustomAttribute(attributeType);
+            return one == null ? Array.Empty<Attribute>() : new[] { one };
+        }
     }
 }

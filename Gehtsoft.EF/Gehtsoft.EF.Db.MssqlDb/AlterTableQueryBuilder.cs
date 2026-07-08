@@ -14,7 +14,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
         {
         }
 
-        protected override TableDdlBuilder CreateDdlBuilder() => new MssqlTableDdlBuilder(mSpecifics, mDescriptor);
+        protected override TableDdlBuilder CreateDdlBuilder() => new MssqlTableDdlBuilder(mSpecifics);
 
         protected override string AddColumnKeyword => "ADD";
 

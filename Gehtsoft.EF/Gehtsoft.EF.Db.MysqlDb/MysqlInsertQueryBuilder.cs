@@ -26,11 +26,14 @@ namespace Gehtsoft.EF.Db.MysqlDb
             }
         }
 
+        // MySQL does not support "DEFAULT VALUES"; it uses empty column/value lists instead.
+        protected override string EmptyInsertClause => "() VALUES ()";
+
         protected override string BuildQuery(StringBuilder leftSide, StringBuilder rightSide, TableDescriptor.ColumnInfo autoIncrement)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(base.BuildQuery(leftSide, rightSide, autoIncrement));
-            if (autoIncrement != null)
+            if (autoIncrement != null && ReturnAutoincrement)
                 builder.Append("; SELECT LAST_INSERT_ID();");
             else if (mHasAutoId)
             {

@@ -8,6 +8,65 @@ namespace Gehtsoft.EF.Db.OracleDb
 {
     public class OracleDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
+        /// <summary>
+        /// The driver identifier of this dialect.
+        /// </summary>
+        public override string DbName => UniversalSqlDbFactory.ORACLE;
+
+        /// <summary>
+        /// Oracle (12.2+) supports JSON columns.
+        /// </summary>
+        public override bool SupportsJson => true;
+
+        /// <summary>
+        /// Renders an Oracle JSON extraction using `JSON_VALUE(col, '$.path' RETURNING &lt;type&gt;)`.
+        /// When <paramref name="forDdl"/> is `true` the path's single quotes are doubled, because
+        /// index DDL is wrapped in an `EXECUTE IMMEDIATE '...'` block.
+        /// </summary>
+        public override string JsonExtract(string column, string path, DbType type, bool forDdl)
+        {
+            string q = forDdl ? "''" : "'";
+            return $"JSON_VALUE({column}, {q}{path}{q} RETURNING {OracleJsonReturning(type)})";
+        }
+
+        // Oracle JSON_VALUE returns a JSON boolean as the text 'true'/'false' (RETURNING VARCHAR2).
+        public override object JsonEncodeValue(DbType type, object value)
+        {
+            if (value != null && type == DbType.Boolean && value is bool b)
+                return b ? "true" : "false";
+            return base.JsonEncodeValue(type, value);
+        }
+
+        public override object JsonDecodeValue(DbType type, object value)
+        {
+            if (value != null && !(value is DBNull) && type == DbType.Boolean)
+                return string.Equals(value.ToString(), "true", StringComparison.OrdinalIgnoreCase);
+            return base.JsonDecodeValue(type, value);
+        }
+
+        private static string OracleJsonReturning(DbType type)
+        {
+            switch (type)
+            {
+                case DbType.Int16:
+                case DbType.Int32:
+                case DbType.Int64:
+                case DbType.Decimal:
+                case DbType.Currency:
+                case DbType.Double:
+                case DbType.Single:
+                    return "NUMBER";      // JSON_VALUE RETURNING does not accept BINARY_DOUBLE/FLOAT
+                case DbType.Boolean:
+                    return "VARCHAR2(5)";      // 'true' / 'false'
+                case DbType.DateTime:
+                case DbType.DateTime2:
+                case DbType.Date:
+                    return "VARCHAR2(64)";     // ISO-8601 text
+                default:
+                    return "VARCHAR2(4000)";   // string / other
+            }
+        }
+
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             string typeName;

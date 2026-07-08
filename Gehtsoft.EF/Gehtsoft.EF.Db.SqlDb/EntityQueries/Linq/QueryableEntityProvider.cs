@@ -20,6 +20,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
     {
         protected readonly ISqlDbConnectionFactory mConnectionProvider;
 
+        // When set, a whole-entity query (no projection) loads and attaches each entity's dynamic
+        // property bag (opt-in via GetCollectionOf(preloadDynamicProperties: true)). No-op for a
+        // type without dynamic properties; ignored for projections.
+        internal bool PreloadDynamicProperties { get; set; }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -338,6 +343,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
         private static object ReadOneValue(SelectEntitiesQueryBase query, Type type)
         {
+            if (!query.IsNull(0) && query.TryGetJsonColumn(0, out System.Data.DbType jsonType))
+                return query.SelectBuilder.Specifics.JsonDecodeValue(jsonType, query.GetValue(0, typeof(object)));
+            if (!query.IsNull(0) && query.TryGetDynamicPropertyColumn(0, out DynamicPropertyValueType dynamicType))
+                return DynamicPropertiesValueMapper.Decode(dynamicType, query.GetValue(0, typeof(object)));
             return query.GetValue(0, type);
         }
 
@@ -351,7 +360,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             {
                 SelectQueryBuilderResultsetItem column = query.ResultColumn(i);
                 PropertyInfo propertyInfo = type.GetProperty(column.Alias);
-                args[i] = query.GetValue(i, propertyInfo.PropertyType);
+                if (!query.IsNull(i) && query.TryGetJsonColumn(i, out System.Data.DbType jsonType))
+                    args[i] = query.SelectBuilder.Specifics.JsonDecodeValue(jsonType, query.GetValue(i, typeof(object)));
+                else if (!query.IsNull(i) && query.TryGetDynamicPropertyColumn(i, out DynamicPropertyValueType dynamicType))
+                    args[i] = DynamicPropertiesValueMapper.Decode(dynamicType, query.GetValue(i, typeof(object)));
+                else
+                    args[i] = query.GetValue(i, propertyInfo.PropertyType);
             }
             object returnValue = Activator.CreateInstance(type, args);
             return returnValue;
@@ -368,10 +382,24 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 {
                     if (compiledQuery.EntityQuery != null)
                     {
+                        bool preload = PreloadDynamicProperties && AllEntities.Get(compiledQuery.EntityType).HasDynamicProperties;
+                        if (preload)
+                            compiledQuery.EntityQuery.PreloadProperties = true;
+
                         if (isEnumerable)
                             return compiledQuery.EntityQuery.GetAllAsEnumerable(compiledQuery.EntityType);
-                        else
+
+                        if (!preload)
                             return compiledQuery.EntityQuery.ReadOne();
+
+                        // Single entity + preload: ReadOne cannot load the bag while its reader is
+                        // open, so go through the batch path (which closes the reader and batch-loads
+                        // the properties) and return the first entity. First()/FirstOrDefault() have
+                        // already set Take = 1.
+                        object collection = compiledQuery.EntityQuery.GetAllAsEnumerable(compiledQuery.EntityType);
+                        foreach (object item in (System.Collections.IEnumerable)collection)
+                            return item;
+                        return null;
                     }
                     else
                     {

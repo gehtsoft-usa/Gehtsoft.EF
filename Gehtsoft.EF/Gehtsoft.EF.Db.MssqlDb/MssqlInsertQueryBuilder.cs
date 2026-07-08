@@ -43,7 +43,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
             }
             else
             {
-                if (autoIncrement == null)
+                if (autoIncrement == null || !ReturnAutoincrement)
                     return base.BuildQuery(leftSide, rightSide, autoIncrement);
                 else
                 {

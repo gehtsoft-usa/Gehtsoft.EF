@@ -162,7 +162,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     if (td == null)
                         return null;
 
-                    descriptor = new EntityDescriptor() { TableDescriptor = td, EntityType = type };
+                    descriptor = new EntityDescriptor() { TableDescriptor = td, EntityType = type, DynamicProperties = ResolveDynamicProperties(type) };
                     if (!td.Obsolete)
                     {
                         mEntities[type] = descriptor;
@@ -180,6 +180,23 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     return descriptor;
                 }
             }
+        }
+
+        // Resolves the [DynamicProperties] attribute for an entity type and enforces that the
+        // attribute and the IDynamicPropertiesOwner interface are declared consistently: the side
+        // table (attribute) and the property bag (interface) are two halves of the same feature, and
+        // having one without the other is a silent misconfiguration - so it fails loudly at discovery.
+        private static DynamicPropertiesAttribute ResolveDynamicProperties(Type type)
+        {
+            DynamicPropertiesAttribute attribute = type.GetCustomAttribute<DynamicPropertiesAttribute>();
+            bool isOwner = typeof(IDynamicPropertiesOwner).IsAssignableFrom(type);
+
+            if (attribute != null && !isOwner)
+                throw new EfSqlException(EfExceptionCode.DynamicPropertiesAttributeWithoutOwner, type.FullName);
+            if (attribute == null && isOwner)
+                throw new EfSqlException(EfExceptionCode.DynamicPropertiesOwnerWithoutAttribute, type.FullName);
+
+            return attribute;
         }
 
         /// <summary>
@@ -203,7 +220,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 {
                     if (!mEntities.ContainsKey(type.EntityType))
                     {
-                        EntityDescriptor descriptor = new EntityDescriptor() { TableDescriptor = CreateTableDescriptor(type.EntityType, true), EntityType = type.EntityType };
+                        EntityDescriptor descriptor = new EntityDescriptor() { TableDescriptor = CreateTableDescriptor(type.EntityType, true), EntityType = type.EntityType, DynamicProperties = ResolveDynamicProperties(type.EntityType) };
                         foreach (TableDescriptor.ColumnInfo column in descriptor.TableDescriptor)
                         {
                             if (column.ForeignKey && column.ForeignTable == descriptor.TableDescriptor)

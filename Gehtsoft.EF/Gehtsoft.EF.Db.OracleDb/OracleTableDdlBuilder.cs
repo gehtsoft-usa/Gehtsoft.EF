@@ -5,7 +5,7 @@ namespace Gehtsoft.EF.Db.OracleDb
 {
     internal class OracleTableDdlBuilder : TableDdlBuilder
     {
-        public OracleTableDdlBuilder(SqlDb.SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics, tableDescriptor)
+        public OracleTableDdlBuilder(SqlDb.SqlDbLanguageSpecifics specifics) : base(specifics)
         {
         }
 
@@ -18,7 +18,7 @@ namespace Gehtsoft.EF.Db.OracleDb
                 builder.Append(mSpecifics.PreQueryInBlock);
                 builder
                     .Append("CREATE SEQUENCE ")
-                    .Append(mDescriptor.Name)
+                    .Append(column.Table.Name)
                     .Append('_')
                     .Append(column.Name)
                     .Append(" START WITH 1 INCREMENT BY 1 MINVALUE 1");

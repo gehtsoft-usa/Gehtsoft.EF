@@ -41,6 +41,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// Returns a custom attribute of the type specified.
         /// </summary>
         System.Attribute GetCustomAttribute(Type attributeType);
+
+        /// <summary>
+        /// Returns all custom attributes of the type specified (for repeatable attributes).
+        /// </summary>
+        System.Attribute[] GetCustomAttributes(Type attributeType);
     }
 
     [DocgenIgnore]
@@ -48,6 +53,16 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     {
         public static T GetCustomAttribute<T>(this IPropertyAccessor accessor)
             where T : System.Attribute => (T)accessor.GetCustomAttribute(typeof(T));
+
+        public static T[] GetCustomAttributes<T>(this IPropertyAccessor accessor)
+            where T : System.Attribute
+        {
+            System.Attribute[] source = accessor.GetCustomAttributes(typeof(T));
+            T[] result = new T[source.Length];
+            for (int i = 0; i < source.Length; i++)
+                result[i] = (T)source[i];
+            return result;
+        }
     }
 
     [DocgenIgnore]
@@ -65,6 +80,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public object GetValue(object thisObject) => mPropertyInfo.GetValue(thisObject);
         public void SetValue(object thisObject, object value) => mPropertyInfo.SetValue(thisObject, value);
         public Attribute GetCustomAttribute(Type attributeType) => mPropertyInfo.GetCustomAttribute(attributeType);
+        public Attribute[] GetCustomAttributes(Type attributeType) => Attribute.GetCustomAttributes(mPropertyInfo, attributeType);
     }
 
     /// <summary>
@@ -150,6 +166,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             /// The property accessor to get or set property value.
             /// </summary>
             public IPropertyAccessor PropertyAccessor { get; internal set; }
+
+            /// <summary>
+            /// When set, the column stores a JSON document; the metadata carries the serialized CLR
+            /// type and the value indexes declared on it. `null` for a regular column.
+            /// </summary>
+            public Metadata.JsonColumnMetadata Json { get; internal set; }
 
             /// <summary>
             /// The flag indicating whether the column must be ignored

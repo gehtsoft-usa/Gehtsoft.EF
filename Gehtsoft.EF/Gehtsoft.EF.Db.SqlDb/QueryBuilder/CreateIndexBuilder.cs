@@ -34,16 +34,14 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (mQuery != null)
                 return;
 
-            if (!mSpecifics.SupportFunctionsInIndexes && mIndex.Any(f => f.Function != null))
+            if (mIndex.IsExcludedFor(mSpecifics.DbName))
             {
-                if (mIndex.FailIfUnsupported)
-                    throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
-                else
-                {
-                    mQuery = "";
-                    return;
-                }
+                mQuery = "";
+                return;
             }
+
+            if (!mSpecifics.SupportFunctionsInIndexes && mIndex.HasFunction)
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
 
             StringBuilder builder = new StringBuilder();
 
@@ -52,9 +50,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
             builder
                 .Append("CREATE INDEX ")
-                .Append(mDescriptor.Name)
-                .Append('_')
-                .Append(mIndex.Name)
+                .Append(mSpecifics.IndexName(mDescriptor.Name, mIndex.Name))
                 .Append(" ON ")
                 .Append(mDescriptor.Name)
                 .Append('(');
@@ -80,7 +76,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
                 if (i > 0)
                     builder.Append(", ");
-                if (field.Function != null)
+                if (field.JsonPath != null)
+                    builder.Append(mSpecifics.JsonExtract(name, field.JsonPath, field.JsonType, true));
+                else if (field.Function != null)
                     builder.Append(mSpecifics.GetSqlFunction(field.Function.Value, new string[] { name }));
                 else
                     builder.Append(name);

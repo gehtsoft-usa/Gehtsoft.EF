@@ -17,6 +17,33 @@ namespace Gehtsoft.EF.Test.Entity
         }
 
         [Fact]
+        public void HasFunction()
+        {
+            var plain = new CompositeIndex("test1") { "field1" };
+            plain.HasFunction.Should().BeFalse();
+
+            var fn = new CompositeIndex("test1") { { SqlFunctionId.Upper, "field1" } };
+            fn.HasFunction.Should().BeTrue();
+        }
+
+        [Fact]
+        public void ExcludeFor_IsExcludedFor()
+        {
+            var md = new CompositeIndex("test1")
+            {
+                ExcludeFor = new[] { UniversalSqlDbFactory.MSSQL, UniversalSqlDbFactory.MYSQL }
+            };
+
+            md.IsExcludedFor(UniversalSqlDbFactory.MSSQL).Should().BeTrue();
+            md.IsExcludedFor("MSSQL").Should().BeTrue("matching is case-insensitive");
+            md.IsExcludedFor(UniversalSqlDbFactory.SQLITE).Should().BeFalse();
+            md.IsExcludedFor(null).Should().BeFalse();
+
+            var none = new CompositeIndex("test1");
+            none.IsExcludedFor(UniversalSqlDbFactory.MSSQL).Should().BeFalse("ExcludeFor is null");
+        }
+
+        [Fact]
         public void Add1()
         {
             CompositeIndex md = new CompositeIndex("test1")

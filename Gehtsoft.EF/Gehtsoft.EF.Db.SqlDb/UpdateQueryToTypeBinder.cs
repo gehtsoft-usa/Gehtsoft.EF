@@ -491,6 +491,10 @@ namespace Gehtsoft.EF.Db.SqlDb
                             await query.ReadNextAsync(token.Value);
                     }
                     v = query.GetValue(0, mAutoPkRule.PropertyInfo.PropertyType);
+                    // The auto-id has been read; release the reader so the connection is free for a
+                    // follow-up command on the same connection (e.g. saving dynamic properties).
+                    // Idempotent: the query's later Dispose sees a null reader and skips it.
+                    query.CloseReader();
                 }
                 mAutoPkRule.PropertyInfo.SetValue(value, v);
             }

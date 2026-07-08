@@ -298,6 +298,70 @@ namespace Gehtsoft.EF.Db.SqliteDb
             return tables.ToArray();
         }
 
+        protected override async Task<TableIndexInfo[]> GetTableIndexesCore(string tableName, bool sync, CancellationToken? token)
+        {
+            var indexes = new List<(string Name, bool Unique, bool Primary)>();
+
+            using (SqlDbQuery query = GetQuery($"PRAGMA index_list('{tableName}')", true))
+            {
+                if (sync)
+                {
+                    query.ExecuteReader();
+                    while (query.ReadNext())
+                        indexes.Add(ReadIndexListRow(query));
+                }
+                else
+                {
+                    await query.ExecuteReaderAsync(token);
+                    while (await query.ReadNextAsync(token))
+                        indexes.Add(ReadIndexListRow(query));
+                }
+            }
+
+            var rows = new List<RawIndexColumn>();
+            for (int i = 0; i < indexes.Count; i++)
+            {
+                var idx = indexes[i];
+                bool any = false;
+                using (SqlDbQuery query = GetQuery($"PRAGMA index_info('{idx.Name}')", true))
+                {
+                    if (sync)
+                    {
+                        query.ExecuteReader();
+                        while (query.ReadNext())
+                            any |= AddIndexInfoRow(rows, query, idx);
+                    }
+                    else
+                    {
+                        await query.ExecuteReaderAsync(token);
+                        while (await query.ReadNextAsync(token))
+                            any |= AddIndexInfoRow(rows, query, idx);
+                    }
+                }
+                if (!any)
+                    rows.Add(new RawIndexColumn { IndexName = idx.Name, Column = null, IsUnique = idx.Unique, IsPrimary = idx.Primary });
+            }
+
+            return AssembleIndexes(rows);
+        }
+
+        private static (string Name, bool Unique, bool Primary) ReadIndexListRow(SqlDbQuery query)
+        {
+            string name = query.GetValue<string>("name");
+            bool unique = query.GetValue<int>("unique") != 0;
+            string origin = query.GetValue<string>("origin");
+            bool primary = string.Equals(origin, "pk", StringComparison.OrdinalIgnoreCase);
+            return (name, unique, primary);
+        }
+
+        private static bool AddIndexInfoRow(List<RawIndexColumn> rows, SqlDbQuery query, (string Name, bool Unique, bool Primary) idx)
+        {
+            // PRAGMA index_info columns: 0=seqno, 1=cid, 2=name (NULL for an expression key part)
+            string col = query.IsNull(2) ? null : query.GetValue<string>(2);
+            rows.Add(new RawIndexColumn { IndexName = idx.Name, Column = col, IsUnique = idx.Unique, IsPrimary = idx.Primary });
+            return true;
+        }
+
         public override AlterTableQueryBuilder GetAlterTableQueryBuilder()
         {
             return new SqliteAlterTableQueryBuilder(GetLanguageSpecifics());

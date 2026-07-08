@@ -18,6 +18,96 @@ namespace Gehtsoft.EF.Db.SqlDb
     public abstract class SqlDbLanguageSpecifics
     {
         /// <summary>
+        /// The driver identifier of this dialect (one of the <see cref="UniversalSqlDbFactory"/>
+        /// names, e.g. <c>"sqlite"</c>, <c>"npgsql"</c>, <c>"oracle"</c>, <c>"mssql"</c>,
+        /// <c>"mysql"</c>). It matches the owning connection's
+        /// <see cref="SqlDbConnection.ConnectionType"/> and is used to evaluate a composite index's
+        /// <see cref="Metadata.CompositeIndex.ExcludeFor"/>. The default is an empty string
+        /// (matches no driver).
+        /// </summary>
+        public virtual string DbName => "";
+
+        /// <summary>
+        /// Produces the physical (database) name of an index from the owner table name and the
+        /// logical index name. The default is <c>&lt;table&gt;_&lt;index&gt;</c>.
+        ///
+        /// This is the single authority for index naming; index DDL and automatic index
+        /// reconciliation both go through it, so a dialect can override it to satisfy its own
+        /// identifier rules. Any override must keep the physical name starting with
+        /// <c>&lt;table&gt;_</c> and be a deterministic, reversible function of its inputs, so that
+        /// reconciliation can recognise and match framework-owned indexes.
+        /// </summary>
+        /// <param name="tableName">The owner table name.</param>
+        /// <param name="indexName">The logical index name.</param>
+        public virtual string IndexName(string tableName, string indexName) => $"{tableName}_{indexName}";
+
+        /// <summary>
+        /// Flag indicating whether the dialect supports JSON columns
+        /// (<see cref="Gehtsoft.EF.Entities.JsonEntityPropertyAttribute"/>). `false` on the dialects
+        /// where JSON values cannot be indexed with a plain expression index (MS SQL Server, MySQL);
+        /// creating a JSON column on such a dialect throws <see cref="EfExceptionCode.FeatureNotSupported"/>.
+        /// </summary>
+        public virtual bool SupportsJson => false;
+
+        /// <summary>
+        /// Renders an expression that extracts a single primitive value at the given JSON path from
+        /// a JSON column, cast to the specified type. Used both to build a JSON value index and to
+        /// query a JSON value, so the two always agree.
+        ///
+        /// <paramref name="forDdl"/> is `true` when the expression is emitted inside DDL that the
+        /// dialect wraps in a quoted block (Oracle `EXECUTE IMMEDIATE '...'`), in which case the
+        /// path's single quotes must be doubled.
+        ///
+        /// The default throws <see cref="EfExceptionCode.FeatureNotSupported"/>; only the dialects
+        /// with <see cref="SupportsJson"/> override it.
+        /// </summary>
+        /// <param name="column">The JSON column reference (already qualified/aliased as needed).</param>
+        /// <param name="path">The JSON path, for example <c>"$.age"</c>.</param>
+        /// <param name="type">The primitive type of the value at the path.</param>
+        /// <param name="forDdl">Whether the expression is emitted inside a quoted DDL block.</param>
+        public virtual string JsonExtract(string column, string path, DbType type, bool forDdl)
+            => throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+
+        /// <summary>
+        /// Encodes a CLR value into the form that <see cref="JsonExtract"/> yields for the same
+        /// <paramref name="type"/> on this dialect, so a `WHERE extract = @value` comparison matches.
+        ///
+        /// The default is identity (numbers and strings compare directly). Dialects override it for the
+        /// types whose JSON representation differs from the natural bound form: a JSON boolean
+        /// (SQLite `1`/`0`, PostgreSQL `boolean`, Oracle `'true'`/`'false'`) and a `DateTime` (stored
+        /// and extracted as an ISO-8601 string). It is the single place that knows the extraction
+        /// convention, shared by the manual and the LINQ query surfaces.
+        /// </summary>
+        /// <param name="type">The declared value type of the JSON path.</param>
+        /// <param name="value">The CLR value being compared, or <c>null</c>.</param>
+        public virtual object JsonEncodeValue(DbType type, object value)
+        {
+            if (value == null)
+                return null;
+            // DateTime is stored/extracted as the ISO-8601 string System.Text.Json produces (uniform
+            // across the JSON dialects), so it compares and sorts as that exact text.
+            if ((type == DbType.DateTime || type == DbType.DateTime2 || type == DbType.Date) && value is DateTime dt)
+                return System.Text.Json.JsonSerializer.Serialize(dt).Trim('"');
+            return value;
+        }
+
+        /// <summary>
+        /// Decodes a value read back from a <see cref="JsonExtract"/> expression into the CLR value of
+        /// the declared <paramref name="type"/> - the inverse of <see cref="JsonEncodeValue"/>. Used
+        /// when a projected JSON value is materialized. The default is identity.
+        /// </summary>
+        /// <param name="type">The declared value type of the JSON path.</param>
+        /// <param name="value">The value read from the database, or <c>null</c>.</param>
+        public virtual object JsonDecodeValue(DbType type, object value)
+        {
+            if (value == null || value is DBNull)
+                return null;
+            if ((type == DbType.DateTime || type == DbType.DateTime2 || type == DbType.Date) && value is string s)
+                return System.Text.Json.JsonSerializer.Deserialize<DateTime>("\"" + s + "\"");
+            return value;
+        }
+
+        /// <summary>
         /// Flag indicating whether the queries must be terminated with semicolon.
         /// </summary>
         public virtual bool TerminateWithSemicolon
@@ -48,6 +138,15 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// The flag indicating whether the transactions are supported.
         /// </summary>
         public virtual TransactionSupport SupportsTransactions => TransactionSupport.Nested;
+
+        /// <summary>
+        /// Whether the engine allows a `DELETE`/`UPDATE` whose sub-query reads the **same** table
+        /// being modified (a self-reference). `true` on most engines (PostgreSQL, Oracle, SQL Server,
+        /// SQLite); MySQL/MariaDB reject it (error 1093), so there such an operation must be rewritten
+        /// as materialize-the-ids-then-`IN`. This is a general limitation of the caller's own
+        /// statements too, not only of framework-generated cascades.
+        /// </summary>
+        public virtual bool SelfReferenceInDeleteAllowed => true;
 
         /// <summary>
         /// The paging support modes.
@@ -94,6 +193,12 @@ namespace Gehtsoft.EF.Db.SqlDb
         /// The block of code to use after each SQL statement.
         /// </summary>
         public virtual string PostQueryInBlock => "";
+
+        /// <summary>
+        /// The terminator that separates SQL statements combined into a single command
+        /// (see <see cref="QueryBuilder.MultiSqlQueryBuilder"/>).
+        /// </summary>
+        public virtual string StatementTerminator => ";";
 
         /// <summary>
         /// The prefix of the parameter name inside the query.

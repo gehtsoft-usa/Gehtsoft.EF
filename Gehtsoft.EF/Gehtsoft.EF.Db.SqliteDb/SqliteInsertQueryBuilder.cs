@@ -13,7 +13,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(base.BuildQuery(leftSide, rightSide, autoIncrement));
-            if (autoIncrement != null)
+            if (autoIncrement != null && ReturnAutoincrement)
                 builder.Append("; select last_insert_rowid();");
             return builder.ToString();
         }

@@ -335,6 +335,99 @@ namespace Gehtsoft.EF.Db.SqlDb
         protected abstract Task<TableDescriptor[]> SchemaCore(bool sync, CancellationToken? token);
 
         /// <summary>
+        /// Returns the indexes that exist on the specified table.
+        ///
+        /// Every index is reported, including the indexes backing the primary key and unique
+        /// constraints; use <see cref="TableIndexInfo.IsPrimary"/> / <see cref="TableIndexInfo.IsUnique"/>
+        /// to tell them apart from plain (<c>CREATE INDEX</c>) indexes.
+        ///
+        /// A `null` return value means the connection does not support index enumeration; automatic
+        /// index reconciliation in <see cref="CreateEntityController.UpdateTables"/> is skipped for
+        /// such a connection.
+        /// </summary>
+        /// <param name="tableName">The name of the table to inspect.</param>
+        /// <returns></returns>
+        public TableIndexInfo[] GetTableIndexes(string tableName)
+        {
+            CheckForScalars(tableName);
+            return GetTableIndexesCore(tableName, true, null).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Returns the indexes that exist on the specified table (asynchronous version).
+        /// </summary>
+        /// <param name="tableName">The name of the table to inspect.</param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public Task<TableIndexInfo[]> GetTableIndexesAsync(string tableName, CancellationToken? token = null)
+        {
+            CheckForScalars(tableName);
+            return GetTableIndexesCore(tableName, false, token);
+        }
+
+        protected abstract Task<TableIndexInfo[]> GetTableIndexesCore(string tableName, bool sync, CancellationToken? token);
+
+        /// <summary>
+        /// A single (index, column) row read from a driver's catalog by
+        /// <see cref="GetTableIndexesCore"/>. A driver fills a list of these (one per indexed
+        /// column, ordered by key position) and hands it to <see cref="AssembleIndexes"/>.
+        /// </summary>
+        protected sealed class RawIndexColumn
+        {
+            /// <summary>The physical index name.</summary>
+            public string IndexName { get; set; }
+            /// <summary>The indexed column name, or `null`/empty when this key part is an expression.</summary>
+            public string Column { get; set; }
+            /// <summary>Whether the index is unique.</summary>
+            public bool IsUnique { get; set; }
+            /// <summary>Whether the index backs the primary key.</summary>
+            public bool IsPrimary { get; set; }
+        }
+
+        private sealed class IndexAccumulator
+        {
+            public string Name;
+            public readonly List<string> Columns = new List<string>();
+            public bool IsExpression;
+            public bool IsUnique;
+            public bool IsPrimary;
+        }
+
+        /// <summary>
+        /// Groups the flat (index, column) rows produced by a driver into one
+        /// <see cref="TableIndexInfo"/> per index, preserving both index and column order.
+        /// </summary>
+        /// <param name="rows">The rows, ordered by index then key position.</param>
+        protected static TableIndexInfo[] AssembleIndexes(List<RawIndexColumn> rows)
+        {
+            var order = new List<string>();
+            var map = new Dictionary<string, IndexAccumulator>(StringComparer.OrdinalIgnoreCase);
+
+            for (int i = 0; i < rows.Count; i++)
+            {
+                RawIndexColumn r = rows[i];
+                if (!map.TryGetValue(r.IndexName, out IndexAccumulator acc))
+                {
+                    acc = new IndexAccumulator { Name = r.IndexName, IsUnique = r.IsUnique, IsPrimary = r.IsPrimary };
+                    map[r.IndexName] = acc;
+                    order.Add(r.IndexName);
+                }
+                if (string.IsNullOrEmpty(r.Column))
+                    acc.IsExpression = true;
+                else
+                    acc.Columns.Add(r.Column.ToLowerInvariant());
+            }
+
+            var result = new TableIndexInfo[order.Count];
+            for (int i = 0; i < order.Count; i++)
+            {
+                IndexAccumulator acc = map[order[i]];
+                result[i] = new TableIndexInfo(acc.Name, acc.Columns, acc.IsExpression, acc.IsUnique, acc.IsPrimary);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Gets query builder to modify the table.
         /// </summary>
         /// <returns></returns>

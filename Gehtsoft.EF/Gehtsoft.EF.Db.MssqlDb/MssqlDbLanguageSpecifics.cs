@@ -8,6 +8,11 @@ namespace Gehtsoft.EF.Db.MssqlDb
 {
     public class MssqlDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
+        /// <summary>
+        /// The driver identifier of this dialect.
+        /// </summary>
+        public override string DbName => UniversalSqlDbFactory.MSSQL;
+
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             string typeName;

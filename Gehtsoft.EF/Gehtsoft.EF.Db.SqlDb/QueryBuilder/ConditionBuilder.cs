@@ -110,6 +110,41 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public SingleConditionBuilder Property(TableDescriptor.ColumnInfo columnInfo) => Raw(Builder.PropertyName(columnInfo));
 
         /// <summary>
+        /// Adds the value at a JSON path inside a JSON column of the specified table, extracted and
+        /// cast to the specified type, as the current argument.
+        ///
+        /// Supported only on dialects where <see cref="SqlDbLanguageSpecifics.SupportsJson"/> is
+        /// `true`; other dialects throw <see cref="EfExceptionCode.FeatureNotSupported"/>.
+        /// </summary>
+        /// <param name="columnInfo">The JSON column.</param>
+        /// <param name="entity">The table occurrence the column belongs to.</param>
+        /// <param name="jsonPath">The JSON path, for example <c>"$.age"</c>.</param>
+        /// <param name="type">The primitive type of the value at the path.</param>
+        public SingleConditionBuilder JsonValue(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, string jsonPath, System.Data.DbType type)
+            => SetJsonSide(Builder.InfoProvider.Specifics.JsonExtract(Builder.PropertyName(entity, columnInfo), jsonPath, type, false));
+
+        /// <summary>
+        /// Adds the value at a JSON path inside a JSON column of the first table in the query,
+        /// extracted and cast to the specified type, as the current argument.
+        /// </summary>
+        /// <param name="columnInfo">The JSON column.</param>
+        /// <param name="jsonPath">The JSON path, for example <c>"$.age"</c>.</param>
+        /// <param name="type">The primitive type of the value at the path.</param>
+        public SingleConditionBuilder JsonValue(TableDescriptor.ColumnInfo columnInfo, string jsonPath, System.Data.DbType type)
+            => SetJsonSide(Builder.InfoProvider.Specifics.JsonExtract(Builder.PropertyName(columnInfo), jsonPath, type, false));
+
+        // The JSON extraction is a framework-generated expression containing a quoted path literal,
+        // so it bypasses the raw-scalar guard (as the function Wrap does), setting the side directly.
+        private SingleConditionBuilder SetJsonSide(string expression)
+        {
+            if (!HasOp)
+                Left = expression;
+            else
+                Right = expression;
+            return this;
+        }
+
+        /// <summary>
         /// Adds a parameter.
         /// </summary>
         /// <param name="name"></param>
@@ -890,6 +925,22 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="columnInfo"></param>
         /// <returns></returns>
         public static SingleConditionBuilder Property(this ConditionBuilder builder, AggFn fn, TableDescriptor.ColumnInfo columnInfo) => builder.Raw(builder.PropertyName(fn, columnInfo));
+
+        /// <summary>
+        /// Starts a new single condition, sets the value at a JSON path inside a JSON column of the
+        /// specified table as the first argument, and connects it to the previous condition with
+        /// logical and.
+        /// </summary>
+        public static SingleConditionBuilder JsonValue(this ConditionBuilder builder, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, string jsonPath, System.Data.DbType type)
+            => new SingleConditionBuilder(builder, LogOp.And).JsonValue(columnInfo, entity, jsonPath, type);
+
+        /// <summary>
+        /// Starts a new single condition, sets the value at a JSON path inside a JSON column of the
+        /// first table in the query as the first argument, and connects it to the previous condition
+        /// with logical and.
+        /// </summary>
+        public static SingleConditionBuilder JsonValue(this ConditionBuilder builder, TableDescriptor.ColumnInfo columnInfo, string jsonPath, System.Data.DbType type)
+            => new SingleConditionBuilder(builder, LogOp.And).JsonValue(columnInfo, jsonPath, type);
 
         /// <summary>
         /// Starts a new single condition, sets the parameter specified as the first argument and connect it to the previous condition with logical and.

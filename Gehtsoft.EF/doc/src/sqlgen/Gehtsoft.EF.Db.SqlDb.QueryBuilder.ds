@@ -1,7 +1,0 @@
-@group
-    @title=Namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
-    @key=Gehtsoft.EF.Db.SqlDb.QueryBuilder
-    @ingroup=main
-    @brief=The namespace consists of basic classes to generate cross-DB queries
-
-@end

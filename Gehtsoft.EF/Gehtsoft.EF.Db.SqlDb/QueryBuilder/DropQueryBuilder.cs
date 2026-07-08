@@ -1,4 +1,6 @@
-﻿using Gehtsoft.EF.Utils;
+using System.Collections.Generic;
+using System.Text;
+using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 {
@@ -10,7 +12,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
     public class DropTableBuilder : AQueryBuilder
     {
         protected string mQuery;
-        protected TableDescriptor mDescriptor;
+        protected readonly List<TableDescriptor> mDescriptors = new List<TableDescriptor>();
 
         [DocgenIgnore]
         public override string Query
@@ -22,7 +24,20 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         internal protected DropTableBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics)
         {
             mQuery = null;
-            mDescriptor = tableDescriptor;
+            mDescriptors.Add(tableDescriptor);
+        }
+
+        /// <summary>
+        /// Adds another table to be dropped by the same query.
+        ///
+        /// The tables are dropped in the order they are added; add a table before the tables it
+        /// depends on via a foreign key.
+        /// </summary>
+        /// <param name="tableDescriptor"></param>
+        public void AddTable(TableDescriptor tableDescriptor)
+        {
+            mDescriptors.Add(tableDescriptor);
+            mQuery = null;
         }
 
         [DocgenIgnore]
@@ -30,7 +45,22 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         {
             if (mQuery != null)
                 return;
-            mQuery = $"DROP TABLE IF EXISTS {mDescriptor.Name}";
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append(mSpecifics.PreBlock);
+            for (int i = 0; i < mDescriptors.Count; i++)
+            {
+                if (i > 0 && mSpecifics.TerminateWithSemicolon)
+                    builder.Append(";\r\n");
+                AppendDropTable(builder, mDescriptors[i]);
+            }
+            builder.Append(mSpecifics.PostBlock);
+            mQuery = builder.ToString();
+        }
+
+        protected virtual void AppendDropTable(StringBuilder builder, TableDescriptor descriptor)
+        {
+            builder.Append("DROP TABLE IF EXISTS ").Append(descriptor.Name);
         }
     }
 }

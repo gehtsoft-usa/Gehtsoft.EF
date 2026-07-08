@@ -126,6 +126,46 @@ namespace Gehtsoft.EF.Db.MysqlDb
             return tables.ToArray();
         }
 
+        protected override async Task<TableIndexInfo[]> GetTableIndexesCore(string tableName, bool sync, CancellationToken? token)
+        {
+            var rows = new List<RawIndexColumn>();
+            string sql =
+                "SELECT INDEX_NAME, NON_UNIQUE, COLUMN_NAME " +
+                "FROM information_schema.STATISTICS " +
+                $"WHERE table_schema = DATABASE() AND table_name = '{tableName}' " +
+                "ORDER BY INDEX_NAME, SEQ_IN_INDEX";
+
+            using (SqlDbQuery query = GetQuery(sql, true))
+            {
+                if (sync)
+                {
+                    query.ExecuteReader();
+                    while (query.ReadNext())
+                        AddIndexRow(rows, query);
+                }
+                else
+                {
+                    await query.ExecuteReaderAsync(token);
+                    while (await query.ReadNextAsync(token))
+                        AddIndexRow(rows, query);
+                }
+            }
+
+            return AssembleIndexes(rows);
+        }
+
+        private static void AddIndexRow(List<RawIndexColumn> rows, SqlDbQuery query)
+        {
+            string indexName = query.GetValue<string>(0);
+            rows.Add(new RawIndexColumn
+            {
+                IndexName = indexName,
+                IsUnique = query.GetValue<int>(1) == 0,
+                IsPrimary = string.Equals(indexName, "PRIMARY", StringComparison.OrdinalIgnoreCase),
+                Column = query.IsNull(2) ? null : query.GetValue<string>(2),
+            });
+        }
+
         public override AlterTableQueryBuilder GetAlterTableQueryBuilder()
         {
             return new MysqlAlterTableQueryBuilder(GetLanguageSpecifics());

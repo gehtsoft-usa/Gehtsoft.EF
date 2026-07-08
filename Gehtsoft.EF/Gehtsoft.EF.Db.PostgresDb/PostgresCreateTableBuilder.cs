@@ -7,7 +7,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
     {
         public PostgresCreateTableBuilder(SqlDbLanguageSpecifics specifics, TableDescriptor tableDescriptor) : base(specifics, tableDescriptor)
         {
-            DdlBuilder = new PostgresTableDdlBuilder(specifics, tableDescriptor);
+            DdlBuilder = new PostgresTableDdlBuilder(specifics);
         }
     }
 }

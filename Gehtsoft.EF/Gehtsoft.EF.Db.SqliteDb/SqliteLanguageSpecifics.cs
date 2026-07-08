@@ -7,6 +7,39 @@ namespace Gehtsoft.EF.Db.SqliteDb
 {
     public class SqliteDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
+        /// <summary>
+        /// The driver identifier of this dialect.
+        /// </summary>
+        public override string DbName => UniversalSqlDbFactory.SQLITE;
+
+        /// <summary>
+        /// SQLite supports JSON columns (JSON1).
+        /// </summary>
+        public override bool SupportsJson => true;
+
+        /// <summary>
+        /// Renders a SQLite JSON extraction. SQLite is dynamically typed and its `CREATE INDEX` is
+        /// not wrapped in a quoted block, so neither the target type nor <paramref name="forDdl"/>
+        /// affects the expression.
+        /// </summary>
+        public override string JsonExtract(string column, string path, DbType type, bool forDdl)
+            => $"json_extract({column}, '{path}')";
+
+        // SQLite json_extract returns a JSON boolean as the integer 1/0.
+        public override object JsonEncodeValue(DbType type, object value)
+        {
+            if (value != null && type == DbType.Boolean && value is bool b)
+                return b ? 1 : 0;
+            return base.JsonEncodeValue(type, value);
+        }
+
+        public override object JsonDecodeValue(DbType type, object value)
+        {
+            if (value != null && !(value is DBNull) && type == DbType.Boolean)
+                return Convert.ToInt64(value, System.Globalization.CultureInfo.InvariantCulture) != 0;
+            return base.JsonDecodeValue(type, value);
+        }
+
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             switch (type)
