@@ -1346,6 +1346,144 @@
 @end
 
 @article
+    @key=tutorialen_linq
+    @title=Using an Entity Collection with LINQ
+    @brief=
+    @ingroup=tutorialsen
+
+    Besides using [link=tutorialen_entities16]LINQ expressions inside a regular query[/link], the framework can expose an
+    entity as an [c]IQueryable&lt;T&gt;[/c] collection that you query with ordinary LINQ - [c]Where[/c], [c]Select[/c],
+    [c]OrderBy[/c], [c]GroupBy[/c], the aggregates, [c]First[/c] and so on. The whole LINQ expression is translated into a
+    single SQL [c]SELECT[/c] and executed on the server.
+
+    [b]A Word of Caution[/b]
+
+    LINQ is convenient for simple, ad-hoc queries, but it is [b]not[/b] the recommended way to write performance-critical
+    ones. LINQ semantics do not map perfectly onto the SQL [c]SELECT[/c] structure, so - as with any LINQ-to-SQL provider -
+    the generated SQL is rarely as good as a query written by hand against the
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink] surface; grouping in
+    particular tends to compile into sub-optimal SQL. Prefer the manual query surface on hot paths and reach for LINQ where
+    the convenience outweighs the cost.
+
+    [b]Getting the Collection[/b]
+
+    Call [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqConnectionExtension.GetCollectionOf.ki5]GetCollectionOf&lt;T&gt;[/clink]
+    on a connection to obtain a [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntity]QueryableEntity&lt;T&gt;[/clink],
+    which is an [c]IQueryable&lt;T&gt;[/c]. (The lower-level
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.QueryableEntityProvider]QueryableEntityProvider[/clink] can also be used
+    directly, but the connection extension is the simplest entry point.) The examples below use the [c]Entity[/c] and
+    [c]Dictionary[/c] classes from the [link=tutorialen_entities16]previous article[/link].
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !var entities = connection.GetCollectionOf<Entity>();
+    @end
+
+    [b]Filtering[/b]
+
+    Use [c]Where[/c] with the usual C# operators ([c]&amp;&amp;[/c], [c]||[/c], comparisons). Where C# has no operator for a
+    SQL function (e.g. [c]LIKE[/c]), call the corresponding method on
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction]SqlFunction[/clink]. Navigation across a foreign key works too.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !var inRange = connection.GetCollectionOf<Entity>()
+       !    .Where(e => e.Value > 15 && e.Value < 30)
+       !    .ToList();
+       !
+       !var byName = connection.GetCollectionOf<Entity>()
+       !    .Where(e => SqlFunction.Like(e.Name, "item%") || e.Reference.Name == "dict5")
+       !    .ToList();
+    @end
+
+    [b]Selecting[/b]
+
+    Without a [c]Select[/c] the whole entity is returned. A [c]Select[/c] projects into an anonymous type (a custom result
+    set) or into a single scalar value.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !// whole entities
+       !var all = connection.GetCollectionOf<Entity>().ToList();
+       !
+       !// projection into an anonymous type
+       !var rows = connection.GetCollectionOf<Entity>()
+       !    .Select(e => new { e.ID, e.Name, e.Value })
+       !    .ToList();
+       !
+       !// a single scalar
+       !var names = connection.GetCollectionOf<Entity>()
+       !    .Select(e => e.Name)
+       !    .ToList();
+    @end
+
+    [b]Ordering and Grouping[/b]
+
+    [c]OrderBy[/c] sorts the result; [c]GroupBy[/c] groups it, and the group projection may reference the key ([c]g.Key[/c])
+    and aggregates over the group.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !var ordered = connection.GetCollectionOf<Entity>()
+       !    .OrderBy(e => e.Value)
+       !    .ToList();
+       !
+       !var perDictionary = connection.GetCollectionOf<Entity>()
+       !    .GroupBy(e => e.Reference.ID)
+       !    .Select(g => new { DictId = g.Key, MaxValue = g.Max(v => v.Value) })
+       !    .ToList();
+    @end
+
+    [b]Aggregates and Paging[/b]
+
+    [c]Count[/c] (optionally with a predicate) and [c]Average[/c] (and the other aggregates) execute on the server. An
+    aggregate over the whole collection can also be written as a [c]Select[/c] of an
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction]SqlFunction[/clink] aggregate followed by [c]First[/c].
+    [c]First[/c] / [c]FirstOrDefault[/c] read a single row, and [c]Skip[/c] / [c]Take[/c] page the result.
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+       !int count = connection.GetCollectionOf<Entity>().Count(e => e.Value > 15);
+       !double average = connection.GetCollectionOf<Entity>().Average(e => e.Value);
+       !int max = connection.GetCollectionOf<Entity>().Select(e => SqlFunction.Max(e.Value)).First();
+       !
+       !var firstByName = connection.GetCollectionOf<Entity>().OrderBy(e => e.Name).First();
+       !var secondPage = connection.GetCollectionOf<Entity>().OrderBy(e => e.ID).Skip(20).Take(10).ToList();
+    @end
+
+    [b]Limitations[/b]
+
+    @list
+        @list-item
+            The supported operators are [c]Where[/c], [c]Select[/c], [c]OrderBy[/c], [c]GroupBy[/c], [c]Count[/c],
+            [c]Sum[/c], [c]Min[/c], [c]Max[/c], [c]Average[/c], [c]First[/c], [c]FirstOrDefault[/c], [c]Skip[/c] and [c]Take[/c].
+        @end
+        @list-item
+            Only ascending [c]OrderBy[/c] is translated; [c]OrderByDescending[/c] and [c]ThenBy[/c] are not supported.
+        @end
+        @list-item
+            Compare against a local variable or a literal, not a [c]static[/c] field - a static-field reference cannot be
+            compiled into the query.
+        @end
+        @list-item
+            Any function used inside an expression must come from
+            [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction]SqlFunction[/clink] (or a supported [c]string[/c] /
+            [c]DateTime[/c] member), so that it is guaranteed to run on the server.
+        @end
+    @end
+@end
+
+@article
     @key=tutorialen_entities18
     @title=Using plain SQL on entities.
     @brief=
@@ -1837,6 +1975,125 @@
 
     When a dynamic property is both projected and used in the [c]Where[/c] condition, the query filters the already-joined
     value directly instead of issuing an additional sub-query - so projecting a property you also filter on costs nothing extra.
+@end
+
+@article
+    @key=tutorialen_dynprops3
+    @title=Dynamic Properties in LINQ Queries
+    @brief=
+    @ingroup=tutorialsen
+
+    [link=tutorialen_dynprops1]Dynamic properties[/link] can also be queried through the
+    [link=tutorialen_linq]entity LINQ collection[/link], as an alternative to the
+    [link=tutorialen_dynprops2]manual query surface[/link]. Inside any LINQ lambda, read a dynamic property with
+    [clink=Gehtsoft.EF.Entities.DynamicPropertyBag.Get.UG2]Get&lt;T&gt;[/clink] on the entity's [c]DynamicProperties[/c] bag:
+    the same [c]e.DynamicProperties.Get&lt;T&gt;("name")[/c] expression works in [c]Where[/c], in a [c]Select[/c] projection,
+    inside an aggregate, and in [c]OrderBy[/c] / [c]GroupBy[/c]. The type argument [c]T[/c] selects which value the property
+    is read as. The examples below use the [c]Document[/c] entity from
+    [link=tutorialen_dynprops1]Dynamic (Per-Row) Properties[/link].
+
+    [b]Filtering[/b]
+
+    @example
+        @title=Example: filter by a dynamic property
+        @show=yes
+        @highlight=cs
+       !var red = connection.GetCollectionOf<Document>()
+       !    .Where(e => e.DynamicProperties.Get<string>("color") == "red")
+       !    .ToList();
+       !
+       !var big = connection.GetCollectionOf<Document>()
+       !    .Where(e => e.DynamicProperties.Get<int>("pages") >= 10 &&
+       !               e.DynamicProperties.Get<bool>("archived") == false)
+       !    .ToList();
+    @end
+
+    Filtering uses SQL [c]NULL[/c] semantics: a row whose property is absent matches neither [c]==[/c], [c]!=[/c] nor a range
+    comparison. Use [c]== null[/c] to select the rows that do not have the property.
+
+    [b]Selecting[/b]
+
+    A projected dynamic property is returned already decoded to [c]T[/c]. For a value type that may be [i]absent[/i] on some
+    rows, project into the nullable form ([c]int?[/c], [c]DateTime?[/c], ...) so an absent value reads as [c]null[/c].
+
+    @example
+        @title=Example: project dynamic properties
+        @show=yes
+        @highlight=cs
+       !var rows = connection.GetCollectionOf<Document>()
+       !    .Select(e => new
+       !    {
+       !        e.Name,
+       !        Color = e.DynamicProperties.Get<string>("color"),   // null when absent
+       !        Pages = e.DynamicProperties.Get<int?>("pages")      // null when absent
+       !    })
+       !    .ToList();
+    @end
+
+    [b]Aggregating[/b]
+
+    Wrap the property read in an [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlFunction]SqlFunction[/clink] aggregate.
+
+    @example
+        @title=Example: aggregate a dynamic property
+        @show=yes
+        @highlight=cs
+       !int maxPages = connection.GetCollectionOf<Document>()
+       !    .Select(e => SqlFunction.Max(e.DynamicProperties.Get<int>("pages")))
+       !    .First();
+    @end
+
+    [b]Ordering and Grouping[/b]
+
+    @example
+        @title=Example: order and group by a dynamic property
+        @show=yes
+        @highlight=cs
+       !var byColor = connection.GetCollectionOf<Document>()
+       !    .Where(e => e.DynamicProperties.Get<string>("color") != null)
+       !    .OrderBy(e => e.DynamicProperties.Get<string>("color"))
+       !    .ToList();
+       !
+       !var counts = connection.GetCollectionOf<Document>()
+       !    .GroupBy(e => e.DynamicProperties.Get<string>("color"))
+       !    .Select(g => new { Color = g.Key, Count = g.Count() })
+       !    .ToList();
+    @end
+
+    [b]Reading Whole Entities with the Bag Attached[/b]
+
+    When a whole-entity query (one without a [c]Select[/c]) returns entities that own dynamic properties, the bag is loaded
+    and attached to each entity [b]by default[/b], so you can read the values straight off the returned objects. Pass
+    [c]preloadDynamicProperties: false[/c] to
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.EntityQueryLinqConnectionExtension.GetCollectionOf.ki5]GetCollectionOf[/clink]
+    to skip the extra load when you do not need the bag.
+
+    @example
+        @title=Example: whole entities with (and without) the bag
+        @show=yes
+        @highlight=cs
+       !// the bag is attached to every returned entity (default)
+       !foreach (var doc in connection.GetCollectionOf<Document>().Where(e => e.Name == "contract"))
+       !{
+       !    string color = doc.DynamicProperties.Get<string>("color");
+       !}
+       !
+       !// opt out of the extra property load
+       !var lite = connection.GetCollectionOf<Document>(preloadDynamicProperties: false).ToList();
+    @end
+
+    [b]Notes[/b]
+
+    @list
+        @list-item
+            All six value types are supported ([c]string[/c], [c]int[/c], [c]long[/c], [c]double[/c], [c]bool[/c] and
+            [c]DateTime[/c]); [c]bool[/c] and [c]DateTime[/c] are stored in an encoded form and are compared and returned
+            transparently.
+        @end
+        @list-item
+            As with any LINQ query here, compare against a local variable or a literal, not a [c]static[/c] field.
+        @end
+    @end
 @end
 
 @article

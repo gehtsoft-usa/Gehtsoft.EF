@@ -39,7 +39,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 if (value is SelectEntitiesQueryBase)
                     query.CopyParametersFrom(value as SelectEntitiesQueryBase);
                 else
+                {
+                    if (param.EncodeAs != null && value != null)
+                        value = DynamicPropertiesValueMapper.Encode(value).Value;
                     query.BindParam(param.Name, ParameterDirection.Input, value, value.GetType());
+                }
             }
         }
 
@@ -47,7 +51,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         {
             ExpressionCompiler compiler = new ExpressionCompiler(query);
             ExpressionCompiler.Result result = compiler.Visit(expression);
-            query.AddExpressionToResultset(result.Expression.ToString(), result.HasAggregates, DbType.Object, expression.Type, alias);
+            if (result.DynamicPropertyType != null)
+                query.AddDynamicExpressionToResultset(result.Expression.ToString(), result.HasAggregates, result.DynamicPropertyType.Value, alias);
+            else
+                query.AddExpressionToResultset(result.Expression.ToString(), result.HasAggregates, DbType.Object, expression.Type, alias);
             query.BindExpressionParameters(result);
         }
 

@@ -83,7 +83,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     else
                         throw new ArgumentException("Only lambda functions are supported in order by", nameof(expression));
 
-                    if (orderByLambda.Body.NodeType == ExpressionType.MemberAccess)
+                    // A Call body is a compiled expression (e.g. a dynamic property
+                    // e.DynamicProperties.Get<T>(...)); it is passed through to the ExpressionCompiler
+                    // like a member access instead of being silently dropped.
+                    if (orderByLambda.Body.NodeType == ExpressionType.MemberAccess ||
+                        orderByLambda.Body.NodeType == ExpressionType.Call)
                     {
                         mOrderBy.Add(callExpression.Arguments[1]);
                     }
@@ -92,7 +96,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         NewExpression newExpression = (NewExpression)orderByLambda.Body;
                         for (int i = 0; i < newExpression.Members.Count; i++)
                         {
-                            if (newExpression.Arguments[i].NodeType == ExpressionType.MemberAccess)
+                            if (newExpression.Arguments[i].NodeType == ExpressionType.MemberAccess ||
+                                newExpression.Arguments[i].NodeType == ExpressionType.Call)
                                 mOrderBy.Add(newExpression.Arguments[i]);
                         }
                     }
@@ -116,7 +121,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 
                     mGroupByKeyType = groupByLambda.ReturnType;
 
-                    if (groupByLambda.Body.NodeType == ExpressionType.MemberAccess)
+                    // A Call key is a compiled expression (e.g. a dynamic property
+                    // e.DynamicProperties.Get<T>(...)); accept it alongside a member access.
+                    if (groupByLambda.Body.NodeType == ExpressionType.MemberAccess ||
+                        groupByLambda.Body.NodeType == ExpressionType.Call)
                     {
                         mGroupByKey.Add(new Tuple<string, Expression>("Key", groupByLambda.Body));
                     }
@@ -125,7 +133,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         NewExpression newExpression = (NewExpression)groupByLambda.Body;
                         for (int i = 0; i < newExpression.Members.Count; i++)
                         {
-                            if (newExpression.Arguments[i].NodeType == ExpressionType.MemberAccess)
+                            if (newExpression.Arguments[i].NodeType == ExpressionType.MemberAccess ||
+                                newExpression.Arguments[i].NodeType == ExpressionType.Call)
                                 mGroupByKey.Add(new Tuple<string, Expression>(newExpression.Members[i].Name, newExpression.Arguments[i]));
                             else
                                 throw new ArgumentException("Only member access is supported in group by key");

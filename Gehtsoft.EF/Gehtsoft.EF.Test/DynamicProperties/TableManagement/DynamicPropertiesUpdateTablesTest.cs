@@ -25,26 +25,30 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
 
         [Entity(Scope = "dp_gain_after", Table = "dp_gain")]
         [DynamicProperties]
-        public class GainAfter
+        public class GainAfter : IDynamicPropertiesOwner
         {
             [AutoId]
             public int Id { get; set; }
 
             [EntityProperty(Size = 32)]
             public string Name { get; set; }
+
+            public DynamicPropertyBag DynamicProperties { get; private set; }
         }
 
         // --- "lost" transition: same table, before has props, after does not ---
 
         [Entity(Scope = "dp_lost_before", Table = "dp_lost")]
         [DynamicProperties]
-        public class LostBefore
+        public class LostBefore : IDynamicPropertiesOwner
         {
             [AutoId]
             public int Id { get; set; }
 
             [EntityProperty(Size = 32)]
             public string Name { get; set; }
+
+            public DynamicPropertyBag DynamicProperties { get; private set; }
         }
 
         [Entity(Scope = "dp_lost_after", Table = "dp_lost")]
@@ -59,10 +63,12 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
 
         [Entity(Scope = "dp_idem", Table = "dp_idem")]
         [DynamicProperties]
-        public class IdemOwner
+        public class IdemOwner : IDynamicPropertiesOwner
         {
             [AutoId]
             public int Id { get; set; }
+
+            public DynamicPropertyBag DynamicProperties { get; private set; }
         }
 
         [Entity(Scope = "dp_fp", Table = "dp_fp")]

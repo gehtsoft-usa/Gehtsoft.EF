@@ -12,13 +12,15 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
     {
         [Entity(Scope = "dynprops_ddl_deep", Table = "ddl_owner")]
         [DynamicProperties]
-        public class OwnerWithProps
+        public class OwnerWithProps : IDynamicPropertiesOwner
         {
             [AutoId]
             public int Id { get; set; }
 
             [EntityProperty(Size = 32)]
             public string Name { get; set; }
+
+            public DynamicPropertyBag DynamicProperties { get; private set; }
         }
 
         [Entity(Scope = "dynprops_ddl_deep", Table = "ddl_plain")]

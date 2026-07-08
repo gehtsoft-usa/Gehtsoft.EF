@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+using Gehtsoft.EF.Entities;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
 {
@@ -18,6 +19,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             internal string Name { get; set; }
             internal object Value { get; set; }
             internal Delegate CompiledExpression { get; set; }
+
+            // When set, the resolved value is encoded into its dynamic-property storage form
+            // (bool -> 0/1, DateTime -> UTC ticks) before being bound - so a comparison against a
+            // bool/DateTime dynamic property (whose column stores the encoded value) is correct.
+            internal DynamicPropertyValueType? EncodeAs { get; set; }
         }
 
         internal class Result
@@ -26,6 +32,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             public List<ExpressionParameter> Params { get; set; } = new List<ExpressionParameter>();
             public bool IsParameterExpression { get; private set; }
             public bool HasAggregates { get; set; }
+
+            // Set when this expression is a dynamic property read (its value column). Carries the
+            // declared value type so ProcessBinary can encode a compared constant and the read path
+            // can decode a projected value. Null for every ordinary expression.
+            public DynamicPropertyValueType? DynamicPropertyType { get; set; }
 
             public Result()
             {
@@ -291,6 +302,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
         {
             Result result = new Result();
 
+            MarkDynamicPropertyEncoding(left, right);
+
             if (node.NodeType == ExpressionType.Add &&
                 node.Left.Type == typeof(string) &&
                 node.Right.Type == typeof(string))
@@ -462,8 +475,84 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             return null;
         }
 
+        // A dynamic property read is  <entity>.DynamicProperties.Get<T>("name")  - the generic
+        // Get<T> on the property bag (the non-generic Get(string) returning object is not it).
+        private static bool IsDynamicPropertyGet(MethodCallExpression callNode)
+            => callNode.Method.DeclaringType == typeof(DynamicPropertyBag) &&
+               callNode.Method.Name == nameof(DynamicPropertyBag.Get) &&
+               callNode.Method.IsGenericMethod;
+
+        // Compiles e.DynamicProperties.Get<T>("name") into the value column of a (reused) join to the
+        // owner's dynamic-property side table, tagging the result with T's storage type.
+        private Result ProcessDynamicPropertyGet(MethodCallExpression callNode)
+        {
+            if (!(callNode.Object is MemberExpression bagExpression) ||
+                bagExpression.Member.Name != nameof(IDynamicPropertiesOwner.DynamicProperties) ||
+                !(bagExpression.Expression is ParameterExpression ownerParameter))
+                throw new ArgumentException("A dynamic property must be read as '<entity>.DynamicProperties.Get<T>(name)'", nameof(callNode));
+
+            Type declared = callNode.Method.GetGenericArguments()[0];
+            Type underlying = Nullable.GetUnderlyingType(declared) ?? declared;
+            DynamicPropertyValueType valueType = MapDynamicPropertyType(underlying);
+
+            object nameValue = callNode.Arguments[0] is ConstantExpression nameConstant
+                ? nameConstant.Value
+                : Expression.Lambda(callNode.Arguments[0]).Compile().DynamicInvoke();
+            string name = (string)nameValue;
+            if (name == null)
+                throw new ArgumentException("The dynamic property name must not be null", nameof(callNode));
+
+            if (!(mQuery is SelectEntitiesQueryBase select))
+                throw new InvalidOperationException("Dynamic properties are only supported in LINQ SELECT queries");
+
+            DynamicPropertyJoin join = DynamicPropertyProjection.EnsureJoin(select, ownerParameter.Type, name, 0, valueType);
+
+            Result res = new Result();
+            res.Expression.Append(join.ColumnAlias);
+            res.DynamicPropertyType = valueType;
+            return res;
+        }
+
+        private static DynamicPropertyValueType MapDynamicPropertyType(Type underlying)
+        {
+            if (underlying == typeof(string))
+                return DynamicPropertyValueType.String;
+            if (underlying == typeof(int))
+                return DynamicPropertyValueType.Integer;
+            if (underlying == typeof(long))
+                return DynamicPropertyValueType.Long;
+            if (underlying == typeof(double))
+                return DynamicPropertyValueType.Real;
+            if (underlying == typeof(bool))
+                return DynamicPropertyValueType.Boolean;
+            if (underlying == typeof(DateTime))
+                return DynamicPropertyValueType.DateTime;
+            throw new ArgumentException($"The type '{underlying.FullName}' is not a supported dynamic property value type");
+        }
+
+        // When a bool/DateTime dynamic property is one operand of a comparison, the other operand
+        // (a constant / captured value) must be bound in the encoded storage form to match the
+        // column. Marks that parameter; the actual encoding happens at bind time in
+        // BindExpressionParameters. Numeric / string properties need no encoding.
+        private static void MarkDynamicPropertyEncoding(Result left, Result right)
+        {
+            DynamicPropertyValueType? type = left.DynamicPropertyType ?? right.DynamicPropertyType;
+            if (type != DynamicPropertyValueType.Boolean && type != DynamicPropertyValueType.DateTime)
+                return;
+
+            Result other = left.DynamicPropertyType != null ? right : left;
+            if (other.IsParameterExpression && other.Params.Count > 0 && other.Params[0].Value != null)
+                other.Params[0].EncodeAs = type;
+        }
+
         private Result ProcessCall(MethodCallExpression callNode)
         {
+            // A dynamic property read - e.DynamicProperties.Get<T>("name") - is recognized here,
+            // before the argument-visit loop and the "all arguments are constants => evaluate
+            // locally" short-circuit below (which would try to run Get against a null bag).
+            if (IsDynamicPropertyGet(callNode))
+                return ProcessDynamicPropertyGet(callNode);
+
             Result res = new Result();
 
             IReadOnlyCollection<Expression> argumentExpressions = callNode.Arguments;
@@ -708,21 +797,25 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Sum, stringResults));
                 res.HasAggregates = true;
+                res.DynamicPropertyType = argumentResults[0].DynamicPropertyType;
             }
             else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Min))
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Min, stringResults));
                 res.HasAggregates = true;
+                res.DynamicPropertyType = argumentResults[0].DynamicPropertyType;
             }
             else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Max))
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Max, stringResults));
                 res.HasAggregates = true;
+                res.DynamicPropertyType = argumentResults[0].DynamicPropertyType;
             }
             else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Avg))
             {
                 res.Expression.Append(mSpecifics.GetSqlFunction(SqlFunctionId.Avg, stringResults));
                 res.HasAggregates = true;
+                res.DynamicPropertyType = argumentResults[0].DynamicPropertyType;
             }
             else if (isFunction && callNode.Method.Name == nameof(SqlFunction.Like))
             {

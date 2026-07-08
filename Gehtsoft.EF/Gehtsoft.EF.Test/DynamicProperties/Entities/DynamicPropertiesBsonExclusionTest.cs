@@ -21,13 +21,15 @@ namespace Gehtsoft.EF.Test.DynamicProperties.Entities
 
         [Entity(Scope = "dynprops_bson")]
         [DynamicProperties]
-        public class BsonDynPropsEntity
+        public class BsonDynPropsEntity : IDynamicPropertiesOwner
         {
             [AutoId]
             public int Id { get; set; }
 
             [EntityProperty]
             public string Name { get; set; }
+
+            public DynamicPropertyBag DynamicProperties { get; private set; }
         }
 
         [Fact]

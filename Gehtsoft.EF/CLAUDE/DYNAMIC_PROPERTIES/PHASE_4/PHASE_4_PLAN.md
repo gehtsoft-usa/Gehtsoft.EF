@@ -1,5 +1,38 @@
 # PHASE 4 — Dynamic properties in the LINQ query surface
 
+> **Status (2026-07-08): Phase 4a IMPLEMENTED + green on all 6 drivers.** WHERE + projection +
+> aggregate over all six value types (incl. bool encode-on-compare and DateTime encode/decode).
+> Tests: `Gehtsoft.EF.Test/DynamicProperties/Linq/DynamicPropertiesLinqTest.cs`.
+>
+> **Two follow-ups added on NG's request (also in 4a):**
+> 1. **Whole-entity preload is ON by default.** `GetCollectionOf<T>(bool preloadDynamicProperties =
+>    true)` — a whole-entity LINQ select (no projection) loads and attaches each entity's bag
+>    (batch for `ToList`, batch-path for `First`); pass `false` to opt out. No-op for types without
+>    dynamic properties (`Execute` gates on `HasDynamicProperties`, so non-dynamic entities keep the
+>    unchanged `ReadOne` path). Ignored for projections.
+> 2. **Discovery guardrail** (`AllEntities.ResolveDynamicProperties`): `[DynamicProperties]` and
+>    `IDynamicPropertiesOwner` must be declared together — attribute-without-bag and
+>    bag-without-attribute each throw `EfSqlException` at discovery (codes
+>    `DynamicPropertiesAttributeWithoutOwner` / `DynamicPropertiesOwnerWithoutAttribute`). Required
+>    adding the bag to ~11 attribute-only test entities (TableManagement/Bson/Recognition) — table
+>    shape is unaffected (the bag is not a mapped column).
+>
+> Regression: full DynamicProperties suite (623) + all Entity tests (1565) green.
+> **Caveat found:** the compiler reads a `static`-field reference as a `MemberExpression` with a
+> null `.Expression` and NREs on it (pre-existing limitation, not specific to dynamic properties) —
+> compare against locals/literals, not static fields.
+>
+> **Phase 4b DONE (all 6 drivers):** ORDER BY and GROUP BY by a dynamic property (incl. the group-key
+> projection `g.Key` and aggregates over a dynamic property within a group). The only change was in
+> `SelectExpressionCompiler` (the clause collector), which previously dropped non-member-access
+> ORDER BY bodies and threw on non-member-access GROUP BY keys — both now also accept a `Call` node
+> (the `Get<T>` expression), which then flows through the 4a `ExpressionCompiler` branch. No change
+> needed in `QueryableEntityProvider` (the `g.Key` projection is still a member access; the stored key
+> *expression* is the `Get` call and flows through `AddGroupBy`/`AddToResultset`). Tests added to
+> `DynamicPropertiesLinqTest`. **Deferred:** OrderByDescending/ThenBy (LINQ layer only does OrderBy
+> asc), multi-occurrence owners.
+
+
 *Planned 2026-07-08. Phase 3 (manual free-form query surface: projection / ORDER BY / GROUP BY /
 HAVING / aggregate / WHERE-opt, all JOIN-based) is DONE on all 6 drivers. This phase makes a dynamic
 property usable from the **entity LINQ** surface (`QueryableEntity<T>` / the `ExpressionCompiler`

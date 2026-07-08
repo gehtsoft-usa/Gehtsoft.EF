@@ -319,6 +319,22 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             mDynamicPropertyColumns[index] = type;
         }
 
+        // Adds a dynamic-property expression already compiled by the LINQ layer to the resultset and
+        // records its decode type. The LINQ read path (CreateType / ReadOneValue) consults the same
+        // decode registry via TryGetDynamicPropertyColumn.
+        internal void AddDynamicExpressionToResultset(string expression, bool isAggregate, DynamicPropertyValueType type, string alias)
+            => AddDynamicPropertyColumn(expression, isAggregate, DbType.Object, type, alias);
+
+        // Whether the resultset column at the given index is a dynamic property (and if so, the type
+        // its stored value must be decoded to). Consulted by the LINQ projection read path.
+        internal bool TryGetDynamicPropertyColumn(int index, out DynamicPropertyValueType type)
+        {
+            if (mDynamicPropertyColumns != null)
+                return mDynamicPropertyColumns.TryGetValue(index, out type);
+            type = default;
+            return false;
+        }
+
         private static Type ClrTypeOf(DynamicPropertyValueType type)
         {
             switch (type)

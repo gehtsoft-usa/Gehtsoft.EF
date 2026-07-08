@@ -13,13 +13,15 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
 
         [Entity(Scope = "dynprops_ddl_acc", Table = "ddlacc_owner")]
         [DynamicProperties]
-        public class Owner
+        public class Owner : IDynamicPropertiesOwner
         {
             [AutoId]
             public int Id { get; set; }
 
             [EntityProperty(Size = 32)]
             public string Name { get; set; }
+
+            public DynamicPropertyBag DynamicProperties { get; private set; }
         }
 
         public static TheoryData<string> ConnectionNames(string flags = null) => SqlConnectionSources.SqlConnectionNames(flags);

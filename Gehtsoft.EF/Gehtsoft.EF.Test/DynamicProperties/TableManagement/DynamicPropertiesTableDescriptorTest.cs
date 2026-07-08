@@ -21,26 +21,32 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
 
         [Entity(Scope = "dynprops_eav", Table = "owner_default")]
         [DynamicProperties]
-        public class DefaultOwner
+        public class DefaultOwner : IDynamicPropertiesOwner
         {
             [AutoId]
             public int Id { get; set; }
+
+            public DynamicPropertyBag DynamicProperties { get; private set; }
         }
 
         [Entity(Scope = "dynprops_eav", Table = "owner_custom")]
         [DynamicProperties(NameSize = 32, StringValueSize = 1024, RealValueSize = 20, RealValuePrecision = 6)]
-        public class CustomOwner
+        public class CustomOwner : IDynamicPropertiesOwner
         {
             [AutoId]
             public int Id { get; set; }
+
+            public DynamicPropertyBag DynamicProperties { get; private set; }
         }
 
         [Entity(Scope = "dynprops_eav")]
         [DynamicProperties]
-        public class NoPkOwner
+        public class NoPkOwner : IDynamicPropertiesOwner
         {
             [EntityProperty]
             public string Value { get; set; }
+
+            public DynamicPropertyBag DynamicProperties { get; private set; }
         }
 
         [Fact]
