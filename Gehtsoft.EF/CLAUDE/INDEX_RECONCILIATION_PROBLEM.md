@@ -34,9 +34,11 @@ return index information to compare against (tables + views + columns only —
 
 ### Failing scenarios (all silent — no error, no change)
 - Add a **composite index** (`ICompositeIndexMetadata`) to an existing entity → **not created.**
-- Set `Sorted = true` (or `Unique`) on an **existing** column → **not created.**
+- Set `Sorted = true` on an **existing** column → **not created.**
 - Remove an index / set `Sorted = false` → the old index is **never dropped** (orphan).
 - Change a composite index's columns/order → **neither** dropped nor recreated.
+- *(Also unhandled but **out of scope** for this fix — see Scope: adding/removing `Unique` or
+  changing `PRIMARY KEY` on an existing column.)*
 
 The **only** way an index appears during update today is indirect: a brand-new **column** or a
 brand-new **table** carries its own index in its `CREATE`-time DDL (`TableDdlBuilder.HandleAfterQuery`
@@ -90,9 +92,21 @@ All framework-created indexes are named **`<table>_<name>`**, uniformly:
 
 ## 3. The fix — design
 
+### Scope (set by NG, 2026-07-08)
+Reconcile **only plain `CREATE INDEX` objects**: single-column `Sorted` indexes and compound
+(`ICompositeIndexMetadata`) indexes — including FK auto-indexes, which are the same single-column
+`CREATE INDEX` shape. **`Unique` and `PRIMARY KEY` are OUT of scope** for now: they are emitted as
+*inline column constraints* (`TableDdlBuilder.cs:24,29-30`), their DB backing indexes get
+DB-chosen names outside the `<table>_<name>` convention, and changing a uniqueness/PK constraint
+is a different (constraint-level, data-validating) operation. This exclusion is *free*: the
+reconciler keys on `<table>_<name>` `CREATE INDEX` names, which never include PK/unique backing
+indexes — so they are simply never in either the desired or the actual set the reconciler
+considers.
+
+### Algorithm
 Compute the **desired** index set from the descriptor (every `<table>_<name>` the framework would
-create: `Sorted`/FK single-column + all `ICompositeIndexMetadata` entries). Enumerate the
-**actual** indexes. Then:
+create via `CREATE INDEX`: `Sorted`/FK single-column + all `ICompositeIndexMetadata` entries;
+**not** `Unique`/PK constraints). Enumerate the **actual** indexes. Then:
 
 - **CREATE** = desired names absent from actual. *Unambiguous and always safe* — this alone fixes
   the reported "I added an index and it wasn't created" scenario.
@@ -136,10 +150,10 @@ drivers) exactly as `CreateIndexBuilder`/`CreateTableBuilder` already do.
   (SQLite) + acceptance (SQLite/Postgres/Oracle/MSSQL/MySQL — this is a *general* fix, all drivers):
   add composite index / set `Sorted` on existing column → `UpdateTables` → index now exists;
   idempotent second run is a no-op.
-- **Stage 2 — Level 2 (owned-drop)**, gated on the decision. Remove an index / un-sort a column →
-  `UpdateTables` → the framework-owned index is gone; PK/unique/user indexes untouched
-  (explicit test: a manually-created index with a non-convention name survives). Optional
-  structural change-detection via index-column introspection.
+- **Stage 2 — Level 2 (owned-drop)**, gated on the decision. Remove a composite index / un-sort a
+  column → `UpdateTables` → the framework-owned index is gone; PK/unique/user indexes untouched
+  (explicit test: both a PK/unique backing index **and** a manually-created index with a
+  non-convention name survive). Optional structural change-detection via index-column introspection.
 - **Regression** — full existing suite green (schema-update tests, `Legacy/DbUpdateTests`,
   create/drop tests); byte-identical `CREATE TABLE` output (indexes still ride along at create time).
 
