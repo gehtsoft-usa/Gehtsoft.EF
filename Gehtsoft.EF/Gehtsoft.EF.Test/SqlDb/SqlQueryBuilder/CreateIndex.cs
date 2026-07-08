@@ -65,14 +65,29 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
         }
 
         [Fact]
-        public void Function_WhenNotSupported_Ignore()
+        public void ExcludeFor_CurrentDriver_Skips()
         {
             using var connection = new DummySqlConnection();
             connection.DummyDbSpecifics.SupportFunctionsInIndexesSpec = false;
             var table = StageTable();
-            var builder = connection.GetCreateIndexBuilder(table, new CompositeIndex("index1") { { SqlFunctionId.Abs, "f1" } });
+            var ci = new CompositeIndex("index1") { { SqlFunctionId.Abs, "f1" } };
+            ci.ExcludeFor = new[] { connection.ConnectionType };
+            var builder = connection.GetCreateIndexBuilder(table, ci);
             builder.PrepareQuery();
             builder.Query.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ExcludeFor_OtherDriver_DoesNotSkip()
+        {
+            using var connection = new DummySqlConnection();
+            connection.DummyDbSpecifics.SupportFunctionsInIndexesSpec = true;
+            var table = StageTable();
+            var ci = new CompositeIndex("index1") { { SqlFunctionId.Abs, "f1" } };
+            ci.ExcludeFor = new[] { UniversalSqlDbFactory.MSSQL };
+            var builder = connection.GetCreateIndexBuilder(table, ci);
+            builder.PrepareQuery();
+            builder.Query.Should().NotBeEmpty();
         }
 
         [Fact]
@@ -82,7 +97,6 @@ namespace Gehtsoft.EF.Test.SqlDb.SqlQueryBuilder
             connection.DummyDbSpecifics.SupportFunctionsInIndexesSpec = false;
             var table = StageTable();
             var ci = new CompositeIndex("index1") { { SqlFunctionId.Abs, "f1" } };
-            ci.FailIfUnsupported = true;
             var builder = connection.GetCreateIndexBuilder(table, ci);
             ((Action)(() => builder.PrepareQuery())).Should().Throw<EfSqlException>();
         }

@@ -7,6 +7,11 @@ namespace Gehtsoft.EF.Db.MysqlDb
 {
     public class MysqlDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
+        /// <summary>
+        /// The driver identifier of this dialect.
+        /// </summary>
+        public override string DbName => UniversalSqlDbFactory.MYSQL;
+
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             string typeName;

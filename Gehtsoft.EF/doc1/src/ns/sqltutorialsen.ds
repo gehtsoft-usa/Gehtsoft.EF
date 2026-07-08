@@ -447,6 +447,119 @@
 @end
 
 @article
+    @key=tutorialen_autoupdate
+    @title=Automatic Schema Update
+    @brief=
+    @ingroup=tutorialsen
+
+    As shown in the previous topic,
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink]
+    can bring an existing database in line with the current entity definitions without recreating it.
+    This topic describes what the automatic update does and how to control it.
+
+    [b]What the Automatic Update Does[/b]
+
+    When you call the controller's [c]UpdateTables[/c] method against an existing database, it:
+
+    @list
+        @list-item
+            creates a table for an entity that does not exist yet;
+        @end
+        @list-item
+            adds a column for a newly added property (new properties must be nullable);
+        @end
+        @list-item
+            drops a table or a column marked obsolete (see the previous topic);
+        @end
+        @list-item
+            reconciles the table indexes with the entity definition (see below).
+        @end
+    @end
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+
+        !CreateEntityController controller = new CreateEntityController(typeof(Entity).Assembly);
+        !controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+    @end
+
+    [b]Index Reconciliation[/b]
+
+    During the update the controller also keeps the table indexes in sync with the entity definition.
+    For every existing table it:
+
+    @list
+        @list-item
+            creates an index that is declared on the entity but missing in the database;
+        @end
+        @list-item
+            drops an index it previously created whose declaration was removed from the entity;
+        @end
+        @list-item
+            drops and recreates an index whose set of columns has changed.
+        @end
+    @end
+
+    Two kinds of index are reconciled:
+
+    @list
+        @list-item
+            single-column indexes declared with [c]EntityProperty(Sorted = true)[/c] (and the
+            automatic foreign-key indexes);
+        @end
+        @list-item
+            compound indexes declared through
+            [clink=Gehtsoft.EF.Db.SqlDb.Metadata.ICompositeIndexMetadata]ICompositeIndexMetadata[/clink]
+            / [clink=Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex]CompositeIndex[/clink].
+        @end
+    @end
+
+    Adding, dropping or changing a [c]UNIQUE[/c] or [c]PRIMARY KEY[/c] constraint is [b]not[/b]
+    handled by the automatic update, because those are emitted as inline column constraints rather
+    than as standalone indexes. Change such a constraint by recreating the table
+    ([c]UpdateMode.Recreate[/c]).
+
+    [b]Excluding an Index on Specific Databases[/b]
+
+    A functional (expression) index cannot be created directly on the engines that do not allow
+    functions in indexes (Microsoft SQL Server and MySQL); by default such an index throws an
+    exception there. To declare, explicitly, that an index must be skipped on a given engine, set the
+    [c]ExcludeFor[/c] property of the
+    [clink=Gehtsoft.EF.Db.SqlDb.Metadata.CompositeIndex]CompositeIndex[/clink] to the list of driver
+    names (see [clink=Gehtsoft.EF.Db.SqlDb.UniversalSqlDbFactory]UniversalSqlDbFactory[/clink]).
+
+    @example
+        @title=Example
+        @show=yes
+        @highlight=cs
+
+        !var index = new CompositeIndex(typeof(Document), "byTitle")
+        !{
+        !    ExcludeFor = new[] { UniversalSqlDbFactory.MSSQL, UniversalSqlDbFactory.MYSQL }
+        !};
+        !index.Add(SqlFunctionId.Upper, nameof(Document.Title));
+    @end
+
+    On an excluded engine the index is silently skipped and is created on all others. Adding an engine
+    to [c]ExcludeFor[/c] for an index that already exists there causes the next update to drop it on
+    that engine.
+
+    [b]Important: Do Not Reuse the Framework Index Naming[/b]
+
+    The framework names every index it creates [i]table[/i]_[i]index[/i], and it uses exactly that
+    convention to recognise which indexes it owns. During reconciliation any index whose name starts
+    with the table name followed by an underscore, and which is not part of the current entity
+    definition, is treated as an orphaned framework index and is [b]dropped[/b].
+
+    Therefore, when you create an index manually (outside the entity definition), [b]do not[/b] name it
+    using the [i]table[/i]_[i]name[/i] pattern - give it a distinct name (for example [c]ix_manual_...[/c]).
+    Primary-key and unique-constraint indexes are never affected, because the database identifies them
+    as unique or primary regardless of their name.
+@end
+
+@article
     @key=tutorialen_entities6
     @title=Inserting, Updating and Deleting Entities
     @brief=

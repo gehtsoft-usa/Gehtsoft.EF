@@ -39,9 +39,9 @@ needed (see `GEO_COMMON_FUNCTIONALITY.md` §2 bind/read strategy).
 8. **SRID** = **default 4326** (WGS84 lon/lat), overridable per property (user, 2026-07-08). Satisfies
    MySQL/Oracle indexed-column SRID requirements out of the box; planar/other systems override on the
    attribute. Oracle 4326≡8307 caveat still applies.
-9. **Index-reconciliation ordering** = the general fix (`../INDEX_RECONCILIATION_PROBLEM.md`) is done
-   **first, as shared prerequisite work** (unblocks JSON too); geo Phase 3 then only extends it
-   (user, 2026-07-08).
+9. **Index-reconciliation ordering** = the general fix (`../INDEX_RECONCILIATION_PROBLEM.md`) was done
+   **first, as shared prerequisite work** — ✅ **landed 2026-07-08** (unblocked JSON too); geo Phase 3
+   only extends it (user, 2026-07-08).
 11. **Oracle `Crosses`** = **throw "unsupported on Oracle"** (user, 2026-07-08 — "easy way, at this
     stage"). No emulation, no `ST_GEOMETRY` wrapping in v1. All 8 predicates elsewhere, 7 on Oracle.
     Mirrors the `RuleExecutionSide` "throw on untranslatable" precedent. A future `ST_Crosses`
@@ -120,10 +120,11 @@ scalar used in GROUP BY must be the byte-identical cached expression everywhere 
 
 ## Delivery — phases (finish-before-advance; each phase planned in `PHASE_N/` then approved)
 
-> **Prerequisite for Phase 3 (decided — done first):** the general index-reconciliation fix
-> (`../INDEX_RECONCILIATION_PROBLEM.md`) — today `UpdateTables` reconciles **no** indexes — is landed
-> **before** Phase 3 as standalone shared work (also unblocks JSON). Create-time spatial indexing
-> (Phase 2) does **not** need it; live-table spatial-index add/drop (Phase 3) extends it.
+> **Prerequisite for Phase 3 — ✅ DONE (2026-07-08):** the general index-reconciliation fix
+> (`../INDEX_RECONCILIATION_PROBLEM.md`) has landed as standalone shared work (all 3 stages, full
+> suite green; also unblocked JSON). `UpdateTables` now reconciles indexes via `GetTableIndexes` +
+> `CompositeIndex.ExcludeFor`. Create-time spatial indexing (Phase 2) doesn't need it; live-table
+> spatial-index add/drop (Phase 3) extends this shared reconciler.
 
 - **Phase 0 — Foundation: geometry type + WKT/WKB codec.** The in-house geometry CLR type (7 OGC
   subtypes, 2-D coordinates, SRID) and a WKT reader/writer + WKB reader/writer. Pure .NET, no DB

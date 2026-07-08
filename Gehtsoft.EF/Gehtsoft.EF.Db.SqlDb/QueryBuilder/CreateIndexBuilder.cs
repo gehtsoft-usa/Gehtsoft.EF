@@ -34,16 +34,14 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (mQuery != null)
                 return;
 
-            if (!mSpecifics.SupportFunctionsInIndexes && mIndex.Any(f => f.Function != null))
+            if (mIndex.IsExcludedFor(mSpecifics.DbName))
             {
-                if (mIndex.FailIfUnsupported)
-                    throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
-                else
-                {
-                    mQuery = "";
-                    return;
-                }
+                mQuery = "";
+                return;
             }
+
+            if (!mSpecifics.SupportFunctionsInIndexes && mIndex.HasFunction)
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
 
             StringBuilder builder = new StringBuilder();
 

@@ -172,7 +172,7 @@ namespace Gehtsoft.EF.Test.Legacy.Entities
 
                 index = new CompositeIndex(typeof(Sale), "Index2")
                 {
-                    FailIfUnsupported = false
+                    ExcludeFor = new[] { UniversalSqlDbFactory.MSSQL, UniversalSqlDbFactory.MYSQL }
                 };
                 index.Add(SqlFunctionId.Upper, nameof(Sale.Note));
                 yield return index;

@@ -101,13 +101,11 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         protected virtual void HandleCompositeIndex(StringBuilder builder, TableDescriptor descriptor, CompositeIndex index)
         {
-            if (!mSpecifics.SupportFunctionsInIndexes && index.Any(f => f.Function != null))
-            {
-                if (index.FailIfUnsupported)
-                    throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
-                else
-                    return;
-            }
+            if (index.IsExcludedFor(mSpecifics.DbName))
+                return;
+
+            if (!mSpecifics.SupportFunctionsInIndexes && index.HasFunction)
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
 
             builder.Append("\r\n");
             builder.Append(mSpecifics.PreQueryInBlock);

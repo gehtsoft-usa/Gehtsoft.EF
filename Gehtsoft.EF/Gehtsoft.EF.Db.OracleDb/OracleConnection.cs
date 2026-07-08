@@ -152,6 +152,51 @@ namespace Gehtsoft.EF.Db.OracleDb
             return tables.ToArray();
         }
 
+        protected override async Task<TableIndexInfo[]> GetTableIndexesCore(string tableName, bool sync, CancellationToken? token)
+        {
+            var rows = new List<RawIndexColumn>();
+            string sql =
+                "SELECT i.INDEX_NAME, i.UNIQUENESS, c.COLUMN_NAME, c.COLUMN_POSITION, " +
+                "(SELECT COUNT(*) FROM ALL_CONSTRAINTS k WHERE k.OWNER = i.OWNER AND k.INDEX_NAME = i.INDEX_NAME AND k.CONSTRAINT_TYPE = 'P') AS IS_PK " +
+                "FROM ALL_INDEXES i " +
+                "LEFT JOIN ALL_IND_COLUMNS c ON c.INDEX_OWNER = i.OWNER AND c.INDEX_NAME = i.INDEX_NAME " +
+                $"WHERE i.OWNER = (SELECT USER FROM DUAL) AND i.TABLE_NAME = '{tableName.ToUpper()}' " +
+                "ORDER BY i.INDEX_NAME, c.COLUMN_POSITION";
+
+            using (SqlDbQuery query = GetQuery(sql, true))
+            {
+                if (sync)
+                {
+                    query.ExecuteReader();
+                    while (query.ReadNext())
+                        AddIndexRow(rows, query);
+                }
+                else
+                {
+                    await query.ExecuteReaderAsync();
+                    while (await query.ReadNextAsync())
+                        AddIndexRow(rows, query);
+                }
+            }
+
+            return AssembleIndexes(rows);
+        }
+
+        private static void AddIndexRow(List<RawIndexColumn> rows, SqlDbQuery query)
+        {
+            string col = query.IsNull(2) ? null : query.GetValue<string>(2);
+            // A function-based index exposes its key parts as hidden SYS_NCnnnnn$ columns -> expression.
+            if (col != null && col.StartsWith("SYS_NC", StringComparison.OrdinalIgnoreCase))
+                col = null;
+            rows.Add(new RawIndexColumn
+            {
+                IndexName = query.GetValue<string>(0),
+                IsUnique = string.Equals(query.GetValue<string>(1), "UNIQUE", StringComparison.OrdinalIgnoreCase),
+                IsPrimary = query.GetValue<int>(4) > 0,
+                Column = col,
+            });
+        }
+
         public override AlterTableQueryBuilder GetAlterTableQueryBuilder()
         {
             return new OracleAlterTableQueryBuilder(GetLanguageSpecifics());

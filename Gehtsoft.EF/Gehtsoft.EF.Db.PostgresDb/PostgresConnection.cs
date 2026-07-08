@@ -149,6 +149,49 @@ namespace Gehtsoft.EF.Db.PostgresDb
             return tables.ToArray();
         }
 
+        protected override async Task<TableIndexInfo[]> GetTableIndexesCore(string tableName, bool sync, CancellationToken? token)
+        {
+            var rows = new List<RawIndexColumn>();
+            string sql =
+                "SELECT i.relname, ix.indisunique, ix.indisprimary, a.attname " +
+                "FROM pg_class t " +
+                "JOIN pg_index ix ON t.oid = ix.indrelid " +
+                "JOIN pg_class i ON i.oid = ix.indexrelid " +
+                "LEFT JOIN LATERAL unnest(ix.indkey) WITH ORDINALITY k(attnum, ordinality) ON true " +
+                "LEFT JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = k.attnum " +
+                $"WHERE t.relname = '{tableName}' AND t.relnamespace = current_schema()::regnamespace " +
+                "ORDER BY i.relname, k.ordinality";
+
+            using (SqlDbQuery query = GetQuery(sql, true))
+            {
+                if (sync)
+                {
+                    query.ExecuteReader();
+                    while (query.ReadNext())
+                        AddIndexRow(rows, query);
+                }
+                else
+                {
+                    await query.ExecuteReaderAsync(token);
+                    while (await query.ReadNextAsync(token))
+                        AddIndexRow(rows, query);
+                }
+            }
+
+            return AssembleIndexes(rows);
+        }
+
+        private static void AddIndexRow(List<RawIndexColumn> rows, SqlDbQuery query)
+        {
+            rows.Add(new RawIndexColumn
+            {
+                IndexName = query.GetValue<string>(0),
+                IsUnique = query.GetValue<bool>(1),
+                IsPrimary = query.GetValue<bool>(2),
+                Column = query.IsNull(3) ? null : query.GetValue<string>(3),
+            });
+        }
+
         public override AlterTableQueryBuilder GetAlterTableQueryBuilder()
         {
             return new PostgresAlterTableQueryBuilder(GetLanguageSpecifics());

@@ -168,6 +168,48 @@ namespace Gehtsoft.EF.Db.MssqlDb
             return tables.ToArray();
         }
 
+        protected override async Task<TableIndexInfo[]> GetTableIndexesCore(string tableName, bool sync, CancellationToken? token)
+        {
+            var rows = new List<RawIndexColumn>();
+            string sql =
+                "SELECT i.name, i.is_primary_key, i.is_unique, c.name, ic.key_ordinal " +
+                "FROM sys.indexes i " +
+                "JOIN sys.index_columns ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id " +
+                "JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id " +
+                "WHERE i.object_id = OBJECT_ID(@p1) AND i.type > 0 " +
+                "ORDER BY i.name, ic.key_ordinal";
+
+            using (SqlDbQuery query = GetQuery(sql))
+            {
+                query.BindParam("p1", tableName);
+                if (sync)
+                {
+                    query.ExecuteReader();
+                    while (query.ReadNext())
+                        AddIndexRow(rows, query);
+                }
+                else
+                {
+                    await query.ExecuteReaderAsync(token);
+                    while (await query.ReadNextAsync(token))
+                        AddIndexRow(rows, query);
+                }
+            }
+
+            return AssembleIndexes(rows);
+        }
+
+        private static void AddIndexRow(List<RawIndexColumn> rows, SqlDbQuery query)
+        {
+            rows.Add(new RawIndexColumn
+            {
+                IndexName = query.GetValue<string>(0),
+                IsPrimary = query.GetValue<bool>(1),
+                IsUnique = query.GetValue<bool>(2),
+                Column = query.IsNull(3) ? null : query.GetValue<string>(3),
+            });
+        }
+
         public override AlterTableQueryBuilder GetAlterTableQueryBuilder()
         {
             return new MssqlAlterTableQueryBuilder(GetLanguageSpecifics());

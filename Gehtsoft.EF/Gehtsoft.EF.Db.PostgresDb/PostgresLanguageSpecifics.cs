@@ -6,6 +6,11 @@ namespace Gehtsoft.EF.Db.PostgresDb
 {
     public class PostgresDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
+        /// <summary>
+        /// The driver identifier of this dialect.
+        /// </summary>
+        public override string DbName => UniversalSqlDbFactory.POSTGRES;
+
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             string typeName;

@@ -18,6 +18,16 @@ namespace Gehtsoft.EF.Db.SqlDb
     public abstract class SqlDbLanguageSpecifics
     {
         /// <summary>
+        /// The driver identifier of this dialect (one of the <see cref="UniversalSqlDbFactory"/>
+        /// names, e.g. <c>"sqlite"</c>, <c>"npgsql"</c>, <c>"oracle"</c>, <c>"mssql"</c>,
+        /// <c>"mysql"</c>). It matches the owning connection's
+        /// <see cref="SqlDbConnection.ConnectionType"/> and is used to evaluate a composite index's
+        /// <see cref="Metadata.CompositeIndex.ExcludeFor"/>. The default is an empty string
+        /// (matches no driver).
+        /// </summary>
+        public virtual string DbName => "";
+
+        /// <summary>
         /// Flag indicating whether the queries must be terminated with semicolon.
         /// </summary>
         public virtual bool TerminateWithSemicolon

@@ -422,6 +422,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     }
 
                     ReconcileDynamicPropertiesTable(connection, info, entityDescriptor, schema);
+                    ReconcileIndexes(connection, info, entityDescriptor);
                 }
             }
 
@@ -471,6 +472,164 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     RaiseUpdate(info.Table);
                 }
             }
+        }
+
+        private sealed class DesiredIndex
+        {
+            public string DbName;              // physical name: <table>_<logical>
+            public string LogicalName;         // <logical>
+            public CompositeIndex Index;       // used to (re)create via GetCreateIndexBuilder
+            public List<string> Columns;       // resolved SQL column names, lower-cased (empty for expression indexes)
+            public bool IsExpression;
+        }
+
+        /// <summary>
+        /// Reconciles the plain (`CREATE INDEX`) indexes of an existing owner table during
+        /// <see cref="UpdateTables"/>: creates indexes that are declared but missing, drops
+        /// framework-owned indexes whose declaration was removed, and drops+recreates an index
+        /// whose column set changed. Unique / primary-key backing indexes are ignored (out of
+        /// scope); an index excluded for the current driver via
+        /// <see cref="CompositeIndex.ExcludeFor"/> is skipped.
+        /// </summary>
+        private void ReconcileIndexes(SqlDbConnection connection, EntityFinder.EntityTypeInfo info, EntityDescriptor entityDescriptor)
+        {
+            TableDescriptor descriptor = entityDescriptor.TableDescriptor;
+            SqlDbLanguageSpecifics specifics = connection.GetLanguageSpecifics();
+            string driverId = specifics.DbName;
+            string prefix = descriptor.Name + "_";
+
+            // actual plain indexes (ignore unique/PK backing indexes). A null result means the
+            // connection does not support index enumeration -> skip reconciliation entirely.
+            TableIndexInfo[] all = connection.GetTableIndexes(descriptor.Name);
+            if (all == null)
+                return;
+            var actual = new Dictionary<string, TableIndexInfo>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < all.Length; i++)
+                if (!all[i].IsUnique && !all[i].IsPrimary)
+                    actual[all[i].Name] = all[i];
+
+            // desired framework-owned indexes for this driver
+            var desired = new Dictionary<string, DesiredIndex>(StringComparer.OrdinalIgnoreCase);
+            foreach (DesiredIndex d in ComputeDesiredIndexes(connection, descriptor))
+                if (!d.Index.IsExcludedFor(driverId))
+                    desired[d.DbName] = d;
+
+            bool changed = false;
+
+            // create missing / recreate changed
+            foreach (KeyValuePair<string, DesiredIndex> kv in desired)
+            {
+                DesiredIndex d = kv.Value;
+                if (!actual.TryGetValue(d.DbName, out TableIndexInfo act))
+                {
+                    CreateIndex(connection, descriptor, d.Index);
+                    changed = true;
+                }
+                else if (!d.IsExpression && !act.IsExpression && !SameColumns(d.Columns, act.Columns))
+                {
+                    // structural change (columns differ) -> drop and recreate
+                    DropIndex(connection, descriptor, d.LogicalName);
+                    CreateIndex(connection, descriptor, d.Index);
+                    changed = true;
+                }
+            }
+
+            // owned-drop: a framework-named index that is no longer desired
+            foreach (KeyValuePair<string, TableIndexInfo> kv in actual)
+            {
+                if (!kv.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                    continue;                                  // not framework-owned by naming convention
+                if (desired.ContainsKey(kv.Key))
+                    continue;
+                DropIndex(connection, descriptor, kv.Key.Substring(prefix.Length));
+                changed = true;
+            }
+
+            if (changed)
+                RaiseUpdate(info.Table);
+        }
+
+        private static List<DesiredIndex> ComputeDesiredIndexes(SqlDbConnection connection, TableDescriptor descriptor)
+        {
+            var result = new List<DesiredIndex>();
+
+            // single-column Sorted / FK indexes (driver decides which columns get one)
+            AlterTableQueryBuilder ddl = connection.GetAlterTableQueryBuilder();
+            foreach (TableDescriptor.ColumnInfo column in descriptor)
+            {
+                if (ddl.NeedIndex(column))
+                {
+                    var ci = new CompositeIndex(column.Name);
+                    ci.Add(column.Name);
+                    result.Add(MakeDesired(descriptor, ci));
+                }
+            }
+
+            // compound indexes declared via ICompositeIndexMetadata
+            if (descriptor.Metadata is ICompositeIndexMetadata composite)
+                foreach (CompositeIndex ci in composite.Indexes)
+                    result.Add(MakeDesired(descriptor, ci));
+
+            return result;
+        }
+
+        private static DesiredIndex MakeDesired(TableDescriptor descriptor, CompositeIndex index)
+        {
+            var columns = new List<string>();
+            bool expression = false;
+            for (int i = 0; i < index.Fields.Count; i++)
+            {
+                CompositeIndex.Field field = index.Fields[i];
+                if (field.Function != null)
+                {
+                    expression = true;
+                    continue;
+                }
+                // resolve the field name to the SQL column name (same rule as HandleCompositeIndexColumns)
+                string name = field.Name;
+                foreach (TableDescriptor.ColumnInfo c in descriptor)
+                    if (c.ID == field.Name || c.Name == field.Name)
+                    {
+                        name = c.Name;
+                        break;
+                    }
+                columns.Add(name.ToLowerInvariant());
+            }
+
+            return new DesiredIndex
+            {
+                LogicalName = index.Name,
+                DbName = descriptor.Name + "_" + index.Name,
+                Index = index,
+                Columns = columns,
+                IsExpression = expression,
+            };
+        }
+
+        private static bool SameColumns(List<string> desired, IReadOnlyList<string> actual)
+        {
+            if (desired.Count != actual.Count)
+                return false;
+            for (int i = 0; i < desired.Count; i++)
+                if (!string.Equals(desired[i], actual[i], StringComparison.OrdinalIgnoreCase))
+                    return false;
+            return true;
+        }
+
+        private static void CreateIndex(SqlDbConnection connection, TableDescriptor descriptor, CompositeIndex index)
+        {
+            CreateIndexBuilder builder = connection.GetCreateIndexBuilder(descriptor, index);
+            builder.PrepareQuery();
+            if (string.IsNullOrEmpty(builder.Query))
+                return;
+            using (var query = connection.GetQuery(builder))
+                query.ExecuteNoData();
+        }
+
+        private static void DropIndex(SqlDbConnection connection, TableDescriptor descriptor, string logicalName)
+        {
+            using (var query = connection.GetQuery(connection.GetDropIndexBuilder(descriptor, logicalName)))
+                query.ExecuteNoData();
         }
 
         private void RaiseCreate(string table)

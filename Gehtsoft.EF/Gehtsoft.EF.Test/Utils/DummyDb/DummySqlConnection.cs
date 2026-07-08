@@ -24,6 +24,14 @@ namespace Gehtsoft.EF.Test.Utils.DummyDb
 
         protected override Task<TableDescriptor[]> SchemaCore(bool sync, CancellationToken? token) => Task.FromResult(mScheme) ?? throw new NotFiniteNumberException();
 
+        // null by default => the dummy does not support index enumeration, so UpdateTables skips
+        // index reconciliation for it (tests that need it can call SetIndexes).
+        private TableIndexInfo[] mIndexes = null;
+
+        public void SetIndexes(TableIndexInfo[] indexes) => mIndexes = indexes;
+
+        protected override Task<TableIndexInfo[]> GetTableIndexesCore(string tableName, bool sync, CancellationToken? token) => Task.FromResult(mIndexes);
+
         public DummySqlConnection() : this(new DummyDbConnection())
         {
         }

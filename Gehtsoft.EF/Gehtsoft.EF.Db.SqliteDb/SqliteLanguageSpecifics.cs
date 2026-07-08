@@ -7,6 +7,11 @@ namespace Gehtsoft.EF.Db.SqliteDb
 {
     public class SqliteDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
+        /// <summary>
+        /// The driver identifier of this dialect.
+        /// </summary>
+        public override string DbName => UniversalSqlDbFactory.SQLITE;
+
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             switch (type)

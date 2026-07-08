@@ -1,8 +1,10 @@
 # `UpdateTables` does not reconcile indexes — defect & fix plan
 
-**Status:** *Open defect. Must be fixed before the JSON-properties feature starts* (that feature's
-index-change detection is a consumer of the mechanism designed here). Written 2026-07-08.
-Companion to `ENTITY_WHERE_PROBLEM.md` (same "core-schema limitation + proposed fix" shape).
+**Status:** ✅ **FIXED — all three stages done, 2026-07-08** (full suite 3396 green on
+sqlite/pgsql/mysql/mssql/oracle18/oracle11; docs shipped). This was a **shared prerequisite for both
+the JSON-properties and the Geo features** — both are now unblocked (their live-table index
+add/drop rides this general mechanism). Written 2026-07-08. Companion to `ENTITY_WHERE_PROBLEM.md`
+(same "core-schema limitation + fix" shape). Stage details below and in `INDEX_RECONCILIATION_PLAN.md`.
 
 ---
 
@@ -114,23 +116,28 @@ create via `CREATE INDEX`: `Sorted`/FK single-column + all `ICompositeIndexMetad
   longer in the desired set, and we must not delete PK/unique backing indexes or a user's
   hand-made index. The `<table>_<name>` naming discipline is the ownership signal.
 
-### The central decision — how aggressive DROP should be
+### How aggressive DROP should be — DECIDED: Level 2 (NG, 2026-07-08)
 - **Level 1 — Add-only.** Create missing indexes; never drop. Simple, zero risk. Removed indexes
-  stay as orphans (documented; cleared by a manual `Patch`). *Fully fixes the user's reported case.*
-- **Level 2 — Add + owned-drop (recommended).** Also drop an actual index iff its name matches the
+  stay as orphans (cleared by a manual `Patch`). Fixes only the "add" half.
+- **Level 2 — Add + owned-drop  ← CHOSEN.** Also drop an actual index iff its name matches the
   framework convention `<table>_<name>` **and** it is not in the desired set **and** it is not a
-  PK/unique backing index (those don't match the convention, so this is automatic). Optionally
-  confirm via index-column introspection that a same-named index whose *definition* changed is
-  dropped+recreated. Residual risk: a user who hand-created an index following the exact
-  `<table>_<x>` convention could see it dropped — **documented limitation** (same class of
-  naming-convention trust the whole builder already relies on).
-- **Level 3 — Managed-index catalog.** Persist framework-created index names in a small metadata
-  table for unambiguous ownership; reconcile against it. Most robust, most invasive (new table +
-  bootstrap for pre-existing DBs). Overkill for now.
+  PK/unique backing index (those don't match the convention, so this is automatic). A same-named
+  index whose *definition* changed is dropped+recreated (Level-2 structural check, see staging).
+  Residual risk: a user who hand-created an index following the exact `<table>_<x>` convention
+  could see it dropped.
+- **Level 3 — Managed-index catalog.** Persist framework-created index names in a metadata table
+  for unambiguous ownership. Most robust, most invasive (new table + bootstrap for pre-existing
+  DBs). Not chosen.
 
-**Recommendation: Level 2.** It fixes add *and* remove, the ownership rule is safe by construction
-for PK/unique, and the only residual risk is a naming-convention collision the codebase already
-implicitly trusts everywhere else.
+**Chosen: Level 2.** It fixes add *and* remove, and the ownership rule is safe by construction for
+PK/unique.
+
+**Mitigation for the residual risk (NG's call): documentation, not code.** A docgen article will
+**warn users not to name their own (manually created) indexes using the framework's
+`<table>_<indexname>` convention**, because `UpdateTables` may drop an index of that name shape
+that it does not find in the entity definition. This is the same class of naming-convention trust
+the builder already relies on everywhere. → the article is a required deliverable of this fix
+(Stage 3 below). Docs live in `doc1/` (docgen `.ds`; iterate with `/t:MakeDoc`).
 
 ### Where it plugs in
 In `UpdateTables`, the existing-table `else` branch (`:396-425`), after `AddColumns` /
@@ -144,16 +151,36 @@ drivers) exactly as `CreateIndexBuilder`/`CreateTableBuilder` already do.
 
 ## 4. Staging
 
-- **Stage 0** — per-driver **enumerate-indexes** helper (`SqlDbConnection.GetTableIndexes(table)`
-  + `*Core` per driver) with deep tests (create known indexes, enumerate, assert names).
-- **Stage 1 — Level 1 (add-only)** reconcile in `UpdateTables`. Fixes the reported defect. Deep
-  (SQLite) + acceptance (SQLite/Postgres/Oracle/MSSQL/MySQL — this is a *general* fix, all drivers):
-  add composite index / set `Sorted` on existing column → `UpdateTables` → index now exists;
-  idempotent second run is a no-op.
-- **Stage 2 — Level 2 (owned-drop)**, gated on the decision. Remove a composite index / un-sort a
-  column → `UpdateTables` → the framework-owned index is gone; PK/unique/user indexes untouched
-  (explicit test: both a PK/unique backing index **and** a manually-created index with a
-  non-convention name survive). Optional structural change-detection via index-column introspection.
+- **Stage 0 — ✅ DONE (2026-07-08).** Per-driver **enumerate-indexes** helper
+  (`SqlDbConnection.GetTableIndexes(table)` + abstract `*Core`, implemented in all 6 drivers) with
+  deep + acceptance tests; also eliminated `FailIfUnsupported` and added `CompositeIndex.ExcludeFor`
+  + `SqlDbLanguageSpecifics.DbName`. Full suite **3388 green** on sqlite/pgsql/mysql/mssql. Details
+  in `INDEX_RECONCILIATION_PLAN.md` §0.0–§0.4.
+- **Stage 1 — ✅ DONE (2026-07-08, full suite 3396 green on sqlite/pgsql/mysql/mssql).** Full
+  Level-2 reconcile in `UpdateTables` (add + owned-drop + structural change). Details in
+  `INDEX_RECONCILIATION_PLAN.md` §1. — original scope below:
+- **Stage 1 — full Level-2 reconcile in `UpdateTables`** (add + owned-drop in one stage). Deep
+  (SQLite) + acceptance (all 6 drivers — this is a *general* fix):
+  - **Add:** add a composite index / set `Sorted` on an existing column → `UpdateTables` → the
+    index now exists; idempotent second run is a no-op.
+  - **Owned-drop:** remove a composite index / un-sort a column → `UpdateTables` → the
+    framework-owned index is gone.
+  - **Change:** alter a composite index's columns/order → dropped + recreated (structural check
+    via index-column introspection).
+  - **Safety:** a PK/unique backing index **and** a manually-created index with a non-convention
+    name both survive across all the above (explicit test).
+- **Stage 2 — ✅ DONE (2026-07-08).** Docgen tutorial article `@key=tutorialen_autoupdate`
+  ("Automatic Schema Update", `@ingroup=tutorialsen`) added to `doc1/src/ns/sqltutorialsen.ds`
+  immediately after `tutorialen_entities5` — covers what `UpdateTables` does, index reconciliation,
+  `ExcludeFor`, and the prominent naming-convention warning. (An earlier standalone `sql`-group
+  article was folded into this tutorial and removed, per NG.) XML doc comments added on all new
+  public API; `doc1` rescanned (raw now carries `TableIndexInfo`/`ExcludeFor`, drops
+  `FailIfUnsupported`); `dotnet build project.proj /t:MakeDoc` green, link integrity passed.
+  — original scope below:
+- **Stage 2 — docs.** A docgen `.ds` article (in `doc1/`) documenting `UpdateTables` index
+  reconciliation and, prominently, the **warning** that manually-created indexes must not use the
+  framework's `<table>_<indexname>` naming convention or they may be dropped on update. XML doc
+  comments on any new public API.
 - **Regression** — full existing suite green (schema-update tests, `Legacy/DbUpdateTests`,
   create/drop tests); byte-identical `CREATE TABLE` output (indexes still ride along at create time).
 
@@ -163,19 +190,30 @@ index-field model layered on top (Section 5).
 
 ---
 
-## 5. Relationship to the JSON-properties feature
+## 5. Relationship to the JSON-properties and Geo features (shared prerequisite — now satisfied)
 
-`JSON_PROPERTIES/` originally carried "Phase 2 — table update / index reconciliation" as its own
-largest subsystem. That work is **hoisted here** as a prerequisite general fix, because the gap is
-not JSON-specific. Once this lands, the JSON feature *consumes* it: it only adds a **path-carrying
-field** to the index model (`CompositeIndex.Field` currently = `(SqlFunctionId? Function, columnName,
-dir)`; JSON needs `+ jsonPath + targetType`) and per-driver `GetSqlFunction(JsonValue, …)`
-rendering. The desired/actual diff, the enumerate helper, and the `UpdateTables` wiring are all
-provided by this fix. JSON indexes use a reserved name shape (`<table>_<col>_<pathslug>`) that fits
-the same `<table>_<name>` convention and ownership rule.
+Both `JSON_PROPERTIES/` and `GEO/` originally carried live-table index reconciliation as their own
+subsystem. That work was **hoisted here** as a single general fix, because the gap is not specific to
+either feature. Now that it has landed, both features simply *consume* it:
+
+- **JSON** (`JSON_PROPERTIES/` Phase 2): adds a **path-carrying field** to the index model
+  (`CompositeIndex.Field` = `(SqlFunctionId? Function, columnName, dir)`; JSON adds `jsonPath +
+  targetType`) + per-driver `GetSqlFunction(JsonValue, …)`. JSON indexes use a reserved name shape
+  (`<table>_<col>_<pathslug>`) that fits the same `<table>_<name>` convention and ownership rule.
+- **Geo** (`GEO/` Phase 3): create-time spatial indexing (Phase 2) needs nothing from here; only
+  **live-table spatial-index add/drop** extends the shared reconciler.
+
+The desired/actual diff, the per-driver enumerate helper (`GetTableIndexes`), the `ExcludeFor`
+mechanism, and the `UpdateTables` wiring are all provided by this fix. **Both features are
+unblocked.**
 
 ---
 
-## 6. Decision needed before coding
-**Target level for DROP reconciliation (Section 3): Level 1, Level 2 (recommended), or Level 3.**
-Everything else (enumerate helper, add-reconcile, wiring, tests) is agreed and unambiguous.
+## 6. Decisions — all settled (2026-07-08)
+- Scope = plain `CREATE INDEX` only (`Sorted`/FK single-column + compound); `Unique`/PK out (§3).
+- DROP level = **Level 2 (owned-drop)**, keyed on the `<table>_<name>` convention (§3).
+- Residual-risk mitigation = a **docgen article** warning against manual indexes using the
+  framework naming convention (§3, Stage 3).
+
+Nothing else is open — enumerate helper, add+owned-drop reconcile, wiring, and tests are agreed.
+Ready to draft the detailed Stage-0/Stage-1 implementation plan.

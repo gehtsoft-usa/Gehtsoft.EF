@@ -77,9 +77,10 @@ the EAV analysis, made tractable by the 3-driver scope.
 Two human gates per the EAV working agreement: (1) approving each phase's plan, (2) advancing to
 the next phase. The sequence follows the user's 8-step ordering.
 
-> **Prerequisite (blocks everything):** the general index-reconciliation fix in
-> `../INDEX_RECONCILIATION_PROBLEM.md` must land first — today `UpdateTables` reconciles no indexes
-> at all. JSON's index handling (Phase 2) is a consumer/extension of it.
+> **Prerequisite — ✅ DONE (2026-07-08):** the general index-reconciliation fix in
+> `../INDEX_RECONCILIATION_PROBLEM.md` has landed (all 3 stages, full suite green). `UpdateTables`
+> now reconciles indexes (add/owned-drop/change) via `GetTableIndexes` + `CompositeIndex.ExcludeFor`.
+> JSON's index handling (Phase 2) is now just a consumer/extension of it.
 
 - **Phase 0 — prerequisites & foundation.** `System.Text.Json` package reference (user approves);
   `[JsonEntityProperty]` + repeatable `[JsonIndex]` attributes; `JsonPropertyAccessor`

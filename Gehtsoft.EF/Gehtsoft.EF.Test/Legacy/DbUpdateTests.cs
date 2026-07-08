@@ -268,6 +268,54 @@ namespace Gehtsoft.EF.Test.Legacy
             public int ID { get; set; }
         }
 
+        // ---- Index-reconciliation test entities (three variants of table "idxr") ------------------
+
+        // no Sorted column, no composite index
+        [Entity(Scope = "idxr_base", Table = "idxr")]
+        public class IdxBase
+        {
+            [EntityProperty(Field = "id", AutoId = true)] public int ID { get; set; }
+            [EntityProperty(Field = "a", DbType = DbType.Int32, Nullable = true)] public int A { get; set; }
+            [EntityProperty(Field = "b", DbType = DbType.Int32, Nullable = true)] public int B { get; set; }
+            [EntityProperty(Field = "c", DbType = DbType.Int32, Nullable = true)] public int C { get; set; }
+        }
+
+        // "a" is Sorted, plus a composite index cmp(a, b)
+        [Entity(Scope = "idxr_add", Table = "idxr", Metadata = typeof(CmpAB))]
+        public class IdxAdd
+        {
+            [EntityProperty(Field = "id", AutoId = true)] public int ID { get; set; }
+            [EntityProperty(Field = "a", DbType = DbType.Int32, Sorted = true, Nullable = true)] public int A { get; set; }
+            [EntityProperty(Field = "b", DbType = DbType.Int32, Nullable = true)] public int B { get; set; }
+            [EntityProperty(Field = "c", DbType = DbType.Int32, Nullable = true)] public int C { get; set; }
+        }
+
+        // "a" no longer Sorted; composite index cmp changed to (a, c)
+        [Entity(Scope = "idxr_change", Table = "idxr", Metadata = typeof(CmpAC))]
+        public class IdxChange
+        {
+            [EntityProperty(Field = "id", AutoId = true)] public int ID { get; set; }
+            [EntityProperty(Field = "a", DbType = DbType.Int32, Nullable = true)] public int A { get; set; }
+            [EntityProperty(Field = "b", DbType = DbType.Int32, Nullable = true)] public int B { get; set; }
+            [EntityProperty(Field = "c", DbType = DbType.Int32, Nullable = true)] public int C { get; set; }
+        }
+
+        public class CmpAB : ICompositeIndexMetadata
+        {
+            public IEnumerable<CompositeIndex> Indexes
+            {
+                get { var i = new CompositeIndex("cmp"); i.Add("a"); i.Add("b"); yield return i; }
+            }
+        }
+
+        public class CmpAC : ICompositeIndexMetadata
+        {
+            public IEnumerable<CompositeIndex> Indexes
+            {
+                get { var i = new CompositeIndex("cmp"); i.Add("a"); i.Add("c"); yield return i; }
+            }
+        }
+
         private static bool f1, f2, f3, f4;
 
         private static void OnEntity0Created(SqlDbConnection conneciton)
@@ -366,6 +414,195 @@ namespace Gehtsoft.EF.Test.Legacy
             ((Action)(() => controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update, modes)))
                 .Should().Throw<EfSqlException>()
                 .Which.ErrorCode.Should().Be(EfExceptionCode.CannotRecreateTable);
+        }
+
+        // ---- Stage 0: GetTableIndexes enumeration ------------------------------------------------
+
+        private sealed class IndexTestMetadata : ICompositeIndexMetadata
+        {
+            public IEnumerable<CompositeIndex> Indexes
+            {
+                get
+                {
+                    var ci = new CompositeIndex("cmp");
+                    ci.Add("a");
+                    ci.Add("b");
+                    yield return ci;
+                }
+            }
+        }
+
+        private static TableDescriptor BuildIndexTestTable()
+        {
+            var table = new TableDescriptor("idxtest",
+                new TableDescriptor.ColumnInfo[]
+                {
+                    new TableDescriptor.ColumnInfo { Name = "id", DbType = DbType.Int32, PrimaryKey = true },
+                    new TableDescriptor.ColumnInfo { Name = "code", DbType = DbType.String, Size = 32, Sorted = true, Nullable = true },
+                    new TableDescriptor.ColumnInfo { Name = "email", DbType = DbType.String, Size = 64, Unique = true, Nullable = true },
+                    new TableDescriptor.ColumnInfo { Name = "a", DbType = DbType.Int32, Nullable = true },
+                    new TableDescriptor.ColumnInfo { Name = "b", DbType = DbType.Int32, Nullable = true },
+                })
+            {
+                Metadata = new IndexTestMetadata()
+            };
+            return table;
+        }
+
+        private static TableIndexInfo FindIndex(TableIndexInfo[] all, string name)
+        {
+            foreach (var i in all)
+                if (string.Equals(i.Name, name, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            return null;
+        }
+
+        [Fact]
+        public void GetTableIndexes_Sqlite_Deep()
+        {
+            using var connection = Gehtsoft.EF.Db.SqliteDb.SqliteDbConnectionFactory.CreateMemory();
+            var table = BuildIndexTestTable();
+            using (var q = connection.GetQuery(connection.GetCreateTableBuilder(table)))
+                q.ExecuteNoData();
+
+            var idx = connection.GetTableIndexes("idxtest");
+
+            var code = FindIndex(idx, "idxtest_code");
+            code.Should().NotBeNull();
+            code.IsUnique.Should().BeFalse();
+            code.IsPrimary.Should().BeFalse();
+            code.IsExpression.Should().BeFalse();
+            code.Columns.Should().Equal("code");
+
+            var cmp = FindIndex(idx, "idxtest_cmp");
+            cmp.Should().NotBeNull();
+            cmp.IsUnique.Should().BeFalse();
+            cmp.IsPrimary.Should().BeFalse();
+            cmp.Columns.Should().Equal("a", "b");
+
+            // the UNIQUE column produces a unique backing index, reported and flagged
+            idx.Should().Contain(i => i.IsUnique, "the UNIQUE column must produce a unique backing index");
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void GetTableIndexes_ReportsPlainAndFlagsConstraints(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+            var table = BuildIndexTestTable();
+
+            using (var q = connection.GetQuery(connection.GetDropTableBuilder(table)))
+                q.ExecuteNoData();
+            using (var q = connection.GetQuery(connection.GetCreateTableBuilder(table)))
+                q.ExecuteNoData();
+
+            try
+            {
+                var idx = connection.GetTableIndexes("idxtest");
+
+                var code = FindIndex(idx, "idxtest_code");
+                code.Should().NotBeNull("the Sorted column index must be reported");
+                code.IsUnique.Should().BeFalse();
+                code.IsPrimary.Should().BeFalse();
+                code.Columns.Should().Equal("code");
+
+                var cmp = FindIndex(idx, "idxtest_cmp");
+                cmp.Should().NotBeNull("the composite index must be reported");
+                cmp.IsUnique.Should().BeFalse();
+                cmp.IsPrimary.Should().BeFalse();
+                cmp.Columns.Should().Equal("a", "b");
+
+                // every other reported index must be a PK/unique backing index (correctly flagged)
+                foreach (var i in idx)
+                    if (!string.Equals(i.Name, "idxtest_code", StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(i.Name, "idxtest_cmp", StringComparison.OrdinalIgnoreCase))
+                        (i.IsUnique || i.IsPrimary).Should().BeTrue($"index {i.Name} is neither of our plain indexes, so it must be a PK/unique backing index");
+            }
+            finally
+            {
+                using var q = connection.GetQuery(connection.GetDropTableBuilder(table));
+                q.ExecuteNoData();
+            }
+        }
+
+        // ---- Stage 1: UpdateTables index reconciliation ------------------------------------------
+
+        [Fact]
+        public void ReconcileIndexes_Lifecycle_Sqlite()
+        {
+            using var connection = Gehtsoft.EF.Db.SqliteDb.SqliteDbConnectionFactory.CreateMemory();
+
+            // 1. baseline: table exists, no plain indexes
+            new CreateEntityController(typeof(IdxBase), "idxr_base").UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            connection.DoesObjectExist("idxr", "a", "index").Should().BeFalse("no Sorted column yet");
+            connection.DoesObjectExist("idxr", "cmp", "index").Should().BeFalse("no composite index yet");
+
+            // 2. add: "a" Sorted + composite cmp(a,b)
+            new CreateEntityController(typeof(IdxAdd), "idxr_add").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            connection.DoesObjectExist("idxr", "a", "index").Should().BeTrue("Sorted column index added");
+            connection.DoesObjectExist("idxr", "cmp", "index").Should().BeTrue("composite index added");
+            FindIndex(connection.GetTableIndexes("idxr"), "idxr_cmp").Columns.Should().Equal("a", "b");
+
+            // 2b. idempotent: a second Update changes nothing
+            new CreateEntityController(typeof(IdxAdd), "idxr_add").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            connection.DoesObjectExist("idxr", "a", "index").Should().BeTrue();
+            connection.DoesObjectExist("idxr", "cmp", "index").Should().BeTrue();
+
+            // 3. change: "a" no longer Sorted (single index dropped), cmp -> (a,c) (recreated)
+            new CreateEntityController(typeof(IdxChange), "idxr_change").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            connection.DoesObjectExist("idxr", "a", "index").Should().BeFalse("column no longer Sorted");
+            connection.DoesObjectExist("idxr", "cmp", "index").Should().BeTrue();
+            FindIndex(connection.GetTableIndexes("idxr"), "idxr_cmp").Columns.Should().Equal("a", "c");
+
+            // 4. remove all: back to baseline drops the composite
+            new CreateEntityController(typeof(IdxBase), "idxr_base").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            connection.DoesObjectExist("idxr", "cmp", "index").Should().BeFalse("composite index removed");
+        }
+
+        [Fact]
+        public void ReconcileIndexes_LeavesNonConventionIndex_Sqlite()
+        {
+            using var connection = Gehtsoft.EF.Db.SqliteDb.SqliteDbConnectionFactory.CreateMemory();
+            new CreateEntityController(typeof(IdxAdd), "idxr_add").UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+
+            // a manually created index whose name does NOT follow the <table>_<name> convention
+            using (var q = connection.GetQuery("CREATE INDEX manualidx ON idxr(b)", true))
+                q.ExecuteNoData();
+
+            // an unrelated update must not touch it
+            new CreateEntityController(typeof(IdxAdd), "idxr_add").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+
+            FindIndex(connection.GetTableIndexes("idxr"), "manualidx").Should().NotBeNull("a non-convention manual index is not framework-owned");
+            connection.DoesObjectExist("idxr", "cmp", "index").Should().BeTrue("declared indexes remain");
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void ReconcileIndexes_AddAndDrop(string connectionName)
+        {
+            var connection = mFixture.GetInstance(connectionName);
+
+            // clean slate
+            new CreateEntityController(typeof(IdxBase), "idxr_base").UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            connection.DoesObjectExist("idxr", "a", "index").Should().BeFalse();
+            connection.DoesObjectExist("idxr", "cmp", "index").Should().BeFalse();
+
+            try
+            {
+                // add Sorted + composite index
+                new CreateEntityController(typeof(IdxAdd), "idxr_add").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+                connection.DoesObjectExist("idxr", "a", "index").Should().BeTrue("Sorted index created");
+                connection.DoesObjectExist("idxr", "cmp", "index").Should().BeTrue("composite index created");
+
+                // remove them (back to baseline)
+                new CreateEntityController(typeof(IdxBase), "idxr_base").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+                connection.DoesObjectExist("idxr", "a", "index").Should().BeFalse("Sorted index dropped");
+                connection.DoesObjectExist("idxr", "cmp", "index").Should().BeFalse("composite index dropped");
+            }
+            finally
+            {
+                new CreateEntityController(typeof(IdxBase), "idxr_base").DropTables(connection);
+            }
         }
     }
 }

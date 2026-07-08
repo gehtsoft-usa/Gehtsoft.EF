@@ -8,6 +8,11 @@ namespace Gehtsoft.EF.Db.OracleDb
 {
     public class OracleDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
+        /// <summary>
+        /// The driver identifier of this dialect.
+        /// </summary>
+        public override string DbName => UniversalSqlDbFactory.ORACLE;
+
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             string typeName;
