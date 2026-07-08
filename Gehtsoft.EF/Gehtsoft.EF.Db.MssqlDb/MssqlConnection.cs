@@ -143,7 +143,7 @@ namespace Gehtsoft.EF.Db.MssqlDb
 
             foreach (TableDescriptor descriptor in tables)
             {
-                using (SqlDbQuery query = GetQuery("select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = (SELECT SCHEMA_NAME()) and TABLE_NAME = @p1"))
+                using (SqlDbQuery query = GetQuery("select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = (SELECT SCHEMA_NAME()) and TABLE_NAME = @p1 ORDER BY ORDINAL_POSITION"))
                 {
                     query.BindParam("p1", descriptor.Name);
                     if (sync)

@@ -124,7 +124,7 @@ namespace Gehtsoft.EF.Db.OracleDb
             }
             foreach (TableDescriptor descriptor in tables)
             {
-                var queryText = $"SELECT * FROM user_tab_cols WHERE TABLE_NAME='{descriptor.Name.ToUpper()}'";
+                var queryText = $"SELECT * FROM user_tab_cols WHERE TABLE_NAME='{descriptor.Name.ToUpper()}' ORDER BY COLUMN_ID";
                 using (SqlDbQuery query = GetQuery(queryText, true))
                 {
                     if (sync)
