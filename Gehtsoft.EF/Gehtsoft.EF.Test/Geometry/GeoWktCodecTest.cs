@@ -27,8 +27,16 @@ namespace Gehtsoft.EF.Test.Geometry
         [InlineData("GEOMETRYCOLLECTION EMPTY")]
         public void WktRoundTrip_IsCanonical(string wkt)
         {
+            // ToWkt(false) = plain OGC WKT (no SRID prefix), which the canonical inputs use.
             GeoGeometry geometry = GeoGeometry.Parse(wkt);
-            geometry.ToWkt().Should().Be(wkt);
+            geometry.ToWkt(includeSrid: false).Should().Be(wkt);
+        }
+
+        [Fact]
+        public void ToWkt_ByDefault_WritesEwktSridPrefix()
+        {
+            GeoGeometry geometry = GeoGeometry.Parse("POINT (1 2)", srid: 3857);
+            geometry.ToWkt().Should().Be("SRID=3857;POINT (1 2)");
         }
 
         [Fact]
@@ -37,7 +45,7 @@ namespace Gehtsoft.EF.Test.Geometry
             GeoGeometry legacy = GeoGeometry.Parse("MULTIPOINT (1 2, 3 4)");
             GeoGeometry canonical = GeoGeometry.Parse("MULTIPOINT ((1 2), (3 4))");
             legacy.Should().Be(canonical);
-            legacy.ToWkt().Should().Be("MULTIPOINT ((1 2), (3 4))");
+            legacy.ToWkt(includeSrid: false).Should().Be("MULTIPOINT ((1 2), (3 4))");
         }
 
         [Fact]

@@ -8,8 +8,9 @@ before each phase is coded, and advancing between phases is a second explicit ga
 
 ## Context
 
-A **geo property** is an entity member holding a 2-D OGC geometry (Point / LineString / Polygon /
-MultiPoint / MultiLineString / MultiPolygon / GeometryCollection) with an integer SRID, stored in a
+A **geo property** is an entity member holding an OGC geometry (Point / LineString / Polygon /
+MultiPoint / MultiLineString / MultiPolygon / GeometryCollection; 2-D with **optional Z/M** ordinates
+— decision 14) with an integer SRID, stored in a
 **native spatial column** on the entity's own table, round-tripped automatically on load/save via
 **WKT/WKB**, and usable in **WHERE** (predicates + measurements), **mass delete**, **select**, and
 **projection**. Scope: **all five drivers** — MSSQL, Oracle 12+ (Locator), SQLite (SpatiaLite),
@@ -46,10 +47,24 @@ needed (see `GEO_COMMON_FUNCTIONALITY.md` §2 bind/read strategy).
     stage"). No emulation, no `ST_GEOMETRY` wrapping in v1. All 8 predicates elsewhere, 7 on Oracle.
     Mirrors the `RuleExecutionSide` "throw on untranslatable" precedent. A future `ST_Crosses`
     upgrade stays possible but is **not committed** and not part of this feature.
-12. **Out of scope (this feature):** mass **update** of geo fields; the `geography` type; 3-D / M
-   coordinates; and — because they act on the **geometry value itself**, not a scalar — **spatial
-   aggregates** (ST_Union/ST_Collect/ST_Extent, geoprocessing/partly Oracle-licensed), plus
-   **ORDER BY / GROUP BY on a raw geometry value** (not meaningful/portable). *(User, this request.)*
+12. **Out of scope (this feature):** mass **update** of geo fields; the `geography` type; and —
+   because they act on the **geometry value itself**, not a scalar — **spatial aggregates**
+   (ST_Union/ST_Collect/ST_Extent, geoprocessing/partly Oracle-licensed), plus **ORDER BY / GROUP BY
+   on a raw geometry value** (not meaningful/portable). *(User, this request.)*
+14. **Z (3-D) and M (measure) ordinates ARE supported** *(REVISED — user, 2026-07-09: "don't reject Z
+   and M, they are useful to store routing data")*. This reverses the earlier "3-D/M out". The CLR
+   `GeoCoordinate` carries optional Z and M; the WKT/WKB codec reads and writes all of XY / XYZ / XYM /
+   XYZM (WKT ISO `Z`/`M`/`ZM` tags + untagged auto-detect; WKB via the EWKB Z/M flags and ISO type
+   offsets). **Implication for later phases:** per-driver column typing must carry dimensionality
+   (PostGIS `geometry(PointZM,4326)`, MySQL/Oracle/MSSQL/SpatiaLite equivalents) — a Phase 2 concern;
+   spatial *measurement/predicate* ops still operate on the engines' terms (mostly planar XY), with
+   Z/M carried through storage/round-trip. Codec support landed in Phase 0.
+15. **SRID is carried on codec OUTPUT by default** *(user, 2026-07-09: "keep SRID on output as well")*.
+   `ToWkt()`/`ToWkb()` default to EWKT (`SRID=<n>;`) / EWKB (SRID flag) so file/interchange round-trips
+   are symmetric with third-party tools. The **plain OGC** form (needed by the DB constructor functions
+   `ST_GeomFromWKB`/`STGeomFromWKB`/`SDO_UTIL.FROM_WKBGEOMETRY`, which take the SRID separately) is the
+   `includeSrid: false` opt-out — the DB wire path (Phase 4/5) uses that. Contract for the DB layer
+   unchanged; only the *default convenience* form now carries SRID.
 13. **Runtime spatial extensions are the application's responsibility, opt-in via a driver flag**
     (user, 2026-07-09). The SQLite driver does **not** bundle `mod_spatialite`; the application
     installs the native library. A **driver-level "enable spatial" option** is added:
@@ -241,8 +256,11 @@ scalar used in GROUP BY must be the byte-identical cached expression everywhere 
 
 Mass update of geo fields · **spatial aggregates** (ST_Union/ST_Collect/ST_Extent) · **ORDER BY /
 GROUP BY on a raw geometry value** · `geography` type · geoprocessing (Buffer/Union/Intersection/
-Difference/ConvexHull/Centroid, Oracle-licensed) · 3-D / M coordinates · live-table spatial-index
-reconciliation beyond what the general index-reconciliation prerequisite provides.
+Difference/ConvexHull/Centroid, Oracle-licensed) · live-table spatial-index reconciliation beyond
+what the general index-reconciliation prerequisite provides.
+
+*(No longer out of scope — decision 14: **Z/M ordinates** are supported at the codec/storage level;
+decision 15: SRID is carried on codec output by default.)*
 
 *(NOT out of scope — per the "scalar in, geometry-value out" principle: ORDER BY, GROUP BY, and
 numeric aggregation `COUNT/SUM/AVG/MIN/MAX` over a geo **scalar** expression — incl. order-by-distance

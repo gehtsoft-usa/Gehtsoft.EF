@@ -52,7 +52,8 @@ namespace Gehtsoft.EF.Test.Geometry
         {
             var point = new GeoPoint(1, 2);
             point.ToString().Should().Be(point.ToWkt());
-            point.ToString().Should().Be("POINT (1 2)");
+            point.ToString().Should().Be("SRID=4326;POINT (1 2)");
+            point.ToWkt(includeSrid: false).Should().Be("POINT (1 2)");
         }
 
         [Fact]
@@ -97,7 +98,7 @@ namespace Gehtsoft.EF.Test.Geometry
             GeoGeometry viaText = GeoGeometry.Parse(wkt);
             GeoGeometry viaBinary = GeoGeometry.FromWkb(viaText.ToWkb(), viaText.Srid);
             viaBinary.Should().Be(viaText);
-            viaBinary.ToWkt().Should().Be(wkt);
+            viaBinary.ToWkt(includeSrid: false).Should().Be(wkt);
         }
 
         [Theory]
@@ -126,7 +127,8 @@ namespace Gehtsoft.EF.Test.Geometry
             {
                 Thread.CurrentThread.CurrentCulture = new CultureInfo("de-DE");
                 GeoGeometry geometry = GeoGeometry.Parse("POINT (1.5 2.25)");
-                geometry.ToWkt().Should().Be("POINT (1.5 2.25)");
+                geometry.ToWkt(includeSrid: false).Should().Be("POINT (1.5 2.25)");
+                geometry.ToWkt().Should().Be("SRID=4326;POINT (1.5 2.25)");
                 geometry.Should().Be(new GeoPoint(1.5, 2.25));
             }
             finally

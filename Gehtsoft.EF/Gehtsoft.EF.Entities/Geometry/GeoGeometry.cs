@@ -25,6 +25,26 @@ namespace Gehtsoft.EF.Entities.Geometry
         /// <summary>Gets a value indicating whether the geometry holds no coordinates.</summary>
         public abstract bool IsEmpty { get; }
 
+        /// <summary>Whether the geometry carries Z (elevation) ordinates (derived from its first coordinate).</summary>
+        public bool HasZ
+        {
+            get
+            {
+                GeoCoordinate? first = FirstCoordinate();
+                return first.HasValue && first.Value.HasZ;
+            }
+        }
+
+        /// <summary>Whether the geometry carries M (measure) ordinates (derived from its first coordinate).</summary>
+        public bool HasM
+        {
+            get
+            {
+                GeoCoordinate? first = FirstCoordinate();
+                return first.HasValue && first.Value.HasM;
+            }
+        }
+
         /// <summary>Initializes the base geometry with the specified SRID.</summary>
         /// <param name="srid">The spatial reference identifier.</param>
         protected GeoGeometry(int srid)
@@ -33,10 +53,12 @@ namespace Gehtsoft.EF.Entities.Geometry
         }
 
         /// <summary>Returns the Well-Known Text representation of the geometry.</summary>
-        public string ToWkt() => new GeoWktWriter().Write(this);
+        /// <param name="includeSrid">When true (default), prepend the EWKT <c>SRID=&lt;n&gt;;</c> prefix.</param>
+        public string ToWkt(bool includeSrid = true) => new GeoWktWriter().Write(this, includeSrid);
 
-        /// <summary>Returns the Well-Known Binary representation of the geometry (little-endian, no SRID).</summary>
-        public byte[] ToWkb() => new GeoWkbWriter().Write(this);
+        /// <summary>Returns the Well-Known Binary representation of the geometry (little-endian).</summary>
+        /// <param name="includeSrid">When true (default), carry the SRID using the EWKB flag; when false, plain OGC WKB.</param>
+        public byte[] ToWkb(bool includeSrid = true) => new GeoWkbWriter().Write(this, includeSrid);
 
         /// <summary>Parses a geometry from its Well-Known Text representation.</summary>
         /// <param name="wkt">The WKT string.</param>
@@ -98,6 +120,9 @@ namespace Gehtsoft.EF.Entities.Geometry
 
         /// <summary>Computes the hash of the subtype-specific payload.</summary>
         protected abstract int ShapeHashCode();
+
+        /// <summary>Returns the first coordinate of the geometry, or null when it holds none (used to derive Z/M presence).</summary>
+        internal abstract GeoCoordinate? FirstCoordinate();
 
         /// <summary>Folds a value into a running hash code.</summary>
         /// <param name="hash">The running hash.</param>

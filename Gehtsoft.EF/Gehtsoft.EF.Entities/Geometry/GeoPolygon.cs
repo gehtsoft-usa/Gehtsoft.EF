@@ -61,5 +61,8 @@ namespace Gehtsoft.EF.Entities.Geometry
                 hash = CombineHash(hash, CoordinatesHash(mRings[i]));
             return hash;
         }
+
+        internal override GeoCoordinate? FirstCoordinate()
+            => mRings.Length > 0 && mRings[0].Count > 0 ? (GeoCoordinate?)mRings[0][0] : null;
     }
 }

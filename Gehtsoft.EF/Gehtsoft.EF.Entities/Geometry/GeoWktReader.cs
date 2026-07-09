@@ -5,12 +5,14 @@ using System.Globalization;
 namespace Gehtsoft.EF.Entities.Geometry
 {
     /// <summary>
-    /// Reads a geometry from its OGC Well-Known Text (WKT) representation. Accepts all seven subtypes,
+    /// Reads a geometry from its Well-Known Text (WKT) representation. Accepts all seven subtypes,
     /// nested collections, and <c>EMPTY</c>; tolerant of surrounding whitespace and of both the
-    /// canonical parenthesized MULTIPOINT form and the legacy bare-coordinate form. An optional
-    /// PostGIS <b>EWKT</b> <c>SRID=&lt;n&gt;;</c> prefix is accepted — the embedded SRID then overrides
-    /// the SRID argument passed to <see cref="Read"/>. Numbers are parsed in the invariant culture.
-    /// Malformed input raises <see cref="GeoFormatException"/>.
+    /// canonical parenthesized MULTIPOINT form and the legacy bare-coordinate form. An ISO dimensional
+    /// tag (<c>Z</c> / <c>M</c> / <c>ZM</c>) is honored; when absent, a coordinate's extra ordinates are
+    /// auto-detected (a 3rd ordinate is Z, a 4th is M). An optional PostGIS <b>EWKT</b>
+    /// <c>SRID=&lt;n&gt;;</c> prefix is accepted — the embedded SRID overrides the argument passed to
+    /// <see cref="Read"/>. Numbers are parsed in the invariant culture. Malformed input raises
+    /// <see cref="GeoFormatException"/>.
     /// </summary>
     public sealed class GeoWktReader
     {
@@ -64,63 +66,48 @@ namespace Gehtsoft.EF.Entities.Geometry
                 mSrid = srid;
             }
 
-            private int ReadSridValue()
-            {
-                SkipWhitespace();
-                int start = mPos;
-                if (mPos < mText.Length && (mText[mPos] == '+' || mText[mPos] == '-'))
-                    mPos++;
-                while (mPos < mText.Length && mText[mPos] >= '0' && mText[mPos] <= '9')
-                    mPos++;
-                if (mPos == start)
-                    throw Error("SRID value expected");
-                string token = mText.Substring(start, mPos - start);
-                if (!int.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value))
-                    throw Error($"invalid SRID value '{token}'");
-                return value;
-            }
-
             public GeoGeometry ParseGeometry()
             {
                 string keyword = ReadWord();
+                ReadDimensionTag(out bool tagged, out bool hasZ, out bool hasM);
                 switch (keyword)
                 {
-                    case "POINT": return ParsePoint();
-                    case "LINESTRING": return ParseLineString();
-                    case "POLYGON": return ParsePolygon();
-                    case "MULTIPOINT": return ParseMultiPoint();
-                    case "MULTILINESTRING": return ParseMultiLineString();
-                    case "MULTIPOLYGON": return ParseMultiPolygon();
+                    case "POINT": return ParsePoint(tagged, hasZ, hasM);
+                    case "LINESTRING": return ParseLineString(tagged, hasZ, hasM);
+                    case "POLYGON": return ParsePolygon(tagged, hasZ, hasM);
+                    case "MULTIPOINT": return ParseMultiPoint(tagged, hasZ, hasM);
+                    case "MULTILINESTRING": return ParseMultiLineString(tagged, hasZ, hasM);
+                    case "MULTIPOLYGON": return ParseMultiPolygon(tagged, hasZ, hasM);
                     case "GEOMETRYCOLLECTION": return ParseGeometryCollection();
                     default: throw Error($"unknown geometry keyword '{keyword}'");
                 }
             }
 
-            private GeoGeometry ParsePoint()
+            private GeoGeometry ParsePoint(bool tagged, bool hasZ, bool hasM)
             {
                 if (ConsumeEmpty())
                     return GeoPoint.Empty(mSrid);
                 Expect('(');
-                GeoCoordinate coordinate = ReadCoordinate();
+                GeoCoordinate coordinate = ReadCoordinate(tagged, hasZ, hasM);
                 Expect(')');
                 return new GeoPoint(coordinate, mSrid);
             }
 
-            private GeoGeometry ParseLineString()
+            private GeoGeometry ParseLineString(bool tagged, bool hasZ, bool hasM)
             {
                 if (ConsumeEmpty())
                     return new GeoLineString(new List<GeoCoordinate>(), mSrid);
-                return new GeoLineString(ReadCoordinateList(), mSrid);
+                return new GeoLineString(ReadCoordinateList(tagged, hasZ, hasM), mSrid);
             }
 
-            private GeoGeometry ParsePolygon()
+            private GeoGeometry ParsePolygon(bool tagged, bool hasZ, bool hasM)
             {
                 if (ConsumeEmpty())
                     return new GeoPolygon(new List<List<GeoCoordinate>>(), mSrid);
-                return new GeoPolygon(ReadRingList(), mSrid);
+                return new GeoPolygon(ReadRingList(tagged, hasZ, hasM), mSrid);
             }
 
-            private GeoGeometry ParseMultiPoint()
+            private GeoGeometry ParseMultiPoint(bool tagged, bool hasZ, bool hasM)
             {
                 var points = new List<GeoPoint>();
                 if (ConsumeEmpty())
@@ -128,28 +115,28 @@ namespace Gehtsoft.EF.Entities.Geometry
                 Expect('(');
                 do
                 {
-                    points.Add(ReadMultiPointMember());
+                    points.Add(ReadMultiPointMember(tagged, hasZ, hasM));
                 }
                 while (ConsumeComma());
                 Expect(')');
                 return new GeoMultiPoint(points, mSrid);
             }
 
-            private GeoPoint ReadMultiPointMember()
+            private GeoPoint ReadMultiPointMember(bool tagged, bool hasZ, bool hasM)
             {
                 if (ConsumeEmpty())
                     return GeoPoint.Empty(mSrid);
                 if (PeekNonWhitespace() == '(')
                 {
                     Expect('(');
-                    GeoCoordinate coordinate = ReadCoordinate();
+                    GeoCoordinate coordinate = ReadCoordinate(tagged, hasZ, hasM);
                     Expect(')');
                     return new GeoPoint(coordinate, mSrid);
                 }
-                return new GeoPoint(ReadCoordinate(), mSrid);
+                return new GeoPoint(ReadCoordinate(tagged, hasZ, hasM), mSrid);
             }
 
-            private GeoGeometry ParseMultiLineString()
+            private GeoGeometry ParseMultiLineString(bool tagged, bool hasZ, bool hasM)
             {
                 var lines = new List<GeoLineString>();
                 if (ConsumeEmpty())
@@ -160,14 +147,14 @@ namespace Gehtsoft.EF.Entities.Geometry
                     if (ConsumeEmpty())
                         lines.Add(new GeoLineString(new List<GeoCoordinate>(), mSrid));
                     else
-                        lines.Add(new GeoLineString(ReadCoordinateList(), mSrid));
+                        lines.Add(new GeoLineString(ReadCoordinateList(tagged, hasZ, hasM), mSrid));
                 }
                 while (ConsumeComma());
                 Expect(')');
                 return new GeoMultiLineString(lines, mSrid);
             }
 
-            private GeoGeometry ParseMultiPolygon()
+            private GeoGeometry ParseMultiPolygon(bool tagged, bool hasZ, bool hasM)
             {
                 var polygons = new List<GeoPolygon>();
                 if (ConsumeEmpty())
@@ -178,7 +165,7 @@ namespace Gehtsoft.EF.Entities.Geometry
                     if (ConsumeEmpty())
                         polygons.Add(new GeoPolygon(new List<List<GeoCoordinate>>(), mSrid));
                     else
-                        polygons.Add(new GeoPolygon(ReadRingList(), mSrid));
+                        polygons.Add(new GeoPolygon(ReadRingList(tagged, hasZ, hasM), mSrid));
                 }
                 while (ConsumeComma());
                 Expect(')');
@@ -200,37 +187,102 @@ namespace Gehtsoft.EF.Entities.Geometry
                 return new GeoGeometryCollection(geometries, mSrid);
             }
 
-            private List<GeoCoordinate> ReadCoordinateList()
+            private List<GeoCoordinate> ReadCoordinateList(bool tagged, bool hasZ, bool hasM)
             {
                 var list = new List<GeoCoordinate>();
                 Expect('(');
                 do
                 {
-                    list.Add(ReadCoordinate());
+                    list.Add(ReadCoordinate(tagged, hasZ, hasM));
                 }
                 while (ConsumeComma());
                 Expect(')');
                 return list;
             }
 
-            private List<List<GeoCoordinate>> ReadRingList()
+            private List<List<GeoCoordinate>> ReadRingList(bool tagged, bool hasZ, bool hasM)
             {
                 var rings = new List<List<GeoCoordinate>>();
                 Expect('(');
                 do
                 {
-                    rings.Add(ReadCoordinateList());
+                    rings.Add(ReadCoordinateList(tagged, hasZ, hasM));
                 }
                 while (ConsumeComma());
                 Expect(')');
                 return rings;
             }
 
-            private GeoCoordinate ReadCoordinate()
+            private GeoCoordinate ReadCoordinate(bool tagged, bool hasZ, bool hasM)
             {
                 double x = ReadNumber();
                 double y = ReadNumber();
-                return new GeoCoordinate(x, y);
+                double z = double.NaN;
+                double m = double.NaN;
+                if (tagged)
+                {
+                    if (hasZ)
+                        z = ReadNumber();
+                    if (hasM)
+                        m = ReadNumber();
+                }
+                else if (IsNumberStart(PeekNonWhitespace()))
+                {
+                    // Untagged: a 3rd ordinate is Z, a 4th is M (ISO/PostGIS convention).
+                    z = ReadNumber();
+                    if (IsNumberStart(PeekNonWhitespace()))
+                        m = ReadNumber();
+                }
+                return new GeoCoordinate(x, y, z, m);
+            }
+
+            private void ReadDimensionTag(out bool tagged, out bool hasZ, out bool hasM)
+            {
+                tagged = false;
+                hasZ = false;
+                hasM = false;
+                SkipWhitespace();
+                if (mPos >= mText.Length || !IsLetter(mText[mPos]))
+                    return;
+                int save = mPos;
+                string word = ReadWord();
+                if (word == "Z")
+                {
+                    tagged = true;
+                    hasZ = true;
+                }
+                else if (word == "M")
+                {
+                    tagged = true;
+                    hasM = true;
+                }
+                else if (word == "ZM")
+                {
+                    tagged = true;
+                    hasZ = true;
+                    hasM = true;
+                }
+                else
+                {
+                    // Not a dimension tag (e.g. EMPTY) — leave it for the caller.
+                    mPos = save;
+                }
+            }
+
+            private int ReadSridValue()
+            {
+                SkipWhitespace();
+                int start = mPos;
+                if (mPos < mText.Length && (mText[mPos] == '+' || mText[mPos] == '-'))
+                    mPos++;
+                while (mPos < mText.Length && mText[mPos] >= '0' && mText[mPos] <= '9')
+                    mPos++;
+                if (mPos == start)
+                    throw Error("SRID value expected");
+                string token = mText.Substring(start, mPos - start);
+                if (!int.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value))
+                    throw Error($"invalid SRID value '{token}'");
+                return value;
             }
 
             private double ReadNumber()
@@ -316,6 +368,9 @@ namespace Gehtsoft.EF.Entities.Geometry
             }
 
             private static bool IsLetter(char c) => (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+
+            private static bool IsNumberStart(char c)
+                => (c >= '0' && c <= '9') || c == '+' || c == '-' || c == '.';
 
             private GeoFormatException Error(string message)
                 => new GeoFormatException($"WKT parse error at position {mPos}: {message}.");

@@ -28,12 +28,26 @@ namespace Gehtsoft.EF.Test.Geometry
         }
 
         [Fact]
-        public void Write_Point_ProducesGoldenLittleEndianWkb()
+        public void Write_Point_Plain_ProducesGoldenOgcWkb()
         {
             byte[] expected =
             {
                 0x01,                                           // NDR (little-endian)
                 0x01, 0x00, 0x00, 0x00,                         // type = 1 (point)
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x3F, // X = 1.0
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, // Y = 2.0
+            };
+            new GeoPoint(1, 2).ToWkb(includeSrid: false).Should().Equal(expected);
+        }
+
+        [Fact]
+        public void Write_Point_Default_ProducesGoldenEwkbWithSrid()
+        {
+            byte[] expected =
+            {
+                0x01,                                           // NDR (little-endian)
+                0x01, 0x00, 0x00, 0x20,                         // type = 1 | SRID flag (0x20000000)
+                0xE6, 0x10, 0x00, 0x00,                         // SRID = 4326
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x3F, // X = 1.0
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, // Y = 2.0
             };

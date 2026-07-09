@@ -32,5 +32,7 @@ namespace Gehtsoft.EF.Entities.Geometry
 
         /// <inheritdoc/>
         protected override int ShapeHashCode() => CoordinatesHash(mCoordinates);
+
+        internal override GeoCoordinate? FirstCoordinate() => mCoordinates.Length > 0 ? (GeoCoordinate?)mCoordinates[0] : null;
     }
 }

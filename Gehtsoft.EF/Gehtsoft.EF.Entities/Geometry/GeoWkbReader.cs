@@ -7,9 +7,9 @@ namespace Gehtsoft.EF.Entities.Geometry
     /// Reads a geometry from OGC Well-Known Binary (WKB). Honors the per-geometry byte-order marker
     /// (little- and big-endian, including a collection whose members differ), and reads the 2-D
     /// coordinates for each of the seven subtypes. A point with NaN,NaN ordinates decodes to an empty
-    /// point. The PostGIS <b>EWKB</b> SRID flag (0x20000000) is accepted — the embedded SRID overrides
-    /// the SRID argument passed to <see cref="Read"/>; 3-D (Z, 0x80000000) and measured (M, 0x40000000)
-    /// variants are rejected as this type is 2-D only. Malformed or truncated input raises
+    /// point. The PostGIS <b>EWKB</b> flags are honored — SRID (0x20000000, the embedded SRID overrides
+    /// the argument passed to <see cref="Read"/>), Z (0x80000000) and M (0x40000000) — as is the ISO WKB
+    /// dimensionality offset (1000 = Z, 2000 = M, 3000 = ZM). Malformed or truncated input raises
     /// <see cref="GeoFormatException"/>.
     /// </summary>
     public sealed class GeoWkbReader
@@ -49,16 +49,33 @@ namespace Gehtsoft.EF.Entities.Geometry
             {
                 bool little = ReadByteOrder();
                 uint raw = ReadUInt32(little);
-                if ((raw & ZFlag) != 0 || (raw & MFlag) != 0)
-                    throw Error("3-D (Z) and measured (M) geometries are not supported");
+                bool hasZ = (raw & ZFlag) != 0;
+                bool hasM = (raw & MFlag) != 0;
                 if ((raw & SridFlag) != 0)
                     mSrid = (int)ReadUInt32(little);
                 uint type = raw & BaseTypeMask;
+                // ISO WKB encodes dimensionality as a type offset (1000 = Z, 2000 = M, 3000 = ZM).
+                if (type >= 3000)
+                {
+                    hasZ = true;
+                    hasM = true;
+                    type -= 3000;
+                }
+                else if (type >= 2000)
+                {
+                    hasM = true;
+                    type -= 2000;
+                }
+                else if (type >= 1000)
+                {
+                    hasZ = true;
+                    type -= 1000;
+                }
                 switch (type)
                 {
-                    case 1: return ReadPoint(little);
-                    case 2: return ReadLineString(little);
-                    case 3: return ReadPolygon(little);
+                    case 1: return ReadPoint(little, hasZ, hasM);
+                    case 2: return ReadLineString(little, hasZ, hasM);
+                    case 3: return ReadPolygon(little, hasZ, hasM);
                     case 4: return ReadMultiPoint(little);
                     case 5: return ReadMultiLineString(little);
                     case 6: return ReadMultiPolygon(little);
@@ -67,24 +84,23 @@ namespace Gehtsoft.EF.Entities.Geometry
                 }
             }
 
-            private GeoGeometry ReadPoint(bool little)
+            private GeoGeometry ReadPoint(bool little, bool hasZ, bool hasM)
             {
-                double x = ReadDouble(little);
-                double y = ReadDouble(little);
-                if (double.IsNaN(x) && double.IsNaN(y))
+                GeoCoordinate coordinate = ReadOrdinates(little, hasZ, hasM);
+                if (double.IsNaN(coordinate.X) && double.IsNaN(coordinate.Y))
                     return GeoPoint.Empty(mSrid);
-                return new GeoPoint(new GeoCoordinate(x, y), mSrid);
+                return new GeoPoint(coordinate, mSrid);
             }
 
-            private GeoGeometry ReadLineString(bool little)
-                => new GeoLineString(ReadCoordinates(little), mSrid);
+            private GeoGeometry ReadLineString(bool little, bool hasZ, bool hasM)
+                => new GeoLineString(ReadCoordinates(little, hasZ, hasM), mSrid);
 
-            private GeoGeometry ReadPolygon(bool little)
+            private GeoGeometry ReadPolygon(bool little, bool hasZ, bool hasM)
             {
                 uint ringCount = ReadUInt32(little);
                 var rings = new List<List<GeoCoordinate>>();
                 for (uint i = 0; i < ringCount; i++)
-                    rings.Add(ReadCoordinates(little));
+                    rings.Add(ReadCoordinates(little, hasZ, hasM));
                 return new GeoPolygon(rings, mSrid);
             }
 
@@ -132,17 +148,22 @@ namespace Gehtsoft.EF.Entities.Geometry
                 return typed;
             }
 
-            private List<GeoCoordinate> ReadCoordinates(bool little)
+            private List<GeoCoordinate> ReadCoordinates(bool little, bool hasZ, bool hasM)
             {
                 uint count = ReadUInt32(little);
                 var list = new List<GeoCoordinate>();
                 for (uint i = 0; i < count; i++)
-                {
-                    double x = ReadDouble(little);
-                    double y = ReadDouble(little);
-                    list.Add(new GeoCoordinate(x, y));
-                }
+                    list.Add(ReadOrdinates(little, hasZ, hasM));
                 return list;
+            }
+
+            private GeoCoordinate ReadOrdinates(bool little, bool hasZ, bool hasM)
+            {
+                double x = ReadDouble(little);
+                double y = ReadDouble(little);
+                double z = hasZ ? ReadDouble(little) : double.NaN;
+                double m = hasM ? ReadDouble(little) : double.NaN;
+                return new GeoCoordinate(x, y, z, m);
             }
 
             private bool ReadByteOrder()
