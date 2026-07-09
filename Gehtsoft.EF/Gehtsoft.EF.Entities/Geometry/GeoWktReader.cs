@@ -7,19 +7,22 @@ namespace Gehtsoft.EF.Entities.Geometry
     /// <summary>
     /// Reads a geometry from its OGC Well-Known Text (WKT) representation. Accepts all seven subtypes,
     /// nested collections, and <c>EMPTY</c>; tolerant of surrounding whitespace and of both the
-    /// canonical parenthesized MULTIPOINT form and the legacy bare-coordinate form. Numbers are parsed
-    /// in the invariant culture. Malformed input raises <see cref="GeoFormatException"/>.
+    /// canonical parenthesized MULTIPOINT form and the legacy bare-coordinate form. An optional
+    /// PostGIS <b>EWKT</b> <c>SRID=&lt;n&gt;;</c> prefix is accepted — the embedded SRID then overrides
+    /// the SRID argument passed to <see cref="Read"/>. Numbers are parsed in the invariant culture.
+    /// Malformed input raises <see cref="GeoFormatException"/>.
     /// </summary>
     public sealed class GeoWktReader
     {
-        /// <summary>Reads a geometry from WKT, assigning it the specified SRID (WKT carries none).</summary>
-        /// <param name="wkt">The WKT string.</param>
-        /// <param name="srid">The SRID to assign.</param>
+        /// <summary>Reads a geometry from WKT, assigning the specified SRID unless an EWKT prefix embeds one.</summary>
+        /// <param name="wkt">The WKT (or EWKT) string.</param>
+        /// <param name="srid">The SRID to assign when the text does not embed one.</param>
         public GeoGeometry Read(string wkt, int srid = GeoGeometry.DefaultSrid)
         {
             if (wkt == null)
                 throw new ArgumentNullException(nameof(wkt));
             var parser = new Parser(wkt, srid);
+            parser.ConsumeSridPrefix();
             GeoGeometry geometry = parser.ParseGeometry();
             parser.EnsureAtEnd();
             return geometry;
@@ -28,7 +31,7 @@ namespace Gehtsoft.EF.Entities.Geometry
         private sealed class Parser
         {
             private readonly string mText;
-            private readonly int mSrid;
+            private int mSrid;
             private int mPos;
 
             public Parser(string text, int srid)
@@ -36,6 +39,45 @@ namespace Gehtsoft.EF.Entities.Geometry
                 mText = text;
                 mSrid = srid;
                 mPos = 0;
+            }
+
+            public void ConsumeSridPrefix()
+            {
+                SkipWhitespace();
+                int save = mPos;
+                if (mPos >= mText.Length || !IsLetter(mText[mPos]))
+                    return;
+                if (ReadWord() != "SRID")
+                {
+                    mPos = save;
+                    return;
+                }
+                SkipWhitespace();
+                if (mPos >= mText.Length || mText[mPos] != '=')
+                    throw Error("'=' expected after SRID");
+                mPos++;
+                int srid = ReadSridValue();
+                SkipWhitespace();
+                if (mPos >= mText.Length || mText[mPos] != ';')
+                    throw Error("';' expected after the SRID value");
+                mPos++;
+                mSrid = srid;
+            }
+
+            private int ReadSridValue()
+            {
+                SkipWhitespace();
+                int start = mPos;
+                if (mPos < mText.Length && (mText[mPos] == '+' || mText[mPos] == '-'))
+                    mPos++;
+                while (mPos < mText.Length && mText[mPos] >= '0' && mText[mPos] <= '9')
+                    mPos++;
+                if (mPos == start)
+                    throw Error("SRID value expected");
+                string token = mText.Substring(start, mPos - start);
+                if (!int.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value))
+                    throw Error($"invalid SRID value '{token}'");
+                return value;
             }
 
             public GeoGeometry ParseGeometry()

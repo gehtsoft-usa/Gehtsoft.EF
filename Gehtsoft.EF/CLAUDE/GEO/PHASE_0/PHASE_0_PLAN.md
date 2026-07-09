@@ -178,8 +178,14 @@ both byte orders × malformed). No DB, so it runs everywhere including CI.
   facades only, with the reader/writer internal.
 - **D4 — Empty-point WKB encoding**: NaN,NaN convention (recommended, documented) vs throw on
   writing an empty point to WKB.
-- **D5 — WKB reader EWKB tolerance**: reject EWKB/Z/M with a clear error (recommended — we never
-  produce or read it) vs silently strip the SRID prefix.
+- **D5 — WKB reader EWKB tolerance** *(REVISED 2026-07-09, user: "make sure we can read 3rd-party
+  files")*: the readers are **liberal on input, conservative on output**. On **read**, both codecs
+  accept the PostGIS extended forms — EWKT's `SRID=<n>;` prefix and EWKB's `0x20000000` SRID flag
+  (the embedded SRID overrides the argument) — while **3-D (Z) / measured (M)** variants are still
+  rejected (this type is 2-D only). On **write**, the writers still emit plain OGC WKT / little-endian
+  OGC WKB with no SRID, so the DB wire-form contract is unchanged. Verified against a real TIGER/Line
+  county boundary exported by a third-party tool as both `test.wkt` (EWKT) and `test.wkb` (EWKB) —
+  embedded as test resources; the two decode to bit-identical geometries.
 
 ## Acceptance criteria for Phase 0 (definition of done)
 

@@ -67,6 +67,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Geometry\TestData\test.wkt" />
+    <None Remove="Geometry\TestData\test.wkb" />
+    <EmbeddedResource Include="Geometry\TestData\test.wkt" />
+    <EmbeddedResource Include="Geometry\TestData\test.wkb" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Antlr4 Include="SqlTest.g4">
       <Package>Gehtsoft.EF.Test.SqlParser</Package>
       <Listener>false</Listener>

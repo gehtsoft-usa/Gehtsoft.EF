@@ -4,18 +4,24 @@ using System.Collections.Generic;
 namespace Gehtsoft.EF.Entities.Geometry
 {
     /// <summary>
-    /// Reads a geometry from standard OGC Well-Known Binary (WKB). Honors the per-geometry byte-order
-    /// marker (little- and big-endian, including a collection whose members differ), and reads the 2-D
+    /// Reads a geometry from OGC Well-Known Binary (WKB). Honors the per-geometry byte-order marker
+    /// (little- and big-endian, including a collection whose members differ), and reads the 2-D
     /// coordinates for each of the seven subtypes. A point with NaN,NaN ordinates decodes to an empty
-    /// point. Extended variants that set high type bits — EWKB (SRID), or Z/M ordinates — are
-    /// rejected: only plain OGC WKB type codes 1..7 are accepted. Malformed or truncated input raises
+    /// point. The PostGIS <b>EWKB</b> SRID flag (0x20000000) is accepted — the embedded SRID overrides
+    /// the SRID argument passed to <see cref="Read"/>; 3-D (Z, 0x80000000) and measured (M, 0x40000000)
+    /// variants are rejected as this type is 2-D only. Malformed or truncated input raises
     /// <see cref="GeoFormatException"/>.
     /// </summary>
     public sealed class GeoWkbReader
     {
-        /// <summary>Reads a geometry from WKB, assigning it the specified SRID (plain WKB carries none).</summary>
+        private const uint SridFlag = 0x20000000;
+        private const uint ZFlag = 0x80000000;
+        private const uint MFlag = 0x40000000;
+        private const uint BaseTypeMask = 0x1FFFFFFF;
+
+        /// <summary>Reads a geometry from WKB, assigning the specified SRID unless the data embeds one (EWKB).</summary>
         /// <param name="wkb">The WKB bytes.</param>
-        /// <param name="srid">The SRID to assign.</param>
+        /// <param name="srid">The SRID to assign when the data does not embed one.</param>
         public GeoGeometry Read(byte[] wkb, int srid = GeoGeometry.DefaultSrid)
         {
             if (wkb == null)
@@ -29,7 +35,7 @@ namespace Gehtsoft.EF.Entities.Geometry
         private sealed class Reader
         {
             private readonly byte[] mData;
-            private readonly int mSrid;
+            private int mSrid;
             private int mPos;
 
             public Reader(byte[] data, int srid)
@@ -42,7 +48,12 @@ namespace Gehtsoft.EF.Entities.Geometry
             public GeoGeometry ReadGeometry()
             {
                 bool little = ReadByteOrder();
-                uint type = ReadUInt32(little);
+                uint raw = ReadUInt32(little);
+                if ((raw & ZFlag) != 0 || (raw & MFlag) != 0)
+                    throw Error("3-D (Z) and measured (M) geometries are not supported");
+                if ((raw & SridFlag) != 0)
+                    mSrid = (int)ReadUInt32(little);
+                uint type = raw & BaseTypeMask;
                 switch (type)
                 {
                     case 1: return ReadPoint(little);
@@ -52,7 +63,7 @@ namespace Gehtsoft.EF.Entities.Geometry
                     case 5: return ReadMultiLineString(little);
                     case 6: return ReadMultiPolygon(little);
                     case 7: return ReadGeometryCollection(little);
-                    default: throw Error($"unsupported WKB geometry type code {type} (SRID/Z/M variants are not supported)");
+                    default: throw Error($"unsupported WKB geometry type code {type}");
                 }
             }
 
