@@ -1,10 +1,10 @@
-# Geospatial (geo) Support — Implementation Plan (draft, pre-approval)
+# Geospatial (geo) Support — Implementation Plan (APPROVED 2026-07-09)
 
-*Planned 2026-07-08. Driver-support analysis + verified codebase seams + full per-driver SQL map:
-`GEO_COMMON_FUNCTIONALITY.md` (esp. Appendix A/B). Implementation NOT started. Process mirrors the
-EAV/JSON features (`../DYNAMIC_PROPERTIES/`, `../JSON_PROPERTIES/`): this overall plan is approved
-first, then a per-phase plan is approved before each phase is coded, and advancing between phases is
-a second explicit gate.*
+*Planned 2026-07-08; overall plan **approved by the user 2026-07-09** (Gate 1). Driver-support
+analysis + verified codebase seams + full per-driver SQL map: `GEO_COMMON_FUNCTIONALITY.md` (esp.
+Appendix A/B). Process mirrors the EAV/JSON features (`../DYNAMIC_PROPERTIES/`,
+`../JSON_PROPERTIES/`): this overall plan is approved first (done), then a per-phase plan is approved
+before each phase is coded, and advancing between phases is a second explicit gate.*
 
 ## Context
 
@@ -99,8 +99,21 @@ scalar used in GROUP BY must be the byte-identical cached expression everywhere 
 - A canonical, **cached** expression string per (column, operation) so any reuse is byte-identical
   (matches the EAV `DynamicPropertyJoin.ColumnAlias` discipline; matters even without GROUP BY for
   predicate/projection consistency).
-- Exposed through the existing seams: WHERE/mass-delete via `ConditionBuilder.Raw(expr).…`;
-  projection via `AddExpressionToResultset`; read-back via the resultset decode registry.
+- **SQL-builder layer first, entity queries delegate to it (as JSON did).** The whole geo query
+  surface — value-wrapping, predicates/measurements, select output-wrapping, projection, scalar
+  order/group/aggregation — is built and tested at the pure-SQL builder level (`ConditionBuilder`,
+  `SelectQueryBuilder`, the Insert/Update/Delete builders + binders) operating on a `TableDescriptor`,
+  with **no entity queries** (Phase 4). The entity-query layer (Phases 5–7) then adds thin wrappers
+  that resolve the column and delegate to these SQL-builder primitives — exactly the
+  `SelectEntitiesQueryBase.AddJsonValueToResultset` → `SelectQueryBuilder.AddJsonValueToResultset` and
+  `EntityQueryConditionBuilder.JsonPropertyOf` → `ConditionBuilder.JsonValue` relationship.
+- **Scalar guard (learned from JSON):** a geo expression can carry a quoted string literal — notably
+  Oracle's `SDO_GEOM.RELATE(a,'mask',b,tol)` — which the `SqlInjectionProtectionPolicy` scalar guard
+  rejects. So geo predicates/projections/order/group must be added through **dedicated entry points
+  that set the operand / add to the builder collections directly, bypassing the guard** (as JSON's
+  `JsonValue` and `AddRawJsonExpression*` do), never the generic guarded `Raw` /
+  `AddExpressionToResultset` / `AddOrderByExpr` / `AddGroupByExpr`. Read-back via the resultset decode
+  registry (WKB→geometry; the geo analogue of the JSON `bool`/`DateTime` decode registry).
 
 ## Testing model (two tiers, mirrors EAV/JSON)
 
@@ -119,6 +132,13 @@ scalar used in GROUP BY must be the byte-identical cached expression everywhere 
   (test csproj uses default compile items — no `<Compile Include>` needed).
 
 ## Delivery — phases (finish-before-advance; each phase planned in `PHASE_N/` then approved)
+
+> **Ordering (user, this request):** the whole geo **query surface is delivered at the pure-SQL
+> builder level first (Phase 4) — before any entity data queries (Phases 5–7), which delegate to it —
+> mirroring how JSON ended up (a pure-SQL layer under thin entity wrappers). Declare/discovery
+> (Phase 1) stays ahead of Phase 4 only so the pure-SQL phase can obtain a geometry-carrying
+> `TableDescriptor`; it installs the accessor/descriptor and is not itself a query. Table
+> create/update (Phases 2–3) are already SQL-builder-level DDL.
 
 > **Prerequisite for Phase 3 — ✅ DONE (2026-07-08):** the general index-reconciliation fix
 > (`../INDEX_RECONCILIATION_PROBLEM.md`) has landed as standalone shared work (all 3 stages, full
@@ -149,39 +169,54 @@ scalar used in GROUP BY must be the byte-identical cached expression everywhere 
   spatial-kind field. Deep: added column/index created; removed index dropped; unchanged → no-op;
   non-geo indexes untouched. Acceptance: add/remove a geo column + spatial index across five drivers.
   *(User's step 3.)*
-- **Phase 4 — Insert/Update (whole value).** Insert and single-entity update of a geometry via the
-  transparent accessor: the insert/update builders **wrap the geo value placeholder in the
-  constructor function** (`ST_GeomFromText(@p,srid)` / `geometry::STGeomFromText(@p,srid)` /
-  `SDO_GEOMETRY(@p,srid)` …) per driver. **Mass update of geo fields is OUT** (decision 7). Deep:
-  generated INSERT/UPDATE SQL (AST) incl. the wrap; null handling. Acceptance: full round-trip of
-  each subtype + nullable on five drivers. *(User's step 4.)*
-- **Phase 5 — WHERE + mass delete.** The geo function renderers (predicates + measurement +
-  within-distance) with per-driver normalization (MSSQL `= 1`, Oracle RELATE `<> 'FALSE'` + mask
-  mapping + tolerance). Mass delete with a spatial WHERE (via the entity-WHERE text-splice
-  workaround, `../ENTITY_WHERE_PROBLEM.md`, as EAV). **`Crosses` throws "unsupported on Oracle"**
-  (decision 11); the other 7 predicates map normally. Deep: predicate/measurement SQL (AST),
-  SRID-mismatch → NULL semantics, the Oracle-Crosses throw, mass-delete
-  SQL. Acceptance: each predicate × subtype, within-distance, mass delete by spatial filter on five
-  drivers. *(User's step 5, incl. mass delete.)*
-- **Phase 6 — Select query mapping.** The select builder **wraps geo columns in the output
-  function** (`ST_AsBinary`/`STAsBinary`/`TO_WKBGEOMETRY`) so a portable WKB comes back on every
-  driver (never the raw column — SpatiaLite BLOB is modified WKB); read-back decodes WKB→geometry via
-  the accessor. Select-with-spatial-filter + count. Deep: select output-wrap SQL (AST), decoded
-  geometry, count. Acceptance: select + filtered count on five drivers. *(User's step 6.)*
-- **Phase 7 — Projection + scalar order-by / group-by / aggregation.** Project a computed scalar
-  (`GeoDistance`, `GeoArea`, `GeoLength`, accessors) and/or the geometry itself (as WKB) into the
-  resultset via `AddExpressionToResultset` + decode type. Per the "scalar in, geometry-value out"
-  principle, also wire the **existing** `AddOrderByExpr` / `AddGroupByExpr` / `AggFn` machinery to a
-  geo scalar expression, giving: **order by distance + take N** (nearest-neighbour top-N), **group by
-  a geo scalar**, and **numeric aggregation** (`COUNT/SUM/AVG/MIN/MAX`) of a geo scalar (e.g.
-  `AVG(GeoArea(col))`). These reuse the cached byte-identical expression (GROUP BY string-match
-  caveat). Out: spatial aggregates + ORDER BY/GROUP BY on a raw geometry value (decision 12). Deep:
-  projection / order-by / group-by / aggregate SQL (AST) + decoded values + order & grouping
-  correctness. Acceptance: projected scalars, order-by-distance top-N, and a grouped `AVG(GeoArea)`
-  on five drivers. *(User's step 7 + scalar aggregation.)*
+- **Phase 4 — Pure-SQL query surface (the geo query level — BEFORE any entity queries).** ★ The
+  entire geo query machinery, built and tested at the **SQL-builder layer only** — operating on a
+  `TableDescriptor` that carries a geometry column via `InsertQueryBuilder` / `UpdateQueryBuilder` /
+  `DeleteQueryBuilder` / `SelectQueryBuilder` / `ConditionBuilder` + the binders, with **no entity
+  queries** — exactly as JSON's pure-SQL surface (`JsonPureSqlTest` / `JsonPureSqlProjectionTest`).
+  Scope:
+  - the geo `SqlFunctionId` renderers + the **arg-channel fix** (R1): receiver-method shape for MSSQL,
+    mask+tolerance for Oracle, and the renderer owning its full boolean/scalar result (incl. the
+    MSSQL `= 1` / Oracle RELATE `<> 'FALSE'` comparison), so predicate normalization lives in one place;
+  - **insert/update value-wrapping** — the placeholder wrapped in the constructor function
+    (`ST_GeomFromWKB(@p,srid)` / `geometry::STGeomFromWKB(@p,srid)` / `SDO_UTIL.FROM_WKBGEOMETRY(@p)` …),
+    WKB bound as `byte[]`; **mass update OUT** (decision 12);
+  - **WHERE predicates + measurements + within-distance** via a dedicated `ConditionBuilder` geo entry
+    point (analogous to `JsonValue`), plus **mass delete** with a spatial WHERE; **`Crosses` throws
+    "unsupported on Oracle"** (decision 11), the other 7 predicates map normally;
+  - **select output-wrapping** (`ST_AsBinary` / `STAsBinary` / `TO_WKBGEOMETRY`) so portable WKB comes
+    back on every driver (never the raw column — SpatiaLite BLOB is modified WKB) + read-back
+    WKB→geometry decode registry, and filtered **count**;
+  - **projection** of a geo scalar (`GeoDistance`/`GeoArea`/`GeoLength`/accessors) or the geometry (as
+    WKB), plus **scalar ORDER BY / GROUP BY / numeric aggregation** over a cached byte-identical
+    geo-scalar expression — order-by-distance top-N, group-by a geo scalar, `AVG(GeoArea(col))` — via
+    the existing `AddOrderByExpr` / `AddGroupByExpr` / `AggFn` machinery ("scalar in, geometry-value
+    out"; out: spatial aggregates + order/group on a raw geometry, decision 12).
+  All geo expressions are added through **direct-add entry points that bypass the scalar guard** (the
+  Oracle RELATE mask is a quoted literal — see Query translation). Deep: every value-wrap / predicate /
+  measurement / output-wrap / projection / order / group SQL asserted via AST; SQLite+SpatiaLite
+  behavioural round-trip. *(This is the user's requested pure-SQL query step; the entity phases below
+  delegate to it.)*
+- **Phase 5 — Entity insert/update (whole value).** Entity `GetInsertEntityQuery` / single-entity
+  update round-trip the geometry through the Phase-4 value-wrap, using the `GeometryPropertyAccessor` +
+  geo descriptor that Phase 1 (declare) already installed via `ColumnDiscoverer`. The entity layer here
+  is a thin consumer of the Phase-1 discovery and the Phase-4 SQL wrapping — no new query mechanics.
+  Deep: entity INSERT/UPDATE SQL (AST); null handling. Acceptance: full round-trip of each subtype +
+  nullable on five drivers. *(User's step 4, entity-level.)*
+- **Phase 6 — Entity WHERE + mass delete + select + count.** Entity condition-builder geo predicates
+  (`GeoIntersects`/… analogous to `JsonPropertyOf`, string + member-expression forms) delegating to the
+  Phase-4 renderers; entity select (whole geometry via the output-wrap) + filtered count; entity mass
+  delete by spatial filter (entity-WHERE text-splice workaround, `../ENTITY_WHERE_PROBLEM.md`, as EAV).
+  `Crosses` throws on Oracle. Acceptance: each predicate × subtype, within-distance, select + count +
+  mass delete on five drivers. *(User's steps 5 & 6, entity-level.)*
+- **Phase 7 — Entity projection + scalar order-by / group-by / aggregation.** `SelectEntitiesQueryBase`
+  geo wrappers delegating to Phase 4: project a geo scalar / the geometry; **order-by-distance +
+  take-N** (nearest-neighbour top-N); **group by a geo scalar**; **numeric aggregation**
+  (`AVG(GeoArea(col))` …). Acceptance: projected scalars, order-by-distance top-N, and a grouped
+  `AVG(GeoArea)` on five drivers. *(User's step 7 entity-level + scalar aggregation.)*
 - **Phase 8 — docs.** docgen pages + XML doc comments on all new public API; document the runtime
   prerequisites (PostGIS install, `mod_spatialite`), the SRID discipline, and the v1 limitations
-  (no order-by-distance, no mass update, no aggregation, geometry-only).
+  (no mass update, no spatial aggregates, no order/group on a raw geometry, geometry-only).
 
 ## Explicitly OUT of scope (v1)
 
