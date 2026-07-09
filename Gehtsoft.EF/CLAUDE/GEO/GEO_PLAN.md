@@ -50,6 +50,25 @@ needed (see `GEO_COMMON_FUNCTIONALITY.md` §2 bind/read strategy).
    coordinates; and — because they act on the **geometry value itself**, not a scalar — **spatial
    aggregates** (ST_Union/ST_Collect/ST_Extent, geoprocessing/partly Oracle-licensed), plus
    **ORDER BY / GROUP BY on a raw geometry value** (not meaningful/portable). *(User, this request.)*
+13. **Runtime spatial extensions are the application's responsibility, opt-in via a driver flag**
+    (user, 2026-07-09). The SQLite driver does **not** bundle `mod_spatialite`; the application
+    installs the native library. A **driver-level "enable spatial" option** is added:
+    - **SQLite:** when enabled, the driver `LoadExtension("mod_spatialite")` on connection open (and
+      runs `InitSpatialMetaData` once per DB as needed). Disabled by default → no attempt to load.
+      *Open option (decide in Phase 2):* how the native binary is delivered — (a) the app installs it
+      OS-wide (baseline), or (b) we depend on / ship a **native NuGet package** that carries
+      `mod_spatialite` (e.g. `Spatialite.Native`, cf. github Fsystem/mod_spatialite) or a
+      Gehtsoft-built equivalent, and the driver loads it from the package's runtimes path. The
+      "enable spatial" flag + `LoadExtension` seam is the same either way; only the library-path
+      resolution differs. Also allow the app to specify a custom extension path/name.
+    - **PostgreSQL:** when enabled, the driver **verifies the PostGIS extension is installed**
+      (fail fast with a clear error if absent) rather than silently producing broken SQL.
+    - MSSQL/MySQL/Oracle: spatial is built in / provisioned server-side, so the flag is a
+      no-op or a light capability check there.
+    Implemented in Phase 2 (driver wiring) alongside the create-table path; documented in Phase 8.
+    **Prerequisites to document (Phase 8):** PostGIS server install (`CREATE EXTENSION postgis`);
+    SpatiaLite native binary — Linux `sudo apt-get install libsqlite3-mod-spatialite`, macOS
+    `brew install spatialite-tools`, Windows: `mod_spatialite` DLL on the library path.
 
 ### Guiding principle — "scalar in, geometry-value out" (user, 2026-07-08)
 The line between in/out scope is **what the operation acts on**:
