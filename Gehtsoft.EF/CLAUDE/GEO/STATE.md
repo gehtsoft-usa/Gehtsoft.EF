@@ -6,10 +6,10 @@
 
 ## TL;DR
 
-Phases **0, 1, 2 are implemented and green** (39 geo tests + 84 JSON tests, full solution 0 new
-warnings). **Nothing since the initial in-house Phase-0 commits is committed** — the working tree holds
-all the current (rewritten) work. Process = two human gates per phase (plan-then-approve, advance-then-
-approve); **commit only when the user asks**. Next: **Gate for Phase 3 or Phase 4**.
+Phases **0, 1, 2 are implemented, green, and committed** (39 geo tests + 84 JSON tests, full solution 0
+new warnings). Return point = **`533f8b6`** (`geo Phases 0-2: codec-agnostic WKB core, declare,
+table-create (5 drivers)`); working tree clean. Process = two human gates per phase (plan-then-approve,
+advance-then-approve); **commit only when the user asks**. Next: **Gate for Phase 3 or Phase 4**.
 
 ## Architecture (locked)
 
@@ -74,11 +74,12 @@ LFS-pointer guard). Holds `test.wkt`/`test.wkb` (+ `tiger-line/`, `usa/`, `mars-
 
 ## Git / commit state
 
-- Branch `geo`. Last commits are the **retired** in-house Phase-0 (`78130f2`, `f4c99f1`, `b815ed9`) +
-  the Gate-1 plan (`8baa33a`). Everything current is **uncommitted** in the working tree.
-- New module `Gehtsoft.EF.Geo.NetTopologySuite` added to `Gehtsoft.EF.sln`.
-- Working tree also has **unrelated churn**: `.gitattributes` (new, LFS) causes the Northwind `csv/*.csv`
-  to show modified; `nuget/config.xml`, `Gehtsoft.EF.sln` touched. Don't mistake these for geo code.
+- Branch `geo`. Phases 0-2 committed as **`533f8b6`** (the return point); working tree clean. Earlier
+  commits: retired in-house Phase-0 (`78130f2`, `f4c99f1`, `b815ed9`) + Gate-1 plan (`8baa33a`).
+- New module `Gehtsoft.EF.Geo.NetTopologySuite` added to `Gehtsoft.EF.sln` + `nuget/config.xml`.
+- **LFS is scoped:** the LFS rules live in `Gehtsoft.EF.Test/GeoTestData/.gitattributes` (only `*.wkb`/
+  `*.wkt`/`*.csv` **under that dir**), so the Northwind sample `csv/*.csv` are NOT converted. There is no
+  repo-wide `.gitattributes`. `git lfs install --local` has been run.
 - **Do NOT commit unless the user asks.** `version.proj` must stay untouched.
 
 ## Build / verify commands
