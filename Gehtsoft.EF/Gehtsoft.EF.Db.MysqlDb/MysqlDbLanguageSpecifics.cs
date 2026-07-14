@@ -2,6 +2,8 @@
 using System.Data;
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.MysqlDb
 {
@@ -11,6 +13,27 @@ namespace Gehtsoft.EF.Db.MysqlDb
         /// The driver identifier of this dialect.
         /// </summary>
         public override string DbName => UniversalSqlDbFactory.MYSQL;
+
+        /// <summary>MySQL 8 provides geometry columns (2-D only).</summary>
+        public override bool SupportsGeometry => true;
+
+        /// <summary>
+        /// Renders a MySQL geometry column: <c>&lt;SUBTYPE&gt; [NOT NULL] SRID &lt;srid&gt;</c>. The column is
+        /// forced NOT NULL when a spatial index is declared (MySQL requires it). MySQL is 2-D only, so
+        /// declaring Z/M throws.
+        /// </summary>
+        public override string GeometryColumnDDL(TableDescriptor.ColumnInfo column)
+        {
+            GeometryColumnMetadata geo = column.Geometry;
+            if (geo.HasZ || geo.HasM)
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+
+            var builder = new StringBuilder(GeometryDdlHelper.SubtypeName(geo.Subtype).ToUpperInvariant());
+            if (!column.Nullable || geo.Indexes.Count > 0)
+                builder.Append(" NOT NULL");
+            builder.Append(" SRID ").Append(geo.Srid);
+            return builder.ToString();
+        }
 
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {

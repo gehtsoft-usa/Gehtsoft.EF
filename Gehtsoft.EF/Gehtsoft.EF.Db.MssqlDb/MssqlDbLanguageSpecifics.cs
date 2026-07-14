@@ -3,6 +3,7 @@ using System.Data;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.MssqlDb
 {
@@ -12,6 +13,16 @@ namespace Gehtsoft.EF.Db.MssqlDb
         /// The driver identifier of this dialect.
         /// </summary>
         public override string DbName => UniversalSqlDbFactory.MSSQL;
+
+        /// <summary>SQL Server provides the built-in <c>geometry</c> type.</summary>
+        public override bool SupportsGeometry => true;
+
+        /// <summary>
+        /// Renders a SQL Server geometry column: <c>geometry</c> (the SRID is enforced by the
+        /// constructor, not the column type).
+        /// </summary>
+        public override string GeometryColumnDDL(TableDescriptor.ColumnInfo column)
+            => column.Nullable ? "geometry" : "geometry NOT NULL";
 
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {

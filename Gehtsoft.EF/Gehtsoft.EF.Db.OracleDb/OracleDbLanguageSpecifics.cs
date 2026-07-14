@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
 
@@ -17,6 +18,16 @@ namespace Gehtsoft.EF.Db.OracleDb
         /// Oracle (12.2+) supports JSON columns.
         /// </summary>
         public override bool SupportsJson => true;
+
+        /// <summary>Oracle (Locator) provides the built-in <c>SDO_GEOMETRY</c> type.</summary>
+        public override bool SupportsGeometry => true;
+
+        /// <summary>
+        /// Renders an Oracle geometry column: <c>SDO_GEOMETRY</c> (SRID and dimensionality live in the
+        /// value / <c>USER_SDO_GEOM_METADATA</c>, not the column type).
+        /// </summary>
+        public override string GeometryColumnDDL(TableDescriptor.ColumnInfo column)
+            => column.Nullable ? "SDO_GEOMETRY" : "SDO_GEOMETRY NOT NULL";
 
         /// <summary>
         /// Renders an Oracle JSON extraction using `JSON_VALUE(col, '$.path' RETURNING &lt;type&gt;)`.

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+   <Import Project="$(MSBuildProjectDirectory)\..\version.proj" />
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <Version>$(VersionMajor)</Version>
+    <DocumentationFile>bin/doc.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetTopologySuite" Version="2.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gehtsoft.EF.Entities\Gehtsoft.EF.Entities.csproj" />
+  </ItemGroup>
+
+</Project>

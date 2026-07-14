@@ -6,6 +6,32 @@ Appendix A/B). Process mirrors the EAV/JSON features (`../DYNAMIC_PROPERTIES/`,
 `../JSON_PROPERTIES/`): this overall plan is approved first (done), then a per-phase plan is approved
 before each phase is coded, and advancing between phases is a second explicit gate.*
 
+> ## ⚠ ARCHITECTURE REVISION — 2026-07-09 (supersedes the in-house-codec design below)
+> The framework is now **codec-agnostic with a `byte[]`/WKB core**, reversing decision 1:
+> - A geometry column is fundamentally **`byte[]` (WKB)** in the framework. A `byte[]` property works
+>   with zero configuration. The framework NEVER owns a geometry CLR type or a WKT/WKB parser.
+> - **Retired:** the in-house `GeoGeometry` type + hand-rolled WKT/WKB codec (the Phase-0 code as first
+>   built). Deleted from `Gehtsoft.EF.Entities/Geometry/`. The `test.wkt`/`test.wkb` fixtures are kept
+>   and repurposed to validate the NTS codec.
+> - **Extension point:** an object-based `IGeometryCodec` (`bool CanHandle(Type)`, `byte[] ToWkb(object,
+>   bool includeSrid)`, `object FromWkb(byte[], int srid)`, and the WKT pair) + `IGeometryCodecFactory`,
+>   registered via a static `GeometryCodecs.Factory` (global default) with a per-`SqlDbConnection`
+>   override. Lives in core (`Gehtsoft.EF.Entities`), no external deps.
+> - **Shipped default impl = NetTopologySuite**, in a SEPARATE module `Gehtsoft.EF.Geo.NetTopologySuite`
+>   (references Entities + NTS; uses NTS `WKBReader/WKBWriter` + `WKTReader/WKTWriter`; Z/M + SRID/EWKB
+>   native). It is the sole shipped `IGeometryCodec`.
+> - **Two property shapes:** a `[GeometryProperty]` on a **`byte[]`** property → no codec/accessor
+>   needed (binder handles `byte[]`). On an **object** property (e.g. NTS `Geometry`) → discovery
+>   resolves the registered codec and installs a decorating accessor (object↔`byte[]`), throwing a clear
+>   error if no codec handles the type.
+> - **Unchanged:** `[GeometryProperty]`/`[SpatialIndex]` still declare SRID / subtype / Z-M / indexes
+>   (needed at table-create, library-agnostic); the DB wire form is still WKB via
+>   `ST_GeomFromWKB`/`ST_AsBinary` (decision 6); reading 3rd-party WKT/WKB is now the app/NTS
+>   responsibility, not the framework's.
+>
+> Decision 1 below is REVISED accordingly. `PHASE_0/` is rewritten to this design; `PHASE_1/` will be
+> revised when reached. All other decisions/phases (2–8: DB typing, indexes, query surface) stand.
+
 ## Context
 
 A **geo property** is an entity member holding an OGC geometry (Point / LineString / Polygon /

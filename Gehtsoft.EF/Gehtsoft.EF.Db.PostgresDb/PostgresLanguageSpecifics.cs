@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.PostgresDb
 {
@@ -15,6 +17,17 @@ namespace Gehtsoft.EF.Db.PostgresDb
         /// PostgreSQL supports JSON columns (jsonb).
         /// </summary>
         public override bool SupportsJson => true;
+
+        /// <summary>PostGIS provides geometry columns.</summary>
+        public override bool SupportsGeometry => true;
+
+        /// <summary>Renders a PostGIS geometry column: <c>geometry(&lt;subtype&gt;&lt;Z/M&gt;,&lt;srid&gt;)</c>.</summary>
+        public override string GeometryColumnDDL(TableDescriptor.ColumnInfo column)
+        {
+            GeometryColumnMetadata geo = column.Geometry;
+            string type = $"geometry({GeometryDdlHelper.SubtypeName(geo.Subtype)}{GeometryDdlHelper.DimensionSuffix(geo.HasZ, geo.HasM)},{geo.Srid})";
+            return column.Nullable ? type : type + " NOT NULL";
+        }
 
         /// <summary>
         /// Renders a PostgreSQL JSON extraction. The JSON is stored as `text`, so it is cast to

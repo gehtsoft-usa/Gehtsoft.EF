@@ -18,6 +18,13 @@ namespace Gehtsoft.EF.Db.SqliteDb
         public override bool SupportsJson => true;
 
         /// <summary>
+        /// SQLite provides geometry columns through the SpatiaLite extension (the geometry column is
+        /// added after CREATE TABLE via <c>AddGeometryColumn</c>). Requires
+        /// <see cref="SqliteGlobalOptions.EnableSpatial"/> + the native <c>mod_spatialite</c> at runtime.
+        /// </summary>
+        public override bool SupportsGeometry => true;
+
+        /// <summary>
         /// Renders a SQLite JSON extraction. SQLite is dynamically typed and its `CREATE INDEX` is
         /// not wrapped in a quoted block, so neither the target type nor <paramref name="forDdl"/>
         /// affects the expression.

@@ -29,6 +29,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         DynamicPropertiesBagIsNew,
         DynamicPropertiesAttributeWithoutOwner,
         DynamicPropertiesOwnerWithoutAttribute,
+        GeometryCodecNotFound,
     }
 
     [ExcludeFromCodeCoverage]
@@ -100,6 +101,9 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                     case EfExceptionCode.DynamicPropertiesOwnerWithoutAttribute:
                         return "The entity {0} implements IDynamicPropertiesOwner but is not marked with [DynamicProperties]. Add the [DynamicProperties] attribute, or remove the interface.";
+
+                    case EfExceptionCode.GeometryCodecNotFound:
+                        return "No registered geometry codec can handle the property type {0}. Reference the Gehtsoft.EF.Geo.NetTopologySuite module (or register a codec via GeometryCodecs.Factory), or declare the property as byte[] (WKB).";
 
                     default:
                         return $"Unknown exception {code}";

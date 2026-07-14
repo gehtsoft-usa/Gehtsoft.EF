@@ -50,6 +50,25 @@ namespace Gehtsoft.EF.Db.SqlDb
         public virtual bool SupportsJson => false;
 
         /// <summary>
+        /// Flag indicating whether the dialect supports geometry (spatial) columns
+        /// (<see cref="Gehtsoft.EF.Entities.GeometryEntityPropertyAttribute"/>). `false` by default;
+        /// creating a geometry column on a dialect where it is `false` throws
+        /// <see cref="EfExceptionCode.FeatureNotSupported"/>.
+        /// </summary>
+        public virtual bool SupportsGeometry => false;
+
+        /// <summary>
+        /// Renders the inline column-declaration tail (everything after the column name) for a geometry
+        /// column: the native spatial type plus any SRID / NOT NULL the dialect folds into the column.
+        /// The default throws <see cref="EfExceptionCode.FeatureNotSupported"/>; only the spatial-capable
+        /// dialects override it. (SpatiaLite adds its geometry column after CREATE TABLE and does not use
+        /// this.)
+        /// </summary>
+        /// <param name="column">The geometry column; its geometry metadata carries subtype/SRID/dimensionality.</param>
+        public virtual string GeometryColumnDDL(QueryBuilder.TableDescriptor.ColumnInfo column)
+            => throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+
+        /// <summary>
         /// Renders an expression that extracts a single primitive value at the given JSON path from
         /// a JSON column, cast to the specified type. Used both to build a JSON value index and to
         /// query a JSON value, so the two always agree.

@@ -120,5 +120,9 @@
     <description>Gehtsoft Entity Framework: Northwind sample database</description>
     <additional-file file="../../readme.md" target="/docs"/>
    </project>
+   <project id="Gehtsoft.EF.Geo.NetTopologySuite">
+    <description>Gehtsoft Entity Framework: Codec for WKB/WKT files to support Geo data reading/writing</description>
+    <additional-file file="../../readme.md" target="/docs"/>
+   </project>
  </projects>
 </nuget>

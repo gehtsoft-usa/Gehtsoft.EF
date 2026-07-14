@@ -9,6 +9,7 @@ using System.Threading;
 using System.Data;
 using System;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 #pragma warning disable S6966 // false positive: methods use sync/async branching pattern
 
@@ -27,6 +28,85 @@ namespace Gehtsoft.EF.Db.SqliteDb
         {
             mSqlConnection = connection;
             SetupFunctions(connection);
+            if (SqliteGlobalOptions.EnableSpatial)
+                EnableSpatialite(connection);
+        }
+
+        private static int mSqliteSymbolsPromoted;
+
+        [System.Runtime.InteropServices.DllImport("libdl.so.2", EntryPoint = "dlopen")]
+        private static extern IntPtr LinuxDlopen(string fileName, int flags);
+
+        [System.Runtime.InteropServices.DllImport("libSystem.dylib", EntryPoint = "dlopen")]
+        private static extern IntPtr MacDlopen(string fileName, int flags);
+
+        // mod_spatialite is compiled to reference the sqlite3_* symbols of the hosting engine directly
+        // (not through the extension API table). SQLitePCLRaw loads e_sqlite3 with local symbol
+        // visibility, so those symbols are invisible to the extension and calling it segfaults. Promote
+        // the already-loaded e_sqlite3 to the global symbol scope (dlopen RTLD_GLOBAL) so the extension
+        // binds against it. Unix only; Windows resolves extension symbols differently.
+        private static void PromoteSqliteSymbolsForSpatialite()
+        {
+            if (System.Threading.Interlocked.Exchange(ref mSqliteSymbolsPromoted, 1) != 0)
+                return;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return;
+            string path = LocateNativeSqlite();
+            if (path == null)
+                return;
+            const int RTLD_NOW = 0x2;
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    MacDlopen(path, RTLD_NOW | 0x8);     // macOS RTLD_GLOBAL = 0x8
+                else
+                    LinuxDlopen(path, RTLD_NOW | 0x100); // Linux RTLD_GLOBAL = 0x100
+            }
+            catch
+            {
+                // best effort; LoadExtension will surface a clear error if the symbols are still missing
+            }
+        }
+
+        private static string LocateNativeSqlite()
+        {
+            bool osx = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+            string file = osx ? "libe_sqlite3.dylib" : "libe_sqlite3.so";
+            string os = osx ? "osx" : "linux";
+            string arch = RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "arm64" : "x64";
+            string baseDir = AppContext.BaseDirectory;
+            string[] candidates =
+            {
+                Path.Combine(baseDir, file),
+                Path.Combine(baseDir, "runtimes", os + "-" + arch, "native", file),
+            };
+            for (int i = 0; i < candidates.Length; i++)
+                if (File.Exists(candidates[i]))
+                    return candidates[i];
+            return null;
+        }
+
+        private static void EnableSpatialite(SqliteConnection connection)
+        {
+            PromoteSqliteSymbolsForSpatialite();
+            connection.EnableExtensions(true);
+            connection.LoadExtension(SqliteGlobalOptions.SpatialiteLibrary);
+
+            // Bootstrap the spatial metadata once per database (guarded so it is idempotent across
+            // connections to the same file, and re-created for each in-memory database).
+            using (var check = connection.CreateCommand())
+            {
+                check.CommandText = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'spatial_ref_sys'";
+                long present = Convert.ToInt64(check.ExecuteScalar(), CultureInfo.InvariantCulture);
+                if (present == 0)
+                {
+                    using (var init = connection.CreateCommand())
+                    {
+                        init.CommandText = "SELECT InitSpatialMetaData(1)";
+                        init.ExecuteNonQuery();
+                    }
+                }
+            }
         }
 
         private static void SetupFunctions(SqliteConnection connection)

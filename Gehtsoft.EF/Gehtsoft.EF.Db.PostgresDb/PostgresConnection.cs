@@ -249,10 +249,29 @@ namespace Gehtsoft.EF.Db.PostgresDb
         public static bool LegacyTimestampBehavior { get; set; } = true;
         private static bool mLegacyTimestampBehaviorSet = false;
 
+        /// <summary>
+        /// When set, opening a connection verifies that the PostGIS extension is installed and throws
+        /// if it is not (fail fast). Opt-in because geometry support is not needed by every application.
+        /// </summary>
+        public static bool EnableSpatial { get; set; } = false;
+
         private static void UpdateLegacyTimestampBehavior()
         {
             if (!mLegacyTimestampBehaviorSet && LegacyTimestampBehavior)
                 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        }
+
+        private static void VerifyPostgis(NpgsqlConnection connection)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1 FROM pg_extension WHERE extname = 'postgis'";
+                object result = command.ExecuteScalar();
+                if (result == null || result is DBNull)
+                    throw new InvalidOperationException(
+                        "PostgreSQL spatial support is enabled but the PostGIS extension is not installed in this database. " +
+                        "Run 'CREATE EXTENSION postgis;' (or disable PostgresDbConnectionFactory.EnableSpatial).");
+            }
         }
 
         public static SqlDbConnection Create(string connectionString)
@@ -264,6 +283,8 @@ namespace Gehtsoft.EF.Db.PostgresDb
                 ConnectionString = connectionString
             };
             connection.Open();
+            if (EnableSpatial)
+                VerifyPostgis(connection);
             return new PostgresDbConnection(connection);
         }
 
@@ -279,6 +300,8 @@ namespace Gehtsoft.EF.Db.PostgresDb
                 await connection.OpenAsync();
             else
                 await connection.OpenAsync(token.Value);
+            if (EnableSpatial)
+                VerifyPostgis(connection);
             return new PostgresDbConnection(connection);
         }
     }

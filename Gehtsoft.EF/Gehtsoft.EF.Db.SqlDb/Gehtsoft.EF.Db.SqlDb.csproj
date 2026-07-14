@@ -119,6 +119,8 @@
     <Compile Include="Metadata\CompositeIndex.cs" />
     <Compile Include="Metadata\ICompositeIndexMetadata.cs" />
     <Compile Include="Metadata\JsonColumnMetadata.cs" />
+    <Compile Include="Metadata\GeometryColumnMetadata.cs" />
+    <Compile Include="Metadata\GeometryDdlHelper.cs" />
     <Compile Include="QueryBuilder\CreateIndexBuilder.cs" />
     <Compile Include="QueryBuilder\CreateViewBuilder.cs" />
     <Compile Include="QueryBuilder\DropIndexBuilder.cs" />
@@ -132,6 +134,7 @@
     <Compile Include="QueryBuilder\DropQueryBuilder.cs" />
     <Compile Include="QueryBuilder\HierarchicalSelectQueryBuilder.cs" />
     <Compile Include="QueryBuilder\JsonPropertyAccessor.cs" />
+    <Compile Include="QueryBuilder\GeometryPropertyAccessor.cs" />
     <Compile Include="QueryBuilder\InsertQueryBuilder.cs" />
     <Compile Include="QueryBuilder\MultiSqlQueryBuilder.cs" />
     <Compile Include="QueryBuilder\InsertSelectQueryBuilder.cs" />

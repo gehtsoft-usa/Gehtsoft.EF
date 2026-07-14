@@ -49,21 +49,12 @@
     <Compile Include="EntityContext\Ops.cs" />
     <Compile Include="Tools\IEntityAccessor.cs" />
     <Compile Include="Tools\IEntityCollection.cs" />
-    <Compile Include="Geometry\GeoGeometryType.cs" />
-    <Compile Include="Geometry\GeoCoordinate.cs" />
-    <Compile Include="Geometry\GeoFormatException.cs" />
-    <Compile Include="Geometry\GeoGeometry.cs" />
-    <Compile Include="Geometry\GeoPoint.cs" />
-    <Compile Include="Geometry\GeoLineString.cs" />
-    <Compile Include="Geometry\GeoPolygon.cs" />
-    <Compile Include="Geometry\GeoMultiPoint.cs" />
-    <Compile Include="Geometry\GeoMultiLineString.cs" />
-    <Compile Include="Geometry\GeoMultiPolygon.cs" />
-    <Compile Include="Geometry\GeoGeometryCollection.cs" />
-    <Compile Include="Geometry\GeoWktWriter.cs" />
-    <Compile Include="Geometry\GeoWktReader.cs" />
-    <Compile Include="Geometry\GeoWkbWriter.cs" />
-    <Compile Include="Geometry\GeoWkbReader.cs" />
+    <Compile Include="Geometry\IGeometryCodec.cs" />
+    <Compile Include="Geometry\IGeometryCodecFactory.cs" />
+    <Compile Include="Geometry\GeometryCodecs.cs" />
+    <Compile Include="Geometry\GeometrySubtype.cs" />
+    <Compile Include="Attributes\GeometryEntityPropertyAttribute.cs" />
+    <Compile Include="Attributes\SpatialIndexAttribute.cs" />
   </ItemGroup>
 
   <ItemGroup>

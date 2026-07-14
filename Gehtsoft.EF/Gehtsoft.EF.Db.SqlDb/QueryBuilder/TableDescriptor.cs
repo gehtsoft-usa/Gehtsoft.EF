@@ -174,6 +174,13 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             public Metadata.JsonColumnMetadata Json { get; internal set; }
 
             /// <summary>
+            /// When set, the column stores a geometry (WKB); the metadata carries the SRID, declared
+            /// subtype, dimensionality and the spatial indexes declared on it. `null` for a
+            /// non-geometry column.
+            /// </summary>
+            public Metadata.GeometryColumnMetadata Geometry { get; internal set; }
+
+            /// <summary>
             /// The flag indicating whether the column must be ignored
             /// when all entity properties are requested to be read.
             /// </summary>
