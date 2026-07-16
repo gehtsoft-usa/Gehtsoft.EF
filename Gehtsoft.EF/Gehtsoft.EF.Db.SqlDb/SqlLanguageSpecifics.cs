@@ -956,5 +956,21 @@ namespace Gehtsoft.EF.Db.SqlDb
         Round,
         Left,
         Length,
+        /// <summary>
+        /// The database server's current date/time (UTC), rendered in the dialect's own `DateTime`
+        /// representation so it round-trips through a `DateTime` column. Takes no arguments. Each
+        /// dialect renders its own expression; there is no portable default, so
+        /// <see cref="SqlDbLanguageSpecifics.GetSqlFunction"/> returns `null` for it on a dialect
+        /// that does not implement it.
+        /// </summary>
+        Now,
+        /// <summary>
+        /// The database server's current time as integer Unix (Linux) epoch seconds - seconds since
+        /// 1970-01-01 UTC. Takes no arguments. Useful as a monotonic, arithmetic-friendly clock when
+        /// a real timestamp type is unavailable or inconvenient (for example the instance-lock lease).
+        /// Each dialect renders its own expression; <see cref="SqlDbLanguageSpecifics.GetSqlFunction"/>
+        /// returns `null` for it on a dialect that does not implement it.
+        /// </summary>
+        LinuxSeconds,
     }
 }

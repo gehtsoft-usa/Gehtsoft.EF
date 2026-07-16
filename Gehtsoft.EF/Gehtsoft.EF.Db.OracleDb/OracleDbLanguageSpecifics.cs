@@ -275,6 +275,8 @@ namespace Gehtsoft.EF.Db.OracleDb
                 SqlFunctionId.Minute => $"EXTRACT(MINUTE FROM {args[0]})",
                 SqlFunctionId.Second => $"EXTRACT(SECOND FROM {args[0]})",
                 SqlFunctionId.Left => $"SUBSTR({args[0]}, 1, {args[1]})",
+                SqlFunctionId.Now => "SYS_EXTRACT_UTC(SYSTIMESTAMP)",
+                SqlFunctionId.LinuxSeconds => "ROUND((CAST(SYS_EXTRACT_UTC(SYSTIMESTAMP) AS DATE) - DATE '1970-01-01') * 86400)",
                 _ => base.GetSqlFunction(function, args),
             };
         }

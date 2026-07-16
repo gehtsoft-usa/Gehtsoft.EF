@@ -33,7 +33,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public void AddUpdateColumn(TableDescriptor.ColumnInfo column, string parameterName = null)
         {
             if (parameterName != null)
-                if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+                if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
                     if (parameterName.ContainsScalar())
                         throw new ArgumentException("The query must not contain string scalars", nameof(parameterName));
             if (mFieldSet.Length > 0)
@@ -53,7 +53,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="parameterDelimiter"></param>
         public void AddUpdateColumnExpression(TableDescriptor.ColumnInfo column, string rawExpression, string parameterDelimiter = "@")
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
                 if (rawExpression.ContainsScalar())
                     throw new ArgumentException("The query must not contain string scalars", nameof(rawExpression));
             if (mFieldSet.Length > 0)

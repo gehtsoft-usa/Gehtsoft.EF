@@ -1,3 +1,5 @@
 .claude/settings.local.json
 sonarqube.bat
 coverage*.xml
+.sonar.config
+diff_coverage.xml

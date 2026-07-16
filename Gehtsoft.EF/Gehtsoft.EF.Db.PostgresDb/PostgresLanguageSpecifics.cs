@@ -166,6 +166,8 @@ namespace Gehtsoft.EF.Db.PostgresDb
                 SqlFunctionId.Hour => $"EXTRACT(HOUR FROM {args[0]})",
                 SqlFunctionId.Minute => $"EXTRACT(MINUTE FROM {args[0]})",
                 SqlFunctionId.Second => $"EXTRACT(SECOND FROM {args[0]})",
+                SqlFunctionId.Now => "(now() AT TIME ZONE 'UTC')",
+                SqlFunctionId.LinuxSeconds => "CAST(EXTRACT(EPOCH FROM now()) AS BIGINT)",
                 _ => base.GetSqlFunction(function, args),
             };
         }

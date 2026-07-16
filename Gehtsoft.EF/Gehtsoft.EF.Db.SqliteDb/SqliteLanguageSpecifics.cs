@@ -295,6 +295,16 @@ namespace Gehtsoft.EF.Db.SqliteDb
                     return $"CAST((JULIANDAY({args[0]}) - 2440587.5) * 86400 AS INTEGER)";
                 case SqlFunctionId.Left:
                     return $"SLEFT({args[0]}, {args[1]})";
+                case SqlFunctionId.Now:
+                    // Match the active DateTime storage model: ISO string, or the OADate double
+                    // (days since 1899-12-30). 2415018.5 is the Julian day of the OADate epoch, so
+                    // JULIANDAY('now') - 2415018.5 is exactly the OADate of the current UTC instant
+                    // (the same conversion ToDate uses in double mode).
+                    return SqliteGlobalOptions.StoreDateAsString
+                        ? "STRFTIME('%Y-%m-%d %H:%M:%S', 'now')"
+                        : "(JULIANDAY('now') - 2415018.5)";
+                case SqlFunctionId.LinuxSeconds:
+                    return "CAST(STRFTIME('%s', 'now') AS INTEGER)";
                 default:
                     return base.GetSqlFunction(function, args);
             }

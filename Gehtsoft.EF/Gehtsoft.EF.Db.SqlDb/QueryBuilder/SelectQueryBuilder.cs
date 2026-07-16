@@ -234,7 +234,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddExpressionToResultset(string expression, DbType type, bool isAggregate = false, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (expression.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(expression));
@@ -257,7 +257,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddToResultset(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
@@ -272,7 +272,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddToResultset(TableDescriptor.ColumnInfo column, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
@@ -292,7 +292,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddToResultset(AggFn aggregate, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
@@ -311,7 +311,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddToResultset(AggFn aggregate, TableDescriptor.ColumnInfo column, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
@@ -331,7 +331,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddToResultset(AggFn aggregate, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
@@ -353,7 +353,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="aliasPrefix"></param>
         public virtual void AddToResultset(TableDescriptor table, QueryBuilderEntity entity, string aliasPrefix = "")
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (aliasPrefix.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(aliasPrefix));
@@ -372,7 +372,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="aliasPrefix"></param>
         public virtual void AddToResultset(TableDescriptor table, string aliasPrefix = "")
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (aliasPrefix.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(aliasPrefix));
@@ -395,7 +395,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (string.IsNullOrEmpty(query.Query))
                 query.PrepareQuery();
 
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (query.Query.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(query));
@@ -454,7 +454,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="direction"></param>
         protected internal void AddOrderByExpr(string expression, SortDir direction = SortDir.Asc)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (expression.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(expression));
@@ -464,7 +464,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         protected internal void AddGroupByExpr(string expression)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (expression.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(expression));

@@ -178,6 +178,10 @@ namespace Gehtsoft.EF.Db.MssqlDb
                         builder.Append(')');
                         return builder.ToString();
                     }
+                case SqlFunctionId.Now:
+                    return "GETUTCDATE()";
+                case SqlFunctionId.LinuxSeconds:
+                    return "DATEDIFF_BIG(SECOND, '19700101', SYSUTCDATETIME())";
                 default:
                     return base.GetSqlFunction(function, args);
             }

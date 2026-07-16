@@ -35,6 +35,17 @@
 
   <ItemGroup>
     <Compile Include="EfSqlException.cs" />
+    <Compile Include="Catalog\CatalogTableDto.cs" />
+    <Compile Include="Catalog\CatalogSnapshot.cs" />
+    <Compile Include="Catalog\CatalogSerializer.cs" />
+    <Compile Include="Catalog\Store\EfCatalogRecord.cs" />
+    <Compile Include="Catalog\Store\CatalogStore.cs" />
+    <Compile Include="Catalog\Diff\CatalogChange.cs" />
+    <Compile Include="Catalog\Diff\CatalogDiff.cs" />
+    <Compile Include="EntityQueries\Catalog\CatalogEntityController.cs" />
+    <Compile Include="InstanceLock\IDbInstanceLock.cs" />
+    <Compile Include="InstanceLock\LeaseInstanceLock.cs" />
+    <Compile Include="InstanceLock\SqlDbConnection.InstanceLock.cs" />
     <Compile Include="EntityGenericAccessor\GenericEntityAccessor.cs" />
     <Compile Include="EntityGenericAccessor\GenericEntityAccessorUpdateRecord.cs" />
     <Compile Include="EntityGenericAccessor\GenericEntityAccessorFilter.cs" />

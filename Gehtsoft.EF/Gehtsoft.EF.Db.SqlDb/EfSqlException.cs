@@ -30,6 +30,11 @@ namespace Gehtsoft.EF.Db.SqlDb
         DynamicPropertiesAttributeWithoutOwner,
         DynamicPropertiesOwnerWithoutAttribute,
         GeometryCodecNotFound,
+        LockTimeout,
+        CatalogFormatTooNew,
+        CatalogModelChangedWithoutVersionBump,
+        CatalogVersionRegressed,
+        CatalogColumnAlterNotSupported,
     }
 
     [ExcludeFromCodeCoverage]
@@ -104,6 +109,21 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                     case EfExceptionCode.GeometryCodecNotFound:
                         return "No registered geometry codec can handle the property type {0}. Reference the Gehtsoft.EF.Geo.NetTopologySuite module (or register a codec via GeometryCodecs.Factory), or declare the property as byte[] (WKB).";
+
+                    case EfExceptionCode.LockTimeout:
+                        return "Could not acquire the instance lock {0} within the timeout";
+
+                    case EfExceptionCode.CatalogFormatTooNew:
+                        return "The catalogue entry for table {0} was written in schema format version {1}, which is newer than this build supports ({2}). Refusing to touch the database; upgrade the framework.";
+
+                    case EfExceptionCode.CatalogModelChangedWithoutVersionBump:
+                        return "The entity model differs from the catalogued schema for scope {0}, but the DB version {1} was not changed. Bump the version passed to UpdateTables when the model changes.";
+
+                    case EfExceptionCode.CatalogVersionRegressed:
+                        return "The DB version {1} passed to UpdateTables for scope {0} is older than the version {2} already applied. Refusing to reconcile a newer database with an older build.";
+
+                    case EfExceptionCode.CatalogColumnAlterNotSupported:
+                        return "The definition of column {1} on table {0} changed, which cannot be altered in place portably. Apply the change with an IEfPatch (structural convergence handles the rest).";
 
                     default:
                         return $"Unknown exception {code}";

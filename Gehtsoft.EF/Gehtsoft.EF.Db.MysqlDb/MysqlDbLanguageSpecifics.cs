@@ -212,6 +212,10 @@ namespace Gehtsoft.EF.Db.MysqlDb
                         builder.Append(")");
                         return builder.ToString();
                     }
+                case SqlFunctionId.Now:
+                    return "UTC_TIMESTAMP()";
+                case SqlFunctionId.LinuxSeconds:
+                    return "UNIX_TIMESTAMP()";
 
                 default:
                     return base.GetSqlFunction(function, args);

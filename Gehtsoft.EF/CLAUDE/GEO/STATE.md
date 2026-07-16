@@ -1,15 +1,21 @@
 # GEO feature — current state (resume point)
 
-*Snapshot 2026-07-09. Read this first when resuming. Branch `geo`. Companion docs: `GEO_PLAN.md`
+*Snapshot updated 2026-07-14. Read this first when resuming. Branch `geo`. Companion docs: `GEO_PLAN.md`
 (overall, has the ARCHITECTURE REVISION banner), `GEO_COMMON_FUNCTIONALITY.md` (per-driver SQL map),
-`PHASE_0/`, `PHASE_1/`, `PHASE_2/` plans.*
+`PHASE_0/`, `PHASE_1/`, `PHASE_2/`, `PHASE_3/` plans, and **`PREREQUISITES_STATE.md`** (the Schema
+Catalogue + locking work geo now waits on).*
 
 ## TL;DR
 
 Phases **0, 1, 2 are implemented, green, and committed** (39 geo tests + 84 JSON tests, full solution 0
 new warnings). Return point = **`533f8b6`** (`geo Phases 0-2: codec-agnostic WKB core, declare,
-table-create (5 drivers)`); working tree clean. Process = two human gates per phase (plan-then-approve,
-advance-then-approve); **commit only when the user asks**. Next: **Gate for Phase 3 or Phase 4**.
+table-create (5 drivers)`).
+
+**GEO IS PARKED (2026-07-14).** Planning Phase 3 (TableUpdate) exposed that spatial-index reconciliation
+can't ride DB introspection cleanly (spatial indexes hide in per-driver catalogs). Decision: build a
+**declared-state Schema Catalogue** first — "catalogue first, geo rides it." Geo resumes at Phase 3 once
+the catalogue lands. **All current progress is the two prerequisite tasks + the catalogue design — see
+`PREREQUISITES_STATE.md`.** Process = two human gates per phase; **commit only when the user asks**.
 
 ## Architecture (locked)
 
@@ -88,10 +94,24 @@ LFS-pointer guard). Holds `test.wkt`/`test.wkb` (+ `tiger-line/`, `usa/`, `mars-
 - Geo tests: filter `~Gehtsoft.EF.Test.Geo`. Drivers other than SQLite need local config
   (`SqlConnectionSources`); SQLite+SpatiaLite runs here.
 
+## ⚠ PIVOT 2026-07-14 — geo PARKED behind the Schema Catalogue initiative
+
+Planning geo Phase 3 (TableUpdate) surfaced that spatial-index reconciliation can't ride introspection
+cleanly (spatial indexes hide in per-driver catalogs: MSSQL `sys.spatial_indexes`, SpatiaLite virtual
+R-tree invisible to `PRAGMA index_list`, Oracle `ITYP_NAME`, …). User decided the deeper fix is a
+**declared-state Schema Catalogue** (EF-owned tables recording schema as declared) that replaces
+introspection-based reconciliation framework-wide. **Decision: "catalogue first, geo rides it."** Geo is
+parked at `533f8b6`; resume geo Phase 3 AFTER the catalogue lands (spatial add/drop then become plain
+diff entries — no per-driver spatial catalog reads). Design doc: `CLAUDE/SCHEMA_CATALOGUE/DESIGN.md`
+(Gate-1 pending). `CLAUDE/GEO/PHASE_3/PHASE_3_PLAN.md` holds the introspection-based plan — SUPERSEDED
+by the catalogue for the reconcile half; the geo-column add + geo-column drop (user wants drop included)
+still apply, expressed through the catalogue diff. Also note: user wants geo-column **drop** in Phase 3.
+
 ## Next steps (need a Gate)
 
-- **Phase 3 — TableUpdate:** reconcile geo columns + spatial indexes on a live table (rides the general
-  index-reconciliation fix; SD2 — introduce `CompositeIndex.ForSpatial`/`GetTableIndexes` surfacing).
+- **Schema Catalogue (NEW, first):** approve `CLAUDE/SCHEMA_CATALOGUE/DESIGN.md` (Gate 1), then phase it.
+- **Phase 3 — TableUpdate (geo), AFTER the catalogue:** geo column add/**drop** + spatial-index add/drop
+  as catalogue-diff entries. (Old introspection plan in PHASE_3_PLAN.md is superseded for reconcile.)
 - **Phase 4 — pure-SQL query surface** (the ★ phase): `Geo*` `SqlFunctionId` renderers + arg-channel fix,
   insert/update WKB value-wrap, WHERE predicates/measure/within-distance, select output-wrap + WKB decode,
   projection + scalar order/group/agg. Oracle `Crosses` throws.

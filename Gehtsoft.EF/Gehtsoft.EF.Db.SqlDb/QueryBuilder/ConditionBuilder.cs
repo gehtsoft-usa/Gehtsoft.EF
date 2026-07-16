@@ -18,6 +18,12 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         SqlDbLanguageSpecifics Specifics { get; }
 
         string GetAlias(TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity queryEntity);
+
+        /// <summary>
+        /// Whether the owning builder suppresses the string-scalar guard on raw condition operands.
+        /// See <see cref="AQueryBuilder.SuppressScalarProtection"/>.
+        /// </summary>
+        bool SuppressScalarProtection { get; }
     }
 
     /// <summary>
@@ -66,7 +72,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <returns></returns>
         public SingleConditionBuilder Raw(string rawExpression)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!Builder.InfoProvider.SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
                 if (rawExpression.ContainsScalar())
                     throw new ArgumentException("Query should not consists of string scalars", nameof(rawExpression));
 
