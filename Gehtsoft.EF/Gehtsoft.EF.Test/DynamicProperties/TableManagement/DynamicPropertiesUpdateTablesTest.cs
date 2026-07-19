@@ -1,16 +1,25 @@
 using System.Data;
+using System.Reflection;
 using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries;
+using Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Test.Catalog;
 using Xunit;
 
 namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
 {
+    // Dynamic-properties schema migration is exercised through the current CatalogEntityController. Because
+    // the catalogue reconciles against its own recorded state (not the live DB), an incremental V1->V2
+    // migration is set up by building the V1 shape, seeding the target scope's catalogue with it, then
+    // running UpdateTables against the V2 model (see CatalogTestSupport).
     public class DynamicPropertiesUpdateTablesTest
     {
+        private static readonly Assembly Asm = typeof(DynamicPropertiesUpdateTablesTest).Assembly;
+
         // --- "gained" transition: same table, before has no props, after has props ---
 
         [Entity(Scope = "dp_gain_before", Table = "dp_gain")]
@@ -82,15 +91,17 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
         public void UpdateTables_GainedDynamicProperties_CreatesPropsTable()
         {
             using SqlDbConnection connection = SqliteDbConnectionFactory.CreateMemory();
+            CatalogTestSupport.ResetCatalog(connection, Asm);
 
-            new CreateEntityControllerInternal(typeof(GainBefore), "dp_gain_before")
-                .UpdateTables(connection, EntityUpdateMode.Recreate);
-
+            // Build the "before" (no dynamic properties) shape.
+            new CatalogEntityController(typeof(GainBefore), "dp_gain_before").CreateTables(connection, "1.0.0");
             connection.DoesObjectExist("dp_gain", null, "table").Should().BeTrue();
             connection.DoesObjectExist("dp_gain_props", null, "table").Should().BeFalse();
 
-            new CreateEntityControllerInternal(typeof(GainAfter), "dp_gain_after")
-                .UpdateTables(connection, EntityUpdateMode.Update);
+            // Seed the target scope with the "before" shape, then migrate to the model that HAS props.
+            CatalogTestSupport.Seed(connection, "dp_gain_after", "dp_gain", typeof(GainBefore), "1.0.0");
+            new CatalogEntityController(typeof(GainAfter), "dp_gain_after")
+                .UpdateTables(connection, "2.0.0", EntityUpdateMode.Update);
 
             connection.DoesObjectExist("dp_gain", null, "table").Should().BeTrue();
             connection.DoesObjectExist("dp_gain_props", null, "table").Should().BeTrue();
@@ -103,15 +114,17 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
         public void UpdateTables_LostDynamicProperties_DropsOrphanPropsTable()
         {
             using SqlDbConnection connection = SqliteDbConnectionFactory.CreateMemory();
+            CatalogTestSupport.ResetCatalog(connection, Asm);
 
-            new CreateEntityControllerInternal(typeof(LostBefore), "dp_lost_before")
-                .UpdateTables(connection, EntityUpdateMode.Recreate);
-
+            // Build the "before" (with dynamic properties) shape.
+            new CatalogEntityController(typeof(LostBefore), "dp_lost_before").CreateTables(connection, "1.0.0");
             connection.DoesObjectExist("dp_lost", null, "table").Should().BeTrue();
             connection.DoesObjectExist("dp_lost_props", null, "table").Should().BeTrue();
 
-            new CreateEntityControllerInternal(typeof(LostAfter), "dp_lost_after")
-                .UpdateTables(connection, EntityUpdateMode.Update);
+            // Seed the target scope with the "before" shape, then migrate to the model that LOST props.
+            CatalogTestSupport.Seed(connection, "dp_lost_after", "dp_lost", typeof(LostBefore), "1.0.0");
+            new CatalogEntityController(typeof(LostAfter), "dp_lost_after")
+                .UpdateTables(connection, "2.0.0", EntityUpdateMode.Update);
 
             connection.DoesObjectExist("dp_lost", null, "table").Should().BeTrue("owner table must remain");
             connection.DoesObjectExist("dp_lost_props", null, "table").Should().BeFalse("orphan props table must be dropped");
@@ -121,14 +134,16 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
         public void UpdateTables_Idempotent_WhenPropsAlreadyPresent()
         {
             using SqlDbConnection connection = SqliteDbConnectionFactory.CreateMemory();
+            CatalogTestSupport.ResetCatalog(connection, Asm);
 
-            CreateEntityControllerInternal controller = new CreateEntityControllerInternal(typeof(IdemOwner), "dp_idem");
+            var controller = new CatalogEntityController(typeof(IdemOwner), "dp_idem");
 
-            controller.UpdateTables(connection, EntityUpdateMode.Update);
+            // First contact creates the owner and its props side table.
+            controller.UpdateTables(connection, "1.0.0", EntityUpdateMode.Update);
             connection.DoesObjectExist("dp_idem_props", null, "table").Should().BeTrue();
 
-            // second run: owner and props already exist -> must be a clean no-op
-            controller.UpdateTables(connection, EntityUpdateMode.Update);
+            // Re-run at the same version with an unchanged model -> clean no-op.
+            controller.UpdateTables(connection, "1.0.0", EntityUpdateMode.Update);
             connection.DoesObjectExist("dp_idem_props", null, "table").Should().BeTrue();
         }
 
@@ -136,9 +151,10 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
         public void UpdateTables_DoesNotDropCoincidentallyNamedTable()
         {
             using SqlDbConnection connection = SqliteDbConnectionFactory.CreateMemory();
+            CatalogTestSupport.ResetCatalog(connection, Asm);
 
-            new CreateEntityControllerInternal(typeof(FalsePositiveOwner), "dp_fp")
-                .UpdateTables(connection, EntityUpdateMode.Recreate);
+            new CatalogEntityController(typeof(FalsePositiveOwner), "dp_fp")
+                .UpdateTables(connection, "1.0.0", EntityUpdateMode.Update);
 
             // a user table that happens to be named dp_fp_props but is NOT an EAV side table
             TableDescriptor fake = new TableDescriptor("dp_fp_props");
@@ -147,11 +163,13 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
             using (var query = connection.GetQuery(connection.GetCreateTableBuilder(fake)))
                 query.ExecuteNoData();
 
-            new CreateEntityControllerInternal(typeof(FalsePositiveOwner), "dp_fp")
-                .UpdateTables(connection, EntityUpdateMode.Update);
+            // A later deploy with an unchanged model: the catalogue only drops side tables it recorded, so a
+            // coincidentally-named table it never catalogued is never touched.
+            new CatalogEntityController(typeof(FalsePositiveOwner), "dp_fp")
+                .UpdateTables(connection, "2.0.0", EntityUpdateMode.Update);
 
             connection.DoesObjectExist("dp_fp_props", null, "table")
-                      .Should().BeTrue("a coincidentally-named table without EAV signature columns must not be dropped");
+                      .Should().BeTrue("a table the catalogue never recorded as an EAV side table must not be dropped");
         }
     }
 }

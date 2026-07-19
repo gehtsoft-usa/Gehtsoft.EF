@@ -126,6 +126,27 @@ namespace Gehtsoft.EF.Test.Catalog.Controller
             public DynamicPropertyBag DynamicProperties { get; private set; }
         }
 
+        // ---- JSON create-parity model (scope parity_json; JSON is SQLite/PostgreSQL/Oracle only) ---------
+
+        private const string JsonScope = "parity_json";
+
+        public class ParJsonPayload
+        {
+            public int Age { get; set; }
+            public string City { get; set; }
+        }
+
+        [Entity(Scope = JsonScope, Table = "par_json")]
+        public class ParJson
+        {
+            [EntityProperty(Field = "id", AutoId = true)]
+            public int Id { get; set; }
+
+            [JsonEntityProperty(Field = "data", Nullable = true)]
+            [JsonIndex("$.age", System.Data.DbType.Int32)]
+            public ParJsonPayload Data { get; set; }
+        }
+
         // ---- helpers -----------------------------------------------------------------------------------
 
         // A clean connection: drop ef_catalog so the catalogue starts at first contact, then re-establish
@@ -297,6 +318,28 @@ namespace Gehtsoft.EF.Test.Catalog.Controller
 
             new CatalogEntityController(Asm, DynScope).UpdateTables(connection, "1.0.0", EntityUpdateMode.Update);
             SortedDictionary<string, bool> newFp = Fingerprint(connection, DynScope);
+
+            newFp.Should().BeEquivalentTo(oldFp);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "-mssql,-mysql")]
+        public void Create_JsonModel_Parity(string connectionName)
+        {
+            var connection = Open(connectionName);
+            DropScopePhysical(connection, JsonScope);
+
+            // The fingerprint enumerates declared columns and indexes; a JSON value index is named by the
+            // framework (not a plain column/composite name), so probe it explicitly.
+            var jsonIndexProbe = new[] { ("par_json", "data_age_i32", "index") };
+
+            new CreateEntityControllerInternal(Asm, JsonScope).UpdateTables(connection, EntityUpdateMode.Update);
+            SortedDictionary<string, bool> oldFp = Fingerprint(connection, JsonScope, jsonIndexProbe);
+
+            DropScopePhysical(connection, JsonScope);
+
+            new CatalogEntityController(Asm, JsonScope).UpdateTables(connection, "1.0.0", EntityUpdateMode.Update);
+            SortedDictionary<string, bool> newFp = Fingerprint(connection, JsonScope, jsonIndexProbe);
 
             newFp.Should().BeEquivalentTo(oldFp);
         }

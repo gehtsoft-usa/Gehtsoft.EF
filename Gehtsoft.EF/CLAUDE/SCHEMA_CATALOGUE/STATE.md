@@ -35,9 +35,8 @@ then GEO Phase 3 rides the catalogue
 Full Catalogue + InstanceLock + Patch sweep: **391 green** (8 serialization + 24 lock + 85 store + 41 diff
 + 175 controller [135 increment-1..5 + 40 adoption/orphan] + 7 in-memory patch-replay/adopt E2E + **45
 parity-gate [9 × 5]**; the 7 existing `SqlDb.Patch.PatchTest` also green — `EfPatchProcessor` untouched).
-**Full product suite: 3609 green, 0 failed on all 5 live drivers (confirmed 2026-07-19, after increment 6 +
-old-controller deprecation); was 3562 at increment 5 → +45 parity + 2 obsolete-shim tests; the increment-6
-product fixes and the deprecation refactor caused zero regressions.**
+**Full product suite: 3615 green, 0 failed on all 5 live drivers (confirmed 2026-07-19, after switching the
+JSON + dynamic-properties migration suites onto the catalogue; 3609 at the `fba359a` commit + 6 new tests).**
 
 ## Prerequisites (both DONE)
 
@@ -393,6 +392,26 @@ is **not** removable (AdoptExistingScope's Practical mode depends on it); only t
   `src/raw/*.ds` (`@brief=` holds the whole sentence, next line blank — CRLF-aware check) and re-rendered
   clean. The `CLAUDE/WRITING-DOC-COMMENTS.md` rule #1 was corrected accordingly (brief = first LINE, not
   first `<para>`; don't wrap it).
+
+**JSON + dynamic-properties migration now tested through the catalogue (2026-07-19; UNCOMMITTED).** Closed the
+noted JSON gap and moved the feature-specific migration suites onto `CatalogEntityController`:
+- New shared helper **`Gehtsoft.EF.Test/Catalog/CatalogTestSupport.cs`** — `ResetCatalog(conn, asm)` (drop
+  `ef_catalog` + `EnsureCatalogInfrastructure`; needed because `DropTables` only tombstones and the fixture
+  reuses one live DB; safe because the assembly disables parallelization) and `Seed(conn, scope, table,
+  modelType, version)` (write the "before"-shape DTO so a later `UpdateTables` diffs against it — the seed
+  recipe that makes same-table V1→V2 migration testable under scope-keyed catalogue state).
+- **`JsonTableUpdateTest`** switched to the catalogue: `UpdateTables_AddsJsonIndex`, `UpdateTables_DropsJsonIndex`
+  (split from the old add-and-drop), `UpdateTables_AddsJsonColumn` (+idempotent). Real-DDL JSON index/column
+  reconcile through the catalogue is now covered (SQLite/PG/Oracle-gated).
+- **`DynamicPropertiesUpdateTablesTest`** switched to the catalogue (gain/lose/idempotent/false-positive) —
+  real-DDL side-table gain/drop via `UpdateTables`. (The false-positive test now reflects the catalogue being
+  authoritative: it only drops side tables it recorded, so a coincidentally-named table is never touched.)
+- **`CatalogParityTest` +`Create_JsonModel_Parity`** — JSON column + value index create parity vs the old
+  controller (probes the JSON index name via the fingerprint's `extra` param). Parity is now 10 scenarios.
+- The **query-based create tests** (`JsonTableCreateTest`, `DynamicPropertiesCreateDrop*`) were left as-is
+  (they test the `GetCreateEntityQuery` DDL layer, not a controller). The deferred "composite/JSON
+  index-application behavioural test" gap is now closed for JSON; incremental composite add/drop remains
+  mock/diff-only (minor).
 
 ## Cross-cutting decisions in force
 
