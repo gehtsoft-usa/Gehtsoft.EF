@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
@@ -84,6 +86,53 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// </summary>
         public virtual void HandleGeometryAfterQuery(StringBuilder builder, TableDescriptor.ColumnInfo column)
         {
+        }
+
+        // ---------------------------------------------------------------------------------------------
+        // Geometry ALTER-time primitives (schema catalogue).
+        //
+        // Unlike HandleGeometryAfterQuery (which emits block-decorated statements for the CREATE TABLE
+        // path), these collect BARE, single-quoted statements to be executed individually by
+        // AlterTableQueryBuilder. They are kept separate from the create path so that path stays
+        // byte-identical and the two engines' quoting conventions (Oracle wraps CREATE-path statements
+        // in EXECUTE IMMEDIATE '...', which needs doubled quotes; ALTER-path statements run bare) do not
+        // leak into each other.
+        // ---------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Collects the statement(s) that register a geometry column with the engine's spatial catalog
+        /// after the column exists (SpatiaLite <c>AddGeometryColumn</c>). The default is a no-op: most
+        /// engines register the column implicitly through its declared type, and Oracle couples
+        /// registration to the spatial index (see <see cref="CollectCreateSpatialIndex"/>).
+        /// </summary>
+        public virtual void CollectRegisterGeometryColumn(List<string> queries, TableDescriptor.ColumnInfo column)
+        {
+        }
+
+        /// <summary>
+        /// Collects the statement(s) that unregister a geometry column from the engine's spatial catalog
+        /// before the column is dropped (SpatiaLite <c>DiscardGeometryColumn</c>). The default is a no-op.
+        /// </summary>
+        public virtual void CollectUnregisterGeometryColumn(List<string> queries, TableDescriptor.ColumnInfo column)
+        {
+        }
+
+        /// <summary>
+        /// Collects the statement(s) that create one spatial index on a geometry column. The base throws
+        /// because a non-spatial dialect cannot index a geometry column; spatial-capable drivers override it.
+        /// </summary>
+        public virtual void CollectCreateSpatialIndex(List<string> queries, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+        {
+            throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+        }
+
+        /// <summary>
+        /// Collects the statement(s) that drop one spatial index from a geometry column. The base throws;
+        /// spatial-capable drivers override it.
+        /// </summary>
+        public virtual void CollectDropSpatialIndex(List<string> queries, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+        {
+            throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
         }
 
         public virtual void HandleAfterQuery(StringBuilder builder, TableDescriptor.ColumnInfo column)

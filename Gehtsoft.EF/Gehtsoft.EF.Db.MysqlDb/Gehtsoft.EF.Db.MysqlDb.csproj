@@ -18,7 +18,13 @@
     <Compile Include="AlterTableQueryBuilder.cs" />
     <Compile Include="MysqlConnection.cs" />
     <Compile Include="MysqlCreateTableBuilder.cs" />
+    <Compile Include="MariaDbDropIndexBuilder.cs" />
+    <Compile Include="MySql8DropIndexBuilder.cs" />
+    <Compile Include="MariaDbUpdateQueryBuilder.cs" />
+    <Compile Include="MySql8UpdateQueryBuilder.cs" />
     <Compile Include="MysqlDbLanguageSpecifics.cs" />
+    <Compile Include="MySql8LanguageSpecifics.cs" />
+    <Compile Include="MariaDbLanguageSpecifics.cs" />
     <Compile Include="MysqlHierarchicalSelectQueryBuilder.cs" />
     <Compile Include="MysqlInsertQueryBuilder.cs" />
     <Compile Include="MysqlInsertSelectQueryBuilder.cs" />

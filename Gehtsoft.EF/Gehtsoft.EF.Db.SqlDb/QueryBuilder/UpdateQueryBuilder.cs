@@ -73,8 +73,15 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (mFieldSet.Length > 0)
                 mFieldSet.Append(", ");
             builder.PrepareQuery();
-            mFieldSet.Append(column.Name).Append("=(").Append(builder.Query).Append(')');
+            mFieldSet.Append(column.Name).Append("=(").Append(TransformSubquery(builder.Query)).Append(')');
         }
+
+        /// <summary>
+        /// A hook for a dialect to rewrite a subquery embedded in the <c>SET</c> clause before it is spliced in.
+        /// The default returns it unchanged; a dialect that cannot read the updated table inside its own
+        /// subquery (e.g. MySQL 8, error 1093) overrides this to wrap that table in a derived table.
+        /// </summary>
+        protected virtual string TransformSubquery(string subquerySql) => subquerySql;
 
         /// <summary>
         /// Adds all columns of the entity to be updated.

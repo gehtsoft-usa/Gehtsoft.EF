@@ -50,6 +50,100 @@ the catalogue lands. **All current progress is the two prerequisite tasks + the 
   `USER_SDO_GEOM_METADATA`+`MDSYS.SPATIAL_INDEX_V2` · SpatiaLite `AddGeometryColumn`+`CreateSpatialIndex`.
   Enable-spatial: `SqliteGlobalOptions.EnableSpatial`/`SpatialiteLibrary` + `PostgresDbConnectionFactory.EnableSpatial`.
   Tests in `Gehtsoft.EF.Test/Geo/TableManagement/`.
+- **Phase 3a — TableUpdate DDL seams + old-controller guard — DONE (2026-07-19), uncommitted.**
+  Geo now rides the **Schema Catalogue** (the pre-catalogue `PHASE_3/PHASE_3_PLAN.md` enumeration
+  approach — "Option A: surface spatial indexes through `GetTableIndexes`" — is **SUPERSEDED**; the
+  catalogue diff computes column/index deltas from the stored DTO, so no per-driver spatial-index
+  introspection is needed).
+  - **Old controller fails loudly on geo:** `CreateEntityControllerInternal.LoadTypes` →
+    `GuardNoGeometry()` throws `EfExceptionCode.GeometryRequiresCatalogController` when a discovered
+    (non-view) entity has a geometry column. The obsolete public shim inherits it. Test:
+    `Geo/TableManagement/GeometryOldControllerGuardTest`.
+  - **ALTER-time DDL seams (create path untouched → Phase-2 output byte-identical):** base
+    `TableDdlBuilder` gains `CollectRegisterGeometryColumn`/`CollectUnregisterGeometryColumn` (no-op
+    default) + `CollectCreateSpatialIndex`/`CollectDropSpatialIndex` (throw `FeatureNotSupported`
+    default). Base `AlterTableQueryBuilder` is now geo-aware (`HandleCreateQuery` →
+    `HandleCreateGeometryColumn`, `HandleAfterCreateQuery`, `HandlePreDropQuery`); all 5 drivers inherit
+    it via their existing `CreateDdlBuilder` override. MySQL `HandlePreDropQuery` now chains to base.
+  - **Per-driver primitives:** PG `USING GIST` / `DROP INDEX` · MySQL `CREATE SPATIAL INDEX` /
+    `DROP INDEX … ON t` · MSSQL `GEOMETRY_GRID`+bbox (throws w/o bbox) / `DROP INDEX … ON t` · Oracle
+    `USER_SDO_GEOM_METADATA`+`SPATIAL_INDEX_V2` / `DROP INDEX`+`DELETE … METADATA` (single-quoted —
+    bare exec, unlike the create path's EXECUTE-IMMEDIATE doubled quotes) · SpatiaLite
+    `AddGeometryColumn`/`DiscardGeometryColumn`+`CreateSpatialIndex`/`DisableSpatialIndex`+drop R-tree.
+  - **Verified behaviourally (not by AST/string — per-driver DDL is too divergent for that to be more
+    than re-encoding the impl):** `Geo/TableManagement/GeometrySpatialiteBehaviourTest.
+    AlterTable_AddsGeometryColumnAndSpatialIndex` creates a base table, ALTER-adds the geo column +
+    spatial index through the catalogue's exact `GetAlterTableQueryBuilder → GetQuery → ExecuteNoData`
+    path, asserts via `DoesObjectExist`. The other 4 engines are covered on the acceptance tier.
+  - Full suite **3628 green** (was 3625; +2 guard, +1 ALTER-path).
+- **Phase 3b — catalogue ApplyChanges wiring — DONE (2026-07-19), uncommitted.** The diff (`CatalogDiff`)
+  and the DTO (`CatalogGeometryDto`/`CatalogSpatialIndexDto`) already modelled every geometry change; 3b
+  was purely the ApplyChanges dispatch (previously a `default`-case throw).
+  - **AddGeometryColumn** routes through the same `addColumns` path as a plain add (the 3a geo-aware
+    `AlterTableQueryBuilder` emits column + register + spatial indexes). **DropGeometryColumn** routes
+    through `dropColumns`; `ReconstructDroppedColumn` now rebuilds `.Geometry` (incl. its spatial indexes)
+    from the catalogued DTO so `HandlePreDropQuery` tears down the indexes + unregisters first. Gated by
+    `DropColumnSupported` (SpatiaLite skips, consistent).
+  - **AddSpatialIndex / DropSpatialIndex** (standalone, on an unchanged geometry column) → new
+    `ICatalogControllerAction.Create/DropSpatialIndex` + new
+    `AlterTableQueryBuilder.Get{Create,Drop}SpatialIndexQueries` calling the 3a `Collect*` primitives.
+  - **Data-loss pre-check** extended to `DropGeometryColumn` (refused under `DataLossPolicy.Fail` unless
+    `[ObsoleteEntityProperty]`). Geometry **metadata** change (SRID/subtype/Z/M) stays refused via
+    AlterColumn → route through an IEfPatch (drop+add would lose the data).
+  - **Scalar-protection fix (the 3a finding):** `AddColumns`/`DropColumns` + the spatial-index action
+    methods now use `GetQuery(queryText, suppressScalarProtection: true)` — SpatiaLite geo DDL is
+    `SELECT AddGeometryColumn(...)`/`CreateSpatialIndex(...)`, which trips the scalar guard.
+  - **`CatalogSerializer` fix:** enabled `JsonNumberHandling.AllowNamedFloatingPointLiterals` — a spatial
+    index without a bounding box stores `NaN` bounds, which STJ rejects by default. Purely additive (no
+    persisted geo catalogs existed); no schema-format bump. The diff's `DoubleEquals` already used
+    `double.Equals` (NaN==NaN true), so re-diff is idempotent.
+  - **Verified behaviourally** (live SpatiaLite, full catalogue UpdateTables path) in
+    `Geo/TableManagement/CatalogGeometryUpdateTest` (add geo column+index, add spatial index, drop spatial
+    index, implicit-drop data-loss refusal) — 4 green. Shared `Geo/SpatialiteTestSupport` helper added.
+
+- **Acceptance tier — live server engines verified (2026-07-19), uncommitted.**
+  `Geo/TableManagement/GeometryEngineAcceptanceTest` drives create-with-spatial-index + catalogue
+  add-geometry-column through the shipping `CatalogEntityController` path over every configured live engine
+  (bounding-boxed index so MSSQL/Oracle accept it; 2-D so MySQL would). Results on the 192.168.1.25 test box:
+  - **SQL Server** — ✅ create + update.
+  - **PostGIS** — ✅ create + update (required `CREATE EXTENSION postgis` **in the `test` DB** — extensions
+    are per-database; it was missing there initially).
+  - **Oracle** — ✅ create + update, **and now repeatable**. Fixed a real product gap: `DROP TABLE` on
+    Oracle left orphaned `USER_SDO_GEOM_METADATA` rows, so a geometry table could not be recreated
+    (`ORA-13223`). `OracleDropTableBuilder.AppendDropTable` now emits a `DELETE FROM USER_SDO_GEOM_METADATA`
+    (EXCEPTION-guarded) for each geometry column before the `DROP TABLE`.
+  - **MariaDB** (the `mysql@25` connection is MariaDB 10.5) — ✅ create + update, after adding a MariaDB
+    dialect. MariaDB has no `SRID` column attribute (it carries the SRID on the value), so the geometry
+    column DDL omits it.
+  - **MySQL 8** (`mysql8@25`, port 3316) — ✅ create + update. (Config note: the `test` user was created as
+    `create user 'test@localhost'` — the whole string is the username, host `%` — so the connection string
+    uses `Uid=test@localhost`; MySQL 8's `caching_sha2_password` needs `AllowPublicKeyRetrieval=True`.)
+  - **MySQL-family dialect split (no runtime flags — subclasses):** `MysqlDbLanguageSpecifics` is now an
+    **abstract base** with two leaves — `MySql8LanguageSpecifics` and `MariaDbLanguageSpecifics` — selected
+    per connection from the server banner (`ServerVersion` contains `"MariaDB"`; two static singletons on
+    `MysqlDbConnection`). Each leaf overrides `AppendColumnSrid` (MySQL 8 emits `SRID <n>`, MariaDB nothing)
+    and acts as the **factory** for its dialect-specific builders (`CreateDropIndexBuilder`,
+    `CreateUpdateQueryBuilder`), so `MysqlDbConnection` never branches on a flag. Deterministic unit
+    coverage: `GeometryDdlGenerationTest.MariaDb_Column_OmitsSrid` + MySQL-8 `...NotNullSrid_WhenIndexed`.
+  - **All five engine families verified for geo create + catalogue table-update** (`GeometryEngineAcceptanceTest`,
+    over every configured live connection; skips only a PostgreSQL DB without PostGIS).
+
+- **General MySQL-8 dialect gaps fixed (2026-07-19, non-geo, exposed by adding a real MySQL 8 server
+  `mysql8@25` at :3316; the suite had only ever run against MariaDB before).** Both via the dialect
+  subclasses above (no flags):
+  - **`DROP INDEX`** — MySQL 8 has no `DROP INDEX IF EXISTS`. `MariaDbDropIndexBuilder` uses the native
+    `IF EXISTS`; `MySql8DropIndexBuilder` stays idempotent via an `information_schema` existence check
+    driving `PREPARE`/`EXECUTE` (analogue of MSSQL's `IF IndexProperty(...)` / Oracle's `EXCEPTION WHEN
+    OTHERS`). Covered by `MysqlDropIndexIdempotencyTest` (drops an absent index as a no-op on both servers).
+  - **`UPDATE … SET = (correlated subquery over the target)`** — MySQL 8 rejects it (error 1093), MariaDB
+    allows it. Base `UpdateQueryBuilder` gained a `protected virtual TransformSubquery` hook;
+    `MySql8UpdateQueryBuilder` wraps the target's `FROM <t> AS <a>` into `FROM (SELECT * FROM <t>) AS <a>`
+    (materialized derived table dodges 1093; the outer correlation is untouched). `MariaDbUpdateQueryBuilder`
+    is the plain base. Verified by `BasicQueryTests.T2_4_UpdateUsingSelect` on both servers.
+  - **Config note:** the earlier "13 failures" were mostly a **corrupted `test.db`** from two concurrent
+    suite runs (`SQLite Error 11: malformed database schema`), cleared by deleting `test.db`; plus the 6
+    real MySQL-8 gaps above (now all fixed). Windows SpatiaLite failures are the unverified Windows native
+    path (Linux/macOS symbol-promotion only) — still to confirm.
 
 ### Key decisions (see GEO_PLAN.md for the full list)
 1 in-house→**NTS/byte[] pivot** · 8 SRID default 4326 · 11 Oracle `Crosses` throws (Phase 4/6) ·

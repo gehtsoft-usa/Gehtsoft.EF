@@ -360,7 +360,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Fact]
         public void Mysql_NullableBool_True_ToDbValue()
         {
-            var specifics = new MysqlDbLanguageSpecifics();
+            var specifics = new MySql8LanguageSpecifics();
             var (value, dbType) = CallToDbValue(specifics, true, typeof(bool?));
             dbType.Should().Be(DbType.Int16);
             value.Should().Be(1);
@@ -369,7 +369,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Fact]
         public void Mysql_NullableBool_Null_ToDbValue()
         {
-            var specifics = new MysqlDbLanguageSpecifics();
+            var specifics = new MySql8LanguageSpecifics();
             var (value, dbType) = CallToDbValue(specifics, null, typeof(bool?));
             dbType.Should().Be(DbType.Int16);
             value.Should().Be(DBNull.Value);
@@ -378,7 +378,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Fact]
         public void Mysql_NullableGuid_NonNull_ToDbValue()
         {
-            var specifics = new MysqlDbLanguageSpecifics();
+            var specifics = new MySql8LanguageSpecifics();
             var guid = Guid.NewGuid();
             var (value, dbType) = CallToDbValue(specifics, guid, typeof(Guid?));
             dbType.Should().Be(DbType.String);
@@ -388,7 +388,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Fact]
         public void Mysql_NullableBool_TranslateValue_True()
         {
-            var specifics = new MysqlDbLanguageSpecifics();
+            var specifics = new MySql8LanguageSpecifics();
             var result = specifics.TranslateValue((short)1, typeof(bool?));
             result.Should().Be((bool?)true);
         }
@@ -396,7 +396,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Fact]
         public void Mysql_NullableBool_TranslateValue_Null()
         {
-            var specifics = new MysqlDbLanguageSpecifics();
+            var specifics = new MySql8LanguageSpecifics();
             var result = specifics.TranslateValue(null, typeof(bool?));
             result.Should().BeNull();
         }
@@ -404,7 +404,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Fact]
         public void Mysql_NullableGuid_TranslateValue_NonNull()
         {
-            var specifics = new MysqlDbLanguageSpecifics();
+            var specifics = new MySql8LanguageSpecifics();
             var guid = Guid.NewGuid();
             var result = specifics.TranslateValue(guid.ToString("D"), typeof(Guid?));
             result.Should().Be((Guid?)guid);
@@ -413,7 +413,7 @@ namespace Gehtsoft.EF.Test.SqlDb
         [Fact]
         public void Mysql_Guid_TranslateValue_InvalidString()
         {
-            var specifics = new MysqlDbLanguageSpecifics();
+            var specifics = new MySql8LanguageSpecifics();
             var result = specifics.TranslateValue("not-a-guid", typeof(Guid));
             result.Should().Be(Guid.Empty);
         }

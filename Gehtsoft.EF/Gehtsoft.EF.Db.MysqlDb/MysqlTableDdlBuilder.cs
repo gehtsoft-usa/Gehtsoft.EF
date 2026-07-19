@@ -1,5 +1,7 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.MysqlDb
@@ -53,6 +55,16 @@ namespace Gehtsoft.EF.Db.MysqlDb
                     builder.Append(';');
                 builder.Append(mSpecifics.PostQueryInBlock);
             }
+        }
+
+        public override void CollectCreateSpatialIndex(List<string> queries, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+        {
+            queries.Add($"CREATE SPATIAL INDEX {mSpecifics.IndexName(column.Table.Name, index.Name)} ON {column.Table.Name}({column.Name})");
+        }
+
+        public override void CollectDropSpatialIndex(List<string> queries, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+        {
+            queries.Add($"DROP INDEX {mSpecifics.IndexName(column.Table.Name, index.Name)} ON {column.Table.Name}");
         }
 
         public override void HandlePostfixDDL(StringBuilder builder, TableDescriptor.ColumnInfo column, bool alterTable)

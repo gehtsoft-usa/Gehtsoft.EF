@@ -41,6 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb
         CatalogOrphanScope,
         CatalogColumnDropWouldLoseData,
         CatalogDynamicPropertiesDropWouldLoseData,
+        GeometryRequiresCatalogController,
     }
 
     [ExcludeFromCodeCoverage]
@@ -148,6 +149,9 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                     case EfExceptionCode.CatalogDynamicPropertiesDropWouldLoseData:
                         return "Updating table {0} would drop its dynamic-properties side table, losing all dynamic-property values. Set the controller's DataLossPolicy to Drop to allow it, or handle the migration with an IEfPatch.";
+
+                    case EfExceptionCode.GeometryRequiresCatalogController:
+                        return "Table {0} has a geometry column. Geometry schema management (create, update, drop, spatial indexes) is supported only by CatalogEntityController; the obsolete CreateEntityController cannot handle it.";
 
                     default:
                         return $"Unknown exception {code}";

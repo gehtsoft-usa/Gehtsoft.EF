@@ -1,5 +1,7 @@
 ﻿using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Gehtsoft.EF.Db.PostgresDb
@@ -33,6 +35,16 @@ namespace Gehtsoft.EF.Db.PostgresDb
                     builder.Append(';');
                 builder.Append(mSpecifics.PostQueryInBlock);
             }
+        }
+
+        public override void CollectCreateSpatialIndex(List<string> queries, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+        {
+            queries.Add($"CREATE INDEX {mSpecifics.IndexName(column.Table.Name, index.Name)} ON {column.Table.Name} USING GIST ({column.Name})");
+        }
+
+        public override void CollectDropSpatialIndex(List<string> queries, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+        {
+            queries.Add($"DROP INDEX {mSpecifics.IndexName(column.Table.Name, index.Name)}");
         }
     }
 }

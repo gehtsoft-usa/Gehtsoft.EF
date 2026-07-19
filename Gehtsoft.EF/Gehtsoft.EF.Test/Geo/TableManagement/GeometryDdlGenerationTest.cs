@@ -76,16 +76,24 @@ namespace Gehtsoft.EF.Test.Geo.TableManagement
         public void Mysql_Column_NotNullSrid_WhenIndexed()
         {
             var col = GeoColumn("shape", 4326, GeometrySubtype.Polygon, false, false, nullable: true, NoBox("shape_sidx"));
-            new MysqlDbLanguageSpecifics().GeometryColumnDDL(col).Should().Be("POLYGON NOT NULL SRID 4326");
+            new MySql8LanguageSpecifics().GeometryColumnDDL(col).Should().Be("POLYGON NOT NULL SRID 4326");
         }
 
         [Fact]
         public void Mysql_Column_RejectsZorM()
         {
             var col = GeoColumn("shape", 4326, GeometrySubtype.Point, hasZ: true, hasM: false, nullable: false);
-            ((Action)(() => new MysqlDbLanguageSpecifics().GeometryColumnDDL(col)))
+            ((Action)(() => new MySql8LanguageSpecifics().GeometryColumnDDL(col)))
                 .Should().Throw<EfSqlException>()
                 .Which.ErrorCode.Should().Be(EfExceptionCode.FeatureNotSupported);
+        }
+
+        [Fact]
+        public void MariaDb_Column_OmitsSrid()
+        {
+            // MariaDB has no SRID column attribute; the dialect must not emit it.
+            var col = GeoColumn("shape", 4326, GeometrySubtype.Polygon, false, false, nullable: true, NoBox("shape_sidx"));
+            new MariaDbLanguageSpecifics().GeometryColumnDDL(col).Should().Be("POLYGON NOT NULL");
         }
 
         [Fact]

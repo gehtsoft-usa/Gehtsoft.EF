@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 using Gehtsoft.EF.Db.SqlDb;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
@@ -43,6 +44,23 @@ namespace Gehtsoft.EF.Db.MssqlDb
                     builder.Append(';');
                 builder.Append(mSpecifics.PostQueryInBlock);
             }
+        }
+
+        public override void CollectCreateSpatialIndex(List<string> queries, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+        {
+            if (!index.HasBoundingBox)
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported); // SQL Server spatial index requires a bounding box
+
+            queries.Add(
+                $"CREATE SPATIAL INDEX {mSpecifics.IndexName(column.Table.Name, index.Name)} ON {column.Table.Name}({column.Name}) " +
+                $"USING GEOMETRY_GRID WITH (BOUNDING_BOX = (" +
+                $"{GeometryDdlHelper.Number(index.MinX)}, {GeometryDdlHelper.Number(index.MinY)}, " +
+                $"{GeometryDdlHelper.Number(index.MaxX)}, {GeometryDdlHelper.Number(index.MaxY)}))");
+        }
+
+        public override void CollectDropSpatialIndex(List<string> queries, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+        {
+            queries.Add($"DROP INDEX {mSpecifics.IndexName(column.Table.Name, index.Name)} ON {column.Table.Name}");
         }
 
         public override void HandlePostfixDDL(StringBuilder builder, TableDescriptor.ColumnInfo column, bool alterTable)

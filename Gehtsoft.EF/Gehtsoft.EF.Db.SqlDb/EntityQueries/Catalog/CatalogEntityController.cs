@@ -10,6 +10,7 @@ using Gehtsoft.EF.Db.SqlDb.InstanceLock;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Entities.Geometry;
 using Gehtsoft.EF.Utils;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
@@ -109,6 +110,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
             void DropColumns(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType, TableDescriptor td, TableDescriptor.ColumnInfo[] columns);
             void CreateIndex(SqlDbConnection connection, TableDescriptor descriptor, CompositeIndex index);
             void DropIndex(SqlDbConnection connection, TableDescriptor descriptor, string logicalName);
+            void CreateSpatialIndex(SqlDbConnection connection, TableDescriptor descriptor, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index);
+            void DropSpatialIndex(SqlDbConnection connection, TableDescriptor descriptor, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index);
             void CreateDynamicPropertiesTable(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType);
             void DropDynamicPropertiesTable(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType);
             void ReplayPatches(SqlDbConnection connection, IEnumerable<Assembly> assemblies, string scope, long fromVersionKey, long throughVersionKey);
@@ -159,7 +162,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                 var builder = connection.GetAlterTableQueryBuilder();
                 builder.SetTable(td, columns, null);
                 foreach (var queryText in builder.GetQueries())
-                    using (var query = connection.GetQuery(queryText))
+                    // suppressScalarProtection: geometry add DDL is a SELECT AddGeometryColumn(...) on SpatiaLite.
+                    using (var query = connection.GetQuery(queryText, true))
                         query.ExecuteNoData();
             }
 
@@ -168,7 +172,26 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                 var builder = connection.GetAlterTableQueryBuilder();
                 builder.SetTable(td, null, columns);
                 foreach (var queryText in builder.GetQueries())
-                    using (var query = connection.GetQuery(queryText))
+                    // suppressScalarProtection: geometry drop DDL is a SELECT DiscardGeometryColumn(...) on SpatiaLite.
+                    using (var query = connection.GetQuery(queryText, true))
+                        query.ExecuteNoData();
+            }
+
+            public void CreateSpatialIndex(SqlDbConnection connection, TableDescriptor descriptor, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+            {
+                var builder = connection.GetAlterTableQueryBuilder();
+                foreach (var queryText in builder.GetCreateSpatialIndexQueries(descriptor, column, index))
+                    // suppressScalarProtection: SpatiaLite emits SELECT CreateSpatialIndex(...).
+                    using (var query = connection.GetQuery(queryText, true))
+                        query.ExecuteNoData();
+            }
+
+            public void DropSpatialIndex(SqlDbConnection connection, TableDescriptor descriptor, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+            {
+                var builder = connection.GetAlterTableQueryBuilder();
+                foreach (var queryText in builder.GetDropSpatialIndexQueries(descriptor, column, index))
+                    // suppressScalarProtection: SpatiaLite emits SELECT DisableSpatialIndex(...).
+                    using (var query = connection.GetQuery(queryText, true))
                         query.ExecuteNoData();
             }
 
@@ -658,7 +681,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                             continue;
                         foreach (CatalogChange change in changes)
                         {
-                            if (change.Kind == CatalogChangeKind.DropColumn && FindObsoleteProperty(info, change.Column.Name) == null)
+                            if ((change.Kind == CatalogChangeKind.DropColumn || change.Kind == CatalogChangeKind.DropGeometryColumn)
+                                    && FindObsoleteProperty(info, change.Column.Name) == null)
                                 throw new EfSqlException(EfExceptionCode.CatalogColumnDropWouldLoseData, info.Table, change.Column.Name);
                             if (change.Kind == CatalogChangeKind.DropDynamicPropertiesTable)
                                 throw new EfSqlException(EfExceptionCode.CatalogDynamicPropertiesDropWouldLoseData, info.Table);
@@ -787,6 +811,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
             var dropColumns = new List<CatalogColumnDto>();
             var addIndexes = new List<CompositeIndex>();
             var dropIndexes = new List<string>();
+            var addSpatialIndexes = new List<CatalogChange>();
+            var dropSpatialIndexes = new List<CatalogChange>();
             bool addDynamicProperties = false;
             bool dropDynamicProperties = false;
 
@@ -802,11 +828,25 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                         return;
 
                     case CatalogChangeKind.AddColumn:
+                    case CatalogChangeKind.AddGeometryColumn:
+                        // A geometry column adds through the same ALTER path as a plain one; the geo-aware
+                        // AlterTableQueryBuilder emits the column, its registration and its spatial indexes.
                         addColumns.Add(ResolveColumn(descriptor, change.Column));
                         break;
 
                     case CatalogChangeKind.DropColumn:
+                    case CatalogChangeKind.DropGeometryColumn:
+                        // ReconstructDroppedColumn rebuilds .Geometry from the catalogued form so the ALTER
+                        // path can drop the spatial indexes and unregister the geometry column first.
                         dropColumns.Add(change.Column);
+                        break;
+
+                    case CatalogChangeKind.AddSpatialIndex:
+                        addSpatialIndexes.Add(change);
+                        break;
+
+                    case CatalogChangeKind.DropSpatialIndex:
+                        dropSpatialIndexes.Add(change);
                         break;
 
                     case CatalogChangeKind.AlterColumn:
@@ -849,7 +889,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
 
                     default:
                         throw new NotSupportedException(
-                            $"CatalogEntityController does not yet apply change kind {change.Kind}; geometry/spatial reconcile arrives with the post-parity geo increment.");
+                            $"CatalogEntityController does not apply change kind {change.Kind}.");
                 }
             }
 
@@ -867,6 +907,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
             {
                 foreach (string logicalName in dropIndexes)
                     ActionController.DropIndex(connection, descriptor, logicalName);
+                changed = true;
+            }
+            if (dropSpatialIndexes.Count > 0)
+            {
+                foreach (CatalogChange change in dropSpatialIndexes)
+                    ActionController.DropSpatialIndex(connection, descriptor,
+                        ResolveColumnByName(descriptor, change.ColumnName), ToSpatialIndexDefinition(change.SpatialIndex));
                 changed = true;
             }
             // Some drivers (e.g. SQLite) cannot drop a column; the old controller skips the drop on them
@@ -898,6 +945,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
             {
                 foreach (CompositeIndex index in addIndexes)
                     ActionController.CreateIndex(connection, descriptor, index);
+                changed = true;
+            }
+            if (addSpatialIndexes.Count > 0)
+            {
+                foreach (CatalogChange change in addSpatialIndexes)
+                    ActionController.CreateSpatialIndex(connection, descriptor,
+                        ResolveColumnByName(descriptor, change.ColumnName), ToSpatialIndexDefinition(change.SpatialIndex));
                 changed = true;
             }
             if (addDynamicProperties)
@@ -959,14 +1013,38 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
         }
 
         // A dropped column is gone from the model, so rebuild the little the ALTER builder needs from the
-        // catalogued form: the SQL name, the sorted flag, and whether it carried a foreign key.
+        // catalogued form: the SQL name, the sorted flag, whether it carried a foreign key, and - for a
+        // geometry column - its geometry metadata (with the spatial indexes to tear down first).
         private static TableDescriptor.ColumnInfo ReconstructDroppedColumn(CatalogColumnDto column)
             => new TableDescriptor.ColumnInfo
             {
                 Name = column.Name,
                 Sorted = column.Sorted,
                 ForeignTable = column.ForeignTable != null ? mDummyTable : null,
+                Geometry = column.Geometry != null ? ToGeometryMetadata(column.Geometry) : null,
             };
+
+        // Resolves a live descriptor column by SQL name for a spatial-index change (the geometry column
+        // still exists in the model; only one of its indexes is being added or dropped).
+        private static TableDescriptor.ColumnInfo ResolveColumnByName(TableDescriptor descriptor, string name)
+        {
+            foreach (TableDescriptor.ColumnInfo candidate in descriptor)
+                if (candidate.Name == name)
+                    return candidate;
+            throw new EfSqlException(EfExceptionCode.ColumnNotFound, name);
+        }
+
+        private static SpatialIndexDefinition ToSpatialIndexDefinition(CatalogSpatialIndexDto dto)
+            => new SpatialIndexDefinition(dto.Name, dto.HasBoundingBox, dto.MinX, dto.MinY, dto.MaxX, dto.MaxY, dto.Tolerance);
+
+        private static GeometryColumnMetadata ToGeometryMetadata(CatalogGeometryDto dto)
+        {
+            var indexes = new List<SpatialIndexDefinition>();
+            foreach (CatalogSpatialIndexDto ix in dto.Indexes)
+                indexes.Add(ToSpatialIndexDefinition(ix));
+            GeometrySubtype subtype = Enum.TryParse(dto.Subtype, out GeometrySubtype parsed) ? parsed : GeometrySubtype.Geometry;
+            return new GeometryColumnMetadata(typeof(byte[]), dto.Srid, subtype, dto.HasZ, dto.HasM, dto.Nullable, indexes);
+        }
 
         // Finds the [ObsoleteEntityProperty] property whose field maps to a dropped column, so its
         // OnEntityPropertyDrop hook can fire (the column is not in the model's descriptor any more).

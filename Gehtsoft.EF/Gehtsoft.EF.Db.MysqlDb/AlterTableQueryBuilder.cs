@@ -21,6 +21,7 @@ namespace Gehtsoft.EF.Db.MysqlDb
 
         protected override void HandlePreDropQuery(TableDescriptor.ColumnInfo column)
         {
+            base.HandlePreDropQuery(column);
             if (column.ForeignKey)
                 mQueries.Add($"ALTER TABLE {mDescriptor.Name} DROP FOREIGN KEY fk_{column.Table.Name}_{column.Name}");
         }

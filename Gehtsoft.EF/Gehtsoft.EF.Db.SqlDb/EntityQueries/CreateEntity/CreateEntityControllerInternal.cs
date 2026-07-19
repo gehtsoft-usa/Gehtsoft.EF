@@ -89,6 +89,25 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 }
             }
             EntityFinder.ArrageEntities(mTypes);
+            GuardNoGeometry();
+        }
+
+        // Geometry schema management is CatalogEntityController-only. The obsolete controller cannot
+        // reconcile spatial indexes or add/drop geometry columns portably, so it refuses loudly the moment it
+        // meets a geometry field rather than silently mishandling it.
+        private void GuardNoGeometry()
+        {
+            foreach (EntityFinder.EntityTypeInfo type in mTypes)
+            {
+                // Views own no DDL columns (nothing to add/drop), and resolving their descriptor would try to
+                // instantiate the view-metadata interface — skip them; only tables can carry a geometry column.
+                if (type.View)
+                    continue;
+                TableDescriptor descriptor = AllEntities.Inst[type.EntityType].TableDescriptor;
+                foreach (TableDescriptor.ColumnInfo column in descriptor)
+                    if (column.Geometry != null)
+                        throw new EfSqlException(EfExceptionCode.GeometryRequiresCatalogController, type.Table ?? descriptor.Name);
+            }
         }
 
         internal interface ICreateEntityControllerAction

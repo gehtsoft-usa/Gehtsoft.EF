@@ -32,6 +32,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            // A spatial index without a declared bounding box stores NaN sentinels for its bounds; the
+            // default serializer rejects NaN/Infinity, so allow the named-literal form ("NaN") to round-trip.
+            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
             WriteIndented = false,
         };
 
