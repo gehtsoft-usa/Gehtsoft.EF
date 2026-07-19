@@ -35,8 +35,8 @@ then GEO Phase 3 rides the catalogue
 Full Catalogue + InstanceLock + Patch sweep: **391 green** (8 serialization + 24 lock + 85 store + 41 diff
 + 175 controller [135 increment-1..5 + 40 adoption/orphan] + 7 in-memory patch-replay/adopt E2E + **45
 parity-gate [9 × 5]**; the 7 existing `SqlDb.Patch.PatchTest` also green — `EfPatchProcessor` untouched).
-**Full product suite: 3615 green, 0 failed on all 5 live drivers (confirmed 2026-07-19, after switching the
-JSON + dynamic-properties migration suites onto the catalogue; 3609 at the `fba359a` commit + 6 new tests).**
+**Full product suite: 3625 green, 0 failed on all 5 live drivers (confirmed 2026-07-19, after the data-loss
+safety pass; 3609 at `fba359a` → +6 JSON/dyn-props migration → +10 data-safety Fail-throws tests).**
 
 ## Prerequisites (both DONE)
 
@@ -393,7 +393,7 @@ is **not** removable (AdoptExistingScope's Practical mode depends on it); only t
   clean. The `CLAUDE/WRITING-DOC-COMMENTS.md` rule #1 was corrected accordingly (brief = first LINE, not
   first `<para>`; don't wrap it).
 
-**JSON + dynamic-properties migration now tested through the catalogue (2026-07-19; UNCOMMITTED).** Closed the
+**JSON + dynamic-properties migration now tested through the catalogue (2026-07-19; committed `bd150a3`).** Closed the
 noted JSON gap and moved the feature-specific migration suites onto `CatalogEntityController`:
 - New shared helper **`Gehtsoft.EF.Test/Catalog/CatalogTestSupport.cs`** — `ResetCatalog(conn, asm)` (drop
   `ef_catalog` + `EnsureCatalogInfrastructure`; needed because `DropTables` only tombstones and the fixture
@@ -412,6 +412,27 @@ noted JSON gap and moved the feature-specific migration suites onto `CatalogEnti
   (they test the `GetCreateEntityQuery` DDL layer, not a controller). The deferred "composite/JSON
   index-application behavioural test" gap is now closed for JSON; incremental composite add/drop remains
   mock/diff-only (minor).
+
+**Data-loss safety pass (2026-07-19; committed) — no silent drop/add anywhere in the update process.** A
+review (prompted by the geometry drop+add question) found several data-destroying paths; fixed to one
+consistent principle: *the catalogue never silently destroys data; a change whose only automatic form is
+destructive is refused, and any implicit drop requires opt-in.*
+- **Destructive *modifies* → always refuse → patch.** `CatalogDiff` now emits `AlterColumn` (which the
+  controller already refuses, `CatalogColumnAlterNotSupported`) for a **column-family change**
+  (plain↔JSON↔geometry) and for a **geometry-metadata change** (SRID/subtype/Z/M) — instead of the previous
+  `drop+add`, which silently destroyed the column's data. (The family/plain path was **live** data loss; the
+  geometry path was inert only because the geo apply is still stubbed — fixed now so geo Phase 3 can't
+  reintroduce it.)
+- **Implicit data-losing *removals* → new `CatalogDataLossPolicy` flag** on the controller (`Fail` default /
+  `Drop`). A **pre-check in `UpdateTables` before any DDL** (atomic refusal): a column that left the model
+  **without** `[ObsoleteEntityProperty]` → `CatalogColumnDropWouldLoseData`; a dynamic-properties side table
+  drop (owner stopped being an owner) → `CatalogDynamicPropertiesDropWouldLoseData`. **Explicit**
+  `[ObsoleteEntityProperty]` / `[ObsoleteEntity]` drops and `Recreate` are exempt (deliberate). Two new
+  `EfExceptionCode`s + messages.
+- **Tests:** diff family/geometry-metadata tests now assert `AlterColumn`; new
+  `Update_UnmarkedColumnDrop_FailsByDefault` + `Update_LoseDynamicProperties_FailsByDefault` (atomic refusal,
+  nothing recorded); existing drop-asserting tests set `DataLossPolicy = Drop`. Docs: tutorial autoupdate
+  "Limitations" + new "Data-Loss Safety" note.
 
 ## Cross-cutting decisions in force
 

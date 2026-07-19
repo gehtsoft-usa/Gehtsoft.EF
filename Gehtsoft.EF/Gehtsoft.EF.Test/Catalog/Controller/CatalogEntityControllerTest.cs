@@ -454,7 +454,10 @@ namespace Gehtsoft.EF.Test.Catalog.Controller
             Seed(store, connection, "cat_ctrl_b", "1.0.0", DesiredDto<CtrlB>());
 
             var action = new Mock<CatalogEntityController.ICatalogControllerAction>();
-            Controller(action).UpdateTables(connection, "2.0.0", EntityUpdateMode.Update);
+            // legacy_col has no [ObsoleteEntityProperty] marker, so the drop is an implicit data loss; opt in.
+            var controller = Controller(action);
+            controller.DataLossPolicy = CatalogEntityController.CatalogDataLossPolicy.Drop;
+            controller.UpdateTables(connection, "2.0.0", EntityUpdateMode.Update);
 
             // A driver that cannot drop columns (e.g. SQLite) leaves the column in place, matching
             // CreateEntityController; the version still advances (the desired snapshot is recorded).
@@ -717,11 +720,59 @@ namespace Gehtsoft.EF.Test.Catalog.Controller
             store.WriteApplied(connection, Scope, "cat_ctrl_b", "1.0.0", DesiredDto<CtrlB>());
 
             var action = new Mock<CatalogEntityController.ICatalogControllerAction>();
-            Controller(action).UpdateTables(connection, "2.0.0", EntityUpdateMode.Update);
+            // Dropping the dynamic-properties side table loses its values; opt into the loss.
+            var controller = Controller(action);
+            controller.DataLossPolicy = CatalogEntityController.CatalogDataLossPolicy.Drop;
+            controller.UpdateTables(connection, "2.0.0", EntityUpdateMode.Update);
 
             action.Verify(x => x.DropDynamicPropertiesTable(connection,
                 It.Is<EntityFinder.EntityTypeInfo>(e => e.Table == "cat_ctrl_a")), Times.Once);
             action.Verify(x => x.CreateDynamicPropertiesTable(It.IsAny<SqlDbConnection>(), It.IsAny<EntityFinder.EntityTypeInfo>()), Times.Never);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Update_UnmarkedColumnDrop_FailsByDefault(string connectionName)
+        {
+            var connection = Open(connectionName);
+            var store = new CatalogStore();
+            store.EnsureBootstrapped(connection);
+
+            // A carries a column no longer in the model and NOT marked [ObsoleteEntityProperty].
+            CatalogTableDto oldA = DesiredDto<CtrlA>();
+            oldA.Columns.Add(new CatalogColumnDto { Id = "Legacy", Name = "legacy_col", DbType = "Int32" });
+            Seed(store, connection, "cat_ctrl_a", "1.0.0", oldA);
+            Seed(store, connection, "cat_ctrl_b", "1.0.0", DesiredDto<CtrlB>());
+
+            // Default DataLossPolicy is Fail: the implicit column drop is refused before any DDL, atomically.
+            var strict = new Mock<CatalogEntityController.ICatalogControllerAction>(MockBehavior.Strict);
+            Action act = () => Controller(strict).UpdateTables(connection, "2.0.0", EntityUpdateMode.Update);
+
+            act.Should().Throw<EfSqlException>().Which.ErrorCode.Should().Be(EfExceptionCode.CatalogColumnDropWouldLoseData);
+            strict.VerifyNoOtherCalls();
+            store.ReadCurrentVersion(connection, Scope).Should().Be("1.0.0");
+        }
+
+        [Theory]
+        [MemberData(nameof(ConnectionNames), "")]
+        public void Update_LoseDynamicProperties_FailsByDefault(string connectionName)
+        {
+            var connection = Open(connectionName);
+            var store = new CatalogStore();
+            store.EnsureBootstrapped(connection);
+
+            CatalogTableDto oldA = DesiredDto<CtrlA>();
+            oldA.HasDynamicProperties = true;
+            store.WriteApplied(connection, Scope, "cat_ctrl_a", "1.0.0", oldA);
+            store.WriteApplied(connection, Scope, "cat_ctrl_b", "1.0.0", DesiredDto<CtrlB>());
+
+            // Default DataLossPolicy is Fail: dropping the dynamic-properties side table is refused.
+            var strict = new Mock<CatalogEntityController.ICatalogControllerAction>(MockBehavior.Strict);
+            Action act = () => Controller(strict).UpdateTables(connection, "2.0.0", EntityUpdateMode.Update);
+
+            act.Should().Throw<EfSqlException>().Which.ErrorCode.Should().Be(EfExceptionCode.CatalogDynamicPropertiesDropWouldLoseData);
+            strict.VerifyNoOtherCalls();
+            store.ReadCurrentVersion(connection, Scope).Should().Be("1.0.0");
         }
 
         [Theory]

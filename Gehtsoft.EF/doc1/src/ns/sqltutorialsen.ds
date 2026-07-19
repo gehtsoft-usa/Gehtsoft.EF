@@ -826,8 +826,10 @@
 
     @list
         @list-item
-            change the type, size or other attributes of an existing column. Such a change is refused (there
-            is no portable in-place column modify) and must be routed through a coded patch (see
+            change the type, size or other attributes of an existing column - or change a column's kind
+            entirely (a plain, JSON or geometry column into another). Such a change is refused (there is no
+            portable in-place modify, and the only automatic alternative would silently destroy the column's
+            data) and must be routed through a coded patch (see
             [link=tutorialen_patches]Handling Changes the Automatic Update Cannot[/link]);
         @end
         @list-item
@@ -842,6 +844,15 @@
             create a new non-nullable property - all newly introduced properties must be nullable.
         @end
     @end
+
+    [b]Data-Loss Safety[/b]
+
+    The controller never silently destroys data. A drop that loses data must be [i]intentional[/i]: mark a
+    property [c]ObsoleteEntityProperty[/c] or an entity [c]ObsoleteEntity[/c] to drop it (these are always
+    honoured). If instead a property simply disappears from the model without a marker, or an entity stops
+    being a dynamic-properties owner (which would drop the side table and all its values), the update
+    [b]refuses[/b] by default. Set the controller's [c]DataLossPolicy[/c] to [c]Drop[/c] to allow such
+    implicit drops, or handle the change with a patch.
 
     On a database engine that cannot drop a column (such as SQLite), an obsolete column is left in place
     rather than dropped; this is harmless and matches the older controller.

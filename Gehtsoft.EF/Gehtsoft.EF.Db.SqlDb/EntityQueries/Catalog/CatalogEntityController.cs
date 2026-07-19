@@ -61,6 +61,15 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
         public TimeSpan? LockLease { get; set; }
 
         /// <summary>
+        /// How an update that would destroy data by an <b>implicit</b> removal is handled - a column that
+        /// left the model without an [ObsoleteEntityProperty] marker, or the dynamic-properties side table
+        /// when an entity stops being a dynamic-properties owner. Defaults to
+        /// <see cref="CatalogDataLossPolicy.Fail"/> (refuse). Explicit drops via [ObsoleteEntityProperty] /
+        /// [ObsoleteEntity] and <c>Recreate</c> are always honoured and are not affected by this policy.
+        /// </summary>
+        public CatalogDataLossPolicy DataLossPolicy { get; set; } = CatalogDataLossPolicy.Fail;
+
+        /// <summary>
         /// The event raised when an action (create/drop/update) is performed on a table.
         /// </summary>
         public event EventHandler<CreateEntityControllerEventArgs> OnAction;
@@ -438,6 +447,21 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
         public Task DropTablesAsync(SqlDbConnection connection) => Task.Run(() => DropTables(connection));
 
         /// <summary>
+        /// How an update handles an implicit, data-destroying removal (see
+        /// <see cref="DataLossPolicy"/>).
+        /// </summary>
+        public enum CatalogDataLossPolicy
+        {
+            /// <summary>Refuse the update (throw) when it would drop a column or the dynamic-properties side
+            /// table that was not explicitly marked obsolete. The safe default.</summary>
+            Fail,
+
+            /// <summary>Allow such a drop to proceed; the data in the dropped column or side table is
+            /// lost.</summary>
+            Drop,
+        }
+
+        /// <summary>
         /// How AdoptExistingScope treats a pre-catalogue database.
         /// </summary>
         public enum CatalogAdoptMode
@@ -615,6 +639,30 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                         if (anyChange)
                             throw new EfSqlException(EfExceptionCode.CatalogModelChangedWithoutVersionBump, NormalizedScope, version ?? string.Empty);
                         return; // clean, idempotent re-run - touches nothing
+                    }
+                }
+
+                // Data-loss guard, before ANY DDL (so a refusal is atomic - no table is touched): an implicit
+                // removal that would destroy data - a column that left the model without an
+                // [ObsoleteEntityProperty] marker, or the dynamic-properties side table - is refused unless
+                // DataLossPolicy opts into the loss. Explicit [ObsoleteEntityProperty] / [ObsoleteEntity]
+                // drops and Recreate are exempt (they are deliberate).
+                if (DataLossPolicy == CatalogDataLossPolicy.Fail)
+                {
+                    foreach (EntityFinder.EntityTypeInfo info in types)
+                    {
+                        if (info.View || info.Obsolete ||
+                            Mode(info, defaultUpdateMode, individualUpdateModes) == EntityUpdateMode.Recreate)
+                            continue;
+                        if (!changesByType.TryGetValue(info.EntityType, out IReadOnlyList<CatalogChange> changes))
+                            continue;
+                        foreach (CatalogChange change in changes)
+                        {
+                            if (change.Kind == CatalogChangeKind.DropColumn && FindObsoleteProperty(info, change.Column.Name) == null)
+                                throw new EfSqlException(EfExceptionCode.CatalogColumnDropWouldLoseData, info.Table, change.Column.Name);
+                            if (change.Kind == CatalogChangeKind.DropDynamicPropertiesTable)
+                                throw new EfSqlException(EfExceptionCode.CatalogDynamicPropertiesDropWouldLoseData, info.Table);
+                        }
                     }
                 }
 

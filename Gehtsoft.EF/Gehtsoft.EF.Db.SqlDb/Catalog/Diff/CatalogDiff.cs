@@ -106,26 +106,25 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog.Diff
             List<CatalogChange> dropIndexes, List<CatalogChange> dropColumns,
             List<CatalogChange> alterColumns, List<CatalogChange> addColumns, List<CatalogChange> addIndexes)
         {
-            // A change of column family (plain <-> geometry <-> json) is not an in-place alter: replace.
+            // A change of column family (plain <-> geometry <-> json) has no safe automatic form: the only
+            // option would be drop+add, which silently destroys the column's data. Emit it as an alter so the
+            // controller refuses it and routes the change to an IEfPatch (same policy as any column-definition
+            // change).
             if (Family(desired) != Family(stored))
             {
-                dropColumns.Add(IsGeometry(stored)
-                    ? CatalogChange.DropGeometryColumn(table, stored)
-                    : CatalogChange.DropColumn(table, stored));
-                addColumns.Add(IsGeometry(desired)
-                    ? CatalogChange.AddGeometryColumn(table, desired)
-                    : CatalogChange.AddColumn(table, desired));
+                alterColumns.Add(CatalogChange.AlterColumn(table, desired, stored));
                 return;
             }
 
             if (IsGeometry(desired))
             {
-                // Incompatible geometry metadata (SRID/subtype/Z/M/nullability) is not portably
-                // alterable in place: replace the column. Its spatial indexes ride the drop+add.
+                // A geometry metadata change (SRID/subtype/Z/M) has no safe in-place form; the only automatic
+                // option would be drop+add, which destroys the geometry data. Refuse it via an alter (routed
+                // to an IEfPatch), the same as any other definition change. Spatial-index deltas on an
+                // otherwise-unchanged geometry column are reconciled separately below (non-destructive).
                 if (!GeometryScalarEquals(desired.Geometry, stored.Geometry))
                 {
-                    dropColumns.Add(CatalogChange.DropGeometryColumn(table, stored));
-                    addColumns.Add(CatalogChange.AddGeometryColumn(table, desired));
+                    alterColumns.Add(CatalogChange.AlterColumn(table, desired, stored));
                     return;
                 }
                 DiffSpatialIndexes(table, desired.Name, desired.Geometry, stored.Geometry, dropIndexes, addIndexes);

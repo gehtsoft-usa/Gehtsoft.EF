@@ -223,15 +223,14 @@ namespace Gehtsoft.EF.Test.Catalog.Diff
         }
 
         [Fact]
-        public void GeometryMetadataChange_ReplacesColumn()
+        public void GeometryMetadataChange_IsRefusedAsAlter()
         {
+            // A geometry metadata change (here SRID 4326 -> 3857) has no safe in-place form; it is emitted as
+            // an alter (which the controller refuses) rather than a drop+add that would destroy the data.
             var desired = Table("t", GeoCol("g", 3857));
             var stored = Table("t", GeoCol("g", 4326));
 
-            var changes = CatalogDiff.Compare(desired, stored);
-            changes.Count.Should().Be(2);
-            changes[0].Kind.Should().Be(CatalogChangeKind.DropGeometryColumn);
-            changes[1].Kind.Should().Be(CatalogChangeKind.AddGeometryColumn);
+            Single(CatalogDiff.Compare(desired, stored)).Kind.Should().Be(CatalogChangeKind.AlterColumn);
         }
 
         [Fact]
@@ -264,15 +263,14 @@ namespace Gehtsoft.EF.Test.Catalog.Diff
         }
 
         [Fact]
-        public void ColumnFamilyChange_ReplacesColumn()
+        public void ColumnFamilyChange_IsRefusedAsAlter()
         {
+            // Changing a column's family (plain -> geometry here) would only be automatable as a destructive
+            // drop+add, so it is emitted as an alter for the controller to refuse.
             var desired = Table("t", GeoCol("c", 4326));       // geometry
             var stored = Table("t", Col("c", "String", 32));   // plain
 
-            var changes = CatalogDiff.Compare(desired, stored);
-            changes.Count.Should().Be(2);
-            changes[0].Kind.Should().Be(CatalogChangeKind.DropColumn);          // old plain column
-            changes[1].Kind.Should().Be(CatalogChangeKind.AddGeometryColumn);   // new geometry column
+            Single(CatalogDiff.Compare(desired, stored)).Kind.Should().Be(CatalogChangeKind.AlterColumn);
         }
 
         [Fact]
@@ -470,15 +468,13 @@ namespace Gehtsoft.EF.Test.Catalog.Diff
         }
 
         [Fact]
-        public void ColumnFamilyChange_GeometryToPlain_ReplacesColumn()
+        public void ColumnFamilyChange_GeometryToPlain_IsRefusedAsAlter()
         {
+            // The reverse family change (geometry -> plain) is refused the same way.
             var desired = Table("t", Col("c", "String", 32));   // plain
             var stored = Table("t", GeoCol("c", 4326));         // geometry
 
-            var changes = CatalogDiff.Compare(desired, stored);
-            changes.Count.Should().Be(2);
-            changes[0].Kind.Should().Be(CatalogChangeKind.DropGeometryColumn);   // old geometry column
-            changes[1].Kind.Should().Be(CatalogChangeKind.AddColumn);            // new plain column
+            Single(CatalogDiff.Compare(desired, stored)).Kind.Should().Be(CatalogChangeKind.AlterColumn);
         }
 
         [Fact]

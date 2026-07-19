@@ -122,9 +122,12 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
             connection.DoesObjectExist("dp_lost_props", null, "table").Should().BeTrue();
 
             // Seed the target scope with the "before" shape, then migrate to the model that LOST props.
+            // Dropping the side table loses its values, so opt into the loss (default policy is Fail).
             CatalogTestSupport.Seed(connection, "dp_lost_after", "dp_lost", typeof(LostBefore), "1.0.0");
             new CatalogEntityController(typeof(LostAfter), "dp_lost_after")
-                .UpdateTables(connection, "2.0.0", EntityUpdateMode.Update);
+            {
+                DataLossPolicy = CatalogEntityController.CatalogDataLossPolicy.Drop,
+            }.UpdateTables(connection, "2.0.0", EntityUpdateMode.Update);
 
             connection.DoesObjectExist("dp_lost", null, "table").Should().BeTrue("owner table must remain");
             connection.DoesObjectExist("dp_lost_props", null, "table").Should().BeFalse("orphan props table must be dropped");

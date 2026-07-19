@@ -39,6 +39,8 @@ namespace Gehtsoft.EF.Db.SqlDb
         SchemaUpdateRequired,
         CatalogScopeAlreadyAdopted,
         CatalogOrphanScope,
+        CatalogColumnDropWouldLoseData,
+        CatalogDynamicPropertiesDropWouldLoseData,
     }
 
     [ExcludeFromCodeCoverage]
@@ -140,6 +142,12 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                     case EfExceptionCode.CatalogOrphanScope:
                         return "Scope {0} has no catalogue yet but its tables already exist. The database was managed before the catalogue; adopt the scope first (AdoptExistingScope) instead of updating it as greenfield.";
+
+                    case EfExceptionCode.CatalogColumnDropWouldLoseData:
+                        return "Updating table {0} would drop column {1}, which is not marked [ObsoleteEntityProperty]; this would lose its data. Mark the property [ObsoleteEntityProperty], set the controller's DataLossPolicy to Drop, or handle it with an IEfPatch.";
+
+                    case EfExceptionCode.CatalogDynamicPropertiesDropWouldLoseData:
+                        return "Updating table {0} would drop its dynamic-properties side table, losing all dynamic-property values. Set the controller's DataLossPolicy to Drop to allow it, or handle the migration with an IEfPatch.";
 
                     default:
                         return $"Unknown exception {code}";
