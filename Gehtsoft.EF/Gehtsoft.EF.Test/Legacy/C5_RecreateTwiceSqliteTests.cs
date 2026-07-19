@@ -45,10 +45,10 @@ namespace Gehtsoft.EF.Test.Legacy
         {
             using var connection = SqliteDbConnectionFactory.CreateMemory();
 
-            var controller = new CreateEntityController(typeof(Parent), "rc2");
+            var controller = new CreateEntityControllerInternal(typeof(Parent), "rc2");
 
             // First call: create from empty schema.
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            controller.UpdateTables(connection, EntityUpdateMode.Recreate);
             connection.Schema().Contains("rc2_parent").Should().BeTrue();
             connection.Schema().Contains("rc2_child").Should().BeTrue();
 
@@ -60,7 +60,7 @@ namespace Gehtsoft.EF.Test.Legacy
             // BUG: today this throws
             //   SqliteException : 'table rc2_parent already exists'
             ((Action)(() =>
-                controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate)))
+                controller.UpdateTables(connection, EntityUpdateMode.Recreate)))
                 .Should().NotThrow();
 
             connection.Schema().Contains("rc2_parent").Should().BeTrue();
@@ -105,12 +105,12 @@ namespace Gehtsoft.EF.Test.Legacy
         public void Recreate_Twice_With_Deep_FK_Fan_Out_Succeeds()
         {
             using var connection = SqliteDbConnectionFactory.CreateMemory();
-            var controller = new CreateEntityController(typeof(A), "rc3");
+            var controller = new CreateEntityControllerInternal(typeof(A), "rc3");
 
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            controller.UpdateTables(connection, EntityUpdateMode.Recreate);
 
             ((Action)(() =>
-                controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate)))
+                controller.UpdateTables(connection, EntityUpdateMode.Recreate)))
                 .Should().NotThrow();
 
             connection.Schema().Contains("rc3_a").Should().BeTrue();
@@ -122,13 +122,13 @@ namespace Gehtsoft.EF.Test.Legacy
         public void Recreate_Twice_Emits_Drop_Before_Create_For_Each_Table()
         {
             using var connection = SqliteDbConnectionFactory.CreateMemory();
-            var controller = new CreateEntityController(typeof(Parent), "rc2");
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            var controller = new CreateEntityControllerInternal(typeof(Parent), "rc2");
+            controller.UpdateTables(connection, EntityUpdateMode.Recreate);
 
             var order = new List<string>();
             controller.OnAction += (_, e) => order.Add($"{e.EventAction}:{e.Table}");
 
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            controller.UpdateTables(connection, EntityUpdateMode.Recreate);
 
             // Expect an interleaved Drop-then-Create for every table.
             // When the bug fires, we will see 'Create:rc2_parent' without a

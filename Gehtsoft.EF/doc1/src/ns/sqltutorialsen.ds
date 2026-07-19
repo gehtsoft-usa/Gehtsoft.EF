@@ -613,17 +613,24 @@
     Please note that the order, in which tables are dropped or created, matters. In case, say, you have an entity B that refers via
     a foreign key to an entity B, you have to drop B entity first and you have to create an entity A first.
 
-    [b]Using Entity Creation Controller[/b]
+    [b]Managing All Tables With a Controller[/b]
 
-    To simplify tables management, there are the class [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink]
-    provided. The class loads all entities (or all entities filtered by a [i]scope[/i] specified) from the assembly and then orders them
-    according relationships between assemblies. Then you can drop all entities or create all entities using just one call.
+    To manage all the tables of a model at once, use the [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog.CatalogEntityController]CatalogEntityController[/clink]. It loads all
+    entities from an assembly (optionally filtered by a [i]scope[/i]), orders them according to the
+    relationships between them, and can create, drop or update the whole set in a single call.
 
-    Of course, in case when you want to recreate all the entity tables, always drop entities first.
+    The controller records what it applied in an EF-owned [b]schema catalogue[/b] - a small set of tables in
+    which the framework keeps the schema exactly as it applied it. Later updates compare the model against
+    that record instead of inspecting the live database, which lets the framework detect changes that
+    introspection cannot see (see [link=tutorialen_autoupdate]Automatic Schema Update[/link]).
+
+    Create the catalogue infrastructure once, before the first call, with [c]EnsureCatalogInfrastructure[/c].
+    The catalogue-writing calls ([c]CreateTables[/c] and [c]UpdateTables[/c]) take a database [b]version[/b]
+    string (for example [c]"1.0.0"[/c]); [c]DropTables[/c] does not.
 
     Please note that if you want your view automatically created and dropped, don't forget to
-    provide metadata type in the [clink=Gehtsoft.EF.Entities.EntityAttribute]EntityAttribute[/clink]
-    that implements [clink=Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata]IViewCreationMetadata[/clink]
+    provide a metadata type in the [clink=Gehtsoft.EF.Entities.EntityAttribute]EntityAttribute[/clink]
+    that implements the [clink=Gehtsoft.EF.Db.SqlDb.Metadata.IViewCreationMetadata]IViewCreationMetadata[/clink]
     interface.
 
     @example
@@ -631,79 +638,52 @@
         @show=yes
         @highlight=cs
 
-        CreateEntityController controller = new CreateEntityController(typeof(Entity).Assembly);
-        controller.DropTables(connection);
-        controller.CreateTables(connection);
+       !var controller = new CatalogEntityController(typeof(Entity).Assembly);
+       !
+       !// Once per database: create the catalogue infrastructure if it is absent.
+       !controller.EnsureCatalogInfrastructure(connection);
+       !
+       !// Create every table (and view) of the model and record it at version 1.0.0.
+       !controller.CreateTables(connection, "1.0.0");
     @end
 
-    [b]Updating Entities[/b]
+    The older [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink]
+    (which inspects the live database instead of using a catalogue) is now obsolete. It still works and its
+    surface is unchanged, but new code should use [c]CatalogEntityController[/c]. Migrating an existing
+    application - including a database that was already managed by the old controller - is covered in
+    [link=tutorialen_adopt]Migrating and Adopting an Existing Database[/link].
 
-    Often, during the application lifecycle, the database structure are changes to reflect new requirements and functionality. Not always
-    full recreation of the database is the right answer, sometime updates are the option.
+    [b]Preparing Your Model for Updates[/b]
 
-    There are two typical ways on how the application can handle this situation:
+    Most of an application's lifecycle is not a full recreation of the database but incremental change.
+    To let the controller update an existing database automatically, prepare the model as follows:
 
     @list
         @list-item
-            Provide the update script that prepares the database for running a new version.
+            Create new entities and add new properties to existing entities as usual. A newly added property
+            must be nullable.
         @end
         @list-item
-            Use automatic update procedure,
-            provided by [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink]
-            class (see [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController.UpdateTables.Z93]Update()[/clink] method).
-        @end
-    @end
-
-    To update the database in the second way:
-
-    @list
-        @list-item
-            Create new entities and add new properties to the entities as usual.
+            Mark an entity that is no longer used with the
+            [clink=Gehtsoft.EF.Entities.ObsoleteEntityAttribute]ObsoleteEntity[/clink] attribute - its table
+            is dropped.
         @end
         @list-item
-            Mark entities that won't be used anymore with [clink=Gehtsoft.EF.Entities.ObsoleteEntityAttribute]ObsoleteEntity[/clink] attribute.
+            Mark a property that is no longer used with the
+            [clink=Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute]ObsoleteEntityProperty[/clink]
+            attribute - its column is dropped (on engines that support dropping columns).
         @end
         @list-item
-            Mark entity properties that won't be used anymore with [clink=Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute]ObsoleteEntityProperty[/clink] attribute.
-        @end
-        @list-item
-            If additional actions is required when entity is changed (created, dropped) or property is changed (created, dropped) use
-            the appropriate attribute that calls a static method that takes just one parameter - a connection. On drop actions are performed before
-            the operation and on create are performed after.
-            The attributes are:
-            @list
-                @list-item
-                    [c]OnEntityCreate[/c]
-                @end
-                @list-item
-                    [c]OnEntityDrop[/c]
-                @end
-                @list-item
-                    [c]OnEntityPropertyCreate[/c]
-                @end
-                @list-item
-                    [c]OnEntityPropertyDrop[/c]
-                @end
-            @end
-        @end
-        @list-item
-            Be aware of automatic updates limitations. The automatic update cannot:
-            @list
-                @list-item
-                    Change type, name or attributes of an existing property.
-                @end
-                @list-item
-                    Add or remove primary key of an existing entity.
-                @end
-                @list-item
-                    Create a new non-nullable property. All newly introduced properties must be nullable.
-                @end
-            @end
+            If a change needs an additional action (for example seeding a new column), attribute the entity or
+            property with a hook that calls a static method taking a single connection argument. Drop hooks
+            run before the operation, create hooks after it. The attributes are
+            [c]OnEntityCreate[/c], [c]OnEntityDrop[/c], [c]OnEntityPropertyCreate[/c] and
+            [c]OnEntityPropertyDrop[/c].
         @end
     @end
 
     @example
-        @title=Example: Using update attributes
+        @title=Example: Using update hook attributes
         @show=yes
         @highlight=cs
          ![Entity(Table = "entity_table")]
@@ -732,8 +712,11 @@
          !    {
          !
          !    }
-         !
+         !}
     @end
+
+    How the update itself works - the version rules, what it reconciles, and its limitations - is described in
+    [link=tutorialen_autoupdate]Automatic Schema Update[/link].
 @end
 
 @article
@@ -742,14 +725,41 @@
     @brief=
     @ingroup=tutorialsen
 
-    As shown in the previous topic,
-    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink]
-    can bring an existing database in line with the current entity definitions without recreating it.
-    This topic describes what the automatic update does and how to control it.
+    As shown in the previous topic, the [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog.CatalogEntityController]CatalogEntityController[/clink] can bring an existing database in line
+    with the current entity definitions without recreating it. This topic describes what the automatic update
+    does, the version rules that govern it, and its limitations. For preparing the model - obsolete markers
+    and update hooks - see the previous topic,
+    [link=tutorialen_entities5]Creating and Dropping Tables[/link].
+
+    [b]The Version Argument and the Update Guard[/b]
+
+    Every call to [c]UpdateTables[/c] takes a database [b]version[/b] string, parsed with the same
+    [c]major.minor.patch[/c] scheme the coded patches use. The version recorded in the catalogue is the
+    database's single current version. Before applying anything, the controller compares the version you pass
+    with the recorded one:
+
+    @list
+        @list-item
+            a version older than the recorded one is refused as a regression (an older application running
+            against a newer database);
+        @end
+        @list-item
+            the same version, but the model has changed, is refused - the model changed without a version
+            bump;
+        @end
+        @list-item
+            the same version with no change does nothing (an idempotent re-run);
+        @end
+        @list-item
+            a newer version applies the difference.
+        @end
+    @end
+
+    The practical rule is: [b]every schema change requires a version bump[/b].
 
     [b]What the Automatic Update Does[/b]
 
-    When you call the controller's [c]UpdateTables[/c] method against an existing database, it:
+    When you call [c]UpdateTables[/c] against an existing database, it:
 
     @list
         @list-item
@@ -762,7 +772,10 @@
             drops a table or a column marked obsolete (see the previous topic);
         @end
         @list-item
-            reconciles the table indexes with the entity definition (see below).
+            reconciles the table indexes with the entity definition (see below);
+        @end
+        @list-item
+            reconciles the dynamic-property side table when an entity gains or loses dynamic properties.
         @end
     @end
 
@@ -771,8 +784,9 @@
         @show=yes
         @highlight=cs
 
-        !CreateEntityController controller = new CreateEntityController(typeof(Entity).Assembly);
-        !controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+       !var controller = new CatalogEntityController(typeof(Entity).Assembly);
+       !controller.EnsureCatalogInfrastructure(connection);
+       !controller.UpdateTables(connection, "1.2.0", EntityUpdateMode.Update);
     @end
 
     [b]Index Reconciliation[/b]
@@ -806,10 +820,40 @@
         @end
     @end
 
-    Adding, dropping or changing a [c]UNIQUE[/c] or [c]PRIMARY KEY[/c] constraint is [b]not[/b]
-    handled by the automatic update, because those are emitted as inline column constraints rather
-    than as standalone indexes. Change such a constraint by recreating the table
-    ([c]UpdateMode.Recreate[/c]).
+    [b]Limitations[/b]
+
+    The automatic update is deliberately conservative. It will not:
+
+    @list
+        @list-item
+            change the type, size or other attributes of an existing column. Such a change is refused (there
+            is no portable in-place column modify) and must be routed through a coded patch (see
+            [link=tutorialen_patches]Handling Changes the Automatic Update Cannot[/link]);
+        @end
+        @list-item
+            add or remove the primary key of an existing entity - recreate the table
+            ([c]EntityUpdateMode.Recreate[/c]);
+        @end
+        @list-item
+            add, drop or change a [c]UNIQUE[/c] or [c]PRIMARY KEY[/c] constraint, because those are emitted as
+            inline column constraints rather than as standalone indexes - recreate the table;
+        @end
+        @list-item
+            create a new non-nullable property - all newly introduced properties must be nullable.
+        @end
+    @end
+
+    On a database engine that cannot drop a column (such as SQLite), an obsolete column is left in place
+    rather than dropped; this is harmless and matches the older controller.
+
+    [b]Greenfield and Coded Patches[/b]
+
+    On [b]first contact[/b] (a fresh database with no catalogue) the update creates the whole schema directly
+    in its current shape and runs [b]no[/b] patches - there is nothing to migrate. On a real version
+    transition of an already-catalogued database, the coded patches
+    ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatch]IEfPatch[/clink]) whose version is
+    newer than the recorded one replay after the structure has converged. A patch that is at or below the
+    recorded version is considered already baked into the schema and does not run again.
 
     [b]Excluding an Index on Specific Databases[/b]
 
@@ -847,6 +891,256 @@
     using the [i]table[/i]_[i]name[/i] pattern - give it a distinct name (for example [c]ix_manual_...[/c]).
     Primary-key and unique-constraint indexes are never affected, because the database identifies them
     as unique or primary regardless of their name.
+@end
+
+@article
+    @key=tutorialen_patches
+    @title=Handling Changes the Automatic Update Cannot
+    @brief=
+    @ingroup=tutorialsen
+
+    The automatic update (previous topic) is deliberately additive: it creates tables, adds nullable columns,
+    drops obsolete tables and columns, and reconciles indexes. It will [b]not[/b] change a column's type, size
+    or attributes, add or remove a primary key, change a [c]UNIQUE[/c] or [c]PRIMARY KEY[/c] constraint, or
+    move or transform [b]data[/b]. For all of these you write a coded [b]patch[/b].
+
+    A patch is an imperative migration step - a class that does arbitrary work through the connection. The
+    controller replays patches in version order, once each, recording them in the [c]ef_patch_history[/c]
+    ledger so they never run twice.
+
+    [b]Writing a Patch[/b]
+
+    Attribute a class with [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.EfPatchAttribute]EfPatchAttribute[/clink]
+    (giving the scope and a [c]major.minor.patch[/c] version) and implement
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatch]IEfPatch[/clink]. Inside [c]Apply[/c]
+    you may use the query builders or plain SQL - whatever the change needs.
+
+    @example
+        @title=A patch
+        @show=yes
+        @highlight=cs
+
+       ![EfPatch("catalog", 2, 1, 0)]
+       !public class BackfillProductStatus : IEfPatch
+       !{
+       !    public void Apply(SqlDbConnection connection)
+       !    {
+       !        using (var query = connection.GetQuery("UPDATE product SET status = 'active' WHERE status IS NULL"))
+       !            query.ExecuteNoData();
+       !    }
+       !}
+    @end
+
+    The scope must match the entity scope that the controller manages. For asynchronous work implement
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatchAsync]IEfPatchAsync[/clink] (which
+    also carries the synchronous [c]Apply[/c]).
+
+    [b]When a Patch Runs[/b]
+
+    Patches share the same version line as the schema. After [c]UpdateTables[/c] has converged the structure
+    to the target version, the controller replays every patch whose version is greater than the database's
+    current version and up to and including the target version, in ascending order, recording each one.
+
+    A fresh (greenfield) database runs [b]no[/b] patches: it is created directly at the target version, so
+    everything at or below it is already baked into the schema. Patches exist to migrate an [i]existing[/i]
+    database across versions.
+
+    [b]The Author Rule[/b]
+
+    A patch may only touch structure that still exists at the target version. A production database can jump
+    several versions in a single update, and the intermediate structure is never reproduced - the schema
+    converges straight to the deployed model. So write each patch against the [i]head[/i] schema, not against
+    some intermediate shape a step-by-step upgrade would have passed through. A patch that depends on a column
+    a later version removes can no longer run on a machine that jumps past both versions.
+
+    [b]Example: Changing a Column Type[/b]
+
+    Because the automatic update will not retype a column, do it in two steps across two versions. First, add a
+    new nullable property to the entity (the automatic update creates its column) and ship a patch that copies
+    and converts the data:
+
+    @example
+        @title=Version 3.0.0 - add and fill the new column
+        @show=yes
+        @highlight=cs
+
+       ![EfPatch("catalog", 3, 0, 0)]
+       !public class MigratePriceToDecimal : IEfPatch
+       !{
+       !    public void Apply(SqlDbConnection connection)
+       !    {
+       !        // price_dec was added (nullable) by the model + automatic update.
+       !        using (var query = connection.GetQuery("UPDATE product SET price_dec = price"))
+       !            query.ExecuteNoData();
+       !    }
+       !}
+    @end
+
+    Then, in a later version, mark the old property with
+    [clink=Gehtsoft.EF.Entities.ObsoleteEntityPropertyAttribute]ObsoleteEntityProperty[/clink] so the
+    automatic update drops the original column, and (if you want the final name back) repeat the pattern.
+    Remember every schema change still requires a version bump.
+@end
+
+@article
+    @key=tutorialen_adopt
+    @title=Migrating and Adopting an Existing Database
+    @brief=
+    @ingroup=tutorialsen
+
+    The [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog.CatalogEntityController]CatalogEntityController[/clink] reconciles the model against the schema catalogue, which it expects to
+    have written itself. This topic explains how to move an application onto it, including a database that was
+    previously managed by the obsolete
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink].
+
+    [b]What Changes in Your Code[/b]
+
+    @list
+        @list-item
+            replace [c]new CreateEntityController(...)[/c] with [c]new CatalogEntityController(...)[/c];
+        @end
+        @list-item
+            call [c]EnsureCatalogInfrastructure(connection)[/c] once before create, update or drop;
+        @end
+        @list-item
+            pass a database [b]version[/b] string to [c]CreateTables[/c] and [c]UpdateTables[/c], and bump it
+            whenever the model changes;
+        @end
+        @list-item
+            use [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.EntityUpdateMode]EntityUpdateMode[/clink] instead of the old [c]CreateEntityController.UpdateMode[/c] - the
+            members ([c]Recreate[/c], [c]Update[/c], [c]CreateNew[/c]) are the same;
+        @end
+        @list-item
+            coded patches
+            ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatch]IEfPatch[/clink]) keep
+            working - the catalogue replays them after the structure converges.
+        @end
+    @end
+
+    [b]A Brand New Database[/b]
+
+    Nothing special is required. On first contact the update creates the whole schema in its current shape.
+
+    @example
+        @title=Fresh database
+        @show=yes
+        @highlight=cs
+
+       !var controller = new CatalogEntityController(assembly, "myscope");
+       !controller.EnsureCatalogInfrastructure(connection);
+       !controller.UpdateTables(connection, "1.0.0", EntityUpdateMode.Update);
+    @end
+
+    [b]A Database Managed by the Old Controller[/b]
+
+    A database whose tables already exist but which has no catalogue yet must be [b]adopted[/b] once. Adoption
+    records the current model as the baseline at a given version, without running any patches, so that later
+    updates replay only the patches newer than that version.
+
+    Use [c]IsOrphanScopeExists(connection)[/c] to detect this case - it returns true when the scope has no
+    catalogue yet but at least one of its tables physically exists. Then call
+    [c]AdoptExistingScope(connection, version, mode)[/c], where [c]mode[/c] is a [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog.CatalogEntityController.CatalogAdoptMode]CatalogAdoptMode[/clink]:
+
+    @list
+        @list-item
+            [c]TrustModel[/c] (recommended) verifies that the database already matches the model and refuses
+            if it does not - no schema changes are applied;
+        @end
+        @list-item
+            [c]ReconcileToModel[/c] brings the database into line with the model first (using the old
+            introspection reconcile), then records the baseline.
+        @end
+    @end
+
+    @example
+        @title=Adopt once, then update normally
+        @show=yes
+        @highlight=cs
+
+       !var controller = new CatalogEntityController(assembly, "myscope");
+       !controller.EnsureCatalogInfrastructure(connection);
+       !
+       !// One-time onboarding of a pre-catalogue database at its current version.
+       !if (controller.IsOrphanScopeExists(connection))
+       !    controller.AdoptExistingScope(connection, "1.0.0", CatalogEntityController.CatalogAdoptMode.TrustModel);
+       !
+       !// From now on, deploy with a bumped version each time the model changes.
+       !controller.UpdateTables(connection, "1.1.0", EntityUpdateMode.Update);
+    @end
+
+    If you point the catalogue at a pre-catalogue database [b]without[/b] adopting it first, the update is
+    refused with a clear error rather than diffing the model against nothing (which would try to re-create
+    the existing tables). Adoption is the deliberate, explicit way to cross that boundary.
+@end
+
+@article
+    @key=tutorialen_instancelock
+    @title=Coordinating Updates Across Processes
+    @brief=
+    @ingroup=tutorialsen
+
+    When several processes share one database, a schema update must not run in two of them at once. The
+    framework serializes such coarse critical sections with a database-instance-wide [b]advisory lock[/b]. The
+    [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog.CatalogEntityController]CatalogEntityController[/clink] takes this lock around every update automatically, and the same primitive is
+    available for coordination of your own.
+
+    The lock is obtained from the connection and represented by an [clink=Gehtsoft.EF.Db.SqlDb.InstanceLock.IDbInstanceLock]IDbInstanceLock[/clink] handle. Because DDL
+    auto-commits on some engines, the lock is session- or advisory-scoped rather than transaction-scoped, so
+    it can safely span auto-committing statements. Hold the handle for the whole critical section and dispose
+    it to release.
+
+    [b]Key Properties[/b]
+
+    @list
+        @list-item
+            [b]Not reentrant[/b] - acquiring a name the same connection already holds fails fast rather than
+            deadlocking;
+        @end
+        @list-item
+            [b]Crash-safe[/b] - the portable fallback keeps a lease with an expiry, so a process that dies
+            without releasing does not block others forever. The lease defaults to
+            [c]DefaultInstanceLockLease[/c] and can be set per acquire;
+        @end
+        @list-item
+            [b]Native where possible[/b] - a driver may back the lock with the engine's own advisory lock,
+            which auto-releases when the session drops; otherwise a portable table-backed lease is used.
+        @end
+    @end
+
+    [b]Acquiring the Lock[/b]
+
+    [c]AcquireInstanceLock(name, timeout, leaseDuration)[/c] blocks until the lock is obtained or the timeout
+    elapses, throwing on timeout. [c]TryAcquireInstanceLock(name, timeout, out handle, leaseDuration)[/c] has
+    the same semantics but returns false instead of throwing.
+
+    @example
+        @title=Guarding a critical section
+        @show=yes
+        @highlight=cs
+
+       !// Blocks up to 30 seconds; throws on timeout. Dispose releases the lock.
+       !using (connection.AcquireInstanceLock("nightly-import", TimeSpan.FromSeconds(30)))
+       !{
+       !    // Only one process across the whole deployment runs this at a time.
+       !    RunNightlyImport(connection);
+       !}
+    @end
+
+    @example
+        @title=Non-blocking attempt
+        @show=yes
+        @highlight=cs
+
+       !if (connection.TryAcquireInstanceLock("nightly-import", TimeSpan.FromSeconds(5), out var handle))
+       !{
+       !    using (handle)
+       !        RunNightlyImport(connection);
+       !}
+       !else
+       !{
+       !    // Someone else holds it; skip this run.
+       !}
+    @end
 @end
 
 @article

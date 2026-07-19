@@ -76,25 +76,25 @@ namespace Gehtsoft.EF.Test.JsonProperties.TableManagement
         {
             var connection = mFixture.GetInstance(connectionName);
 
-            new CreateEntityController(typeof(JsonRIdxV1), "jsonridx_v1")
-                .UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            new CreateEntityControllerInternal(typeof(JsonRIdxV1), "jsonridx_v1")
+                .UpdateTables(connection, EntityUpdateMode.Recreate);
             connection.DoesObjectExist("json_ridx", "data_age_i32", "index").Should().BeFalse("no JSON index declared yet");
 
             try
             {
                 // a JSON value index was declared -> UpdateTables creates it
-                new CreateEntityController(typeof(JsonRIdxV2), "jsonridx_v2")
-                    .UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+                new CreateEntityControllerInternal(typeof(JsonRIdxV2), "jsonridx_v2")
+                    .UpdateTables(connection, EntityUpdateMode.Update);
                 connection.DoesObjectExist("json_ridx", "data_age_i32", "index").Should().BeTrue("the JSON index was added on update");
 
                 // the declaration was removed -> UpdateTables drops the (framework-owned) index
-                new CreateEntityController(typeof(JsonRIdxV1), "jsonridx_v1")
-                    .UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+                new CreateEntityControllerInternal(typeof(JsonRIdxV1), "jsonridx_v1")
+                    .UpdateTables(connection, EntityUpdateMode.Update);
                 connection.DoesObjectExist("json_ridx", "data_age_i32", "index").Should().BeFalse("the JSON index was dropped on update");
             }
             finally
             {
-                new CreateEntityController(typeof(JsonRIdxV1), "jsonridx_v1").DropTables(connection);
+                new CreateEntityControllerInternal(typeof(JsonRIdxV1), "jsonridx_v1").DropTables(connection);
             }
         }
 
@@ -105,25 +105,25 @@ namespace Gehtsoft.EF.Test.JsonProperties.TableManagement
             var connection = mFixture.GetInstance(connectionName);
 
             // baseline table without the JSON column
-            new CreateEntityController(typeof(JsonUpdV1), "jsonupd_v1")
-                .UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            new CreateEntityControllerInternal(typeof(JsonUpdV1), "jsonupd_v1")
+                .UpdateTables(connection, EntityUpdateMode.Recreate);
             connection.DoesObjectExist("json_upd", "data", "column").Should().BeFalse("no JSON property yet");
 
             try
             {
                 // the entity gained a JSON property -> UpdateTables adds the column
-                new CreateEntityController(typeof(JsonUpdV2), "jsonupd_v2")
-                    .UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+                new CreateEntityControllerInternal(typeof(JsonUpdV2), "jsonupd_v2")
+                    .UpdateTables(connection, EntityUpdateMode.Update);
                 connection.DoesObjectExist("json_upd", "data", "column").Should().BeTrue("the JSON column was added on update");
 
                 // idempotent: a second update changes nothing
-                new CreateEntityController(typeof(JsonUpdV2), "jsonupd_v2")
-                    .UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+                new CreateEntityControllerInternal(typeof(JsonUpdV2), "jsonupd_v2")
+                    .UpdateTables(connection, EntityUpdateMode.Update);
                 connection.DoesObjectExist("json_upd", "data", "column").Should().BeTrue();
             }
             finally
             {
-                new CreateEntityController(typeof(JsonUpdV1), "jsonupd_v1").DropTables(connection);
+                new CreateEntityControllerInternal(typeof(JsonUpdV1), "jsonupd_v1").DropTables(connection);
             }
         }
     }

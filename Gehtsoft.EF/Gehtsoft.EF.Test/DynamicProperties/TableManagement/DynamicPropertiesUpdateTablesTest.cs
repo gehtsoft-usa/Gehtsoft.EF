@@ -83,14 +83,14 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
         {
             using SqlDbConnection connection = SqliteDbConnectionFactory.CreateMemory();
 
-            new CreateEntityController(typeof(GainBefore), "dp_gain_before")
-                .UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            new CreateEntityControllerInternal(typeof(GainBefore), "dp_gain_before")
+                .UpdateTables(connection, EntityUpdateMode.Recreate);
 
             connection.DoesObjectExist("dp_gain", null, "table").Should().BeTrue();
             connection.DoesObjectExist("dp_gain_props", null, "table").Should().BeFalse();
 
-            new CreateEntityController(typeof(GainAfter), "dp_gain_after")
-                .UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            new CreateEntityControllerInternal(typeof(GainAfter), "dp_gain_after")
+                .UpdateTables(connection, EntityUpdateMode.Update);
 
             connection.DoesObjectExist("dp_gain", null, "table").Should().BeTrue();
             connection.DoesObjectExist("dp_gain_props", null, "table").Should().BeTrue();
@@ -104,14 +104,14 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
         {
             using SqlDbConnection connection = SqliteDbConnectionFactory.CreateMemory();
 
-            new CreateEntityController(typeof(LostBefore), "dp_lost_before")
-                .UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            new CreateEntityControllerInternal(typeof(LostBefore), "dp_lost_before")
+                .UpdateTables(connection, EntityUpdateMode.Recreate);
 
             connection.DoesObjectExist("dp_lost", null, "table").Should().BeTrue();
             connection.DoesObjectExist("dp_lost_props", null, "table").Should().BeTrue();
 
-            new CreateEntityController(typeof(LostAfter), "dp_lost_after")
-                .UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            new CreateEntityControllerInternal(typeof(LostAfter), "dp_lost_after")
+                .UpdateTables(connection, EntityUpdateMode.Update);
 
             connection.DoesObjectExist("dp_lost", null, "table").Should().BeTrue("owner table must remain");
             connection.DoesObjectExist("dp_lost_props", null, "table").Should().BeFalse("orphan props table must be dropped");
@@ -122,13 +122,13 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
         {
             using SqlDbConnection connection = SqliteDbConnectionFactory.CreateMemory();
 
-            CreateEntityController controller = new CreateEntityController(typeof(IdemOwner), "dp_idem");
+            CreateEntityControllerInternal controller = new CreateEntityControllerInternal(typeof(IdemOwner), "dp_idem");
 
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            controller.UpdateTables(connection, EntityUpdateMode.Update);
             connection.DoesObjectExist("dp_idem_props", null, "table").Should().BeTrue();
 
             // second run: owner and props already exist -> must be a clean no-op
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            controller.UpdateTables(connection, EntityUpdateMode.Update);
             connection.DoesObjectExist("dp_idem_props", null, "table").Should().BeTrue();
         }
 
@@ -137,8 +137,8 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
         {
             using SqlDbConnection connection = SqliteDbConnectionFactory.CreateMemory();
 
-            new CreateEntityController(typeof(FalsePositiveOwner), "dp_fp")
-                .UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            new CreateEntityControllerInternal(typeof(FalsePositiveOwner), "dp_fp")
+                .UpdateTables(connection, EntityUpdateMode.Recreate);
 
             // a user table that happens to be named dp_fp_props but is NOT an EAV side table
             TableDescriptor fake = new TableDescriptor("dp_fp_props");
@@ -147,8 +147,8 @@ namespace Gehtsoft.EF.Test.DynamicProperties.TableManagement
             using (var query = connection.GetQuery(connection.GetCreateTableBuilder(fake)))
                 query.ExecuteNoData();
 
-            new CreateEntityController(typeof(FalsePositiveOwner), "dp_fp")
-                .UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            new CreateEntityControllerInternal(typeof(FalsePositiveOwner), "dp_fp")
+                .UpdateTables(connection, EntityUpdateMode.Update);
 
             connection.DoesObjectExist("dp_fp_props", null, "table")
                       .Should().BeTrue("a coincidentally-named table without EAV signature columns must not be dropped");

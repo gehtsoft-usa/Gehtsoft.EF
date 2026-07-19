@@ -1,9 +1,15 @@
 # Schema Catalogue — build state
 
-*Snapshot 2026-07-16. Branch `geo`, **uncommitted** (commit only when asked); `version.proj` untouched.
+*Snapshot 2026-07-19. Branch `geo`. Increments 1–4 committed (`a583bba`); **increments 5–6 + AdoptExistingScope
++ coverage-audit hardening + old-controller deprecation + all documentation (guide articles, docgen-compatible
+XML docs) are COMMITTED this session** (return-point hash recorded in the follow-up commit; see git log on
+`geo`); `version.proj` untouched. Phase 3 is now **feature-complete through the parity gate**; next up is
+post-parity geo (geometry + spatial index) and the deferred follow-ups.
 Authoritative state file for the catalogue initiative. Design: `DESIGN.md` (Gate-1 decisions).
 Combined phase plan: `CONTROLLER_STACK_PLAN.md` (Phases 1–3, Q1–Q5 resolved). Serializer prereq:
 `PREREQ_SERIALIZATION/PLAN.md`. Live geo-return-point + cross-links: `../GEO/PREREQUISITES_STATE.md`.
+**Operational flows (all scenarios incl. old→new migration): `FLOWS.md`.** Increment-5 detail:
+`INCREMENT_5_PATCH_REPLAY.md`.
 Process: two human gates per phase (start plan / advance phase) — see [[feedback_phase_process]].*
 
 ## Where we are
@@ -14,18 +20,25 @@ Prereq B instance lock ✅ built + green (24 tests, 5 drivers; native locks = Ph
 Phase 1  store         ✅ built + green on ALL 5 LIVE DRIVERS (17 tests × 5 = 85 green, 2026-07-16;
                           incl. version-semantics addendum: Dropped/AdvanceVersion/WriteTombstone)
 Phase 2  diff engine   ✅ built + green, 100% line coverage (38 tests, pure)
-Phase 3  controller    🔨 increments 1–4 DONE (guard + lock + column add/drop, index reconcile,
+Phase 3  controller    ✅ increments 1–6 DONE (guard + lock + column add/drop, index reconcile,
                           OnEntity* hooks, ALTER=refuse, Recreate/CreateNew + FK guard, obsolete→
                           tombstone, prop-drop hook, views, dynamic-properties reconcile;
-                          22 tests × 5 = 110 green, 2026-07-16)
+                          increment 5: EnsureCatalogInfrastructure + de-automation + IEfPatch replay;
+                          increment 6: PARITY GATE — real-action physical-schema parity vs the old
+                          controller, 9 tests × 5 = 45 green, 2026-07-19)
 Phase 4  native locks   — later
-Phase 5  compare-w/-actual + torn-write recovery — later
+Phase 5  compare-w/-actual + torn-write recovery — later; FIRST SLICE DONE: AdoptExistingScope
+                          (TrustModel/ReconcileToModel) + IsOrphanScopeExists + old-controller
+                          failIfUpdateNeeded verify flag (2026-07-18)
 then GEO Phase 3 rides the catalogue
 ```
 
-Full Catalogue + InstanceLock test sweep: **268 green** (8 serialization + 24 lock + 85 store + 41 diff
-+ 110 controller).
-Full product suite was 3246 green before this work began.
+Full Catalogue + InstanceLock + Patch sweep: **391 green** (8 serialization + 24 lock + 85 store + 41 diff
++ 175 controller [135 increment-1..5 + 40 adoption/orphan] + 7 in-memory patch-replay/adopt E2E + **45
+parity-gate [9 × 5]**; the 7 existing `SqlDb.Patch.PatchTest` also green — `EfPatchProcessor` untouched).
+**Full product suite: 3609 green, 0 failed on all 5 live drivers (confirmed 2026-07-19, after increment 6 +
+old-controller deprecation); was 3562 at increment 5 → +45 parity + 2 obsolete-shim tests; the increment-6
+product fixes and the deprecation refactor caused zero regressions.**
 
 ## Prerequisites (both DONE)
 
@@ -194,9 +207,193 @@ action (now `Create`/`Drop`/`AddColumns`/`DropColumns`/`CreateIndex`/`DropIndex`
 - **Tests:** controller 22×5 = **110 green** (+gain creates side table, lose drops it, unchanged touches
   nothing); diff 41 (+gain/lose/same). 
 
-**Remaining increments** (see `CONTROLLER_STACK_PLAN.md`): (5) `IEfPatch` replay `(Vc,Vi]`; (6) parity
-gate; then post-parity geo (geometry + spatial index) and the deferred unique-single-column index +
-composite/JSON index behavioural tests. **Old `CreateEntityController` is NOT obsoleted until Phase 5.**
+**Increment-5 DONE (2026-07-18)** — explicit infrastructure + `IEfPatch` replay. Detailed plan +
+as-built + rationale: `INCREMENT_5_PATCH_REPLAY.md`.
+- **`EnsureCatalogInfrastructure(conn)` (+ async)** — the single explicit bootstrap: creates `ef_catalog`
+  **and** the `ef_patch_history` ledger if absent (idempotent, race-tolerant). **De-automation:**
+  `CreateTables`/`UpdateTables`/`DropTables` no longer self-bootstrap (removed the internal
+  `EnsureBootstrapped`); a missing catalogue just lets the store SELECT fail — the heuristic/adopt path is
+  Phase 5 (user: "just let select query fail. We will add heuristic later"; "too much automation here").
+- **Replay window (catalogue-local), keyed on the SCOPE VERSION not the ledger:** new
+  `ICatalogControllerAction.ReplayPatches(conn, assemblies, scope, firstContact, fromVersionKey,
+  throughVersionKey)`. Runs every discovered patch with **`Vc < key ≤ Vi`** (`fromVersionKey =
+  VersionKey(Vc)` = the scope's version *before* the run, 0 on first contact; `throughVersionKey =
+  VersionKey(Vi)`), recording each into `ef_patch_history`. **A patch ≤ Vc is already baked into the
+  structure (created/converged at Vc) → never runs.** This is what keeps `CreateTables` correct: it stamps
+  `Vc=Vi` and runs no patches, so a later `UpdateTables` replays only `(Vi, …]` — never the already-baked-in
+  `≤ Vi` patches *even though the ledger is empty* (the ledger is NOT the window driver — earlier as-built
+  keyed on ledger-max, which wrongly re-ran pre-baked patches after a `CreateTables`; fixed 2026-07-18 per
+  user). **REVISED 2026-07-19: first contact runs NO patches** (`ReplayPatches` called only when
+  `currentVersion != null`) — a fresh DB is built directly at the target and has nothing to migrate, matching
+  `EfPatchProcessor`'s stamp-and-runs-none on a fresh database; this also makes `CreateTables` and
+  first-contact `UpdateTables` consistent (both patch-free) and retired the "CreateTables patch-seeding"
+  question. Safe under the author-rule (a patch may only touch structure present at `Vi`). `EfPatchProcessor`
+  is **not** delegated to
+  (its present-but-empty-ledger branch runs-and-records nothing — an untested artifact of keying
+  "greenfield" on table existence; confirmed via git blame + missing test); only `FindAllPatches` is reused.
+  The ledger is used only for **orphan detection** and **recording**.
+- **Orphan guard:** first contact (`Vc == null`) with a **non-empty** ledger for the scope →
+  `EfSqlException(CatalogOrphanPatchHistory)` (new code + message). This is the "DB managed before the
+  catalogue" case; the real import/decide is **Phase-5 `AdoptExistingScope`** (user chose *explicit* adoption
+  of an old schema over silent import).
+- **Fires:** end of `UpdateTables`, after structure converges, **on a real transition only**
+  (`currentVersion != null` && `Vi > Vc`; **REVISED 2026-07-19 — first contact runs no patches**). Clean
+  no-op (`Vi == Vc`, no diff) returns before replay (ledger already current; the only unrun-patch-at-`Vc`
+  case is a mid-run crash = Phase-5 torn-write). `CreateTables`/`DropTables` are patch-free. **The
+  "CreateTables patch-seeding" question is RESOLVED (2026-07-19): retired — it was an artifact of the
+  increment-5 first-contact-runs-all bug, not a real Create-vs-Update distinction.**
+- **Scope:** keyed to the controller's entity scope `mScope` (Edge-B: patches share the entity scope — the
+  original intent; migrating a differently-scoped old ledger is a documented manual prerequisite).
+- **Async:** `UpdateTablesAsync` stays `Task.Run(sync)`, so patches run via sync `Apply` even for
+  `IEfPatchAsync` (which always has one). v1 limitation.
+- **Tests:** controller 27×5 = **135 green** (+5 methods × 5: **REVISED 2026-07-19** first-contact
+  `Update_FirstContact_DoesNotReplayPatches` (no replay); version-bump replays w/ window `(Vc,Vi]`;
+  clean-no-op no replay; Create/Drop no replay). In-memory-SQLite `CatalogPatchReplayTest` (**6 green**):
+  **REVISED 2026-07-19** `FirstContact_FreshDatabase_RunsNoPatches`; incremental open window;
+  **CreateTables-then-update does NOT re-run pre-baked ≤Vc patches**; version-bump-without-new-patch runs
+  nothing & no re-apply; first-contact-with-ledger → orphan throw; after-adopt window. Strict-mock
+  unchanged/dynamic-unchanged tests (seeded → not first contact) allow+verify the one `ReplayPatches` call.
+  **All operational flows documented in `FLOWS.md`** (incl. old→new migration).
+
+**AdoptExistingScope DONE (2026-07-18)** — first slice of Phase 5, brought forward to close the migration
+path. Plan + as-built: `ADOPT_EXISTING_SCOPE.md`; flows: `FLOWS.md` §6/§7.
+- **`CreateEntityController.UpdateTables` gained `failIfUpdateNeeded` (optional, default false)** — verify
+  mode: apply no structural DDL, throw **`SchemaUpdateRequired`** the moment a table/column/index/dyn-props
+  change would be needed; views ignored (always drop+recreate, not drift). Implemented via a private
+  **`VerifyingAction`** decorator swapped in for the injectable action (catches table/column create/drop,
+  no-ops views) **plus flag-guards in `ReconcileIndexes`/`ReconcileDynamicPropertiesTable`** (complete
+  verify, option (i)). Additive — existing callers unaffected.
+- **`CatalogEntityController`:** `enum CatalogAdoptMode { TrustModel, ReconcileToModel }`;
+  **`IsOrphanScopeExists(conn)`** (no catalogue for scope + a non-view table physically exists — greenfield
+  is not orphan); **`AdoptExistingScope(conn, version, mode)` (+async)** — under the lock, refuses
+  **`CatalogScopeAlreadyAdopted`** if already catalogued; runs the old controller with
+  `failIfUpdateNeeded: mode==TrustModel` (TrustModel verifies, ReconcileToModel aligns), then records
+  `FromDescriptor(model)` at `version` for each non-view table. **No patches** — sets the `Vc=version`
+  baseline so later `UpdateTables` replays only `(version, Vi]`. Why old controller (both modes): reuses
+  proven introspection reconcile; always sufficient because no adoptable (pre-catalogue) DB contains geo
+  (geo is new-controller-only, post-parity) — the only thing the old controller can't reconcile (user's
+  point).
+- **Tests:** adoption in `CatalogEntityControllerTest` (same class → serialized, avoids `ef_catalog`
+  cross-class race): `IsOrphanScopeExists` detects/clears; TrustModel matched seeds / drifted throws
+  `SchemaUpdateRequired`; ReconcileToModel aligns+seeds; already-catalogued throws — **5×5 = 25 green**.
+  Post-adopt patch window in `CatalogPatchReplayTest` (in-memory): adopt at 2.0.0 → `UpdateTables(3.0.0)`
+  runs only `3.0.0` — **+1 (6 total in that class)**.
+
+**Coverage-audit hardening DONE (2026-07-18)** — a fable-model subagent cross-checked `FLOWS.md` vs the
+suite; two real items fixed + gaps closed:
+- **Orphan guard moved to a PRE-CHECK (correctness fix).** It was inside `ReplayPatches` (end of
+  `UpdateTables`), so on first contact it seeded the catalogue at `Vi` *then* threw → a re-run became a
+  `Vi==Vc` no-op that masked the orphan and wedged `AdoptExistingScope`. Now a pre-check at the **top of
+  `UpdateTables`** (after reading `Vc`, before any DDL): first contact + a discovered non-view table
+  physically exists → new **`CatalogOrphanScope`**; else ledger has scope rows → `CatalogOrphanPatchHistory`.
+  Zero DDL, catalogue unseeded. `ReplayPatches` lost its `firstContact` param + orphan logic (moved to
+  controller `ReadLedgerTip`); its window logic is unchanged. `FLOWS.md` §6/§7 corrected.
+- **`failIfUpdateNeeded` verify — the option-(i) guards now tested.** Added `Adopt_TrustModel_IndexDrift_Throws`
+  (drop the sorted-column index → `ReconcileIndexes` guard) and `Adopt_TrustModel_DynamicPropertiesDrift_Throws`
+  (drop the EAV side table → `ReconcileDynamicPropertiesTable` guard) — the paths beyond the `VerifyingAction`
+  decorator that were untested. Plus `Update_OnPreCatalogueDatabase_RefusesAsOrphan_BeforeAnyDdl` and the
+  Flow-6 `AdoptWithPreExistingLedger_ThenUpdate_RunsOnlyTheWindow` (real shape: tables + ledger rows, adopt,
+  update runs only the window). Strengthened the orphan test to assert the catalogue stays unseeded.
+- **M2 investigated, no code change:** "extra DB columns" (in DB, absent from model) are benign — additive
+  reconcile never drops them; they linger invisibly, no data loss. **No** driver returns null from
+  `GetTableIndexes` (all return `AssembleIndexes`, never null) — the `== null` short-circuit is defensive
+  only, so index drift IS caught on all five. Documented as a `FLOWS.md` §7 caveat.
+
+**Increment-6 DONE (2026-07-19) — the parity gate.** Detail: `INCREMENT_6_PARITY_GATE.md`.
+- **`CatalogParityTest.cs`** (live all-driver) runs each supported scenario through **both** controllers
+  with the **real DDL action** (not the mock the other controller tests use) on one connection, and asserts
+  a **physically identical schema** via a model-derived fingerprint (`DoesObjectExist` over every
+  table/column/declared-index/view/dyn-props side table) plus an insert/select round-trip. Create-from-
+  scratch scenarios share the scope (both build from nothing); evolution scenarios build physical V1 via the
+  old controller, seed the catalogue with the V1 snapshot under the target scope, then run the new
+  controller's `UpdateTables("2.0.0")` and compare against the old controller's incremental result.
+- **9 scenarios × 5 drivers = 45 green:** Create (rich model: FK-ordered tables + sorted index + composite
+  index + view), CreateTables, Recreate, dynamic-properties create; Evolve add-column, drop-obsolete-property,
+  drop-obsolete-entity, add-index, drop-index.
+- **Two REAL product divergences found + fixed** (parity gate's whole point; both user-decided "match the
+  old controller"):
+  1. **`CatalogEntityController.CreateTables` skipped views** — old `CreateTables` materializes views. Fixed:
+     a views loop now runs after the tables (views are not catalogued, matching `UpdateTables`).
+  2. **`DropColumn` threw on drivers without `DropColumnSupported` (SQLite)** — old controller guards the
+     drop and silently leaves the column. Fixed: `ApplyChanges` now guards `dropColumns` on
+     `DropColumnSupported`; when unsupported the column lingers (safe fallback — unlike a column *alter*,
+     which stays refused because its only fallback is destructive), the desired snapshot is still recorded,
+     and the `OnEntityPropertyDrop` hook is skipped. The two mock drop-column tests in
+     `CatalogEntityControllerTest` now branch on `DropColumnSupported`.
+- **Intended, decided divergences EXCLUDED from parity** (documented in the test file; the old controller
+  silently no-ops, the catalogue refuses loudly): a **column definition change**
+  (`CatalogColumnAlterNotSupported`) and a **unique single-column index change** (`NotSupportedException`,
+  and note this reconcile is genuinely NEW capability — the old `ReconcileIndexes` ignores unique/PK
+  indexes entirely, so it never adds/drops them).
+
+**Old-controller deprecation DONE (2026-07-19).** `CreateEntityController` is now discouraged, but its
+implementation is retained (AdoptExistingScope + our tests still need it):
+- The old introspection implementation was renamed to **`internal class CreateEntityControllerInternal`**
+  (`EntityQueries/CreateEntity/CreateEntityControllerInternal.cs`). Our product (`CatalogEntityController`'s
+  `AdoptExistingScope`) and all tests use this internal class directly.
+- A new **`public [Obsolete] class CreateEntityController`** (same file name) is a thin **pass-through** to
+  the internal class — same surface (3 ctors, `OnAction`, `Create/Drop/UpdateTables` + async,
+  `failIfUpdateNeeded`), so existing external callers keep compiling (with a deprecation warning).
+- The `UpdateMode` enum moved to a **public top-level `EntityUpdateMode`** (`EntityUpdateMode.cs`, chosen
+  over nesting on `CatalogEntityController`), used by `CatalogEntityController` + the internal class. The
+  obsolete shim keeps its own nested `CreateEntityController.UpdateMode` (identical members) for
+  source-compat, mapping to `EntityUpdateMode` when it delegates.
+- Tests: all functional usage switched to `CreateEntityControllerInternal` + `EntityUpdateMode`; new
+  `CreateEntityControllerObsoleteShimTest` covers the shim itself (is-obsolete + delegates + forwards events).
+
+**Public API surface tightened + docgen (2026-07-19).** The catalogue's **plumbing types are now `internal`**
+(they were `public` only for cross-file/test reasons; all are referenced solely by `Gehtsoft.EF.Db.SqlDb` +
+the test project, which has `InternalsVisibleTo`): `CatalogStore`, `CatalogChange`/`CatalogChangeKind`,
+`CatalogDiff`, `EfCatalogRecord`, `CatalogTableDto` (+ the 8 nested DTO classes), `CatalogSnapshot`,
+`CatalogSerializer`. Making them internal (rather than `[DocgenIgnore]`-ing public types — user's point:
+"a DocgenIgnore candidate is a good candidate to become internal") keeps the **public API = exactly the
+entry points**: `CatalogEntityController` (+ nested `CatalogAdoptMode`), `EntityUpdateMode`, and the obsolete
+`CreateEntityController` shim. Full catalogue suite (361) + clean build confirmed the internal entity/serializer
+work at runtime. **XML docs on those three public types were rewritten to be docgen-native** per
+`CLAUDE/WRITING-DOC-COMMENTS.md`: `[clink=FQN]…[/clink]` instead of `<see cref>`, `[c]…[/c]` instead of
+`<c>`, no `<b>`/`<i>`, no `<`/`>`/`≤`/arrows/`e.g.`/`i.e.` in prose, first `<para>` is the brief; internal
+dev-narrative (phase/increment numbers, test-class names) dropped from the user-facing summary. Build is
+warning-clean (no CS1570/CS1574/CS1587). NOTE: full docgen *render* verification needs the Windows `%docgen%`
+tool (not run here); the markup follows the established repo conventions (`[clink]`/`[i]` already in use).
+
+**Remaining increments** (see `CONTROLLER_STACK_PLAN.md`): parity gate is DONE; old-controller deprecation
+DONE. Next: **post-parity geo** (geometry + spatial index) exclusively in the new controller, plus the
+deferred unique-single-column index reconcile + dedicated composite/JSON index behavioural tests. Still
+deferred to Phase 5: **full compare-with-actual drift repair** (introspect→DTO, diff catalogue vs live DB)
+and torn-write recovery. (**`CreateTables` patch-seeding — RESOLVED/retired 2026-07-19:** first contact runs
+no patches for both entry points, so there is nothing to seed.) The internal `CreateEntityControllerInternal`
+is **not** removable (AdoptExistingScope's Practical mode depends on it); only the public name is obsolete.
+
+**Documentation DONE (2026-07-19).**
+- **Instance-lock public surface kept public + docgen-clean.** Decision: `IDbInstanceLock`,
+  `AcquireInstanceLock`/`TryAcquireInstanceLock`, `DefaultInstanceLockLease` and the `protected virtual`
+  `AcquireInstanceLockCore` stay public API (a cross-process DB mutex is a useful, self-contained, 24-test
+  primitive, and it gets a user-facing article). Their XML docs were rewritten docgen-native (`LeaseInstanceLock`
+  was already internal). Build warning-clean.
+- **Guide articles CONSOLIDATED into the existing tutorial (2026-07-19).** First draft was a parallel
+  `schema_management` group in `doc1/src/ns/schema_catalogue.ds` (under `sql`) — that duplicated the topic,
+  since `tutorialsen` ("Entity Operations") already had `tutorialen_entities5` (Creating and Dropping Tables)
+  and `tutorialen_autoupdate` (Automatic Schema Update), both written around the now-obsolete controller.
+  Untangled per user: **deleted `schema_catalogue.ds`** and folded everything into `doc1/src/ns/sqltutorialsen.ds`:
+  rewrote `tutorialen_entities5` and `tutorialen_autoupdate` **catalogue-first** (CatalogEntityController +
+  EnsureCatalogInfrastructure + version + EntityUpdateMode; version guard; greenfield/patch replay;
+  preserved the index-reconciliation / `ExcludeFor` / index-naming content, which still applies), and added
+  three new articles **`tutorialen_patches`** (coded patches — "Handling Changes the Automatic Update
+  Cannot": how/when to write an `IEfPatch`, the replay window, the author rule, a retype-a-column example;
+  wired from autoupdate's Limitations), **`tutorialen_adopt`** (old→new migration incl.
+  `IsOrphanScopeExists`/`AdoptExistingScope`) and **`tutorialen_instancelock`** (cross-process lock). Static checks pass (balanced `@end` 194/194, no raw
+  `&` or angle brackets in prose, no stray bullets; all internal `[link]` targets resolve). **RENDER-VERIFIED
+  2026-07-19:** after the user re-ran `rescan.bat` (regenerating `src/raw/` for the new types), the new type
+  mentions were upgraded from `[c]` to real `[clink]` links (CatalogEntityController, EntityUpdateMode,
+  CatalogAdoptMode, IDbInstanceLock) and the full docgen build (`doc.bat`) passes — "Check links integrity"
+  clean, 0 warnings / 0 errors. (Windows `.bat` docgen tooling is runnable from WSL via `cmd.exe /c`.)
+- **Brief-line fix (2026-07-19).** The rendered Brief was cut mid-sentence: docgen shows only the FIRST
+  PHYSICAL LINE of `<summary>` as the Brief and the rest as Details, so a wrapped opening sentence truncates.
+  Rewrote every catalogue + instance-lock public summary (class, methods, properties, enum members) so the
+  first `///` line is a complete standalone sentence; detail paras may wrap. Verified in the regenerated
+  `src/raw/*.ds` (`@brief=` holds the whole sentence, next line blank — CRLF-aware check) and re-rendered
+  clean. The `CLAUDE/WRITING-DOC-COMMENTS.md` rule #1 was corrected accordingly (brief = first LINE, not
+  first `<para>`; don't wrap it).
 
 ## Cross-cutting decisions in force
 
@@ -228,13 +425,29 @@ composite/JSON index behavioural tests. **Old `CreateEntityController` is NOT ob
 Product (`Gehtsoft.EF.Db.SqlDb/`):
 `Catalog/Store/EfCatalogRecord.cs` (+`Dropped`), `Catalog/Store/CatalogStore.cs` (+`AdvanceVersion`,
 `WriteTombstone`, `ReadCurrentVersion`), `Catalog/Diff/CatalogChange.cs`, `Catalog/Diff/CatalogDiff.cs`,
-`EntityQueries/Catalog/CatalogEntityController.cs`; edit `EfSqlException.cs` (+`CatalogFormatTooNew`,
-`CatalogModelChangedWithoutVersionBump`, `CatalogVersionRegressed`, `CatalogColumnAlterNotSupported` +
-messages); 5 `<Compile Include>` entries in `Gehtsoft.EF.Db.SqlDb.csproj`. (Prereq A/B files already
-present from earlier.)
+`EntityQueries/Catalog/CatalogEntityController.cs` (increment 5: +`EnsureCatalogInfrastructure`/`…Async`,
++`ICatalogControllerAction.ReplayPatches`, removed internal `EnsureBootstrapped`; adopt: +`CatalogAdoptMode`,
++`IsOrphanScopeExists`, +`AdoptExistingScope`/`…Async`; **increment 6 parity fixes: `CreateTables` now
+creates views; `ApplyChanges` guards `DropColumn` on `DropColumnSupported`**);
+**`EntityQueries/CreateEntity/CreateEntityControllerInternal.cs`** (the old controller renamed to
+`internal`; +`failIfUpdateNeeded` on `UpdateTables`/`…Async` + private `VerifyingAction` decorator +
+flag-guards in `ReconcileIndexes`/`ReconcileDynamicPropertiesTable`; nested `UpdateMode` removed → uses
+`EntityUpdateMode`); **new `EntityQueries/CreateEntity/CreateEntityController.cs`** (public `[Obsolete]`
+pass-through shim to the internal class, keeps a nested `UpdateMode` for source-compat); **new
+`EntityQueries/CreateEntity/EntityUpdateMode.cs`** (public top-level enum);
+edit `EfSqlException.cs` (+`CatalogFormatTooNew`, `CatalogModelChangedWithoutVersionBump`,
+`CatalogVersionRegressed`, `CatalogColumnAlterNotSupported`, `CatalogOrphanPatchHistory`,
+`SchemaUpdateRequired`, `CatalogScopeAlreadyAdopted`, `CatalogOrphanScope` + messages);
+(orphan guard moved to a pre-check: `ReplayPatches` lost `firstContact`, controller gained `ReadLedgerTip`);
+5 `<Compile Include>` entries in `Gehtsoft.EF.Db.SqlDb.csproj`. (Prereq A/B files already present from
+earlier.)
 
 Tests (`Gehtsoft.EF.Test/`): `Catalog/Store/CatalogStoreTest.cs`, `Catalog/Diff/CatalogDiffTest.cs`,
-`Catalog/Controller/CatalogEntityControllerTest.cs`.
+`Catalog/Controller/CatalogEntityControllerTest.cs` (+infra bootstrap in `Open`, +5 replay decision tests,
++5 adoption tests [AdoptA/AdoptB entities, `DropAdoptTables`], strict tests allow+verify `ReplayPatches`),
+`Catalog/Controller/CatalogPatchReplayTest.cs` (in-memory SQLite E2E replay + post-adopt window);
+**`Catalog/Controller/CatalogParityTest.cs`** (increment 6: real-action physical-schema parity, 9 scenarios;
++two mock drop-column tests in `CatalogEntityControllerTest.cs` now branch on `DropColumnSupported`).
 
 ## Immediate next action
 
@@ -245,8 +458,23 @@ Tests (`Gehtsoft.EF.Test/`): `Catalog/Store/CatalogStoreTest.cs`, `Catalog/Diff/
    `AlterColumn`=refuse; 65 green on 5 drivers (see Phase 3 section).
 2b. ✅ **DONE (2026-07-16)** — Phase 3 **increments 3–4**: Recreate/CreateNew + FK guard, obsolete→
    tombstone, prop-drop hook, views, dynamic-properties reconcile; 110 green on 5 drivers.
-3. **Phase 3 increment 5** — `IEfPatch` replay: after structural convergence, run coded patches in
-   `(Vc, Vi]` in `major.minor.patch` order via `EfPatchProcessor` (its own `EfPatchHistoryRecord` ledger,
-   unchanged); author rule — a patch may only touch structure still present at `Vi`. Then (6) parity gate;
-   then post-parity geo. **Old `CreateEntityController` stays until Phase 5.** Follow-ups: dedicated
-   composite/JSON index-application tests + unique single-column index reconcile (both currently deferred).
+3. ✅ **DONE (2026-07-18)** — Phase 3 **increment 5**: explicit `EnsureCatalogInfrastructure` + de-automation
+   + `IEfPatch` replay (catalogue-local `(Vc,Vi]` window keyed on scope version, orphan-history refused). See
+   the Increment-5 section and `INCREMENT_5_PATCH_REPLAY.md`.
+3b. ✅ **DONE (2026-07-18)** — **`AdoptExistingScope`** (Phase-5 first slice): `IsOrphanScopeExists` +
+   `AdoptExistingScope(TrustModel|ReconcileToModel)` + old-controller `failIfUpdateNeeded` verify flag; 25+1
+   green. See the AdoptExistingScope section and `ADOPT_EXISTING_SCOPE.md`.
+4. ✅ **DONE (2026-07-19)** — Phase 3 **increment 6, parity gate**: `CatalogParityTest` proves real-action
+   physical-schema parity vs the old controller (9 scenarios × 5 = 45 green); two real product divergences
+   found + fixed (CreateTables views; DropColumn guard on `DropColumnSupported`). See the Increment-6 section
+   and `INCREMENT_6_PARITY_GATE.md`.
+4b. ✅ **DONE (2026-07-19)** — **old-controller deprecation**: old impl → `internal CreateEntityControllerInternal`;
+   new `public [Obsolete] CreateEntityController` pass-through; `UpdateMode` → public top-level
+   `EntityUpdateMode`. See the deprecation section above. Full suite stayed green (3607).
+5. **NEXT — post-parity geo:** add geometry (add/drop geo column) + spatial-index reconcile as `CatalogDiff`
+   entries + `ApplyChanges` cases, **exclusively in `CatalogEntityController`** (confirm the old controller
+   never gains it). Then the deferred follow-ups: unique-single-column index reconcile (NEW capability —
+   old controller ignores unique indexes); dedicated composite/JSON index-application behavioural tests.
+   Phase-5 deferred: full compare-with-actual **drift repair** (introspect→DTO), torn-write recovery.
+   (`CreateTables` patch-seeding — RESOLVED/retired 2026-07-19.) The internal `CreateEntityControllerInternal`
+   stays (AdoptExistingScope Practical depends on it); only the public name is obsolete.

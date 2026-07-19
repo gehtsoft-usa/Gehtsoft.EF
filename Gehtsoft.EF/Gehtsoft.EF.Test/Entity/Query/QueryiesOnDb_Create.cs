@@ -263,8 +263,8 @@ namespace Gehtsoft.EF.Test.Entity.Query
         {
             var connection = mFixture.GetInstance(connectionName);
 
-            var creator = new CreateEntityController(this.GetType().Assembly, "createntity1");
-            creator.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            var creator = new CreateEntityControllerInternal(this.GetType().Assembly, "createntity1");
+            creator.UpdateTables(connection, EntityUpdateMode.Update);
 
             connection.DoesObjectExist("ce_dict0", null, "table").Should().BeTrue();
             connection.DoesObjectExist("ce_dict0", "id", "column").Should().BeTrue();
@@ -294,8 +294,8 @@ namespace Gehtsoft.EF.Test.Entity.Query
 
             var connection = mFixture.GetInstance(connectionName);
 
-            var creator = new CreateEntityController(this.GetType().Assembly, "createntity2");
-            creator.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            var creator = new CreateEntityControllerInternal(this.GetType().Assembly, "createntity2");
+            creator.UpdateTables(connection, EntityUpdateMode.Update);
 
             var canDrop = connection.GetLanguageSpecifics().DropColumnSupported;
 

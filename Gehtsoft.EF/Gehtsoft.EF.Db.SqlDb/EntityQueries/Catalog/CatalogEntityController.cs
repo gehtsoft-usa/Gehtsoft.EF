@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.Catalog;
 using Gehtsoft.EF.Db.SqlDb.Catalog.Diff;
 using Gehtsoft.EF.Db.SqlDb.Catalog.Store;
+using Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch;
 using Gehtsoft.EF.Db.SqlDb.InstanceLock;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
@@ -14,34 +15,29 @@ using Gehtsoft.EF.Utils;
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
 {
     /// <summary>
-    /// Create/drop/update tables by diffing the declared entity model against the EF-owned schema
-    /// <b>catalogue</b> (see <see cref="CatalogStore"/>), instead of introspecting the live database like
-    /// <see cref="CreateEntityController"/> does. Mirrors that controller's surface, adding a DB
-    /// <c>version</c> argument to the catalogue-writing entry points.
+    /// <para>Creates, drops and updates database tables by diffing the entity model against an EF-owned schema catalogue instead of introspecting the live database.</para>
     ///
-    /// <para>Version semantics: the version passed to <see cref="UpdateTables(SqlDbConnection, string, CreateEntityController.UpdateMode, IDictionary{Type, CreateEntityController.UpdateMode})"/>
-    /// is the "last version at which each table has its current descriptor". After a successful run every
-    /// live table carries that version, so it is the DB's single current version. A scope-level guard runs
-    /// before any DDL: a lower version than the applied one is refused (regression); the same version with
-    /// any model change is refused (the developer changed the model without bumping the version); the same
-    /// version with no change is a clean no-op; a higher version applies the diff.</para>
+    /// <para>The obsolete [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntityController]CreateEntityController[/clink]
+    /// is the introspection-based alternative; the catalogue-writing entry points take a database version
+    /// string.</para>
     ///
-    /// <para>v1 is <b>greenfield</b>: the catalogue is born with the database (first contact diffs the
-    /// model against "nothing" - a full create). Migrating an existing, mismatched database onto the
-    /// catalogue is a later phase; <see cref="CreateEntityController"/> stays as the introspection path
-    /// until then.</para>
+    /// <para>Version semantics: the version passed to UpdateTables is the last version at which each table
+    /// has its current shape. After a successful run every live table carries that version, so it is the
+    /// database's single current version. A scope-level guard runs before any DDL: a version older than the
+    /// applied one is refused as a regression; the same version with a changed model is refused (the model
+    /// changed without a version bump); the same version with no change is a clean no-op; a newer version
+    /// applies the difference.</para>
     ///
-    /// <para>The whole read-guard-diff-apply runs under an <see cref="IDbInstanceLock"/> so concurrent
-    /// processes cannot race the catalogue.</para>
+    /// <para>Version 1 is greenfield: the catalogue is born with the database, so first contact creates the
+    /// whole schema. Onboarding an existing, pre-catalogue database is done explicitly with AdoptExistingScope.
+    /// Coded patches ([clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.CreateEntity.Patch.IEfPatch]IEfPatch[/clink])
+    /// replay after the structure converges, but only on a real version transition of an already-catalogued
+    /// database.</para>
     ///
-    /// NOTE: Phase 3 through <b>increment 3</b> handles: table create; column add/drop; index reconcile
-    /// (single-column Sorted, composite, JSON); the <c>OnEntity*</c> hooks; <c>Recreate</c> (drop+create,
-    /// FK-guarded) and <c>CreateNew</c> (≡ <c>Update</c>, as in <see cref="CreateEntityController"/>);
-    /// obsolete-entity drop → tombstone; and views (drop+recreate). A column <i>definition</i> change is
-    /// refused (<see cref="EfExceptionCode.CatalogColumnAlterNotSupported"/>) and routed to a patch - there
-    /// is deliberately no portable in-place column modify. Still to come: unique single-column index
-    /// reconcile, geometry/spatial index (post-parity geo), dynamic properties, coded-patch replay, and
-    /// the parity gate.
+    /// <para>A column definition change is refused and must be routed to a patch (there is deliberately no
+    /// portable in-place column modify); a column drop is skipped, leaving the column in place, on drivers
+    /// that cannot drop columns. The whole read-guard-diff-apply runs under an instance-wide lock so
+    /// concurrent processes cannot race the catalogue.</para>
     /// </summary>
     public class CatalogEntityController
     {
@@ -106,6 +102,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
             void DropIndex(SqlDbConnection connection, TableDescriptor descriptor, string logicalName);
             void CreateDynamicPropertiesTable(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType);
             void DropDynamicPropertiesTable(SqlDbConnection connection, EntityFinder.EntityTypeInfo entityType);
+            void ReplayPatches(SqlDbConnection connection, IEnumerable<Assembly> assemblies, string scope, long fromVersionKey, long throughVersionKey);
         }
 
         private sealed class CatalogControllerAction : ICatalogControllerAction
@@ -198,6 +195,43 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                 using (var query = connection.GetQuery(connection.GetDropTableBuilder(propsTable)))
                     query.ExecuteNoData();
             }
+
+            // Replays coded IEfPatch patches after structure has converged, recording each into the same
+            // ef_patch_history ledger EfPatchProcessor uses. The window is (Vc, Vi] keyed on the SCOPE'S
+            // VERSION, not the ledger:
+            //   * lower bound = fromVersionKey = the scope's current version Vc (0 on first contact). A patch
+            //     at or below Vc is already reflected in the structure (the tables were created or converged
+            //     at Vc), so it must not run - this is what keeps CreateTables(Vi) correct: it stamps Vc=Vi
+            //     and runs no patches, and a later UpdateTables then replays only (Vi, ...], never the
+            //     already-baked-in <= Vi patches even though the ledger is empty.
+            //   * upper bound = throughVersionKey = the target version Vi.
+            //   * safe because a patch may only touch structure still present at Vi (the author rule).
+            // On first contact (Vc = 0) the window is (0, Vi] = every patch up to Vi, so a genuine greenfield
+            // UpdateTables runs data-seeding patches. The "database managed before the catalogue" case is
+            // refused by the orphan pre-check in UpdateTables *before* any DDL, so replay never runs against
+            // an unknown baseline.
+            public void ReplayPatches(SqlDbConnection connection, IEnumerable<Assembly> assemblies, string scope, long fromVersionKey, long throughVersionKey)
+            {
+                IList<EfPatchProcessor.EfPatchInstance> patches = EfPatchProcessor.FindAllPatches(assemblies, scope);
+                for (int i = 0; i < patches.Count; i++)
+                {
+                    EfPatchProcessor.EfPatchInstance instance = patches[i];
+                    long key = PatchKey(instance.Version);
+                    if (key <= fromVersionKey || key > throughVersionKey)
+                        continue;
+
+                    object patch = instance.Create();
+                    ((IEfPatch)patch).Apply(connection);
+
+                    EfPatchHistoryRecord record = new EfPatchHistoryRecord(instance.Version.Scope,
+                        instance.Version.MajorVersion, instance.Version.MinorVersion, instance.Version.PatchVersion, DateTime.Now);
+                    using (var query = connection.GetInsertEntityQuery<EfPatchHistoryRecord>())
+                        query.Execute(record);
+                }
+            }
+
+            private static long PatchKey(EfPatchAttribute version)
+                => (long)version.MajorVersion * 10000000 + (long)version.MinorVersion * 10000 + version.PatchVersion;
         }
 
         internal ICatalogControllerAction ActionController { get; set; } = new CatalogControllerAction();
@@ -273,15 +307,75 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
 
         private static int CompareVersion(string a, string b) => VersionKey(a).CompareTo(VersionKey(b));
 
+        // The highest-versioned patch row recorded in ef_patch_history for this scope, or null when the
+        // scope has none. Used by the orphan pre-check to detect a pre-catalogue ledger before any DDL.
+        private EfPatchHistoryRecord ReadLedgerTip(SqlDbConnection connection)
+        {
+            EfPatchHistoryRecord highest = null;
+            long best = 0;
+            using (var query = connection.GetSelectEntitiesQuery<EfPatchHistoryRecord>())
+            {
+                if (!string.IsNullOrEmpty(mScope))
+                    query.Where.Property(nameof(EfPatchHistoryRecord.Scope)).Eq(mScope);
+                foreach (EfPatchHistoryRecord row in query.ReadAll<EfPatchHistoryRecord>())
+                {
+                    long key = (long)row.MajorVersion * 10000000 + (long)row.MinorVersion * 10000 + row.PatchVersion;
+                    if (highest == null || key > best)
+                    {
+                        best = key;
+                        highest = row;
+                    }
+                }
+            }
+            return highest;
+        }
+
         private IDbInstanceLock AcquireLock(SqlDbConnection connection)
             => connection.AcquireInstanceLock("ef_catalog_update:" + NormalizedScope, LockTimeout, LockLease);
 
         // ---- public surface ----
 
         /// <summary>
-        /// Creates all (non-view) tables unconditionally and records them in the catalogue at
-        /// <paramref name="version"/>. Use for a fresh database.
+        /// <para>Creates the catalogue infrastructure (the [c]ef_catalog[/c] and [c]ef_patch_history[/c] tables) if it is not present yet.</para>
+        /// <para>This is the single explicit bootstrap step: call it once before CreateTables, UpdateTables
+        /// or DropTables, which assume the infrastructure exists and do not create it themselves. It is
+        /// idempotent and tolerant of a concurrent creator.</para>
         /// </summary>
+        /// <param name="connection">The connection to bootstrap on.</param>
+        public void EnsureCatalogInfrastructure(SqlDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            mStore.EnsureBootstrapped(connection);
+
+            string patchTable = AllEntities.Get<EfPatchHistoryRecord>().TableDescriptor.Name;
+            if (connection.DoesObjectExist(patchTable, null, "table"))
+                return;
+            try
+            {
+                using (var query = connection.GetCreateEntityQuery<EfPatchHistoryRecord>())
+                    query.Execute();
+            }
+            catch
+            {
+                // Another process may have created the ledger between the check and the create; tolerate
+                // that race but surface a genuine failure.
+                if (!connection.DoesObjectExist(patchTable, null, "table"))
+                    throw;
+            }
+        }
+
+        /// <summary>Creates the catalogue infrastructure (async version).</summary>
+        public Task EnsureCatalogInfrastructureAsync(SqlDbConnection connection) => Task.Run(() => EnsureCatalogInfrastructure(connection));
+
+        /// <summary>
+        /// <para>Creates all tables (and views) unconditionally and records them in the catalogue at the given version.</para>
+        /// <para>Use this for a fresh database. The catalogue infrastructure must already exist (call
+        /// EnsureCatalogInfrastructure first).</para>
+        /// </summary>
+        /// <param name="connection">The connection.</param>
+        /// <param name="version">The database version the created schema corresponds to.</param>
         public void CreateTables(SqlDbConnection connection, string version)
         {
             if (connection == null)
@@ -289,7 +383,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
 
             using (AcquireLock(connection))
             {
-                mStore.EnsureBootstrapped(connection);
                 EntityFinder.EntityTypeInfo[] types = LoadTypes(includeObsolete: false);
                 foreach (EntityFinder.EntityTypeInfo info in types)
                 {
@@ -300,6 +393,18 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                     InvokeAttribute<OnEntityCreateAttribute>(info, connection);
                     mStore.WriteApplied(connection, mScope, info.Table, version, DesiredDto(info));
                 }
+
+                // Views are created after their backing tables (they may select from them) but are not
+                // catalogued - like UpdateTables, which always drops+recreates them. This keeps CreateTables
+                // a drop-in parity replacement for CreateEntityController.CreateTables, which creates views.
+                foreach (EntityFinder.EntityTypeInfo info in types)
+                {
+                    if (!info.View)
+                        continue;
+                    RaiseCreate(info.Table);
+                    ActionController.Create(connection, info);
+                    InvokeAttribute<OnEntityCreateAttribute>(info, connection);
+                }
             }
         }
 
@@ -307,8 +412,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
         public Task CreateTablesAsync(SqlDbConnection connection, string version) => Task.Run(() => CreateTables(connection, version));
 
         /// <summary>
-        /// Drops all discovered (including obsolete) tables in reverse dependency order and tombstones
-        /// them in the catalogue.
+        /// Drops all discovered tables (including obsolete ones) in reverse dependency order and tombstones them in the catalogue.
         /// </summary>
         public void DropTables(SqlDbConnection connection)
         {
@@ -317,7 +421,6 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
 
             using (AcquireLock(connection))
             {
-                mStore.EnsureBootstrapped(connection);
                 EntityFinder.EntityTypeInfo[] types = LoadTypes(includeObsolete: true);
                 string currentVersion = mStore.ReadCurrentVersion(connection, mScope);
                 for (int i = types.Length - 1; i >= 0; i--)
@@ -334,30 +437,109 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
         /// <summary>Drops tables (async version).</summary>
         public Task DropTablesAsync(SqlDbConnection connection) => Task.Run(() => DropTables(connection));
 
-        /// <summary>Update tables (async version).</summary>
-        public Task UpdateTablesAsync(SqlDbConnection connection, string version, CreateEntityController.UpdateMode defaultUpdateMode, IDictionary<Type, CreateEntityController.UpdateMode> individualUpdateModes = null)
-            => Task.Run(() => UpdateTables(connection, version, defaultUpdateMode, individualUpdateModes));
+        /// <summary>
+        /// How AdoptExistingScope treats a pre-catalogue database.
+        /// </summary>
+        public enum CatalogAdoptMode
+        {
+            /// <summary>Recommended: verify the database already matches the model, apply no DDL, and throw SchemaUpdateRequired if it differs.</summary>
+            TrustModel,
+
+            /// <summary>Practical: bring the database into line with the model first (via the obsolete controller's introspection reconcile), then record it.</summary>
+            ReconcileToModel,
+        }
 
         /// <summary>
-        /// Reconciles the scope to the declared model by diffing against the catalogue and applying the
-        /// difference, then records the new state at <paramref name="version"/>. Obsolete entities are
-        /// dropped and tombstoned; <c>Recreate</c> tables are dropped and recreated (guarded against
-        /// breaking an active foreign key); views are dropped and recreated. <c>Update</c> and
-        /// <c>CreateNew</c> behave identically (matching <see cref="CreateEntityController"/>, where only
-        /// <c>Recreate</c> is a distinct mode). See the class remarks for the version guard.
+        /// <para>True when the scope has no catalogue yet but at least one of its non-view tables physically exists (a pre-catalogue database that must be adopted, not created or updated).</para>
+        /// <para>A genuinely fresh database (no catalogue and no tables) returns false; use CreateTables or
+        /// UpdateTables for that. The catalogue infrastructure must already exist (call
+        /// EnsureCatalogInfrastructure first).</para>
+        /// </summary>
+        /// <param name="connection">The connection to inspect.</param>
+        public bool IsOrphanScopeExists(SqlDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            if (mStore.ReadCurrentVersion(connection, mScope) != null)
+                return false;
+
+            EntityFinder.EntityTypeInfo[] types = LoadTypes(includeObsolete: false);
+            foreach (EntityFinder.EntityTypeInfo info in types)
+            {
+                if (info.View)
+                    continue;
+                if (connection.DoesObjectExist(info.Table, null, "table"))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// <para>Onboards a pre-catalogue database (its tables exist but it has no catalogue) by recording the model as the initial state at the given version.</para>
+        /// <para>Runs no patches - it only establishes the version baseline, after which a normal UpdateTables
+        /// replays only patches newer than that version. Refuses with CatalogScopeAlreadyAdopted if the scope
+        /// is already catalogued. TrustModel verifies the database already matches the model and throws
+        /// SchemaUpdateRequired if it does not; ReconcileToModel brings the database into line first. Both then
+        /// record the same model snapshot.</para>
         /// </summary>
         /// <param name="connection">The connection.</param>
-        /// <param name="version">The DB version being applied.</param>
-        /// <param name="defaultUpdateMode">The default update mode.</param>
-        /// <param name="individualUpdateModes">Per-type update modes.</param>
-        public void UpdateTables(SqlDbConnection connection, string version, CreateEntityController.UpdateMode defaultUpdateMode, IDictionary<Type, CreateEntityController.UpdateMode> individualUpdateModes = null)
+        /// <param name="version">The database version the adopted schema corresponds to.</param>
+        /// <param name="mode">Whether to verify the match (Recommended) or reconcile first (Practical).</param>
+        public void AdoptExistingScope(SqlDbConnection connection, string version, CatalogAdoptMode mode = CatalogAdoptMode.TrustModel)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
             using (AcquireLock(connection))
             {
-                mStore.EnsureBootstrapped(connection);
+                string current = mStore.ReadCurrentVersion(connection, mScope);
+                if (current != null)
+                    throw new EfSqlException(EfExceptionCode.CatalogScopeAlreadyAdopted, NormalizedScope, current);
+
+                // Verify (TrustModel -> failIfUpdateNeeded throws on drift) or reconcile (ReconcileToModel)
+                // the live database against the model through the old controller. No catalogue, no patches.
+                new CreateEntityControllerInternal(mAssemblies, mScope)
+                    .UpdateTables(connection, EntityUpdateMode.Update, null, failIfUpdateNeeded: mode == CatalogAdoptMode.TrustModel);
+
+                // Record the model as the initial catalogue state at the given version.
+                EntityFinder.EntityTypeInfo[] types = LoadTypes(includeObsolete: false);
+                foreach (EntityFinder.EntityTypeInfo info in types)
+                {
+                    if (info.View)
+                        continue;
+                    mStore.WriteApplied(connection, mScope, info.Table, version, DesiredDto(info));
+                }
+            }
+        }
+
+        /// <summary>Adopts an existing scope (async version).</summary>
+        public Task AdoptExistingScopeAsync(SqlDbConnection connection, string version, CatalogAdoptMode mode = CatalogAdoptMode.TrustModel)
+            => Task.Run(() => AdoptExistingScope(connection, version, mode));
+
+        /// <summary>Update tables (async version).</summary>
+        public Task UpdateTablesAsync(SqlDbConnection connection, string version, EntityUpdateMode defaultUpdateMode, IDictionary<Type, EntityUpdateMode> individualUpdateModes = null)
+            => Task.Run(() => UpdateTables(connection, version, defaultUpdateMode, individualUpdateModes));
+
+        /// <summary>
+        /// <para>Reconciles the scope to the declared model by diffing it against the catalogue, applying the difference, and recording the new state at the given version.</para>
+        /// <para>Obsolete entities are dropped and tombstoned; [c]Recreate[/c] tables are dropped and
+        /// recreated (guarded against breaking an active foreign key); views are dropped and recreated.
+        /// [c]Update[/c] and [c]CreateNew[/c] behave identically (as in the obsolete CreateEntityController,
+        /// where only [c]Recreate[/c] is a distinct mode). See the class description for the version
+        /// guard.</para>
+        /// </summary>
+        /// <param name="connection">The connection.</param>
+        /// <param name="version">The database version being applied.</param>
+        /// <param name="defaultUpdateMode">The default update mode.</param>
+        /// <param name="individualUpdateModes">Per-type update modes.</param>
+        public void UpdateTables(SqlDbConnection connection, string version, EntityUpdateMode defaultUpdateMode, IDictionary<Type, EntityUpdateMode> individualUpdateModes = null)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            using (AcquireLock(connection))
+            {
                 EntityFinder.EntityTypeInfo[] types = LoadTypes(includeObsolete: true);
 
                 // A table that is being dropped or recreated must not orphan an active foreign key from a
@@ -366,7 +548,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                 {
                     if (info.View)
                         continue;
-                    if (info.Obsolete || Mode(info, defaultUpdateMode, individualUpdateModes) == CreateEntityController.UpdateMode.Recreate)
+                    if (info.Obsolete || Mode(info, defaultUpdateMode, individualUpdateModes) == EntityUpdateMode.Recreate)
                     {
                         EntityFinder.EntityTypeInfo dependent = FindActiveDependent(types, info, defaultUpdateMode, individualUpdateModes);
                         if (dependent != null)
@@ -376,6 +558,22 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
 
                 IReadOnlyDictionary<string, CatalogTableDto> stored = mStore.ReadAppliedForScope(connection, mScope);
                 string currentVersion = mStore.ReadCurrentVersion(connection, mScope);
+
+                // Orphan pre-check, BEFORE any DDL: a scope with no catalogue but pre-existing tables (or
+                // patch history) was managed before the catalogue. Refuse cleanly and route to explicit
+                // adoption, rather than diffing against null (which would CreateTable over existing tables)
+                // or replaying patches against an unknown baseline. This is why the guard is here and not in
+                // replay - replay runs after structure has already been written.
+                if (currentVersion == null)
+                {
+                    foreach (EntityFinder.EntityTypeInfo info in types)
+                        if (!info.View && connection.DoesObjectExist(info.Table, null, "table"))
+                            throw new EfSqlException(EfExceptionCode.CatalogOrphanScope, NormalizedScope);
+                    EfPatchHistoryRecord ledgerTip = ReadLedgerTip(connection);
+                    if (ledgerTip != null)
+                        throw new EfSqlException(EfExceptionCode.CatalogOrphanPatchHistory, NormalizedScope,
+                            ledgerTip.MajorVersion + "." + ledgerTip.MinorVersion + "." + ledgerTip.PatchVersion);
+                }
 
                 // Pre-pass: compute the per-table plan and whether the run changes anything (views excluded
                 // - they are always recreated on apply and are not catalogued).
@@ -394,7 +592,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                     }
                     CatalogTableDto desired = DesiredDto(info);
                     desiredByType[info.EntityType] = desired;
-                    if (Mode(info, defaultUpdateMode, individualUpdateModes) == CreateEntityController.UpdateMode.Recreate)
+                    if (Mode(info, defaultUpdateMode, individualUpdateModes) == EntityUpdateMode.Recreate)
                     {
                         anyChange = true;
                         continue;
@@ -416,7 +614,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                     {
                         if (anyChange)
                             throw new EfSqlException(EfExceptionCode.CatalogModelChangedWithoutVersionBump, NormalizedScope, version ?? string.Empty);
-                        return; // clean, idempotent re-run
+                        return; // clean, idempotent re-run - touches nothing
                     }
                 }
 
@@ -434,7 +632,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                         ActionController.Drop(connection, info);
                         mStore.WriteTombstone(connection, mScope, info.Table, version);
                     }
-                    else if (Mode(info, defaultUpdateMode, individualUpdateModes) == CreateEntityController.UpdateMode.Recreate)
+                    else if (Mode(info, defaultUpdateMode, individualUpdateModes) == EntityUpdateMode.Recreate)
                     {
                         RaiseDrop(info.Table);
                         ActionController.Drop(connection, info);
@@ -447,7 +645,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                     if (info.View || info.Obsolete)
                         continue;
                     CatalogTableDto desired = desiredByType[info.EntityType];
-                    if (Mode(info, defaultUpdateMode, individualUpdateModes) == CreateEntityController.UpdateMode.Recreate)
+                    if (Mode(info, defaultUpdateMode, individualUpdateModes) == EntityUpdateMode.Recreate)
                     {
                         RaiseCreate(info.Table);
                         ActionController.Create(connection, info);
@@ -482,25 +680,36 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                     ActionController.Create(connection, info);
                     InvokeAttribute<OnEntityCreateAttribute>(info, connection);
                 }
+
+                // Structure has converged to the target version; now replay coded patches in (Vc, Vi] -
+                // but ONLY for a real version transition of an already-catalogued database. First contact
+                // (currentVersion == null) runs NO patches: the freshly-created structure already reflects
+                // everything up to Vi, exactly as EfPatchProcessor stamps-and-runs-none on a fresh database.
+                // This keeps first-contact UpdateTables consistent with CreateTables (both patch-free) and
+                // matches the established greenfield behaviour - there is no "fresh install seeds via patch
+                // replay" path, because the old processor never had one. Patches migrate an existing DB
+                // across versions; a fresh DB has nothing to migrate.
+                if (currentVersion != null)
+                    ActionController.ReplayPatches(connection, mAssemblies, mScope, VersionKey(currentVersion), VersionKey(version));
             }
         }
 
-        private static CreateEntityController.UpdateMode Mode(EntityFinder.EntityTypeInfo info, CreateEntityController.UpdateMode defaultMode, IDictionary<Type, CreateEntityController.UpdateMode> individual)
+        private static EntityUpdateMode Mode(EntityFinder.EntityTypeInfo info, EntityUpdateMode defaultMode, IDictionary<Type, EntityUpdateMode> individual)
         {
-            if (individual != null && individual.TryGetValue(info.EntityType, out CreateEntityController.UpdateMode mode))
+            if (individual != null && individual.TryGetValue(info.EntityType, out EntityUpdateMode mode))
                 return mode;
             return defaultMode;
         }
 
         // A surviving (non-obsolete, non-recreate) table that holds an active foreign key to the table
         // being dropped/recreated, or null if none - dropping would break its constraint.
-        private static EntityFinder.EntityTypeInfo FindActiveDependent(EntityFinder.EntityTypeInfo[] types, EntityFinder.EntityTypeInfo target, CreateEntityController.UpdateMode defaultMode, IDictionary<Type, CreateEntityController.UpdateMode> individual)
+        private static EntityFinder.EntityTypeInfo FindActiveDependent(EntityFinder.EntityTypeInfo[] types, EntityFinder.EntityTypeInfo target, EntityUpdateMode defaultMode, IDictionary<Type, EntityUpdateMode> individual)
         {
             foreach (EntityFinder.EntityTypeInfo other in types)
             {
                 if (other == target || other.Obsolete || other.View)
                     continue;
-                if (Mode(other, defaultMode, individual) == CreateEntityController.UpdateMode.Recreate)
+                if (Mode(other, defaultMode, individual) == EntityUpdateMode.Recreate)
                     continue;
                 if (HasActiveForeignKey(other.EntityType, target.EntityType))
                     return other;
@@ -612,7 +821,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                     ActionController.DropIndex(connection, descriptor, logicalName);
                 changed = true;
             }
-            if (dropColumns.Count > 0)
+            // Some drivers (e.g. SQLite) cannot drop a column; the old controller skips the drop on them
+            // and leaves the column in place (a harmless, documented limitation). Match that exactly - a
+            // lingering column is safe, unlike a column alter (which is refused because its only fallback is
+            // destructive). The desired snapshot is still recorded by the caller, so no future run retries.
+            if (dropColumns.Count > 0 && connection.GetLanguageSpecifics().DropColumnSupported)
             {
                 var columnInfos = new TableDescriptor.ColumnInfo[dropColumns.Count];
                 for (int i = 0; i < dropColumns.Count; i++)

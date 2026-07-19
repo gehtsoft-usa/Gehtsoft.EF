@@ -346,19 +346,19 @@ namespace Gehtsoft.EF.Test.Legacy
 
             f1 = f2 = f3 = f4 = false;
 
-            CreateEntityController controller = new CreateEntityController(typeof(Entity0), "lv1");
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            CreateEntityControllerInternal controller = new CreateEntityControllerInternal(typeof(Entity0), "lv1");
+            controller.UpdateTables(connection, EntityUpdateMode.Recreate);
 
-            controller = new CreateEntityController(typeof(Entity0), "lv2");
-            Dictionary<Type, CreateEntityController.UpdateMode> modes = null;
+            controller = new CreateEntityControllerInternal(typeof(Entity0), "lv2");
+            Dictionary<Type, EntityUpdateMode> modes = null;
             if (!connection.GetLanguageSpecifics().DropColumnSupported)
             {
-                modes = new Dictionary<Type, CreateEntityController.UpdateMode>
+                modes = new Dictionary<Type, EntityUpdateMode>
                 {
-                    [typeof(Entity2_2)] = CreateEntityController.UpdateMode.Recreate
+                    [typeof(Entity2_2)] = EntityUpdateMode.Recreate
                 };
             }
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update, modes);
+            controller.UpdateTables(connection, EntityUpdateMode.Update, modes);
 
             TableDescriptor[] schema = connection.Schema();
             schema.Contains("lentity0").Should().BeFalse("lentity0");
@@ -400,18 +400,18 @@ namespace Gehtsoft.EF.Test.Legacy
             using var connection = Gehtsoft.EF.Db.SqliteDb.SqliteDbConnectionFactory.CreateMemory();
 
             // first create both tables
-            var controller = new CreateEntityController(typeof(GuardParent), "lv_guard");
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            var controller = new CreateEntityControllerInternal(typeof(GuardParent), "lv_guard");
+            controller.UpdateTables(connection, EntityUpdateMode.Recreate);
 
             // now try to Recreate the parent while keeping the child as Update
-            controller = new CreateEntityController(typeof(GuardParent), "lv_guard");
-            var modes = new Dictionary<Type, CreateEntityController.UpdateMode>
+            controller = new CreateEntityControllerInternal(typeof(GuardParent), "lv_guard");
+            var modes = new Dictionary<Type, EntityUpdateMode>
             {
-                [typeof(GuardParent)] = CreateEntityController.UpdateMode.Recreate,
-                [typeof(GuardChild)] = CreateEntityController.UpdateMode.Update,
+                [typeof(GuardParent)] = EntityUpdateMode.Recreate,
+                [typeof(GuardChild)] = EntityUpdateMode.Update,
             };
 
-            ((Action)(() => controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update, modes)))
+            ((Action)(() => controller.UpdateTables(connection, EntityUpdateMode.Update, modes)))
                 .Should().Throw<EfSqlException>()
                 .Which.ErrorCode.Should().Be(EfExceptionCode.CannotRecreateTable);
         }
@@ -533,29 +533,29 @@ namespace Gehtsoft.EF.Test.Legacy
             using var connection = Gehtsoft.EF.Db.SqliteDb.SqliteDbConnectionFactory.CreateMemory();
 
             // 1. baseline: table exists, no plain indexes
-            new CreateEntityController(typeof(IdxBase), "idxr_base").UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            new CreateEntityControllerInternal(typeof(IdxBase), "idxr_base").UpdateTables(connection, EntityUpdateMode.Recreate);
             connection.DoesObjectExist("idxr", "a", "index").Should().BeFalse("no Sorted column yet");
             connection.DoesObjectExist("idxr", "cmp", "index").Should().BeFalse("no composite index yet");
 
             // 2. add: "a" Sorted + composite cmp(a,b)
-            new CreateEntityController(typeof(IdxAdd), "idxr_add").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            new CreateEntityControllerInternal(typeof(IdxAdd), "idxr_add").UpdateTables(connection, EntityUpdateMode.Update);
             connection.DoesObjectExist("idxr", "a", "index").Should().BeTrue("Sorted column index added");
             connection.DoesObjectExist("idxr", "cmp", "index").Should().BeTrue("composite index added");
             FindIndex(connection.GetTableIndexes("idxr"), "idxr_cmp").Columns.Should().Equal("a", "b");
 
             // 2b. idempotent: a second Update changes nothing
-            new CreateEntityController(typeof(IdxAdd), "idxr_add").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            new CreateEntityControllerInternal(typeof(IdxAdd), "idxr_add").UpdateTables(connection, EntityUpdateMode.Update);
             connection.DoesObjectExist("idxr", "a", "index").Should().BeTrue();
             connection.DoesObjectExist("idxr", "cmp", "index").Should().BeTrue();
 
             // 3. change: "a" no longer Sorted (single index dropped), cmp -> (a,c) (recreated)
-            new CreateEntityController(typeof(IdxChange), "idxr_change").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            new CreateEntityControllerInternal(typeof(IdxChange), "idxr_change").UpdateTables(connection, EntityUpdateMode.Update);
             connection.DoesObjectExist("idxr", "a", "index").Should().BeFalse("column no longer Sorted");
             connection.DoesObjectExist("idxr", "cmp", "index").Should().BeTrue();
             FindIndex(connection.GetTableIndexes("idxr"), "idxr_cmp").Columns.Should().Equal("a", "c");
 
             // 4. remove all: back to baseline drops the composite
-            new CreateEntityController(typeof(IdxBase), "idxr_base").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            new CreateEntityControllerInternal(typeof(IdxBase), "idxr_base").UpdateTables(connection, EntityUpdateMode.Update);
             connection.DoesObjectExist("idxr", "cmp", "index").Should().BeFalse("composite index removed");
         }
 
@@ -563,14 +563,14 @@ namespace Gehtsoft.EF.Test.Legacy
         public void ReconcileIndexes_LeavesNonConventionIndex_Sqlite()
         {
             using var connection = Gehtsoft.EF.Db.SqliteDb.SqliteDbConnectionFactory.CreateMemory();
-            new CreateEntityController(typeof(IdxAdd), "idxr_add").UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            new CreateEntityControllerInternal(typeof(IdxAdd), "idxr_add").UpdateTables(connection, EntityUpdateMode.Recreate);
 
             // a manually created index whose name does NOT follow the <table>_<name> convention
             using (var q = connection.GetQuery("CREATE INDEX manualidx ON idxr(b)", true))
                 q.ExecuteNoData();
 
             // an unrelated update must not touch it
-            new CreateEntityController(typeof(IdxAdd), "idxr_add").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            new CreateEntityControllerInternal(typeof(IdxAdd), "idxr_add").UpdateTables(connection, EntityUpdateMode.Update);
 
             FindIndex(connection.GetTableIndexes("idxr"), "manualidx").Should().NotBeNull("a non-convention manual index is not framework-owned");
             connection.DoesObjectExist("idxr", "cmp", "index").Should().BeTrue("declared indexes remain");
@@ -583,25 +583,25 @@ namespace Gehtsoft.EF.Test.Legacy
             var connection = mFixture.GetInstance(connectionName);
 
             // clean slate
-            new CreateEntityController(typeof(IdxBase), "idxr_base").UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            new CreateEntityControllerInternal(typeof(IdxBase), "idxr_base").UpdateTables(connection, EntityUpdateMode.Recreate);
             connection.DoesObjectExist("idxr", "a", "index").Should().BeFalse();
             connection.DoesObjectExist("idxr", "cmp", "index").Should().BeFalse();
 
             try
             {
                 // add Sorted + composite index
-                new CreateEntityController(typeof(IdxAdd), "idxr_add").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+                new CreateEntityControllerInternal(typeof(IdxAdd), "idxr_add").UpdateTables(connection, EntityUpdateMode.Update);
                 connection.DoesObjectExist("idxr", "a", "index").Should().BeTrue("Sorted index created");
                 connection.DoesObjectExist("idxr", "cmp", "index").Should().BeTrue("composite index created");
 
                 // remove them (back to baseline)
-                new CreateEntityController(typeof(IdxBase), "idxr_base").UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+                new CreateEntityControllerInternal(typeof(IdxBase), "idxr_base").UpdateTables(connection, EntityUpdateMode.Update);
                 connection.DoesObjectExist("idxr", "a", "index").Should().BeFalse("Sorted index dropped");
                 connection.DoesObjectExist("idxr", "cmp", "index").Should().BeFalse("composite index dropped");
             }
             finally
             {
-                new CreateEntityController(typeof(IdxBase), "idxr_base").DropTables(connection);
+                new CreateEntityControllerInternal(typeof(IdxBase), "idxr_base").DropTables(connection);
             }
         }
     }

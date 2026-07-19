@@ -12,7 +12,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
     /// a more capable framework version. <see cref="CatalogSerializer.Deserialize"/> sets
     /// <see cref="IsNewerThanSupported"/> for exactly that check.
     /// </summary>
-    public sealed class CatalogSnapshot
+    internal sealed class CatalogSnapshot
     {
         /// <summary>
         /// The schema-format version carried by the blob. On serialize the current build's version is

@@ -18,10 +18,9 @@ namespace Gehtsoft.EF.Db.SqlDb
         internal const string InstanceLockTableName = "ef_catalog_lock";
 
         /// <summary>
-        /// The default lease duration used by <see cref="AcquireInstanceLock(string, TimeSpan, TimeSpan?)"/>
-        /// and <see cref="TryAcquireInstanceLock(string, TimeSpan, out IDbInstanceLock, TimeSpan?)"/>
-        /// when the caller does not pass one. Deliberately modest - size it to the caller's longest
-        /// realistic critical section by passing an explicit lease.
+        /// <para>The default lease duration used by the instance-lock acquire methods when the caller does not pass one.</para>
+        /// <para>Deliberately modest - size it to the caller's longest realistic critical section by passing
+        /// an explicit lease.</para>
         /// </summary>
         public static readonly TimeSpan DefaultInstanceLockLease = TimeSpan.FromSeconds(30);
 
@@ -49,26 +48,22 @@ namespace Gehtsoft.EF.Db.SqlDb
         private static TableDescriptor.ColumnInfo InstanceLockExpiresColumn => mInstanceLockTable["ExpiresAt"];
 
         /// <summary>
-        /// Acquires a database-instance-wide advisory lock, blocking until it is obtained or
-        /// <paramref name="timeout"/> elapses. Two processes that share the same database and
-        /// acquire the same <paramref name="name"/> serialize; hold the returned handle for the whole
-        /// critical section and dispose it to release.
-        ///
-        /// The lock is not reentrant: acquiring a <paramref name="name"/> this connection already
-        /// holds throws <see cref="InvalidOperationException"/> immediately (fast-fail, not a
-        /// deadlock).
+        /// <para>Acquires a database-instance-wide advisory lock, blocking until it is obtained or the timeout elapses.</para>
+        /// <para>Two processes that share the same database and acquire the same name serialize; hold the
+        /// returned handle for the whole critical section and dispose it to release. The lock is not
+        /// reentrant: acquiring a name this connection already holds throws InvalidOperationException
+        /// immediately (fast-fail, not a deadlock).</para>
         /// </summary>
         /// <param name="name">The lock name (the resource to serialize on).</param>
         /// <param name="timeout">How long to wait for the lock before giving up.</param>
         /// <param name="leaseDuration">
-        /// For the lease fallback, how long the lock survives without release before another process
-        /// may reclaim it (crash safety). Defaults to <see cref="DefaultInstanceLockLease"/>. Ignored
-        /// by native advisory locks that auto-release when the session drops.
+        /// For the lease fallback, how long the lock survives without release before another process may
+        /// reclaim it (crash safety). Defaults to DefaultInstanceLockLease. Ignored by native advisory locks
+        /// that auto-release when the session drops.
         /// </param>
         /// <returns>The lock handle. Dispose it to release.</returns>
         /// <exception cref="EfSqlException">
-        /// <see cref="EfExceptionCode.LockTimeout"/> if the lock could not be acquired within
-        /// <paramref name="timeout"/>.
+        /// Thrown with code LockTimeout if the lock could not be acquired within the timeout.
         /// </exception>
         public IDbInstanceLock AcquireInstanceLock(string name, TimeSpan timeout, TimeSpan? leaseDuration = null)
         {
@@ -78,15 +73,15 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
 
         /// <summary>
-        /// Attempts to acquire a database-instance-wide advisory lock without throwing on contention.
-        /// Same semantics as <see cref="AcquireInstanceLock(string, TimeSpan, TimeSpan?)"/> but returns
-        /// `false` instead of throwing when <paramref name="timeout"/> elapses.
+        /// <para>Attempts to acquire a database-instance-wide advisory lock without throwing on contention.</para>
+        /// <para>Same semantics as AcquireInstanceLock but returns false instead of throwing when the timeout
+        /// elapses.</para>
         /// </summary>
         /// <param name="name">The lock name (the resource to serialize on).</param>
         /// <param name="timeout">How long to wait for the lock before giving up.</param>
-        /// <param name="handle">The acquired handle on success; `null` on timeout.</param>
-        /// <param name="leaseDuration">See <see cref="AcquireInstanceLock(string, TimeSpan, TimeSpan?)"/>.</param>
-        /// <returns>`true` if the lock was acquired; `false` if it timed out.</returns>
+        /// <param name="handle">The acquired handle on success; null on timeout.</param>
+        /// <param name="leaseDuration">See AcquireInstanceLock.</param>
+        /// <returns>true if the lock was acquired; false if it timed out.</returns>
         public bool TryAcquireInstanceLock(string name, TimeSpan timeout, out IDbInstanceLock handle, TimeSpan? leaseDuration = null)
         {
             if (name == null)
@@ -134,12 +129,11 @@ namespace Gehtsoft.EF.Db.SqlDb
         }
 
         /// <summary>
-        /// Acquires the lock, returning the handle on success or `null` on timeout. The base
-        /// implementation is the portable lease fallback backed by the <c>ef_catalog_lock</c> table;
-        /// a driver overrides it with its native session-scoped advisory lock. The reentrancy guard
-        /// and the held-name bookkeeping live in the public methods, so an override only has to
-        /// acquire and return a handle whose <see cref="IDisposable.Dispose"/> calls
-        /// <see cref="UnregisterInstanceLock"/>.
+        /// <para>Acquires the lock, returning the handle on success or null on timeout.</para>
+        /// <para>The base implementation is the portable lease fallback backed by the [c]ef_catalog_lock[/c]
+        /// table; a driver overrides it with its native session-scoped advisory lock. The reentrancy guard
+        /// and the held-name bookkeeping live in the public methods, so an override only has to acquire and
+        /// return a handle whose Dispose calls the connection's UnregisterInstanceLock helper.</para>
         /// </summary>
         /// <param name="name">The lock name.</param>
         /// <param name="timeout">How long to wait before giving up.</param>

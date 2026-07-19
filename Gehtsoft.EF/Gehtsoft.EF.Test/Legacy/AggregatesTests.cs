@@ -172,7 +172,7 @@ namespace Gehtsoft.EF.Test.Legacy
         {
             var connection = mFixture.GetInstance(connectionName);
 
-            CreateEntityController controller = new CreateEntityController(typeof(AggregatesTests), "legacyAggregatesTest");
+            CreateEntityControllerInternal controller = new CreateEntityControllerInternal(typeof(AggregatesTests), "legacyAggregatesTest");
             controller.DropTables(connection);
             controller.CreateTables(connection);
 

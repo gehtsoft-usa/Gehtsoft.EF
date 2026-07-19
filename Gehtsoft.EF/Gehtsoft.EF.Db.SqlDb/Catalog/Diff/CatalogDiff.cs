@@ -16,7 +16,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog.Diff
     /// columns, add indexes (dependents removed before their columns; columns added before their
     /// indexes).
     /// </summary>
-    public static class CatalogDiff
+    internal static class CatalogDiff
     {
         /// <summary>
         /// Computes the changes from <paramref name="stored"/> to <paramref name="desired"/>.

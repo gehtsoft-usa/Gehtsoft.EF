@@ -97,8 +97,8 @@ namespace Gehtsoft.EF.Test.Legacy.C4SortedFk
         {
             var connection = mFixture.GetInstance(connectionName);
 
-            var controller = new CreateEntityController(typeof(RateEntity), "c4ratesfk");
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            var controller = new CreateEntityControllerInternal(typeof(RateEntity), "c4ratesfk");
+            controller.UpdateTables(connection, EntityUpdateMode.Recreate);
 
             connection.DoesObjectExist("c4_rates", null, "table").Should().BeTrue();
             connection.DoesObjectExist("c4_rates", "currencyid", "column").Should().BeTrue();

@@ -38,7 +38,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog.Store
     /// <see cref="InstanceLock.IDbInstanceLock"/> across the whole read-diff-apply and the store runs
     /// inside that critical section.
     /// </summary>
-    public sealed class CatalogStore
+    internal sealed class CatalogStore
     {
         private readonly CatalogSerializer mSerializer = new CatalogSerializer();
 

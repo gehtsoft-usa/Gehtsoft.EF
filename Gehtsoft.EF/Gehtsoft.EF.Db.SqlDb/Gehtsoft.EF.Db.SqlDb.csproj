@@ -90,6 +90,8 @@
     <Compile Include="EntityQueries\EntityQueryBuilder\SelectEntityTreeQueryBuilder.cs" />
     <Compile Include="EntityQueries\EntityQuery\ConditionEntityQueryBase.cs" />
     <Compile Include="EntityQueries\CreateEntity\CreateEntityController.cs" />
+    <Compile Include="EntityQueries\CreateEntity\CreateEntityControllerInternal.cs" />
+    <Compile Include="EntityQueries\CreateEntity\EntityUpdateMode.cs" />
     <Compile Include="EntityQueries\EntityQuery\ConditionEntityQueryBaseBackwardCompatibility.cs" />
     <Compile Include="EntityQueries\EntityQuery\DeleteEntityQuery.cs" />
     <Compile Include="EntityQueries\EntityQuery\DynamicPropertyConditionBuilder.cs" />

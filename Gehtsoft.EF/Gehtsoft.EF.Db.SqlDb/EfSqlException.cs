@@ -35,6 +35,10 @@ namespace Gehtsoft.EF.Db.SqlDb
         CatalogModelChangedWithoutVersionBump,
         CatalogVersionRegressed,
         CatalogColumnAlterNotSupported,
+        CatalogOrphanPatchHistory,
+        SchemaUpdateRequired,
+        CatalogScopeAlreadyAdopted,
+        CatalogOrphanScope,
     }
 
     [ExcludeFromCodeCoverage]
@@ -124,6 +128,18 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                     case EfExceptionCode.CatalogColumnAlterNotSupported:
                         return "The definition of column {1} on table {0} changed, which cannot be altered in place portably. Apply the change with an IEfPatch (structural convergence handles the rest).";
+
+                    case EfExceptionCode.CatalogOrphanPatchHistory:
+                        return "Scope {0} has no catalogue yet but an existing patch history (last applied {1}). The database was managed before the catalogue; adopt the scope first (AdoptExistingScope) instead of reconciling it as greenfield.";
+
+                    case EfExceptionCode.SchemaUpdateRequired:
+                        return "The database schema for table {0} does not match the model, but updates were disallowed (failIfUpdateNeeded). Reconcile the schema or use the ReconcileToModel adoption mode.";
+
+                    case EfExceptionCode.CatalogScopeAlreadyAdopted:
+                        return "Scope {0} is already catalogued (current version {1}); AdoptExistingScope only seeds a scope that has no catalogue yet.";
+
+                    case EfExceptionCode.CatalogOrphanScope:
+                        return "Scope {0} has no catalogue yet but its tables already exist. The database was managed before the catalogue; adopt the scope first (AdoptExistingScope) instead of updating it as greenfield.";
 
                     default:
                         return $"Unknown exception {code}";

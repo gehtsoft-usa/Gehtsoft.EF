@@ -24,7 +24,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog.Store
     /// non-null and matchable with a plain equality.
     /// </summary>
     [Entity(Table = "ef_catalog", Scope = "ef_catalog")]
-    public class EfCatalogRecord
+    internal class EfCatalogRecord
     {
         /// <summary>The surrogate primary key; also the monotonic ordering key that identifies the latest row.</summary>
         [AutoId]

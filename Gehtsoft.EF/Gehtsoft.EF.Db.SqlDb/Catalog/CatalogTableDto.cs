@@ -11,7 +11,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
     /// reordering; all members are optional with a defined default, so a newer reader loads an older
     /// blob (missing members → default). See <see cref="CatalogSerializer"/>.
     /// </summary>
-    public sealed class CatalogTableDto
+    internal sealed class CatalogTableDto
     {
         /// <summary>The table name.</summary>
         public string Name { get; set; }
@@ -41,7 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
     }
 
     /// <summary>The catalogue form of one column.</summary>
-    public sealed class CatalogColumnDto
+    internal sealed class CatalogColumnDto
     {
         /// <summary>The column identifier (entity property name, or the SQL name when unassociated).</summary>
         public string Id { get; set; }
@@ -94,7 +94,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
     /// primitive set is: bool, byte, Int16, Int32, Int64, Single, Double, Decimal, string, DateTime,
     /// Guid. The value is kept as text; v1 does not reconstruct the CLR object (the diff compares text).
     /// </summary>
-    public sealed class CatalogColumnDefault
+    internal sealed class CatalogColumnDefault
     {
         /// <summary>The CLR type tag (the type's simple name, e.g. <c>Int32</c>).</summary>
         public string TypeName { get; set; }
@@ -104,7 +104,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
     }
 
     /// <summary>The catalogue form of a geometry column's metadata.</summary>
-    public sealed class CatalogGeometryDto
+    internal sealed class CatalogGeometryDto
     {
         /// <summary>The spatial reference identifier.</summary>
         public int Srid { get; set; }
@@ -126,7 +126,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
     }
 
     /// <summary>The catalogue form of one spatial index.</summary>
-    public sealed class CatalogSpatialIndexDto
+    internal sealed class CatalogSpatialIndexDto
     {
         /// <summary>The logical index name.</summary>
         public string Name { get; set; }
@@ -151,7 +151,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
     }
 
     /// <summary>The catalogue form of a JSON column's metadata.</summary>
-    public sealed class CatalogJsonDto
+    internal sealed class CatalogJsonDto
     {
         /// <summary>The CLR type stored in the column, by full name (opaque text for diffing, RS2).</summary>
         public string ClrType { get; set; }
@@ -161,7 +161,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
     }
 
     /// <summary>The catalogue form of one JSON value index.</summary>
-    public sealed class CatalogJsonIndexDto
+    internal sealed class CatalogJsonIndexDto
     {
         /// <summary>The logical index name (derived from column, path and type).</summary>
         public string Name { get; set; }
@@ -177,7 +177,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
     }
 
     /// <summary>The catalogue form of one composite index.</summary>
-    public sealed class CatalogCompositeIndexDto
+    internal sealed class CatalogCompositeIndexDto
     {
         /// <summary>The logical index name.</summary>
         public string Name { get; set; }
@@ -190,7 +190,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
     }
 
     /// <summary>The catalogue form of one composite-index field.</summary>
-    public sealed class CatalogCompositeIndexFieldDto
+    internal sealed class CatalogCompositeIndexFieldDto
     {
         /// <summary>The column (or JSON column) name.</summary>
         public string Name { get; set; }

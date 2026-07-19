@@ -8,7 +8,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog.Diff
     /// grouped "index" kind, so the DDL emitter can dispatch to the right builder without re-inspecting
     /// the payload.
     /// </summary>
-    public enum CatalogChangeKind
+    internal enum CatalogChangeKind
     {
         /// <summary>Create the whole table (columns and its own indexes) - there was no prior state.</summary>
         CreateTable,
@@ -59,7 +59,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog.Diff
     /// irrelevant members are `null`/`false`. Instances are immutable; construct them through the
     /// factory methods.
     /// </summary>
-    public sealed class CatalogChange
+    internal sealed class CatalogChange
     {
         /// <summary>The kind of change.</summary>
         public CatalogChangeKind Kind { get; }

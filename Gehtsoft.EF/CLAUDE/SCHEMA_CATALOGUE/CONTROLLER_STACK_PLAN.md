@@ -180,16 +180,21 @@ native locks are the separate Phase 4):
   `ReadApplied*` exclude `Dropped=true` latest rows; new store tests (version-advances-without-new-row;
   `Vc` uniform after a mixed changed/unchanged run; tombstone read-as-absent + recreate) on the 5-driver
   suite.
-- **Parity gate:** run the existing `CreateEntityController` scenarios against `CatalogEntityController`
-  and assert identical resulting schema (`DoesObjectExist`, AST of generated DDL, behavioural checks).
+- **Parity gate — DONE 2026-07-19** (increment 6; detail `INCREMENT_6_PARITY_GATE.md`): `CatalogParityTest`
+  runs the supported scenarios through both controllers with the real DDL action and asserts an identical
+  physical schema (model-derived `DoesObjectExist` fingerprint + behavioural round-trip); 9 × 5 = 45 green.
+  Found + fixed two real product divergences (CreateTables now creates views; DropColumn guarded on
+  `DropColumnSupported`); column-alter + unique-single-column-index changes stay intended (refused) divergences.
 
 **Only after parity is green on all drivers:**
 - Add **geo spatial-index reconcile** (add/drop geo column + spatial index on a live table) as diff
   entries — the parked geo Phase 3 — exclusively in the new controller. Confirm the old controller
   never gains it.
-- **Do NOT obsolete `CreateEntityController` in v1** (user 2026-07-16). It remains the
-  introspection/brownfield reconciliation path; the two coexist. Marking it `[Obsolete]` waits until
-  **Phase 5 (compare-with-actual)** provides the migrate-existing-DB route the catalogue can't do yet.
+- ~~**Do NOT obsolete `CreateEntityController` in v1**~~ **SUPERSEDED 2026-07-19 (user):** the public
+  `CreateEntityController` is now `[Obsolete]` — a pass-through shim to the retained implementation, renamed
+  to `internal CreateEntityControllerInternal`. The introspection/brownfield path still exists (the internal
+  class + `AdoptExistingScope` use it), but public callers are steered to `CatalogEntityController`. The
+  `UpdateMode` enum moved to public top-level `EntityUpdateMode`. See STATE.md → old-controller deprecation.
 
 ## Testing strategy
 

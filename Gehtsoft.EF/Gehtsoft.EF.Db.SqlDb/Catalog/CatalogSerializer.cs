@@ -17,7 +17,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog
     /// tolerance - a blob written by a newer, more capable framework is parsed but flagged
     /// (<see cref="CatalogSnapshot.IsNewerThanSupported"/>) so the update process refuses to act on it.
     /// </summary>
-    public sealed class CatalogSerializer
+    internal sealed class CatalogSerializer
     {
         /// <summary>
         /// This build's schema-format capability version. Bump it (by one) whenever the framework
