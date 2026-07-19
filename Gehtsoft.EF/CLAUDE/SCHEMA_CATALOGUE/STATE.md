@@ -2,8 +2,7 @@
 
 *Snapshot 2026-07-19. Branch `geo`. Increments 1–4 committed (`a583bba`); **increments 5–6 + AdoptExistingScope
 + coverage-audit hardening + old-controller deprecation + all documentation (guide articles, docgen-compatible
-XML docs) are COMMITTED this session** (return-point hash recorded in the follow-up commit; see git log on
-`geo`); `version.proj` untouched. Phase 3 is now **feature-complete through the parity gate**; next up is
+XML docs) committed (`fba359a`)**; `version.proj` untouched. Phase 3 is now **feature-complete through the parity gate**; next up is
 post-parity geo (geometry + spatial index) and the deferred follow-ups.
 Authoritative state file for the catalogue initiative. Design: `DESIGN.md` (Gate-1 decisions).
 Combined phase plan: `CONTROLLER_STACK_PLAN.md` (Phases 1–3, Q1–Q5 resolved). Serializer prereq:
