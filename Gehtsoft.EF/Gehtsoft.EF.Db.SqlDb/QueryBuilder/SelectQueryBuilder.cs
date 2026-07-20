@@ -501,27 +501,36 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         // A geometry value/scalar expression is framework-generated (some dialects carry a quoted
         // literal), so it bypasses the raw-scalar guard, mirroring the JSON entry points above.
-        private string GeometryValueExpr(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity)
-            => mSpecifics.GeometryFunction(new GeoFunctionRequest(SqlGeoFunctionId.AsBinary, GetAlias(column, entity)));
+        // GeometryValueForm.Native selects the raw column (a server-side operand); Wkb wraps it in the
+        // dialect's WKB output function so a portable byte[] comes back.
+        private string GeometryValueExpr(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, GeometryValueForm form)
+            => form == GeometryValueForm.Native
+                ? GetAlias(column, entity)
+                : mSpecifics.GeometryFunction(new GeoFunctionRequest(SqlGeoFunctionId.AsBinary, GetAlias(column, entity)));
 
         /// <summary>
-        /// Adds a geometry column of the specified table to the resultset, wrapped in the dialect's WKB
-        /// output function, so a portable WKB <c>byte[]</c> is returned. The raw column is never selected
+        /// Adds a geometry column of the specified table to the resultset. With
+        /// <see cref="GeometryValueForm.Wkb"/> (the default) the column is wrapped in the dialect's WKB
+        /// output function, so a portable WKB <c>byte[]</c> is returned - the raw column is never selected
         /// (SpatiaLite stores a modified WKB BLOB, and every provider returns a different native object).
+        /// With <see cref="GeometryValueForm.Native"/> the raw native geometry is selected unwrapped, for
+        /// use as a server-side operand (for example a subquery feeding a geometry predicate); such a
+        /// value is not portably readable on the client.
         /// </summary>
-        public virtual void AddGeometryValueToResultset(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string alias = null)
+        public virtual void AddGeometryValueToResultset(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string alias = null, GeometryValueForm form = GeometryValueForm.Wkb)
         {
             if (alias == null)
                 alias = $"column{++mColumnAlias}";
-            mResultset.Add(new SelectQueryBuilderResultsetItem(GeometryValueExpr(column, entity), alias, false, DbType.Binary));
+            mResultset.Add(new SelectQueryBuilderResultsetItem(GeometryValueExpr(column, entity, form), alias, false,
+                form == GeometryValueForm.Native ? DbType.Object : DbType.Binary));
         }
 
         /// <summary>
-        /// Adds a geometry column of the first table in the query to the resultset, wrapped in the WKB
-        /// output function (see the table-qualified overload).
+        /// Adds a geometry column of the first table in the query to the resultset (see the table-qualified
+        /// overload for the <paramref name="form"/> semantics).
         /// </summary>
-        public virtual void AddGeometryValueToResultset(TableDescriptor.ColumnInfo column, string alias = null)
-            => AddGeometryValueToResultset(column, null, alias);
+        public virtual void AddGeometryValueToResultset(TableDescriptor.ColumnInfo column, string alias = null, GeometryValueForm form = GeometryValueForm.Wkb)
+            => AddGeometryValueToResultset(column, null, alias, form);
 
         // Adds a pre-built expression (already produced by the JSON translation) to the resultset,
         // bypassing the scalar-literal guard - a JSON extraction carries a quoted path literal that the

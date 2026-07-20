@@ -1,0 +1,57 @@
+OziExplorer Map Data File Version 2.2
+Richmond, VA Z17
+richmond-va-z17.ozf2
+1 ,Map Code,
+WGS 84,,   0.0000,   0.0000,WGS 84
+Reserved 1
+Reserved 2
+Magnetic Variation,,,E
+Map Projection,Mercator,PolyCal,No,AutoCalOnly,No,BSBUseWPX,No
+Point01,xy,    0, 0,in, deg, 37, 44.3465,N, 77, 44.0413,W, grid,   ,           ,           ,N
+Point02,xy,    11808, 0,in, deg, 37, 44.3465,N, 77, 28.8377,W, grid,   ,           ,           ,N
+Point03,xy,    23617, 0,in, deg, 37, 44.3465,N, 77, 13.6354,W, grid,   ,           ,           ,N
+Point04,xy,    0, 11008,in, deg, 37, 33.1238,N, 77, 44.0413,W, grid,   ,           ,           ,N
+Point05,xy,    11808, 11008,in, deg, 37, 33.1238,N, 77, 28.8377,W, grid,   ,           ,           ,N
+Point06,xy,    23617, 11008,in, deg, 37, 33.1238,N, 77, 13.6354,W, grid,   ,           ,           ,N
+Point07,xy,    0, 22017,in, deg, 37, 21.8738,N, 77, 44.0413,W, grid,   ,           ,           ,N
+Point08,xy,    11808, 22017,in, deg, 37, 21.8738,N, 77, 28.8377,W, grid,   ,           ,           ,N
+Point09,xy,    23617, 22017,in, deg, 37, 21.8738,N, 77, 13.6354,W, grid,   ,           ,           ,N
+Point10,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point11,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point12,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point13,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point14,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point15,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point16,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point17,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point18,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point19,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point20,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point21,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point22,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point23,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point24,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point25,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point26,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point27,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point28,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point29,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point30,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Projection Setup,,,,,,,,,,
+Map Feature = MF ; Map Comment = MC     These follow if they exist
+Track File = TF      These follow if they exist
+Moving Map Parameters = MM?    These follow if they exist
+MM0,Yes
+MMPNUM,4
+MMPXY,1,0,0
+MMPXY,2,23617,0
+MMPXY,3,23617,22017
+MMPXY,4,0,22017
+MMPLL,1, -77.734022, 37.739109
+MMPLL,2, -77.227256, 37.739109
+MMPLL,3, -77.227256, 37.364564
+MMPLL,4, -77.734022, 37.364564
+MM1B,1.893727
+MOP,Map Open Position,0,0
+IWH,Map Image Width/Height,23617,22017
+MLP,Map Last Position,37.5379715,-77.4589920,40

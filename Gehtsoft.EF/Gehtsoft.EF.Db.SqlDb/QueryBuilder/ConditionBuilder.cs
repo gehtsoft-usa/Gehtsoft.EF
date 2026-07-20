@@ -181,6 +181,37 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
 
         /// <summary>
+        /// Adds a complete geometry predicate between the geometry column and the geometry produced by a
+        /// subquery. The subquery must yield a <b>native</b> geometry (project it with
+        /// <see cref="GeometryValueForm.Native"/>, not the WKB output form), because it is passed straight
+        /// to the predicate as a geometry operand - no constructor wrapping is applied. For
+        /// <see cref="SqlGeoPredicateId.DWithin"/> pass the distance.
+        /// </summary>
+        /// <param name="op">The predicate.</param>
+        /// <param name="column">The geometry column.</param>
+        /// <param name="entity">The table occurrence the column belongs to.</param>
+        /// <param name="subquery">The subquery producing the other (native) geometry.</param>
+        /// <param name="distance">The distance bound for <see cref="SqlGeoPredicateId.DWithin"/>.</param>
+        public SingleConditionBuilder GeoPredicate(SqlGeoPredicateId op, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, AQueryBuilder subquery, double distance = 0)
+            => GeoPredicateSubqueryCore(op, Builder.PropertyName(entity, column), subquery, distance);
+
+        /// <summary>
+        /// Adds a complete geometry predicate between the geometry column of the first table in the query
+        /// and the geometry produced by a subquery (see the table-qualified overload).
+        /// </summary>
+        public SingleConditionBuilder GeoPredicate(SqlGeoPredicateId op, TableDescriptor.ColumnInfo column, AQueryBuilder subquery, double distance = 0)
+            => GeoPredicateSubqueryCore(op, Builder.PropertyName(column), subquery, distance);
+
+        private SingleConditionBuilder GeoPredicateSubqueryCore(SqlGeoPredicateId op, string a, AQueryBuilder subquery, double distance)
+        {
+            SqlDbLanguageSpecifics specifics = Builder.InfoProvider.Specifics;
+            // Builder.Query wraps the subquery SQL in parentheses; it is a native geometry operand, so it
+            // is passed to the predicate as-is (no ST_GeomFromWKB constructor wrap).
+            string b = Builder.Query(subquery);
+            return SetGeoSide(specifics.GeometryPredicate(new GeoPredicateRequest(op, a, b, distance)));
+        }
+
+        /// <summary>
         /// Adds a geometry scalar (measurement or accessor - distance, area, length, X, Y, ...) as the
         /// current argument, to be compared like any other value. Pass <paramref name="parameterName"/>
         /// for the second geometry of a binary measurement (<see cref="SqlGeoFunctionId.Distance"/>);
@@ -1033,6 +1064,22 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// </summary>
         public static SingleConditionBuilder GeoPredicate(this ConditionBuilder builder, SqlGeoPredicateId op, TableDescriptor.ColumnInfo columnInfo, string parameterName, double distance = 0)
             => new SingleConditionBuilder(builder, LogOp.And).GeoPredicate(op, columnInfo, parameterName, distance);
+
+        /// <summary>
+        /// Starts a new single condition connected with logical and, and adds a complete geometry
+        /// predicate between the geometry column of the specified table and the geometry produced by a
+        /// subquery (which must project a native geometry - see the <see cref="SingleConditionBuilder"/> overload).
+        /// </summary>
+        public static SingleConditionBuilder GeoPredicate(this ConditionBuilder builder, SqlGeoPredicateId op, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, AQueryBuilder subquery, double distance = 0)
+            => new SingleConditionBuilder(builder, LogOp.And).GeoPredicate(op, columnInfo, entity, subquery, distance);
+
+        /// <summary>
+        /// Starts a new single condition connected with logical and, and adds a complete geometry
+        /// predicate between the geometry column of the first table in the query and the geometry produced
+        /// by a subquery (which must project a native geometry).
+        /// </summary>
+        public static SingleConditionBuilder GeoPredicate(this ConditionBuilder builder, SqlGeoPredicateId op, TableDescriptor.ColumnInfo columnInfo, AQueryBuilder subquery, double distance = 0)
+            => new SingleConditionBuilder(builder, LogOp.And).GeoPredicate(op, columnInfo, subquery, distance);
 
         /// <summary>
         /// Starts a new single condition connected with logical and, and sets a geometry scalar

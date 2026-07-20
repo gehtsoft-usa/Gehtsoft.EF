@@ -1,0 +1,74 @@
+OziExplorer Map Data File Version 2.2
+New York area Z17
+new-york-ny-z17.ozf2
+1 ,Map Code,
+WGS 84,,   0.0000,   0.0000,WGS 84
+Reserved 1
+Reserved 2
+Magnetic Variation,,,E
+Map Projection,Mercator,PolyCal,No,AutoCalOnly,No,BSBUseWPX,No
+Point01,xy,    0,    0,in, deg,  41,  1.3998,N,  74, 17.3679,W, grid,   ,           ,           ,N
+Point02,xy,43648,    0,in, deg,  41,  1.3998,N,  73, 21.1715,W, grid,   ,           ,           ,N
+Point03,xy,87297,    0,in, deg,  41,  1.3998,N,  72, 24.9765,W, grid,   ,           ,           ,N
+Point04,xy,    0,14720,in, deg,  40, 47.0752,N,  74, 17.3679,W, grid,   ,           ,           ,N
+Point05,xy,43648,14720,in, deg,  40, 47.0752,N,  73, 21.1715,W, grid,   ,           ,           ,N
+Point06,xy,87297,14720,in, deg,  40, 47.0752,N,  72, 24.9765,W, grid,   ,           ,           ,N
+Point07,xy,    0,29441,in, deg,  40, 32.6999,N,  74, 17.3679,W, grid,   ,           ,           ,N
+Point08,xy,43648,29441,in, deg,  40, 32.6999,N,  73, 21.1715,W, grid,   ,           ,           ,N
+Point09,xy,87297,29441,in, deg,  40, 32.6999,N,  72, 24.9765,W, grid,   ,           ,           ,N
+Point10,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point11,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point12,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point13,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point14,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point15,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point16,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point17,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point18,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point19,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point20,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point21,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point22,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point23,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point24,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point25,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point26,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point27,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point28,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point29,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Point30,xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N
+Projection Setup,,,,,,,,,,
+Map Feature = MF ; Map Comment = MC     These follow if they exist
+Track File = TF      These follow if they exist
+Moving Map Parameters = MM?    These follow if they exist
+MM0,Yes
+MMPNUM,12
+MMPXY,1,8680,27360
+MMPXY,2,2640,19400
+MMPXY,3,920,14400
+MMPXY,4,1220,2120
+MMPXY,5,9720,200
+MMPXY,6,27700,3700
+MMPXY,7,29660,7760
+MMPXY,8,79660,900
+MMPXY,9,86980,10940
+MMPXY,10,55240,20040
+MMPXY,11,33960,27080
+MMPXY,12,16400,28800
+MMPLL,1, -74.103205,  40.578916
+MMPLL,2, -74.232809,  40.708519
+MMPLL,3, -74.269716,  40.789799
+MMPLL,4, -74.263279,  40.988996
+MMPLL,5, -74.080889,  41.020086
+MMPLL,6, -73.695080,  40.963400
+MMPLL,7, -73.653023,  40.897583
+MMPLL,8, -72.580140,  41.008753
+MMPLL,9, -72.423070,  40.845985
+MMPLL,10, -73.104136,  40.698108
+MMPLL,11, -73.560755,  40.583479
+MMPLL,12, -73.937552,  40.555443
+MM1B,1.810596
+MOP,Map Open Position,0,0
+MOPLL,Map Open Position,0.0000000,0.0000000,2.5
+IWH,Map Image Width/Height,87297,29441
+MLP,Map Last Position,40.9030971,-74.1244266,70

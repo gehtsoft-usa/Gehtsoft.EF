@@ -13,8 +13,8 @@ management (create + update: add geo column, add/drop spatial index, drop geo co
 five engine families — SQL Server, Oracle, PostGIS, MariaDB, MySQL 8 — via `GeometryEngineAcceptanceTest`.
 Full suite **4006 green** across 6 live connections. (Earlier return point `533f8b6` = Phases 0-2.)
 
-**▶ Phase 4 — the geo QUERY surface (pure-SQL builder layer). IN PROGRESS. Plan + gate decisions locked in
-`PHASE_4/PHASE_4_PLAN.md`.** Gate decisions (user, 2026-07-20): (1) two dedicated enums + two render methods
+**▶ Phase 4 — the geo QUERY surface (pure-SQL builder layer). ★ COMPLETE (committed `965fdcc`, not pushed).
+Plan + gate decisions in `PHASE_4/PHASE_4_PLAN.md`.** Gate decisions (user, 2026-07-20): (1) two dedicated enums + two render methods
 (`SqlGeoFunctionId`/`GeometryFunction`, `SqlGeoPredicateId`/`GeometryPredicate`) — SOLID, generic
 `SqlFunctionId` untouched; (2) WKB only (no WKT); (3) core stays `byte[]`-only — object encode/decode lives
 in the NTS module as extension methods, no core decode registry; (4) tests under `Geo/{DataManagement,DataSelecting}/`.
@@ -22,14 +22,14 @@ Four increments: **1 renderers ✅ DONE** · **2 insert/update value-wrap + sele
 `BindGeometryParam`/`GetGeometry` extensions ✅ DONE** · **3 WHERE predicates/measure/within-distance + mass
 delete ✅ DONE** · **4 projection + scalar order/group/agg ✅ DONE. ★ PHASE 4 COMPLETE.**
 
-**Increment 1 DONE (2026-07-20, uncommitted).** `SqlGeoFunctionId`/`SqlGeoPredicateId` enums +
+**Increment 1 DONE (2026-07-20, committed 965fdcc).** `SqlGeoFunctionId`/`SqlGeoPredicateId` enums +
 `GeoFunctionRequest`/`GeoPredicateRequest` structs + base `GeometryFunction`/`GeometryPredicate` (throw) +
 `SupportsGeometryQuery` in `SqlLanguageSpecifics.cs`; shared `RenderOgcGeometry{Function,Predicate}` reused by
 PG/MySQL/SpatiaLite; MSSQL (method-call, bit `= 1`) + Oracle (`SDO_*`, RELATE mask `<> 'FALSE'`) own renderers.
 Oracle `Crosses` **and** `IsEmpty` throw `FeatureNotSupported`. Tests `Geo/DataSelecting/GeometryRenderTest.cs`
 (16, exact-string per the DDL-gen precedent). Geo suite **73 green** (was 57).
 
-**Increment 2 DONE (2026-07-20, uncommitted).** Insert value-wrap (`InsertQueryBuilder.SetColumnValueExpressions`
+**Increment 2 DONE (2026-07-20, committed 965fdcc).** Insert value-wrap (`InsertQueryBuilder.SetColumnValueExpressions`
 + `ParameterToken`), update via existing `AddUpdateColumnExpression`, select output-wrap
 (`SelectQueryBuilder.AddGeometryValueToResultset`). NTS module gained `GeometrySqlExtensions.BindGeometryParam`/
 `GetGeometry` (+ ProjectReference NTS→Db.SqlDb). **Codec fix:** `NtsGeometryCodec.ToWkb` no longer forces
@@ -46,7 +46,7 @@ pure-SQL builders over **every live engine**: SQL Server, Oracle 18, PostGIS, Ma
 `Geo/GeometryRoundTripSupport`. **Geo suite 83 green.** So the Increment-2 query surface (insert value-wrap +
 select output-wrap + NTS bind/read) is confirmed on all six driver families, not just SpatiaLite.
 
-**Increment 3 DONE (2026-07-20, uncommitted).** Spatial WHERE + mass delete at the builder layer.
+**Increment 3 DONE (2026-07-20, committed 965fdcc).** Spatial WHERE + mass delete at the builder layer.
 `ConditionBuilder` gained `GeoPredicate` (complete boolean: 8 topological + `DWithin`; guard-bypassing
 `SetGeoSide`→`Push`→`Add(logOp,string)`) and `GeoScalar` (measurement/accessor as a comparison operand),
 on both `SingleConditionBuilder` and `ConditionBuilderExtension` (`Where.GeoPredicate(...)`). Mass delete =
@@ -67,7 +67,7 @@ Oracle `Crosses` and `IsEmpty` throw (asserted); Oracle `SDO_SRID` is null so `S
 So the whole geometry WHERE surface — not just Intersects — is confirmed on real databases. **Geo suite
 143 green.**
 
-**Increment 4 DONE (2026-07-20, uncommitted) — ★ PHASE 4 COMPLETE.** Geo scalar projection + ORDER BY /
+**Increment 4 DONE (2026-07-20, committed 965fdcc) — ★ PHASE 4 COMPLETE.** Geo scalar projection + ORDER BY /
 GROUP BY / aggregation. `SelectQueryBuilder` gained `AddGeometryScalarTo{Resultset(+AggFn),OrderBy,GroupBy}`
 via one private byte-identical `GeometryScalarExpr` (GROUP BY match), guard-bypassing. **Value-correctness
 verified live on SpatiaLite + all 5 server engines** (`GeometryProjectionChecks` shared by
@@ -78,18 +78,59 @@ JSON/select-builder regression 128 green.
 
 **PHASE 4 (pure-SQL geo query surface) is complete** — insert/update/select value round-trip, all 8
 predicates + within-distance + mass delete, all accessors, scalar projection + order/group/aggregation — all
-verified on real databases across SpatiaLite + MSSQL + Oracle + PostGIS + MariaDB + MySQL 8. **NEXT: Phases
-5–7 (entity-query wrappers delegating to this pure-SQL surface).** Uncommitted; commit when the user asks.
+verified on real databases across SpatiaLite + MSSQL + Oracle + PostGIS + MariaDB + MySQL 8. **Committed
+`965fdcc` (not pushed). NEXT: Phases 5–7 (entity-query wrappers delegating to this pure-SQL surface).**
+
+**Phase-4 surface amendment — two-form geometry read + subquery predicate operand (2026-07-20, UNCOMMITTED).**
+Design conversation with the user pinned the governing rule: **client→server is always `byte[]`→
+`ST_GeomFromWKB` (one form); a server-side value's form depends on its destination** — WKB (`ST_AsBinary`)
+if it goes to the client, **native** (raw, unwrapped) if it stays on the server (feeds another predicate/
+function). Two additive changes to the committed Phase-4 pure-SQL surface implement this:
+  - **`GeometryValueForm { Wkb, Native }`** enum (`SqlLanguageSpecifics.cs`, by the geo enums).
+    `SelectQueryBuilder.AddGeometryValueToResultset(...)` gained a trailing `form = Wkb` (default =
+    committed behaviour). `Native` emits the **raw column** (no `ST_AsBinary`), `DbType.Object` — a
+    server-side operand, **not** portably client-readable (a driver-aware client can still `GetValue<object>()`
+    and interpret the engine's native form itself).
+  - **`ConditionBuilder.GeoPredicate(..., AQueryBuilder subquery, ...)`** overloads (+ `Where.GeoPredicate`
+    extensions): the operand is a **subquery yielding a native geometry**, passed straight through as the
+    predicate's `b` (no `FromWkb` wrap). Closes the Phase-4 gap that `GeoPredicate` hardwired the operand to
+    a bound WKB parameter (`GeoPredicateCore`), so a subquery/column operand was previously inexpressible.
+  Tests: `Geo/DataSelecting/GeometryNativeFormSqlTest.cs` (3 DB-free AST — native raw projection, Wkb-is-
+  default, native-subquery predicate) + `GeometryNativeSubquerySpatialiteTest.cs` (live SpatiaLite: cities
+  intersecting a region polygon from a native-form subquery → 2). **Geo suite 156 green** (was 152);
+  full/natural-order `BasicQueryTests` class 118 green with these edits present (no regression). *(A T2_4
+  miscount appears only when a fixture-sharing `[TestOrder]` subset is run out of sequence via an ad-hoc
+  `~Select` filter — invalid filter selection, reproduces identically on clean HEAD; the full suite is
+  unaffected.)*
+
+**Select-focused PLAYGROUND over real datasets (2026-07-20, UNCOMMITTED).** A practical, SpatiaLite-backed
+harness that solves real-world tasks purely through the geo query surface, doubling as coverage. Source data
+lives in `CLAUDE/GEO/GeoTestData/` (see its `DATASETS.md`): `usa/` (548 polygon features → 22 eastern states),
+`ozi/citi/*.map` (6 OziExplorer city map-extents), `ozi/tracks/*.plt` (3 travel tracks). **Pipeline (user's
+2-step design):** (1) THROWAWAY code decimated the raw data — states grouped by `ABBREV` into one geometry
+each (`GeometryFixer` repairs FL's 208-fragment invalidity), tracks/states topology-preservingly simplified at
+~0.01° (~1 km) — and wrote minimized WKT into `Gehtsoft.EF.Test/Geo/Playground/{states,cities,tracks}.tsv`;
+(2) those `.tsv` are **embedded resources** (csproj `<EmbeddedResource LogicalName="geo.playground.*">`) loaded
+at runtime by `GeoPlaygroundResources.cs` via the NTS codec — **no runtime dependency on the raw folder**. The
+throwaway generator + folder-reading loader were deleted after generating. `GeoTestData.cs` locator also now
+finds the data under `CLAUDE/GEO/GeoTestData` (supports the pre-existing `GeoThirdPartyFileTest`). Harness:
+`Geo/GeoPlaygroundSpatialiteTest.cs` — entities `PgState`(generic-`Geometry` col, mixed POLYGON/MULTIPOLYGON),
+`PgCity`(Polygon extent + Point center — **two geo columns per entity, works**), `PgTrack`(MultiLineString);
+inserts via pure-SQL `InsertQueryBuilder`+`FromWkb` wrap. **Tasks solved & asserted:** states by `ST_Area`
+DESC (matches source `AREA` to 3 dp — e.g. NY 13.888 vs 13.890); city→containing state via `Contains`
+(charlotte/wilmington/emerald-isle→NC, richmond→VA, new-york→NY, washington-dc→VA); track→crossed states via
+`Intersects` (nj2nc→[NC,VA,MD,NJ,DE,DC], nj2oh→[PA,OH,NJ], nc2tx→[NC,TN]). **Geo suite 157 green.** Ready to
+extend with more practical queries (within-distance, projection, group-by-region, nearest-city, …).
 
 For **meaningful Phase-4 behavioural tests (increments 2-4), use the real datasets in
 `Gehtsoft.EF.Test/GeoTestData/`** (test.wkt/test.wkb + `tiger-line/`, `usa/`, `mars-i-2294/`; LFS-tracked,
 located at runtime by `Geo/GeoTestData.cs`) rather than toy geometries.
 
-**GEO IS PARKED (2026-07-14).** Planning Phase 3 (TableUpdate) exposed that spatial-index reconciliation
-can't ride DB introspection cleanly (spatial indexes hide in per-driver catalogs). Decision: build a
-**declared-state Schema Catalogue** first — "catalogue first, geo rides it." Geo resumes at Phase 3 once
-the catalogue lands. **All current progress is the two prerequisite tasks + the catalogue design — see
-`PREREQUISITES_STATE.md`.** Process = two human gates per phase; **commit only when the user asks**.
+**GEO IS UN-PARKED (as of 2026-07-19/20).** The 2026-07-14 park ("catalogue first, geo rides it") is
+resolved: the Schema Catalogue landed, geo Phase 3 (table update) rides it (committed `4c666c3`), and
+Phase 4 (query surface) is now done (committed `965fdcc`). Process still applies for the remaining phases:
+two human gates per phase; **commit only when the user asks**. (Historical park rationale kept below for
+context.)
 
 ## Architecture (locked)
 
@@ -235,7 +276,7 @@ visibility. **Fix:** `SqliteDbConnection.PromoteSqliteSymbolsForSpatialite()` do
 `dlopen(libe_sqlite3 full path, RTLD_NOW|RTLD_GLOBAL)` before `LoadExtension` (Linux/macOS; Windows
 no-op — still to verify). Works with `Spatialite.Native` (test-proj pkg ref) and the system lib.
 
-**✅ Windows `mod_spatialite` load path — IMPLEMENTED & VERIFIED ON WINDOWS (2026-07-20, uncommitted).**
+**✅ Windows `mod_spatialite` load path — IMPLEMENTED & VERIFIED ON WINDOWS (2026-07-20, committed 965fdcc).**
 Root cause confirmed by inspecting the `Spatialite.Native` win-x64 DLLs (`objdump -p`): **there is NO
 symbol-binding problem on Windows.** `mod_spatialite.dll` imports **no** sqlite3 DLL at all — it binds
 SQLite through the extension API routines table, so the Unix `RTLD_GLOBAL` promotion is irrelevant here.
@@ -272,8 +313,12 @@ LFS-pointer guard). Holds `test.wkt`/`test.wkb` (+ `tiger-line/`, `usa/`, `mars-
 
 ## Git / commit state
 
-- Branch `geo`. Phases 0-2 committed as **`533f8b6`** (the return point); working tree clean. Earlier
-  commits: retired in-house Phase-0 (`78130f2`, `f4c99f1`, `b815ed9`) + Gate-1 plan (`8baa33a`).
+- Branch `geo`. **Phase 4 + the Windows SpatiaLite loader committed 2026-07-20 as `965fdcc`**
+  (`geo: Phase 4 pure-SQL query surface + Windows SpatiaLite loader`, 30 files). Working tree clean.
+  **NOT pushed** (user hasn't asked). The SKILL.md updates + xunit-v3-migration skill removal committed
+  separately as `5b0e6a3` (`skill: expand gehtsoft-ef guide; retire xunit-v3-migration skill`).
+- Earlier: Phase 3 + MariaDB/MySQL 8 dialects `4c666c3`, NuGet bumps `b7f36a8`; Phases 0-2 `533f8b6`;
+  retired in-house Phase-0 (`78130f2`, `f4c99f1`, `b815ed9`) + Gate-1 plan (`8baa33a`).
 - New module `Gehtsoft.EF.Geo.NetTopologySuite` added to `Gehtsoft.EF.sln` + `nuget/config.xml`.
 - **LFS is scoped:** the LFS rules live in `Gehtsoft.EF.Test/GeoTestData/.gitattributes` (only `*.wkb`/
   `*.wkt`/`*.csv` **under that dir**), so the Northwind sample `csv/*.csv` are NOT converted. There is no

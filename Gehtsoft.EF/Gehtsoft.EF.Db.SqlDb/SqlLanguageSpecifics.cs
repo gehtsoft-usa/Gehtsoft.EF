@@ -1112,6 +1112,30 @@ namespace Gehtsoft.EF.Db.SqlDb
     }
 
     /// <summary>
+    /// The form a geometry column takes when it is added to a resultset (or used as a server-side
+    /// operand). Selects between a portable WKB <c>byte[]</c> and the engine's native geometry value.
+    /// </summary>
+    public enum GeometryValueForm
+    {
+        /// <summary>
+        /// The geometry is wrapped in the dialect's WKB output function (<c>ST_AsBinary</c> and its
+        /// per-driver equivalents), so a portable WKB <c>byte[]</c> is returned. This is the only form
+        /// that can be read back on the client through the engine-agnostic WKB decode; use it whenever
+        /// the value travels to the client.
+        /// </summary>
+        Wkb,
+        /// <summary>
+        /// The raw native geometry is selected as-is, with no output wrapping. This form is meant to be
+        /// consumed on the server - for example a subquery feeding a geometry predicate operand - because
+        /// every provider returns a different native value (SpatiaLite stores a modified WKB BLOB, MySQL
+        /// prefixes the SRID, SQL Server and Oracle return provider objects), so it is <b>not</b>
+        /// portably readable through the engine-agnostic WKB decode. A driver-aware client can still read
+        /// the raw value and interpret it for the specific provider.
+        /// </summary>
+        Native,
+    }
+
+    /// <summary>
     /// A geometry value/scalar operation together with the operands the dialect renderer needs.
     /// Consumed by <see cref="SqlDbLanguageSpecifics.GeometryFunction"/>.
     /// </summary>

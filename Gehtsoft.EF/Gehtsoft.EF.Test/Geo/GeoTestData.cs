@@ -64,12 +64,17 @@ namespace Gehtsoft.EF.Test.Geo
         private static string Locate()
         {
             // Level 0 = the folder next to the assembly; levels 1..MaxParentLevels = parent folders.
+            // At each level the data may sit directly (<ancestor>/GeoTestData) or under the repo's
+            // documentation tree (<ancestor>/CLAUDE/GEO/GeoTestData), where the datasets actually live.
             string current = AppContext.BaseDirectory;
             for (int level = 0; level <= MaxParentLevels && current != null; level++)
             {
                 string candidate = Path.Combine(current, FolderName);
                 if (Directory.Exists(candidate))
                     return candidate;
+                string nested = Path.Combine(current, "CLAUDE", "GEO", FolderName);
+                if (Directory.Exists(nested))
+                    return nested;
                 current = Directory.GetParent(current)?.FullName;
             }
             return null;
