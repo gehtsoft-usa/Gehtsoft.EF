@@ -24,6 +24,14 @@ namespace Gehtsoft.EF.Db.SqliteDb
         /// </summary>
         public override bool SupportsGeometry => true;
 
+        /// <summary>Renders a SpatiaLite geometry value/scalar operation in the OGC <c>ST_*</c> grammar.</summary>
+        public override string GeometryFunction(in GeoFunctionRequest request)
+            => RenderOgcGeometryFunction(request);
+
+        /// <summary>Renders a SpatiaLite geometry predicate; within-distance uses <c>ST_Distance(...) &lt;= d</c>.</summary>
+        public override string GeometryPredicate(in GeoPredicateRequest request)
+            => RenderOgcGeometryPredicate(request, nativeDWithin: false);
+
         /// <summary>
         /// Renders a SQLite JSON extraction. SQLite is dynamically typed and its `CREATE INDEX` is
         /// not wrapped in a quoted block, so neither the target type nor <paramref name="forDdl"/>

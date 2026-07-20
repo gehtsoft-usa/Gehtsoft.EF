@@ -151,6 +151,77 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         }
 
         /// <summary>
+        /// Adds a complete geometry predicate (a DE-9IM topological relationship or a within-distance
+        /// test between the geometry column and a bound WKB parameter) as a standalone boolean condition.
+        /// The predicate SQL comes whole from the dialect (already normalized to a boolean), so it is not
+        /// followed by a comparison. The WKB parameter is wrapped in the dialect's constructor function;
+        /// bind it as a <c>byte[]</c>. For <see cref="SqlGeoPredicateId.DWithin"/> pass the distance.
+        /// </summary>
+        /// <param name="op">The predicate.</param>
+        /// <param name="column">The geometry column.</param>
+        /// <param name="entity">The table occurrence the column belongs to.</param>
+        /// <param name="parameterName">The name of the bound WKB parameter for the other geometry.</param>
+        /// <param name="distance">The distance bound for <see cref="SqlGeoPredicateId.DWithin"/>.</param>
+        public SingleConditionBuilder GeoPredicate(SqlGeoPredicateId op, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string parameterName, double distance = 0)
+            => GeoPredicateCore(op, Builder.PropertyName(entity, column), column, parameterName, distance);
+
+        /// <summary>
+        /// Adds a complete geometry predicate against the geometry column of the first table in the query
+        /// (see the table-qualified overload).
+        /// </summary>
+        public SingleConditionBuilder GeoPredicate(SqlGeoPredicateId op, TableDescriptor.ColumnInfo column, string parameterName, double distance = 0)
+            => GeoPredicateCore(op, Builder.PropertyName(column), column, parameterName, distance);
+
+        private SingleConditionBuilder GeoPredicateCore(SqlGeoPredicateId op, string a, TableDescriptor.ColumnInfo column, string parameterName, double distance)
+        {
+            SqlDbLanguageSpecifics specifics = Builder.InfoProvider.Specifics;
+            string b = specifics.GeometryFunction(new GeoFunctionRequest(SqlGeoFunctionId.FromWkb,
+                parameter: Builder.ParameterName(parameterName), srid: column.Geometry.Srid));
+            return SetGeoSide(specifics.GeometryPredicate(new GeoPredicateRequest(op, a, b, distance)));
+        }
+
+        /// <summary>
+        /// Adds a geometry scalar (measurement or accessor - distance, area, length, X, Y, ...) as the
+        /// current argument, to be compared like any other value. Pass <paramref name="parameterName"/>
+        /// for the second geometry of a binary measurement (<see cref="SqlGeoFunctionId.Distance"/>);
+        /// leave it null for a unary scalar. For example
+        /// <c>Where.GeoScalar(SqlGeoFunctionId.Area, col).Gt().Parameter("min")</c>.
+        /// </summary>
+        /// <param name="op">The scalar function.</param>
+        /// <param name="column">The geometry column.</param>
+        /// <param name="entity">The table occurrence the column belongs to.</param>
+        /// <param name="parameterName">The bound WKB parameter for the second geometry (binary ops), or null.</param>
+        /// <param name="tolerance">The tolerance for dialects that require one (Oracle).</param>
+        public SingleConditionBuilder GeoScalar(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string parameterName = null, double tolerance = 0)
+            => GeoScalarCore(op, Builder.PropertyName(entity, column), column, parameterName, tolerance);
+
+        /// <summary>
+        /// Adds a geometry scalar over the geometry column of the first table in the query (see the
+        /// table-qualified overload).
+        /// </summary>
+        public SingleConditionBuilder GeoScalar(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, string parameterName = null, double tolerance = 0)
+            => GeoScalarCore(op, Builder.PropertyName(column), column, parameterName, tolerance);
+
+        private SingleConditionBuilder GeoScalarCore(SqlGeoFunctionId op, string a, TableDescriptor.ColumnInfo column, string parameterName, double tolerance)
+        {
+            SqlDbLanguageSpecifics specifics = Builder.InfoProvider.Specifics;
+            string b = parameterName == null ? null : specifics.GeometryFunction(new GeoFunctionRequest(SqlGeoFunctionId.FromWkb,
+                parameter: Builder.ParameterName(parameterName), srid: column.Geometry.Srid));
+            return SetGeoSide(specifics.GeometryFunction(new GeoFunctionRequest(op, a: a, b: b, tolerance: tolerance)));
+        }
+
+        // Geometry expressions are framework-generated (some carry a quoted literal - the Oracle RELATE
+        // mask), so they bypass the raw-scalar guard, setting the side directly (like SetJsonSide).
+        private SingleConditionBuilder SetGeoSide(string expression)
+        {
+            if (!HasOp)
+                Left = expression;
+            else
+                Right = expression;
+            return this;
+        }
+
+        /// <summary>
         /// Adds a parameter.
         /// </summary>
         /// <param name="name"></param>
@@ -947,6 +1018,36 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// </summary>
         public static SingleConditionBuilder JsonValue(this ConditionBuilder builder, TableDescriptor.ColumnInfo columnInfo, string jsonPath, System.Data.DbType type)
             => new SingleConditionBuilder(builder, LogOp.And).JsonValue(columnInfo, jsonPath, type);
+
+        /// <summary>
+        /// Starts a new single condition connected with logical and, and adds a complete geometry
+        /// predicate (topological relationship or within-distance) between the geometry column of the
+        /// specified table and a bound WKB parameter. Not followed by a comparison.
+        /// </summary>
+        public static SingleConditionBuilder GeoPredicate(this ConditionBuilder builder, SqlGeoPredicateId op, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, string parameterName, double distance = 0)
+            => new SingleConditionBuilder(builder, LogOp.And).GeoPredicate(op, columnInfo, entity, parameterName, distance);
+
+        /// <summary>
+        /// Starts a new single condition connected with logical and, and adds a complete geometry
+        /// predicate against the geometry column of the first table in the query.
+        /// </summary>
+        public static SingleConditionBuilder GeoPredicate(this ConditionBuilder builder, SqlGeoPredicateId op, TableDescriptor.ColumnInfo columnInfo, string parameterName, double distance = 0)
+            => new SingleConditionBuilder(builder, LogOp.And).GeoPredicate(op, columnInfo, parameterName, distance);
+
+        /// <summary>
+        /// Starts a new single condition connected with logical and, and sets a geometry scalar
+        /// (measurement or accessor) over the geometry column of the specified table as the first
+        /// argument, to be compared like any other value.
+        /// </summary>
+        public static SingleConditionBuilder GeoScalar(this ConditionBuilder builder, SqlGeoFunctionId op, TableDescriptor.ColumnInfo columnInfo, QueryBuilderEntity entity, string parameterName = null, double tolerance = 0)
+            => new SingleConditionBuilder(builder, LogOp.And).GeoScalar(op, columnInfo, entity, parameterName, tolerance);
+
+        /// <summary>
+        /// Starts a new single condition connected with logical and, and sets a geometry scalar over the
+        /// geometry column of the first table in the query as the first argument.
+        /// </summary>
+        public static SingleConditionBuilder GeoScalar(this ConditionBuilder builder, SqlGeoFunctionId op, TableDescriptor.ColumnInfo columnInfo, string parameterName = null, double tolerance = 0)
+            => new SingleConditionBuilder(builder, LogOp.And).GeoScalar(op, columnInfo, parameterName, tolerance);
 
         /// <summary>
         /// Starts a new single condition, sets the parameter specified as the first argument and connect it to the previous condition with logical and.

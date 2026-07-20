@@ -55,6 +55,14 @@ namespace Gehtsoft.EF.Db.MysqlDb
             return builder.ToString();
         }
 
+        /// <summary>Renders a MySQL geometry value/scalar operation in the OGC <c>ST_*</c> grammar.</summary>
+        public override string GeometryFunction(in GeoFunctionRequest request)
+            => RenderOgcGeometryFunction(request);
+
+        /// <summary>Renders a MySQL geometry predicate; within-distance uses <c>ST_Distance(...) &lt;= d</c>.</summary>
+        public override string GeometryPredicate(in GeoPredicateRequest request)
+            => RenderOgcGeometryPredicate(request, nativeDWithin: false);
+
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
             string typeName;

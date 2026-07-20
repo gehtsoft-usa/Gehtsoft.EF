@@ -25,9 +25,29 @@ namespace Gehtsoft.EF.Geo.NetTopologySuite
         public byte[] ToWkb(object geometry, bool includeSrid)
         {
             Geometry value = AsGeometry(geometry);
-            // (byteOrder, handleSRID, emitZ, emitM) — Z/M are still omitted when the geometry lacks them.
-            var writer = new WKBWriter(ByteOrder.LittleEndian, includeSrid, true, true);
+            // Emit exactly the ordinates the geometry actually carries. Forcing Z/M on a 2-D geometry
+            // would promote it to XYZM (with NaN Z/M) and databases with a fixed-dimension geometry
+            // column (SpatiaLite XY, MySQL 2-D, ...) reject the mismatched dimensionality.
+            Ordinates ordinates = GeometryOrdinates(value);
+            var writer = new WKBWriter(ByteOrder.LittleEndian, includeSrid,
+                (ordinates & Ordinates.Z) != 0, (ordinates & Ordinates.M) != 0);
             return writer.Write(value);
+        }
+
+        // The union of the ordinates present across every coordinate sequence of the geometry.
+        private static Ordinates GeometryOrdinates(Geometry geometry)
+        {
+            var collector = new OrdinatesCollector();
+            geometry.Apply(collector);
+            return collector.Ordinates;
+        }
+
+        private sealed class OrdinatesCollector : ICoordinateSequenceFilter
+        {
+            public Ordinates Ordinates { get; private set; } = Ordinates.XY;
+            public bool Done => Ordinates == Ordinates.XYZM;
+            public bool GeometryChanged => false;
+            public void Filter(CoordinateSequence seq, int index) => Ordinates |= seq.Ordinates;
         }
 
         /// <inheritdoc/>

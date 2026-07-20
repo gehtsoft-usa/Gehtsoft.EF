@@ -7,9 +7,83 @@ Catalogue + locking work geo now waits on).*
 
 ## TL;DR
 
-Phases **0, 1, 2 are implemented, green, and committed** (39 geo tests + 84 JSON tests, full solution 0
-new warnings). Return point = **`533f8b6`** (`geo Phases 0-2: codec-agnostic WKB core, declare,
-table-create (5 drivers)`).
+Phases **0, 1, 2, 3 done.** Phase 3 (table update) is committed on branch `geo` at **`4c666c3`**
+(`geo Phase 3 (table update) + MariaDB/MySQL 8 dialects`), package bumps at `b7f36a8`. Geo table
+management (create + update: add geo column, add/drop spatial index, drop geo column) is verified on all
+five engine families — SQL Server, Oracle, PostGIS, MariaDB, MySQL 8 — via `GeometryEngineAcceptanceTest`.
+Full suite **4006 green** across 6 live connections. (Earlier return point `533f8b6` = Phases 0-2.)
+
+**▶ Phase 4 — the geo QUERY surface (pure-SQL builder layer). IN PROGRESS. Plan + gate decisions locked in
+`PHASE_4/PHASE_4_PLAN.md`.** Gate decisions (user, 2026-07-20): (1) two dedicated enums + two render methods
+(`SqlGeoFunctionId`/`GeometryFunction`, `SqlGeoPredicateId`/`GeometryPredicate`) — SOLID, generic
+`SqlFunctionId` untouched; (2) WKB only (no WKT); (3) core stays `byte[]`-only — object encode/decode lives
+in the NTS module as extension methods, no core decode registry; (4) tests under `Geo/{DataManagement,DataSelecting}/`.
+Four increments: **1 renderers ✅ DONE** · **2 insert/update value-wrap + select output-wrap + NTS
+`BindGeometryParam`/`GetGeometry` extensions ✅ DONE** · **3 WHERE predicates/measure/within-distance + mass
+delete ✅ DONE** · **4 projection + scalar order/group/agg ✅ DONE. ★ PHASE 4 COMPLETE.**
+
+**Increment 1 DONE (2026-07-20, uncommitted).** `SqlGeoFunctionId`/`SqlGeoPredicateId` enums +
+`GeoFunctionRequest`/`GeoPredicateRequest` structs + base `GeometryFunction`/`GeometryPredicate` (throw) +
+`SupportsGeometryQuery` in `SqlLanguageSpecifics.cs`; shared `RenderOgcGeometry{Function,Predicate}` reused by
+PG/MySQL/SpatiaLite; MSSQL (method-call, bit `= 1`) + Oracle (`SDO_*`, RELATE mask `<> 'FALSE'`) own renderers.
+Oracle `Crosses` **and** `IsEmpty` throw `FeatureNotSupported`. Tests `Geo/DataSelecting/GeometryRenderTest.cs`
+(16, exact-string per the DDL-gen precedent). Geo suite **73 green** (was 57).
+
+**Increment 2 DONE (2026-07-20, uncommitted).** Insert value-wrap (`InsertQueryBuilder.SetColumnValueExpressions`
++ `ParameterToken`), update via existing `AddUpdateColumnExpression`, select output-wrap
+(`SelectQueryBuilder.AddGeometryValueToResultset`). NTS module gained `GeometrySqlExtensions.BindGeometryParam`/
+`GetGeometry` (+ ProjectReference NTS→Db.SqlDb). **Codec fix:** `NtsGeometryCodec.ToWkb` no longer forces
+XYZM on every geometry (broke 2-D round-trip through fixed-dimension columns) — now emits the geometry's own
+ordinates. `DummyDbSpecifics` gained opt-in `SupportsGeometrySpec` (OGC rendering) for DB-free tests. Tests:
+`Geo/DataManagement/{GeometryValueWrapTest,GeometryRoundTripSpatialiteTest}` + `Geo/DataSelecting/GeometryOutputWrapTest`.
+JSON/DynProps/builder regression 1125 green.
+
+**All-engine acceptance verified (2026-07-20, Linux).** `Geo/DataManagement/GeometryRoundTripAcceptanceTest`
+runs the insert→select→update→reselect value round-trip through the shipping `CatalogEntityController` +
+pure-SQL builders over **every live engine**: SQL Server, Oracle 18, PostGIS, MariaDB (`mysql@25`), MySQL 8
+(`mysql8@25`) — **all ✅** (non-indexed geo column; 2-D point; Oracle round-trips coordinates even though
+`FROM_WKBGEOMETRY` sets no SRID, per R5). SpatiaLite covered by its own test. Shared helper
+`Geo/GeometryRoundTripSupport`. **Geo suite 83 green.** So the Increment-2 query surface (insert value-wrap +
+select output-wrap + NTS bind/read) is confirmed on all six driver families, not just SpatiaLite.
+
+**Increment 3 DONE (2026-07-20, uncommitted).** Spatial WHERE + mass delete at the builder layer.
+`ConditionBuilder` gained `GeoPredicate` (complete boolean: 8 topological + `DWithin`; guard-bypassing
+`SetGeoSide`→`Push`→`Add(logOp,string)`) and `GeoScalar` (measurement/accessor as a comparison operand),
+on both `SingleConditionBuilder` and `ConditionBuilderExtension` (`Where.GeoPredicate(...)`). Mass delete =
+`DeleteQueryBuilder`+geo `Where`. Oracle `Crosses` throws (renderer). Tests: `Geo/DataSelecting/`
+`GeometryPredicateSqlTest` (DB-free), `GeometryPredicateSpatialiteTest` (live: Intersects+DWithin+delete),
+`GeometryPredicateAcceptanceTest` (**all 5 engines**, topological Intersects+delete). Distance stays
+SpatiaLite-only (planar vs geodetic differ per engine); **MySQL 8 validates lat/lon for SRID 4326** so test
+coords are valid geographic. **Geo suite 93 green**; condition-builder+JSON regression 124 green.
+
+**Full spatial-op matrix now live-verified on ALL 5 server engines (2026-07-20).**
+`Geo/DataSelecting/GeometrySpatialOpsAcceptanceTest` exercises **all 8 topological predicates**
+(Equals/Disjoint/Intersects/Within/Contains/Touches/Overlaps + Crosses), **within-distance**, and the
+**accessors** (X/Y portable values; GeometryType/Envelope/IsEmpty/Srid execution-smoke) against MSSQL,
+Oracle, PostGIS, MariaDB, MySQL 8 — **50 cases, all green.** Key technique: a **generic-geometry column
+with SRID 0 (Cartesian)** so every engine evaluates planar (MySQL 8 otherwise treats 4326 geodetically +
+validates lat/lon), making results identical everywhere; real polygons/lines (CCW rings for Oracle).
+Oracle `Crosses` and `IsEmpty` throw (asserted); Oracle `SDO_SRID` is null so `Srid` smoke is non-Oracle.
+So the whole geometry WHERE surface — not just Intersects — is confirmed on real databases. **Geo suite
+143 green.**
+
+**Increment 4 DONE (2026-07-20, uncommitted) — ★ PHASE 4 COMPLETE.** Geo scalar projection + ORDER BY /
+GROUP BY / aggregation. `SelectQueryBuilder` gained `AddGeometryScalarTo{Resultset(+AggFn),OrderBy,GroupBy}`
+via one private byte-identical `GeometryScalarExpr` (GROUP BY match), guard-bypassing. **Value-correctness
+verified live on SpatiaLite + all 5 server engines** (`GeometryProjectionChecks` shared by
+`Geo/DataSelecting/GeometryProjection{Spatialite,Acceptance}Test`; DB-free exact-string in
+`GeometryProjectionSqlTest`): Area(2×2 box)=4, Length=3, X/Y=3/4, Distance=5, order-by-distance=[1,2,3]+top-N,
+AVG(Area)=10, GROUP BY Area→{4:2,16:1}. Measurements got their live coverage here. **Geo suite 152 green**;
+JSON/select-builder regression 128 green.
+
+**PHASE 4 (pure-SQL geo query surface) is complete** — insert/update/select value round-trip, all 8
+predicates + within-distance + mass delete, all accessors, scalar projection + order/group/aggregation — all
+verified on real databases across SpatiaLite + MSSQL + Oracle + PostGIS + MariaDB + MySQL 8. **NEXT: Phases
+5–7 (entity-query wrappers delegating to this pure-SQL surface).** Uncommitted; commit when the user asks.
+
+For **meaningful Phase-4 behavioural tests (increments 2-4), use the real datasets in
+`Gehtsoft.EF.Test/GeoTestData/`** (test.wkt/test.wkb + `tiger-line/`, `usa/`, `mars-i-2294/`; LFS-tracked,
+located at runtime by `Geo/GeoTestData.cs`) rather than toy geometries.
 
 **GEO IS PARKED (2026-07-14).** Planning Phase 3 (TableUpdate) exposed that spatial-index reconciliation
 can't ride DB introspection cleanly (spatial indexes hide in per-driver catalogs). Decision: build a
@@ -144,6 +218,9 @@ the catalogue lands. **All current progress is the two prerequisite tasks + the 
     suite runs (`SQLite Error 11: malformed database schema`), cleared by deleting `test.db`; plus the 6
     real MySQL-8 gaps above (now all fixed). Windows SpatiaLite failures are the unverified Windows native
     path (Linux/macOS symbol-promotion only) — still to confirm.
+  - **Windows status (user, 2026-07-19): the ONLY failing tests on Windows are the Windows `mod_spatialite`
+    load path (see the SpatiaLite-native-fix TODO). Everything else is green on Windows** — so the sole
+    remaining Windows work item is the unimplemented Windows SpatiaLite loader; no other regressions.
 
 ### Key decisions (see GEO_PLAN.md for the full list)
 1 in-house→**NTS/byte[] pivot** · 8 SRID default 4326 · 11 Oracle `Crosses` throws (Phase 4/6) ·
@@ -157,6 +234,27 @@ host's `sqlite3_*` symbols directly, but SQLitePCLRaw loads `libe_sqlite3.so` (n
 visibility. **Fix:** `SqliteDbConnection.PromoteSqliteSymbolsForSpatialite()` does
 `dlopen(libe_sqlite3 full path, RTLD_NOW|RTLD_GLOBAL)` before `LoadExtension` (Linux/macOS; Windows
 no-op — still to verify). Works with `Spatialite.Native` (test-proj pkg ref) and the system lib.
+
+**✅ Windows `mod_spatialite` load path — IMPLEMENTED & VERIFIED ON WINDOWS (2026-07-20, uncommitted).**
+Root cause confirmed by inspecting the `Spatialite.Native` win-x64 DLLs (`objdump -p`): **there is NO
+symbol-binding problem on Windows.** `mod_spatialite.dll` imports **no** sqlite3 DLL at all — it binds
+SQLite through the extension API routines table, so the Unix `RTLD_GLOBAL` promotion is irrelevant here.
+The sole blocker is **dependency-DLL discovery**: `mod_spatialite.dll` → `libgeos_c`, `libproj_9_2`,
+`librttopo`, `libfreexl`, `libiconv`, `libminizip`, `libxml2`, `zlib1`, which chain to `libgeos`,
+`libstdc++`, `libgcc_s_seh`, `libwinpthread`, `libcurl`, `libsqlite3-0` (PROJ's own SQLite, unrelated to
+the engine), `libtiff`, … — **all in `runtimes/win-x64/native/`**, a folder on neither the app base dir
+nor `PATH`. So a plain `LoadLibraryW("mod_spatialite")` fails with **error 126** (dependent module not
+found). **Fix (SqliteConnection.cs):** `EnableSpatialite` now branches by OS — Unix keeps
+`PromoteSqliteSymbolsForSpatialite`; Windows calls `PreloadSpatialiteWindows`, which locates
+`mod_spatialite.dll` (`LocateSpatialiteWindows`: honours an explicit `SpatialiteLibrary` path, else probes
+`{BaseDir}\mod_spatialite.dll` and `{BaseDir}\runtimes\win-{x64|x86|arm64}\native\mod_spatialite.dll`) and
+pre-loads it by **absolute path with `LoadLibraryEx(..., LOAD_WITH_ALTERED_SEARCH_PATH)`** so the loader
+resolves the whole dependency graph from the module's own directory. `LoadExtension` is then given that
+**full path** (SQLite reuses the already-loaded module and just runs the entry point; entry-point
+derivation from the base name is unchanged → `sqlite3_modspatialite_init`, same as Unix). **Geo suite 57
+green on BOTH Linux and Windows** (`dotnet.exe test`, 2026-07-20) — the two `GeometrySpatialiteBehaviourTest`
+cases (which load `mod_spatialite` natively, create a geometry table + spatial index, and ALTER-add) now
+pass on Windows; they were the only Windows failures. No skips.
 
 ## Test status
 
@@ -209,5 +307,7 @@ still apply, expressed through the catalogue diff. Also note: user wants geo-col
 - **Phase 4 — pure-SQL query surface** (the ★ phase): `Geo*` `SqlFunctionId` renderers + arg-channel fix,
   insert/update WKB value-wrap, WHERE predicates/measure/within-distance, select output-wrap + WKB decode,
   projection + scalar order/group/agg. Oracle `Crosses` throws.
-- Open follow-ups: **Windows SpatiaLite** verification; official `mod_spatialite` NuGet (optional; system
-  lib + `Spatialite.Native` both work); Phase 8 docs (prerequisites, SRID, limitations).
+- Open follow-ups: **Windows SpatiaLite** load path now IMPLEMENTED **and verified on Windows** (57 geo
+  green; dependency-DLL preload via `LoadLibraryEx`+`LOAD_WITH_ALTERED_SEARCH_PATH`; see the
+  SpatiaLite-native-fix section); official `mod_spatialite` NuGet (optional; system lib +
+  `Spatialite.Native` both work); Phase 8 docs (prerequisites, SRID, limitations).

@@ -499,6 +499,30 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             mResultset.Add(new SelectQueryBuilderResultsetItem(JsonExpr(column, entity, jsonPath, type), alias, false, type));
         }
 
+        // A geometry value/scalar expression is framework-generated (some dialects carry a quoted
+        // literal), so it bypasses the raw-scalar guard, mirroring the JSON entry points above.
+        private string GeometryValueExpr(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity)
+            => mSpecifics.GeometryFunction(new GeoFunctionRequest(SqlGeoFunctionId.AsBinary, GetAlias(column, entity)));
+
+        /// <summary>
+        /// Adds a geometry column of the specified table to the resultset, wrapped in the dialect's WKB
+        /// output function, so a portable WKB <c>byte[]</c> is returned. The raw column is never selected
+        /// (SpatiaLite stores a modified WKB BLOB, and every provider returns a different native object).
+        /// </summary>
+        public virtual void AddGeometryValueToResultset(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string alias = null)
+        {
+            if (alias == null)
+                alias = $"column{++mColumnAlias}";
+            mResultset.Add(new SelectQueryBuilderResultsetItem(GeometryValueExpr(column, entity), alias, false, DbType.Binary));
+        }
+
+        /// <summary>
+        /// Adds a geometry column of the first table in the query to the resultset, wrapped in the WKB
+        /// output function (see the table-qualified overload).
+        /// </summary>
+        public virtual void AddGeometryValueToResultset(TableDescriptor.ColumnInfo column, string alias = null)
+            => AddGeometryValueToResultset(column, null, alias);
+
         // Adds a pre-built expression (already produced by the JSON translation) to the resultset,
         // bypassing the scalar-literal guard - a JSON extraction carries a quoted path literal that the
         // guard would otherwise reject. Used by the LINQ JSON projection path.
@@ -556,6 +580,80 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// </summary>
         public virtual void AddJsonValueToGroupBy(TableDescriptor.ColumnInfo column, string jsonPath, DbType type)
             => AddJsonValueToGroupBy(column, null, jsonPath, type);
+
+        // A geometry scalar (measurement or accessor) is a framework-generated expression, so it bypasses
+        // the raw-scalar guard. All of resultset / order-by / group-by render through this one method, so
+        // the same (column, op, parameter, tolerance) produces a byte-identical expression - which GROUP BY
+        // matching needs. When parameterName is given (a binary op like Distance), the other geometry is a
+        // WKB parameter wrapped in the dialect constructor; bind it as a byte[].
+        private string GeometryScalarExpr(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, SqlGeoFunctionId op, string parameterName, double tolerance)
+        {
+            string b = parameterName == null ? null : mSpecifics.GeometryFunction(new GeoFunctionRequest(
+                SqlGeoFunctionId.FromWkb, parameter: mSpecifics.ParameterInQueryPrefix + parameterName, srid: column.Geometry.Srid));
+            return mSpecifics.GeometryFunction(new GeoFunctionRequest(op, a: GetAlias(column, entity), b: b, tolerance: tolerance));
+        }
+
+        /// <summary>
+        /// Adds a geometry scalar (measurement or accessor - area, length, distance, X, Y, ...) over a
+        /// geometry column of the specified table to the resultset, projected as an ordinary value. For a
+        /// binary measurement (<see cref="SqlGeoFunctionId.Distance"/>) pass <paramref name="parameterName"/>
+        /// for the second geometry (a WKB <c>byte[]</c> parameter); leave it null for a unary scalar.
+        /// </summary>
+        public virtual void AddGeometryScalarToResultset(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, DbType type, string alias = null, string parameterName = null, double tolerance = 0)
+        {
+            if (alias == null)
+                alias = $"column{++mColumnAlias}";
+            mResultset.Add(new SelectQueryBuilderResultsetItem(GeometryScalarExpr(column, entity, op, parameterName, tolerance), alias, false, type));
+        }
+
+        /// <summary>
+        /// Adds a geometry scalar over a geometry column of the first table in the query to the resultset.
+        /// </summary>
+        public virtual void AddGeometryScalarToResultset(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, DbType type, string alias = null, string parameterName = null, double tolerance = 0)
+            => AddGeometryScalarToResultset(op, column, null, type, alias, parameterName, tolerance);
+
+        /// <summary>
+        /// Adds a geometry scalar over a geometry column of the specified table, aggregated with the
+        /// specified function, to the resultset (for example <c>AVG(Area(col))</c>).
+        /// </summary>
+        public virtual void AddGeometryScalarToResultset(AggFn aggregate, SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, DbType type, string alias = null, string parameterName = null, double tolerance = 0)
+        {
+            if (alias == null)
+                alias = $"column{++mColumnAlias}";
+            mResultset.Add(new SelectQueryBuilderResultsetItem(mSpecifics.GetAggFn(aggregate, GeometryScalarExpr(column, entity, op, parameterName, tolerance)), alias, true, type));
+        }
+
+        /// <summary>
+        /// Adds an aggregated geometry scalar over a geometry column of the first table in the query to the resultset.
+        /// </summary>
+        public virtual void AddGeometryScalarToResultset(AggFn aggregate, SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, DbType type, string alias = null, string parameterName = null, double tolerance = 0)
+            => AddGeometryScalarToResultset(aggregate, op, column, null, type, alias, parameterName, tolerance);
+
+        /// <summary>
+        /// Orders the query by a geometry scalar over a geometry column of the specified table (for example
+        /// order-by-distance for a nearest-neighbour query).
+        /// </summary>
+        public virtual void AddGeometryScalarToOrderBy(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, SortDir direction = SortDir.Asc, string parameterName = null, double tolerance = 0)
+            => mOrderBy.Add(new SelectQueryBuilderByItem(GeometryScalarExpr(column, entity, op, parameterName, tolerance), direction));
+
+        /// <summary>
+        /// Orders the query by a geometry scalar over a geometry column of the first table in the query.
+        /// </summary>
+        public virtual void AddGeometryScalarToOrderBy(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, SortDir direction = SortDir.Asc, string parameterName = null, double tolerance = 0)
+            => AddGeometryScalarToOrderBy(op, column, null, direction, parameterName, tolerance);
+
+        /// <summary>
+        /// Groups the query by a geometry scalar over a geometry column of the specified table. The
+        /// grouping expression is byte-identical to the same scalar added to the resultset.
+        /// </summary>
+        public virtual void AddGeometryScalarToGroupBy(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string parameterName = null, double tolerance = 0)
+            => mGroupBy.Add(new SelectQueryBuilderByItem(GeometryScalarExpr(column, entity, op, parameterName, tolerance), SortDir.Asc));
+
+        /// <summary>
+        /// Groups the query by a geometry scalar over a geometry column of the first table in the query.
+        /// </summary>
+        public virtual void AddGeometryScalarToGroupBy(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, string parameterName = null, double tolerance = 0)
+            => AddGeometryScalarToGroupBy(op, column, null, parameterName, tolerance);
 
         // Adds a pre-built JSON extraction (from the LINQ translation) to ORDER BY / GROUP BY, bypassing
         // the scalar-literal guard (a JSON extraction carries a quoted path).

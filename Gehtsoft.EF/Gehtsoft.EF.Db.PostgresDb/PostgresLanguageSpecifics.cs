@@ -29,6 +29,14 @@ namespace Gehtsoft.EF.Db.PostgresDb
             return column.Nullable ? type : type + " NOT NULL";
         }
 
+        /// <summary>Renders a PostGIS geometry value/scalar operation in the OGC <c>ST_*</c> grammar.</summary>
+        public override string GeometryFunction(in GeoFunctionRequest request)
+            => RenderOgcGeometryFunction(request);
+
+        /// <summary>Renders a PostGIS geometry predicate; within-distance uses the native <c>ST_DWithin</c>.</summary>
+        public override string GeometryPredicate(in GeoPredicateRequest request)
+            => RenderOgcGeometryPredicate(request, nativeDWithin: true);
+
         /// <summary>
         /// Renders a PostgreSQL JSON extraction. The JSON is stored as `text`, so it is cast to
         /// `jsonb` inline, the value is pulled with the `#&gt;&gt;` (text) path operator and then cast
