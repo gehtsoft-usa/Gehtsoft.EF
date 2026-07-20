@@ -119,8 +119,19 @@ finds the data under `CLAUDE/GEO/GeoTestData` (supports the pre-existing `GeoThi
 inserts via pure-SQL `InsertQueryBuilder`+`FromWkb` wrap. **Tasks solved & asserted:** states by `ST_Area`
 DESC (matches source `AREA` to 3 dp — e.g. NY 13.888 vs 13.890); city→containing state via `Contains`
 (charlotte/wilmington/emerald-isle→NC, richmond→VA, new-york→NY, washington-dc→VA); track→crossed states via
-`Intersects` (nj2nc→[NC,VA,MD,NJ,DE,DC], nj2oh→[PA,OH,NJ], nc2tx→[NC,TN]). **Geo suite 157 green.** Ready to
-extend with more practical queries (within-distance, projection, group-by-region, nearest-city, …).
+`Intersects` (nj2nc→[NC,VA,MD,NJ,DE,DC], nj2oh→[PA,OH,NJ], nc2tx→[NC,TN]). **Extended (2026-07-20) with 3
+more task groups:** (4) **nearest** (order-by-`Distance` top-3 to a probe point → new-york 0.653/dc 3.615/
+richmond 4.693) + **`DWithin`** cross-checked against projected `ST_Distance` (richmond sits 0.030° from the
+nj2nc track, dc 0.131°, ny 0.744°; `DWithin(1.0°)`==the ≤1° set — predicate agrees with the measurements);
+(5) **projection** `ST_Length` (nc2tx 20.157° ≫ nj2nc 8.303° > nj2oh 8.157°) + **GROUP BY region** with
+COUNT + `AVG(ST_Area)` (New England 6 states, Southeast 4/avg 10.350, …); (6) **native-form subquery operand
+proven on real data** — states crossed by the track chosen via a `WHERE name='nj2nc'` subquery (operand
+projected `Native`, no `FromWkb` wrap) → identical `[VA,NJ,NC,MD,DE,DC]` to the bound-parameter form. Also
+validates **two geometry columns per entity** (`PgCity` Polygon extent + Point center). All in the single
+`Playground` [Fact]. **Geo suite 157 green** (full suite baseline 4105 green). The select surface —
+Contains/Intersects/DWithin, Area/Length/Distance, projection, ORDER BY, GROUP BY+agg, subquery operand — is
+now exercised end-to-end on real US data. Committed baseline = user's commit; the 3 extension task groups are
+UNCOMMITTED.
 
 For **meaningful Phase-4 behavioural tests (increments 2-4), use the real datasets in
 `Gehtsoft.EF.Test/GeoTestData/`** (test.wkt/test.wkb + `tiger-line/`, `usa/`, `mars-i-2294/`; LFS-tracked,
