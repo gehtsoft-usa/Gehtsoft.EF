@@ -80,7 +80,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public virtual bool SkipInlineColumn(TableDescriptor.ColumnInfo column) => false;
 
         /// <summary>
-        /// Emits the post-create statements for a geometry column (spatial index, and — on SpatiaLite —
+        /// Emits the post-create statements for a geometry column (spatial index, and - on SpatiaLite -
         /// the <c>AddGeometryColumn</c> registration). The default is a no-op; spatial-capable drivers
         /// override it.
         /// </summary>

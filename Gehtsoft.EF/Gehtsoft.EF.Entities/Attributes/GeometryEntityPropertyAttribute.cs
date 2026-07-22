@@ -7,7 +7,7 @@ namespace Gehtsoft.EF.Entities
     /// Marks an entity property as a geometry (spatial) column. The value is stored in a native spatial
     /// column and round-tripped as Well-Known Binary (WKB).
     ///
-    /// The property may be declared as <c>byte[]</c> (raw WKB — no geometry library needed) or as a
+    /// The property may be declared as <c>byte[]</c> (raw WKB - no geometry library needed) or as a
     /// geometry object handled by a registered <see cref="IGeometryCodec"/> (for example a
     /// NetTopologySuite geometry via the <c>Gehtsoft.EF.Geo.NetTopologySuite</c> module).
     ///

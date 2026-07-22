@@ -3,7 +3,43 @@
 *Snapshot updated 2026-07-22. Read this first when resuming. Branch `geo`. Companion docs: `GEO_PLAN.md`
 (overall, has the ARCHITECTURE REVISION banner), `GEO_COMMON_FUNCTIONALITY.md` (per-driver SQL map),
 `PHASE_0/`..`PHASE_4/` plans, **`PHASE_5/PHASE_5_PLAN.md`** (the entity-level surface — gates LOCKED,
-Increment 1 in progress), `ENTITY_API_REVIEW.md`, and **`PREREQUISITES_STATE.md`**.*
+Increment 1 in progress), `ENTITY_API_REVIEW.md`, `LINQ_GEO_ANALYSIS.md`, and **`PREREQUISITES_STATE.md`**.*
+
+## ▶ NEXT SESSION PLAN (agreed 2026-07-22, resume 2026-07-23)
+
+Geo feature is functionally COMPLETE: Phases 0-4 + Phase 5 (entity surface) committed & pushed; **LINQ geo
+support + XMLDoc fixes + two docgen articles + README update done today but UNCOMMITTED**. Goal of the next
+session: finish polish, then push `geo` → `main` and publish NuGet.
+
+**Uncommitted work to commit first** (branch is level with origin/geo): geo-LINQ (`SqlSpatial.cs`,
+`ExpressionCompiler`/`EntityQueryLinqExtension` binding fix, `Db.SqlDb.csproj`) + 3 LINQ tests
+(`GeometryLinq{Sql,Acceptance}Test`, `GeoPlaygroundLinqSpatialiteTest`) + `CLAUDE/GEO/LINQ_GEO_ANALYSIS.md` +
+XMLDoc ASCII fixes (`SqlSpatial.cs`, `GeometryEntityPropertyAttribute.cs`, `TableDdlBuilder.cs`) + two
+articles (`doc1/src/ns/geo.ds`, under the Tutorials group) + this `STATE.md` + `../README.md` (Features
+section + new `Gehtsoft.EF.Geo.NetTopologySuite` package row + package-name/typo fixes).
+
+Ordered plan:
+0. **Commit** the uncommitted work above.
+1. **Fix Sonar issues** — re-scan so the new geo/LINQ code is analyzed, pull findings via the `sonar` skill
+   (`.sonar.config`; focus on the new files), fix, re-verify. Fold in the non-ASCII XMLDoc cleanup: the
+   schema-catalogue docs (`CatalogDiff`/`CatalogChange`/`CatalogTableDto`) use `→` arrows that mojibake
+   through the windows-1252 cs2ds output exactly like the geo em-dashes did.
+2. **Update both skills with geo + LINQ-geo coverage (currently ZERO geo in either):**
+   - Repo `skill/SKILL.md` (nuget-embedded): add a Geo section + add `[GeometryEntityProperty]`/
+     `[SpatialIndex]`/`SqlSpatial` to the trigger description; enable steps (PostGIS / SpatiaLite).
+   - Full skill `/mnt/d/develop/ai/skills/coding/gehtsoft-ef-skill/` (SKILL.md + new `references/geo.md`);
+     keep self-contained ([[feedback_skills_self_contained]]); improvements flow back to the repo copy
+     ([[reference_skills_repo]]).
+3. **Full cross-platform test run** (WSL `dotnet` + Windows `dotnet.exe`) as the final gate.
+4. **Merge/push `geo` → `main`** — PR vs fast-forward is the user's call.
+5. **Publish NuGet** incl. the new `Gehtsoft.EF.Geo.NetTopologySuite` package.
+
+User-owned: **version bump** in `version.proj` (currently 1.9.7 — the publish trigger, per
+[[feedback_commit_version_proj]] never touched by me) and the merge strategy to `main`.
+
+Optional/non-blocking follow-ups: LINQ NTS-object operand overload (deferred sugar); a 5-engine acceptance
+version of the entity/LINQ playground; a `Gehtsoft.EF.Geo.NetTopologySuite` namespace doc page; official
+`mod_spatialite` NuGet.
 
 ## TL;DR
 
@@ -231,6 +267,27 @@ MSSQL + Oracle + PostGIS + MariaDB + MySQL 8.
 solved entirely through the entity surface (`GetInsertEntityQuery` load · `GetSelectEntitiesQueryBase` +
 `GeoPredicateOf`/`GeoScalarOf`/`AddGeometryScalarTo*` · native-form subquery operand with an entity outer query).
 Own entity types (`Epg*`, distinct scope/table). Live SpatiaLite, same assertions. **Geo suite 201 green.**
+
+**▶ LINQ geo support DONE (2026-07-22, UNCOMMITTED).** Geometry now works in LINQ `Where`/`OrderBy`/`Select`/
+`GroupBy` via a `SqlSpatial` marker class (analysis + design record in `LINQ_GEO_ANALYSIS.md`). Implementation
+(byte[]-operand baseline — core stays NTS-free, caller encodes the operand with the codec):
+- **`EntityQueries/Linq/SqlSpatial.cs`** (new, core) — marker methods, geo twin of `SqlFunction`: predicates
+  Intersects/Contains/Within/Disjoint/Touches/Overlaps/Crosses/SpatialEquals/DWithin(…, distance) → `bool`;
+  scalars Area/Length/Distance/X/Y → `double`. First arg = the geometry property; operand = WKB `byte[]`.
+  (Added to the Db.SqlDb csproj `<Compile Include>` — EnableDefaultCompileItems=false.)
+- **`ExpressionCompiler.ProcessCall`** — a geo branch (recognised by `typeof(SqlSpatial)`, before the generic
+  arg-visit loop) → `ProcessGeoCall`: resolves the geometry column via `IsQueryPath(...).Column.Geometry`
+  (like `TryResolveJson` reads `.Column.Json`), wraps the bound WKB operand in `FromWkb(@p, srid)`, and emits
+  `specifics.GeometryPredicate`/`GeometryFunction`. No `GetSqlFunction`, no new SQL, no NTS reference.
+- **`EntityQueryLinqExtension.AddOrderBy`/`AddGroupBy`** — now call `BindExpressionParameters(result)` (a
+  no-op for the paramless JSON/plain cases) so a geo scalar's operand param (e.g. `Distance`) binds in
+  ORDER BY / GROUP BY. This was the one bug found (unbound `probe` in `OrderBy(Distance)`).
+Tests (`Geo/DataSelecting/`): `GeometryLinqSqlTest` (DB-free, 4), `GeometryLinqAcceptanceTest` (**5 engines**:
+Intersects + `Area>10` in Where + Oracle `Crosses`→FeatureNotSupported) + `Geo/GeoPlaygroundLinqSpatialiteTest`
+(the states/cities/tracks playground re-expressed in LINQ — Contains/Intersects/DWithin/Distance-order/
+Length/region GROUP BY+AVG(Area)). **Ascending-only ordering** (pre-existing LINQ-provider limit, not geo).
+**Geo suite 211 green** (was 201; +4 DB-free, +1 playground, +5 acceptance). No LINQ regression: Entity 1496,
+Northwind+Legacy 130 green. The optional NTS-object operand overload was deliberately NOT built (see the doc).
 
 **Cross-platform re-verified (2026-07-22, committed `5b4e67e`, pushed).** Full suite **4150 green, 0 failed,
 0 skipped on BOTH WSL/Linux (`dotnet`, 5m45s) and Windows (`dotnet.exe`, 3m58s)** — the entity geo surface +

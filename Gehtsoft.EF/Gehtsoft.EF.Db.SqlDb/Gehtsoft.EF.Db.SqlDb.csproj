@@ -28,6 +28,7 @@
     <None Remove="EntityQueries\Linq\QueryableEntityProvider.cs" />
     <None Remove="EntityQueries\Linq\SelectExpressionCompiler.cs" />
     <None Remove="EntityQueries\Linq\SqlFunctions.cs" />
+    <None Remove="EntityQueries\Linq\SqlSpatial.cs" />
     <None Remove="EntityQueries\SelectEntitiesTreeQuery.cs" />
     <None Remove="SqlDbEntityCollectionExtension.cs" />
     <None Remove="UniversalSqlDbFactory.cs" />
@@ -118,6 +119,7 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
     <Compile Include="EntityQueries\Linq\SqlFunctions.cs" />
+    <Compile Include="EntityQueries\Linq\SqlSpatial.cs" />
     <Compile Include="EntityQueries\EntityQuery\SelectEntityQueryBuilderBaseReader.cs" />
     <Compile Include="EntityQueries\EntityQuery\SelectEntityQueryFilter.cs" />
     <Compile Include="EntityQueries\EntityQuery\ModifyEntityQuery.cs" />
