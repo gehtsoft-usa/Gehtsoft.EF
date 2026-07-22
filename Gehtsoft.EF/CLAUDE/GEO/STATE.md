@@ -232,6 +232,11 @@ solved entirely through the entity surface (`GetInsertEntityQuery` load · `GetS
 `GeoPredicateOf`/`GeoScalarOf`/`AddGeometryScalarTo*` · native-form subquery operand with an entity outer query).
 Own entity types (`Epg*`, distinct scope/table). Live SpatiaLite, same assertions. **Geo suite 201 green.**
 
+**Cross-platform re-verified (2026-07-22, committed `5b4e67e`, pushed).** Full suite **4150 green, 0 failed,
+0 skipped on BOTH WSL/Linux (`dotnet`, 5m45s) and Windows (`dotnet.exe`, 3m58s)** — the entity geo surface +
+playground pass across all 6 driver families on both platforms, including the Windows-native SpatiaLite loader
+path. Only the pre-existing `xUnit1051` analyzer warnings.
+
 **Phase-4 surface amendment — two-form geometry read + subquery predicate operand (2026-07-20, UNCOMMITTED).**
 Design conversation with the user pinned the governing rule: **client→server is always `byte[]`→
 `ST_GeomFromWKB` (one form); a server-side value's form depends on its destination** — WKB (`ST_AsBinary`)
