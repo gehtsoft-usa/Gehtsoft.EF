@@ -147,8 +147,10 @@ namespace Gehtsoft.EF.Test.Geo.DataSelecting
         public void Oracle_Functions_WithDefaultAndExplicitTolerance()
         {
             var s = new OracleDbLanguageSpecifics();
-            s.GeometryFunction(Fn(SqlGeoFunctionId.FromWkb, a: null, parameter: P, srid: 4326)).Should().Be("SDO_UTIL.FROM_WKBGEOMETRY(@p)");
-            s.GeometryFunction(Fn(SqlGeoFunctionId.AsBinary)).Should().Be("SDO_UTIL.TO_WKBGEOMETRY(t.shape)");
+            // The WKB converters are null-guarded: SDO_UTIL's Java procs NPE on a NULL argument, so a NULL
+            // geometry must render as NULL rather than call the proc (see GeometryNullRoundTrip*Test).
+            s.GeometryFunction(Fn(SqlGeoFunctionId.FromWkb, a: null, parameter: P, srid: 4326)).Should().Be("CASE WHEN @p IS NULL THEN NULL ELSE SDO_UTIL.FROM_WKBGEOMETRY(@p) END");
+            s.GeometryFunction(Fn(SqlGeoFunctionId.AsBinary)).Should().Be("CASE WHEN t.shape IS NULL THEN NULL ELSE SDO_UTIL.TO_WKBGEOMETRY(t.shape) END");
             s.GeometryFunction(Fn(SqlGeoFunctionId.Distance, b: B)).Should().Be("SDO_GEOM.SDO_DISTANCE(t.shape, @g, 0.005)");
             s.GeometryFunction(Fn(SqlGeoFunctionId.Distance, b: B, tolerance: 0.5)).Should().Be("SDO_GEOM.SDO_DISTANCE(t.shape, @g, 0.5)");
             s.GeometryFunction(Fn(SqlGeoFunctionId.Area)).Should().Be("SDO_GEOM.SDO_AREA(t.shape, 0.005)");

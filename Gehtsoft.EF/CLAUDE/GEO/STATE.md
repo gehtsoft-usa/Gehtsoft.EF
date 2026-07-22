@@ -1,9 +1,9 @@
 # GEO feature — current state (resume point)
 
-*Snapshot updated 2026-07-14. Read this first when resuming. Branch `geo`. Companion docs: `GEO_PLAN.md`
+*Snapshot updated 2026-07-22. Read this first when resuming. Branch `geo`. Companion docs: `GEO_PLAN.md`
 (overall, has the ARCHITECTURE REVISION banner), `GEO_COMMON_FUNCTIONALITY.md` (per-driver SQL map),
-`PHASE_0/`, `PHASE_1/`, `PHASE_2/`, `PHASE_3/` plans, and **`PREREQUISITES_STATE.md`** (the Schema
-Catalogue + locking work geo now waits on).*
+`PHASE_0/`..`PHASE_4/` plans, **`PHASE_5/PHASE_5_PLAN.md`** (the entity-level surface — gates LOCKED,
+Increment 1 in progress), `ENTITY_API_REVIEW.md`, and **`PREREQUISITES_STATE.md`**.*
 
 ## TL;DR
 
@@ -79,7 +79,33 @@ JSON/select-builder regression 128 green.
 **PHASE 4 (pure-SQL geo query surface) is complete** — insert/update/select value round-trip, all 8
 predicates + within-distance + mass delete, all accessors, scalar projection + order/group/aggregation — all
 verified on real databases across SpatiaLite + MSSQL + Oracle + PostGIS + MariaDB + MySQL 8. **Committed
-`965fdcc` (not pushed). NEXT: Phases 5–7 (entity-query wrappers delegating to this pure-SQL surface).**
+`965fdcc` (not pushed).**
+
+**▶ PHASE 5 — entity-level geo surface (WHERE · modification · SELECT clauses). Plan in
+`PHASE_5/PHASE_5_PLAN.md`; all 3 gate decisions LOCKED (2026-07-22).** The user's framing ("we cannot do it
+purely on SQL wrapping") is correct — the plan is delegate-where-the-abstraction-matches, re-implement-where-
+it-differs. **Locked gates:** (1) value-wrap = **Option A** (auto-wrap in the pure-SQL `Insert/UpdateQueryBuilder`
+keyed on `column.Geometry`, mirroring the autoincrement metadata-driven precedent; explicit
+`SetColumnValueExpressions` still overrides), **built bottom-up: prove at the pure-SQL layer first**; (2)
+resolution seam = **P-A** (extend `IEntityInfoProvider` with a `(ColumnInfo, QueryBuilderEntity)` resolver —
+JSON's alias-only path can't carry `column.Geometry.Srid`); (3) mass-update of a geo field stays OUT (decision
+12), HAVING has no dedicated geo API (generic path only). Framework limits honored: no driver knowledge in
+core, no hand-written SQL. Increments: **1 pure-SQL value-wrap + null verification** · 2 entity insert/update
+round-trip · 3 resolution seam · 4 WHERE + mass-delete · 5 SELECT clauses.
+
+**Increment 1 — STARTED (2026-07-22, UNCOMMITTED).** Began with the NULL round-trip verification (user
+directive: test null propagation through the driver conversion functions first). New tests
+`Geo/DataManagement/GeometryNullRoundTrip{Spatialite,Acceptance}Test.cs` write a NULL geometry (the
+`FromWkb(@p,srid)` value-wrap is still emitted, param bound to NULL) and read it back through the `AsBinary`
+output-wrap, expecting null — on all 6 drivers. This **caught a real Oracle product defect**:
+`SDO_UTIL.FROM_WKBGEOMETRY(NULL)` (and `TO_WKBGEOMETRY(NULL)`) are Java stored procs that NPE on NULL
+(ORA-29532). **Fixed** in `OracleDbLanguageSpecifics.GeometryFunction` — both WKB converters now render
+`CASE WHEN <arg> IS NULL THEN NULL ELSE SDO_UTIL.…(<arg>) END` (Oracle-only, in the driver, via the
+specifics renderer; non-null behaviour identical). Phase-4 Oracle exact-SQL assertions in `GeometryRenderTest`
+updated to the guarded strings. **Full Geo suite 163 green** (was 157; +6 null cases), 0 skipped.
+**NEXT: implement the Option-A auto-wrap in `InsertQueryBuilder.PrepareQuery` +
+`UpdateQueryBuilder.AddUpdateColumn` (keyed on `column.Geometry`), then re-verify the round-trip (non-null +
+null) relies on it with the explicit-expression path still overriding — finishing Increment 1.**
 
 **Phase-4 surface amendment — two-form geometry read + subquery predicate operand (2026-07-20, UNCOMMITTED).**
 Design conversation with the user pinned the governing rule: **client→server is always `byte[]`→
@@ -130,8 +156,20 @@ projected `Native`, no `FromWkb` wrap) → identical `[VA,NJ,NC,MD,DE,DC]` to th
 validates **two geometry columns per entity** (`PgCity` Polygon extent + Point center). All in the single
 `Playground` [Fact]. **Geo suite 157 green** (full suite baseline 4105 green). The select surface —
 Contains/Intersects/DWithin, Area/Length/Distance, projection, ORDER BY, GROUP BY+agg, subquery operand — is
-now exercised end-to-end on real US data. Committed baseline = user's commit; the 3 extension task groups are
-UNCOMMITTED.
+now exercised end-to-end on real US data. Committed baseline = user's commit; the 3 extension task groups
+committed `04280c0`.
+
+**▶ ENTITY-LEVEL API REVIEW (2026-07-20) — read `ENTITY_API_REVIEW.md` before planning Phases 5–7.** Design
+review, informed by the playground, of (1) which special entity interfaces are needed (WHERE `GeoPredicateOf`/
+`GeoScalarOf`; `AddGeometryScalarTo{Resultset,OrderBy,GroupBy}`; `AddGeometryValueToResultset(form)`; NTS-module
+object overloads; + write/read wraps), (2) what works transparently (whole-entity save/read incl. geometry;
+filter/order/group by *mapped* attrs — "states by area" via the stored `AREA` col needs zero geo API), and
+(3) surviving conflicts (scalar/aggregate projections aren't typed entities; GROUP-BY vs whole-entity read;
+Wkb/Native two-form read; core-can't-ref-NTS ergonomics split; entity-WHERE welding for mass ops; Oracle
+Crosses/IsEmpty throw; planar-not-metric semantics; and the decision-12 gaps — spatial aggregates, mass geo
+UPDATE, order/group on raw geometry — that the SQL layer deliberately can't provide). **DONE:** folded into
+`PHASE_5/PHASE_5_PLAN.md` (the three areas WHERE/modification/SELECT, each answering interface+test /
+delegate-vs-reimplement / why); all gates now LOCKED — see the Phase 5 block near the top of this file.
 
 For **meaningful Phase-4 behavioural tests (increments 2-4), use the real datasets in
 `Gehtsoft.EF.Test/GeoTestData/`** (test.wkt/test.wkb + `tiger-line/`, `usa/`, `mars-i-2294/`; LFS-tracked,

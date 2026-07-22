@@ -42,8 +42,10 @@ namespace Gehtsoft.EF.Db.OracleDb
         {
             switch (request.Op)
             {
-                case SqlGeoFunctionId.FromWkb: return $"SDO_UTIL.FROM_WKBGEOMETRY({request.Parameter})";
-                case SqlGeoFunctionId.AsBinary: return $"SDO_UTIL.TO_WKBGEOMETRY({request.A})";
+                // The SDO_UTIL WKB converters are Java stored procedures that NPE on a NULL argument
+                // (ORA-29532), so guard both directions - a NULL geometry must round-trip as NULL, not throw.
+                case SqlGeoFunctionId.FromWkb: return $"CASE WHEN {request.Parameter} IS NULL THEN NULL ELSE SDO_UTIL.FROM_WKBGEOMETRY({request.Parameter}) END";
+                case SqlGeoFunctionId.AsBinary: return $"CASE WHEN {request.A} IS NULL THEN NULL ELSE SDO_UTIL.TO_WKBGEOMETRY({request.A}) END";
                 case SqlGeoFunctionId.Distance: return $"SDO_GEOM.SDO_DISTANCE({request.A}, {request.B}, {OracleTolerance(request.Tolerance)})";
                 case SqlGeoFunctionId.Area: return $"SDO_GEOM.SDO_AREA({request.A}, {OracleTolerance(request.Tolerance)})";
                 case SqlGeoFunctionId.Length: return $"SDO_GEOM.SDO_LENGTH({request.A}, {OracleTolerance(request.Tolerance)})";
