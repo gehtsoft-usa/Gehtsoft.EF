@@ -150,7 +150,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             for (int i = 0; i < ei.TableDescriptor.Count; i++)
             {
                 var ci = ei.TableDescriptor[i];
-                if (exclusion == null || Array.Find(exclusion, s => s.Equals(ci.ID, StringComparison.OrdinalIgnoreCase)) == null)
+                if (exclusion != null && Array.Find(exclusion, s => s.Equals(ci.ID, StringComparison.OrdinalIgnoreCase)) != null)
+                    continue;
+                // A geometry column's raw value is a non-portable native BLOB; project it through the WKB
+                // output wrap so the byte[]/object accessor can decode it (FromWkb) on the entity read.
+                if (ci.Geometry != null)
+                    AddGeometryToResultset(entityType, ci.ID, GeometryValueForm.Wkb, null, occurrence);
+                else
                     AddToResultset(entityType, occurrence, ci.ID);
             }
         }
@@ -623,6 +629,104 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         {
             ResolveJsonColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
             SelectBuilder.AddJsonValueToGroupBy(column, entity, jsonPath, type);
+        }
+
+        // Resolves an entity property to the query-builder column and table it lives on (identical to
+        // ResolveJsonColumn); the geometry select methods read column.Geometry.Srid through it.
+        private void ResolveGeoColumn(Type entityType, int occurrence, string property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity)
+        {
+            InQueryName reference = GetReference(entityType, occurrence, property);
+            column = reference.Item.Column;
+            entity = reference.Item.QueryEntity;
+        }
+
+        /// <summary>
+        /// Projects the geometry value of a geometry property. <paramref name="form"/> selects the wire form:
+        /// <see cref="GeometryValueForm.Wkb"/> (default) wraps the column in the dialect WKB output function
+        /// so it is portably readable as a <c>byte[]</c> (and decoded by the object accessor on a
+        /// whole-entity read); <see cref="GeometryValueForm.Native"/> selects the raw native geometry, a
+        /// server-side operand (for example to feed another predicate as a subquery), not portably readable.
+        /// </summary>
+        public void AddGeometryToResultset<T>(string property, GeometryValueForm form = GeometryValueForm.Wkb, string alias = null, int occurrence = 0)
+            => AddGeometryToResultset(typeof(T), property, form, alias, occurrence);
+
+        /// <summary>
+        /// Projects the geometry value of a geometry property of the specified entity type (see the generic overload).
+        /// </summary>
+        public void AddGeometryToResultset(Type entityType, string property, GeometryValueForm form = GeometryValueForm.Wkb, string alias = null, int occurrence = 0)
+        {
+            ResolveGeoColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+            SelectBuilder.AddGeometryValueToResultset(column, entity, alias, form);
+            // Wkb is a portable byte[]; Native is a server-side operand read (if at all) as the driver's object.
+            mResultsetTypes.Add(form == GeometryValueForm.Wkb ? typeof(byte[]) : typeof(object));
+        }
+
+        /// <summary>
+        /// Projects a geometry scalar (a measurement or accessor - Area, Length, Distance, X, Y, ...) of a
+        /// geometry property as a resultset (tuple) column. For a binary measurement
+        /// (<see cref="SqlGeoFunctionId.Distance"/>) pass <paramref name="parameterName"/> and bind the other
+        /// geometry as a WKB <c>byte[]</c> parameter of that name.
+        /// </summary>
+        public void AddGeometryScalarToResultset<T>(SqlGeoFunctionId op, string property, DbType type, string alias = null, string parameterName = null, double tolerance = 0, int occurrence = 0)
+            => AddGeometryScalarToResultset(op, typeof(T), property, type, alias, parameterName, tolerance, occurrence);
+
+        /// <summary>
+        /// Projects a geometry scalar of a geometry property of the specified entity type (see the generic overload).
+        /// </summary>
+        public void AddGeometryScalarToResultset(SqlGeoFunctionId op, Type entityType, string property, DbType type, string alias = null, string parameterName = null, double tolerance = 0, int occurrence = 0)
+        {
+            ResolveGeoColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+            SelectBuilder.AddGeometryScalarToResultset(op, column, entity, type, alias, parameterName, tolerance);
+            mResultsetTypes.Add(ClrTypeOfJson(type));
+        }
+
+        /// <summary>
+        /// Projects a geometry scalar aggregated with the specified function (for example <c>AVG(ST_Area(...))</c>).
+        /// </summary>
+        public void AddGeometryScalarToResultset<T>(AggFn aggregation, SqlGeoFunctionId op, string property, DbType type, string alias = null, string parameterName = null, double tolerance = 0, int occurrence = 0)
+            => AddGeometryScalarToResultset(aggregation, op, typeof(T), property, type, alias, parameterName, tolerance, occurrence);
+
+        /// <summary>
+        /// Projects an aggregated geometry scalar of a geometry property of the specified entity type (see the generic overload).
+        /// </summary>
+        public void AddGeometryScalarToResultset(AggFn aggregation, SqlGeoFunctionId op, Type entityType, string property, DbType type, string alias = null, string parameterName = null, double tolerance = 0, int occurrence = 0)
+        {
+            ResolveGeoColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+            SelectBuilder.AddGeometryScalarToResultset(aggregation, op, column, entity, type, alias, parameterName, tolerance);
+            mResultsetTypes.Add(aggregation == AggFn.Count ? typeof(int) : ClrTypeOfJson(type));
+        }
+
+        /// <summary>
+        /// Orders the resultset by a geometry scalar of a geometry property. Ordering by
+        /// <see cref="SqlGeoFunctionId.Distance"/> (bind the origin as <paramref name="parameterName"/>) is
+        /// the nearest-neighbour ordering.
+        /// </summary>
+        public void AddGeometryScalarToOrderBy<T>(SqlGeoFunctionId op, string property, SortDir direction = SortDir.Asc, string parameterName = null, double tolerance = 0, int occurrence = 0)
+            => AddGeometryScalarToOrderBy(op, typeof(T), property, direction, parameterName, tolerance, occurrence);
+
+        /// <summary>
+        /// Orders the resultset by a geometry scalar of a geometry property of the specified entity type (see the generic overload).
+        /// </summary>
+        public void AddGeometryScalarToOrderBy(SqlGeoFunctionId op, Type entityType, string property, SortDir direction = SortDir.Asc, string parameterName = null, double tolerance = 0, int occurrence = 0)
+        {
+            ResolveGeoColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+            SelectBuilder.AddGeometryScalarToOrderBy(op, column, entity, direction, parameterName, tolerance);
+        }
+
+        /// <summary>
+        /// Groups the resultset by a geometry scalar of a geometry property (the scalar renders byte-identically
+        /// to its resultset projection, so GROUP BY matches).
+        /// </summary>
+        public void AddGeometryScalarToGroupBy<T>(SqlGeoFunctionId op, string property, string parameterName = null, double tolerance = 0, int occurrence = 0)
+            => AddGeometryScalarToGroupBy(op, typeof(T), property, parameterName, tolerance, occurrence);
+
+        /// <summary>
+        /// Groups the resultset by a geometry scalar of a geometry property of the specified entity type (see the generic overload).
+        /// </summary>
+        public void AddGeometryScalarToGroupBy(SqlGeoFunctionId op, Type entityType, string property, string parameterName = null, double tolerance = 0, int occurrence = 0)
+        {
+            ResolveGeoColumn(entityType, occurrence, property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+            SelectBuilder.AddGeometryScalarToGroupBy(op, column, entity, parameterName, tolerance);
         }
 
         // Parses a member/array-index expression into the JSON property, path and the value type to

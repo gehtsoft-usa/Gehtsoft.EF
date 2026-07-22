@@ -5,9 +5,10 @@ supersedes the earlier insert/update-only draft). Read `../GEO_PLAN.md`, `../STA
 `../PHASE_4/PHASE_4_PLAN.md`, `../ENTITY_API_REVIEW.md`, and `../../ENTITY_WHERE_PROBLEM.md` first.
 **All three Gate decisions are LOCKED (2026-07-22 — see "Gate decisions" at the bottom).** Plan is
 approved-to-shape; coding proceeds increment-by-increment (below), each ending green, with the per-increment
-advance gate. **Commit only when the user asks.** **Increments 1 (pure-SQL value-wrap) and 2 (entity
-insert/update round-trip) are ✅ DONE** — see the increment plan at the bottom; awaiting the go-ahead to
-advance to Increment 3 (resolution seam).*
+advance gate. **Commit only when the user asks.** **★ ALL FIVE INCREMENTS ✅ DONE — the entity-level geo
+surface is COMPLETE** (1 pure-SQL value-wrap · 2 entity insert/update round-trip · 3 resolution seam · 4 WHERE
++ mass-delete · 5 SELECT clauses), verified on SpatiaLite + all 5 server engines. Uncommitted. Next (separate
+task): port the states/cities/tracks playground to the entity query API.*
 
 ---
 
@@ -282,14 +283,34 @@ SQL layer cannot pretend otherwise.
   live SpatiaLite) + `GeometryEntityRoundTripAcceptanceTest` (byte[] + NTS-object + null, **all 5 engines**).
   Object-property test lives in `[Collection("GeometryCodecRegistration")]` (accessor uses the global codec),
   so the SpatiaLite `[Fact]` covers byte[] only and the object variant rides acceptance. Geo suite **174 green**.
-- **Increment 3 — resolution seam** (prereq P-A): extend `IEntityInfoProvider` +
-  `EntityQueryWithWhereBuilder`; unit-test the resolver returns `(ColumnInfo, entity)` for a geo property;
-  full suite green (no SQL drift).
-- **Increment 4 — Area 1 WHERE**: core byte[] `GeoPredicateOf`/`GeoScalarOf` + subquery overload; NTS-module
-  object overloads; DB-free AST + SpatiaLite + acceptance; then mass-delete-by-geo tests.
-- **Increment 5 — Area 3 SELECT clauses**: per-property projection/order/group + whole-entity read branch +
-  Native form + HAVING-via-generic; DB-free AST + SpatiaLite + acceptance; document result-shape rules.
-- **★ ENTITY SURFACE COMPLETE** when all three areas are green on SpatiaLite + all 5 server engines.
+- **Increment 3 — resolution seam (prereq P-A): ✅ DONE (2026-07-22, uncommitted).** Extended
+  `IEntityInfoProvider` with two additive `bool TryResolveColumn(...)` overloads (by path / by
+  (type, occurrence, name)) returning `(TableDescriptor.ColumnInfo, QueryBuilderEntity)`; implemented on
+  `EntityQueryWithWhereBuilder` by surfacing the existing `mItemIndex`/`mTypesIndex` (the `EntityQueryItem`
+  already carries `.Column` + `.QueryEntity`). Miss → `false` (no throw); JSON `Alias` path untouched.
+  Unit test `GeometryEntityColumnResolutionTest` (4 cases) proves it returns the geo column's `Geometry.Srid`
+  + entity. Geo suite **178 green**; no drift (BasicQueryTests 118, JSON 87 green).
+- **Increment 4 — Area 1 WHERE: ✅ DONE (2026-07-22, uncommitted).** Core byte[] `GeoPredicateOf`/`GeoScalarOf`
+  + native-subquery overload as instance methods on `SingleEntityQueryConditionBuilder` (render via the
+  Increment-3 resolver + pure-SQL specifics, set via a `SetGeoSide` twin of `SetJsonSide`); fluent entry points
+  in new `GeoPropertyConditionBuilder.cs` (added to the csproj `<Compile Include>` — Db.SqlDb has
+  `EnableDefaultCompileItems=false`); NTS-module `Geometry`-operand overloads (string/generic/member-expression,
+  encode via local codec → core byte[]). Mass-delete rides Area 1. Tests: `GeometryEntityPredicateSqlTest`
+  (DB-free), `GeometryEntityPredicateSpatialiteTest` (live, COUNT + mass-delete), `GeometryEntityPredicate
+  AcceptanceTest` (**5 engines**, Intersects + `GeoScalarOf(Area).Gt` + Oracle `Crosses`→FeatureNotSupported).
+  Geo suite **188 green**; no drift (JSON 87, BasicQueryTests 118).
+- **Increment 5 — Area 3 SELECT clauses: ✅ DONE (2026-07-22, uncommitted).** `AddGeometryToResultset`
+  (Wkb/Native), `AddGeometryScalarTo{Resultset(+AggFn),OrderBy,GroupBy}` on `SelectEntitiesQueryBase` (resolve
+  via `GetReference` → pure-SQL `SelectQueryBuilder.AddGeometry*`); whole-entity read made geo-aware in
+  **`SelectEntityQueryBuilder.CreateBinder`** (the real auto-select path) AND the `SelectEntitiesQueryBase`
+  loop — geo columns projected via `ST_AsBinary` so the accessor decodes. HAVING via the generic
+  `Having`+`GeoScalarOf`. Result-shape rule enforced: tuple/aggregate queries use `GetSelectEntitiesQueryBase`
+  (empty resultset), not the whole-entity `GetSelectEntitiesQuery` (mixing ungrouped cols → ORA-00937 on
+  strict engines). Tests: `GeometryEntityProjection{Sql,Spatialite,Acceptance}Test` + shared
+  `GeometryEntityProjectionChecks`. Geo suite **200 green**; no drift (BasicQueryTests 118, JSON+DynProps+Catalog
+  1171).
+- **★ ENTITY SURFACE COMPLETE (2026-07-22)** — all three areas green on SpatiaLite + all 5 server engines.
+  Next (separate task): port the states/cities/tracks playground to the entity query API.
 
 ## Gate decisions — ✅ ALL LOCKED (2026-07-22)
 

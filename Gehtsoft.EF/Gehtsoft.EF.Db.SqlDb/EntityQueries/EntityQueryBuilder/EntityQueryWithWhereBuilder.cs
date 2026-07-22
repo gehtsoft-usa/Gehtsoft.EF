@@ -106,5 +106,29 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             columnType = item.Column.DbType;
             return GetAlias(item);
         }
+
+        public bool TryResolveColumn(string path, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity)
+        {
+            column = null;
+            entity = null;
+            if (!mItemIndex.TryGetValue(path, out EntityQueryItem item))
+                return false;
+            column = item.Column;
+            entity = item.QueryEntity;
+            return true;
+        }
+
+        public bool TryResolveColumn(Type type, int occurrence, string propertyName, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity)
+        {
+            column = null;
+            entity = null;
+            if (type == null)
+                type = mEntityDescriptor.EntityType;
+            if (!mTypesIndex.TryGetValue(new Tuple<Type, int, string>(type, occurrence, propertyName), out EntityQueryItem item))
+                return false;
+            column = item.Column;
+            entity = item.QueryEntity;
+            return true;
+        }
     }
 }

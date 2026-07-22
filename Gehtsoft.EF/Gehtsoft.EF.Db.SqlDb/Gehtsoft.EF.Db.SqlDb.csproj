@@ -96,6 +96,7 @@
     <Compile Include="EntityQueries\EntityQuery\DeleteEntityQuery.cs" />
     <Compile Include="EntityQueries\EntityQuery\DynamicPropertyConditionBuilder.cs" />
     <Compile Include="EntityQueries\EntityQuery\JsonPropertyConditionBuilder.cs" />
+    <Compile Include="EntityQueries\EntityQuery\GeoPropertyConditionBuilder.cs" />
     <Compile Include="EntityQueries\EntityQuery\JsonExpressionParser.cs" />
     <Compile Include="EntityQueries\EntityQuery\DynamicPropertyProjection.cs" />
     <Compile Include="EntityQueries\DynamicEntity\DynamicEntity.cs">

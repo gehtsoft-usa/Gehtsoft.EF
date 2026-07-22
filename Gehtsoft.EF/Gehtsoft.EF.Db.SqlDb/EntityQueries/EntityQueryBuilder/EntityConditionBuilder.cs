@@ -11,6 +11,21 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
     {
         string Alias(string path, out DbType columnType);
         string Alias(Type type, int occurrence, string propertyName, out DbType columnType);
+
+        /// <summary>
+        /// Resolves a property to its full column metadata and the query entity it belongs to, so a caller
+        /// can read column-level metadata (for example <c>column.Geometry.Srid</c>) that the alias-only
+        /// <see cref="Alias(string, out DbType)"/> path cannot carry. Returns <c>false</c> when the path is
+        /// unknown. This is the richer seam the geometry WHERE methods need; the JSON path keeps using
+        /// <c>Alias</c>.
+        /// </summary>
+        bool TryResolveColumn(string path, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
+
+        /// <summary>
+        /// The <c>(type, occurrence, propertyName)</c> overload of
+        /// <see cref="TryResolveColumn(string, out TableDescriptor.ColumnInfo, out QueryBuilderEntity)"/>.
+        /// </summary>
+        bool TryResolveColumn(Type type, int occurrence, string propertyName, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity);
     }
 
     [ExcludeFromCodeCoverage]

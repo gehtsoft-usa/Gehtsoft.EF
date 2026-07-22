@@ -91,7 +91,9 @@ resolution seam = **P-A** (extend `IEntityInfoProvider` with a `(ColumnInfo, Que
 JSON's alias-only path can't carry `column.Geometry.Srid`); (3) mass-update of a geo field stays OUT (decision
 12), HAVING has no dedicated geo API (generic path only). Framework limits honored: no driver knowledge in
 core, no hand-written SQL. Increments: **1 pure-SQL value-wrap + null verification** · 2 entity insert/update
-round-trip · 3 resolution seam · 4 WHERE + mass-delete · 5 SELECT clauses.
+round-trip · 3 resolution seam · 4 WHERE + mass-delete · 5 SELECT clauses. **★ ALL 5 DONE (2026-07-22,
+UNCOMMITTED) — entity geo surface COMPLETE on SpatiaLite + all 5 server engines; Geo suite 200 green.** Next
+(separate task): port the states/cities/tracks playground to the entity query API.
 
 **Increment 1 — ✅ DONE (2026-07-22, UNCOMMITTED).**
 
@@ -147,8 +149,83 @@ covers the `byte[]` path only, and the NTS-object variant rides the acceptance t
 column named `raw` triggers `ORA-00904` (RAW is a reserved type keyword) — renamed to `shape_a`/`shape_b`.
 **Full Geo suite 174 green** (was 166; +2 DB-free, +1 SpatiaLite, +5 acceptance engines), 0 skipped. No product
 regression risk (test-only increment).
-**NEXT: Increment 3 — resolution seam (prereq P-A): extend `IEntityInfoProvider` +
-`EntityQueryWithWhereBuilder` with a `(ColumnInfo, QueryBuilderEntity)`-returning resolver.**
+
+**Increment 3 — ✅ DONE (2026-07-22, UNCOMMITTED). Resolution seam (prereq P-A).** Extended
+`IEntityInfoProvider` (in `EntityConditionBuilder.cs`) with two additive
+`bool TryResolveColumn(...)` overloads — by `path` and by `(type, occurrence, propertyName)` — each returning
+the property's full `TableDescriptor.ColumnInfo` **and** its `QueryBuilderEntity`, so the geometry WHERE/SELECT
+methods can reach `column.Geometry.Srid` (metadata the alias-only `Alias` path structurally can't carry).
+Implemented on the sole implementer `EntityQueryWithWhereBuilder` by surfacing its existing `mItemIndex`/
+`mTypesIndex` (`EntityQueryItem` already holds `.Column` + `.QueryEntity`). Returns `false` on a miss (no
+throw, unlike `Alias`); non-geo columns resolve with a null `.Geometry`. The JSON alias path is untouched.
+Unit test `Geo/DataSelecting/GeometryEntityColumnResolutionTest.cs` (4 cases: by-path w/ SRID+entity,
+by-type==by-path, non-geo→null Geometry, unknown→false) via a `DummySqlConnection` multi-delete query cast to
+the internal builder (InternalsVisibleTo). **Full Geo suite 178 green** (was 174; +4). No drift: BasicQueryTests
+118, JSON 87 green (additive interface, existing `Alias` behaviour unchanged).
+**Increment 4 — ✅ DONE (2026-07-22, UNCOMMITTED). Area 1 entity WHERE + mass-delete-by-geo.** Added the
+entity-level geometry WHERE surface, delegate-the-render / re-implement-the-resolution:
+- **Instance methods on `SingleEntityQueryConditionBuilder`** (in `EntityQueryConditionBuilder.cs`):
+  `GeoPredicateOf(name, op, byte[] operandWkb, entityType, occurrence, distance)`, a native-subquery overload
+  `GeoPredicateOf(name, op, AQueryBuilder, ...)`, and `GeoScalarOf(name, op, byte[], resultType=Double, ...)`.
+  Each resolves `(ColumnInfo, QueryBuilderEntity)` via the Increment-3 `TryResolveColumn`, renders `a` via the
+  pure-SQL `ConditionBuilder.PropertyName(entity, column)` (identical string), binds the operand under a
+  generated param, and calls `specifics.GeometryPredicate`/`GeometryFunction` — set through a `SetGeoSide`
+  twin of `SetJsonSide` (bypasses the raw-scalar guard; the deferred Push uses the guard-free
+  `ConditionBuilder.Add(logOp, string)`). `resultType` lets a following `.Gt(value)` bind without an explicit type.
+- **Core fluent entry points** in new `EntityQueries/EntityQuery/GeoPropertyConditionBuilder.cs`
+  (`GeoPropertyConditionBuilderExtension`, twin of `JsonPropertyConditionBuilderExtension`) — string + generic
+  `<T>` overloads. **Added to the Db.SqlDb csproj `<Compile Include>` list** (that project has
+  `EnableDefaultCompileItems=false` — a new .cs file is silently excluded otherwise; symptom was
+  `CS0103: GeoPropertyConditionBuilderExtension does not exist` from the NTS module).
+- **NTS-module ergonomics** in `Gehtsoft.EF.Geo.NetTopologySuite/GeometryEntityConditionExtensions.cs`:
+  `Geometry`-operand overloads (string name, generic `<T>`, and member-expression `e => e.Shape`) that encode
+  to WKB via the module's own codec and delegate to the core byte[] methods (called explicitly as
+  `GeoPropertyConditionBuilderExtension.GeoPredicateOf(...)` to dodge the same-namespace extension-lookup rule
+  that otherwise binds the byte[] arg to the Geometry overload). No global codec registration needed (local
+  codec), so the object-operand path is usable from any collection.
+- **Mass delete rides Area 1**: `GetMultiDeleteEntityQuery<T>().Where.GeoPredicateOf(...)` flows the predicate
+  through unchanged.
+Tests (`Geo/DataSelecting/`): `GeometryEntityPredicateSqlTest` (DB-free: Intersects wrap · DWithin distance ·
+GeoScalarOf(Area).Gt · native-subquery no-wrap), `GeometryEntityPredicateSpatialiteTest` (live: Intersects,
+DWithin, entity mass-delete — via COUNT queries so the not-yet-geo-aware whole-entity read is avoided),
+`GeometryEntityPredicateAcceptanceTest` (**all 5 engines**: Intersects + `GeoScalarOf(Area).Gt` over SRID-0
+planar polygons + Oracle `Crosses` → `FeatureNotSupported`). **Full Geo suite 188 green** (was 178; +4 DB-free,
++1 SpatiaLite, +5 acceptance). No drift: JSON 87, BasicQueryTests 118 (additive — existing `Alias`/JSON paths
+untouched).
+**Increment 5 — ✅ DONE (2026-07-22, UNCOMMITTED). Area 3 entity SELECT clauses. ★ ENTITY SURFACE COMPLETE.**
+Added the entity-level geometry SELECT surface on `SelectEntitiesQueryBase` (mirroring the JSON select methods;
+each resolves `(column, entity)` via `GetReference`/`ResolveGeoColumn` and delegates to the Phase-4 pure-SQL
+`SelectQueryBuilder.AddGeometry*`):
+- `AddGeometryToResultset(property, form = Wkb, alias, occurrence)` — whole-value projection, **Wkb**
+  (`ST_AsBinary` → portable `byte[]`) or **Native** (raw column, `DbType.Object`, server-side operand).
+- `AddGeometryScalarToResultset(op, property, DbType, alias, parameterName, tolerance, occurrence)` + the
+  `AggFn` aggregate overload — scalar/measurement as a **tuple** column (`mResultsetTypes` registered via the
+  shared `ClrTypeOfJson` map; `Count`→int).
+- `AddGeometryScalarToOrderBy(op, property, SortDir, parameterName, tolerance, occurrence)` (nearest =
+  order-by `Distance`) and `AddGeometryScalarToGroupBy(op, property, parameterName, tolerance, occurrence)`.
+- **Whole-entity read (the wiring piece):** the real default path is `SelectEntityQueryBuilder.CreateBinder`
+  (invoked by `GetSelectEntitiesQuery<T>()`'s auto-select) — NOT the `SelectEntitiesQueryBase.AddToResultset`
+  loop. **Both** were made geo-aware: a `column.Geometry != null` branch projects the column via the WKB
+  output-wrap (`AddGeometryValueToResultset(..., Wkb)`, bound by resultset index) so the `byte[]`/object
+  accessor decodes it (`FromWkb`) transparently on read. Non-geo columns byte-identical.
+- **HAVING:** no dedicated geo method — `GetSelectEntitiesQueryBase` exposes `Having` (an
+  `EntityQueryConditionBuilder`), so the Increment-4 `GeoScalarOf` extension already works on it (generic path).
+- **Result-shape rule (contract, enforced by test):** scalar/aggregate/GROUP-BY tuples are read via
+  `GetSelectEntitiesQueryBase<T>()` (EMPTY resultset) — **not** `GetSelectEntitiesQuery<T>()`, whose
+  whole-entity auto-select would mix ungrouped columns into an aggregate query (`ORA-00937` on strict engines;
+  MariaDB is lenient — caught during acceptance).
+Tests (`Geo/DataSelecting/`): `GeometryEntityProjectionSqlTest` (DB-free: Area projection · GROUP BY · ORDER BY
+Distance · Native raw · whole-entity read = exactly one `ST_AsBinary`, plain column bare),
+`GeometryEntityProjectionSpatialiteTest` (live: values via shared `GeometryEntityProjectionChecks` + whole-entity
+read decodes the point), `GeometryEntityProjectionAcceptanceTest` (**all 5 engines**, same checks). Shared
+`Geo/GeometryEntityProjectionChecks.cs`. **Full Geo suite 200 green** (was 188; +5 DB-free, +2 SpatiaLite, +5
+acceptance). No drift: BasicQueryTests 118, JSON+DynProps+Catalog 1171 green (whole-entity branch only fires on
+`Geometry != null`).
+
+**★ ENTITY-LEVEL GEO SURFACE COMPLETE** — insert/update round-trip (Inc 1-2), resolution seam (Inc 3), WHERE +
+mass-delete (Inc 4), SELECT projection/order/group + whole-entity read (Inc 5) — all verified on SpatiaLite +
+MSSQL + Oracle + PostGIS + MariaDB + MySQL 8. **NEXT (separate task, per user): port the states/cities/tracks
+playground (`GeoPlaygroundSpatialiteTest`) from the pure-SQL surface to the entity query API.**
 
 **Phase-4 surface amendment — two-form geometry read + subquery predicate operand (2026-07-20, UNCOMMITTED).**
 Design conversation with the user pinned the governing rule: **client→server is always `byte[]`→
