@@ -224,8 +224,13 @@ acceptance). No drift: BasicQueryTests 118, JSON+DynProps+Catalog 1171 green (wh
 
 **★ ENTITY-LEVEL GEO SURFACE COMPLETE** — insert/update round-trip (Inc 1-2), resolution seam (Inc 3), WHERE +
 mass-delete (Inc 4), SELECT projection/order/group + whole-entity read (Inc 5) — all verified on SpatiaLite +
-MSSQL + Oracle + PostGIS + MariaDB + MySQL 8. **NEXT (separate task, per user): port the states/cities/tracks
-playground (`GeoPlaygroundSpatialiteTest`) from the pure-SQL surface to the entity query API.**
+MSSQL + Oracle + PostGIS + MariaDB + MySQL 8.
+
+**Entity playground DONE (2026-07-22).** `Geo/GeoPlaygroundEntitySpatialiteTest.cs` — the entity-query twin of
+`GeoPlaygroundSpatialiteTest`: the same six real-world tasks over the same US datasets (states/cities/tracks),
+solved entirely through the entity surface (`GetInsertEntityQuery` load · `GetSelectEntitiesQueryBase` +
+`GeoPredicateOf`/`GeoScalarOf`/`AddGeometryScalarTo*` · native-form subquery operand with an entity outer query).
+Own entity types (`Epg*`, distinct scope/table). Live SpatiaLite, same assertions. **Geo suite 201 green.**
 
 **Phase-4 surface amendment — two-form geometry read + subquery predicate operand (2026-07-20, UNCOMMITTED).**
 Design conversation with the user pinned the governing rule: **client→server is always `byte[]`→
