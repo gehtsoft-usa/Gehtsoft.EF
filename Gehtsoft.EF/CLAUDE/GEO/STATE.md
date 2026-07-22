@@ -93,8 +93,10 @@ JSON's alias-only path can't carry `column.Geometry.Srid`); (3) mass-update of a
 core, no hand-written SQL. Increments: **1 pure-SQL value-wrap + null verification** · 2 entity insert/update
 round-trip · 3 resolution seam · 4 WHERE + mass-delete · 5 SELECT clauses.
 
-**Increment 1 — STARTED (2026-07-22, UNCOMMITTED).** Began with the NULL round-trip verification (user
-directive: test null propagation through the driver conversion functions first). New tests
+**Increment 1 — ✅ DONE (2026-07-22, UNCOMMITTED).**
+
+*Part A — NULL round-trip verification (committed `e3b8262`).* Began with the NULL round-trip verification
+(user directive: test null propagation through the driver conversion functions first). New tests
 `Geo/DataManagement/GeometryNullRoundTrip{Spatialite,Acceptance}Test.cs` write a NULL geometry (the
 `FromWkb(@p,srid)` value-wrap is still emitted, param bound to NULL) and read it back through the `AsBinary`
 output-wrap, expecting null — on all 6 drivers. This **caught a real Oracle product defect**:
@@ -102,10 +104,51 @@ output-wrap, expecting null — on all 6 drivers. This **caught a real Oracle pr
 (ORA-29532). **Fixed** in `OracleDbLanguageSpecifics.GeometryFunction` — both WKB converters now render
 `CASE WHEN <arg> IS NULL THEN NULL ELSE SDO_UTIL.…(<arg>) END` (Oracle-only, in the driver, via the
 specifics renderer; non-null behaviour identical). Phase-4 Oracle exact-SQL assertions in `GeometryRenderTest`
-updated to the guarded strings. **Full Geo suite 163 green** (was 157; +6 null cases), 0 skipped.
-**NEXT: implement the Option-A auto-wrap in `InsertQueryBuilder.PrepareQuery` +
-`UpdateQueryBuilder.AddUpdateColumn` (keyed on `column.Geometry`), then re-verify the round-trip (non-null +
-null) relies on it with the explicit-expression path still overriding — finishing Increment 1.**
+updated to the guarded strings.
+
+*Part B — Option-A auto-wrap at the pure-SQL layer (UNCOMMITTED).* Implemented the metadata-driven value-wrap
+keyed on `column.Geometry != null`, mirroring the autoincrement metadata emission in the same INSERT loop:
+- `InsertQueryBuilder.PrepareQuery` — new geo branch after the explicit-expression check and before the plain
+  parameter fallback: emits `mSpecifics.GeometryFunction(FromWkb, <paramRef>, srid=column.Geometry.Srid)`.
+- `UpdateQueryBuilder.AddUpdateColumn` — wraps the SET value in the same `FromWkb` constructor when the column
+  is geometry; the plain-parameter path is unchanged for non-geo columns.
+- **Explicit override preserved:** `SetColumnValueExpressions` / `AddUpdateColumnExpression` still win (handled
+  before the geo branch); non-geo columns still emit a plain bound parameter.
+- **Verification:** DB-free exact-SQL `GeometryValueWrapTest` expanded 3→6 cases (auto-wrap, explicit-override-
+  wins with a distinct SRID, non-geo-stays-plain — for both INSERT and UPDATE). The shared `GeometryRoundTripSupport`
+  `InsertShape`/`UpdateShape` helpers were switched OFF the explicit expression ONTO the auto-wrap, so the value
+  round-trip **and** the null round-trip now exercise the auto-wrap end-to-end on SpatiaLite + all 5 server
+  engines (the explicit-override path keeps its own live coverage via the playground). NULL round-trip through
+  the auto-wrap confirmed on all engines (Oracle guard from Part A holds).
+
+**Full Geo suite 166 green** (was 163; +3 from the expanded `GeometryValueWrapTest`), 0 skipped. No drift:
+BasicQueryTests 118, JSON 87, DynamicProperties 647 — all green (the geo branch only fires on
+`Geometry != null`, so the non-geo insert/update SQL is byte-identical).
+
+**Increment 2 — ✅ DONE (2026-07-22, UNCOMMITTED). TEST-ONLY (no product code).** Confirmed the *entity*
+insert/update query path round-trips a geometry property purely by inheriting Increment 1's auto-wrap —
+entity builders are genuinely zero-touch. Traced (and agent-verified): `InsertEntityQueryBuilder` /
+`UpdateEntityQueryBuilder` delegate to the pure-SQL `Insert/UpdateQueryBuilder` over the entity's
+`TableDescriptor` (which carries `ColumnInfo.Geometry`); update's `PrepareBinder` calls `AddUpdateAllColumns()`
+→ `AddUpdateColumn` (the wrapped method); no dialect subclass overrides `PrepareQuery`; the binder presents a
+`byte[]` (raw WKB, or codec-produced WKB for an NTS-object property via `GeometryPropertyAccessor`, or
+`BindNull`) under the column name — matching the wrapped parameter reference. New tests:
+- `Geo/DataManagement/GeometryEntityInsertUpdateSqlTest.cs` — DB-free (DummyDb), asserts the entity INSERT/UPDATE
+  builder emits `ST_GeomFromWKB(@shape, 4326)` for the geo column while a plain column stays a bare parameter.
+- `Geo/DataManagement/GeometryEntityRoundTripSpatialiteTest.cs` — live SpatiaLite, `byte[]` property insert→
+  read→update→re-read + nullable→null, all through `GetInsertEntityQuery`/`GetUpdateEntityQuery`.
+- `Geo/DataManagement/GeometryEntityRoundTripAcceptanceTest.cs` — **all 5 server engines**, entity with BOTH a
+  `byte[]` property AND an **NTS-object** property (+ nullable→null); insert/update via the entity path,
+  read-back via the Phase-4 pure-SQL output-wrap (entity geometry SELECT is Area 3 / Increment 5).
+Shared helper gained `GeometryRoundTripSupport.ToWkb`. **Collection note:** the object-property acceptance test
+sits in `[Collection("GeometryCodecRegistration")]` (the accessor resolves the global codec, which the
+registration test transiently nulls) — so it can't also be a SpatiaLite test; the SpatiaLite `[Fact]` therefore
+covers the `byte[]` path only, and the NTS-object variant rides the acceptance tier. **Oracle gotcha:** a geo
+column named `raw` triggers `ORA-00904` (RAW is a reserved type keyword) — renamed to `shape_a`/`shape_b`.
+**Full Geo suite 174 green** (was 166; +2 DB-free, +1 SpatiaLite, +5 acceptance engines), 0 skipped. No product
+regression risk (test-only increment).
+**NEXT: Increment 3 — resolution seam (prereq P-A): extend `IEntityInfoProvider` +
+`EntityQueryWithWhereBuilder` with a `(ColumnInfo, QueryBuilderEntity)`-returning resolver.**
 
 **Phase-4 surface amendment — two-form geometry read + subquery predicate operand (2026-07-20, UNCOMMITTED).**
 Design conversation with the user pinned the governing rule: **client→server is always `byte[]`→

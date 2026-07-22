@@ -5,8 +5,9 @@ supersedes the earlier insert/update-only draft). Read `../GEO_PLAN.md`, `../STA
 `../PHASE_4/PHASE_4_PLAN.md`, `../ENTITY_API_REVIEW.md`, and `../../ENTITY_WHERE_PROBLEM.md` first.
 **All three Gate decisions are LOCKED (2026-07-22 — see "Gate decisions" at the bottom).** Plan is
 approved-to-shape; coding proceeds increment-by-increment (below), each ending green, with the per-increment
-advance gate. **Commit only when the user asks.** No code has been written yet — awaiting the go-ahead to
-start Increment 1.*
+advance gate. **Commit only when the user asks.** **Increments 1 (pure-SQL value-wrap) and 2 (entity
+insert/update round-trip) are ✅ DONE** — see the increment plan at the bottom; awaiting the go-ahead to
+advance to Increment 3 (resolution seam).*
 
 ---
 
@@ -261,16 +262,26 @@ SQL layer cannot pretend otherwise.
 
 ## Phase / increment plan (each ends green; commit only when the user asks)
 
-- **Increment 1 — Area 2 value-wrap, PURE-SQL LAYER FIRST (Option A, bottom-up):** add the
-  `column.Geometry != null` auto-wrap fallback to `InsertQueryBuilder.PrepareQuery` and
-  `UpdateQueryBuilder.AddUpdateColumn`, emitting `mSpecifics.GeometryFunction(FromWkb, {param}/@col, srid)`.
-  Verify at the pure-SQL layer: DB-free AST (exact per-driver SQL, explicit `SetColumnValueExpressions` path
-  still overrides → re-run the Phase-4 exact-SQL suite to prove no drift) **+ SpatiaLite/5-engine value
-  round-trip including a null geometry** (closes the pre-existing NULL gap). Entity path is NOT relied upon
-  yet.
-- **Increment 2 — Area 2 entity insert/update round-trip:** confirm `SaveEntity`/`GetUpdateEntityQuery`
-  round-trip a geometry property (byte[] property + NTS-object property + nullable→null) purely by inheriting
-  increment 1's auto-wrap (entity builders zero-touch). SpatiaLite round-trip + 5-engine acceptance.
+- **Increment 1 — Area 2 value-wrap, PURE-SQL LAYER FIRST (Option A, bottom-up): ✅ DONE (2026-07-22,
+  uncommitted; NULL-verification Part A committed `e3b8262`).** Added the `column.Geometry != null` auto-wrap
+  fallback to `InsertQueryBuilder.PrepareQuery` (geo branch after the explicit-expression check, before the
+  plain-parameter fallback) and `UpdateQueryBuilder.AddUpdateColumn`, emitting
+  `mSpecifics.GeometryFunction(FromWkb, <paramRef>, srid=column.Geometry.Srid)`. Verified at the pure-SQL
+  layer: DB-free exact-SQL `GeometryValueWrapTest` (6 cases — auto-wrap · explicit `SetColumnValueExpressions`/
+  `AddUpdateColumnExpression` still overrides, proven with a distinct SRID · non-geo stays plain — INSERT +
+  UPDATE) **+ SpatiaLite/5-engine value round-trip including a null geometry** (the shared round-trip helper
+  now drives the auto-wrap, not the explicit expression; closes the pre-existing NULL gap). No drift
+  (BasicQueryTests/JSON/DynamicProperties green — the branch only fires on `Geometry != null`). Entity path
+  is NOT relied upon yet. Geo suite **166 green**.
+- **Increment 2 — Area 2 entity insert/update round-trip: ✅ DONE (2026-07-22, uncommitted; TEST-ONLY).**
+  Confirmed `GetInsertEntityQuery`/`GetUpdateEntityQuery` round-trip a geometry property (byte[] property +
+  NTS-object property + nullable→null) purely by inheriting increment 1's auto-wrap — entity builders are
+  zero-touch (they delegate to the pure-SQL `Insert/UpdateQueryBuilder` over the entity `TableDescriptor`; no
+  dialect overrides `PrepareQuery`; the binder presents `byte[]`/`BindNull` under the column name). Tests:
+  `GeometryEntityInsertUpdateSqlTest` (DB-free entity SQL) + `GeometryEntityRoundTripSpatialiteTest` (byte[],
+  live SpatiaLite) + `GeometryEntityRoundTripAcceptanceTest` (byte[] + NTS-object + null, **all 5 engines**).
+  Object-property test lives in `[Collection("GeometryCodecRegistration")]` (accessor uses the global codec),
+  so the SpatiaLite `[Fact]` covers byte[] only and the object variant rides acceptance. Geo suite **174 green**.
 - **Increment 3 — resolution seam** (prereq P-A): extend `IEntityInfoProvider` +
   `EntityQueryWithWhereBuilder`; unit-test the resolver returns `(ColumnInfo, entity)` for a geo property;
   full suite green (no SQL drift).

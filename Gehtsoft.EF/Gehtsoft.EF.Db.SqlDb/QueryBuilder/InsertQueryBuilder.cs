@@ -137,6 +137,16 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                     string parameterReference = mSpecifics.ParameterInQueryPrefix + ParameterNameFor(info.Name);
                     rightSide.Append(valueExpression.Replace(ParameterToken, parameterReference));
                 }
+                else if (info.Geometry != null)
+                {
+                    // A geometry column stores WKB but the engine's column type is the native spatial type,
+                    // so the bound WKB parameter must be wrapped in the dialect's constructor. This mirrors
+                    // the autoincrement branch above: an additive, metadata-driven emission keyed on a column
+                    // flag. An explicit SetColumnValueExpressions entry (handled above) still overrides it.
+                    string parameterReference = mSpecifics.ParameterInQueryPrefix + ParameterNameFor(info.Name);
+                    rightSide.Append(mSpecifics.GeometryFunction(new GeoFunctionRequest(
+                        SqlGeoFunctionId.FromWkb, parameter: parameterReference, srid: info.Geometry.Srid)));
+                }
                 else
                 {
                     rightSide.Append(mSpecifics.ParameterInQueryPrefix);

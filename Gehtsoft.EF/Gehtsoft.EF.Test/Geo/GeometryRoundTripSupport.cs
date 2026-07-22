@@ -25,13 +25,14 @@ namespace Gehtsoft.EF.Test.Geo
             return null;
         }
 
+        // INSERT/UPDATE rely on the geometry auto-wrap: the builders detect the column's Geometry metadata
+        // and wrap the bound WKB parameter in the dialect's FromWkb constructor with no explicit expression.
+        // (The explicit SetColumnValueExpressions/AddUpdateColumnExpression override path keeps its own live
+        // coverage through the playground; here we exercise the metadata-driven auto-wrap end to end.)
         public static void InsertShape(SqlDbConnection connection, TableDescriptor table, TableDescriptor.ColumnInfo shape, Geometry value)
         {
-            var specifics = connection.GetLanguageSpecifics();
             var builder = connection.GetInsertQueryBuilder(table);
             builder.ReturnAutoincrement = false;
-            builder.SetColumnValueExpressions((shape.Name, specifics.GeometryFunction(
-                new GeoFunctionRequest(SqlGeoFunctionId.FromWkb, parameter: InsertQueryBuilder.ParameterToken, srid: shape.Geometry.Srid))));
             using var query = connection.GetQuery(builder);
             query.BindGeometryParam(shape.Name, value);
             query.ExecuteNoData();
@@ -39,10 +40,8 @@ namespace Gehtsoft.EF.Test.Geo
 
         public static void UpdateShape(SqlDbConnection connection, TableDescriptor table, TableDescriptor.ColumnInfo shape, Geometry value)
         {
-            var specifics = connection.GetLanguageSpecifics();
             var builder = connection.GetUpdateQueryBuilder(table);
-            builder.AddUpdateColumnExpression(shape, specifics.GeometryFunction(
-                new GeoFunctionRequest(SqlGeoFunctionId.FromWkb, parameter: "@" + shape.Name, srid: shape.Geometry.Srid)));
+            builder.AddUpdateColumn(shape);
             using var query = connection.GetQuery(builder);
             query.BindGeometryParam(shape.Name, value);
             query.ExecuteNoData();
@@ -73,6 +72,9 @@ namespace Gehtsoft.EF.Test.Geo
         // Builds an NTS geometry from WKT (SRID 0 by default - Cartesian, so predicate/measurement results
         // are planar and identical across every engine).
         public static Geometry Wkt(string wkt, int srid = 0) => (Geometry)new NtsGeometryCodec().FromWkt(wkt, srid);
+
+        // Serializes an NTS geometry to plain OGC WKB - used to populate a byte[] geometry entity property.
+        public static byte[] ToWkb(Geometry g) => new NtsGeometryCodec().ToWkb(g, false);
 
         // A closed CCW box ring as WKT (CCW exterior orientation keeps Oracle SDO happy).
         public static string Box(double minX, double minY, double maxX, double maxY)

@@ -38,11 +38,25 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                         throw new ArgumentException("The query must not contain string scalars", nameof(parameterName));
             if (mFieldSet.Length > 0)
                 mFieldSet.Append(", ");
-            mFieldSet
-                .Append(column.Name)
-                .Append('=')
-                .Append(mSpecifics.ParameterInQueryPrefix)
-                .Append(parameterName ?? column.Name);
+            string parameterReference = mSpecifics.ParameterInQueryPrefix + (parameterName ?? column.Name);
+            if (column.Geometry != null)
+            {
+                // A geometry column stores WKB but the engine's column type is the native spatial type, so
+                // the bound WKB parameter is wrapped in the dialect's constructor - the SET-side twin of the
+                // INSERT auto-wrap. A caller wanting a different expression uses AddUpdateColumnExpression.
+                mFieldSet
+                    .Append(column.Name)
+                    .Append('=')
+                    .Append(mSpecifics.GeometryFunction(new GeoFunctionRequest(
+                        SqlGeoFunctionId.FromWkb, parameter: parameterReference, srid: column.Geometry.Srid)));
+            }
+            else
+            {
+                mFieldSet
+                    .Append(column.Name)
+                    .Append('=')
+                    .Append(parameterReference);
+            }
         }
 
         /// <summary>
