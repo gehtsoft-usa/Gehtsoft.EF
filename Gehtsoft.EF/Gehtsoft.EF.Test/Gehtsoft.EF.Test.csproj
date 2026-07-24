@@ -30,6 +30,9 @@
     <EmbeddedResource Include="Geo\Playground\states.tsv"><LogicalName>geo.playground.states.tsv</LogicalName></EmbeddedResource>
     <EmbeddedResource Include="Geo\Playground\cities.tsv"><LogicalName>geo.playground.cities.tsv</LogicalName></EmbeddedResource>
     <EmbeddedResource Include="Geo\Playground\tracks.tsv"><LogicalName>geo.playground.tracks.tsv</LogicalName></EmbeddedResource>
+    <!-- Third-party TIGER/Line county boundary (EWKT + EWKB) for the NTS codec test. -->
+    <EmbeddedResource Include="Geo\Playground\test.wkt"><LogicalName>geo.playground.test.wkt</LogicalName></EmbeddedResource>
+    <EmbeddedResource Include="Geo\Playground\test.wkb"><LogicalName>geo.playground.test.wkb</LogicalName></EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
