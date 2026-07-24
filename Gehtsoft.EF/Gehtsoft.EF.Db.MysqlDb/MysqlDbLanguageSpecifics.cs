@@ -2,15 +2,66 @@
 using System.Data;
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.MysqlDb
 {
-    public class MysqlDbLanguageSpecifics : SqlDbLanguageSpecifics
+    /// <summary>
+    /// Common base for the MySQL-family dialects. MySQL 8 (<see cref="MySql8LanguageSpecifics"/>) and MariaDB
+    /// (<see cref="MariaDbLanguageSpecifics"/>) share almost everything but diverge on a few DDL / SQL details.
+    /// Each leaf supplies its own behaviour by overriding the hooks below - including acting as the factory for
+    /// the builders that differ between the two engines - so the divergence lives in the subclass rather than in
+    /// runtime branches. The connection selects the leaf from the server version at open time.
+    /// </summary>
+    public abstract class MysqlDbLanguageSpecifics : SqlDbLanguageSpecifics
     {
         /// <summary>
         /// The driver identifier of this dialect.
         /// </summary>
         public override string DbName => UniversalSqlDbFactory.MYSQL;
+
+        /// <summary>MySQL 8 and MariaDB provide geometry columns (2-D only).</summary>
+        public override bool SupportsGeometry => true;
+
+        /// <summary>
+        /// Appends the geometry column's spatial-reference clause. MySQL 8 emits <c>SRID &lt;srid&gt;</c>;
+        /// MariaDB has no such column attribute (it carries the SRID on the value), so it appends nothing.
+        /// </summary>
+        protected abstract void AppendColumnSrid(StringBuilder builder, GeometryColumnMetadata geo);
+
+        /// <summary>Creates the dialect's <c>DROP INDEX</c> builder.</summary>
+        internal abstract DropIndexBuilder CreateDropIndexBuilder(string table, string name);
+
+        /// <summary>Creates the dialect's <c>UPDATE</c> builder.</summary>
+        internal abstract UpdateQueryBuilder CreateUpdateQueryBuilder(TableDescriptor descriptor);
+
+        /// <summary>
+        /// Renders a MySQL / MariaDB geometry column: <c>&lt;SUBTYPE&gt; [NOT NULL] [SRID &lt;srid&gt;]</c>. The
+        /// column is forced NOT NULL when a spatial index is declared (both engines require it). The
+        /// spatial-reference clause is supplied by <see cref="AppendColumnSrid"/> (dialect-specific). Both
+        /// engines are 2-D only, so declaring Z/M throws.
+        /// </summary>
+        public override string GeometryColumnDDL(TableDescriptor.ColumnInfo column)
+        {
+            GeometryColumnMetadata geo = column.Geometry;
+            if (geo.HasZ || geo.HasM)
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+
+            var builder = new StringBuilder(GeometryDdlHelper.SubtypeName(geo.Subtype).ToUpperInvariant());
+            if (!column.Nullable || geo.Indexes.Count > 0)
+                builder.Append(" NOT NULL");
+            AppendColumnSrid(builder, geo);
+            return builder.ToString();
+        }
+
+        /// <summary>Renders a MySQL geometry value/scalar operation in the OGC <c>ST_*</c> grammar.</summary>
+        public override string GeometryFunction(in GeoFunctionRequest request)
+            => RenderOgcGeometryFunction(request);
+
+        /// <summary>Renders a MySQL geometry predicate; within-distance uses <c>ST_Distance(...) &lt;= d</c>.</summary>
+        public override string GeometryPredicate(in GeoPredicateRequest request)
+            => RenderOgcGeometryPredicate(request, nativeDWithin: false);
 
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
@@ -189,6 +240,10 @@ namespace Gehtsoft.EF.Db.MysqlDb
                         builder.Append(")");
                         return builder.ToString();
                     }
+                case SqlFunctionId.Now:
+                    return "UTC_TIMESTAMP()";
+                case SqlFunctionId.LinuxSeconds:
+                    return "UNIX_TIMESTAMP()";
 
                 default:
                     return base.GetSqlFunction(function, args);

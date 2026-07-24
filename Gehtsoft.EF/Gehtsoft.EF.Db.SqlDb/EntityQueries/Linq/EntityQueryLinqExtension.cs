@@ -36,8 +36,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     value = param.Value;
                 }
 
-                if (value is SelectEntitiesQueryBase)
-                    query.CopyParametersFrom(value as SelectEntitiesQueryBase);
+                if (value is SelectEntitiesQueryBase seq)
+                    query.CopyParametersFrom(seq);
                 else
                 {
                     if (param.EncodeAs != null && value != null)
@@ -91,6 +91,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 query.AddJsonExpressionToOrderBy(result.Expression.ToString(), direction);
             else
                 query.AddOrderByExpr(result.Expression.ToString(), direction);
+            // A geometry scalar (e.g. Distance) carries a bound WKB operand parameter; JSON/plain order-by
+            // expressions have none, so this is a no-op for them.
+            query.BindExpressionParameters(result);
         }
 
         /// <summary>
@@ -110,6 +113,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                 query.AddJsonExpressionToGroupBy(result.Expression.ToString());
             else
                 query.AddGroupByExpr(result.Expression.ToString());
+            // A geometry scalar group-by key can carry a bound operand parameter (none for JSON/plain keys).
+            query.BindExpressionParameters(result);
         }
 
         /// <summary>

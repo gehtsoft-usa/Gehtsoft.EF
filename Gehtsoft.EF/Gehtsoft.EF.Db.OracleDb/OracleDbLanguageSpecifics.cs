@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
 
@@ -17,6 +19,64 @@ namespace Gehtsoft.EF.Db.OracleDb
         /// Oracle (12.2+) supports JSON columns.
         /// </summary>
         public override bool SupportsJson => true;
+
+        /// <summary>Oracle (Locator) provides the built-in <c>SDO_GEOMETRY</c> type.</summary>
+        public override bool SupportsGeometry => true;
+
+        /// <summary>
+        /// Renders an Oracle geometry column: <c>SDO_GEOMETRY</c> (SRID and dimensionality live in the
+        /// value / <c>USER_SDO_GEOM_METADATA</c>, not the column type).
+        /// </summary>
+        public override string GeometryColumnDDL(TableDescriptor.ColumnInfo column)
+            => column.Nullable ? "SDO_GEOMETRY" : "SDO_GEOMETRY NOT NULL";
+
+        // Oracle Locator SDO_GEOM measurement/relate functions all take a tolerance argument (no OGC
+        // analog); use the caller's value, or this default when none was supplied.
+        private const double DefaultTolerance = 0.005;
+
+        private static string OracleTolerance(double tolerance)
+            => GeometryDdlHelper.Number(tolerance > 0 ? tolerance : DefaultTolerance);
+
+        /// <summary>Renders an Oracle (Locator) geometry value/scalar operation using the <c>SDO_*</c> packages.</summary>
+        public override string GeometryFunction(in GeoFunctionRequest request)
+        {
+            switch (request.Op)
+            {
+                // The SDO_UTIL WKB converters are Java stored procedures that NPE on a NULL argument
+                // (ORA-29532), so guard both directions - a NULL geometry must round-trip as NULL, not throw.
+                case SqlGeoFunctionId.FromWkb: return $"CASE WHEN {request.Parameter} IS NULL THEN NULL ELSE SDO_UTIL.FROM_WKBGEOMETRY({request.Parameter}) END";
+                case SqlGeoFunctionId.AsBinary: return $"CASE WHEN {request.A} IS NULL THEN NULL ELSE SDO_UTIL.TO_WKBGEOMETRY({request.A}) END";
+                case SqlGeoFunctionId.Distance: return $"SDO_GEOM.SDO_DISTANCE({request.A}, {request.B}, {OracleTolerance(request.Tolerance)})";
+                case SqlGeoFunctionId.Area: return $"SDO_GEOM.SDO_AREA({request.A}, {OracleTolerance(request.Tolerance)})";
+                case SqlGeoFunctionId.Length: return $"SDO_GEOM.SDO_LENGTH({request.A}, {OracleTolerance(request.Tolerance)})";
+                case SqlGeoFunctionId.Srid: return $"{request.A}.SDO_SRID";
+                case SqlGeoFunctionId.GeometryType: return $"{request.A}.GET_GTYPE()";
+                case SqlGeoFunctionId.X: return $"{request.A}.SDO_POINT.X";
+                case SqlGeoFunctionId.Y: return $"{request.A}.SDO_POINT.Y";
+                case SqlGeoFunctionId.Envelope: return $"SDO_GEOM.SDO_MBR({request.A})";
+                // Oracle Locator has no direct IsEmpty test (an empty geometry is not NULL); unsupported.
+                default: throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+            }
+        }
+
+        /// <summary>Renders an Oracle geometry predicate via <c>SDO_GEOM.RELATE</c> masks. <c>Crosses</c> is unsupported on Locator.</summary>
+        public override string GeometryPredicate(in GeoPredicateRequest request)
+        {
+            string tol = OracleTolerance(request.Tolerance);
+            switch (request.Op)
+            {
+                case SqlGeoPredicateId.Intersects: return $"(SDO_GEOM.RELATE({request.A}, 'ANYINTERACT', {request.B}, {tol}) <> 'FALSE')";
+                case SqlGeoPredicateId.Disjoint: return $"(SDO_GEOM.RELATE({request.A}, 'ANYINTERACT', {request.B}, {tol}) = 'FALSE')";
+                case SqlGeoPredicateId.Equals: return $"(SDO_GEOM.RELATE({request.A}, 'EQUAL', {request.B}, {tol}) <> 'FALSE')";
+                case SqlGeoPredicateId.Touches: return $"(SDO_GEOM.RELATE({request.A}, 'TOUCH', {request.B}, {tol}) <> 'FALSE')";
+                case SqlGeoPredicateId.Within: return $"(SDO_GEOM.RELATE({request.A}, 'INSIDE+COVEREDBY', {request.B}, {tol}) <> 'FALSE')";
+                case SqlGeoPredicateId.Contains: return $"(SDO_GEOM.RELATE({request.A}, 'CONTAINS+COVERS', {request.B}, {tol}) <> 'FALSE')";
+                case SqlGeoPredicateId.Overlaps: return $"(SDO_GEOM.RELATE({request.A}, 'OVERLAPBDYINTERSECT', {request.B}, {tol}) <> 'FALSE')";
+                case SqlGeoPredicateId.DWithin: return $"(SDO_GEOM.SDO_DISTANCE({request.A}, {request.B}, {tol}) <= {GeometryDdlHelper.Number(request.Distance)})";
+                case SqlGeoPredicateId.Crosses: throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+                default: throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+            }
+        }
 
         /// <summary>
         /// Renders an Oracle JSON extraction using `JSON_VALUE(col, '$.path' RETURNING &lt;type&gt;)`.
@@ -264,6 +324,8 @@ namespace Gehtsoft.EF.Db.OracleDb
                 SqlFunctionId.Minute => $"EXTRACT(MINUTE FROM {args[0]})",
                 SqlFunctionId.Second => $"EXTRACT(SECOND FROM {args[0]})",
                 SqlFunctionId.Left => $"SUBSTR({args[0]}, 1, {args[1]})",
+                SqlFunctionId.Now => "SYS_EXTRACT_UTC(SYSTIMESTAMP)",
+                SqlFunctionId.LinuxSeconds => "ROUND((CAST(SYS_EXTRACT_UTC(SYSTIMESTAMP) AS DATE) - DATE '1970-01-01') * 86400)",
                 _ => base.GetSqlFunction(function, args),
             };
         }

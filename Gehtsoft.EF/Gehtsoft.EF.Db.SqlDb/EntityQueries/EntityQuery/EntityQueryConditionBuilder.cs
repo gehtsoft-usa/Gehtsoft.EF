@@ -181,6 +181,102 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         }
 
         /// <summary>
+        /// Adds a complete geometry predicate (a DE-9IM topological relationship or a within-distance test)
+        /// between a geometry property and a bound WKB geometry, as a standalone boolean condition. The
+        /// operand is bound internally under a generated parameter and wrapped in the dialect's constructor;
+        /// the whole predicate comes from the dialect already normalized to a boolean, so it is not followed
+        /// by a comparison. For <see cref="SqlGeoPredicateId.DWithin"/> pass the distance.
+        /// </summary>
+        /// <param name="name">The geometry property name.</param>
+        /// <param name="op">The predicate.</param>
+        /// <param name="operandWkb">The other geometry as WKB (bound as a <c>byte[]</c> parameter).</param>
+        /// <param name="entityType">The entity type owning the property (null = the main entity).</param>
+        /// <param name="occurrence">The occurrence of the entity type in the query.</param>
+        /// <param name="distance">The distance bound for <see cref="SqlGeoPredicateId.DWithin"/>.</param>
+        public virtual SingleEntityQueryConditionBuilder GeoPredicateOf(string name, SqlGeoPredicateId op, byte[] operandWkb, Type entityType = null, int occurrence = 0, double distance = 0)
+        {
+            ResolveGeo(name, entityType, occurrence, out _, out SqlDbLanguageSpecifics specifics, out string a, out int srid);
+            string p = Builder.BaseQuery.NextParam;
+            if (operandWkb == null)
+                Builder.BaseQuery.Query.BindNull(p, DbType.Binary);
+            else
+                Builder.BaseQuery.Query.BindParam(p, DbType.Binary, operandWkb);
+            string b = specifics.GeometryFunction(new GeoFunctionRequest(SqlGeoFunctionId.FromWkb, parameter: Builder.Parameter(p), srid: srid));
+            return SetGeoSide(specifics.GeometryPredicate(new GeoPredicateRequest(op, a, b, distance)));
+        }
+
+        /// <summary>
+        /// Adds a complete geometry predicate between a geometry property and the geometry produced by a
+        /// subquery. The subquery must yield a <b>native</b> geometry (projected with
+        /// <see cref="GeometryValueForm.Native"/>) - it is passed to the predicate as-is, with no constructor
+        /// wrapping. For <see cref="SqlGeoPredicateId.DWithin"/> pass the distance.
+        /// </summary>
+        public virtual SingleEntityQueryConditionBuilder GeoPredicateOf(string name, SqlGeoPredicateId op, AQueryBuilder nativeSubquery, Type entityType = null, int occurrence = 0, double distance = 0)
+        {
+            ResolveGeo(name, entityType, occurrence, out ConditionBuilder cb, out SqlDbLanguageSpecifics specifics, out string a, out int _);
+            nativeSubquery.PrepareQuery();
+            string b = cb.Query(nativeSubquery);
+            return SetGeoSide(specifics.GeometryPredicate(new GeoPredicateRequest(op, a, b, distance)));
+        }
+
+        /// <summary>
+        /// Sets the current side to a geometry scalar (a measurement or accessor - Area, Length, Distance,
+        /// X, Y, ...) of a geometry property, so it can be compared like any other value (for example
+        /// <c>.GeoScalarOf("Shape", SqlGeoFunctionId.Area).Gt(500.0)</c>). Pass <paramref name="operandWkb"/>
+        /// for the second geometry of a binary measurement (<see cref="SqlGeoFunctionId.Distance"/>); leave
+        /// it null for a unary scalar. <paramref name="resultType"/> is the type the following compared value
+        /// is bound as (default <see cref="DbType.Double"/>, the measurement case).
+        /// </summary>
+        public virtual SingleEntityQueryConditionBuilder GeoScalarOf(string name, SqlGeoFunctionId op, byte[] operandWkb = null, DbType resultType = DbType.Double, Type entityType = null, int occurrence = 0, double tolerance = 0)
+        {
+            ResolveGeo(name, entityType, occurrence, out _, out SqlDbLanguageSpecifics specifics, out string a, out int srid);
+            string b = null;
+            if (operandWkb != null)
+            {
+                string p = Builder.BaseQuery.NextParam;
+                Builder.BaseQuery.Query.BindParam(p, DbType.Binary, operandWkb);
+                b = specifics.GeometryFunction(new GeoFunctionRequest(SqlGeoFunctionId.FromWkb, parameter: Builder.Parameter(p), srid: srid));
+            }
+            return SetGeoSide(specifics.GeometryFunction(new GeoFunctionRequest(op, a: a, b: b, tolerance: tolerance)), resultType);
+        }
+
+        // Resolves the geometry property to its aliased column reference (identical to what the pure-SQL
+        // ConditionBuilder produces) plus the dialect specifics and the declared SRID, via the Phase-5
+        // resolution seam. Throws ColumnNotFound (like the Alias path) when the property is unknown.
+        private void ResolveGeo(string name, Type entityType, int occurrence, out ConditionBuilder cb, out SqlDbLanguageSpecifics specifics, out string a, out int srid)
+        {
+            EntityConditionBuilder where = Builder.BaseQuery.Where.BaseWhere;
+            if (!where.EntityInfoProvider.TryResolveColumn(entityType, occurrence, name, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity))
+                throw new EfSqlException(EfExceptionCode.ColumnNotFound, name);
+            cb = where.ConditionBuilder;
+            specifics = cb.InfoProvider.Specifics;
+            a = cb.PropertyName(entity, column);
+            srid = column.Geometry?.Srid ?? 0;
+        }
+
+        // A geometry expression is framework-generated (some carry a quoted literal - the Oracle RELATE
+        // mask), so it bypasses the raw-scalar guard, setting the side directly (like SetJsonSide). For a
+        // scalar, resultType lets a following comparison value bind without an explicit type.
+        private SingleEntityQueryConditionBuilder SetGeoSide(string expression, DbType? resultType = null)
+        {
+            if (mCmpOp == null)
+            {
+                if (Left != null)
+                    throw new InvalidOperationException("Left side is already set");
+                if (resultType != null)
+                    mParameterType = resultType;
+                Left = expression;
+            }
+            else
+            {
+                if (Right != null)
+                    throw new InvalidOperationException("Right side is already set");
+                Right = expression;
+            }
+            return this;
+        }
+
+        /// <summary>
         /// Sets the left or right part of the expression to the reference to a column of another entity.
         ///
         /// This method is typically used to add references between the main query and a subquery.

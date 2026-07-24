@@ -102,7 +102,7 @@ namespace Gehtsoft.EF.Test.Legacy
                 policy.Count.Should().Be(1);
             }
 
-            using (var connection = await UniversalSqlDbFactory.CreateAsync(UniversalSqlDbFactory.SQLITE, "Data Source=:memory:"))
+            using (var connection = await UniversalSqlDbFactory.CreateAsync(UniversalSqlDbFactory.SQLITE, "Data Source=:memory:", TestContext.Current.CancellationToken))
             {
                 policy.Count.Should().Be(2);
 

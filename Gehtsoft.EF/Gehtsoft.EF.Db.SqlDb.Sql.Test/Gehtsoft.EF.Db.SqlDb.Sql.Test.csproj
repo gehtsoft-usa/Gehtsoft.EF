@@ -4,8 +4,8 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AwesomeAssertions" Version="9.4.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+    <PackageReference Include="AwesomeAssertions" Version="9.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="xunit.v3" Version="3.2.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
@@ -17,12 +17,25 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="LiquidTestReports.Markdown" Version="1.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.10" />
 
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gehtsoft.EF.Db.SqlDb.Sql\Gehtsoft.EF.Db.SqlDb.Sql.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.SqlDb\Gehtsoft.EF.Db.SqlDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Db.SqliteDb\Gehtsoft.EF.Db.SqliteDb.csproj" />
+    <!-- driver assemblies for the multi-driver runner tests; UniversalSqlDbFactory loads them by name -->
+    <ProjectReference Include="..\Gehtsoft.EF.Db.MssqlDb\Gehtsoft.EF.Db.MssqlDb.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.MysqlDb\Gehtsoft.EF.Db.MysqlDb.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.OracleDb\Gehtsoft.EF.Db.OracleDb.csproj" />
+    <ProjectReference Include="..\Gehtsoft.EF.Db.PostgresDb\Gehtsoft.EF.Db.PostgresDb.csproj" />
     <ProjectReference Include="..\Gehtsoft.EF.Northwind\Gehtsoft.EF.Northwind.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- reuse the shared (git-ignored) connection config; copied to bin only, never committed -->
+    <None Include="..\Gehtsoft.EF.Test\Configuration.json" Link="Configuration.json" Condition="Exists('..\Gehtsoft.EF.Test\Configuration.json')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

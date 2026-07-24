@@ -41,7 +41,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 {
                     isIndex.Add(true);
                     names.Add(null);
-                    indices.Add(ConstIndex(binary.Right, expression));
+                    indices.Add(ConstIndex(binary.Right));
                     types.Add(binary.Type);
                     current = binary.Left;
                 }
@@ -49,7 +49,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 {
                     isIndex.Add(true);
                     names.Add(null);
-                    indices.Add(ConstIndex(call.Arguments[0], expression));
+                    indices.Add(ConstIndex(call.Arguments[0]));
                     types.Add(call.Type);
                     current = call.Object;
                 }
@@ -82,11 +82,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             jsonPath = pathBuilder.ToString();
         }
 
-        private static int ConstIndex(Expression indexExpression, Expression owner)
+        private static int ConstIndex(Expression indexExpression)
         {
             if (indexExpression is ConstantExpression constant && constant.Value is int value)
                 return value;
-            throw new ArgumentException("A JSON array index must be a constant integer", nameof(owner));
+            throw new ArgumentException("A JSON array index must be a constant integer", nameof(indexExpression));
         }
 
         private static Type MemberType(MemberInfo member)

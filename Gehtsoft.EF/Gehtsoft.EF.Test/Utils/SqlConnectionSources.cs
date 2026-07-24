@@ -39,14 +39,12 @@ namespace Gehtsoft.EF.Test.Utils
                     if (s.Length > 0 && s[0] == '-')
                     {
                         var s1 = s.Substring(1);
-                        if (!_exclude.Contains(s1))
-                            _exclude.Add(s1);
+                        _exclude.Add(s1);
                     }
                     else if (s.Length > 0 && s[0] == '+')
                     {
                         var s1 = s.Substring(1);
-                        if (!_includeOnly.Contains(s1))
-                            _includeOnly.Add(s1);
+                        _includeOnly.Add(s1);
                     }
                 }
             }

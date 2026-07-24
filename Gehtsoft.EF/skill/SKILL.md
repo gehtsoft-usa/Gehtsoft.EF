@@ -1,7 +1,7 @@
 ---
 name: gehtsoft-ef
 description: |
-  Guide for working with the Gehtsoft.EF .NET ORM library — defining entities, querying data, managing schemas, and writing tests. Use this skill whenever the project references Gehtsoft.EF packages, or the user works with classes annotated with [Entity], [AutoId], [EntityProperty], [ForeignKey], or mentions SqlDbConnection, EntityQuery, CreateEntityController, GenericEntityAccessor, SelectEntitiesQuery, or any Gehtsoft.EF API. Also trigger when the user asks about data access code in a project that already uses Gehtsoft.EF, even if they don't name the library explicitly.
+  Guide for working with the Gehtsoft.EF .NET ORM library — defining entities, querying data, managing schemas, and writing tests. Use this skill whenever the project references Gehtsoft.EF packages, or the user works with classes annotated with [Entity], [AutoId], [EntityProperty], [ForeignKey], [JsonEntityProperty], [JsonIndex], [DynamicProperties], or mentions SqlDbConnection, EntityQuery, CatalogEntityController, CreateEntityController, the schema catalogue (ef_catalog), JSON properties/columns, dynamic (per-row) properties, DynamicPropertyBag, GenericEntityAccessor, SelectEntitiesQuery, or any Gehtsoft.EF API. Also trigger when the user asks about data access code or schema migration in a project that already uses Gehtsoft.EF, even if they don't name the library explicitly.
 packages: Gehtsoft.EF.Db.SqlDb, Gehtsoft.EF.Db.SqlDb.*, Gehtsoft.EF.Db.MssqlDb, Gehtsoft.EF.Db.MysqlDb, Gehtsoft.EF.Entities
 ---
 
@@ -13,7 +13,9 @@ Key differences from EF Core:
 - No DbContext — uses `SqlDbConnection` directly
 - No LINQ-to-SQL query pipeline — uses a fluent query builder API
 - No change tracking — explicit insert/update/delete calls
-- No migrations framework — uses `CreateEntityController.UpdateTables()` for schema evolution
+- No migrations framework — uses the **schema catalogue** (`CatalogEntityController.UpdateTables()`) for
+  schema evolution. The older introspection-based `CreateEntityController` is now `[Obsolete]` — see
+  Schema Migration.
 - Supports: SQLite, SQL Server, PostgreSQL, MySQL, Oracle
 
 ## How to use this skill
@@ -26,7 +28,7 @@ Jump to the section that matches the task using the map below.
 | Section | Use it for |
 |---------|------------|
 | Setup | Adding packages, creating connections, initial table creation |
-| Entity Model | Defining entities, attributes, relationships, schema evolution |
+| Entity Model | Defining entities, attributes, relationships, JSON properties, dynamic (per-row) properties, schema evolution |
 | Entity CRUD Operations | Insert, update, delete, basic select, transactions |
 | Advanced SELECT | Joins, aggregation, WHERE/HAVING, ordering, subqueries, hierarchical queries |
 | GenericEntityAccessor and Filters | Simplified CRUD via GenericEntityAccessor, filter pattern |
@@ -39,7 +41,7 @@ Jump to the section that matches the task using the map below.
 - **Modifying EF code** — read the existing entity definitions first, then Entity Model (especially
   schema evolution with `[ObsoleteEntityProperty]`) and the relevant query section.
 - **Testing EF code** — see Real-World Patterns Section 6 (SQLite in-memory pattern); use
-  `CreateEntityController.CreateTables()` in test fixtures.
+  `CatalogEntityController.EnsureCatalogInfrastructure()` + `CreateTables(conn, version)` in test fixtures.
 - **Understanding/describing EF code** — use Entity Model to decode attributes and the SELECT
   sections to explain query logic; pay attention to FK relationships, they drive automatic joins.
 
@@ -64,16 +66,47 @@ public class Product
 }
 ```
 
+### JSON property (SQLite / PostgreSQL / Oracle only)
+```csharp
+[JsonEntityProperty(Nullable = true)]
+[JsonIndex("$.Address.State", DbType.String)]   // repeatable; indexes one primitive path
+public Profile Profile { get; set; }            // whole document (de)serialized automatically
+// Query a value inside it:
+q.Where.JsonPropertyOf<Person>(e => e.Profile.Age).Ge().Value(30);
+```
+
+### Dynamic (per-row) properties — schema-free named values in a `_props` side table
+```csharp
+[Entity(Table = "document")]
+[DynamicProperties]
+public class Document : IDynamicPropertiesOwner
+{
+    [AutoId] public int Id { get; set; }
+    public DynamicPropertyBag DynamicProperties { get; private set; }  // read-only, private setter
+}
+// Set + save (auto-persisted with the entity):
+var bag = document.InitializeDynamicProperties();
+bag.Set("color", "red");
+// Load (opt-in) + query:
+q.PreloadProperties = true;                          // on a SelectEntitiesQuery
+q.Where.DynamicPropertyOf<Document>("color").Eq("red");
+```
+
 ### Connection
 ```csharp
 using SqlDbConnection connection = UniversalSqlDbFactory.Create("sqlite", connectionString);
 ```
 
-### Table creation / migration
+### Table creation / migration (schema catalogue — current)
 ```csharp
-var controller = new CreateEntityController(typeof(Product), "myapp");
-controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+var controller = new CatalogEntityController(typeof(Product), "myapp");
+controller.EnsureCatalogInfrastructure(connection);              // once — creates ef_catalog + ef_patch_history
+controller.UpdateTables(connection, "1.0.0", EntityUpdateMode.Update);
 ```
+Every schema change requires bumping the version string on the next `UpdateTables` call.
+The obsolete introspection controller (`CreateEntityController`, no version, self-bootstrapping)
+still compiles but emits a deprecation warning. See the Schema Migration section for the full model
+and for how to switch an existing database over (`AdoptExistingScope`).
 
 ### CRUD
 ```csharp
@@ -132,7 +165,7 @@ int count = q.GetValue<int>(0);
 ```
 Gehtsoft.EF.Entities              — [Entity], [EntityProperty], [AutoId], [ForeignKey], enums
 Gehtsoft.EF.Db.SqlDb              — SqlDbConnection, UniversalSqlDbFactory, SqlDbQuery
-Gehtsoft.EF.Db.SqlDb.EntityQueries — EntityQuery, SelectEntitiesQuery, ModifyEntityQuery, CreateEntityController
+Gehtsoft.EF.Db.SqlDb.EntityQueries — EntityQuery, SelectEntitiesQuery, ModifyEntityQuery, CatalogEntityController, EntityUpdateMode, CreateEntityController (obsolete)
 Gehtsoft.EF.Db.SqlDb.QueryBuilder  — SelectQueryBuilder, TableDescriptor, ConditionBuilder
 Gehtsoft.EF.Db.SqlDb.EntityGenericAccessor — GenericEntityAccessor, FilterPropertyAttribute
 ```
@@ -243,18 +276,27 @@ query.ExecuteNoData();
 
 ## Creating and Dropping Tables
 
-### Using CreateEntityController (recommended)
+### Using CatalogEntityController (recommended)
 
 ```csharp
 // Discover all entities in the assembly containing MyEntity, filtered by scope
-var controller = new CreateEntityController(typeof(MyEntity), "myapp");
+var controller = new CatalogEntityController(typeof(MyEntity), "myapp");
 
-// Create tables that don't exist yet
-controller.CreateTables(connection);
+// Once per database — create the catalogue bookkeeping tables (ef_catalog + ef_patch_history)
+controller.EnsureCatalogInfrastructure(connection);
 
-// Drop obsolete tables (marked with [ObsoleteEntity])
+// Create every table in its current model state, stamped at this schema version
+controller.CreateTables(connection, "1.0.0");
+
+// Drop all discovered tables (and tombstone them in the catalogue)
 controller.DropTables(connection);
 ```
+
+`CatalogEntityController` records the schema it applied in an EF-owned `ef_catalog` table and diffs
+against that record on the next run — it no longer introspects the live database. The version string
+is mandatory and is the shared ordering key for both structural changes and coded patches. See the
+Schema Migration section for `UpdateTables`, the version guard, patch replay, and switching an existing
+database from the obsolete `CreateEntityController`.
 
 ### Manual table operations
 ```csharp
@@ -269,8 +311,8 @@ using (var query = connection.GetDropEntityQuery<Customer>())
 
 ## Schema Migration
 
-For full migration coverage (UpdateTables, obsolete entities/properties, patches, SQLite workarounds),
-read `references/migration.md`.
+For full migration coverage (the schema catalogue, `UpdateTables`, obsolete entities/properties,
+patches, switching from the obsolete `CreateEntityController`), read the Schema Migration section.
 
 
 
@@ -285,7 +327,7 @@ Apply `[Entity]` (from `Gehtsoft.EF.Entities`) to a class to mark it as a databa
 | Property | Type | Description |
 |----------|------|-------------|
 | `Table` | string | Database table name. If omitted, derived from class name per NamingPolicy (pluralized by default). |
-| `Scope` | string | Groups entities for `CreateEntityController` (e.g., `"myapp"`). |
+| `Scope` | string | Groups entities for the schema controller (e.g., `"myapp"`). |
 | `NamingPolicy` | `EntityNamingPolicy` | Name generation for table/columns. Default = pluralize class name. |
 | `View` | bool | If `true`, maps to a database view instead of a table. |
 | `Metadata` | Type | Type implementing `ICompositeIndexMetadata` or `IViewCreationMetadata`. |
@@ -427,7 +469,7 @@ public class Category
 ```
 
 **Creation order:** Referenced entities must exist before referencing ones.
-`CreateEntityController` resolves this automatically.
+The schema controller resolves this automatically.
 
 ## Schema Evolution
 
@@ -524,11 +566,221 @@ public class ClientMetadata : ICompositeIndexMetadata
 }
 ```
 
+## JSON Properties
+
+A property can be stored as a **JSON document in a single column**. Mark it with `[JsonEntityProperty]`
+(from `Gehtsoft.EF.Entities`) instead of `[EntityProperty]`. The value — a primitive, an array of
+primitives, or a `System.Text.Json`-annotated object — is serialized to a JSON string on save and
+deserialized on load. The whole document is read/written automatically with the entity.
+
+**Driver support:** SQLite, PostgreSQL, and Oracle 12.2+ **only**. Creating a JSON column on SQL Server
+or MySQL throws an "unsupported" error.
+
+| `[JsonEntityProperty]` property | Type | Description |
+|---------|------|-------------|
+| `Field` | string | Column name. Derived from the property name via NamingPolicy if omitted. |
+| `Nullable` | bool | Allows SQL `NULL` (a `null` CLR value is stored as `NULL`, not the JSON text `"null"`). |
+
+### Indexing values inside the document
+
+`[JsonIndex]` is a **repeatable** attribute that indexes a single primitive value at a JSON path (which
+may reach into a nested object, e.g. `"$.Address.Zip"`). Supported value types: string, integer types,
+real/decimal, boolean, date/time. Arrays, `byte[]`, and whole nested objects are stored but cannot be
+indexed.
+
+| `[JsonIndex]` member | Type | Description |
+|--------|------|-------------|
+| `Path` (ctor arg) | string | JSON path to the value, e.g. `"$.Age"` or `"$.Address.State"`. |
+| `DbType` | `DbType` | Primitive type at the path (drives extraction/cast). Default `DbType.String`. |
+| `Unique` | bool | Marks the indexed value unique. |
+
+```csharp
+using Gehtsoft.EF.Entities;
+using System.Data;
+
+public class Address { public string City { get; set; } public string State { get; set; } }
+
+public class Profile
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public decimal Income { get; set; }
+    public DateTime DoB { get; set; }
+    public int[] Scores { get; set; }
+    public Address Address { get; set; }
+}
+
+[Entity(Table = "person")]
+public class Person
+{
+    [AutoId]
+    public int Id { get; set; }
+
+    [JsonEntityProperty(Nullable = true)]
+    [JsonIndex("$.Age", DbType.Int32)]
+    [JsonIndex("$.Address.State", DbType.String)]
+    public Profile Profile { get; set; }
+}
+```
+
+### Querying by a JSON value
+
+Beyond reading/writing the whole document, individual values can be filtered, projected, sorted, grouped,
+and aggregated. Address a value by property name + JSON path + type, or (equivalently) by a member
+expression. A row whose value is absent or `null` simply does not match a predicate.
+
+```csharp
+// Filter — path form
+using var q = connection.GetSelectEntitiesQuery<Person>();
+q.Where.JsonPropertyOf<Person>("Profile", "$.Address.State", DbType.String).Eq().Value("CA")
+       .And().JsonPropertyOf<Person>("Profile", "$.Age", DbType.Int32).Ge().Value(30);
+var adults = q.ReadAll<Person>();
+
+// Filter — expression form (type inferred from the member; may descend objects / index an array element)
+q.Where.JsonPropertyOf<Person>(e => e.Profile.Address.State).Eq().Value("CA")
+       .And().JsonPropertyOf<Person>(e => e.Profile.Age).Ge().Value(30);
+```
+
+Project / order / group / aggregate JSON values via `GetSelectEntitiesQueryBase<T>()` and read them back
+through the dynamic reader:
+
+```csharp
+using var q = connection.GetSelectEntitiesQueryBase<Person>();
+q.AddJsonValueToResultset<Person>(e => e.Profile.Address.State, "state");
+q.AddJsonValueToResultset<Person>(AggFn.Sum, e => e.Profile.Income, "total");
+q.AddJsonValueToGroupBy<Person>(e => e.Profile.Address.State);
+q.Having.JsonPropertyOf<Person>(e => e.Profile.Income).Sum().Gt().Value(1000000m);
+q.AddJsonValueToOrderBy<Person>(e => e.Profile.Address.State);
+var groups = q.ReadAllDynamic();
+```
+
+Notes:
+- The extracted value type must be a primitive. A single array element (`"$.Scores[0]"` /
+  `e => e.Profile.Scores[0]`) can be extracted; whole arrays/objects cannot.
+- `DateTime` is stored/indexed as an ISO-8601 string on all three databases — filter/sort it as
+  `DbType.String` and compare against ISO-8601 text (which sorts chronologically). In expression form,
+  override the inferred type: `JsonPropertyOf<Person>(e => e.Profile.DoB, DbType.String)`.
+- Extracting/filtering an indexed path with the **same** type lets the database use the `[JsonIndex]`.
+- JSON values are **not** usable inside entity-LINQ lambdas (only the query surface above).
+
+## Dynamic (Per-Row) Properties
+
+Dynamic properties let an individual row carry additional **named values that are not part of the class**
+— a flat, per-row bag of name/value pairs that may differ from row to row, with **no schema change**.
+Use them for sparse/optional metadata, user-defined fields, or feature flags. If a value is present on
+nearly every row or is central to the model, use a regular column instead (it always outperforms the
+EAV lookup). This is unrelated to *dynamic entities* (which define a whole table's schema at runtime).
+
+**How stored:** in a side table named `<entity_table>_props` (one value per row, alongside the owner's
+PK and the property name). It is created/dropped **automatically** with the entity table — you never
+create it yourself. Works on all supported drivers.
+
+### Declaring an owner entity
+
+Mark the class with `[DynamicProperties]` and implement `IDynamicPropertiesOwner`, exposing the bag as a
+read-only property with a **private setter** (the framework fills it via reflection on load).
+
+```csharp
+using Gehtsoft.EF.Entities;
+
+[Entity(Table = "document")]
+[DynamicProperties]
+public class Document : IDynamicPropertiesOwner
+{
+    [AutoId]
+    public int Id { get; set; }
+
+    [EntityProperty(Size = 64, Nullable = true)]
+    public string Name { get; set; }
+
+    public DynamicPropertyBag DynamicProperties { get; private set; }
+}
+```
+
+`[DynamicProperties]` optional tuning: `NameSize` (default 64), `StringValueSize` (default 256),
+`RealValueSize` / `RealValuePrecision` (default -1 = driver native), and `TableSuffix` (constant `_props`).
+
+**Supported value types:** `string`, `int`, `long`, `double`, `bool`, `DateTime` (and their nullable
+forms). Any other type is rejected.
+
+### Setting, saving, and loading values
+
+The bag (`DynamicPropertyBag`) is saved **automatically** when the entity is inserted/updated — no
+separate save call. It tracks its own changes, so an update writes only added/changed/removed values.
+Deleting the entity removes its property rows too.
+
+```csharp
+// New entity — create an empty bag first
+var document = new Document { Name = "contract" };
+var bag = document.InitializeDynamicProperties();
+bag.Set("color", "red");
+bag.Set("pages", 12);
+bag.Set("archived", false);
+using (var q = connection.GetInsertEntityQuery<Document>())
+    q.Execute(document);          // bag persisted automatically
+```
+
+Dynamic properties are **not** loaded automatically on read (that would cost an extra query per row).
+Load them either by setting `PreloadProperties = true` on the select query (batched for the whole result
+set) or via `connection.LoadPropertiesFor(entity)` for a single entity:
+
+```csharp
+using var q = connection.GetSelectEntitiesQuery<Document>();
+q.PreloadProperties = true;
+foreach (var doc in q.ReadAll<Document>())
+{
+    string color = doc.DynamicProperties.Get<string>("color");   // typed Get<T>; Get/Contains/Remove/Count also available
+}
+```
+
+### Querying by a dynamic property
+
+Filter with `DynamicPropertyOf<T>(name)` in any query's `Where` (value column/type inferred from the
+compared value). Composes with `And`/`Or` and normal column conditions; works with
+`SelectEntitiesCountQuery`. A row whose property is absent (or stored under a different type) does not
+match.
+
+```csharp
+using var q = connection.GetSelectEntitiesQuery<Document>();
+q.Where.Property(nameof(Document.Name)).Is(CmpOp.Like).Value("contract%")
+       .And().DynamicPropertyOf<Document>("pages").Ge(10);
+var found = q.ReadAll<Document>();
+```
+
+Project / order / group / aggregate via `GetSelectEntitiesQueryBase<T>()`. Because these clauses have no
+value to infer from, pass the type explicitly with the `DynamicPropertyValueType` enum (`String`,
+`Integer`, `Long`, `Real`, `Boolean`, `DateTime`). A property must be **added to the result set before**
+it can be used in ORDER BY / GROUP BY / HAVING (they reuse that projection).
+
+```csharp
+using var q = connection.GetSelectEntitiesQueryBase<Document>();
+q.AddDynamicPropertyToResultset<Document>("color", DynamicPropertyValueType.String, "color");
+q.AddToResultset(AggFn.Count, typeof(Document), nameof(Document.Id), "count");
+q.AddDynamicPropertyToGroupBy<Document>("color", DynamicPropertyValueType.String);
+q.HavingDynamicPropertyOf<Document>("pages", DynamicPropertyValueType.Integer).Sum().Gt(100);
+q.AddDynamicPropertyToOrderBy<Document>("color", DynamicPropertyValueType.String);
+var groups = q.ReadAllDynamic();
+```
+
+Dynamic properties also work inside **entity-LINQ** lambdas via `e.DynamicProperties.Get<T>("name")` in
+`Where`, `Select`, aggregates, `OrderBy`, and `GroupBy`:
+
+```csharp
+var red = connection.GetCollectionOf<Document>()
+    .Where(e => e.DynamicProperties.Get<string>("color") == "red")
+    .ToList();
+```
+
+**Schema note:** adding/removing `[DynamicProperties]` on an existing entity is reconciled by
+`CatalogEntityController.UpdateTables` (it creates/drops the side table). Dropping the side table when the
+owner stops being an owner is a data-losing change, so it is refused by default — see the Schema
+Migration section's data-loss safety.
+
 ## Entity Lifecycle Callbacks
 
 ### `[OnEntityCreate]`
 
-Called after table creation by `CreateEntityController`. Use for seed data.
+Called after table creation by the schema controller. Use for seed data.
 Callback must match `delegate void EntityActionDelegate(SqlDbConnection connection)`.
 
 ```csharp
@@ -556,7 +808,7 @@ internal static class SeedData
 
 ### `[OnEntityDrop]`
 
-Called before table drop by `CreateEntityController`. Same delegate signature.
+Called before table drop by the schema controller. Same delegate signature.
 
 ## Complete Entity Model Example
 
@@ -730,8 +982,9 @@ with auto-populated FK, and clean up.
 
 ```csharp
 // 1. Create tables (order is handled automatically)
-var controller = new CreateEntityController(typeof(Product), "myapp");
-controller.CreateTables(connection);
+var controller = new CatalogEntityController(typeof(Product), "myapp");
+controller.EnsureCatalogInfrastructure(connection);
+controller.CreateTables(connection, "1.0.0");
 
 // 2. Insert parent
 var category = new Category { Name = "Electronics" };
@@ -1311,17 +1564,56 @@ accessor.SaveAggregates(product, originalItems, newItems,
 
 # Schema Migration Reference
 
+Gehtsoft.EF now manages schema evolution through the **schema catalogue**: an EF-owned `ef_catalog`
+table records the exact schema the framework last applied for each scope, and the controller diffs the
+current entity model against that record. This replaces the older approach of introspecting the live
+database on every run.
+
+Two controllers exist:
+
+| Controller | Status | How it decides what to change |
+|-----------|--------|-------------------------------|
+| **`CatalogEntityController`** | **Current — use this** | Diffs the model against the EF-owned `ef_catalog` record |
+| `CreateEntityController` | `[Obsolete]` (still compiles, still works) | Introspects the live DB via `connection.Schema()` |
+
+Both live in `Gehtsoft.EF.Db.SqlDb.EntityQueries`. The update mode enum is now the top-level
+`EntityUpdateMode` (the old nested `CreateEntityController.UpdateMode` is kept only for source-compat on
+the obsolete shim).
+
 ## UpdateTables — The Core Migration Method
 
 ```csharp
-var controller = new CreateEntityController(typeof(MyEntity), "myapp");
-controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+var controller = new CatalogEntityController(typeof(MyEntity), "myapp");
+controller.EnsureCatalogInfrastructure(connection);              // once — see below
+controller.UpdateTables(connection, "1.0.0", EntityUpdateMode.Update);
 ```
 
-The controller discovers all entity classes in the assembly, filtered by scope, then compares
-them against the live database schema via `connection.Schema()`.
+The controller discovers all entity classes in the assembly, filtered by scope, reads the last-applied
+schema for that scope from `ef_catalog`, computes the difference, and applies only the delta. A table
+that has no catalogue record yet is created from scratch (diff-vs-nothing).
 
-### Update Modes
+### The version string is mandatory
+
+Every `CreateTables`/`UpdateTables` call takes a `major.minor.patch` version string (e.g. `"1.0.0"`,
+`"2.3.1"`). It is the single ordering key for both structural schema and coded patches. The catalogue
+stores it and enforces a **version guard** before touching anything (`Vc` = version currently recorded,
+`Vi` = version passed):
+
+- `Vi < Vc` → throws `CatalogVersionRegressed` (older app pointed at a newer DB).
+- `Vi == Vc` **and** the model changed → throws `CatalogModelChangedWithoutVersionBump`.
+  **Every schema change requires a version bump.**
+- `Vi == Vc` and no change → clean no-op.
+- `Vi > Vc` (or first contact) → apply.
+
+### EnsureCatalogInfrastructure — the one-time bootstrap
+
+`EnsureCatalogInfrastructure(connection)` creates the `ef_catalog` and `ef_patch_history` bookkeeping
+tables if they are absent (idempotent, race-tolerant). Unlike the obsolete controller, `CreateTables` /
+`UpdateTables` / `DropTables` **no longer self-bootstrap** — call `EnsureCatalogInfrastructure` once
+before the first `UpdateTables` (typically at app/database startup). A missing catalogue otherwise
+surfaces as a failing SELECT.
+
+### Update Modes (`EntityUpdateMode`)
 
 | Mode | Creates new tables | Adds new columns | Drops obsolete columns | Drops obsolete tables | Recreates existing |
 |------|:-:|:-:|:-:|:-:|:-:|
@@ -1329,25 +1621,49 @@ them against the live database schema via `connection.Schema()`.
 | `CreateNew` | yes | no | no | no | no |
 | `Recreate` | yes | n/a | n/a | yes | yes (drops + creates) |
 
+`CreateNew` behaves like `Update` in the catalogue controller (only `Recreate` is ever special-cased).
+
 ### Per-Entity Mode Overrides
 
 ```csharp
-var overrides = new Dictionary<Type, CreateEntityController.UpdateMode>
+var overrides = new Dictionary<Type, EntityUpdateMode>
 {
-    { typeof(TempCache), CreateEntityController.UpdateMode.Recreate }
+    { typeof(TempCache), EntityUpdateMode.Recreate }
 };
-controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update, overrides);
+controller.UpdateTables(connection, "1.1.0", EntityUpdateMode.Update, overrides);
 ```
 
 **Constraint:** You cannot set Recreate on a parent table while a child table (that references it
 via FK) is in Update mode. This would break referential integrity. The controller throws
 `EfSqlException` with code `CannotRecreateTable` in this case.
 
+### Data-loss safety
+
+The catalogue never silently destroys data. A **column that leaves the model without
+`[ObsoleteEntityProperty]`** (or a dynamic-properties side table whose owner stopped being an owner)
+is refused by default: `UpdateTables` throws `CatalogColumnDropWouldLoseData` /
+`CatalogDynamicPropertiesDropWouldLoseData` **before any DDL runs**. Explicit
+`[ObsoleteEntityProperty]` / `[ObsoleteEntity]` drops and `Recreate` are exempt (they are deliberate).
+To allow implicit drops, set `controller.DataLossPolicy = CatalogEntityController.CatalogDataLossPolicy.Drop`
+(default is `Fail`). Destructive column *modifications* (type/family/geometry-metadata changes) are always
+refused (`CatalogColumnAlterNotSupported`) — route them through a patch.
+
+### What is NOT diffed / catalogued
+
+Views are not catalogued — they are always dropped and recreated on `CreateTables`/`UpdateTables`
+(a view definition change therefore still needs a version bump to re-apply).
+
+### Lock
+
+`UpdateTables` runs under an `IDbInstanceLock` (`ef_catalog_update:<scope>`) held across the whole
+read→diff→apply. Tune via `controller.LockTimeout` (default 30 s) and `controller.LockLease`.
+
 ### Async Versions
 
 ```csharp
-await controller.UpdateTablesAsync(connection, CreateEntityController.UpdateMode.Update);
-await controller.CreateTablesAsync(connection);
+await controller.EnsureCatalogInfrastructureAsync(connection);
+await controller.CreateTablesAsync(connection, "1.0.0");
+await controller.UpdateTablesAsync(connection, "1.1.0", EntityUpdateMode.Update);
 await controller.DropTablesAsync(connection);
 ```
 
@@ -1438,12 +1754,15 @@ won't have data for them.
 
 ## What UpdateTables Cannot Handle
 
-The controller does **not** detect or handle:
-- **Column type changes** — use a patch (drop old column + add new one)
-- **Column renames** — use a patch (add new column, copy data, drop old column)
-- **Primary key changes** — must recreate the table
-- **New composite indexes on existing tables** — use a patch
-- **View changes** — must drop and recreate the view
+The catalogue controller reconciles columns (add/drop) and indexes (single-column, composite, and JSON),
+and always drops+recreates views. It does **not** handle these, and **refuses loudly** rather than
+guessing (so nothing silently diverges):
+
+- **Column type / family / geometry-metadata changes** — refused with `CatalogColumnAlterNotSupported`
+  (no portable in-place modify, and any automatic form would be destructive). Use a patch.
+- **Column renames** — a rename reads as drop+add (no rename detection). Use a patch (add new column,
+  copy data, then mark the old one `[ObsoleteEntityProperty]`).
+- **Primary key changes** — must recreate the table (`Recreate` mode or a patch).
 
 For these cases, use the **Patch mechanism** (see below).
 
@@ -1505,9 +1824,23 @@ controller.OnAction += (sender, args) =>
 
 ## Patch Mechanism — Versioned Custom Migrations
 
-For changes that `UpdateTables` cannot handle (type changes, data transformations, index
-creation, etc.), use the patch system. Patches are versioned, tracked in a `ef_patch_history`
-table, and applied only once.
+For changes that `UpdateTables` cannot handle (type changes, data transformations, column renames,
+etc.), use the patch system. Patches are versioned, tracked in the `ef_patch_history` table, and
+applied only once.
+
+With `CatalogEntityController`, **patches are replayed automatically by `UpdateTables`** — you no longer
+call `EfPatchProcessor.ApplyPatches` yourself. After the structural diff converges, the controller runs
+every discovered patch whose version falls in the window **`(Vc, Vi]`** (newer than the version recorded
+in the catalogue, up to and including the version being applied), in `major.minor.patch` order, recording
+each in `ef_patch_history`.
+
+Key rules:
+- **First contact / `CreateTables` run no patches.** A fresh database is built directly at the target
+  version, so everything ≤ that version is already baked into the structure. Patches exist only to migrate
+  an *existing* database across versions.
+- **Author rule:** a patch may only touch structure that still exists at the target version `Vi` — that
+  is what makes replaying a subset of patches safe against the head schema.
+- Patches are keyed to the controller's entity scope.
 
 ### Defining a Patch
 
@@ -1548,26 +1881,28 @@ public class CreateFullTextIndex : IEfPatchAsync
 
 ### Applying Patches
 
+With the catalogue controller you do not apply patches manually — just deploy the patch classes and
+bump the version:
+
 ```csharp
-// Find all patch classes in the assembly, sorted by version
-var patches = EfPatchProcessor.FindAllPatches(
-    new[] { typeof(MyEntity).Assembly }, "myapp");
-
-// Apply only patches newer than the last applied one
-connection.ApplyPatches(patches, "myapp");
-
-// Or async
-await connection.ApplyPatchesAsync(patches, "myapp");
+// The patch above is [EfPatch("myapp", 1, 0, 1)]. Deploying it and calling:
+controller.UpdateTables(connection, "1.0.1", EntityUpdateMode.Update);
+// ...replays it automatically if the catalogue's recorded version is < 1.0.1.
 ```
 
-### How Patch Versioning Works
+The legacy manual API still exists and writes the same `ef_patch_history` table
+(`EfPatchProcessor.FindAllPatches` + `connection.ApplyPatches(patches, "myapp")`), so the two mechanisms
+coexist on one ledger — useful during migration from the old controller. New code should rely on the
+automatic catalogue replay instead.
 
-1. On first run, the processor creates the `ef_patch_history` table and records the latest
-   patch version (without executing any patches — assumes fresh DB is up to date)
-2. On subsequent runs, it reads the last applied version from `ef_patch_history`
-3. Only patches with version **greater than** the last applied version are executed
-4. Each applied patch is recorded in `ef_patch_history` with a timestamp
-5. Patches are sorted by `major * 10,000,000 + minor * 10,000 + patch`
+### How Catalogue Patch Replay Works
+
+1. `UpdateTables(conn, Vi, mode)` brings the structure to the current model, then replays patches.
+2. The replay window is **keyed on the scope version, not the ledger**: only patches with version in
+   `(Vc, Vi]` run — where `Vc` is the version recorded in `ef_catalog` before this run.
+3. First contact and `CreateTables` run **no** patches (fresh DB is born at head).
+4. Each applied patch is recorded in `ef_patch_history` with a timestamp.
+5. Patches are ordered by `major * 10,000,000 + minor * 10,000 + patch`.
 
 ### DI Support in Patches
 
@@ -1638,20 +1973,67 @@ public class RebuildProductsTable : IEfPatch
 
 ## Recommended Migration Workflow
 
-1. **Initial setup:** `controller.CreateTables(connection)` or `UpdateTables` with `Update` mode
-2. **Adding entities/columns:** Just add them to the code — `UpdateTables(Update)` handles it
-3. **Removing columns:** Add `[ObsoleteEntityProperty]` — `UpdateTables(Update)` handles it
-   (except on SQLite — use a patch)
-4. **Removing entities:** Add `[ObsoleteEntity]` — `UpdateTables(Update)` drops the table
-5. **Complex changes** (type changes, renames, data transforms): Write a patch
+1. **Initial setup:** `controller.EnsureCatalogInfrastructure(connection)`, then
+   `controller.UpdateTables(connection, "1.0.0", EntityUpdateMode.Update)` (or `CreateTables`).
+2. **Adding entities/columns:** Add them to the code and **bump the version** — `UpdateTables(Update)`
+   handles it.
+3. **Removing columns:** Add `[ObsoleteEntityProperty]` and bump the version — `UpdateTables(Update)`
+   handles it (except on SQLite — use a patch). An *unmarked* removed column is refused by default
+   (data-loss safety).
+4. **Removing entities:** Add `[ObsoleteEntity]` and bump the version — `UpdateTables(Update)` drops the
+   table (tombstoned in the catalogue).
+5. **Complex changes** (type changes, renames, data transforms): Write a patch (`[EfPatch]`) — it replays
+   automatically when the version window includes it.
 6. **Call order in your initialization:**
    ```csharp
-   var controller = new CreateEntityController(typeof(MyEntity), "myapp");
-   controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
-   
-   var patches = EfPatchProcessor.FindAllPatches(new[] { typeof(MyEntity).Assembly }, "myapp");
-   connection.ApplyPatches(patches, "myapp");
+   var controller = new CatalogEntityController(typeof(MyEntity), "myapp");
+   controller.EnsureCatalogInfrastructure(connection);   // idempotent; safe to call every startup
+   controller.UpdateTables(connection, "1.2.0", EntityUpdateMode.Update);
+   // Patches are replayed automatically inside UpdateTables — no separate ApplyPatches call.
    ```
+
+## Switching from the obsolete CreateEntityController
+
+`CreateEntityController` (introspection-based, self-bootstrapping, no version argument) is now
+`[Obsolete]` but still functional. New code should use `CatalogEntityController`.
+
+**New / greenfield database** — just use the catalogue controller from the start
+(`EnsureCatalogInfrastructure` → `CreateTables`/`UpdateTables`).
+
+**Existing database previously managed by `CreateEntityController`** — the tables already exist but there
+is no `ef_catalog` record. Pointing `CatalogEntityController.UpdateTables` straight at it is refused (a
+clean "adopt first" signal): first contact with pre-existing tables throws `CatalogOrphanScope`, or with
+pre-existing patch-history rows throws `CatalogOrphanPatchHistory` — **zero DDL, catalogue not seeded**.
+
+Adopt the database into the catalogue instead:
+
+```csharp
+var controller = new CatalogEntityController(typeof(MyEntity), "myapp");
+controller.EnsureCatalogInfrastructure(connection);
+
+// Detect the situation
+if (controller.IsOrphanScopeExists(connection))
+{
+    // Seed ef_catalog from the current model at the version the DB is currently at.
+    // TrustModel (recommended): verify the DB already matches the model (throws
+    //   SchemaUpdateRequired if not), then record — no DDL.
+    // ReconcileToModel (practical): bring the DB into line via the old controller's
+    //   introspection reconcile first, then record.
+    controller.AdoptExistingScope(connection, "1.5.0",
+        CatalogEntityController.CatalogAdoptMode.TrustModel);
+}
+
+// From here on, deploy normally — bump the version and UpdateTables:
+controller.UpdateTables(connection, "1.6.0", EntityUpdateMode.Update);
+```
+
+Notes:
+- Pass the version the database is *currently* at to `AdoptExistingScope`; adoption runs no patches and
+  sets the `Vc` baseline, so a later `UpdateTables(Vi)` replays only `(Vc, Vi]`.
+- If the old code called `connection.ApplyPatches` under a **different scope string** than the entity
+  scope, update the `Scope` column of the relevant `ef_patch_history` rows to the entity scope *before*
+  adopting (the catalogue replay keys on the entity scope).
+- `AdoptExistingScope` throws `CatalogScopeAlreadyAdopted` if the scope already has a catalogue record.
 
 ## FK Dependency Order
 
@@ -2059,14 +2441,15 @@ public class SqlDao : IDao
         mConnection = connection;
     }
 
-    public void InitializeDatabase(bool forceRecreate = false)
+    public void InitializeDatabase(string schemaVersion, bool forceRecreate = false)
     {
-        var controller = new CreateEntityController(GetType(), "myapp");
+        var controller = new CatalogEntityController(GetType(), "myapp");
+        controller.EnsureCatalogInfrastructure(mConnection);
 
-        controller.UpdateTables(mConnection,
+        controller.UpdateTables(mConnection, schemaVersion,
             forceRecreate
-                ? CreateEntityController.UpdateMode.Recreate
-                : CreateEntityController.UpdateMode.Update);
+                ? EntityUpdateMode.Recreate
+                : EntityUpdateMode.Update);
 
         // Database-specific post-init
         ApplyDatabaseSpecificSetup();
@@ -2107,8 +2490,9 @@ public class ProductDaoTests : IDisposable
     public ProductDaoTests()
     {
         mConnection = UniversalSqlDbFactory.Create("sqlite", "Data Source=:memory:");
-        var controller = new CreateEntityController(typeof(Product), "myapp");
-        controller.CreateTables(mConnection);
+        var controller = new CatalogEntityController(typeof(Product), "myapp");
+        controller.EnsureCatalogInfrastructure(mConnection);
+        controller.CreateTables(mConnection, "1.0.0");
     }
 
     public void Dispose() => mConnection.Dispose();
@@ -2136,8 +2520,9 @@ public class DatabaseFixture : IDisposable
     public DatabaseFixture()
     {
         Connection = UniversalSqlDbFactory.Create("sqlite", "Data Source=:memory:");
-        var controller = new CreateEntityController(typeof(Product), "myapp");
-        controller.CreateTables(Connection);
+        var controller = new CatalogEntityController(typeof(Product), "myapp");
+        controller.EnsureCatalogInfrastructure(Connection);
+        controller.CreateTables(Connection, "1.0.0");
         SeedTestData();
     }
 
@@ -2213,8 +2598,9 @@ public class MultiDbTests
         };
 
         using var connection = UniversalSqlDbFactory.Create(driver, connStr);
-        var controller = new CreateEntityController(typeof(Product), "myapp");
-        controller.CreateTables(connection);
+        var controller = new CatalogEntityController(typeof(Product), "myapp");
+        controller.EnsureCatalogInfrastructure(connection);
+        controller.CreateTables(connection, "1.0.0");
 
         // Run test logic...
     }
@@ -2226,6 +2612,6 @@ public class MultiDbTests
 1. **Forgetting `using` on queries** -- queries hold database resources and must be disposed
 2. **Wrong FK delete order** -- always delete children before parents
 3. **Missing `Size` on string properties** -- will cause runtime errors
-4. **Using entity queries without scope** -- entities without matching scope won't be found by CreateEntityController
+4. **Using entity queries without scope** -- entities without matching scope won't be found by the schema controller
 5. **Thread-unsafe connection sharing** -- create one connection per thread/request, or use `Lock()`/`LockAsync()`
 

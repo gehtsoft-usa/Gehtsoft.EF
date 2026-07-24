@@ -50,6 +50,105 @@ namespace Gehtsoft.EF.Db.SqlDb
         public virtual bool SupportsJson => false;
 
         /// <summary>
+        /// Flag indicating whether the dialect supports geometry (spatial) columns
+        /// (<see cref="Gehtsoft.EF.Entities.GeometryEntityPropertyAttribute"/>). `false` by default;
+        /// creating a geometry column on a dialect where it is `false` throws
+        /// <see cref="EfExceptionCode.FeatureNotSupported"/>.
+        /// </summary>
+        public virtual bool SupportsGeometry => false;
+
+        /// <summary>
+        /// Renders the inline column-declaration tail (everything after the column name) for a geometry
+        /// column: the native spatial type plus any SRID / NOT NULL the dialect folds into the column.
+        /// The default throws <see cref="EfExceptionCode.FeatureNotSupported"/>; only the spatial-capable
+        /// dialects override it. (SpatiaLite adds its geometry column after CREATE TABLE and does not use
+        /// this.)
+        /// </summary>
+        /// <param name="column">The geometry column; its geometry metadata carries subtype/SRID/dimensionality.</param>
+        public virtual string GeometryColumnDDL(QueryBuilder.TableDescriptor.ColumnInfo column)
+            => throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+
+        /// <summary>
+        /// Flag indicating whether the dialect can render the geometry query surface (spatial predicates,
+        /// measurements, accessors and the WKB construction/output wrappers). Defaults to
+        /// <see cref="SupportsGeometry"/>: a dialect that can create a geometry column can also query it.
+        /// </summary>
+        public virtual bool SupportsGeometryQuery => SupportsGeometry;
+
+        /// <summary>
+        /// Renders the complete SQL fragment for a geometry value or scalar operation (WKB construction
+        /// and output, measurement, accessors) in the dialect's own grammar. The default throws
+        /// <see cref="EfExceptionCode.FeatureNotSupported"/>; only the spatial-capable dialects override it.
+        /// </summary>
+        /// <param name="request">The operation together with its operand expressions, SRID and tolerance.</param>
+        public virtual string GeometryFunction(in GeoFunctionRequest request)
+            => throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+
+        /// <summary>
+        /// Renders the complete boolean SQL fragment for a geometry predicate (a DE-9IM topological
+        /// relationship or a within-distance test), already normalized to a boolean in the dialect's
+        /// grammar (SQL Server compares the resulting bit to 1; Oracle compares the RELATE mask against
+        /// the string FALSE). The default throws <see cref="EfExceptionCode.FeatureNotSupported"/>; a
+        /// dialect that cannot express a particular predicate (Oracle <c>Crosses</c>) throws the same
+        /// code for that operation.
+        /// </summary>
+        /// <param name="request">The predicate together with its two operand expressions, distance and tolerance.</param>
+        public virtual string GeometryPredicate(in GeoPredicateRequest request)
+            => throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+
+        /// <summary>
+        /// Shared renderer for the OGC <c>ST_*</c> free-function grammar used by PostGIS, MySQL and
+        /// SpatiaLite. The spatial-capable OGC dialects delegate <see cref="GeometryFunction"/> here.
+        /// </summary>
+        /// <param name="request">The operation and its operands.</param>
+        protected static string RenderOgcGeometryFunction(in GeoFunctionRequest request)
+        {
+            switch (request.Op)
+            {
+                case SqlGeoFunctionId.FromWkb: return $"ST_GeomFromWKB({request.Parameter}, {request.Srid})";
+                case SqlGeoFunctionId.AsBinary: return $"ST_AsBinary({request.A})";
+                case SqlGeoFunctionId.Distance: return $"ST_Distance({request.A}, {request.B})";
+                case SqlGeoFunctionId.Area: return $"ST_Area({request.A})";
+                case SqlGeoFunctionId.Length: return $"ST_Length({request.A})";
+                case SqlGeoFunctionId.Srid: return $"ST_SRID({request.A})";
+                case SqlGeoFunctionId.GeometryType: return $"ST_GeometryType({request.A})";
+                case SqlGeoFunctionId.IsEmpty: return $"ST_IsEmpty({request.A})";
+                case SqlGeoFunctionId.X: return $"ST_X({request.A})";
+                case SqlGeoFunctionId.Y: return $"ST_Y({request.A})";
+                case SqlGeoFunctionId.Envelope: return $"ST_Envelope({request.A})";
+                default: throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+            }
+        }
+
+        /// <summary>
+        /// Shared renderer for the OGC <c>ST_*</c> predicate grammar (PostGIS, MySQL, SpatiaLite). OGC
+        /// predicates already return a boolean. <paramref name="nativeDWithin"/> selects
+        /// <c>ST_DWithin</c> (PostGIS) versus a portable <c>ST_Distance(...) &lt;= d</c> (MySQL,
+        /// SpatiaLite) for the within-distance test.
+        /// </summary>
+        /// <param name="request">The predicate and its operands.</param>
+        /// <param name="nativeDWithin">Whether the dialect has a native within-distance function.</param>
+        protected static string RenderOgcGeometryPredicate(in GeoPredicateRequest request, bool nativeDWithin)
+        {
+            switch (request.Op)
+            {
+                case SqlGeoPredicateId.Intersects: return $"ST_Intersects({request.A}, {request.B})";
+                case SqlGeoPredicateId.Disjoint: return $"ST_Disjoint({request.A}, {request.B})";
+                case SqlGeoPredicateId.Equals: return $"ST_Equals({request.A}, {request.B})";
+                case SqlGeoPredicateId.Touches: return $"ST_Touches({request.A}, {request.B})";
+                case SqlGeoPredicateId.Within: return $"ST_Within({request.A}, {request.B})";
+                case SqlGeoPredicateId.Contains: return $"ST_Contains({request.A}, {request.B})";
+                case SqlGeoPredicateId.Overlaps: return $"ST_Overlaps({request.A}, {request.B})";
+                case SqlGeoPredicateId.Crosses: return $"ST_Crosses({request.A}, {request.B})";
+                case SqlGeoPredicateId.DWithin:
+                    return nativeDWithin
+                        ? $"ST_DWithin({request.A}, {request.B}, {Metadata.GeometryDdlHelper.Number(request.Distance)})"
+                        : $"(ST_Distance({request.A}, {request.B}) <= {Metadata.GeometryDdlHelper.Number(request.Distance)})";
+                default: throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+            }
+        }
+
+        /// <summary>
         /// Renders an expression that extracts a single primitive value at the given JSON path from
         /// a JSON column, cast to the specified type. Used both to build a JSON value index and to
         /// query a JSON value, so the two always agree.
@@ -937,5 +1036,181 @@ namespace Gehtsoft.EF.Db.SqlDb
         Round,
         Left,
         Length,
+        /// <summary>
+        /// The database server's current date/time (UTC), rendered in the dialect's own `DateTime`
+        /// representation so it round-trips through a `DateTime` column. Takes no arguments. Each
+        /// dialect renders its own expression; there is no portable default, so
+        /// <see cref="SqlDbLanguageSpecifics.GetSqlFunction"/> returns `null` for it on a dialect
+        /// that does not implement it.
+        /// </summary>
+        Now,
+        /// <summary>
+        /// The database server's current time as integer Unix (Linux) epoch seconds - seconds since
+        /// 1970-01-01 UTC. Takes no arguments. Useful as a monotonic, arithmetic-friendly clock when
+        /// a real timestamp type is unavailable or inconvenient (for example the instance-lock lease).
+        /// Each dialect renders its own expression; <see cref="SqlDbLanguageSpecifics.GetSqlFunction"/>
+        /// returns `null` for it on a dialect that does not implement it.
+        /// </summary>
+        LinuxSeconds,
+    }
+
+    /// <summary>
+    /// A geometry value or scalar function (WKB construction and output, measurement, accessors).
+    /// Kept separate from <see cref="SqlFunctionId"/> and from <see cref="SqlGeoPredicateId"/> so the
+    /// scalar-value and boolean-predicate geometry surfaces stay independent.
+    /// </summary>
+    public enum SqlGeoFunctionId
+    {
+        /// <summary>Construct a geometry from a bound WKB parameter and an SRID.</summary>
+        FromWkb,
+        /// <summary>Output a geometry as portable WKB (<c>byte[]</c>).</summary>
+        AsBinary,
+        /// <summary>The distance between two geometries.</summary>
+        Distance,
+        /// <summary>The area of a geometry.</summary>
+        Area,
+        /// <summary>The length or perimeter of a geometry.</summary>
+        Length,
+        /// <summary>The SRID of a geometry.</summary>
+        Srid,
+        /// <summary>The OGC geometry type of a geometry.</summary>
+        GeometryType,
+        /// <summary>Whether a geometry is empty.</summary>
+        IsEmpty,
+        /// <summary>The X ordinate of a point.</summary>
+        X,
+        /// <summary>The Y ordinate of a point.</summary>
+        Y,
+        /// <summary>The bounding envelope of a geometry.</summary>
+        Envelope,
+    }
+
+    /// <summary>
+    /// A geometry predicate: a DE-9IM topological relationship or a within-distance test.
+    /// </summary>
+    /// <remarks>
+    /// Kept separate from <see cref="SqlGeoFunctionId"/> so predicates and value functions remain distinct concerns.
+    /// </remarks>
+    public enum SqlGeoPredicateId
+    {
+        /// <summary>The two geometries share any portion of space.</summary>
+        Intersects,
+        /// <summary>The two geometries share no portion of space.</summary>
+        Disjoint,
+        /// <summary>The two geometries are spatially equal.</summary>
+        Equals,
+        /// <summary>The two geometries touch at a boundary but do not overlap.</summary>
+        Touches,
+        /// <summary>The first geometry lies within the second.</summary>
+        Within,
+        /// <summary>The first geometry contains the second.</summary>
+        Contains,
+        /// <summary>The two geometries overlap.</summary>
+        Overlaps,
+        /// <summary>The two geometries cross. Not supported on Oracle (Locator).</summary>
+        Crosses,
+        /// <summary>The two geometries are within a given distance of each other.</summary>
+        DWithin,
+    }
+
+    /// <summary>
+    /// The form a geometry column takes when added to a resultset or used as a server-side operand.
+    /// </summary>
+    /// <remarks>
+    /// Selects between a portable WKB <c>byte[]</c> and the engine's native geometry value.
+    /// </remarks>
+    public enum GeometryValueForm
+    {
+        /// <summary>
+        /// The geometry is wrapped in the dialect's WKB output function so a portable WKB byte[] is returned.
+        /// </summary>
+        /// <remarks>
+        /// (<c>ST_AsBinary</c> and its per-driver equivalents.) This is the only form that can be read back
+        /// on the client through the engine-agnostic WKB decode; use it whenever the value travels to the client.
+        /// </remarks>
+        Wkb,
+        /// <summary>
+        /// The raw native geometry is selected as-is, with no output wrapping.
+        /// </summary>
+        /// <remarks>
+        /// This form is meant to be consumed on the server - for example a subquery feeding a geometry
+        /// predicate operand - because every provider returns a different native value (SpatiaLite stores a
+        /// modified WKB BLOB, MySQL prefixes the SRID, SQL Server and Oracle return provider objects), so it
+        /// is <b>not</b> portably readable through the engine-agnostic WKB decode. A driver-aware client can
+        /// still read the raw value and interpret it for the specific provider.
+        /// </remarks>
+        Native,
+    }
+
+    /// <summary>
+    /// A geometry value/scalar operation together with the operands the dialect renderer needs.
+    /// Consumed by <see cref="SqlDbLanguageSpecifics.GeometryFunction"/>.
+    /// </summary>
+    public readonly struct GeoFunctionRequest
+    {
+        /// <summary>Initializes the request.</summary>
+        /// <param name="op">The operation to render.</param>
+        /// <param name="a">The primary geometry expression.</param>
+        /// <param name="b">The second geometry expression (measurement only).</param>
+        /// <param name="parameter">The bound WKB parameter placeholder (construction only).</param>
+        /// <param name="srid">The SRID applied by construction.</param>
+        /// <param name="tolerance">The tolerance for dialects that require one (Oracle).</param>
+        public GeoFunctionRequest(SqlGeoFunctionId op, string a = null, string b = null, string parameter = null, int srid = 0, double tolerance = 0)
+        {
+            Op = op;
+            A = a;
+            B = b;
+            Parameter = parameter;
+            Srid = srid;
+            Tolerance = tolerance;
+        }
+
+        /// <summary>The operation to render.</summary>
+        public SqlGeoFunctionId Op { get; }
+        /// <summary>The primary geometry expression (output, measurement and accessors).</summary>
+        public string A { get; }
+        /// <summary>The second geometry expression (measurement only, for example distance between two geometries).</summary>
+        public string B { get; }
+        /// <summary>The bound WKB parameter placeholder for the construction operation.</summary>
+        public string Parameter { get; }
+        /// <summary>The SRID applied by the construction operation.</summary>
+        public int Srid { get; }
+        /// <summary>The tolerance used by dialects that require one (Oracle measurement).</summary>
+        public double Tolerance { get; }
+    }
+
+    /// <summary>
+    /// A geometry predicate together with the two operands, distance and tolerance the dialect renderer needs.
+    /// </summary>
+    /// <remarks>
+    /// Consumed by <see cref="SqlDbLanguageSpecifics.GeometryPredicate"/>.
+    /// </remarks>
+    public readonly struct GeoPredicateRequest
+    {
+        /// <summary>Initializes the request.</summary>
+        /// <param name="op">The predicate to render.</param>
+        /// <param name="a">The first geometry expression.</param>
+        /// <param name="b">The second geometry expression.</param>
+        /// <param name="distance">The distance bound for the within-distance predicate.</param>
+        /// <param name="tolerance">The tolerance for dialects that require one (Oracle).</param>
+        public GeoPredicateRequest(SqlGeoPredicateId op, string a, string b, double distance = 0, double tolerance = 0)
+        {
+            Op = op;
+            A = a;
+            B = b;
+            Distance = distance;
+            Tolerance = tolerance;
+        }
+
+        /// <summary>The predicate to render.</summary>
+        public SqlGeoPredicateId Op { get; }
+        /// <summary>The first geometry expression.</summary>
+        public string A { get; }
+        /// <summary>The second geometry expression.</summary>
+        public string B { get; }
+        /// <summary>The distance bound for the within-distance predicate.</summary>
+        public double Distance { get; }
+        /// <summary>The tolerance used by dialects that require one (Oracle).</summary>
+        public double Tolerance { get; }
     }
 }

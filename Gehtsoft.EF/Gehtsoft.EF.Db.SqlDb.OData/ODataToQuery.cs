@@ -230,7 +230,7 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     var part = parts[p];
                     bool last = (p == parts.Length - 1);
 
-                    int ix = part.IndexOf(":");
+                    int ix = part.IndexOf(':');
                     if (ix > 0 && ix != part.Length - 1)
                     {
                         //it is property : value
@@ -407,9 +407,8 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 key = param.Substring(qprefix.Length);
             else
                 key = param;
-            if (BindParams.ContainsKey(key))
+            if (BindParams.TryGetValue(key, out var v))
             {
-                var v = BindParams[key];
                 string s = (string)v;
                 if (!string.IsNullOrEmpty(prefix))
                     s = prefix + s;

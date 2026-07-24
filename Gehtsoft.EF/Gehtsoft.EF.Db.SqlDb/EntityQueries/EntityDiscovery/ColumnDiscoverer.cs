@@ -5,6 +5,7 @@ using System.Text;
 using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
+using Gehtsoft.EF.Entities.Geometry;
 
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
@@ -16,6 +17,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             if (jsonAttribute != null)
             {
                 CreateJsonColumnDescriptor(policy, descriptor, propertyAccessor, jsonAttribute);
+                return;
+            }
+
+            GeometryEntityPropertyAttribute geometryAttribute = propertyAccessor.GetCustomAttribute<GeometryEntityPropertyAttribute>();
+            if (geometryAttribute != null)
+            {
+                CreateGeometryColumnDescriptor(policy, descriptor, propertyAccessor, geometryAttribute);
                 return;
             }
 
@@ -202,6 +210,55 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 PropertyAccessor = new JsonPropertyAccessor(propertyAccessor),
                 Json = new JsonColumnMetadata(propertyAccessor.PropertyType, indexes),
             });
+        }
+
+        private void CreateGeometryColumnDescriptor(EntityNamingPolicy policy, TableDescriptor descriptor, IPropertyAccessor propertyAccessor, GeometryEntityPropertyAttribute attribute)
+        {
+            string columnName = attribute.Field ?? EntityNameConvertor.ConvertName(propertyAccessor.Name, policy);
+
+            SpatialIndexAttribute[] indexAttributes = propertyAccessor.GetCustomAttributes<SpatialIndexAttribute>();
+            var indexes = new List<SpatialIndexDefinition>(indexAttributes.Length);
+            for (int i = 0; i < indexAttributes.Length; i++)
+            {
+                SpatialIndexAttribute ia = indexAttributes[i];
+                string name = ia.Name ?? DeriveSpatialIndexName(columnName, i);
+                indexes.Add(new SpatialIndexDefinition(name, ia.HasBoundingBox, ia.MinX, ia.MinY, ia.MaxX, ia.MaxY, ia.Tolerance));
+            }
+
+            Type propertyType = propertyAccessor.PropertyType;
+            IPropertyAccessor accessor;
+            if (propertyType == typeof(byte[]))
+            {
+                // byte[] (WKB) property: no codec, no decoration — the binder handles byte[] directly.
+                accessor = propertyAccessor;
+            }
+            else
+            {
+                // Object property: resolve the registered codec and present it to the framework as byte[].
+                IGeometryCodecFactory factory = GeometryCodecs.Factory;
+                IGeometryCodec codec = factory?.Create();
+                if (codec == null || !codec.CanHandle(propertyType))
+                    throw new EfSqlException(EfExceptionCode.GeometryCodecNotFound, propertyType.FullName);
+                accessor = new GeometryPropertyAccessor(propertyAccessor, attribute.Srid);
+            }
+
+            descriptor.Add(new TableDescriptor.ColumnInfo()
+            {
+                ID = propertyAccessor.Name,
+                Name = columnName,
+                DbType = DbType.Binary,
+                Nullable = attribute.Nullable,
+                ForeignTable = null,
+                PropertyAccessor = accessor,
+                Geometry = new GeometryColumnMetadata(propertyType, attribute.Srid, attribute.Subtype, attribute.HasZ, attribute.HasM, attribute.Nullable, indexes),
+            });
+        }
+
+        // spatial index logical name: "<column>_sidx" (+ ordinal when more than one is declared)
+        private static string DeriveSpatialIndexName(string columnName, int ordinal)
+        {
+            string baseName = columnName.ToLowerInvariant() + "_sidx";
+            return ordinal == 0 ? baseName : baseName + ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
         // e.g. column "profile", "$.address.zip", Int32 -> "profile_address_zip_i32"

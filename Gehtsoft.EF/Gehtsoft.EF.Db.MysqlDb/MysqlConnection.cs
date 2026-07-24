@@ -21,16 +21,20 @@ namespace Gehtsoft.EF.Db.MysqlDb
         public MysqlDbConnection(MySqlConnection connection) : base(connection)
         {
             mSqlConnection = connection;
+            // MariaDB and MySQL diverge on spatial column DDL; pick the dialect from the server banner.
+            bool mariaDb = connection.ServerVersion != null &&
+                connection.ServerVersion.IndexOf("MariaDB", StringComparison.OrdinalIgnoreCase) >= 0;
+            mSpecifics = mariaDb ? gSpecificsMariaDb : gSpecificsMySql;
         }
 
         protected override SqlDbQuery ConstructQuery()
         {
-            return new MysqlDbQuery(this, new MySqlCommand("", mSqlConnection, mCurrentTransaction), gSpecifics);
+            return new MysqlDbQuery(this, new MySqlCommand("", mSqlConnection, mCurrentTransaction), mSpecifics);
         }
 
         protected override SqlDbQuery ConstructQuery(string queryText)
         {
-            return new MysqlDbQuery(this, new MySqlCommand("", mSqlConnection, mCurrentTransaction), gSpecifics) { CommandText = queryText };
+            return new MysqlDbQuery(this, new MySqlCommand("", mSqlConnection, mCurrentTransaction), mSpecifics) { CommandText = queryText };
         }
 
         public override SqlDbTransaction BeginTransaction()
@@ -56,31 +60,33 @@ namespace Gehtsoft.EF.Db.MysqlDb
             mCurrentTransaction = null;
         }
 
-        private static readonly MysqlDbLanguageSpecifics gSpecifics = new MysqlDbLanguageSpecifics();
+        private static readonly MysqlDbLanguageSpecifics gSpecificsMySql = new MySql8LanguageSpecifics();
+        private static readonly MysqlDbLanguageSpecifics gSpecificsMariaDb = new MariaDbLanguageSpecifics();
+        private readonly MysqlDbLanguageSpecifics mSpecifics;
 
         public override SqlDbLanguageSpecifics GetLanguageSpecifics()
         {
-            return gSpecifics;
+            return mSpecifics;
         }
 
         public override CreateTableBuilder GetCreateTableBuilder(TableDescriptor descriptor)
         {
-            return new MysqlCreateTableBuilder(gSpecifics, descriptor);
+            return new MysqlCreateTableBuilder(mSpecifics, descriptor);
         }
 
         public override InsertQueryBuilder GetInsertQueryBuilder(TableDescriptor descriptor, bool ignoreAutoIncrement = false)
         {
-            return new MysqlInsertQueryBuilder(gSpecifics, descriptor, ignoreAutoIncrement);
+            return new MysqlInsertQueryBuilder(mSpecifics, descriptor, ignoreAutoIncrement);
         }
 
         public override InsertSelectQueryBuilder GetInsertSelectQueryBuilder(TableDescriptor descriptor, SelectQueryBuilder selectQuery, bool ignoreAutoIncrement = false)
         {
-            return new MysqlInsertSelectQueryBuilder(gSpecifics, descriptor, selectQuery, ignoreAutoIncrement);
+            return new MysqlInsertSelectQueryBuilder(mSpecifics, descriptor, selectQuery, ignoreAutoIncrement);
         }
 
         public override HierarchicalSelectQueryBuilder GetHierarchicalSelectQueryBuilder(TableDescriptor descriptor, TableDescriptor.ColumnInfo parentReferenceColumn, string rootParameter = null)
         {
-            return new MysqlHierarchicalSelectQueryBuilder(gSpecifics, descriptor, parentReferenceColumn, rootParameter);
+            return new MysqlHierarchicalSelectQueryBuilder(mSpecifics, descriptor, parentReferenceColumn, rootParameter);
         }
 
         protected override async Task<TableDescriptor[]> SchemaCore(bool sync, CancellationToken? token)
@@ -169,6 +175,16 @@ namespace Gehtsoft.EF.Db.MysqlDb
         public override AlterTableQueryBuilder GetAlterTableQueryBuilder()
         {
             return new MysqlAlterTableQueryBuilder(GetLanguageSpecifics());
+        }
+
+        public override DropIndexBuilder GetDropIndexBuilder(TableDescriptor descriptor, string name)
+        {
+            return mSpecifics.CreateDropIndexBuilder(descriptor.Name, name);
+        }
+
+        public override UpdateQueryBuilder GetUpdateQueryBuilder(TableDescriptor descriptor)
+        {
+            return mSpecifics.CreateUpdateQueryBuilder(descriptor);
         }
 
         protected async override ValueTask<bool> DoesObjectExistCore(string tableName, string objectName, string objectType, bool executeAsync)

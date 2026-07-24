@@ -18,6 +18,21 @@ namespace Gehtsoft.EF.Db.SqliteDb
         public override bool SupportsJson => true;
 
         /// <summary>
+        /// SQLite provides geometry columns through the SpatiaLite extension (the geometry column is
+        /// added after CREATE TABLE via <c>AddGeometryColumn</c>). Requires
+        /// <see cref="SqliteGlobalOptions.EnableSpatial"/> + the native <c>mod_spatialite</c> at runtime.
+        /// </summary>
+        public override bool SupportsGeometry => true;
+
+        /// <summary>Renders a SpatiaLite geometry value/scalar operation in the OGC <c>ST_*</c> grammar.</summary>
+        public override string GeometryFunction(in GeoFunctionRequest request)
+            => RenderOgcGeometryFunction(request);
+
+        /// <summary>Renders a SpatiaLite geometry predicate; within-distance uses <c>ST_Distance(...) &lt;= d</c>.</summary>
+        public override string GeometryPredicate(in GeoPredicateRequest request)
+            => RenderOgcGeometryPredicate(request, nativeDWithin: false);
+
+        /// <summary>
         /// Renders a SQLite JSON extraction. SQLite is dynamically typed and its `CREATE INDEX` is
         /// not wrapped in a quoted block, so neither the target type nor <paramref name="forDdl"/>
         /// affects the expression.
@@ -288,6 +303,16 @@ namespace Gehtsoft.EF.Db.SqliteDb
                     return $"CAST((JULIANDAY({args[0]}) - 2440587.5) * 86400 AS INTEGER)";
                 case SqlFunctionId.Left:
                     return $"SLEFT({args[0]}, {args[1]})";
+                case SqlFunctionId.Now:
+                    // Match the active DateTime storage model: ISO string, or the OADate double
+                    // (days since 1899-12-30). 2415018.5 is the Julian day of the OADate epoch, so
+                    // JULIANDAY('now') - 2415018.5 is exactly the OADate of the current UTC instant
+                    // (the same conversion ToDate uses in double mode).
+                    return SqliteGlobalOptions.StoreDateAsString
+                        ? "STRFTIME('%Y-%m-%d %H:%M:%S', 'now')"
+                        : "(JULIANDAY('now') - 2415018.5)";
+                case SqlFunctionId.LinuxSeconds:
+                    return "CAST(STRFTIME('%s', 'now') AS INTEGER)";
                 default:
                     return base.GetSqlFunction(function, args);
             }

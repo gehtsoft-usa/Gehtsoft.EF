@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.PostgresDb
 {
@@ -15,6 +17,25 @@ namespace Gehtsoft.EF.Db.PostgresDb
         /// PostgreSQL supports JSON columns (jsonb).
         /// </summary>
         public override bool SupportsJson => true;
+
+        /// <summary>PostGIS provides geometry columns.</summary>
+        public override bool SupportsGeometry => true;
+
+        /// <summary>Renders a PostGIS geometry column: <c>geometry(&lt;subtype&gt;&lt;Z/M&gt;,&lt;srid&gt;)</c>.</summary>
+        public override string GeometryColumnDDL(TableDescriptor.ColumnInfo column)
+        {
+            GeometryColumnMetadata geo = column.Geometry;
+            string type = $"geometry({GeometryDdlHelper.SubtypeName(geo.Subtype)}{GeometryDdlHelper.DimensionSuffix(geo.HasZ, geo.HasM)},{geo.Srid})";
+            return column.Nullable ? type : type + " NOT NULL";
+        }
+
+        /// <summary>Renders a PostGIS geometry value/scalar operation in the OGC <c>ST_*</c> grammar.</summary>
+        public override string GeometryFunction(in GeoFunctionRequest request)
+            => RenderOgcGeometryFunction(request);
+
+        /// <summary>Renders a PostGIS geometry predicate; within-distance uses the native <c>ST_DWithin</c>.</summary>
+        public override string GeometryPredicate(in GeoPredicateRequest request)
+            => RenderOgcGeometryPredicate(request, nativeDWithin: true);
 
         /// <summary>
         /// Renders a PostgreSQL JSON extraction. The JSON is stored as `text`, so it is cast to
@@ -33,7 +54,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
         private static string PostgresJsonPath(string path)
         {
             string p = path;
-            if (p.StartsWith("$", System.StringComparison.Ordinal))
+            if (p.StartsWith('$'))
                 p = p.Substring(1);
             // an array element "[N]" becomes a path step ",N"
             p = p.Replace("]", "").Replace("[", ".");
@@ -153,6 +174,8 @@ namespace Gehtsoft.EF.Db.PostgresDb
                 SqlFunctionId.Hour => $"EXTRACT(HOUR FROM {args[0]})",
                 SqlFunctionId.Minute => $"EXTRACT(MINUTE FROM {args[0]})",
                 SqlFunctionId.Second => $"EXTRACT(SECOND FROM {args[0]})",
+                SqlFunctionId.Now => "(now() AT TIME ZONE 'UTC')",
+                SqlFunctionId.LinuxSeconds => "CAST(EXTRACT(EPOCH FROM now()) AS BIGINT)",
                 _ => base.GetSqlFunction(function, args),
             };
         }

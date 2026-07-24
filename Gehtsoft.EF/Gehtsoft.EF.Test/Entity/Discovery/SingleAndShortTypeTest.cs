@@ -85,7 +85,7 @@ namespace Gehtsoft.EF.Test.Entity.Discovery
             {
                 new SqliteDbLanguageSpecifics(),
                 new MssqlDbLanguageSpecifics(),
-                new MysqlDbLanguageSpecifics(),
+                new MySql8LanguageSpecifics(),
                 new OracleDbLanguageSpecifics(),
                 new PostgresDbLanguageSpecifics(),
             };

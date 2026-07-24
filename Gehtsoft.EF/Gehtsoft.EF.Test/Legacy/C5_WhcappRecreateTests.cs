@@ -331,10 +331,10 @@ namespace Gehtsoft.EF.Test.Legacy.C5Whcapp
         public void CheckRecreate_Whcapp()
         {
             using var connection = SqliteDbConnectionFactory.CreateMemory();
-            var controller = new CreateEntityController(typeof(UserEntity), "c5whcapp");
+            var controller = new CreateEntityControllerInternal(typeof(UserEntity), "c5whcapp");
 
             // 1st Recreate — OK
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            controller.UpdateTables(connection, EntityUpdateMode.Recreate);
             Count<UserEntity>(connection).Should().Be(2);
 
             CreateUser(connection);
@@ -343,7 +343,7 @@ namespace Gehtsoft.EF.Test.Legacy.C5Whcapp
             // 2nd Recreate — in CoinAccountant this throws
             //   SqliteException : 'table wallets already exists'
             ((Action)(() =>
-                controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate)))
+                controller.UpdateTables(connection, EntityUpdateMode.Recreate)))
                 .Should().NotThrow();
 
             Count<UserEntity>(connection).Should().Be(2);
@@ -356,13 +356,13 @@ namespace Gehtsoft.EF.Test.Legacy.C5Whcapp
         public void SecondRecreate_Emits_Drop_Before_Create_For_Every_Table_Whcapp()
         {
             using var connection = SqliteDbConnectionFactory.CreateMemory();
-            var controller = new CreateEntityController(typeof(UserEntity), "c5whcapp");
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            var controller = new CreateEntityControllerInternal(typeof(UserEntity), "c5whcapp");
+            controller.UpdateTables(connection, EntityUpdateMode.Recreate);
 
             var order = new List<string>();
             controller.OnAction += (_, e) => order.Add($"{e.EventAction}:{e.Table}");
 
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Recreate);
+            controller.UpdateTables(connection, EntityUpdateMode.Recreate);
 
             var expectedTables = new[]
             {

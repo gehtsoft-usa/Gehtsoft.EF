@@ -3,6 +3,8 @@ using System.Data;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 
 namespace Gehtsoft.EF.Db.MssqlDb
 {
@@ -12,6 +14,54 @@ namespace Gehtsoft.EF.Db.MssqlDb
         /// The driver identifier of this dialect.
         /// </summary>
         public override string DbName => UniversalSqlDbFactory.MSSQL;
+
+        /// <summary>SQL Server provides the built-in <c>geometry</c> type.</summary>
+        public override bool SupportsGeometry => true;
+
+        /// <summary>
+        /// Renders a SQL Server geometry column: <c>geometry</c> (the SRID is enforced by the
+        /// constructor, not the column type).
+        /// </summary>
+        public override string GeometryColumnDDL(TableDescriptor.ColumnInfo column)
+            => column.Nullable ? "geometry" : "geometry NOT NULL";
+
+        /// <summary>Renders a SQL Server geometry value/scalar operation using method-call syntax on the <c>geometry</c> UDT.</summary>
+        public override string GeometryFunction(in GeoFunctionRequest request)
+        {
+            switch (request.Op)
+            {
+                case SqlGeoFunctionId.FromWkb: return $"geometry::STGeomFromWKB({request.Parameter}, {request.Srid})";
+                case SqlGeoFunctionId.AsBinary: return $"{request.A}.STAsBinary()";
+                case SqlGeoFunctionId.Distance: return $"{request.A}.STDistance({request.B})";
+                case SqlGeoFunctionId.Area: return $"{request.A}.STArea()";
+                case SqlGeoFunctionId.Length: return $"{request.A}.STLength()";
+                case SqlGeoFunctionId.Srid: return $"{request.A}.STSrid";
+                case SqlGeoFunctionId.GeometryType: return $"{request.A}.STGeometryType()";
+                case SqlGeoFunctionId.IsEmpty: return $"{request.A}.STIsEmpty()";
+                case SqlGeoFunctionId.X: return $"{request.A}.STX";
+                case SqlGeoFunctionId.Y: return $"{request.A}.STY";
+                case SqlGeoFunctionId.Envelope: return $"{request.A}.STEnvelope()";
+                default: throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+            }
+        }
+
+        /// <summary>Renders a SQL Server geometry predicate; the <c>bit</c> result is normalized with <c>= 1</c>.</summary>
+        public override string GeometryPredicate(in GeoPredicateRequest request)
+        {
+            switch (request.Op)
+            {
+                case SqlGeoPredicateId.Intersects: return $"({request.A}.STIntersects({request.B}) = 1)";
+                case SqlGeoPredicateId.Disjoint: return $"({request.A}.STDisjoint({request.B}) = 1)";
+                case SqlGeoPredicateId.Equals: return $"({request.A}.STEquals({request.B}) = 1)";
+                case SqlGeoPredicateId.Touches: return $"({request.A}.STTouches({request.B}) = 1)";
+                case SqlGeoPredicateId.Within: return $"({request.A}.STWithin({request.B}) = 1)";
+                case SqlGeoPredicateId.Contains: return $"({request.A}.STContains({request.B}) = 1)";
+                case SqlGeoPredicateId.Overlaps: return $"({request.A}.STOverlaps({request.B}) = 1)";
+                case SqlGeoPredicateId.Crosses: return $"({request.A}.STCrosses({request.B}) = 1)";
+                case SqlGeoPredicateId.DWithin: return $"({request.A}.STDistance({request.B}) <= {GeometryDdlHelper.Number(request.Distance)})";
+                default: throw new EfSqlException(EfExceptionCode.FeatureNotSupported);
+            }
+        }
 
         public override string TypeName(DbType type, int size, int precision, bool autoincrement)
         {
@@ -167,6 +217,10 @@ namespace Gehtsoft.EF.Db.MssqlDb
                         builder.Append(')');
                         return builder.ToString();
                     }
+                case SqlFunctionId.Now:
+                    return "GETUTCDATE()";
+                case SqlFunctionId.LinuxSeconds:
+                    return "DATEDIFF_BIG(SECOND, '19700101', SYSUTCDATETIME())";
                 default:
                     return base.GetSqlFunction(function, args);
             }

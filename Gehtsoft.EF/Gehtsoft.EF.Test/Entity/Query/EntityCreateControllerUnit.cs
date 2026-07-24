@@ -106,7 +106,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
         public void Create()
         {
             using var connection = new DummySqlConnection();
-            var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
+            var action = new Mock<CreateEntityControllerInternal.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
 
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
@@ -140,7 +140,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 It.Is<SqlDbConnection>(c => c == connection),
                 It.Is<EntityFinder.EntityTypeInfo>(e => e == v1))).Verifiable();
 
-            var controller = new CreateEntityController(assemblies, "scope")
+            var controller = new CreateEntityControllerInternal(assemblies, "scope")
             {
                 ActionController = action.Object
             };
@@ -168,7 +168,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
         public void Drop()
         {
             using var connection = new DummySqlConnection();
-            var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
+            var action = new Mock<CreateEntityControllerInternal.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
 
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
@@ -215,7 +215,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 It.Is<EntityFinder.EntityTypeInfo>(e => e != alreadyDropped && (e == d3 || e == d1))))
                 .Verifiable();
 
-            var controller = new CreateEntityController(assemblies, "scope")
+            var controller = new CreateEntityControllerInternal(assemblies, "scope")
             {
                 ActionController = action.Object
             };
@@ -244,7 +244,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
         {
             using var connection = new DummySqlConnection();
 
-            var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
+            var action = new Mock<CreateEntityControllerInternal.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
 
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
@@ -282,7 +282,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 It.Is<SqlDbConnection>(c => c == connection),
                 It.Is<EntityFinder.EntityTypeInfo>(e => e == v1))).Verifiable();
 
-            var controller = new CreateEntityController(assemblies, "scope")
+            var controller = new CreateEntityControllerInternal(assemblies, "scope")
             {
                 ActionController = action.Object
             };
@@ -295,7 +295,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 actions.Add(args.Table);
             };
 
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            controller.UpdateTables(connection, EntityUpdateMode.Update);
 
             action.Verify();
 
@@ -310,7 +310,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
         {
             using var connection = new DummySqlConnection();
 
-            var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
+            var action = new Mock<CreateEntityControllerInternal.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
 
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
@@ -356,7 +356,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 It.Is<SqlDbConnection>(c => c == connection),
                 It.Is<EntityFinder.EntityTypeInfo>(e => e == v1))).Verifiable();
 
-            var controller = new CreateEntityController(assemblies, "scope")
+            var controller = new CreateEntityControllerInternal(assemblies, "scope")
             {
                 ActionController = action.Object
             };
@@ -370,7 +370,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             };
 
             Dict1CreateCalled = false;
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            controller.UpdateTables(connection, EntityUpdateMode.Update);
 
             action.Verify();
 
@@ -386,7 +386,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             using var connection = new DummySqlConnection();
             connection.DummyDbSpecifics.DropColumnSupportedSpec = true;
 
-            var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
+            var action = new Mock<CreateEntityControllerInternal.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
 
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
@@ -481,12 +481,12 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 It.Is<SqlDbConnection>(c => c == connection),
                 It.Is<EntityFinder.EntityTypeInfo>(e => e == v1))).Verifiable();
 
-            var controller = new CreateEntityController(assemblies, "scope")
+            var controller = new CreateEntityControllerInternal(assemblies, "scope")
             {
                 ActionController = action.Object
             };
 
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            controller.UpdateTables(connection, EntityUpdateMode.Update);
 
             action.Verify();
         }
@@ -497,7 +497,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
             using var connection = new DummySqlConnection();
             connection.DummyDbSpecifics.DropColumnSupportedSpec = false;
 
-            var action = new Mock<CreateEntityController.ICreateEntityControllerAction>(MockBehavior.Strict);
+            var action = new Mock<CreateEntityControllerInternal.ICreateEntityControllerAction>(MockBehavior.Strict);
             var sequence = new MockSequence();
 
             var assemblies = new List<Assembly>() { this.GetType().Assembly };
@@ -579,12 +579,12 @@ namespace Gehtsoft.EF.Test.Entity.Query
                 It.Is<SqlDbConnection>(c => c == connection),
                 It.Is<EntityFinder.EntityTypeInfo>(e => e == v1))).Verifiable();
 
-            var controller = new CreateEntityController(assemblies, "scope")
+            var controller = new CreateEntityControllerInternal(assemblies, "scope")
             {
                 ActionController = action.Object
             };
 
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            controller.UpdateTables(connection, EntityUpdateMode.Update);
 
             action.Verify();
         }

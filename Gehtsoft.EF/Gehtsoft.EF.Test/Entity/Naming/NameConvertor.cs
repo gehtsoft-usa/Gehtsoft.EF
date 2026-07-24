@@ -254,8 +254,8 @@ namespace Gehtsoft.EF.Test.Entity.Naming
         {
             using var connection = SqliteDbConnectionFactory.CreateMemory();
             AllEntities.Inst.NamingPolicy["naming2"] = EntityNamingPolicy.LowerCaseWithUnderscores;
-            CreateEntityController controller = new CreateEntityController(typeof(TestObject), "naming2");
-            controller.UpdateTables(connection, CreateEntityController.UpdateMode.Update);
+            CreateEntityControllerInternal controller = new CreateEntityControllerInternal(typeof(TestObject), "naming2");
+            controller.UpdateTables(connection, EntityUpdateMode.Update);
             var schema = connection.Schema();
 
             schema.Should().Contain(d => d.Name == "test_objects");

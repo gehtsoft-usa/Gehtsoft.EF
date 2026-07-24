@@ -49,6 +49,12 @@
     <Compile Include="EntityContext\Ops.cs" />
     <Compile Include="Tools\IEntityAccessor.cs" />
     <Compile Include="Tools\IEntityCollection.cs" />
+    <Compile Include="Geometry\IGeometryCodec.cs" />
+    <Compile Include="Geometry\IGeometryCodecFactory.cs" />
+    <Compile Include="Geometry\GeometryCodecs.cs" />
+    <Compile Include="Geometry\GeometrySubtype.cs" />
+    <Compile Include="Attributes\GeometryEntityPropertyAttribute.cs" />
+    <Compile Include="Attributes\SpatialIndexAttribute.cs" />
   </ItemGroup>
 
   <ItemGroup>

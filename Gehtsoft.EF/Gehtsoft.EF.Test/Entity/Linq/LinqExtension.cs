@@ -150,7 +150,9 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             using var query = dummyConnection.GetSelectEntitiesQueryBase<Entity>();
             query.AddEntity<Dict>();
             query.AddToResultset<Entity, int>(e => e.IntValue, "v1");
+#pragma warning disable CA1866 // expression tree translated to SQL LIKE; the string overload is required
             query.Where.Expression<Dict>(d => d.Name.StartsWith("a"));
+#pragma warning restore CA1866
             query.PrepareQuery();
             query.SelectBuilder.Query
                 .Should().MatchPattern(query, "SELECT @1.intvalue AS v1 FROM Entity AS @1 INNER JOIN Dict AS @2 ON @2.id = @1.reference WHERE @2.name LIKE @p || '%'");
@@ -189,7 +191,9 @@ namespace Gehtsoft.EF.Test.Entity.Linq
             using var query = dummyConnection.GetSelectEntitiesQueryBase<Entity>();
             query.AddEntity<Dict>();
             query.AddToResultset<Entity, int>(e => e.IntValue, "v1");
+#pragma warning disable CA1862 // expression tree translated to SQL UPPER(); ToUpper() must remain
             query.Where.And().Expression<Entity>(e => e.Reference.Name.ToUpper() == SqlFunction.Left(e.StringValue, 5));
+#pragma warning restore CA1862
             query.PrepareQuery();
             query.SelectBuilder.Query
                 .Should().MatchPattern(query, "SELECT @1.intvalue AS v1 FROM Entity AS @1 INNER JOIN Dict AS @2 ON @2.id = @1.reference WHERE (UPPER(@2.name) = LEFT(@1.stringvalue, @p))");

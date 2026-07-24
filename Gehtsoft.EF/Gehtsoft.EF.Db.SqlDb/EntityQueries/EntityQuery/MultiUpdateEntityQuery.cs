@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 
+#pragma warning disable S6966 // false positive: methods use sync/async branching pattern
+
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     /// <summary>
@@ -134,7 +136,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                         idQuery.ExecuteReader();
                     else
                         await idQuery.ExecuteReaderAsync(token);
-                    while (idQuery.ReadNext())
+                    while (sync ? idQuery.ReadNext() : await idQuery.ReadNextAsync(token))
                         ids.Add(idQuery.GetValue<object>(0));
                 }
                 matched = ids.Count;

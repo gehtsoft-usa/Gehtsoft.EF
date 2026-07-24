@@ -75,6 +75,9 @@ namespace Gehtsoft.EF.Test.Legacy
                 using (var query = context.Select<TestContextEntity>())
                 {
                     query.Order.Add(nameof(TestContextEntity.Value));
+                    // Value is random and rounded to 2 decimals, so ties are possible; add ID as a tiebreaker
+                    // to make the order total - otherwise the paged query below can order ties differently.
+                    query.Order.Add(nameof(TestContextEntity.ID));
                     query.Execute();
                     collection1 = query.ReadAll<EntityCollection<TestContextEntity>, TestContextEntity>();
                 }
@@ -120,6 +123,8 @@ namespace Gehtsoft.EF.Test.Legacy
                     query.Take = 10;
                     query.Skip = 2;
                     query.Order.Add(nameof(TestContextEntity.Value));
+                    // Same tiebreaker as collection1 so paging is deterministic across tied Values.
+                    query.Order.Add(nameof(TestContextEntity.ID));
                     query.Execute();
                     collection2 = query.ReadAll<EntityCollection<TestContextEntity>, TestContextEntity>();
                 }

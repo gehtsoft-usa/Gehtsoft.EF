@@ -31,12 +31,12 @@ namespace Gehtsoft.EF.Test.Utils
                 if (value is string s)
                 {
                     DateTimeStyles styles = DateTimeStyles.None;
-                    if (s.EndsWith("Z"))
+                    if (s.EndsWith('Z'))
                     {
                         styles |= DateTimeStyles.AssumeUniversal;
                         s = s.Substring(0, s.Length - 1);
                     }
-                    else if (s.EndsWith("L"))
+                    else if (s.EndsWith('L'))
                     {
                         styles |= DateTimeStyles.AssumeLocal;
                         s = s.Substring(0, s.Length - 1);

@@ -45,7 +45,13 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                 if (!column.ForeignKey)
                 {
                     binder.AddBinding(mSelectQueryBuilder.Resultset.Count, column.Name, column.PropertyAccessor, column.PrimaryKey);
-                    mSelectQueryBuilder.AddExpressionToResultset($"{entity.Alias}.{column.Name}", column.DbType, false, $"{entity.Alias}_{column.Name}");
+                    // A geometry column's raw value is a non-portable native BLOB; project it through the WKB
+                    // output wrap so the (byte[]/object) accessor decodes it (FromWkb) on the entity read. The
+                    // binder binds by resultset index, so the wrapped column occupies the same slot.
+                    if (column.Geometry != null)
+                        mSelectQueryBuilder.AddGeometryValueToResultset(column, entity, $"{entity.Alias}_{column.Name}", GeometryValueForm.Wkb);
+                    else
+                        mSelectQueryBuilder.AddExpressionToResultset($"{entity.Alias}.{column.Name}", column.DbType, false, $"{entity.Alias}_{column.Name}");
                 }
                 else
                 {

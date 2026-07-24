@@ -37,7 +37,7 @@ namespace Gehtsoft.EF.MongoDb
         [DocgenIgnore]
         private async Task ExecuteAsyncCore(CancellationToken token)
         {
-            if (!(await Connection.Database.ListCollectionNamesAsync(new ListCollectionNamesOptions { Filter = new BsonDocument() { new BsonElement("name", new BsonString(CollectionName)) } })).Any())
+            if (!(await Connection.Database.ListCollectionNamesAsync(new ListCollectionNamesOptions { Filter = new BsonDocument() { new BsonElement("name", new BsonString(CollectionName)) } }, token)).Any(token))
             {
                 await Connection.Database.CreateCollectionAsync(CollectionName, null, token);
 

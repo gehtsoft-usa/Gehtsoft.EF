@@ -13,6 +13,8 @@ using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Test.Utils;
 using Xunit;
 
+#pragma warning disable xUnit1042 // object[]-based MemberData sources are intentional here
+
 namespace Gehtsoft.EF.Test.SqlDb.Factory
 {
     public class UnversalConfigurationFactory
@@ -33,7 +35,7 @@ namespace Gehtsoft.EF.Test.SqlDb.Factory
         public async Task GetConnectionAsync(string connectionName, Type expectedType)
         {
             var config = AppConfiguration.Instance.GetSqlConnection(connectionName);
-            using var connection = await UniversalSqlDbFactory.CreateAsync(config.Driver, config.ConnectionString);
+            using var connection = await UniversalSqlDbFactory.CreateAsync(config.Driver, config.ConnectionString, TestContext.Current.CancellationToken);
             connection.Should().NotBeNull();
             connection.Should().BeOfType(expectedType);
             connection.ConnectionType.Should().Match(v => config.Driver.Equals(v, StringComparison.OrdinalIgnoreCase));

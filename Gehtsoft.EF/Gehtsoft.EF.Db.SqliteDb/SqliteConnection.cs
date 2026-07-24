@@ -9,6 +9,7 @@ using System.Threading;
 using System.Data;
 using System;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 #pragma warning disable S6966 // false positive: methods use sync/async branching pattern
 
@@ -27,6 +28,171 @@ namespace Gehtsoft.EF.Db.SqliteDb
         {
             mSqlConnection = connection;
             SetupFunctions(connection);
+            if (SqliteGlobalOptions.EnableSpatial)
+                EnableSpatialite(connection);
+        }
+
+        private static int mSqliteSymbolsPromoted;
+        private static int mSpatialitePreloaded;
+
+        [System.Runtime.InteropServices.DllImport("libdl.so.2", EntryPoint = "dlopen")]
+        private static extern IntPtr LinuxDlopen(string fileName, int flags);
+
+        [System.Runtime.InteropServices.DllImport("libSystem.dylib", EntryPoint = "dlopen")]
+        private static extern IntPtr MacDlopen(string fileName, int flags);
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", EntryPoint = "LoadLibraryExW", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern IntPtr WindowsLoadLibraryEx(string fileName, IntPtr file, uint flags);
+
+        // On Unix, mod_spatialite is compiled to reference the sqlite3_* symbols of the hosting engine
+        // directly (not through the extension API table). SQLitePCLRaw loads e_sqlite3 with local symbol
+        // visibility, so those symbols are invisible to the extension and calling it segfaults. Promote
+        // the already-loaded e_sqlite3 to the global symbol scope (dlopen RTLD_GLOBAL) so the extension
+        // binds against it. Windows has NO such problem — its mod_spatialite.dll imports no sqlite3 DLL
+        // and binds through the extension API routines table; see PreloadSpatialiteWindows for the real
+        // Windows blocker (dependency-DLL discovery).
+        private static void PromoteSqliteSymbolsForSpatialite()
+        {
+            if (System.Threading.Interlocked.Exchange(ref mSqliteSymbolsPromoted, 1) != 0)
+                return;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return;
+            string path = LocateNativeSqlite();
+            if (path == null)
+                return;
+            const int RTLD_NOW = 0x2;
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    MacDlopen(path, RTLD_NOW | 0x8);     // macOS RTLD_GLOBAL = 0x8
+                else
+                    LinuxDlopen(path, RTLD_NOW | 0x100); // Linux RTLD_GLOBAL = 0x100
+            }
+            catch
+            {
+                // best effort; LoadExtension will surface a clear error if the symbols are still missing
+            }
+        }
+
+        private static string LocateNativeSqlite()
+        {
+            bool osx = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+            string file = osx ? "libe_sqlite3.dylib" : "libe_sqlite3.so";
+            string os = osx ? "osx" : "linux";
+            string arch = RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "arm64" : "x64";
+            string baseDir = AppContext.BaseDirectory;
+            string[] candidates =
+            {
+                Path.Combine(baseDir, file),
+                Path.Combine(baseDir, "runtimes", os + "-" + arch, "native", file),
+            };
+            for (int i = 0; i < candidates.Length; i++)
+                if (File.Exists(candidates[i]))
+                    return candidates[i];
+            return null;
+        }
+
+        // Windows: mod_spatialite.dll itself imports no sqlite3 symbols, so there is no symbol-scope
+        // problem. What fails is dependency resolution: mod_spatialite depends on libgeos_c, libproj,
+        // librttopo, … which in turn chain to libgeos, libstdc++, libcurl, libsqlite3-0, …, and every
+        // one of those DLLs sits in the same native folder — a folder that is on neither the app base
+        // dir nor PATH. A plain LoadLibraryW("mod_spatialite") therefore fails with error 126 when the
+        // loader cannot find those dependencies. Pre-loading the DLL by its absolute path with
+        // LOAD_WITH_ALTERED_SEARCH_PATH makes the loader resolve the whole dependency graph from the
+        // module's own directory. The subsequent LoadExtension(fullPath) reuses the already-loaded
+        // module and only runs the extension entry point. Returns the located full path (to hand to
+        // LoadExtension) or null when the library could not be found (fall back to the configured name).
+        private static string PreloadSpatialiteWindows()
+        {
+            string located = LocateSpatialiteWindows();
+            if (located == null)
+                return null;
+            if (System.Threading.Interlocked.Exchange(ref mSpatialitePreloaded, 1) == 0)
+            {
+                const uint LOAD_WITH_ALTERED_SEARCH_PATH = 0x8;
+                try
+                {
+                    WindowsLoadLibraryEx(located, IntPtr.Zero, LOAD_WITH_ALTERED_SEARCH_PATH);
+                }
+                catch
+                {
+                    // best effort; LoadExtension below surfaces a clear error if the load still fails
+                }
+            }
+            return located;
+        }
+
+        private static string LocateSpatialiteWindows()
+        {
+            string configured = SqliteGlobalOptions.SpatialiteLibrary;
+
+            // An explicit path (or a name that resolves to a file next to the app) wins as-is.
+            if (!string.IsNullOrEmpty(configured))
+            {
+                if (File.Exists(configured))
+                    return Path.GetFullPath(configured);
+                string withExt = configured.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) ? configured : configured + ".dll";
+                if (File.Exists(withExt))
+                    return Path.GetFullPath(withExt);
+            }
+
+            string arch;
+            switch (RuntimeInformation.ProcessArchitecture)
+            {
+                case Architecture.X86:
+                    arch = "x86";
+                    break;
+                case Architecture.Arm64:
+                    arch = "arm64";
+                    break;
+                default:
+                    arch = "x64";
+                    break;
+            }
+            string baseDir = AppContext.BaseDirectory;
+            string[] candidates =
+            {
+                Path.Combine(baseDir, "mod_spatialite.dll"),
+                Path.Combine(baseDir, "runtimes", "win-" + arch, "native", "mod_spatialite.dll"),
+            };
+            for (int i = 0; i < candidates.Length; i++)
+                if (File.Exists(candidates[i]))
+                    return candidates[i];
+            return null;
+        }
+
+        private static void EnableSpatialite(SqliteConnection connection)
+        {
+            string extension = SqliteGlobalOptions.SpatialiteLibrary;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                string located = PreloadSpatialiteWindows();
+                if (located != null)
+                    extension = located;
+            }
+            else
+            {
+                PromoteSqliteSymbolsForSpatialite();
+            }
+
+            connection.EnableExtensions(true);
+            connection.LoadExtension(extension);
+
+            // Bootstrap the spatial metadata once per database (guarded so it is idempotent across
+            // connections to the same file, and re-created for each in-memory database).
+            using (var check = connection.CreateCommand())
+            {
+                check.CommandText = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'spatial_ref_sys'";
+                long present = Convert.ToInt64(check.ExecuteScalar(), CultureInfo.InvariantCulture);
+                if (present == 0)
+                {
+                    using (var init = connection.CreateCommand())
+                    {
+                        init.CommandText = "SELECT InitSpatialMetaData(1)";
+                        init.ExecuteNonQuery();
+                    }
+                }
+            }
         }
 
         private static void SetupFunctions(SqliteConnection connection)

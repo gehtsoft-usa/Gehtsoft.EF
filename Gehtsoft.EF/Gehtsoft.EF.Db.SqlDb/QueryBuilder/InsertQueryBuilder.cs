@@ -73,6 +73,33 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         protected string ParameterNameFor(string column)
             => mParameterNames != null && mParameterNames.TryGetValue(column, out string parameter) ? parameter : column;
 
+        protected Dictionary<string, string> mColumnValueExpressions;
+
+        /// <summary>
+        /// The token replaced with a column's resolved parameter reference (prefix + name) inside a
+        /// value expression set through <see cref="SetColumnValueExpressions"/>.
+        /// </summary>
+        public const string ParameterToken = "{param}";
+
+        /// <summary>
+        /// Overrides the value expression emitted for specific columns instead of the plain bound
+        /// parameter. Each expression is emitted verbatim on the VALUES side, with the
+        /// <see cref="ParameterToken"/> token replaced by the column's resolved parameter reference. This
+        /// is how a value is wrapped in a SQL constructor function - for example a geometry column whose
+        /// WKB parameter must be wrapped as <c>ST_GeomFromWKB({param}, 4326)</c>. The parameter itself is
+        /// still bound by the caller under the column's parameter name.
+        /// </summary>
+        /// <param name="expressions">The `(column, expression)` pairs.</param>
+        public void SetColumnValueExpressions(params (string Column, string Expression)[] expressions)
+        {
+            if (expressions == null || expressions.Length == 0)
+                return;
+            if (mColumnValueExpressions == null)
+                mColumnValueExpressions = new Dictionary<string, string>();
+            foreach ((string column, string expression) in expressions)
+                mColumnValueExpressions[column] = expression;
+        }
+
         [DocgenIgnore]
         public override void PrepareQuery()
         {
@@ -104,6 +131,21 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 {
                     autoIncrement = info;
                     rightSide.Append(ExpressionForAutoincrement(info));
+                }
+                else if (mColumnValueExpressions != null && mColumnValueExpressions.TryGetValue(info.Name, out string valueExpression))
+                {
+                    string parameterReference = mSpecifics.ParameterInQueryPrefix + ParameterNameFor(info.Name);
+                    rightSide.Append(valueExpression.Replace(ParameterToken, parameterReference));
+                }
+                else if (info.Geometry != null)
+                {
+                    // A geometry column stores WKB but the engine's column type is the native spatial type,
+                    // so the bound WKB parameter must be wrapped in the dialect's constructor. This mirrors
+                    // the autoincrement branch above: an additive, metadata-driven emission keyed on a column
+                    // flag. An explicit SetColumnValueExpressions entry (handled above) still overrides it.
+                    string parameterReference = mSpecifics.ParameterInQueryPrefix + ParameterNameFor(info.Name);
+                    rightSide.Append(mSpecifics.GeometryFunction(new GeoFunctionRequest(
+                        SqlGeoFunctionId.FromWkb, parameter: parameterReference, srid: info.Geometry.Srid)));
                 }
                 else
                 {

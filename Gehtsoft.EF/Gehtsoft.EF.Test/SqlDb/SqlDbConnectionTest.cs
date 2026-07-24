@@ -107,9 +107,9 @@ namespace Gehtsoft.EF.Test.SqlDb
         [InlineData(typeof(MssqlDbLanguageSpecifics), typeof(bool), false, "0")]
         [InlineData(typeof(MssqlDbLanguageSpecifics), typeof(DateTime), "2010-02-05", "{d '2010-02-05'}")]
 
-        [InlineData(typeof(MysqlDbLanguageSpecifics), typeof(bool), true, "1")]
-        [InlineData(typeof(MysqlDbLanguageSpecifics), typeof(bool), false, "0")]
-        [InlineData(typeof(MysqlDbLanguageSpecifics), typeof(DateTime), "2010-02-05", "'2010-02-05'")]
+        [InlineData(typeof(MySql8LanguageSpecifics), typeof(bool), true, "1")]
+        [InlineData(typeof(MySql8LanguageSpecifics), typeof(bool), false, "0")]
+        [InlineData(typeof(MySql8LanguageSpecifics), typeof(DateTime), "2010-02-05", "'2010-02-05'")]
 
         [InlineData(typeof(OracleDbLanguageSpecifics), typeof(bool), true, "1")]
         [InlineData(typeof(OracleDbLanguageSpecifics), typeof(bool), false, "0")]

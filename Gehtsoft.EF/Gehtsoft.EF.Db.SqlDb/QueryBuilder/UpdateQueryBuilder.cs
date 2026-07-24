@@ -33,16 +33,30 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         public void AddUpdateColumn(TableDescriptor.ColumnInfo column, string parameterName = null)
         {
             if (parameterName != null)
-                if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+                if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
                     if (parameterName.ContainsScalar())
                         throw new ArgumentException("The query must not contain string scalars", nameof(parameterName));
             if (mFieldSet.Length > 0)
                 mFieldSet.Append(", ");
-            mFieldSet
-                .Append(column.Name)
-                .Append('=')
-                .Append(mSpecifics.ParameterInQueryPrefix)
-                .Append(parameterName ?? column.Name);
+            string parameterReference = mSpecifics.ParameterInQueryPrefix + (parameterName ?? column.Name);
+            if (column.Geometry != null)
+            {
+                // A geometry column stores WKB but the engine's column type is the native spatial type, so
+                // the bound WKB parameter is wrapped in the dialect's constructor - the SET-side twin of the
+                // INSERT auto-wrap. A caller wanting a different expression uses AddUpdateColumnExpression.
+                mFieldSet
+                    .Append(column.Name)
+                    .Append('=')
+                    .Append(mSpecifics.GeometryFunction(new GeoFunctionRequest(
+                        SqlGeoFunctionId.FromWkb, parameter: parameterReference, srid: column.Geometry.Srid)));
+            }
+            else
+            {
+                mFieldSet
+                    .Append(column.Name)
+                    .Append('=')
+                    .Append(parameterReference);
+            }
         }
 
         /// <summary>
@@ -53,7 +67,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="parameterDelimiter"></param>
         public void AddUpdateColumnExpression(TableDescriptor.ColumnInfo column, string rawExpression, string parameterDelimiter = "@")
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
                 if (rawExpression.ContainsScalar())
                     throw new ArgumentException("The query must not contain string scalars", nameof(rawExpression));
             if (mFieldSet.Length > 0)
@@ -73,8 +87,15 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (mFieldSet.Length > 0)
                 mFieldSet.Append(", ");
             builder.PrepareQuery();
-            mFieldSet.Append(column.Name).Append("=(").Append(builder.Query).Append(')');
+            mFieldSet.Append(column.Name).Append("=(").Append(TransformSubquery(builder.Query)).Append(')');
         }
+
+        /// <summary>
+        /// A hook for a dialect to rewrite a subquery embedded in the <c>SET</c> clause before it is spliced in.
+        /// The default returns it unchanged; a dialect that cannot read the updated table inside its own
+        /// subquery (e.g. MySQL 8, error 1093) overrides this to wrap that table in a derived table.
+        /// </summary>
+        protected virtual string TransformSubquery(string subquerySql) => subquerySql;
 
         /// <summary>
         /// Adds all columns of the entity to be updated.

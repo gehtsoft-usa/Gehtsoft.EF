@@ -441,6 +441,83 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             return result;
         }
 
+        // Translates a SqlSpatial.* marker call into a geometry predicate (complete boolean condition) or a
+        // geometry scalar operand. The first argument is the geometry column (resolved to its ColumnInfo so
+        // column.Geometry.Srid is available, like TryResolveJson reads column.Json); the operand is a bound
+        // WKB byte[] wrapped in the dialect FromWkb constructor; rendering delegates to the driver's
+        // GeometryPredicate / GeometryFunction. Mirrors the entity-level GeoPredicateOf / GeoScalarOf.
+        private Result ProcessGeoCall(MethodCallExpression callNode)
+        {
+            if ((callNode.Arguments?.Count ?? 0) < 1 || !(callNode.Arguments[0] is MemberExpression columnMember))
+                throw new ArgumentException("A spatial function requires a geometry property as its first argument", nameof(callNode));
+
+            EntityQueryWithWhereBuilder.EntityQueryItem item = IsQueryPath(columnMember);
+            if (item == null || item.Column == null || item.Column.Geometry == null)
+                throw new ArgumentException("A spatial function requires a geometry property as its first argument", nameof(callNode));
+
+            string a = mQuery.GetReference(item).Alias;
+            int srid = item.Column.Geometry.Srid;
+            string name = callNode.Method.Name;
+            Result res = new Result();
+
+            if (TryGeoPredicate(name, out SqlGeoPredicateId predicate))
+            {
+                Result operand = Visit(callNode.Arguments[1]);
+                string b = mSpecifics.GeometryFunction(new GeoFunctionRequest(SqlGeoFunctionId.FromWkb, parameter: operand.Expression.ToString(), srid: srid));
+                double distance = predicate == SqlGeoPredicateId.DWithin
+                    ? Convert.ToDouble(Expression.Lambda(callNode.Arguments[2]).Compile().DynamicInvoke(), System.Globalization.CultureInfo.InvariantCulture)
+                    : 0;
+                res.Expression.Append(mSpecifics.GeometryPredicate(new GeoPredicateRequest(predicate, a, b, distance)));
+                res.AddWithoutExpression(operand);
+                return res;
+            }
+
+            if (TryGeoScalar(name, out SqlGeoFunctionId scalar))
+            {
+                string b = null;
+                if (scalar == SqlGeoFunctionId.Distance)
+                {
+                    Result operand = Visit(callNode.Arguments[1]);
+                    b = mSpecifics.GeometryFunction(new GeoFunctionRequest(SqlGeoFunctionId.FromWkb, parameter: operand.Expression.ToString(), srid: srid));
+                    res.AddWithoutExpression(operand);
+                }
+                res.Expression.Append(mSpecifics.GeometryFunction(new GeoFunctionRequest(scalar, a: a, b: b)));
+                return res;
+            }
+
+            throw new ArgumentException($"Spatial function {name} is not supported", nameof(callNode));
+        }
+
+        private static bool TryGeoPredicate(string name, out SqlGeoPredicateId op)
+        {
+            switch (name)
+            {
+                case nameof(SqlSpatial.Intersects): op = SqlGeoPredicateId.Intersects; return true;
+                case nameof(SqlSpatial.Contains): op = SqlGeoPredicateId.Contains; return true;
+                case nameof(SqlSpatial.Within): op = SqlGeoPredicateId.Within; return true;
+                case nameof(SqlSpatial.Disjoint): op = SqlGeoPredicateId.Disjoint; return true;
+                case nameof(SqlSpatial.Touches): op = SqlGeoPredicateId.Touches; return true;
+                case nameof(SqlSpatial.Overlaps): op = SqlGeoPredicateId.Overlaps; return true;
+                case nameof(SqlSpatial.Crosses): op = SqlGeoPredicateId.Crosses; return true;
+                case nameof(SqlSpatial.SpatialEquals): op = SqlGeoPredicateId.Equals; return true;
+                case nameof(SqlSpatial.DWithin): op = SqlGeoPredicateId.DWithin; return true;
+                default: op = default; return false;
+            }
+        }
+
+        private static bool TryGeoScalar(string name, out SqlGeoFunctionId op)
+        {
+            switch (name)
+            {
+                case nameof(SqlSpatial.Area): op = SqlGeoFunctionId.Area; return true;
+                case nameof(SqlSpatial.Length): op = SqlGeoFunctionId.Length; return true;
+                case nameof(SqlSpatial.Distance): op = SqlGeoFunctionId.Distance; return true;
+                case nameof(SqlSpatial.X): op = SqlGeoFunctionId.X; return true;
+                case nameof(SqlSpatial.Y): op = SqlGeoFunctionId.Y; return true;
+                default: op = default; return false;
+            }
+        }
+
         private EntityQueryWithWhereBuilder.EntityQueryItem IsQueryPath(MemberExpression node)
         {
             if (node.Expression != null && node.NodeType == ExpressionType.MemberAccess && node.Member.MemberType == MemberTypes.Property)
@@ -663,6 +740,12 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
             // locally" short-circuit below (which would try to run Get against a null bag).
             if (IsDynamicPropertyGet(callNode))
                 return ProcessDynamicPropertyGet(callNode);
+
+            // A spatial marker - SqlSpatial.Intersects(e.Shape, wkb), SqlSpatial.Area(e.Shape), ... - is
+            // recognized here (before the generic argument-visit loop) because its first argument is a
+            // geometry column whose full metadata (column.Geometry.Srid) is needed, not just the alias.
+            if (callNode.Method.DeclaringType == typeof(SqlSpatial))
+                return ProcessGeoCall(callNode);
 
             Result res = new Result();
 

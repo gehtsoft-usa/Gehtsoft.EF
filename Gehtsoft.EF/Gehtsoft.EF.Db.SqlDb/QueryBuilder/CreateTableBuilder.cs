@@ -66,6 +66,9 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
                 foreach (TableDescriptor.ColumnInfo column in descriptor)
                 {
+                    if (DdlBuilder.SkipInlineColumn(column))
+                        continue;
+
                     if (!first)
                         builder.Append(',');
                     else

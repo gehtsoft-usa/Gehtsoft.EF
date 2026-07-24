@@ -1,0 +1,317 @@
+@article
+    @key=geosetup
+    @title=Enabling geospatial support
+    @brief=Turning spatial support on in the database and in your project.
+    @ingroup=tutorialsgeo
+
+    [i]Geospatial support is available starting from version 1.9.7.[/i]
+
+    The framework supports a spatial (geometry) column type across five engines: Microsoft SQL Server,
+    Oracle (Locator), PostgreSQL (PostGIS), MySQL and SQLite (SpatiaLite). A geometry value travels between
+    the application and the database as plain OGC Well-Known Binary (WKB, a [c]byte[][/c]); the framework
+    owns no geometry object model. Spatial support is [b]disabled by default[/b] and must be turned on
+    before any connection is opened. This article covers that one-time setup; the [link=geosql]SQL-level[/link]
+    and [link=geoentities]entity-level[/link] articles then show how to use it.
+
+    [b]On the database side[/b]
+
+    Microsoft SQL Server, Oracle and MySQL need no client-side switch - their geometry types are built into
+    the engine. PostgreSQL and SQLite require the engine's spatial component to be present:
+
+    @list
+        @list-item
+            [b]PostgreSQL (PostGIS)[/b] - install the PostGIS extension in the target database once (as a
+            superuser or the database owner):
+
+            ```+sql
+            CREATE EXTENSION postgis;
+            ```
+        @end
+        @list-item
+            [b]SQLite (SpatiaLite)[/b] - make the [c]mod_spatialite[/c] native library available. Either
+            install it system-wide (Linux: [c]apt-get install libsqlite3-mod-spatialite[/c]; macOS:
+            [c]brew install spatialite-tools[/c]; Windows: the [c]mod_spatialite[/c] DLL together with its
+            dependent DLLs), or add the [c]Spatialite.Native[/c] NuGet package, which ships the native
+            binaries for the common platforms.
+        @end
+    @end
+
+    [b]In your project[/b]
+
+    Turn spatial support on once, before opening any connection:
+
+    @list
+        @list-item
+            PostgreSQL:
+
+            ```+csharp
+            PostgresDbConnectionFactory.EnableSpatial = true;
+            ```
+
+            When enabled, the driver checks that PostGIS is installed as the connection opens and fails fast
+            if it is not.
+        @end
+        @list-item
+            SQLite:
+
+            ```+csharp
+            SqliteGlobalOptions.EnableSpatial = true;
+            // optional: an explicit library path or name (default "mod_spatialite")
+            SqliteGlobalOptions.SpatialiteLibrary = "mod_spatialite";
+            ```
+
+            As a connection opens, the driver loads the extension and initializes the spatial metadata. For an
+            in-memory SQLite database, keep a single long-lived connection for the whole application lifetime.
+        @end
+    @end
+
+    [b]Working with geometry objects (optional)[/b]
+
+    A geometry property can be a raw [c]byte[][/c] (WKB) with no extra dependency, or a geometry object (for
+    example a NetTopologySuite geometry). The object form needs a registered
+    [clink=Gehtsoft.EF.Entities.Geometry.IGeometryCodec]IGeometryCodec[/clink]; the shipped codec lives in the
+    optional [c]Gehtsoft.EF.Geo.NetTopologySuite[/c] module and is installed once at start-up:
+
+    ```+csharp
+    NtsGeometry.Register();
+    ```
+
+    The framework then converts geometry objects to and from WKB transparently, so the core never depends on
+    the geometry library. Raw [c]byte[][/c] properties need no codec.
+@end
+
+
+@article
+    @key=geosql
+    @title=Geospatial (geometry) support in SQL
+    @brief=Storing and querying geometry columns through the SQL query builders.
+    @ingroup=tutorialsgeo
+
+    The framework supports a spatial (geometry) column type across five engines: Microsoft SQL Server,
+    Oracle (Locator), PostgreSQL (PostGIS), MySQL and SQLite (SpatiaLite).
+
+    [b]The data model[/b]
+
+    A geometry value is always moved between the application and the database as plain OGC [b]Well-Known
+    Binary[/b] (WKB), that is, a [c]byte[][/c]. The framework owns no geometry object model and no parser;
+    the spatial reference identifier (SRID, default 4326) is carried on the column declaration, not inside
+    the value. On the client side a geometry is therefore a [c]byte[][/c]; converting it to and from a
+    geometry object (points, polygons, and so on) is done by an optional codec, described in the
+    [link=geosetup]setup article[/link].
+
+    A geometry column is described by [clink=Gehtsoft.EF.Db.SqlDb.Metadata.GeometryColumnMetadata]GeometryColumnMetadata[/clink]
+    (CLR type, SRID, [clink=Gehtsoft.EF.Entities.Geometry.GeometrySubtype]GeometrySubtype[/clink],
+    Z/M dimensionality, nullability and the declared spatial indexes). The column type and any spatial index
+    are emitted per engine by the table-creation builder.
+
+    [b]Enabling spatial support[/b]
+
+    Spatial support is disabled by default and must be turned on (and, for PostgreSQL and SQLite, the
+    engine's spatial component installed) before any connection is opened - see the
+    [link=geosetup]setup article[/link].
+
+    [b]Creating a geometry column and a spatial index[/b]
+
+    A geometry column and its spatial index are declared through the entity metadata (see the entity-level
+    article) and emitted by the table-creation builder for the target engine. Bounding box and tolerance for
+    the index are supplied on the [clink=Gehtsoft.EF.Entities.SpatialIndexAttribute]SpatialIndex[/clink]
+    declaration; Microsoft SQL Server and Oracle require the bounding box, the other engines ignore it.
+
+    [b]Reading and writing values[/b]
+
+    On the wire the direction decides the form:
+
+    @list
+        @list-item
+            [b]Client to server[/b] is always WKB wrapped in the dialect constructor: the insert and update
+            builders wrap a bound [c]byte[][/c] parameter in [c]ST_GeomFromWKB(@p, srid)[/c] (or the engine's
+            equivalent) automatically for a geometry column.
+        @end
+        @list-item
+            [b]Server to client[/b] depends on the destination. A value returned to the application is wrapped
+            in the WKB output function ([c]ST_AsBinary[/c]) so it is portable; a value that stays on the server
+            (for example, feeding another predicate as a sub-query) is projected in its native form. The two
+            forms are selected by [clink=Gehtsoft.EF.Db.SqlDb.GeometryValueForm]GeometryValueForm[/clink].
+        @end
+    @end
+
+    [b]Predicates and functions[/b]
+
+    Spatial operations are rendered per engine through two dedicated channels on the language specifics:
+    the topological / within-distance predicates enumerated by
+    [clink=Gehtsoft.EF.Db.SqlDb.SqlGeoPredicateId]SqlGeoPredicateId[/clink]
+    (Intersects, Contains, Within, Disjoint, Touches, Overlaps, Crosses, Equals and DWithin), and the
+    measurement / accessor functions enumerated by
+    [clink=Gehtsoft.EF.Db.SqlDb.SqlGeoFunctionId]SqlGeoFunctionId[/clink]
+    (Area, Length, Distance, X, Y, SRID, GeometryType, IsEmpty, Envelope, and the WKB construction / output
+    functions).
+
+    On the [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.ConditionBuilder]ConditionBuilder[/clink] a complete
+    spatial predicate is added with [c]Where.GeoPredicate(...)[/c], and a scalar used as a comparison operand
+    with [c]Where.GeoScalar(...)[/c]. On the
+    [clink=Gehtsoft.EF.Db.SqlDb.QueryBuilder.SelectQueryBuilder]SelectQueryBuilder[/clink] a geometry value is
+    projected with [c]AddGeometryValueToResultset(...)[/c] and a scalar with
+    [c]AddGeometryScalarToResultset / ToOrderBy / ToGroupBy(...)[/c] (order by distance gives a
+    nearest-neighbour ordering).
+
+    @example
+        @title=Example: cities within a region and the nearest three to a point
+        @show=yes
+        @highlight=cs
+        ```
+        // rows whose geometry intersects a bound region (WKB parameter "region")
+        var b = connection.GetSelectQueryBuilder(cities);
+        b.AddToResultset(cities["name"]);
+        b.Where.GeoPredicate(SqlGeoPredicateId.Intersects, cities["shape"], "region");
+
+        // the three nearest cities to a probe point (order by distance, take 3)
+        var n = connection.GetSelectQueryBuilder(cities);
+        n.AddToResultset(cities["name"]);
+        n.AddGeometryScalarToResultset(SqlGeoFunctionId.Distance, cities["shape"], DbType.Double, "d", parameterName: "p");
+        n.AddGeometryScalarToOrderBy(SqlGeoFunctionId.Distance, cities["shape"], SortDir.Asc, parameterName: "p");
+        n.Limit = 3;
+        ```
+    @end
+
+    [b]Per-engine notes and limitations[/b]
+
+    @list
+        @list-item
+            Measurements are [b]planar[/b]. Distance, Area and Length on longitude/latitude data are computed
+            in degrees, not metres; the geography type is out of scope.
+        @end
+        @list-item
+            Oracle Locator cannot express the OGC [c]Crosses[/c] predicate nor a clean [c]IsEmpty[/c]; both
+            throw a "feature not supported" error on Oracle and are available on the other four engines.
+        @end
+        @list-item
+            MySQL stores only two-dimensional geometry; declaring Z or M is rejected on MySQL.
+        @end
+        @list-item
+            Spatial aggregates (union / collect / extent), mass update of a geometry field and ordering or
+            grouping by a raw (non-scalar) geometry value are intentionally not provided.
+        @end
+    @end
+@end
+
+
+@article
+    @key=geoentities
+    @title=Geospatial (geometry) support for entities
+    @brief=Declaring, storing and querying geometry properties on entities and in LINQ.
+    @ingroup=tutorialsgeo
+
+    Entities can carry geometry properties that map onto the spatial column type described in the
+    [link=geosql]SQL-level article[/link]. Spatial support must be enabled before the examples below will
+    run - see the [link=geosetup]setup article[/link] (install the engine's spatial component and turn on
+    the driver switch).
+
+    [b]Declaring a geometry property[/b]
+
+    Mark the property with [clink=Gehtsoft.EF.Entities.GeometryEntityPropertyAttribute]GeometryEntityProperty[/clink]
+    instead of the ordinary entity-property attribute. The attribute carries the SRID (default 4326), the
+    [clink=Gehtsoft.EF.Entities.Geometry.GeometrySubtype]GeometrySubtype[/clink] (Point, Polygon,
+    MultiLineString, ..., or the generic Geometry), the Z/M dimensionality and nullability. A repeatable
+    [clink=Gehtsoft.EF.Entities.SpatialIndexAttribute]SpatialIndex[/clink] attribute declares a spatial index
+    (with an optional bounding box and tolerance).
+
+    A geometry property may be declared in one of two ways:
+
+    @list
+        @list-item
+            As a [c]byte[][/c] - the raw WKB. No geometry library is needed; the application works with WKB
+            bytes directly.
+        @end
+        @list-item
+            As a geometry object (for example a NetTopologySuite geometry). This requires the optional
+            geometry codec to be registered at start-up - see the [link=geosetup]setup article[/link]. The
+            framework then converts the object to and from WKB transparently, so the core never depends on
+            the geometry library.
+        @end
+    @end
+
+    ```+csharp
+    [Entity(Table = "city")]
+    public class City
+    {
+        [EntityProperty(Field = "id", AutoId = true)] public int Id { get; set; }
+        [EntityProperty(Field = "name")] public string Name { get; set; }
+
+        // raw WKB form
+        [GeometryEntityProperty(Field = "shape", Subtype = GeometrySubtype.Point)]
+        public byte[] Shape { get; set; }
+    }
+    ```
+
+    [b]Storing and reading[/b]
+
+    Saving and updating an entity round-trips a geometry property with no extra code: the insert and update
+    queries detect the geometry column and wrap the value in the dialect constructor automatically, and a
+    [c]null[/c] geometry stores SQL NULL. Reading a whole entity back populates the property from the portable
+    WKB output form, decoding it through the codec when the property is an object type.
+
+    [b]Filtering, ordering and grouping[/b]
+
+    The entity condition builder gains geometry members that resolve the property, bind the operand and render
+    the predicate for the engine:
+
+    @list
+        @list-item
+            [c]Where.GeoPredicateOf(name, op, operand, ...)[/c] adds a complete topological or within-distance
+            predicate; the operand is a WKB [c]byte[][/c], a native-geometry sub-query, or - through the NTS
+            module - a geometry object.
+        @end
+        @list-item
+            [c]Where.GeoScalarOf(name, op, ...)[/c] exposes a measurement or accessor as a comparison operand
+            (for example, area greater than a threshold).
+        @end
+    @end
+
+    On the select side [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.SelectEntitiesQueryBase]SelectEntitiesQueryBase[/clink]
+    gains [c]AddGeometryToResultset(...)[/c] (choosing the Wkb or Native
+    [clink=Gehtsoft.EF.Db.SqlDb.GeometryValueForm]form[/clink]) and
+    [c]AddGeometryScalarToResultset / ToOrderBy / ToGroupBy(...)[/c] for scalar projection, nearest-neighbour
+    ordering and grouping. Whole-entity reads project a geometry column through the WKB output form
+    automatically. A projection of a geometry scalar or aggregate returns a tuple, not the entity, so such a
+    query is built on the free-form select rather than the whole-entity read.
+
+    Mass delete by a spatial predicate is supported; mass update of a geometry field is not (see the
+    limitations in the [link=geosql]SQL-level article[/link]).
+
+    [b]LINQ[/b]
+
+    Geometry is available in LINQ through the [clink=Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq.SqlSpatial]SqlSpatial[/clink]
+    marker methods, usable in [c]Where[/c], [c]OrderBy[/c], [c]Select[/c] and [c]GroupBy[/c]. The first
+    argument is the geometry property; the operand is supplied as WKB [c]byte[][/c] (encode a geometry object
+    at the call site with the codec, [c]codec.ToWkb(geometry, false)[/c]), which keeps the query core free of
+    any geometry-library dependency.
+
+    @example
+        @title=Example: entity query and the equivalent LINQ
+        @show=yes
+        @highlight=cs
+        ```
+        byte[] region = codec.ToWkb(regionPolygon, false);
+
+        // entity query API
+        using (var q = connection.GetSelectEntitiesQueryBase<City>())
+        {
+            q.AddToResultset("Name", "name");
+            q.Where.GeoPredicateOf<City>("Shape", SqlGeoPredicateId.Intersects, region);
+            q.ExecuteReader();
+            while (q.ReadNext())
+                names.Add(q.GetValue<string>("name"));
+        }
+
+        // LINQ
+        var names = connection.GetCollectionOf<City>()
+            .Where(c => SqlSpatial.Intersects(c.Shape, region))
+            .OrderBy(c => SqlSpatial.Distance(c.Shape, region))
+            .Select(c => c.Name)
+            .ToList();
+        ```
+    @end
+
+    LINQ ordering in this framework is ascending only, and the same limitations as the SQL layer apply
+    (planar measurements, Oracle without Crosses / IsEmpty, MySQL two-dimensional only).
+@end

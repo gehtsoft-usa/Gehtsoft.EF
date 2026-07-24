@@ -234,7 +234,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddExpressionToResultset(string expression, DbType type, bool isAggregate = false, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (expression.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(expression));
@@ -257,7 +257,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddToResultset(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
@@ -272,7 +272,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddToResultset(TableDescriptor.ColumnInfo column, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
@@ -292,7 +292,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddToResultset(AggFn aggregate, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
@@ -311,7 +311,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddToResultset(AggFn aggregate, TableDescriptor.ColumnInfo column, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
@@ -331,7 +331,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="alias"></param>
         public virtual void AddToResultset(AggFn aggregate, string alias = null)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (alias.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(alias));
@@ -353,7 +353,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="aliasPrefix"></param>
         public virtual void AddToResultset(TableDescriptor table, QueryBuilderEntity entity, string aliasPrefix = "")
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (aliasPrefix.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(aliasPrefix));
@@ -372,7 +372,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="aliasPrefix"></param>
         public virtual void AddToResultset(TableDescriptor table, string aliasPrefix = "")
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (aliasPrefix.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(aliasPrefix));
@@ -395,7 +395,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
             if (string.IsNullOrEmpty(query.Query))
                 query.PrepareQuery();
 
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (query.Query.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(query));
@@ -454,7 +454,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// <param name="direction"></param>
         protected internal void AddOrderByExpr(string expression, SortDir direction = SortDir.Asc)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (expression.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(expression));
@@ -464,7 +464,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         protected internal void AddGroupByExpr(string expression)
         {
-            if (SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
+            if (!SuppressScalarProtection && SqlInjectionProtectionPolicy.Instance.ProtectFromScalarsInQueries)
             {
                 if (expression.ContainsScalar())
                     throw new ArgumentException(ScalarInjectionMessage, nameof(expression));
@@ -498,6 +498,39 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
                 alias = $"column{++mColumnAlias}";
             mResultset.Add(new SelectQueryBuilderResultsetItem(JsonExpr(column, entity, jsonPath, type), alias, false, type));
         }
+
+        // A geometry value/scalar expression is framework-generated (some dialects carry a quoted
+        // literal), so it bypasses the raw-scalar guard, mirroring the JSON entry points above.
+        // GeometryValueForm.Native selects the raw column (a server-side operand); Wkb wraps it in the
+        // dialect's WKB output function so a portable byte[] comes back.
+        private string GeometryValueExpr(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, GeometryValueForm form)
+            => form == GeometryValueForm.Native
+                ? GetAlias(column, entity)
+                : mSpecifics.GeometryFunction(new GeoFunctionRequest(SqlGeoFunctionId.AsBinary, GetAlias(column, entity)));
+
+        /// <summary>
+        /// Adds a geometry column of the specified table to the resultset. With
+        /// <see cref="GeometryValueForm.Wkb"/> (the default) the column is wrapped in the dialect's WKB
+        /// output function, so a portable WKB <c>byte[]</c> is returned - the raw column is never selected
+        /// (SpatiaLite stores a modified WKB BLOB, and every provider returns a different native object).
+        /// With <see cref="GeometryValueForm.Native"/> the raw native geometry is selected unwrapped, for
+        /// use as a server-side operand (for example a subquery feeding a geometry predicate); such a
+        /// value is not portably readable on the client.
+        /// </summary>
+        public virtual void AddGeometryValueToResultset(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string alias = null, GeometryValueForm form = GeometryValueForm.Wkb)
+        {
+            if (alias == null)
+                alias = $"column{++mColumnAlias}";
+            mResultset.Add(new SelectQueryBuilderResultsetItem(GeometryValueExpr(column, entity, form), alias, false,
+                form == GeometryValueForm.Native ? DbType.Object : DbType.Binary));
+        }
+
+        /// <summary>
+        /// Adds a geometry column of the first table in the query to the resultset (see the table-qualified
+        /// overload for the <paramref name="form"/> semantics).
+        /// </summary>
+        public virtual void AddGeometryValueToResultset(TableDescriptor.ColumnInfo column, string alias = null, GeometryValueForm form = GeometryValueForm.Wkb)
+            => AddGeometryValueToResultset(column, null, alias, form);
 
         // Adds a pre-built expression (already produced by the JSON translation) to the resultset,
         // bypassing the scalar-literal guard - a JSON extraction carries a quoted path literal that the
@@ -556,6 +589,80 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
         /// </summary>
         public virtual void AddJsonValueToGroupBy(TableDescriptor.ColumnInfo column, string jsonPath, DbType type)
             => AddJsonValueToGroupBy(column, null, jsonPath, type);
+
+        // A geometry scalar (measurement or accessor) is a framework-generated expression, so it bypasses
+        // the raw-scalar guard. All of resultset / order-by / group-by render through this one method, so
+        // the same (column, op, parameter, tolerance) produces a byte-identical expression - which GROUP BY
+        // matching needs. When parameterName is given (a binary op like Distance), the other geometry is a
+        // WKB parameter wrapped in the dialect constructor; bind it as a byte[].
+        private string GeometryScalarExpr(TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, SqlGeoFunctionId op, string parameterName, double tolerance)
+        {
+            string b = parameterName == null ? null : mSpecifics.GeometryFunction(new GeoFunctionRequest(
+                SqlGeoFunctionId.FromWkb, parameter: mSpecifics.ParameterInQueryPrefix + parameterName, srid: column.Geometry.Srid));
+            return mSpecifics.GeometryFunction(new GeoFunctionRequest(op, a: GetAlias(column, entity), b: b, tolerance: tolerance));
+        }
+
+        /// <summary>
+        /// Adds a geometry scalar (measurement or accessor - area, length, distance, X, Y, ...) over a
+        /// geometry column of the specified table to the resultset, projected as an ordinary value. For a
+        /// binary measurement (<see cref="SqlGeoFunctionId.Distance"/>) pass <paramref name="parameterName"/>
+        /// for the second geometry (a WKB <c>byte[]</c> parameter); leave it null for a unary scalar.
+        /// </summary>
+        public virtual void AddGeometryScalarToResultset(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, DbType type, string alias = null, string parameterName = null, double tolerance = 0)
+        {
+            if (alias == null)
+                alias = $"column{++mColumnAlias}";
+            mResultset.Add(new SelectQueryBuilderResultsetItem(GeometryScalarExpr(column, entity, op, parameterName, tolerance), alias, false, type));
+        }
+
+        /// <summary>
+        /// Adds a geometry scalar over a geometry column of the first table in the query to the resultset.
+        /// </summary>
+        public virtual void AddGeometryScalarToResultset(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, DbType type, string alias = null, string parameterName = null, double tolerance = 0)
+            => AddGeometryScalarToResultset(op, column, null, type, alias, parameterName, tolerance);
+
+        /// <summary>
+        /// Adds a geometry scalar over a geometry column of the specified table, aggregated with the
+        /// specified function, to the resultset (for example <c>AVG(Area(col))</c>).
+        /// </summary>
+        public virtual void AddGeometryScalarToResultset(AggFn aggregate, SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, DbType type, string alias = null, string parameterName = null, double tolerance = 0)
+        {
+            if (alias == null)
+                alias = $"column{++mColumnAlias}";
+            mResultset.Add(new SelectQueryBuilderResultsetItem(mSpecifics.GetAggFn(aggregate, GeometryScalarExpr(column, entity, op, parameterName, tolerance)), alias, true, type));
+        }
+
+        /// <summary>
+        /// Adds an aggregated geometry scalar over a geometry column of the first table in the query to the resultset.
+        /// </summary>
+        public virtual void AddGeometryScalarToResultset(AggFn aggregate, SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, DbType type, string alias = null, string parameterName = null, double tolerance = 0)
+            => AddGeometryScalarToResultset(aggregate, op, column, null, type, alias, parameterName, tolerance);
+
+        /// <summary>
+        /// Orders the query by a geometry scalar over a geometry column of the specified table (for example
+        /// order-by-distance for a nearest-neighbour query).
+        /// </summary>
+        public virtual void AddGeometryScalarToOrderBy(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, SortDir direction = SortDir.Asc, string parameterName = null, double tolerance = 0)
+            => mOrderBy.Add(new SelectQueryBuilderByItem(GeometryScalarExpr(column, entity, op, parameterName, tolerance), direction));
+
+        /// <summary>
+        /// Orders the query by a geometry scalar over a geometry column of the first table in the query.
+        /// </summary>
+        public virtual void AddGeometryScalarToOrderBy(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, SortDir direction = SortDir.Asc, string parameterName = null, double tolerance = 0)
+            => AddGeometryScalarToOrderBy(op, column, null, direction, parameterName, tolerance);
+
+        /// <summary>
+        /// Groups the query by a geometry scalar over a geometry column of the specified table. The
+        /// grouping expression is byte-identical to the same scalar added to the resultset.
+        /// </summary>
+        public virtual void AddGeometryScalarToGroupBy(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, QueryBuilderEntity entity, string parameterName = null, double tolerance = 0)
+            => mGroupBy.Add(new SelectQueryBuilderByItem(GeometryScalarExpr(column, entity, op, parameterName, tolerance), SortDir.Asc));
+
+        /// <summary>
+        /// Groups the query by a geometry scalar over a geometry column of the first table in the query.
+        /// </summary>
+        public virtual void AddGeometryScalarToGroupBy(SqlGeoFunctionId op, TableDescriptor.ColumnInfo column, string parameterName = null, double tolerance = 0)
+            => AddGeometryScalarToGroupBy(op, column, null, parameterName, tolerance);
 
         // Adds a pre-built JSON extraction (from the LINQ translation) to ORDER BY / GROUP BY, bypassing
         // the scalar-literal guard (a JSON extraction carries a quoted path).

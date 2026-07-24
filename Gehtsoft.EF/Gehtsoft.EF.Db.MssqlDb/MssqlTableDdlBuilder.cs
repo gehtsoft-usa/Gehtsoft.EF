@@ -1,5 +1,7 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 using Gehtsoft.EF.Db.SqlDb;
+using Gehtsoft.EF.Db.SqlDb.Metadata;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 
 namespace Gehtsoft.EF.Db.MssqlDb
@@ -13,6 +15,52 @@ namespace Gehtsoft.EF.Db.MssqlDb
         public override void HandleAutoincrement(StringBuilder builder, TableDescriptor.ColumnInfo ci)
         {
             //do nothing for autoincrement
+        }
+
+        public override void HandleGeometryAfterQuery(StringBuilder builder, TableDescriptor.ColumnInfo column)
+        {
+            var indexes = column.Geometry.Indexes;
+            for (int i = 0; i < indexes.Count; i++)
+            {
+                SpatialIndexDefinition ix = indexes[i];
+                if (!ix.HasBoundingBox)
+                    throw new EfSqlException(EfExceptionCode.FeatureNotSupported); // SQL Server spatial index requires a bounding box
+
+                builder.Append("\r\n");
+                builder.Append(mSpecifics.PreQueryInBlock);
+                builder
+                    .Append("CREATE SPATIAL INDEX ")
+                    .Append(mSpecifics.IndexName(column.Table.Name, ix.Name))
+                    .Append(" ON ")
+                    .Append(column.Table.Name)
+                    .Append('(')
+                    .Append(column.Name)
+                    .Append(") USING GEOMETRY_GRID WITH (BOUNDING_BOX = (")
+                    .Append(GeometryDdlHelper.Number(ix.MinX)).Append(", ")
+                    .Append(GeometryDdlHelper.Number(ix.MinY)).Append(", ")
+                    .Append(GeometryDdlHelper.Number(ix.MaxX)).Append(", ")
+                    .Append(GeometryDdlHelper.Number(ix.MaxY)).Append("))");
+                if (mSpecifics.TerminateWithSemicolon)
+                    builder.Append(';');
+                builder.Append(mSpecifics.PostQueryInBlock);
+            }
+        }
+
+        public override void CollectCreateSpatialIndex(List<string> queries, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+        {
+            if (!index.HasBoundingBox)
+                throw new EfSqlException(EfExceptionCode.FeatureNotSupported); // SQL Server spatial index requires a bounding box
+
+            queries.Add(
+                $"CREATE SPATIAL INDEX {mSpecifics.IndexName(column.Table.Name, index.Name)} ON {column.Table.Name}({column.Name}) " +
+                $"USING GEOMETRY_GRID WITH (BOUNDING_BOX = (" +
+                $"{GeometryDdlHelper.Number(index.MinX)}, {GeometryDdlHelper.Number(index.MinY)}, " +
+                $"{GeometryDdlHelper.Number(index.MaxX)}, {GeometryDdlHelper.Number(index.MaxY)}))");
+        }
+
+        public override void CollectDropSpatialIndex(List<string> queries, TableDescriptor.ColumnInfo column, SpatialIndexDefinition index)
+        {
+            queries.Add($"DROP INDEX {mSpecifics.IndexName(column.Table.Name, index.Name)} ON {column.Table.Name}");
         }
 
         public override void HandlePostfixDDL(StringBuilder builder, TableDescriptor.ColumnInfo column, bool alterTable)

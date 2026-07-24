@@ -29,6 +29,19 @@ namespace Gehtsoft.EF.Db.SqlDb
         DynamicPropertiesBagIsNew,
         DynamicPropertiesAttributeWithoutOwner,
         DynamicPropertiesOwnerWithoutAttribute,
+        GeometryCodecNotFound,
+        LockTimeout,
+        CatalogFormatTooNew,
+        CatalogModelChangedWithoutVersionBump,
+        CatalogVersionRegressed,
+        CatalogColumnAlterNotSupported,
+        CatalogOrphanPatchHistory,
+        SchemaUpdateRequired,
+        CatalogScopeAlreadyAdopted,
+        CatalogOrphanScope,
+        CatalogColumnDropWouldLoseData,
+        CatalogDynamicPropertiesDropWouldLoseData,
+        GeometryRequiresCatalogController,
     }
 
     [ExcludeFromCodeCoverage]
@@ -100,6 +113,45 @@ namespace Gehtsoft.EF.Db.SqlDb
 
                     case EfExceptionCode.DynamicPropertiesOwnerWithoutAttribute:
                         return "The entity {0} implements IDynamicPropertiesOwner but is not marked with [DynamicProperties]. Add the [DynamicProperties] attribute, or remove the interface.";
+
+                    case EfExceptionCode.GeometryCodecNotFound:
+                        return "No registered geometry codec can handle the property type {0}. Reference the Gehtsoft.EF.Geo.NetTopologySuite module (or register a codec via GeometryCodecs.Factory), or declare the property as byte[] (WKB).";
+
+                    case EfExceptionCode.LockTimeout:
+                        return "Could not acquire the instance lock {0} within the timeout";
+
+                    case EfExceptionCode.CatalogFormatTooNew:
+                        return "The catalogue entry for table {0} was written in schema format version {1}, which is newer than this build supports ({2}). Refusing to touch the database; upgrade the framework.";
+
+                    case EfExceptionCode.CatalogModelChangedWithoutVersionBump:
+                        return "The entity model differs from the catalogued schema for scope {0}, but the DB version {1} was not changed. Bump the version passed to UpdateTables when the model changes.";
+
+                    case EfExceptionCode.CatalogVersionRegressed:
+                        return "The DB version {1} passed to UpdateTables for scope {0} is older than the version {2} already applied. Refusing to reconcile a newer database with an older build.";
+
+                    case EfExceptionCode.CatalogColumnAlterNotSupported:
+                        return "The definition of column {1} on table {0} changed, which cannot be altered in place portably. Apply the change with an IEfPatch (structural convergence handles the rest).";
+
+                    case EfExceptionCode.CatalogOrphanPatchHistory:
+                        return "Scope {0} has no catalogue yet but an existing patch history (last applied {1}). The database was managed before the catalogue; adopt the scope first (AdoptExistingScope) instead of reconciling it as greenfield.";
+
+                    case EfExceptionCode.SchemaUpdateRequired:
+                        return "The database schema for table {0} does not match the model, but updates were disallowed (failIfUpdateNeeded). Reconcile the schema or use the ReconcileToModel adoption mode.";
+
+                    case EfExceptionCode.CatalogScopeAlreadyAdopted:
+                        return "Scope {0} is already catalogued (current version {1}); AdoptExistingScope only seeds a scope that has no catalogue yet.";
+
+                    case EfExceptionCode.CatalogOrphanScope:
+                        return "Scope {0} has no catalogue yet but its tables already exist. The database was managed before the catalogue; adopt the scope first (AdoptExistingScope) instead of updating it as greenfield.";
+
+                    case EfExceptionCode.CatalogColumnDropWouldLoseData:
+                        return "Updating table {0} would drop column {1}, which is not marked [ObsoleteEntityProperty]; this would lose its data. Mark the property [ObsoleteEntityProperty], set the controller's DataLossPolicy to Drop, or handle it with an IEfPatch.";
+
+                    case EfExceptionCode.CatalogDynamicPropertiesDropWouldLoseData:
+                        return "Updating table {0} would drop its dynamic-properties side table, losing all dynamic-property values. Set the controller's DataLossPolicy to Drop to allow it, or handle the migration with an IEfPatch.";
+
+                    case EfExceptionCode.GeometryRequiresCatalogController:
+                        return "Table {0} has a geometry column. Geometry schema management (create, update, drop, spatial indexes) is supported only by CatalogEntityController; the obsolete CreateEntityController cannot handle it.";
 
                     default:
                         return $"Unknown exception {code}";

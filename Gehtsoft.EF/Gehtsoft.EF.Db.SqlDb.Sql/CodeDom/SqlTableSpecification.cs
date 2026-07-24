@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 {
+#pragma warning disable S1694 // abstract base owns the nested TableType taxonomy and is the AST-node base; keep as a class
     internal abstract class SqlTableSpecification
     {
         /// <summary>
@@ -21,6 +22,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
         internal abstract TableType Type { get; }
     }
+#pragma warning restore S1694
 
     /// <summary>
     /// A collection of tables
