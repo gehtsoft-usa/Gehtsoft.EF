@@ -66,12 +66,12 @@
    </project>
    <project id="Gehtsoft.EF.Entities">
     <description>Gehtsoft Entity Framework: Entity Definition and Management Tools</description>
-    <additional-file file="../doc/Gehtsoft.EF.Entities.xml" target="*"></additional-file>
+    <additional-file file="../doc1/Gehtsoft.EF.Entities.xml" target="*"></additional-file>
     <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Db.SqlDb">
     <description>Gehtsoft Entity Framework: Core Implementation for SQL databases.</description>
-    <additional-file file="../doc/Gehtsoft.EF.Db.SqlDb.xml" target="*"></additional-file>
+    <additional-file file="../doc1/Gehtsoft.EF.Db.SqlDb.xml" target="*"></additional-file>
     <additional-file file="../../readme.md" target="/docs"/>
     <additional-file file="../skill/SKILL.md" target="/skills"/>
    </project>
@@ -105,7 +105,7 @@
    </project>
    <project id="Gehtsoft.EF.FTS">
     <description>Gehtsoft Entity Framework: DB-Agnostic Full Text Search</description>
-    <additional-file file="../doc/Gehtsoft.EF.FTS.xml" target="*"></additional-file>
+    <additional-file file="../doc1/Gehtsoft.EF.FTS.xml" target="*"></additional-file>
     <additional-file file="../../readme.md" target="/docs"/>
    </project>
    <project id="Gehtsoft.EF.Bson" >
