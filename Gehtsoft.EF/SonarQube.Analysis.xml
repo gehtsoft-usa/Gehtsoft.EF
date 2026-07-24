@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <SonarQubeAnalysisProperties xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
   <Property Name="sonar.issue.ignore.multicriteria">e1,e2,e3,e4,e5,e6,e7</Property>
-  <!-- exclude .claude (settings/skills) and CLAUDE (planning docs + test data) folders from analysis entirely -->
-  <Property Name="sonar.exclusions">.claude/**/*,CLAUDE/**/*</Property>
+  <!-- exclude .claude (settings/skills), CLAUDE (planning docs + test data) and SKILL folders from analysis entirely -->
+  <Property Name="sonar.exclusions">**/.claude/**,**/CLAUDE/**,**/SKILL/**</Property>
+  <!-- TestWebApp is a demo/sample app, not shipped library code: keep out of the coverage denominator -->
+  <Property Name="sonar.coverage.exclusions">TestWebApp/**/*</Property>
   <!-- cognitive complexity: will fix later -->
   <Property Name="sonar.issue.ignore.multicriteria.e1.ruleKey">csharpsquid:S3776</Property>
   <Property Name="sonar.issue.ignore.multicriteria.e1.resourceKey">**/*</Property>
