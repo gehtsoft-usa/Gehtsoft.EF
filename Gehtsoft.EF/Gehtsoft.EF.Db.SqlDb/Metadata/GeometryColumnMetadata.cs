@@ -5,21 +5,21 @@ using Gehtsoft.EF.Entities.Geometry;
 namespace Gehtsoft.EF.Db.SqlDb.Metadata
 {
     /// <summary>
-    /// Describes a geometry column: the CLR type mapped to it, its SRID, declared subtype and
-    /// dimensionality, nullability, and the spatial indexes declared on it.
-    ///
+    /// Describes a geometry column: its CLR type, SRID, declared subtype, dimensionality, nullability and spatial indexes.
+    /// </summary>
+    /// <remarks>
     /// It is attached to <see cref="QueryBuilder.TableDescriptor.ColumnInfo.Geometry"/> when the entity
     /// property is marked with <see cref="Gehtsoft.EF.Entities.GeometryEntityPropertyAttribute"/>.
-    /// </summary>
+    /// </remarks>
     public sealed class GeometryColumnMetadata
     {
-        /// <summary>The CLR type of the property (either <c>byte[]</c> or a codec-handled geometry type).</summary>
+        /// <summary>The CLR type of the property (either byte[] or a codec-handled geometry type).</summary>
         public Type ClrType { get; }
 
         /// <summary>The spatial reference identifier of the column.</summary>
         public int Srid { get; }
 
-        /// <summary>The declared geometry subtype (<see cref="GeometrySubtype.Geometry"/> = any).</summary>
+        /// <summary>The declared geometry subtype (Geometry means any).</summary>
         public GeometrySubtype Subtype { get; }
 
         /// <summary>Whether the column carries Z (elevation) ordinates.</summary>
@@ -28,13 +28,13 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
         /// <summary>Whether the column carries M (measure) ordinates.</summary>
         public bool HasM { get; }
 
-        /// <summary>Whether the column accepts <c>NULL</c>.</summary>
+        /// <summary>Whether the column accepts NULL.</summary>
         public bool Nullable { get; }
 
         /// <summary>The spatial indexes declared on the column (may be empty).</summary>
         public IReadOnlyList<SpatialIndexDefinition> Indexes { get; }
 
-        /// <summary>Initializes a new instance of the <see cref="GeometryColumnMetadata"/> class.</summary>
+        /// <summary>Initializes a new instance of the GeometryColumnMetadata class.</summary>
         /// <param name="clrType">The CLR type of the property.</param>
         /// <param name="srid">The SRID.</param>
         /// <param name="subtype">The declared subtype.</param>
@@ -57,28 +57,28 @@ namespace Gehtsoft.EF.Db.SqlDb.Metadata
     /// <summary>Describes one spatial index declared on a geometry column.</summary>
     public sealed class SpatialIndexDefinition
     {
-        /// <summary>The logical index name. The physical name is <c>&lt;table&gt;_&lt;Name&gt;</c>.</summary>
+        /// <summary>The logical index name; the physical name combines the table name and this name.</summary>
         public string Name { get; }
 
         /// <summary>Whether a complete bounding box is declared.</summary>
         public bool HasBoundingBox { get; }
 
-        /// <summary>The minimum X of the bounding box (<see cref="double.NaN"/> when not declared).</summary>
+        /// <summary>The minimum X of the bounding box (NaN when not declared).</summary>
         public double MinX { get; }
 
-        /// <summary>The minimum Y of the bounding box (<see cref="double.NaN"/> when not declared).</summary>
+        /// <summary>The minimum Y of the bounding box (NaN when not declared).</summary>
         public double MinY { get; }
 
-        /// <summary>The maximum X of the bounding box (<see cref="double.NaN"/> when not declared).</summary>
+        /// <summary>The maximum X of the bounding box (NaN when not declared).</summary>
         public double MaxX { get; }
 
-        /// <summary>The maximum Y of the bounding box (<see cref="double.NaN"/> when not declared).</summary>
+        /// <summary>The maximum Y of the bounding box (NaN when not declared).</summary>
         public double MaxY { get; }
 
         /// <summary>The tolerance (used by Oracle metadata).</summary>
         public double Tolerance { get; }
 
-        /// <summary>Initializes a new instance of the <see cref="SpatialIndexDefinition"/> class.</summary>
+        /// <summary>Initializes a new instance of the SpatialIndexDefinition class.</summary>
         /// <param name="name">The logical index name.</param>
         /// <param name="hasBoundingBox">Whether a bounding box is declared.</param>
         /// <param name="minX">The minimum X.</param>

@@ -335,6 +335,8 @@
     @brief=
     @ingroup=tutorialsen
 
+    [i]JSON properties are available starting from version 1.9.7.[/i]
+
     A property can be stored as a JSON document in a single column. Mark it with the
     [clink=Gehtsoft.EF.Entities.JsonEntityPropertyAttribute]JsonEntityProperty[/clink] attribute instead
     of [c]EntityProperty[/c]. Its value — a primitive, an array of primitives, or an object annotated
@@ -2385,6 +2387,8 @@
     @title=Dynamic (Per-Row) Properties
     @brief=
     @ingroup=tutorialsen
+
+    [i]Dynamic (per-row) properties are available starting from version 1.9.7.[/i]
 
     [b]What are Dynamic Properties?[/b]
 

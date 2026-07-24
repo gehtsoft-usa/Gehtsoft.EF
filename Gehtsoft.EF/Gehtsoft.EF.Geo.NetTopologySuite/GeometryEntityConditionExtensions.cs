@@ -8,12 +8,14 @@ using NetTopologySuite.Geometries;
 namespace Gehtsoft.EF.Geo.NetTopologySuite
 {
     /// <summary>
-    /// Ergonomic entity-WHERE geometry conditions that take a NetTopologySuite <see cref="Geometry"/>
-    /// operand directly. Each encodes the object to WKB through the NTS codec and delegates to the core
-    /// <c>byte[]</c> overloads (<see cref="GeoPropertyConditionBuilderExtension"/>), so the core SQL layer
-    /// never references an object geometry model. Member-expression overloads (<c>e =&gt; e.Shape</c>)
-    /// resolve the property name from the expression's leaf member.
+    /// Ergonomic entity-WHERE geometry conditions that take a NetTopologySuite geometry operand directly.
     /// </summary>
+    /// <remarks>
+    /// Each encodes the object to WKB through the NTS codec and delegates to the core <c>byte[]</c>
+    /// overloads (<see cref="GeoPropertyConditionBuilderExtension"/>), so the core SQL layer never
+    /// references an object geometry model. The member-expression overloads (the property given as a
+    /// lambda) resolve the property name from the expression's leaf member.
+    /// </remarks>
     public static class GeometryEntityConditionExtensions
     {
         private static readonly NtsGeometryCodec Codec = new NtsGeometryCodec();
@@ -43,20 +45,18 @@ namespace Gehtsoft.EF.Geo.NetTopologySuite
             => GeoPropertyConditionBuilderExtension.GeoPredicateOf(builder, name, op, Wkb(operand), typeof(T), occurrence, distance);
 
         /// <summary>
-        /// Member-expression version of the NTS-operand geometry predicate: <c>e =&gt; e.Shape</c>.
+        /// Member-expression version of the NTS-operand geometry predicate (the property given as a lambda).
         /// </summary>
         public static SingleEntityQueryConditionBuilder GeoPredicateOf<T>(this EntityQueryConditionBuilder builder, Expression<Func<T, object>> property, SqlGeoPredicateId op, Geometry operand, int occurrence = 0, double distance = 0)
             => GeoPropertyConditionBuilderExtension.GeoPredicateOf(builder, MemberName(property), op, Wkb(operand), typeof(T), occurrence, distance);
 
-        /// <summary>
-        /// Starts a condition on a geometry scalar of a property, using an NTS geometry as the second
-        /// operand of a binary measurement (for example Distance); pass <c>null</c> for a unary scalar.
-        /// </summary>
+        /// <summary>Starts a condition on a geometry scalar of a property, using an NTS geometry as the second operand.</summary>
+        /// <remarks>For a binary measurement (for example Distance); pass null for a unary scalar.</remarks>
         public static SingleEntityQueryConditionBuilder GeoScalarOf(this EntityQueryConditionBuilder builder, string name, SqlGeoFunctionId op, Geometry operand = null, DbType resultType = DbType.Double, Type entityType = null, int occurrence = 0, double tolerance = 0)
             => GeoPropertyConditionBuilderExtension.GeoScalarOf(builder, name, op, Wkb(operand), resultType, entityType, occurrence, tolerance);
 
         /// <summary>
-        /// Member-expression version of the NTS-operand geometry scalar: <c>e =&gt; e.Shape</c>.
+        /// Member-expression version of the NTS-operand geometry scalar (the property given as a lambda).
         /// </summary>
         public static SingleEntityQueryConditionBuilder GeoScalarOf<T>(this EntityQueryConditionBuilder builder, Expression<Func<T, object>> property, SqlGeoFunctionId op, Geometry operand = null, DbType resultType = DbType.Double, int occurrence = 0, double tolerance = 0)
             => GeoPropertyConditionBuilderExtension.GeoScalarOf(builder, MemberName(property), op, Wkb(operand), resultType, typeof(T), occurrence, tolerance);

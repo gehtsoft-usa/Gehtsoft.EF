@@ -20,3 +20,12 @@
     @sortarticles=no
 @end
 
+@group
+    @key=tutorialsgeo
+    @brief=This section explains support of geospartial data in the database
+    @title=Geospartial Support
+    @ingroup=tutorials
+    @transform=yes
+    @sortgroups=no
+    @sortarticles=no
+@end

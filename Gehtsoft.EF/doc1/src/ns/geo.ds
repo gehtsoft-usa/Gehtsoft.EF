@@ -1,44 +1,48 @@
 @article
-    @key=geosql
-    @title=Geospatial (geometry) support in SQL
-    @brief=Storing and querying geometry columns through the SQL query builders.
-    @ingroup=tutorials
+    @key=geosetup
+    @title=Enabling geospatial support
+    @brief=Turning spatial support on in the database and in your project.
+    @ingroup=tutorialsgeo
+
+    [i]Geospatial support is available starting from version 1.9.7.[/i]
 
     The framework supports a spatial (geometry) column type across five engines: Microsoft SQL Server,
-    Oracle (Locator), PostgreSQL (PostGIS), MySQL and SQLite (SpatiaLite).
+    Oracle (Locator), PostgreSQL (PostGIS), MySQL and SQLite (SpatiaLite). A geometry value travels between
+    the application and the database as plain OGC Well-Known Binary (WKB, a [c]byte[][/c]); the framework
+    owns no geometry object model. Spatial support is [b]disabled by default[/b] and must be turned on
+    before any connection is opened. This article covers that one-time setup; the [link=geosql]SQL-level[/link]
+    and [link=geoentities]entity-level[/link] articles then show how to use it.
 
-    [b]The data model[/b]
+    [b]On the database side[/b]
 
-    A geometry value is always moved between the application and the database as plain OGC [b]Well-Known
-    Binary[/b] (WKB), that is, a [c]byte[][/c]. The framework owns no geometry object model and no parser;
-    the spatial reference identifier (SRID, default 4326) is carried on the column declaration, not inside
-    the value. On the client side a geometry is therefore a [c]byte[][/c]; converting it to and from a
-    geometry object (points, polygons, and so on) is done by an optional codec, described in the
-    [link=geoentities]entity-level article[/link].
-
-    A geometry column is described by [clink=Gehtsoft.EF.Db.SqlDb.Metadata.GeometryColumnMetadata]GeometryColumnMetadata[/clink]
-    (CLR type, SRID, [clink=Gehtsoft.EF.Entities.Geometry.GeometrySubtype]GeometrySubtype[/clink],
-    Z/M dimensionality, nullability and the declared spatial indexes). The column type and any spatial index
-    are emitted per engine by the table-creation builder.
-
-    [b]Enabling spatial support[/b]
-
-    Spatial support is disabled by default and, for PostgreSQL and SQLite, requires the engine's spatial
-    component to be present. Enable it once, before opening connections.
-
-    [b]PostgreSQL (PostGIS)[/b]
+    Microsoft SQL Server, Oracle and MySQL need no client-side switch - their geometry types are built into
+    the engine. PostgreSQL and SQLite require the engine's spatial component to be present:
 
     @list
         @list-item
-            Install the PostGIS extension in the target database (once per database, as a superuser or the
-            database owner):
+            [b]PostgreSQL (PostGIS)[/b] - install the PostGIS extension in the target database once (as a
+            superuser or the database owner):
 
             ```+sql
             CREATE EXTENSION postgis;
             ```
         @end
         @list-item
-            Turn spatial support on in the driver before opening any connection:
+            [b]SQLite (SpatiaLite)[/b] - make the [c]mod_spatialite[/c] native library available. Either
+            install it system-wide (Linux: [c]apt-get install libsqlite3-mod-spatialite[/c]; macOS:
+            [c]brew install spatialite-tools[/c]; Windows: the [c]mod_spatialite[/c] DLL together with its
+            dependent DLLs), or add the [c]Spatialite.Native[/c] NuGet package, which ships the native
+            binaries for the common platforms.
+        @end
+    @end
+
+    [b]In your project[/b]
+
+    Turn spatial support on once, before opening any connection:
+
+    @list
+        @list-item
+            PostgreSQL:
 
             ```+csharp
             PostgresDbConnectionFactory.EnableSpatial = true;
@@ -47,19 +51,8 @@
             When enabled, the driver checks that PostGIS is installed as the connection opens and fails fast
             if it is not.
         @end
-    @end
-
-    [b]SQLite (SpatiaLite)[/b]
-
-    @list
         @list-item
-            Make the [c]mod_spatialite[/c] native library available. Either install it system-wide (Linux:
-            [c]apt-get install libsqlite3-mod-spatialite[/c]; macOS: [c]brew install spatialite-tools[/c];
-            Windows: the [c]mod_spatialite[/c] DLL together with its dependent DLLs), or add the
-            [c]Spatialite.Native[/c] NuGet package, which ships the native binaries for the common platforms.
-        @end
-        @list-item
-            Turn spatial support on before opening any connection:
+            SQLite:
 
             ```+csharp
             SqliteGlobalOptions.EnableSpatial = true;
@@ -72,8 +65,50 @@
         @end
     @end
 
-    Microsoft SQL Server, Oracle and MySQL need no client-side switch - their geometry types are built into
-    the engine.
+    [b]Working with geometry objects (optional)[/b]
+
+    A geometry property can be a raw [c]byte[][/c] (WKB) with no extra dependency, or a geometry object (for
+    example a NetTopologySuite geometry). The object form needs a registered
+    [clink=Gehtsoft.EF.Entities.Geometry.IGeometryCodec]IGeometryCodec[/clink]; the shipped codec lives in the
+    optional [c]Gehtsoft.EF.Geo.NetTopologySuite[/c] module and is installed once at start-up:
+
+    ```+csharp
+    NtsGeometry.Register();
+    ```
+
+    The framework then converts geometry objects to and from WKB transparently, so the core never depends on
+    the geometry library. Raw [c]byte[][/c] properties need no codec.
+@end
+
+
+@article
+    @key=geosql
+    @title=Geospatial (geometry) support in SQL
+    @brief=Storing and querying geometry columns through the SQL query builders.
+    @ingroup=tutorialsgeo
+
+    The framework supports a spatial (geometry) column type across five engines: Microsoft SQL Server,
+    Oracle (Locator), PostgreSQL (PostGIS), MySQL and SQLite (SpatiaLite).
+
+    [b]The data model[/b]
+
+    A geometry value is always moved between the application and the database as plain OGC [b]Well-Known
+    Binary[/b] (WKB), that is, a [c]byte[][/c]. The framework owns no geometry object model and no parser;
+    the spatial reference identifier (SRID, default 4326) is carried on the column declaration, not inside
+    the value. On the client side a geometry is therefore a [c]byte[][/c]; converting it to and from a
+    geometry object (points, polygons, and so on) is done by an optional codec, described in the
+    [link=geosetup]setup article[/link].
+
+    A geometry column is described by [clink=Gehtsoft.EF.Db.SqlDb.Metadata.GeometryColumnMetadata]GeometryColumnMetadata[/clink]
+    (CLR type, SRID, [clink=Gehtsoft.EF.Entities.Geometry.GeometrySubtype]GeometrySubtype[/clink],
+    Z/M dimensionality, nullability and the declared spatial indexes). The column type and any spatial index
+    are emitted per engine by the table-creation builder.
+
+    [b]Enabling spatial support[/b]
+
+    Spatial support is disabled by default and must be turned on (and, for PostgreSQL and SQLite, the
+    engine's spatial component installed) before any connection is opened - see the
+    [link=geosetup]setup article[/link].
 
     [b]Creating a geometry column and a spatial index[/b]
 
@@ -164,14 +199,12 @@
     @key=geoentities
     @title=Geospatial (geometry) support for entities
     @brief=Declaring, storing and querying geometry properties on entities and in LINQ.
-    @ingroup=tutorials
+    @ingroup=tutorialsgeo
 
     Entities can carry geometry properties that map onto the spatial column type described in the
-    [link=geosql]SQL-level article[/link]. That article also explains how to
-    [link=geosql]enable spatial support[/link] for PostgreSQL (PostGIS) and SQLite (SpatiaLite), which is a
-    prerequisite for the examples below: install the engine's spatial component and set
-    [c]PostgresDbConnectionFactory.EnableSpatial[/c] / [c]SqliteGlobalOptions.EnableSpatial[/c] to
-    [c]true[/c] before opening connections.
+    [link=geosql]SQL-level article[/link]. Spatial support must be enabled before the examples below will
+    run - see the [link=geosetup]setup article[/link] (install the engine's spatial component and turn on
+    the driver switch).
 
     [b]Declaring a geometry property[/b]
 
@@ -190,11 +223,10 @@
             bytes directly.
         @end
         @list-item
-            As a geometry object (for example a NetTopologySuite geometry). This requires a registered
-            [clink=Gehtsoft.EF.Entities.Geometry.IGeometryCodec]IGeometryCodec[/clink]; the shipped codec
-            lives in the optional [c]Gehtsoft.EF.Geo.NetTopologySuite[/c] module and is installed once at
-            start-up with [c]NtsGeometry.Register()[/c]. The framework then converts the object to and from
-            WKB transparently, so the core never depends on the geometry library.
+            As a geometry object (for example a NetTopologySuite geometry). This requires the optional
+            geometry codec to be registered at start-up - see the [link=geosetup]setup article[/link]. The
+            framework then converts the object to and from WKB transparently, so the core never depends on
+            the geometry library.
         @end
     @end
 

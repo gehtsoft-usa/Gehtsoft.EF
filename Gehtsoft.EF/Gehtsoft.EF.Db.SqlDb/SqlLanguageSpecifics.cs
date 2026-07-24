@@ -1086,9 +1086,11 @@ namespace Gehtsoft.EF.Db.SqlDb
     }
 
     /// <summary>
-    /// A geometry predicate: a DE-9IM topological relationship or a within-distance test. Kept separate
-    /// from <see cref="SqlGeoFunctionId"/> so predicates and value functions remain distinct concerns.
+    /// A geometry predicate: a DE-9IM topological relationship or a within-distance test.
     /// </summary>
+    /// <remarks>
+    /// Kept separate from <see cref="SqlGeoFunctionId"/> so predicates and value functions remain distinct concerns.
+    /// </remarks>
     public enum SqlGeoPredicateId
     {
         /// <summary>The two geometries share any portion of space.</summary>
@@ -1112,26 +1114,31 @@ namespace Gehtsoft.EF.Db.SqlDb
     }
 
     /// <summary>
-    /// The form a geometry column takes when it is added to a resultset (or used as a server-side
-    /// operand). Selects between a portable WKB <c>byte[]</c> and the engine's native geometry value.
+    /// The form a geometry column takes when added to a resultset or used as a server-side operand.
     /// </summary>
+    /// <remarks>
+    /// Selects between a portable WKB <c>byte[]</c> and the engine's native geometry value.
+    /// </remarks>
     public enum GeometryValueForm
     {
         /// <summary>
-        /// The geometry is wrapped in the dialect's WKB output function (<c>ST_AsBinary</c> and its
-        /// per-driver equivalents), so a portable WKB <c>byte[]</c> is returned. This is the only form
-        /// that can be read back on the client through the engine-agnostic WKB decode; use it whenever
-        /// the value travels to the client.
+        /// The geometry is wrapped in the dialect's WKB output function so a portable WKB byte[] is returned.
         /// </summary>
+        /// <remarks>
+        /// (<c>ST_AsBinary</c> and its per-driver equivalents.) This is the only form that can be read back
+        /// on the client through the engine-agnostic WKB decode; use it whenever the value travels to the client.
+        /// </remarks>
         Wkb,
         /// <summary>
-        /// The raw native geometry is selected as-is, with no output wrapping. This form is meant to be
-        /// consumed on the server - for example a subquery feeding a geometry predicate operand - because
-        /// every provider returns a different native value (SpatiaLite stores a modified WKB BLOB, MySQL
-        /// prefixes the SRID, SQL Server and Oracle return provider objects), so it is <b>not</b>
-        /// portably readable through the engine-agnostic WKB decode. A driver-aware client can still read
-        /// the raw value and interpret it for the specific provider.
+        /// The raw native geometry is selected as-is, with no output wrapping.
         /// </summary>
+        /// <remarks>
+        /// This form is meant to be consumed on the server - for example a subquery feeding a geometry
+        /// predicate operand - because every provider returns a different native value (SpatiaLite stores a
+        /// modified WKB BLOB, MySQL prefixes the SRID, SQL Server and Oracle return provider objects), so it
+        /// is <b>not</b> portably readable through the engine-agnostic WKB decode. A driver-aware client can
+        /// still read the raw value and interpret it for the specific provider.
+        /// </remarks>
         Native,
     }
 
@@ -1173,9 +1180,11 @@ namespace Gehtsoft.EF.Db.SqlDb
     }
 
     /// <summary>
-    /// A geometry predicate together with the two operands, distance and tolerance the dialect renderer
-    /// needs. Consumed by <see cref="SqlDbLanguageSpecifics.GeometryPredicate"/>.
+    /// A geometry predicate together with the two operands, distance and tolerance the dialect renderer needs.
     /// </summary>
+    /// <remarks>
+    /// Consumed by <see cref="SqlDbLanguageSpecifics.GeometryPredicate"/>.
+    /// </remarks>
     public readonly struct GeoPredicateRequest
     {
         /// <summary>Initializes the request.</summary>

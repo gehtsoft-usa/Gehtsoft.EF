@@ -2,12 +2,12 @@ using Gehtsoft.EF.Entities.Geometry;
 
 namespace Gehtsoft.EF.Geo.NetTopologySuite
 {
-    /// <summary>An <see cref="IGeometryCodecFactory"/> that produces the shared <see cref="NtsGeometryCodec"/>.</summary>
+    /// <summary>A geometry codec factory that produces the shared NetTopologySuite codec.</summary>
     public sealed class NtsGeometryCodecFactory : IGeometryCodecFactory
     {
         private static readonly NtsGeometryCodec mCodec = new NtsGeometryCodec();
 
-        /// <inheritdoc/>
+        /// <summary>Creates (or returns) a geometry codec; this factory returns a shared instance.</summary>
         public IGeometryCodec Create() => mCodec;
     }
 }

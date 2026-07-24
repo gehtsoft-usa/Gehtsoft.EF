@@ -6,12 +6,14 @@ using Gehtsoft.EF.Entities;
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     /// <summary>
-    /// Extension methods that start a condition on a geometry property of an entity: a topological /
-    /// within-distance predicate (<c>GeoPredicateOf</c>) or a geometry scalar to compare (<c>GeoScalarOf</c>).
-    /// The operand geometry is supplied as WKB (<c>byte[]</c>) - the ergonomic overloads that take an
-    /// NetTopologySuite object live in the <c>Gehtsoft.EF.Geo.NetTopologySuite</c> module, keeping the core
-    /// on <c>byte[]</c>. Twin of <see cref="JsonPropertyConditionBuilderExtension"/>.
+    /// Extension methods that start a condition on a geometry property of an entity.
     /// </summary>
+    /// <remarks>
+    /// A topological / within-distance predicate (<c>GeoPredicateOf</c>) or a geometry scalar to compare
+    /// (<c>GeoScalarOf</c>). The operand geometry is supplied as WKB (<c>byte[]</c>) - the ergonomic
+    /// overloads that take a NetTopologySuite object live in the <c>Gehtsoft.EF.Geo.NetTopologySuite</c>
+    /// module, keeping the core on <c>byte[]</c>. Twin of <see cref="JsonPropertyConditionBuilderExtension"/>.
+    /// </remarks>
     public static class GeoPropertyConditionBuilderExtension
     {
         /// <summary>
@@ -24,9 +26,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return rc;
         }
 
-        /// <summary>
-        /// Generic version of <see cref="GeoPredicateOf(EntityQueryConditionBuilder, string, SqlGeoPredicateId, byte[], Type, int, double)"/>.
-        /// </summary>
+        /// <summary>Generic version of the WKB-operand geometry predicate (the entity type is the generic argument).</summary>
         public static SingleEntityQueryConditionBuilder GeoPredicateOf<T>(this EntityQueryConditionBuilder builder, string name, SqlGeoPredicateId op, byte[] operandWkb, int occurrence = 0, double distance = 0)
             => builder.GeoPredicateOf(name, op, operandWkb, typeof(T), occurrence, distance);
 
@@ -47,9 +47,11 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             => builder.GeoPredicateOf(name, op, nativeSubquery, typeof(T), occurrence, distance);
 
         /// <summary>
-        /// Starts a condition on a geometry scalar (Area, Length, Distance, X, Y, ...) of a property,
-        /// connected with logical and. Chain a comparison, for example <c>.Gt(500.0)</c>.
+        /// Starts a condition on a geometry scalar (Area, Length, Distance, X, Y) of a property, connected with logical and.
         /// </summary>
+        /// <remarks>
+        /// Chain a comparison, for example <c>.Gt(500.0)</c>.
+        /// </remarks>
         public static SingleEntityQueryConditionBuilder GeoScalarOf(this EntityQueryConditionBuilder builder, string name, SqlGeoFunctionId op, byte[] operandWkb = null, DbType resultType = DbType.Double, Type entityType = null, int occurrence = 0, double tolerance = 0)
         {
             var rc = new SingleEntityQueryConditionBuilder(LogOp.And, builder);
@@ -57,9 +59,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             return rc;
         }
 
-        /// <summary>
-        /// Generic version of <see cref="GeoScalarOf(EntityQueryConditionBuilder, string, SqlGeoFunctionId, byte[], DbType, Type, int, double)"/>.
-        /// </summary>
+        /// <summary>Generic version of the geometry-scalar condition (the entity type is the generic argument).</summary>
         public static SingleEntityQueryConditionBuilder GeoScalarOf<T>(this EntityQueryConditionBuilder builder, string name, SqlGeoFunctionId op, byte[] operandWkb = null, DbType resultType = DbType.Double, int occurrence = 0, double tolerance = 0)
             => builder.GeoScalarOf(name, op, operandWkb, resultType, typeof(T), occurrence, tolerance);
     }

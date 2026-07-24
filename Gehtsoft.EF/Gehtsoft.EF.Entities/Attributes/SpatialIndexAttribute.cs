@@ -3,13 +3,13 @@ using System;
 namespace Gehtsoft.EF.Entities
 {
     /// <summary>
-    /// Declares a spatial index on a <see cref="GeometryEntityPropertyAttribute">geometry property</see>.
-    /// The attribute is repeatable (apply it once per index).
-    ///
+    /// Declares a repeatable spatial index on a geometry property (apply it once per index).
+    /// </summary>
+    /// <remarks>
     /// A bounding box (<see cref="MinX"/>, <see cref="MinY"/>, <see cref="MaxX"/>, <see cref="MaxY"/>)
     /// and a <see cref="Tolerance"/> may be declared; some engines require them (SQL Server's bounding
     /// box, Oracle's dimension metadata / tolerance) while others ignore them.
-    /// </summary>
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public class SpatialIndexAttribute : Attribute
     {
@@ -19,19 +19,19 @@ namespace Gehtsoft.EF.Entities
         /// <summary>The logical index name. If not set, the name is derived from the column.</summary>
         public string Name { get; set; }
 
-        /// <summary>The minimum X of the declared bounding box, or <see cref="double.NaN"/> when not declared.</summary>
+        /// <summary>The minimum X of the declared bounding box, or NaN when not declared.</summary>
         public double MinX { get; set; } = double.NaN;
 
-        /// <summary>The minimum Y of the declared bounding box, or <see cref="double.NaN"/> when not declared.</summary>
+        /// <summary>The minimum Y of the declared bounding box, or NaN when not declared.</summary>
         public double MinY { get; set; } = double.NaN;
 
-        /// <summary>The maximum X of the declared bounding box, or <see cref="double.NaN"/> when not declared.</summary>
+        /// <summary>The maximum X of the declared bounding box, or NaN when not declared.</summary>
         public double MaxX { get; set; } = double.NaN;
 
-        /// <summary>The maximum Y of the declared bounding box, or <see cref="double.NaN"/> when not declared.</summary>
+        /// <summary>The maximum Y of the declared bounding box, or NaN when not declared.</summary>
         public double MaxY { get; set; } = double.NaN;
 
-        /// <summary>The tolerance (used by Oracle metadata). Defaults to <see cref="DefaultTolerance"/>.</summary>
+        /// <summary>The tolerance used by Oracle metadata (defaults to 0.005).</summary>
         public double Tolerance { get; set; } = DefaultTolerance;
 
         /// <summary>Whether a complete bounding box has been declared.</summary>

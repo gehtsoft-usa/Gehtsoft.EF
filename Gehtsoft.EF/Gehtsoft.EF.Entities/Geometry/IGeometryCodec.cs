@@ -3,13 +3,14 @@ using System;
 namespace Gehtsoft.EF.Entities.Geometry
 {
     /// <summary>
-    /// Converts an application-chosen geometry object to and from the portable wire forms
-    /// (Well-Known Binary and Well-Known Text). The framework itself never owns a geometry type or a
-    /// parser: a geometry column is fundamentally a <c>byte[]</c> (WKB), and an application that maps
-    /// it to a richer object type supplies an <see cref="IGeometryCodec"/> (see
-    /// <see cref="IGeometryCodecFactory"/> and <see cref="GeometryCodecs"/>). The database wire form is
-    /// WKB; WKT is provided for interchange and debugging.
+    /// Converts an application-chosen geometry object to and from the portable wire forms (WKB and WKT).
     /// </summary>
+    /// <remarks>
+    /// The framework itself never owns a geometry type or a parser: a geometry column is fundamentally a
+    /// <c>byte[]</c> (WKB), and an application that maps it to a richer object type supplies an
+    /// <see cref="IGeometryCodec"/> (see <see cref="IGeometryCodecFactory"/> and <see cref="GeometryCodecs"/>).
+    /// The database wire form is WKB; WKT is provided for interchange and debugging.
+    /// </remarks>
     public interface IGeometryCodec
     {
         /// <summary>Whether this codec can convert values of the specified CLR geometry type.</summary>

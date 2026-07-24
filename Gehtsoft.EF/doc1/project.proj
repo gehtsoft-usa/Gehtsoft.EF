@@ -49,6 +49,7 @@
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Db.SqlDb.OData/bin/Debug/net8.0/Gehtsoft.EF.Db.SqlDb.OData.dll" />
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Bson/bin/Debug/net8.0/Gehtsoft.EF.Bson.dll" />
     <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.MongoDB/bin/Debug/net8.0/Gehtsoft.EF.MongoDB.dll" />
+    <DocSource Include="$(MSBuildProjectDirectory)/../Gehtsoft.EF.Geo.NetTopologySuite/bin/Debug/netstandard2.0/Gehtsoft.EF.Geo.NetTopologySuite.dll" />
  </ItemGroup>
 
  <Target Name="Scan">

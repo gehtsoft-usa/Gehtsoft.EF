@@ -1,9 +1,12 @@
 namespace Gehtsoft.EF.Entities.Geometry
 {
     /// <summary>
-    /// The declared subtype of a geometry column. Values align with the OGC WKB type codes; the extra
-    /// <see cref="Geometry"/> member (0) means the column is not restricted to a single subtype.
+    /// The declared subtype of a geometry column.
     /// </summary>
+    /// <remarks>
+    /// Values align with the OGC WKB type codes; the extra <see cref="Geometry"/> member (0) means the
+    /// column is not restricted to a single subtype.
+    /// </remarks>
     public enum GeometrySubtype
     {
         /// <summary>Any geometry (the column is not restricted to a specific subtype).</summary>

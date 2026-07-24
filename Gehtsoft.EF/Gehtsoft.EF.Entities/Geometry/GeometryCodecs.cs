@@ -3,23 +3,20 @@ using System;
 namespace Gehtsoft.EF.Entities.Geometry
 {
     /// <summary>
-    /// The global registration point for the geometry codec. An application that maps geometry columns
-    /// to object types sets <see cref="Factory"/> once at start-up (for example the NetTopologySuite
-    /// module's registration helper); the framework then resolves a codec via <see cref="Resolve"/>.
-    /// A per-connection override is available on the SQL connection. Applications that use raw
-    /// <c>byte[]</c> (WKB) geometry properties never touch this class.
+    /// The global registration point for the geometry codec.
     /// </summary>
+    /// <remarks>
+    /// An application that maps geometry columns to object types sets <see cref="Factory"/> once at
+    /// start-up (for example the NetTopologySuite module's registration helper); the framework then
+    /// resolves a codec via <see cref="Resolve"/>. A per-connection override is available on the SQL
+    /// connection. Applications that use raw <c>byte[]</c> (WKB) geometry properties never touch this class.
+    /// </remarks>
     public static class GeometryCodecs
     {
-        /// <summary>
-        /// The global default codec factory, or <c>null</c> when none is registered. Set this once at
-        /// application start-up.
-        /// </summary>
+        /// <summary>The global default codec factory, or null when none is registered (set once at start-up).</summary>
         public static IGeometryCodecFactory Factory { get; set; }
 
-        /// <summary>
-        /// Resolves the global codec from <see cref="Factory"/>.
-        /// </summary>
+        /// <summary>Resolves the global codec from the registered factory.</summary>
         /// <exception cref="InvalidOperationException">No factory has been registered.</exception>
         public static IGeometryCodec Resolve()
         {

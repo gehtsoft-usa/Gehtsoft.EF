@@ -7,13 +7,16 @@ using NetTopologySuite.IO;
 namespace Gehtsoft.EF.Geo.NetTopologySuite
 {
     /// <summary>
-    /// The default <see cref="IGeometryCodec"/>, backed by NetTopologySuite. Converts NTS
-    /// <see cref="Geometry"/> objects to and from WKB/WKT, honoring Z/M ordinates and (optionally) the
-    /// SRID via the PostGIS EWKB flag / EWKT prefix.
+    /// The default geometry codec, backed by NetTopologySuite.
     /// </summary>
+    /// <remarks>
+    /// Implements <see cref="IGeometryCodec"/>, converting NTS <see cref="Geometry"/> objects to and from
+    /// WKB/WKT, honoring Z/M ordinates and (optionally) the SRID via the PostGIS EWKB flag / EWKT prefix.
+    /// </remarks>
     public sealed class NtsGeometryCodec : IGeometryCodec
     {
-        /// <inheritdoc/>
+        /// <summary>Whether this codec can convert values of the specified CLR geometry type.</summary>
+        /// <param name="geometryType">The CLR type of the entity's geometry property.</param>
         public bool CanHandle(Type geometryType)
         {
             if (geometryType == null)
@@ -21,7 +24,9 @@ namespace Gehtsoft.EF.Geo.NetTopologySuite
             return typeof(Geometry).IsAssignableFrom(geometryType);
         }
 
-        /// <inheritdoc/>
+        /// <summary>Serializes a geometry object to Well-Known Binary.</summary>
+        /// <param name="geometry">The geometry object (never null).</param>
+        /// <param name="includeSrid">When true, carry the SRID (EWKB); when false, plain OGC WKB.</param>
         public byte[] ToWkb(object geometry, bool includeSrid)
         {
             Geometry value = AsGeometry(geometry);
@@ -50,7 +55,9 @@ namespace Gehtsoft.EF.Geo.NetTopologySuite
             public void Filter(CoordinateSequence seq, int i) => Ordinates |= seq.Ordinates;
         }
 
-        /// <inheritdoc/>
+        /// <summary>Deserializes a geometry object from Well-Known Binary.</summary>
+        /// <param name="wkb">The WKB bytes (never null).</param>
+        /// <param name="srid">The SRID to assign when the bytes do not embed one.</param>
         public object FromWkb(byte[] wkb, int srid)
         {
             if (wkb == null)
@@ -74,7 +81,9 @@ namespace Gehtsoft.EF.Geo.NetTopologySuite
             return (type & 0x20000000u) != 0; // PostGIS EWKB SRID flag
         }
 
-        /// <inheritdoc/>
+        /// <summary>Serializes a geometry object to Well-Known Text.</summary>
+        /// <param name="geometry">The geometry object (never null).</param>
+        /// <param name="includeSrid">When true, prefix with the EWKT SRID header; when false, plain WKT.</param>
         public string ToWkt(object geometry, bool includeSrid)
         {
             Geometry value = AsGeometry(geometry);
@@ -85,7 +94,9 @@ namespace Gehtsoft.EF.Geo.NetTopologySuite
             return wkt;
         }
 
-        /// <inheritdoc/>
+        /// <summary>Deserializes a geometry object from Well-Known Text.</summary>
+        /// <param name="wkt">The WKT (or EWKT) string (never null).</param>
+        /// <param name="srid">The SRID to assign when the text does not embed one.</param>
         public object FromWkt(string wkt, int srid)
         {
             if (wkt == null)
