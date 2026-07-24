@@ -16,15 +16,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
     {
         private readonly SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;
-        private readonly ISqlDbConnectionFactory mConnectionFactory = null;
         private SqlUpdateStatement mUpdate;
         private UpdateQueryBuilder mUpdateBuilder = null;
-
-        internal UpdateRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory)
-        {
-            mBuilder = builder;
-            mConnectionFactory = connectionFactory;
-        }
 
         internal UpdateRunner(SqlCodeDomBuilder builder, SqlDbConnection connection)
         {
@@ -69,22 +62,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             if (mUpdateBuilder == null)
             {
                 mUpdate = statement;
-                if (mConnectionFactory != null)
-                {
-                    mConnection = mConnectionFactory.GetConnection();
-                }
-                try
-                {
-                    ProcessUpdate(statement);
-                }
-                finally
-                {
-                    if (mConnectionFactory != null)
-                    {
-                        if (mConnectionFactory.NeedDispose)
-                            mConnection.Dispose();
-                    }
-                }
+                ProcessUpdate(statement);
             }
             return mUpdateBuilder;
         }
@@ -141,31 +119,16 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             dynamic result = null;
             mUpdate = update;
-            if (mConnectionFactory != null)
-            {
-                mConnection = mConnectionFactory.GetConnection();
-            }
-            try
-            {
-                ProcessUpdate(update);
+            ProcessUpdate(update);
 
-                using (SqlDbQuery query = mConnection.GetQuery(mUpdateBuilder))
-                {
-                    ApplyBindParams(query);
-
-                    int updated = query.ExecuteNoData();
-                    ExpandoObject subResult = new ExpandoObject();
-                    (subResult as IDictionary<string, object>).Add("Updated", updated);
-                    result = subResult;
-                }
-            }
-            finally
+            using (SqlDbQuery query = mConnection.GetQuery(mUpdateBuilder))
             {
-                if (mConnectionFactory != null)
-                {
-                    if (mConnectionFactory.NeedDispose)
-                        mConnection.Dispose();
-                }
+                ApplyBindParams(query);
+
+                int updated = query.ExecuteNoData();
+                ExpandoObject subResult = new ExpandoObject();
+                (subResult as IDictionary<string, object>).Add("Updated", updated);
+                result = subResult;
             }
             return result;
         }

@@ -16,16 +16,9 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
     {
         private readonly SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;
-        private readonly ISqlDbConnectionFactory mConnectionFactory = null;
         private SqlInsertStatement mInsert;
         private InsertQueryBuilder mInsertSimpleBuilder = null;
         private InsertSelectQueryBuilder mInsertSelectBuilder = null;
-
-        internal InsertRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory)
-        {
-            mBuilder = builder;
-            mConnectionFactory = connectionFactory;
-        }
 
         internal InsertRunner(SqlCodeDomBuilder builder, SqlDbConnection connection)
         {
@@ -70,22 +63,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             if (mInsertSimpleBuilder == null && mInsertSelectBuilder == null)
             {
                 mInsert = statement;
-                if (mConnectionFactory != null)
-                {
-                    mConnection = mConnectionFactory.GetConnection();
-                }
-                try
-                {
-                    ProcessInsert(statement);
-                }
-                finally
-                {
-                    if (mConnectionFactory != null)
-                    {
-                        if (mConnectionFactory.NeedDispose)
-                            mConnection.Dispose();
-                    }
-                }
+                ProcessInsert(statement);
             }
             return (AQueryBuilder)mInsertSimpleBuilder ?? (AQueryBuilder)mInsertSelectBuilder;
         }
@@ -166,59 +144,44 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             List<dynamic> result = new List<dynamic>();
             mInsert = insert;
-            if (mConnectionFactory != null)
-            {
-                mConnection = mConnectionFactory.GetConnection();
-            }
-            try
-            {
-                ProcessInsert(insert);
+            ProcessInsert(insert);
 
-                using (SqlDbQuery query = mConnection.GetQuery(mInsertSimpleBuilder != null ? (AQueryBuilder)mInsertSimpleBuilder : (AQueryBuilder)mInsertSelectBuilder))
+            using (SqlDbQuery query = mConnection.GetQuery(mInsertSimpleBuilder != null ? (AQueryBuilder)mInsertSimpleBuilder : (AQueryBuilder)mInsertSelectBuilder))
+            {
+                ApplyBindParams(query);
+                bool executeNoData = false;
+                if (autoIncrement != null)
                 {
-                    ApplyBindParams(query);
-                    bool executeNoData = false;
-                    if (autoIncrement != null)
+                    if (query.LanguageSpecifics.AutoincrementReturnedAs == SqlDbLanguageSpecifics.AutoincrementReturnStyle.Parameter)
                     {
-                        if (query.LanguageSpecifics.AutoincrementReturnedAs == SqlDbLanguageSpecifics.AutoincrementReturnStyle.Parameter)
-                        {
-                            query.BindOutputParam(autoIncrement.Name, autoIncrement.DbType);
-                            executeNoData = true;
-                        }
-                    }
-
-                    if (executeNoData)
-                    {
-                        query.ExecuteNoData();
-                        object v = query.GetParamValue(autoIncrement.Name, autoIncrement.PropertyAccessor.PropertyType);
-                        if (v is Int32 || v is UInt32 || v is UInt64)
-                        {
-                            v = Convert.ChangeType(v, typeof(Int64));
-                        }
-                        var res = new ExpandoObject();
-                        (res as IDictionary<string, object>).Add("LastInsertedId", v);
-                        result.Add(res);
-                    }
-                    else
-                    {
-                        query.ExecuteReader();
-                        while (query.ReadNext())
-                        {
-                            object o = BindRecord(query);
-                            // MSSql Insert from Select returns IDs of all inserted records, but we need only the last one
-                            if (result.Count > 0)
-                                result.Clear();
-                            result.Add(o);
-                        }
+                        query.BindOutputParam(autoIncrement.Name, autoIncrement.DbType);
+                        executeNoData = true;
                     }
                 }
-            }
-            finally
-            {
-                if (mConnectionFactory != null)
+
+                if (executeNoData)
                 {
-                    if (mConnectionFactory.NeedDispose)
-                        mConnection.Dispose();
+                    query.ExecuteNoData();
+                    object v = query.GetParamValue(autoIncrement.Name, autoIncrement.PropertyAccessor.PropertyType);
+                    if (v is Int32 || v is UInt32 || v is UInt64)
+                    {
+                        v = Convert.ChangeType(v, typeof(Int64));
+                    }
+                    var res = new ExpandoObject();
+                    (res as IDictionary<string, object>).Add("LastInsertedId", v);
+                    result.Add(res);
+                }
+                else
+                {
+                    query.ExecuteReader();
+                    while (query.ReadNext())
+                    {
+                        object o = BindRecord(query);
+                        // MSSql Insert from Select returns IDs of all inserted records, but we need only the last one
+                        if (result.Count > 0)
+                            result.Clear();
+                        result.Add(o);
+                    }
                 }
             }
             return result;

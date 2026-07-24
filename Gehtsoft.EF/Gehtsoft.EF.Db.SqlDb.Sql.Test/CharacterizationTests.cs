@@ -257,6 +257,42 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             ex.Message.Should().Contain("Not found entity 'bad'");
         }
 
+        [Fact]
+        public void InsertUnknownTable_Throws()
+        {
+            SqlCodeDomEnvironment env = Env();
+            SqlParserException ex = Assert.Throws<SqlParserException>(() =>
+            {
+                var func = env.Parse("test", "INSERT INTO NoSuchTable (CompanyName) VALUES ('x')");
+                func(null);
+            });
+            ex.Message.Should().Contain("Not found entity with name 'NoSuchTable'");
+        }
+
+        [Fact]
+        public void UpdateUnknownTable_Throws()
+        {
+            SqlCodeDomEnvironment env = Env();
+            SqlParserException ex = Assert.Throws<SqlParserException>(() =>
+            {
+                var func = env.Parse("test", "UPDATE NoSuchTable SET CompanyName='x'");
+                func(null);
+            });
+            ex.Message.Should().Contain("Not found entity with name 'NoSuchTable'");
+        }
+
+        [Fact]
+        public void DeleteUnknownTable_Throws()
+        {
+            SqlCodeDomEnvironment env = Env();
+            SqlParserException ex = Assert.Throws<SqlParserException>(() =>
+            {
+                var func = env.Parse("test", "DELETE FROM NoSuchTable");
+                func(null);
+            });
+            ex.Message.Should().Contain("Not found entity with name 'NoSuchTable'");
+        }
+
         // ───────────── Scalar subquery arity (parse-time) ─────────────
 
         [Fact]

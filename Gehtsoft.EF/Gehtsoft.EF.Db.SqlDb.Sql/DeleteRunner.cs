@@ -16,15 +16,8 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
     {
         private readonly SqlCodeDomBuilder mBuilder;
         private SqlDbConnection mConnection = null;
-        private readonly ISqlDbConnectionFactory mConnectionFactory = null;
         private SqlDeleteStatement mDelete;
         private DeleteQueryBuilder mDeleteBuilder = null;
-
-        internal DeleteRunner(SqlCodeDomBuilder builder, ISqlDbConnectionFactory connectionFactory)
-        {
-            mBuilder = builder;
-            mConnectionFactory = connectionFactory;
-        }
 
         internal DeleteRunner(SqlCodeDomBuilder builder, SqlDbConnection connection)
         {
@@ -69,22 +62,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
             if (mDeleteBuilder == null)
             {
                 mDelete = statement;
-                if (mConnectionFactory != null)
-                {
-                    mConnection = mConnectionFactory.GetConnection();
-                }
-                try
-                {
-                    ProcessDelete(statement);
-                }
-                finally
-                {
-                    if (mConnectionFactory != null)
-                    {
-                        if (mConnectionFactory.NeedDispose)
-                            mConnection.Dispose();
-                    }
-                }
+                ProcessDelete(statement);
             }
             return mDeleteBuilder;
         }
@@ -112,30 +90,15 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
         {
             dynamic result = null;
             mDelete = delete;
-            if (mConnectionFactory != null)
-            {
-                mConnection = mConnectionFactory.GetConnection();
-            }
-            try
-            {
-                ProcessDelete(delete);
+            ProcessDelete(delete);
 
-                using (SqlDbQuery query = mConnection.GetQuery(mDeleteBuilder))
-                {
-                    ApplyBindParams(query);
-                    int deleted = query.ExecuteNoData();
-                    ExpandoObject subResult = new ExpandoObject();
-                    (subResult as IDictionary<string, object>).Add("Deleted", deleted);
-                    result = subResult;
-                }
-            }
-            finally
+            using (SqlDbQuery query = mConnection.GetQuery(mDeleteBuilder))
             {
-                if (mConnectionFactory != null)
-                {
-                    if (mConnectionFactory.NeedDispose)
-                        mConnection.Dispose();
-                }
+                ApplyBindParams(query);
+                int deleted = query.ExecuteNoData();
+                ExpandoObject subResult = new ExpandoObject();
+                (subResult as IDictionary<string, object>).Add("Deleted", deleted);
+                result = subResult;
             }
             return result;
         }

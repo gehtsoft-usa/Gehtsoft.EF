@@ -84,5 +84,54 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                     connection.Dispose();
             }
         }
+
+        [Theory]
+        [MemberData(nameof(Connections))]
+        public void InsertFromSelect_AcrossDrivers(string name, string driver, string connectionString)
+        {
+            ISqlDbConnectionFactory factory;
+            SqlDbConnection connection;
+            try
+            {
+                factory = new SqlDbUniversalConnectionFactory(driver, connectionString);
+                connection = factory.GetConnection();
+            }
+            catch (Exception e)
+            {
+                Assert.Skip($"connection '{name}' ({driver}) is not reachable: {e.Message}");
+                return;
+            }
+
+            try
+            {
+                new Snapshot().CreateTablesAsync(connection).ConfigureAwait(true).GetAwaiter().GetResult();
+
+                EntityFinder.EntityTypeInfo[] entities = EntityFinder.FindEntities(new[] { typeof(Snapshot).Assembly }, "northwind", false);
+                SqlCodeDomBuilder domBuilder = new SqlCodeDomBuilder();
+                domBuilder.Build(entities, "entities");
+                SqlCodeDomEnvironment env = domBuilder.NewEnvironment(connection);
+
+                // seed two rows, then INSERT ... SELECT them back in (inserts more than one row, so the
+                // reader-based id handling - including the MSSQL "keep only the last of many ids" path - runs)
+                for (int i = 0; i < 2; i++)
+                    env.Parse("test",
+                        $"INSERT INTO Supplier (CompanyName, ContactName, ContactTitle, Address, City, PostalCode, Country) " +
+                        $"VALUES ('Seed {i}', 'C', 'T', 'A', 'City', '00000', 'Testland')")(null);
+
+                env.Parse("test",
+                    "INSERT INTO Supplier (CompanyName, ContactName, ContactTitle, Address, City, PostalCode, Country) " +
+                    "SELECT CompanyName, ContactName, ContactTitle, Address, City, PostalCode, Country FROM Supplier")(null);
+
+                dynamic count = env.Parse("test", "SELECT COUNT(*) AS Total FROM Supplier")(null);
+                ((int)count[0].Total).Should().Be(4);
+
+                env.Parse("test", "DELETE FROM Supplier")(null);
+            }
+            finally
+            {
+                if (factory.NeedDispose)
+                    connection.Dispose();
+            }
+        }
     }
 }
