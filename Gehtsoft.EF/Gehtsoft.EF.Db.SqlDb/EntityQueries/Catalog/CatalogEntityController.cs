@@ -51,6 +51,9 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
         // builder, so a shared throw-away descriptor is enough for the foreign-key marker.
         private static readonly TableDescriptor mDummyTable = new TableDescriptor("dummytable");
 
+        // object-type argument to DoesObjectExist when probing for a base table
+        private const string TableObjectType = "table";
+
         /// <summary>
         /// How long to wait for the instance lock before failing. Defaults to 30 seconds.
         /// </summary>
@@ -382,7 +385,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
             mStore.EnsureBootstrapped(connection);
 
             string patchTable = AllEntities.Get<EfPatchHistoryRecord>().TableDescriptor.Name;
-            if (connection.DoesObjectExist(patchTable, null, "table"))
+            if (connection.DoesObjectExist(patchTable, null, TableObjectType))
                 return;
             try
             {
@@ -393,7 +396,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
             {
                 // Another process may have created the ledger between the check and the create; tolerate
                 // that race but surface a genuine failure.
-                if (!connection.DoesObjectExist(patchTable, null, "table"))
+                if (!connection.DoesObjectExist(patchTable, null, TableObjectType))
                     throw;
             }
         }
@@ -516,7 +519,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
             {
                 if (info.View)
                     continue;
-                if (connection.DoesObjectExist(info.Table, null, "table"))
+                if (connection.DoesObjectExist(info.Table, null, TableObjectType))
                     return true;
             }
             return false;
@@ -614,7 +617,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Catalog
                 if (currentVersion == null)
                 {
                     foreach (EntityFinder.EntityTypeInfo info in types)
-                        if (!info.View && connection.DoesObjectExist(info.Table, null, "table"))
+                        if (!info.View && connection.DoesObjectExist(info.Table, null, TableObjectType))
                             throw new EfSqlException(EfExceptionCode.CatalogOrphanScope, NormalizedScope);
                     EfPatchHistoryRecord ledgerTip = ReadLedgerTip(connection);
                     if (ledgerTip != null)

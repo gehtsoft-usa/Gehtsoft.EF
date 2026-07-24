@@ -72,8 +72,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.CodeDom
 
             SqlParser.JoinTypeContext joinType = fieldNode.joinType();
             // A bare JOIN (no explicit type) defaults to INNER; see KNOWN_BUGS.md #3.
-            JoinType = joinType == null ? "INNER"
-                : (joinType.outerJoinType() != null ? joinType.outerJoinType().GetText() : "INNER");
+            if (joinType?.outerJoinType() == null)
+                JoinType = "INNER";
+            else
+                JoinType = joinType.outerJoinType().GetText();
 
             RightTable = new SqlPrimaryTable(parentStatement, fieldNode.tablePrimary(), source);
 

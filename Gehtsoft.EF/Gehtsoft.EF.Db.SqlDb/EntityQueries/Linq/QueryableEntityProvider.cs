@@ -397,8 +397,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                         // the properties) and return the first entity. First()/FirstOrDefault() have
                         // already set Take = 1.
                         object collection = compiledQuery.EntityQuery.GetAllAsEnumerable(compiledQuery.EntityType);
+#pragma warning disable S1751 // deliberate first-or-null: return the first item (Take=1 already set) or null
                         foreach (object item in (System.Collections.IEnumerable)collection)
                             return item;
+#pragma warning restore S1751
                         return null;
                     }
                     else

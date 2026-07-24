@@ -113,7 +113,9 @@ namespace Gehtsoft.EF.Test.Geo.DataSelecting
             sql.Should().Contain(".shape)");
             sql.Should().MatchRegex(@"\.name\b");
             // exactly one ST_AsBinary - only the geometry column is wrapped, the plain column is not
+#pragma warning disable SYSLIB1045 // one-off test assertion; source-generated regex not warranted
             System.Text.RegularExpressions.Regex.Matches(sql, @"ST_AsBinary\(").Count.Should().Be(1);
+#pragma warning restore SYSLIB1045
         }
     }
 }

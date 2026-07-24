@@ -78,7 +78,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog.Diff
                     continue;
                 }
 
-                DiffExistingColumn(table, d, s, dropIndexes, dropColumns, alterColumns, addColumns, addIndexes);
+                DiffExistingColumn(table, d, s, dropIndexes, alterColumns, addIndexes);
             }
 
             DiffCompositeIndexes(table, desired, stored, dropIndexes, addIndexes);
@@ -103,8 +103,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Catalog.Diff
         // geometry / json) as a drop+add, an in-place definition change as an alter, and the index
         // deltas (single-column flags, spatial, JSON) as their own add/drop steps.
         private static void DiffExistingColumn(string table, CatalogColumnDto desired, CatalogColumnDto stored,
-            List<CatalogChange> dropIndexes, List<CatalogChange> dropColumns,
-            List<CatalogChange> alterColumns, List<CatalogChange> addColumns, List<CatalogChange> addIndexes)
+            List<CatalogChange> dropIndexes, List<CatalogChange> alterColumns, List<CatalogChange> addIndexes)
         {
             // A change of column family (plain <-> geometry <-> json) has no safe automatic form: the only
             // option would be drop+add, which silently destroys the column's data. Emit it as an alter so the

@@ -23,7 +23,7 @@ namespace Gehtsoft.EF.Test.Geo.DataSelecting
                 new TableDescriptor.ColumnInfo
                 {
                     Name = "shape", DbType = DbType.Binary, Nullable = true,
-                    Geometry = new GeometryColumnMetadata(typeof(byte[]), 4326, GeometrySubtype.Point, false, false, true, new SpatialIndexDefinition[0]),
+                    Geometry = new GeometryColumnMetadata(typeof(byte[]), 4326, GeometrySubtype.Point, false, false, true, System.Array.Empty<SpatialIndexDefinition>()),
                 },
             });
 

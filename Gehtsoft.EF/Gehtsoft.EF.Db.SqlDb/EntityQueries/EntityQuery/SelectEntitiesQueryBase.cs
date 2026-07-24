@@ -631,14 +631,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
             SelectBuilder.AddJsonValueToGroupBy(column, entity, jsonPath, type);
         }
 
-        // Resolves an entity property to the query-builder column and table it lives on (identical to
-        // ResolveJsonColumn); the geometry select methods read column.Geometry.Srid through it.
+        // Resolves an entity property to the query-builder column and table it lives on; the geometry select
+        // methods read column.Geometry.Srid through it. Same resolution as ResolveJsonColumn (delegated).
         private void ResolveGeoColumn(Type entityType, int occurrence, string property, out TableDescriptor.ColumnInfo column, out QueryBuilderEntity entity)
-        {
-            InQueryName reference = GetReference(entityType, occurrence, property);
-            column = reference.Item.Column;
-            entity = reference.Item.QueryEntity;
-        }
+            => ResolveJsonColumn(entityType, occurrence, property, out column, out entity);
 
         /// <summary>
         /// Projects the geometry value of a geometry property. <paramref name="form"/> selects the wire form:
@@ -876,10 +872,10 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     int a = 0;
                     for (int i = 0; i < mQuery.FieldCount; i++)
                     {
-                        FieldInfo field = mQuery.Field(i);
+                        FieldInfo fieldInfo = mQuery.Field(i);
                         string name = mSelectBuilder.ResultColumn(i).Alias?.Trim();
                         if (string.IsNullOrEmpty(name))
-                            name = field.Name?.Trim();
+                            name = fieldInfo.Name?.Trim();
                         if (string.IsNullOrEmpty(name))
                             name = $"anonymous{a++}";
                         else
@@ -907,7 +903,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                             name = newname.ToString();
                         }
 
-                        mDynamicNames.Add(new Tuple<string, bool>(name, !IgnoreOnDynamic(i, field)));
+                        mDynamicNames.Add(new Tuple<string, bool>(name, !IgnoreOnDynamic(i, fieldInfo)));
                     }
                 }
 

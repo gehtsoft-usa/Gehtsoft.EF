@@ -195,7 +195,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// <param name="distance">The distance bound for <see cref="SqlGeoPredicateId.DWithin"/>.</param>
         public virtual SingleEntityQueryConditionBuilder GeoPredicateOf(string name, SqlGeoPredicateId op, byte[] operandWkb, Type entityType = null, int occurrence = 0, double distance = 0)
         {
-            ResolveGeo(name, entityType, occurrence, out ConditionBuilder cb, out SqlDbLanguageSpecifics specifics, out string a, out int srid);
+            ResolveGeo(name, entityType, occurrence, out _, out SqlDbLanguageSpecifics specifics, out string a, out int srid);
             string p = Builder.BaseQuery.NextParam;
             if (operandWkb == null)
                 Builder.BaseQuery.Query.BindNull(p, DbType.Binary);
@@ -229,7 +229,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
         /// </summary>
         public virtual SingleEntityQueryConditionBuilder GeoScalarOf(string name, SqlGeoFunctionId op, byte[] operandWkb = null, DbType resultType = DbType.Double, Type entityType = null, int occurrence = 0, double tolerance = 0)
         {
-            ResolveGeo(name, entityType, occurrence, out ConditionBuilder cb, out SqlDbLanguageSpecifics specifics, out string a, out int srid);
+            ResolveGeo(name, entityType, occurrence, out _, out SqlDbLanguageSpecifics specifics, out string a, out int srid);
             string b = null;
             if (operandWkb != null)
             {

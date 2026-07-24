@@ -8,6 +8,7 @@ using AwesomeAssertions.Execution;
 using Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq;
 
 #pragma warning disable RCS1224 // Make method an extension method.
+#pragma warning disable SYSLIB1045 // test-only static regex helpers; source-generated regex churn not warranted
 
 namespace Gehtsoft.EF.Test.SqlParser
 {

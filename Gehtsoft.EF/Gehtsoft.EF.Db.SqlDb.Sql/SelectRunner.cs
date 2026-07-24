@@ -348,8 +348,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                         name = mBuilder.NameByField(entityDescriptor.EntityType, key);
                         if (name != null)
                         {
+#pragma warning disable S1643 // single concatenation - the loop breaks right after, so StringBuilder does not apply
                             if (!first)
                                 name = entityEntry.EntityType.Name + "_" + name;
+#pragma warning restore S1643
                             toType = mBuilder.TypeByName(entityDescriptor.EntityType, name);
                             break;
                         }

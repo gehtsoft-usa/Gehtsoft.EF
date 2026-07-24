@@ -149,7 +149,7 @@ namespace Gehtsoft.EF.Db.SqlDb
                 leaseSeconds = 1;
 
             Stopwatch stopwatch = Stopwatch.StartNew();
-            for (;;)
+            while (true)
             {
                 if (TryClaimInstanceLease(name, owner, leaseSeconds))
                     return new LeaseInstanceLock(this, name, owner);

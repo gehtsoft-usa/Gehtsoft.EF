@@ -133,7 +133,7 @@ namespace Gehtsoft.EF.Northwind
 
         private async ValueTask CreateTablesCore(IEntityContext context, bool executeAsync)
         {
-            foreach (var (type, list) in mTypes.Reverse())
+            foreach (var (type, _) in mTypes.Reverse())
             {
                 using (var query = context.DropEntity(type))
                     if (executeAsync)
@@ -142,7 +142,7 @@ namespace Gehtsoft.EF.Northwind
                         query.Execute();
             }
 
-            foreach (var (type, list) in mTypes)
+            foreach (var (type, _) in mTypes)
             {
                 using (var query = context.CreateEntity(type))
                     if (executeAsync)

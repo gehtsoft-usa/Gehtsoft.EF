@@ -54,7 +54,7 @@ namespace Gehtsoft.EF.Db.PostgresDb
         private static string PostgresJsonPath(string path)
         {
             string p = path;
-            if (p.StartsWith("$", System.StringComparison.Ordinal))
+            if (p.StartsWith('$'))
                 p = p.Substring(1);
             // an array element "[N]" becomes a path step ",N"
             p = p.Replace("]", "").Replace("[", ".");

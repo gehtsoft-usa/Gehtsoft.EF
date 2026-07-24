@@ -31,10 +31,9 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 object value = this[key];
                 if (value != null)
                 {
-                    if (value is IEnumerable<object>)
+                    if (value is IEnumerable<object> list)
                     {
                         valueSerializer = new XmlSerializer(typeof(XmlSerializableDictionary));
-                        IEnumerable<object> list = value as IEnumerable<object>;
                         foreach (object value1 in list)
                             valueSerializer.Serialize(writer, value1);
                     }

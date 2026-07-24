@@ -136,7 +136,6 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                 bool hasPagingLimit = pagingLimit > 0;
                 bool queryHasSkip = oDataToQuery.Skip != null;
                 bool queryHasTop = oDataToQuery.Top != null;
-                bool forcedSkip = queryHasTop || queryHasSkip;
 
                 if (queryHasSkip)
                     queryBuilder.Skip = oDataToQuery.Skip.Value;
@@ -222,15 +221,17 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     {
                         metadata = $"{metadata}/@Element";
                     }
+                    string selectParameter = null;
                     for (int i = 1; i < queryParts.Length; i++)
                     {
-                        string queryParameter = queryParts[i];
-                        if (queryParameter.StartsWith("$select="))
+                        if (queryParts[i].StartsWith("$select="))
                         {
-                            metadata += queryParameter;
+                            selectParameter = queryParts[i];
                             break;
                         }
                     }
+                    if (selectParameter != null)
+                        metadata += selectParameter;
 
                     if (oDataToQuery.ResultMode != ODataToQuery.ResultType.Array)
                     {
@@ -244,8 +245,6 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     }
 
                     long totalCount = -1;
-                    int limit = ((SelectQueryBuilder)queryBuilder).Limit;
-                    int skip = ((SelectQueryBuilder)queryBuilder).Skip;
 
                     if (inlinecount)
                     {
@@ -466,8 +465,10 @@ namespace Gehtsoft.EF.Db.SqlDb.OData
                     query.BindParam(pair.Key, dateTimeValue);
                 else if (pair.Value is DateTimeOffset dateTimeOffsetValue)
                     query.BindParam(pair.Key, dateTimeOffsetValue.LocalDateTime);
+#pragma warning disable CS0618 // Edm.Date is still delivered by the current OData lib version; handle it until ODL 9
                 else if (pair.Value is Microsoft.OData.Edm.Date dateValue)
                     query.BindParam(pair.Key, new DateTime(dateValue.Year, dateValue.Month, dateValue.Day, 0, 0, 0, DateTimeKind.Unspecified));
+#pragma warning restore CS0618
                 else
                     query.BindParam(pair.Key, pair.Value.ToString());
             }

@@ -11,6 +11,7 @@ namespace Gehtsoft.EF.MongoDb
 {
     internal class BsonFilterExpressionBuilder
     {
+#pragma warning disable S1694 // internal polymorphic AST base (SingleOp/Group dispatch); keep as a class
         internal abstract class Element
         {
             public abstract bool IsEmpty { get; }
@@ -25,6 +26,7 @@ namespace Gehtsoft.EF.MongoDb
 
             public abstract BsonDocument ToBsonDocument();
         }
+#pragma warning restore S1694
 
         internal class SingleOp : Element
         {

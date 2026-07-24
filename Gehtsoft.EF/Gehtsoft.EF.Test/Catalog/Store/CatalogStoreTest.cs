@@ -184,7 +184,9 @@ namespace Gehtsoft.EF.Test.Catalog.Store
 
             // Cross a full second so the new row's timestamp is observably later even on
             // second-precision date columns.
+#pragma warning disable S2925 // intentional: cross a full second so second-precision timestamp columns order observably
             Thread.Sleep(1100);
+#pragma warning restore S2925
 
             store.WriteApplied(connection, "s", "t", "2.0.0", SampleTable("t"));
             EfCatalogRecord tip = ReadLatestRow(connection, "s", "t");

@@ -36,8 +36,8 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries.Linq
                     value = param.Value;
                 }
 
-                if (value is SelectEntitiesQueryBase)
-                    query.CopyParametersFrom(value as SelectEntitiesQueryBase);
+                if (value is SelectEntitiesQueryBase seq)
+                    query.CopyParametersFrom(seq);
                 else
                 {
                     if (param.EncodeAs != null && value != null)

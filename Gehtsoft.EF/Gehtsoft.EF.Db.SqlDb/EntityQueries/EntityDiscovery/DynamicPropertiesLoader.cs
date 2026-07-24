@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Gehtsoft.EF.Db.SqlDb.QueryBuilder;
 using Gehtsoft.EF.Entities;
 
+#pragma warning disable S6966 // false positive: methods use sync/async branching pattern
+
 namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
 {
     /// <summary>
@@ -69,7 +71,7 @@ namespace Gehtsoft.EF.Db.SqlDb.EntityQueries
                     else
                         await query.ExecuteReaderAsync(token);
 
-                    while (query.ReadNext())
+                    while (sync ? query.ReadNext() : await query.ReadNextAsync(token))
                     {
                         string ownerKey = OwnerKey(query.GetValue<object>(0));
                         string name = query.GetValue<string>(1);

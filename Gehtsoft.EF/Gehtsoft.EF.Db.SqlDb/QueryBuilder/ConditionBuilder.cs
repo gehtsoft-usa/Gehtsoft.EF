@@ -243,14 +243,7 @@ namespace Gehtsoft.EF.Db.SqlDb.QueryBuilder
 
         // Geometry expressions are framework-generated (some carry a quoted literal - the Oracle RELATE
         // mask), so they bypass the raw-scalar guard, setting the side directly (like SetJsonSide).
-        private SingleConditionBuilder SetGeoSide(string expression)
-        {
-            if (!HasOp)
-                Left = expression;
-            else
-                Right = expression;
-            return this;
-        }
+        private SingleConditionBuilder SetGeoSide(string expression) => SetJsonSide(expression);
 
         /// <summary>
         /// Adds a parameter.

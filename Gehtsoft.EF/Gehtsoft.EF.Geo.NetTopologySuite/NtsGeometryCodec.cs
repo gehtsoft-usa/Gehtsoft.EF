@@ -47,7 +47,7 @@ namespace Gehtsoft.EF.Geo.NetTopologySuite
             public Ordinates Ordinates { get; private set; } = Ordinates.XY;
             public bool Done => Ordinates == Ordinates.XYZM;
             public bool GeometryChanged => false;
-            public void Filter(CoordinateSequence seq, int index) => Ordinates |= seq.Ordinates;
+            public void Filter(CoordinateSequence seq, int i) => Ordinates |= seq.Ordinates;
         }
 
         /// <inheritdoc/>

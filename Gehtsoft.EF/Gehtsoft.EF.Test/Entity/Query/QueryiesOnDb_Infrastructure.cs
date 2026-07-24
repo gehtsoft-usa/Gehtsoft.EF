@@ -143,9 +143,11 @@ namespace Gehtsoft.EF.Test.Entity.Query
         }
 
         [Theory]
+#pragma warning disable xUnit1042 // shared object[]-based MemberData source with variadic columns; intentional
         [MemberData(nameof(SqlConnectionSources.SqlConnectionNamesWithArgs),
             "", typeof(QueryiesOnDb_Infrastructure), nameof(TestDataTypeArgs),
             MemberType = typeof(SqlConnectionSources))]
+#pragma warning restore xUnit1042
         public void TestDataType(string connectionName, DbType dbType, int size, int precision, bool nullable, Type dataType, object value)
         {
             value = TestValue.Translate(dataType, value);

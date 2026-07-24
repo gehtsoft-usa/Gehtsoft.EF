@@ -8,6 +8,8 @@ using Gehtsoft.EF.Db.SqliteDb;
 using Gehtsoft.EF.Entities;
 using Xunit;
 
+#pragma warning disable CS0618 // this suite deliberately exercises the obsolete CreateEntityController shim
+
 namespace Gehtsoft.EF.Test.Entity.Query
 {
     /// <summary>

@@ -299,7 +299,7 @@ namespace Gehtsoft.EF.Test.Entity.Query
                     var p = ss.Products.First(p => p.ProductID == id);
                     var c = ss.Categories.First(c => c.CategoryID == p.Category.CategoryID);
 
-                    n.Should().Be(c.CategoryName.Substring(0, 2) + p.ProductName.Substring(0, 3));
+                    n.Should().Be(string.Concat(c.CategoryName.AsSpan(0, 2), p.ProductName.AsSpan(0, 3)));
                 }
             }
         }

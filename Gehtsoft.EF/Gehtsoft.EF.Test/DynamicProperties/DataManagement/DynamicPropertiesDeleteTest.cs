@@ -151,6 +151,9 @@ namespace Gehtsoft.EF.Test.DynamicProperties.DataManagement
                 q.Execute(e);
             using (var q = connection.GetDeleteEntityQuery<PlainOwner>())
                 q.Execute(e);
+
+            using (var q = connection.GetSelectEntitiesCountQuery<PlainOwner>())
+                q.RowCount.Should().Be(0);
         }
 
         [Fact]

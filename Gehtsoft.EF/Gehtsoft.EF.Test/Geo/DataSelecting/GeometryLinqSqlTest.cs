@@ -100,5 +100,132 @@ namespace Gehtsoft.EF.Test.Geo.DataSelecting
                 sql.Should().Contain(", 4326)");
             }
         }
+
+        [Fact]
+        public void Where_Contains_RendersStContains()
+        {
+            var provider = Provider(out var connection);
+            using (connection)
+            {
+                byte[] wkb = { 1 };
+                var query = provider.CompileToQuery<GeoLinq>(connection, e => e.Where(s => SqlSpatial.Contains(s.Shape, wkb)));
+                query.Query.Builder.PrepareQuery();
+                query.Query.Builder.Query.Should().Contain("ST_Contains(");
+            }
+        }
+
+        [Fact]
+        public void Where_Within_RendersStWithin()
+        {
+            var provider = Provider(out var connection);
+            using (connection)
+            {
+                byte[] wkb = { 1 };
+                var query = provider.CompileToQuery<GeoLinq>(connection, e => e.Where(s => SqlSpatial.Within(s.Shape, wkb)));
+                query.Query.Builder.PrepareQuery();
+                query.Query.Builder.Query.Should().Contain("ST_Within(");
+            }
+        }
+
+        [Fact]
+        public void Where_Disjoint_RendersStDisjoint()
+        {
+            var provider = Provider(out var connection);
+            using (connection)
+            {
+                byte[] wkb = { 1 };
+                var query = provider.CompileToQuery<GeoLinq>(connection, e => e.Where(s => SqlSpatial.Disjoint(s.Shape, wkb)));
+                query.Query.Builder.PrepareQuery();
+                query.Query.Builder.Query.Should().Contain("ST_Disjoint(");
+            }
+        }
+
+        [Fact]
+        public void Where_Touches_RendersStTouches()
+        {
+            var provider = Provider(out var connection);
+            using (connection)
+            {
+                byte[] wkb = { 1 };
+                var query = provider.CompileToQuery<GeoLinq>(connection, e => e.Where(s => SqlSpatial.Touches(s.Shape, wkb)));
+                query.Query.Builder.PrepareQuery();
+                query.Query.Builder.Query.Should().Contain("ST_Touches(");
+            }
+        }
+
+        [Fact]
+        public void Where_Overlaps_RendersStOverlaps()
+        {
+            var provider = Provider(out var connection);
+            using (connection)
+            {
+                byte[] wkb = { 1 };
+                var query = provider.CompileToQuery<GeoLinq>(connection, e => e.Where(s => SqlSpatial.Overlaps(s.Shape, wkb)));
+                query.Query.Builder.PrepareQuery();
+                query.Query.Builder.Query.Should().Contain("ST_Overlaps(");
+            }
+        }
+
+        [Fact]
+        public void Where_Crosses_RendersStCrosses()
+        {
+            var provider = Provider(out var connection);
+            using (connection)
+            {
+                byte[] wkb = { 1 };
+                var query = provider.CompileToQuery<GeoLinq>(connection, e => e.Where(s => SqlSpatial.Crosses(s.Shape, wkb)));
+                query.Query.Builder.PrepareQuery();
+                query.Query.Builder.Query.Should().Contain("ST_Crosses(");
+            }
+        }
+
+        [Fact]
+        public void Where_SpatialEquals_RendersStEquals()
+        {
+            var provider = Provider(out var connection);
+            using (connection)
+            {
+                byte[] wkb = { 1 };
+                var query = provider.CompileToQuery<GeoLinq>(connection, e => e.Where(s => SqlSpatial.SpatialEquals(s.Shape, wkb)));
+                query.Query.Builder.PrepareQuery();
+                query.Query.Builder.Query.Should().Contain("ST_Equals(");
+            }
+        }
+
+        [Fact]
+        public void Select_Length_RendersStLength()
+        {
+            var provider = Provider(out var connection);
+            using (connection)
+            {
+                var query = provider.CompileToQuery<GeoLinq>(connection, e => e.Select(s => new { s.Name, L = SqlSpatial.Length(s.Shape) }));
+                query.Query.Builder.PrepareQuery();
+                query.Query.Builder.Query.Should().Contain("ST_Length(");
+            }
+        }
+
+        [Fact]
+        public void Select_X_RendersStX()
+        {
+            var provider = Provider(out var connection);
+            using (connection)
+            {
+                var query = provider.CompileToQuery<GeoLinq>(connection, e => e.Select(s => new { s.Name, X = SqlSpatial.X(s.Shape) }));
+                query.Query.Builder.PrepareQuery();
+                query.Query.Builder.Query.Should().Contain("ST_X(");
+            }
+        }
+
+        [Fact]
+        public void Select_Y_RendersStY()
+        {
+            var provider = Provider(out var connection);
+            using (connection)
+            {
+                var query = provider.CompileToQuery<GeoLinq>(connection, e => e.Select(s => new { s.Name, Y = SqlSpatial.Y(s.Shape) }));
+                query.Query.Builder.PrepareQuery();
+                query.Query.Builder.Query.Should().Contain("ST_Y(");
+            }
+        }
     }
 }

@@ -37,6 +37,7 @@ namespace Gehtsoft.EF.Entities
     /// <summary>
     /// The logical operator identifiers.
     /// </summary>
+#pragma warning disable S2342 // public API enum name; renaming LogOp is a breaking change
     [Flags]
     public enum LogOp
     {
@@ -57,6 +58,7 @@ namespace Gehtsoft.EF.Entities
         /// </summary>
         Or = 4,
     }
+#pragma warning restore S2342
 
     /// <summary>
     /// Comparison operations

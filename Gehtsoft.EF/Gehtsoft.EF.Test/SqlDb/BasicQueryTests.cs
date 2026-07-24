@@ -1228,7 +1228,7 @@ namespace Gehtsoft.EF.Test.SqlDb
                 await query.ReadNextAsync();
                 using var s = query.GetStream(1);
                 using var ms = new MemoryStream();
-                await s.CopyToAsync(ms);
+                await s.CopyToAsync(ms, TestContext.Current.CancellationToken);
                 var buff = ms.ToArray();
                 buff.Should().HaveCount(1024);
                 for (int i = 0; i < 1024; i++)
