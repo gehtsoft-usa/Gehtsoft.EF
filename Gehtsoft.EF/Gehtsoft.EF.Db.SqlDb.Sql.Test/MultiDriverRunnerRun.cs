@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AwesomeAssertions;
 using Gehtsoft.EF.Db.SqlDb.Sql.CodeDom;
 using Gehtsoft.EF.Entities;
 using Gehtsoft.EF.Northwind;
 using Microsoft.Extensions.Configuration;
 using Xunit;
+
+#pragma warning disable xUnit1042 // object[]-based MemberData source (connection rows) is intentional
 
 namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 {
@@ -33,7 +36,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
         [Theory]
         [MemberData(nameof(Connections))]
-        public void InsertUpdateDelete_AcrossDrivers(string name, string driver, string connectionString)
+        public async Task InsertUpdateDelete_AcrossDrivers(string name, string driver, string connectionString)
         {
             ISqlDbConnectionFactory factory;
             SqlDbConnection connection;
@@ -54,7 +57,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
                 // autoincrement sequence, so the INSERT returns id 1 uniformly - no per-driver sequence
                 // realignment, and the Oracle "value returned as an output parameter" path is exercised.
                 Snapshot snapshot = new Snapshot();
-                snapshot.CreateTablesAsync(connection).ConfigureAwait(true).GetAwaiter().GetResult();
+                await snapshot.CreateTablesAsync(connection);
 
                 EntityFinder.EntityTypeInfo[] entities = EntityFinder.FindEntities(new[] { typeof(Snapshot).Assembly }, "northwind", false);
                 SqlCodeDomBuilder domBuilder = new SqlCodeDomBuilder();
@@ -87,7 +90,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
         [Theory]
         [MemberData(nameof(Connections))]
-        public void InsertFromSelect_AcrossDrivers(string name, string driver, string connectionString)
+        public async Task InsertFromSelect_AcrossDrivers(string name, string driver, string connectionString)
         {
             ISqlDbConnectionFactory factory;
             SqlDbConnection connection;
@@ -104,7 +107,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
 
             try
             {
-                new Snapshot().CreateTablesAsync(connection).ConfigureAwait(true).GetAwaiter().GetResult();
+                await new Snapshot().CreateTablesAsync(connection);
 
                 EntityFinder.EntityTypeInfo[] entities = EntityFinder.FindEntities(new[] { typeof(Snapshot).Assembly }, "northwind", false);
                 SqlCodeDomBuilder domBuilder = new SqlCodeDomBuilder();

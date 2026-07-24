@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
     internal class DeleteRunner : SqlStatementRunner<SqlDeleteStatement>
     {
         private readonly SqlCodeDomBuilder mBuilder;
-        private SqlDbConnection mConnection = null;
+        private readonly SqlDbConnection mConnection = null;
         private SqlDeleteStatement mDelete;
         private DeleteQueryBuilder mDeleteBuilder = null;
 

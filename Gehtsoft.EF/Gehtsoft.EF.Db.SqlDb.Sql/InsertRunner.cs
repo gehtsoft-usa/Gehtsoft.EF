@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
     internal class InsertRunner : SqlStatementRunner<SqlInsertStatement>
     {
         private readonly SqlCodeDomBuilder mBuilder;
-        private SqlDbConnection mConnection = null;
+        private readonly SqlDbConnection mConnection = null;
         private SqlInsertStatement mInsert;
         private InsertQueryBuilder mInsertSimpleBuilder = null;
         private InsertSelectQueryBuilder mInsertSelectBuilder = null;

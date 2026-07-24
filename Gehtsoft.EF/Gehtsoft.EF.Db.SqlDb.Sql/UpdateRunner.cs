@@ -15,7 +15,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
     internal class UpdateRunner : SqlStatementRunner<SqlUpdateStatement>
     {
         private readonly SqlCodeDomBuilder mBuilder;
-        private SqlDbConnection mConnection = null;
+        private readonly SqlDbConnection mConnection = null;
         private SqlUpdateStatement mUpdate;
         private UpdateQueryBuilder mUpdateBuilder = null;
 
