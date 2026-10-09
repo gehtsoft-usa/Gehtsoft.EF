@@ -293,6 +293,10 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql
                 joinedTable.TryExpression();
                 joinedTable.BuilderEntity.On.Add(LogOp.And, GetStrExpression(joinedTable.JoinCondition));
             }
+            else if (table is SqlAutoJoinedTable autoJoinedTable)
+            {
+                ReDiveTableSpecification(autoJoinedTable.LeftTable);
+            }
         }
 
         private void ReProcessFrom(SqlFromClause fromClause)

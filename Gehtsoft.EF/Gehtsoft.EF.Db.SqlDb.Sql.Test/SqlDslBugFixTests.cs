@@ -304,5 +304,88 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
             dynamic result = func(null);
             ((int)result).Should().Be(0);
         }
+
+        // Bug fix: a qualified JOIN on the left side of an AUTO JOIN lost its ON condition
+
+        private int CountRows(string sql)
+        {
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
+            var func = environment.Parse("test", sql);
+            dynamic result = func(null);
+            return (int)result.Count;
+        }
+
+        [Fact]
+        public void QualifiedJoinFollowedByAutoJoin()
+        {
+            int expected = CountRows(
+                "SELECT OrderDetail.Quantity FROM OrderDetail " +
+                "INNER JOIN Order ON OrderDetail.Order = Order.OrderID " +
+                "INNER JOIN Customer ON Order.Customer = Customer.CustomerID");
+
+            SqlCodeDomEnvironment environment = DomBuilder.NewEnvironment(connection);
+            var func = environment.Parse("test",
+                "SELECT OrderDetail.Quantity, Order.OrderDate, Customer.CompanyName FROM OrderDetail " +
+                "INNER JOIN Order ON OrderDetail.Order = Order.OrderID " +
+                "AUTO JOIN Customer"
+            );
+            dynamic result = func(null);
+
+            expected.Should().BeGreaterThan(0);
+            ((int)result.Count).Should().Be(expected);
+            string companyName = (string)(result[0].CompanyName);
+            string.IsNullOrWhiteSpace(companyName).Should().BeFalse();
+        }
+
+        [Fact]
+        public void QualifiedJoinConditionIsAppliedUnderAutoJoin()
+        {
+            int unfiltered = CountRows(
+                "SELECT OrderDetail.Quantity FROM OrderDetail " +
+                "INNER JOIN Order ON OrderDetail.Order = Order.OrderID " +
+                "AUTO JOIN Customer");
+            int filtered = CountRows(
+                "SELECT OrderDetail.Quantity FROM OrderDetail " +
+                "INNER JOIN Order ON OrderDetail.Order = Order.OrderID AND OrderDetail.Quantity > 100 " +
+                "AUTO JOIN Customer");
+            int expected = CountRows("SELECT Quantity FROM OrderDetail WHERE Quantity > 100");
+
+            filtered.Should().Be(expected);
+            filtered.Should().BeLessThan(unfiltered);
+        }
+
+        [Fact]
+        public void QualifiedJoinNestedBetweenAutoJoins()
+        {
+            int expected = CountRows(
+                "SELECT OrderDetail.Quantity FROM OrderDetail " +
+                "INNER JOIN Order ON OrderDetail.Order = Order.OrderID " +
+                "INNER JOIN Customer ON Order.Customer = Customer.CustomerID " +
+                "INNER JOIN Employee ON Order.Employee = Employee.EmployeeID");
+
+            int actual = CountRows(
+                "SELECT OrderDetail.Quantity, Employee.FirstName FROM OrderDetail " +
+                "AUTO JOIN Order " +
+                "INNER JOIN Customer ON Order.Customer = Customer.CustomerID " +
+                "AUTO JOIN Employee");
+
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void AutoJoinFollowedByQualifiedJoin()
+        {
+            int expected = CountRows(
+                "SELECT OrderDetail.Quantity FROM OrderDetail " +
+                "INNER JOIN Order ON OrderDetail.Order = Order.OrderID " +
+                "INNER JOIN Customer ON Order.Customer = Customer.CustomerID");
+
+            int actual = CountRows(
+                "SELECT OrderDetail.Quantity FROM OrderDetail " +
+                "AUTO JOIN Order " +
+                "INNER JOIN Customer ON Order.Customer = Customer.CustomerID");
+
+            actual.Should().Be(expected);
+        }
     }
 }

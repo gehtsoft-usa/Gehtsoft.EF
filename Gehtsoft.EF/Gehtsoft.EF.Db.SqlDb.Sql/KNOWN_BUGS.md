@@ -14,13 +14,13 @@
 
 Both validation error messages read `"Parameter of OPEN CURSOR ..."` — copy-paste from `OpenCursorStatement`. When `CLOSE CURSOR ?x` is given a non-cursor or non-global-variable argument, the reported error names the wrong statement. Should say "CLOSE CURSOR". Characterization tests assert only the shared substring `"not declared as CURSOR"` to avoid enshrining the wrong word.
 
-### 4. Mixing a qualified JOIN with an AUTO JOIN generates invalid SQL
-
-**File:** `SelectRunner.cs` (SQL generation for `FROM ... INNER JOIN ... AUTO JOIN ...`)
-
-`SELECT ... FROM A INNER JOIN B ON ... AUTO JOIN C` parses and builds a valid Code DOM (the AUTO JOIN's left side is the qualified join — `SqlAutoJoinedTable:35-37`), but executing it throws `SQLite Error 1: 'no such column: INNER'` — the join-type keyword leaks into the generated SQL. This is a SQL-generation defect in `SelectRunner`, not in the parse/DOM layer, so it is out of scope for the Hime→ANTLR walker rewrite. Characterization test `NestedQualifiedJoin_AsLeftOfAutoJoin_Parses` asserts only that Code-DOM construction succeeds.
-
 ## Fixed
+
+### Mixing a qualified JOIN with an AUTO JOIN generated invalid SQL
+
+**File:** `SelectRunner.cs`
+
+`SELECT ... FROM A INNER JOIN B ON ... AUTO JOIN C` failed at execution with `SQLite Error 1: 'no such column: INNER'`. Qualified-join ON conditions are added in a second pass (`ReDiveTableSpecification`, after the select list is processed), but that pass only recursed through `SqlQualifiedJoinedTable` and stopped at `SqlAutoJoinedTable`, so a qualified join on the left side of an AUTO JOIN was emitted with an empty `ON` and the next join keyword was read as its condition. Fixed by recursing into the AUTO JOIN's left side. Tests `QualifiedJoinFollowedByAutoJoin`, `QualifiedJoinConditionIsAppliedUnderAutoJoin`, `QualifiedJoinNestedBetweenAutoJoins`.
 
 ### Qualified JOIN without an explicit join type failed to parse
 

@@ -224,9 +224,7 @@ namespace Gehtsoft.EF.Db.SqlDb.Sql.Test
         {
             // Pins the DOM-construction branch where the left side of an AUTO JOIN is itself a
             // qualified join (SqlAutoJoinedTable:35-37) — exercised during Parse.
-            // NOTE: executing this currently generates invalid SQL ("no such column: INNER");
-            // see KNOWN_BUGS.md #4. That is a SelectRunner SQL-generation defect, out of scope
-            // for the walker rewrite, so we only assert that Code-DOM construction succeeds.
+            // Execution of this shape is covered by SqlDslBugFixTests.QualifiedJoinFollowedByAutoJoin.
             var act = () => Env().Parse("test",
                 "SELECT OrderDetail.Quantity FROM OrderDetail " +
                 "INNER JOIN Order ON OrderDetail.Order = Order.OrderID " +
